@@ -1,0 +1,14 @@
+.fl-widget-provider {
+  width: 100%;
+  border: 0;
+  background-color: transparent;
+}
+
+.dynamic-list-widget-holder {
+  padding: 15px 0;
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  top: 0;
+  bottom: 0;
+}

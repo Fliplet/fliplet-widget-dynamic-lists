@@ -1,0 +1,49 @@
+{
+  "name": "Dynamic lists",
+  "package": "com.fliplet.dynamic-lists",
+  "version": "1.0.0",
+  "icon": "img/icon.png",
+  "tags": ["type:component", "category:advanced"],
+  "provider_only": false,
+  "providers": [
+    "com.fliplet.file-manager",
+    "com.fliplet.link"
+  ],
+  "interface": {
+    "dependencies": [
+      "fliplet-core",
+      "fliplet-datasources",
+      "fliplet-studio-ui",
+      "fliplet-media",
+      "bootstrap",
+      "animate-css",
+    ],
+    "assets": [
+      "js/interface.js",
+      "css/interface.css"
+    ]
+  },
+  "build": {
+    "dependencies": [
+      "fliplet-core",
+      "fliplet-datasources",
+      "font-awesome",
+      "bootstrap",
+      "moment",
+      "lodash",
+      "handlebars",
+      "animate-css",
+    ],
+    "assets": [
+      "mixitup.min.js",
+      "mixitup-multifilter.min.js",
+      "js/build.js",
+      "style.css",
+      "css/build.css"
+    ]
+  },
+  "references": [
+    "action.page:page",
+    "image.id:mediaFile"
+  ]
+}
