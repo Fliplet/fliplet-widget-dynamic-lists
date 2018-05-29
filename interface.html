@@ -1,23 +1,303 @@
 <div class="dynamic-list-widget-holder">
-  <header>
-    <p>Configure your image</p>
-  </header>
-
-  <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active" id="browse-control"><a href="#browse" data-toggle="tab">Select Image</a></li>
-    <li role="presentation" class="{{#unless image}}disabled{{/unless}}" id="image-editor-control"><a href="#image-editor" data-toggle="tab">Image Editor</a></li>
-    <li role="presentation" class="{{#unless image}}disabled{{/unless}}" id="interactive-control"><a href="#interactive" data-toggle="tab">Interactive</a></li>
-  </ul>
-
-  <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="browse">
-      
+  <div class="layouts-tab state present loading">
+    <header>
+      <p>Select a layout</p>
+    </header>
+    <div class="state-wrapper">
+      <div class="loading-holder">
+        <div class="spinner-holder animated">
+          <div class="spinner-overlay">Loading...</div>
+          <p>Loading...</p>
+        </div>
+      </div>
+      <div class="layouts-flex">
+        <div class="layout-holder" data-layout="news-feed">
+          <div class="layout-info">
+            <p class="title">Cards with description</p>
+          </div>
+          <div class="image-holder">
+            <div class="selected-screen">
+              <i class="fa fa-check-circle"></i>
+              <div class="layout-info">
+                <p>Expandable card style suitable for a news feed.</p>
+              </div>
+            </div>
+            <img src="http://via.placeholder.com/375x667" />
+          </div>
+        </div>
+        <div class="layout-holder" data-layout="card-feed">
+          <div class="layout-info">
+            <p class="title">Full image cards</p>
+          </div>
+          <div class="image-holder">
+            <div class="selected-screen">
+              <i class="fa fa-check-circle"></i>
+              <div class="layout-info">
+                <p>Expandable card style suitable for feeds with rich media content.</p>
+              </div>
+            </div>
+            <img src="http://via.placeholder.com/375x667" />
+          </div>
+        </div>
+        <div class="layout-holder" data-layout="agenda">
+          <div class="layout-info">
+            <p class="title">Agenda</p>
+          </div>
+          <div class="image-holder">
+            <div class="selected-screen">
+              <i class="fa fa-check-circle"></i>
+              <div class="layout-info">
+                <p>A list of small expandable cards with date slider.</p>
+              </div>
+            </div>
+            <img src="http://via.placeholder.com/375x667" />
+          </div>
+        </div>
+        <div class="layout-holder" data-layout="small-card">
+          <div class="layout-info">
+            <p class="title">Small expandable cards</p>
+          </div>
+          <div class="image-holder">
+            <div class="selected-screen">
+              <i class="fa fa-check-circle"></i>
+              <div class="layout-info">
+                <p>Suitable for directories of people.</p>
+              </div>
+            </div>
+            <img src="http://via.placeholder.com/375x667" />
+          </div>
+        </div>
+        <div class="layout-holder" data-layout="horizontal-card">
+          <div class="layout-info">
+            <p class="title">Horizontal list of small cards</p>
+          </div>
+          <div class="image-holder">
+            <div class="selected-screen">
+              <i class="fa fa-check-circle"></i>
+              <div class="layout-info">
+                <p>An horizontal scrollable list of small expandable cards.</p>
+              </div>
+            </div>
+            <img src="http://via.placeholder.com/375x667" />
+          </div>
+        </div>
+      </div>
     </div>
-    <div role="tabpanel" class="tab-pane" id="image-editor">
-      
+  </div>
+  <div class="settings-tab state future">
+    <header>
+      <p>Configure your list</p>
+    </header>
+    <div class="state-wrapper">
+      <form class="settings-form">
+        <!-- HIDE SELECTION OF DATA SOURCES
+        <div class="form-group clearfix">
+          <div class="col-sm-4 control-label">
+            <label for="select-menu">Select a data source for your list</label>
+          </div>
+          <div class="col-sm-8">
+            <label for="select_datasource" class="select-proxy-display">
+              <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>
+                <option value="none">-- Select a data source</option>
+                <option disabled>------</option>
+                <option value="new">Create a new data source</option>
+                <option disabled>------</option>
+              </select>
+              <span class="icon fa fa-chevron-down"></span>
+              <span class="select-value-proxy">-- Please wait</span>
+            </label>
+            <small id="manage-data" class="hidden"><a href="#">Edit data source</a></small>
+          </div>
+        </div>
+        -->
+        <div class="form-group clearfix">
+          <div class="col-sm-4 control-label">
+            <label>Data source to power your list</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="create-holder">
+              <div class="btn btn-default" data-create-datasource>Create list data</div>
+            </div>
+            <div class="edit-holder hidden">
+              <div class="btn btn-default" data-edit-datasource>Edit list data</div>
+              <p class="text-helper selected-datasource"><strong>Data selected:</strong> <span></span></p>
+            </div>
+          </div>
+        </div>
+        <div class="form-group clearfix disabled">
+          <div class="col-sm-4 control-label">
+            <label>Pre sort your list</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="sort-panels-holder empty">
+              <div class="add-sort-panel" data-add-sort-panel><i class="fa fa-plus-circle"></i> Add a new sort condition</div>
+              <div class="panel-group ui-sortable" id="sort-accordion">
+                <!-- Panels will be added here -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group clearfix disabled">
+          <div class="col-sm-4 control-label">
+            <label>Pre filter your list</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="filter-panels-holder empty">
+              <div class="add-filter-panel" data-add-filter-panel><i class="fa fa-plus-circle"></i> Add a new filter</div>
+              <div class="panel-group ui-sortable" id="filter-accordion">
+                <!-- Panels will be added here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group clearfix disabled">
+          <div class="col-sm-4 control-label">
+            <label>List search</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-search">
+              <label for="enable-search">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to search list items
+              </label>
+            </div>
+
+            <div class="search-fields hidden">
+
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group clearfix disabled">
+          <div class="col-sm-4 control-label">
+            <label>List filters</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-filters">
+              <label for="enable-filters">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to filter the list
+              </label>
+            </div>
+
+            <div class="filter-fields hidden">
+              
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group clearfix disabled">
+          <div class="col-sm-4 control-label">
+            <label>Social features</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-likes">
+              <label for="enable-likes">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to like list items
+              </label>
+            </div>
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-bookmarks">
+              <label for="enable-bookmarks">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to bookmark list items
+              </label>
+            </div>
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-comments">
+              <label for="enable-comments">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to comment on list items
+              </label>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="form-group clearfix">
+          <div class="col-sm-4 control-label">
+            <label>Advanced settings</label>
+            <p class="text-helper">Advanced settings allows you to completely edit the list templates, styles and javascript code.</p>
+          </div>
+          <div class="btn btn-default" data-advanced>Go to advanced settings <i class="fa fa-angle-right"></i></div>
+        </div>
+
+      </form>
     </div>
-    <div role="tabpanel" class="tab-pane" id="interactive">
-      
+  </div>
+  <div class="advanced-tab state future">
+    <header>
+      <div class="title-holder">
+        <p>Advanced settings</p>
+        <div class="btn btn-sm btn-default" data-edit-datasource>Edit list data</div>
+      </div>
+      <div class="secondary-holder">
+        <div class="btn btn-sm btn-danger" data-reset-default>Reset to default settings</div>
+      </div>
+    </header>
+    <div class="state-wrapper">
+      <div class="hidden" data-news-feed-css-url="{{ asset 'css/layout-css/news-feed-style.css' }}"></div>
+      <div class="hidden" data-news-feed-js-url="{{ asset 'js/layout-javascript/news-feed-code.js' }}"></div>
+      <div class="hidden" data-small-card-css-url="{{ asset 'css/layout-css/small-card-style.css' }}"></div>
+      <div class="hidden" data-small-card-js-url="{{ asset 'js/layout-javascript/small-card-code.js' }}"></div>
+      <div class="alert alert-warning" role="alert"><strong>Important:</strong> If you opt in to edit any of the sections (Templates, CSS, JavaScript) you will be responsible for maintaining the list and its code, and any bugs that Fliplet fixes might not be applied to your list.</div>
+      <ul class="nav nav-tabs advanced-tabs-level-one">
+        <li role="presentation" class="active"><a href="#templates" data-toggle="tab">HTML</a></li>
+        <li role="presentation"><a href="#css" data-toggle="tab">CSS</a></li>
+        <li role="presentation"><a href="#javascript" data-toggle="tab">JavaScript</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="templates">
+          <div class="checkbox checkbox-icon">
+            <input type="checkbox" id="enable-templates">
+            <label for="enable-templates">
+              <span class="check"><i class="fa fa-check"></i></span> I want to edit the list HTML template
+            </label>
+          </div>
+
+          <div class="editor-holder enable-templates disabled">
+            <ul class="nav nav-tabs advanced-tabs-level-two">
+              <li role="presentation" class="active"><a href="#loop" data-toggle="tab">List loop</a></li>
+              <li class="date-loop-item hidden" role="presentation"><a href="#other-loop" data-toggle="tab">Date loop</a></li>
+              <li role="presentation"><a href="#base" data-toggle="tab">Base</a></li>
+            </ul>
+
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="loop">
+                <textarea id="loop-template" data-type="htmlmixed"></textarea>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="other-loop">
+                <textarea id="other-loop-template" data-type="htmlmixed"></textarea>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="base">
+                <textarea id="base-template" data-type="htmlmixed"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="css">
+          <div class="checkbox checkbox-icon">
+            <input type="checkbox" id="enable-css">
+            <label for="enable-css">
+              <span class="check"><i class="fa fa-check"></i></span> I want to edit the list CSS
+            </label>
+          </div>
+          <div class="editor-holder enable-css disabled">
+            <textarea id="css-styles" data-type="css"></textarea>
+          </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="javascript">
+          <div class="checkbox checkbox-icon">
+            <input type="checkbox" id="enable-javascript">
+            <label for="enable-javascript">
+              <span class="check"><i class="fa fa-check"></i></span> I want to edit the list JavaScript
+            </label>
+          </div>
+          <div class="editor-holder enable-javascript disabled">
+            <textarea id="js-code" data-type="javascript"></textarea>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

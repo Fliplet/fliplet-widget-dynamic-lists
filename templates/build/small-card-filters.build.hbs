@@ -1,0 +1,12 @@
+{{#each this}}
+<div class="hidden-filter-controls-label">Filter by <span>{{[name]}}</span></div>
+<div class="hidden-filter-controls-filter-container">
+  <div class="hidden-filter-controls-filter-wrapper">
+    <fieldset data-filter-group>
+      {{#each [data]}}
+      <div class="btn hidden-filter-controls-filter" data-toggle="{{[class]}}">\{{[name]}}</div>
+      {{/each}}
+    </fieldset>
+  </div>
+</div>
+{{/each}}

@@ -14,12 +14,34 @@
       "fliplet-core",
       "fliplet-datasources",
       "fliplet-studio-ui",
-      "fliplet-media",
+      "jquery-ui",
       "bootstrap",
       "animate-css",
+      "handlebars",
+      "codemirror"
     ],
     "assets": [
+      "vendor/codemirror/lib/codemirror.css",
+      "vendor/codemirror/mode/htmlmixed/htmlmixed.js",
+      "vendor/codemirror/mode/css/css.js",
+      "vendor/codemirror/addon/fold/foldgutter.css",
+      "vendor/codemirror/addon/fold/foldgutter.js",
+      "vendor/codemirror/addon/fold/foldcode.js",
+      "vendor/codemirror/addon/fold/brace-fold.js",
+      "vendor/codemirror/addon/fold/comment-fold.js",
+      "vendor/codemirror/addon/fold/indent-fold.js",
+      "vendor/codemirror/addon/fold/xml-fold.js",
+      "vendor/codemirror/addon/format/formatting.js",
+      "vendor/codemirror/addon/display/autorefresh.js",
+      "vendor/codemirror/addon/edit/matchbrackets.js",
+      "vendor/codemirror/addon/selection/active-line.js",
+      "vendor/jquery-ui.min.css",
+      "vendor/bootstrap-tokenfield.min.css",
+      "vendor/bootstrap-tokenfield.min.js",
+      "js/interface.templates.js",
+      "js/build.templates.js",
       "js/interface.js",
+      "js/interface-lists.js",
       "css/interface.css"
     ]
   },
@@ -29,21 +51,27 @@
       "fliplet-datasources",
       "font-awesome",
       "bootstrap",
+      "jquery-ui",
       "moment",
       "lodash",
       "handlebars",
-      "animate-css",
+      "animate-css"
     ],
     "assets": [
-      "mixitup.min.js",
-      "mixitup-multifilter.min.js",
+      "js/build.templates.js",
+      "vendor/mixitup.min.js",
+      "vendor/mixitup-multifilter.min.js",
+      "vendor/clusterize.min.js",
+      "js/build-lists.js",
       "js/build.js",
-      "style.css",
-      "css/build.css"
+      "vendor/style.css",
+      "css/build.css",
+      "css/layout-css/small-card-style.css"
     ]
   },
   "references": [
     "action.page:page",
-    "image.id:mediaFile"
+    "image.id:mediaFile",
+    "source:dataSource"
   ]
 }

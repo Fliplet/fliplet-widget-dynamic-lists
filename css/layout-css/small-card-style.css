@@ -1,0 +1,456 @@
+/* SEARCH / FILTERS */
+.section-label-wrapper {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.section-label-wrapper .section-label {
+  padding: 0;
+}
+
+.directory-search-icon {
+  cursor: pointer;
+}
+
+.content-section .fa-search {
+  display: inline-block;
+  opacity: 0.3;
+  font-size: 20px;
+}
+
+.content-section .fa-search.active {
+  display: none;
+}
+
+.directory-search-cancel {
+  display: inline-block;
+  opacity: 0;
+  font-size: 20px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.content-section .fa-times {
+  text-decoration: none;
+}
+
+.directory-search-cancel.active {
+  opacity: 1;
+}
+
+.hidden-filter-controls {
+  height: 0;
+  overflow: hidden;
+}
+
+.hidden-filter-controls-content {
+  padding: 15px 0;
+}
+
+.hidden-filter-controls-search {
+  padding: 0;
+}
+
+.search-holder {
+  width: 100%;
+  position: relative;
+}
+
+.search-holder .fa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  color: #337ab7;
+  width: 38px;
+  height: 100%;
+  line-height: 38px;
+  text-align: center;
+}
+
+.search-holder .form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 20px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  padding: 8px 15px 8px 40px;
+  height: auto;
+}
+
+.search-holder .form-control:focus {
+  border-color: #337ab7;
+}
+
+.hidden-filter-controls-search .search-query-holder {
+  width: 100%;
+  display: none;
+  align-items: center;
+}
+
+.search-results .hidden-filter-controls-search .search-query-holder,
+.is-searching .hidden-filter-controls-search .search-query-holder {
+  display: block;
+}
+
+.search-results .hidden-filter-controls-search .search-holder,
+.is-searching .hidden-filter-controls-search .search-holder {
+  display: none;
+}
+
+.current-query-wrapper {
+  background-color: #337ab7;
+  border: 1px solid #337ab7;
+  cursor: pointer;
+  color: #ffffff;
+  padding: 8px 15px 8px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.current-query-wrapper .clear-search {
+  width: 40px;
+  margin-left: 10px;
+  text-align: right;
+  text-decoration: none;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.hidden-filter-controls-label {
+  font-size: 14px;
+  color: #aaaaaa;
+  padding: 15px 15px 5px 15px;
+}
+
+.hidden-filter-controls-label span {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.hidden-filter-controls-filter-container {
+  width: 100%;
+  display: flex;
+}
+
+.hidden-filter-controls-filter-wrapper {
+  padding: 0 15px 0 15px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.hidden-filter-controls-filter {
+  width: auto;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  padding: 8px 15px;
+  margin: 0 5px 0 0;
+  font-size: 14px;
+}
+
+.hidden-filter-controls-filter.mixitup-control-active {
+  background-color: #337ab7;
+  color: #ffffff;
+  border-color: #337ab7;
+}
+
+.hidden-filter-controls-filter:last-child {
+  margin: 0;
+}
+
+/* List */
+#directory-longlist-wrapper {
+  padding: 15px 0;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
+  outline: none;
+  display: none;
+}
+
+.ready #directory-longlist-wrapper {
+  display: block;
+}
+
+#directory-longlist-wrapper:focus {
+  outline: none;
+}
+
+.loading-data {
+  padding-top: 25px;
+  display: block;
+  text-align: center;
+  color: #ddd;
+}
+
+.ready .loading-data {
+  display: none;
+}
+
+.longlist-item {
+  width: 100%;
+  height: 80px;
+  margin: 0 0 15px 0;
+  display: flex;
+  align-items: center;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0px 6px 20px 0px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease-out;
+}
+
+.no-touchevents .longlist-item:active,
+.no-touchevents .longlist-item:focus,
+.no-touchevents .longlist-item:active:focus,
+.longlist-item.hover {
+  box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+}
+
+.longlist-image {
+  width: 60px;
+  height: 100%;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+}
+
+.longlist-image .directory-detail-image {
+  border-radius: 15px 0 0 15px;
+}
+
+.longlist-image .directory-detail-wrapper.open .directory-detail-image {
+  border-radius: 0;
+}
+
+.longlist-text-wrapper {
+  height: 100%;
+  padding: 0 0 0 15px;
+  flex: 1;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.longlist-name {
+  color: #333333;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.longlist-role {
+  color: #333333;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.longlist-location {
+  color: #333333;
+  opacity: 0.5;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.directory-detail-image-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: rgba(51,51,51,0.1);
+  background-color: rgba(51,51,51,0.04);
+}
+
+.directory-detail-image-wrapper .fa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+}
+
+.open .directory-detail-image-wrapper .fa {
+  font-size: 8em;
+}
+
+/* DIRECTORY DETAIL VIEW */
+
+.directory-detail-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #ffffff;
+}
+
+.directory-detail-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-position: center;
+  background-size: cover;
+}
+
+.directory-detail-image.open {
+  width: 100vw;
+  height: 100vw;
+}
+
+.directory-detail-close-btn {
+  opacity: 0;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  height: 28px;
+  width: 28px;
+  line-height: 27px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 50%;
+  color: #333333;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  z-index: 13;
+  pointer-events: none;
+}
+
+.directory-detail-close-btn.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.directory-detail-content-scroll-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  width: 100vw;
+  z-index: 12;
+  overflow: auto;
+  transition: all 0.2s ease-out;
+}
+
+.directory-detail-content-scroll-wrapper.open {
+  height: 100%;
+}
+
+.directory-detail-content-wrapper {
+  top: calc(100vw - 20px);
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  padding: 40px 15px 20px 15px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+.directory-detail-edit-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 15px;
+  height: 60px;
+  width: 60px;
+  opacity: 0.3;
+}
+
+.directory-detail-name {
+  margin-bottom: 20px;
+  font-size: 32px;
+  line-height: 1.3;
+  color: #333333;
+  font-weight: 700;
+  word-wrap: break-word;
+  position: relative;
+}
+
+.directory-detail-name:after {
+  content: '';
+  display: block;
+  width: 60%;
+  height: 4px;
+  background-color: #337ab7;
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+}
+
+.directory-detail-role {
+  margin: 0 0 5px 0;
+  font-size: 24px;
+  color: #333333;
+  opacity: 0.6;
+  font-weight: 500;
+}
+
+.directory-detail-location {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #333333;
+  opacity: 0.4;
+  font-weight: 500;
+}
+
+.directory-detail-buttons-wrapper {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+}
+
+.directory-detail-button {
+  width: 60px;
+  margin: 0 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.directory-detail-button a,
+.directory-detail-button a:hover,
+.directory-detail-button a:focus
+.directory-detail-button a:active,
+.directory-detail-button a:active:hover,
+.directory-detail-button a:active:focus {
+  color: #333333;
+  text-decoration: none;
+}
+
+.directory-detail-button .send-message {
+  cursor: pointer;
+}
+
+.directory-detail-button-image {
+  opacity: 0.3;
+  text-align: center;
+  font-size: 35px;
+}
+
+.directory-detail-button-text {
+  font-size: 10px;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.directory-detail-label {
+  font-size: 12px;
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin: 20px 0 0 0;
+}
