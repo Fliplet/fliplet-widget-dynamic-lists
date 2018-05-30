@@ -364,6 +364,10 @@ header .btn {
   display: flex;
 }
 
+.advanced-tab header .title-holder .btn + .btn {
+  margin-left: 5px;
+}
+
 .form-group.disabled {
   pointer-events: none;
   opacity: 0.5;
