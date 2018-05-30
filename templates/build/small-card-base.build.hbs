@@ -1,12 +1,23 @@
 <div class="content-section">
+  \{{#ifCond searchEnabled '||' filtersEnabled}}
   <div class="section-label-wrapper">
     <div class="directory-search-icon">
       <div class="directory-search-cancel"><span class="fa fa-times"></span></div>
+      \{{#ifCond searchEnabled '&&' filtersEnabled}}
       <i class="fa fa-search"></i>
+      \{{else}}
+        \{{#if searchEnabled}}
+        <i class="fa fa-search"></i>
+        \{{/if}}
+        \{{#if filtersEnabled}}
+        <i class="fa fa-filter"></i>
+        \{{/if}}
+      \{{/ifCond}}
     </div>
   </div>
   <div class="hidden-filter-controls">
     <div class="hidden-filter-controls-content">
+      \{{#if searchEnabled}}
       <div class="hidden-filter-controls-search">
         <div class="search-holder">
           <i class="fa fa-search"></i>
@@ -18,12 +29,16 @@
           </div>
         </div>
       </div>
+      \{{/if}}
+      \{{#if filtersEnabled}}
       <div class="filter-holder">
         <!-- Filters here -->
       </div>
+      \{{/if}}
     </div>
   </div>
-  <div id="directory-longlist-wrapper-\{{id}}">
+  \{{/ifCond}}
+  <div class="directory-longlist-wrapper" id="directory-longlist-wrapper-\{{id}}">
       <!-- Longlist content will appear here -->
   </div>
   <div class="loading-data">

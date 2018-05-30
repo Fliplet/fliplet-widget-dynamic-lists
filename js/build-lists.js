@@ -137,9 +137,39 @@ var DynamicLists = function(data, container) {
       });
   }
 
+  _this.registerHandlebarsHelpers();
   initialize();
   console.log(data);
   return this;
+}
+
+DynamicLists.prototype.registerHandlebarsHelpers = function() {
+  Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+    switch (operator) {
+      case '==':
+        return (v1 == v2) ? options.fn(this) : options.inverse(this);
+      case '===':
+        return (v1 === v2) ? options.fn(this) : options.inverse(this);
+      case '!=':
+        return (v1 != v2) ? options.fn(this) : options.inverse(this);
+      case '!==':
+        return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+      case '<':
+        return (v1 < v2) ? options.fn(this) : options.inverse(this);
+      case '<=':
+        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+      case '>':
+        return (v1 > v2) ? options.fn(this) : options.inverse(this);
+      case '>=':
+        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+      case '&&':
+        return (v1 && v2) ? options.fn(this) : options.inverse(this);
+      case '||':
+        return (v1 || v2) ? options.fn(this) : options.inverse(this);
+      default:
+        return options.inverse(this);
+    }
+  });
 }
 
 DynamicLists.prototype.init = function() {
@@ -218,7 +248,7 @@ DynamicLists.prototype.attachObservers = function() {
       var directoryDetailWrapper = $(this).parents('.directory-detail-wrapper');
       _this.collapseElement(directoryDetailWrapper);
     })
-    .on('click', '.directory-search-icon .fa-search', function() {
+    .on('click', '.directory-search-icon .fa-search, .directory-search-icon .fa-filter', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.content-section');
 
@@ -241,6 +271,7 @@ DynamicLists.prototype.attachObservers = function() {
         $elementClicked.removeClass('active');
         $parentElement.find('.directory-search-apply').removeClass('active');
         $parentElement.find('.directory-search-icon .fa-search').removeClass('active');
+        $parentElement.find('.directory-search-icon .fa-filter').removeClass('active');
         $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
       }
     })
@@ -283,7 +314,7 @@ DynamicLists.prototype.renderBaseHTML = function() {
 
 DynamicLists.prototype.renderLoopHTML = function(records) {
   var loopHTML = '';
-  var modifiedData = this.convertCategories(this.listItems);
+  var modifiedData = this.convertCategories(records);
 
   if (typeof this.data.layout !== 'undefined') {
     loopHTML = Fliplet.Widget.Templates[this.layoutMapping[this.data.layout]['loop']];
@@ -420,6 +451,7 @@ DynamicLists.prototype.searchData = function(value) {
       return;
     }
 
+    mixer.destroy();
     clusterize.destroy();
     // Remove duplicates
     searchedData = _.uniq(searchedData);
@@ -441,6 +473,7 @@ DynamicLists.prototype.clearSearch = function() {
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
 
   // Resets list
+  mixer.destroy();
   clusterize.destroy();
   _this.renderLoopHTML(_this.listItems);
   _this.init();

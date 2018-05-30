@@ -15,13 +15,18 @@
   cursor: pointer;
 }
 
-.content-section .fa-search {
+.directory-search-icon .fa {
   display: inline-block;
   opacity: 0.3;
   font-size: 20px;
+  width: 35px;
+  height: 35px;
+  text-align: right;
+  line-height: 35px;
 }
 
-.content-section .fa-search.active {
+.directory-search-icon .fa-search.active,
+.directory-search-icon .fa-filter.active {
   display: none;
 }
 
@@ -47,11 +52,11 @@
 }
 
 .hidden-filter-controls-content {
-  padding: 15px 0;
+  padding-bottom: 15px;
 }
 
 .hidden-filter-controls-search {
-  padding: 0;
+  padding: 15px 0;
 }
 
 .search-holder {
@@ -67,6 +72,7 @@
   color: #337ab7;
   width: 38px;
   height: 100%;
+  font-size: 1.2em;
   line-height: 38px;
   text-align: center;
 }
@@ -125,7 +131,7 @@
 .hidden-filter-controls-label {
   font-size: 14px;
   color: #aaaaaa;
-  padding: 15px 15px 5px 15px;
+  padding-bottom: 5px;
 }
 
 .hidden-filter-controls-label span {
@@ -164,18 +170,18 @@
 }
 
 /* List */
-#directory-longlist-wrapper {
+.directory-longlist-wrapper {
   padding: 15px 0;
   padding-bottom: calc(15px + env(safe-area-inset-bottom));
   outline: none;
   display: none;
 }
 
-.ready #directory-longlist-wrapper {
+.ready .directory-longlist-wrapper {
   display: block;
 }
 
-#directory-longlist-wrapper:focus {
+.directory-longlist-wrapper:focus {
   outline: none;
 }
 
