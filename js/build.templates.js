@@ -11,27 +11,11 @@ this["Fliplet"]["Widget"]["Templates"]["templates.build.cards-desc-loop"] = Hand
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-base"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div class=\"content-section\">\n  <div class=\"section-label-wrapper\">\n    <div class=\"directory-search-icon\">\n      <div class=\"directory-search-cancel\"><span class=\"fa fa-times\"></span></div>\n      <i class=\"fa fa-search\"></i>\n    </div>\n  </div>\n  <div class=\"hidden-filter-controls\">\n    <div class=\"hidden-filter-controls-content\">\n      <div class=\"hidden-filter-controls-search\">\n        <div class=\"search-holder\">\n          <i class=\"fa fa-search\"></i>\n          <input type=\"search\" name=\"search-feed\" class=\"form-control search-feed\" placeholder=\"Search...\">\n        </div>\n        <div class=\"search-query-holder\">\n          <div class=\"search-query\">\n          Searching for: <span class=\"current-query-wrapper\"><span class=\"current-query\"></span><span class=\"clear-search\"><i class=\"fa fa-times\"></i></span></span>\n          </div>\n        </div>\n      </div>\n      <div class=\"filter-holder\">\n        <!-- Filters here -->\n      </div>\n    </div>\n  </div>\n  <div id=\"directory-longlist-wrapper\">\n      <!-- Longlist content will appear here -->\n  </div>\n  <div class=\"loading-data\">\n    <i class=\"fa fa-circle-o-notch fa-spin\"></i> Loading...\n  </div>\n</div>";
+    return "<div class=\"content-section\">\n  <div class=\"section-label-wrapper\">\n    <div class=\"directory-search-icon\">\n      <div class=\"directory-search-cancel\"><span class=\"fa fa-times\"></span></div>\n      <i class=\"fa fa-search\"></i>\n    </div>\n  </div>\n  <div class=\"hidden-filter-controls\">\n    <div class=\"hidden-filter-controls-content\">\n      <div class=\"hidden-filter-controls-search\">\n        <div class=\"search-holder\">\n          <i class=\"fa fa-search\"></i>\n          <input type=\"search\" name=\"search-feed\" class=\"form-control search-feed\" placeholder=\"Search...\">\n        </div>\n        <div class=\"search-query-holder\">\n          <div class=\"search-query\">\n          Searching for: <span class=\"current-query-wrapper\"><span class=\"current-query\"></span><span class=\"clear-search\"><i class=\"fa fa-times\"></i></span></span>\n          </div>\n        </div>\n      </div>\n      <div class=\"filter-holder\">\n        <!-- Filters here -->\n      </div>\n    </div>\n  </div>\n  <div id=\"directory-longlist-wrapper-{{id}}\">\n      <!-- Longlist content will appear here -->\n  </div>\n  <div class=\"loading-data\">\n    <i class=\"fa fa-circle-o-notch fa-spin\"></i> Loading...\n  </div>\n</div>";
 },"useData":true});
 
-this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-filters"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {});
-
-  return "<div class=\"hidden-filter-controls-label\">Filter by <span>"
-    + container.escapeExpression(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
-    + "</span></div>\n<div class=\"hidden-filter-controls-filter-container\">\n  <div class=\"hidden-filter-controls-filter-wrapper\">\n    <fieldset data-filter-group>\n"
-    + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.data : depth0),{"name":"each","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "    </fieldset>\n  </div>\n</div>\n";
-},"2":function(container,depth0,helpers,partials,data) {
-    var helper;
-
-  return "      <div class=\"btn hidden-filter-controls-filter\" data-toggle=\""
-    + container.escapeExpression(((helper = (helper = helpers["class"] || (depth0 != null ? depth0["class"] : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"class","hash":{},"data":data}) : helper)))
-    + "\">{{[name]}}</div>\n";
-},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1;
-
-  return ((stack1 = helpers.each.call(depth0 != null ? depth0 : (container.nullContext || {}),depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "");
+this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-filters"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    return "{{#each this}}\n<div class=\"hidden-filter-controls-label\">Filter by <span>{{[name]}}</span></div>\n<div class=\"hidden-filter-controls-filter-container\">\n  <div class=\"hidden-filter-controls-filter-wrapper\">\n    <fieldset data-filter-group>\n      {{#each [data]}}\n      <div class=\"btn hidden-filter-controls-filter\" data-toggle=\"{{[class]}}\">{{[name]}}</div>\n      {{/each}}\n    </fieldset>\n  </div>\n</div>\n{{/each}}";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-loop"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
