@@ -120,13 +120,13 @@
             </div>
             <div class="edit-holder hidden">
               <div class="btn btn-default" data-edit-datasource>Edit list data</div>
-              <p class="text-helper selected-datasource"><strong>Data selected:</strong> <span></span></p>
+              <p class="text-helper selected-datasource hidden"><strong>Data selected:</strong> <span></span></p>
             </div>
           </div>
         </div>
         <div class="form-group clearfix disabled">
           <div class="col-sm-4 control-label">
-            <label>Pre sort your list</label>
+            <label>Sort your list before displaying it</label>
           </div>
           <div class="col-sm-8">
             <div class="sort-panels-holder empty">
@@ -139,7 +139,7 @@
         </div>
         <div class="form-group clearfix disabled">
           <div class="col-sm-4 control-label">
-            <label>Pre filter your list</label>
+            <label>Filter your list before displaying it</label>
           </div>
           <div class="col-sm-8">
             <div class="filter-panels-holder empty">
@@ -189,7 +189,7 @@
 
         <div class="form-group clearfix disabled in-progress">
           <div class="col-sm-4 control-label">
-            <label>Social features</label>
+            <label>Style specific settings</label>
           </div>
           <div class="col-sm-8">
             <div class="checkbox checkbox-icon">
@@ -216,7 +216,6 @@
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
             <label>Advanced settings</label>
-            <p class="text-helper">Advanced settings allows you to completely edit the list templates, styles and javascript code.</p>
           </div>
           <div class="col-sm-8">
             <div class="btn btn-default" data-advanced>Go to advanced settings <i class="fa fa-angle-right"></i></div>
@@ -238,10 +237,10 @@
       </div>
     </header>
     <div class="state-wrapper">
-      <div class="hidden" data-news-feed-css-url="{{ asset 'css/layout-css/news-feed-style.css' }}"></div>
-      <div class="hidden" data-news-feed-js-url="{{ asset 'js/layout-javascript/news-feed-code.js' }}"></div>
-      <div class="hidden" data-small-card-css-url="{{ asset 'css/layout-css/small-card-style.css' }}"></div>
-      <div class="hidden" data-small-card-js-url="{{ asset 'js/layout-javascript/small-card-code.js' }}"></div>
+      <div class="hidden" data-news-feed-css-url="{{ asset 'css/layout-css/news-feed-style.upload.css' }}"></div>
+      <div class="hidden" data-news-feed-js-url="{{ asset 'js/layout-javascript/news-feed-code.upload.js' }}"></div>
+      <div class="hidden" data-small-card-css-url="{{ asset 'css/layout-css/small-card-style.upload.css' }}"></div>
+      <div class="hidden" data-small-card-js-url="{{ asset 'js/layout-javascript/small-card-code.upload.js' }}"></div>
 
       <ul class="nav nav-tabs advanced-tabs-level-one">
         <li role="presentation" class="active"><a href="#templates" data-toggle="tab">HTML</a></li>
@@ -261,6 +260,7 @@
           <div class="editor-holder enable-templates disabled">
             <ul class="nav nav-tabs advanced-tabs-level-two">
               <li role="presentation" class="active"><a href="#loop" data-toggle="tab">List loop</a></li>
+              <li class="filter-loop-item hidden" role="presentation"><a href="#filter-loop" data-toggle="tab">Filter loop</a></li>
               <li class="date-loop-item hidden" role="presentation"><a href="#other-loop" data-toggle="tab">Date loop</a></li>
               <li role="presentation"><a href="#base" data-toggle="tab">Base</a></li>
             </ul>
@@ -268,6 +268,9 @@
             <div class="tab-content">
               <div role="tabpanel" class="tab-pane active" id="loop">
                 <textarea id="loop-template" data-type="htmlmixed"></textarea>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="filter-loop">
+                <textarea id="filter-loop-template" data-type="htmlmixed"></textarea>
               </div>
               <div role="tabpanel" class="tab-pane" id="other-loop">
                 <textarea id="other-loop-template" data-type="htmlmixed"></textarea>

@@ -1,5 +1,5 @@
 {
-  "name": "Dynamic lists",
+  "name": "List (from data source)",
   "package": "com.fliplet.dynamic-lists",
   "version": "1.0.0",
   "icon": "img/icon.png",
@@ -38,10 +38,6 @@
       "vendor/jquery-ui.min.css",
       "vendor/bootstrap-tokenfield.min.css",
       "vendor/bootstrap-tokenfield.min.js",
-      "js/layout-javascript/news-feed-code.js",
-      "js/layout-javascript/small-card-code.js",
-      "css/layout-css/news-feed-style.css",
-      "css/layout-css/small-card-style.css",
       "js/interface.templates.js",
       "js/build.templates.js",
       "js/interface.js",
@@ -67,10 +63,11 @@
       "vendor/mixitup-multifilter.min.js",
       "vendor/clusterize.min.js",
       "js/build-lists.js",
+      "js/layout-javascript/small-card-code.upload.js",
       "js/build.js",
       "vendor/style.css",
       "css/build.css",
-      "css/layout-css/small-card-style.css"
+      "css/layout-css/small-card-style.upload.css"
     ]
   },
   "references": [

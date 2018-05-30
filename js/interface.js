@@ -21,18 +21,21 @@ var DynamicLists = (function() {
   // ADD NEW MAPPING FOR ALL NEW STYLES THAT ARE ADDED
   var layoutMapping = {
     'news-feed': {
+      'name': 'Cards with description',
       'base': 'templates.build.cards-desc-base',
       'loop': 'templates.build.cards-desc-loop',
       'css': 'news-feed',
       'js': 'news-feed'
     },
     'card-feed': {
+      'name': 'Full image cards',
       'base': 'templates.build.cards-full-desc-base',
       'loop': 'templates.build.cards-full-desc-loop',
       'css': 'card-feed',
       'js': 'card-feed'
     },
     'agenda': {
+      'name': 'Agenda',
       'base': 'templates.build.agenda-base',
       'loop': 'templates.build.agenda-loop',
       'other-loop': 'templates.build.agenda-date-loop',
@@ -40,12 +43,15 @@ var DynamicLists = (function() {
       'js': 'agenda'
     },
     'small-card': {
+      'name': 'Small expandable cards',
       'base': 'templates.build.small-card-base',
       'loop': 'templates.build.small-card-loop',
+      'filter': 'templates.build.small-card-filters',
       'css': 'small-card',
       'js': 'small-card'
     },
     'horizontal-card': {
+      'name': 'Horizontal list of small cards',
       'base': 'templates.build.horizontal-card-base',
       'loop': 'templates.build.horizontal-card-loop',
       'css': 'horizontal-card',
@@ -55,41 +61,83 @@ var DynamicLists = (function() {
   
   var baseTemplateEditor;
   var loopTemplateEditor;
+  var filterLoopTemplateEditor;
   var otherLoopTemplateEditor;
   var cssStyleEditor
   var javascriptEditor
 
   var baseTemplateCode = '';
   var loopTemplateCode = '';
+  var filterLoopTemplateCode = '';
   var otherLoopTemplateCode = '';
   var cssCode = '';
   var jsCode = '';
 
   var $dataSources = $('[name="dataSource"]');
-  var defaultEntries = [
-    {
-      'Title': 'Welcome to the event',
-      'Date': 'Mon Apr 07 2018 11:52:58 GMT+0100 (BST)',
-      'Category': 'Welcome',
-      'Thumbnail': 'https://cdn.fliplet.com/apps/2659/1a29147f6fc247f69498b6caf2fe7b2c047-535-2457.jpg',
-      'Content': '<p>It\'s going to be a storm! We\'ve got a line-up of great speakers, social events and of course our very own prize ceremony.</p>'
-    },
-    {
-      'Title': 'Transport to and from',
-      'Date': 'Tue Apr 04 2018 11:52:58 GMT+0100 (BST)',
-      'Category': 'Transport',
-      'Thumbnail': 'https://cdn.fliplet.com/apps/2659/a0dd3ee6704619d292fba82dd6ec6c09062-448-5819.jpg',
-      'Content': '<p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nulla vitae elit libero, a pharetra augue.</p>'
-    },
-    {
-      'Title': 'Event highlights',
-      'Date': 'Mon Apr 02 2018 11:52:58 GMT+0100 (BST)',
-      'Category': 'Event',
-      'Thumbnail': 'https://cdn.fliplet.com/apps/2659/869c03d45f1abae359236fd2f6ac427e839-065-5941.jpg',
-      'Content': '<p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>'
+  var defaultSettings = {
+    'small-card': {
+      'filtersEnabled': true,
+      'filterFields': ['Location', 'Sectors', 'Expertize'],
+      'searchEnabled': true,
+      'searchFields': ['First Name', 'Last Name', 'Title'],
+      'sortOptions': [
+        {
+          'column': 'First Name',
+          'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize'],
+          'id': 'ajdmjZrT',
+          'orderBy': 'ascending',
+          'sortBy': 'alphabetical',
+          'title': 'Sort condition 1'
+        }
+      ]
     }
-  ];
-  var defaultColumns = ['Title', 'Date', 'Category', 'Thumbnail', 'Content'];
+  }
+  var defaultColumns = {
+    'small-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize']
+  };
+  var defaultEntries = {
+    'small-card': [
+      {
+        'First Name': 'Jane',
+        'Last Name': 'Smith',
+        'Title': 'Head of Marketing',
+        'Location': 'London',
+        'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+        'Email': 'jasmith@email.com',
+        'Telephone': '+440000000000',
+        'Linkedin': 'https://www.linkedin.com/in/user/',
+        'Bio': 'Candy crush marketer, wearable tech captain, tech whisperer. Deeper dives start here.',
+        'Sectors': 'Software, IT, Marketing, Design',
+        'Expertize': 'SEO'
+      },
+      {
+        'First Name': 'John',
+        'Last Name': 'Smith',
+        'Title': 'Head of Product',
+        'Location': 'London',
+        'Image': 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+        'Email': 'jsmith@email.com',
+        'Telephone': '+440000000000',
+        'Linkedin': 'https://www.linkedin.com/in/user/',
+        'Bio': 'MySpace ambassador, bitcoin virtuoso, android soothsayer. Beanie baby collector.',
+        'Sectors': 'Software, IT, Programming, Design, Development, Management',
+        'Expertize': 'Design'
+      },
+      {
+        'First Name': 'Mary',
+        'Last Name': 'Jane',
+        'Title': 'Consultant',
+        'Location': 'London',
+        'Image': 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+        'Email': 'jsmith@email.com',
+        'Telephone': '+440000000000',
+        'Linkedin': 'https://www.linkedin.com/in/user/',
+        'Bio': 'Content czar, BuzzFeed egghead-in-chief, interwebz sherpa. Burning the candle at both ends.',
+        'Sectors': 'Management, Finance, Business',
+        'Expertize': 'Business Management'
+      }
+    ]
+  };
 
   // Constructor
   function DynamicLists(configuration) {
@@ -125,8 +173,8 @@ var DynamicLists = (function() {
           $('.state.present').addClass('is-loading');
           // Create data source
           _this.createDataSourceFromLayout().then(function() {
-            // Then go to settings
-            _this.goToSettings();
+            _this.loadData();
+            _this.saveLists(true);
           });
         })
         .on('click', '[data-advanced]', function() {
@@ -221,6 +269,7 @@ var DynamicLists = (function() {
         .on('change', '#enable-search', function() {
           if ( $(this).is(":checked") ) {
             $('.search-fields').removeClass('hidden');
+            $('#search-column-fields-tokenfield').tokenfield('update');
           } else {
             $('.search-fields').addClass('hidden');
           }
@@ -228,6 +277,7 @@ var DynamicLists = (function() {
         .on('change', '#enable-filters', function() {
           if ( $(this).is(":checked") ) {
             $('.filter-fields').removeClass('hidden');
+            $('#filter-column-fields-tokenfield').tokenfield('update');
           } else {
             $('.filter-fields').addClass('hidden');
           }
@@ -313,20 +363,28 @@ var DynamicLists = (function() {
         isLayoutSelected = true;
         $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
+        // Load code editor tabs
+        if (listLayout === 'small-card') {
+          $('.filter-loop-item').removeClass('hidden');
+        }
+        if (listLayout === 'agenda') {
+          $('.date-loop-item').removeClass('hidden');
+        }
+
         // Load advanced settings
         if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
+          resetToDefaults = true;
           $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
           $('input#enable-css').prop('checked', _this.config.advancedSettings.cssEnabled).trigger('change');
           $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
-          _this.goToAdvanced();
-          return;
+          resetToDefaults = false;
         }
 
         _this.goToSettings();
       }
 
       setTimeout(function() {
-        $('.state').removeClass('loading');  
+        $('.state').removeClass('loading is-loading');  
       }, 300);
     },
     loadTokenFields: function() {
@@ -353,9 +411,7 @@ var DynamicLists = (function() {
       }
 
       Fliplet.Studio.emit('widget-mode', 'normal');
-      if (listLayout === 'agenda') {
-        $('.date-loop-item').removeClass('hidden');
-      }
+
       _this.setupCodeEditors(listLayout);
     },
     goToAdvanced: function() {
@@ -458,8 +514,8 @@ var DynamicLists = (function() {
       Fliplet.DataSources.create({
         name: name,
         organizationId: organizationId,
-        entries: defaultEntries,
-        columns: defaultColumns,
+        entries: defaultEntries[listLayout],
+        columns: defaultColumns[listLayout],
         definition: {'bundleImages': true}
       }).then(function(ds) {
         allDataSources.push(ds);
@@ -468,17 +524,20 @@ var DynamicLists = (function() {
       });
     },
     createDataSourceFromLayout: function() {
-      var name = appName + ' - Advanced List';
+      var name = appName + ' - List - ' + layoutMapping[listLayout].name;
 
       return Fliplet.DataSources.create({
         name: name,
         organizationId: organizationId,
-        entries: defaultEntries,
-        columns: defaultColumns,
+        entries: defaultEntries[listLayout],
+        columns: defaultColumns[listLayout],
         definition: {'bundleImages': true}
       }).then(function(ds) {
         allDataSources.push(ds);
-        _this.changeCreateDsButton(ds);
+        _this.config.layout = listLayout;
+        _this.config.dataSource = ds;
+        _this.config.dataSourceId = ds.id;
+        _this.config = $.extend(true, defaultSettings[listLayout], _this.config);
         return ds;
       });
     },
@@ -632,6 +691,20 @@ var DynamicLists = (function() {
           )
         }
 
+        if (filterLoopTemplateEditor) {
+          var totalLinesFilterLoopTemplateEditor = filterLoopTemplateEditor.lineCount()
+          var totalCharsFilterLoopTemplateEditor = filterLoopTemplateEditor.getTextArea().value.length
+          otherLoopTemplateEditor.autoFormatRange(
+            { line: 0, ch: 0 },
+            { line: totalLinesFilterLoopTemplateEditor, ch: totalCharsFilterLoopTemplateEditor }
+          )
+          // Remove selection
+          filterLoopTemplateEditor.setSelection(
+            { line: 0, ch: 0 },
+            { line: 0, ch: 0 }
+          )
+        }
+
         if (otherLoopTemplateEditor) {
           var totalLinesOtherLoopTemplateEditor = otherLoopTemplateEditor.lineCount()
           var totalCharsOtherLoopTemplateEditor = otherLoopTemplateEditor.getTextArea().value.length
@@ -641,6 +714,34 @@ var DynamicLists = (function() {
           )
           // Remove selection
           otherLoopTemplateEditor.setSelection(
+            { line: 0, ch: 0 },
+            { line: 0, ch: 0 }
+          )
+        }
+
+        if (cssStyleEditor) {
+          var totalLinesCssStyleEditor = cssStyleEditor.lineCount()
+          var totalCharsCssStyleEditor = cssStyleEditor.getTextArea().value.length
+          cssStyleEditor.autoFormatRange(
+            { line: 0, ch: 0 },
+            { line: totalLinesCssStyleEditor, ch: totalCharsCssStyleEditor }
+          )
+          // Remove selection
+          cssStyleEditor.setSelection(
+            { line: 0, ch: 0 },
+            { line: 0, ch: 0 }
+          )
+        }
+
+        if (javascriptEditor) {
+          var totalLinesJavascriptEditor = javascriptEditor.lineCount()
+          var totalCharsJavascriptEditor = javascriptEditor.getTextArea().value.length
+          javascriptEditor.autoFormatRange(
+            { line: 0, ch: 0 },
+            { line: totalLinesJavascriptEditor, ch: totalCharsJavascriptEditor }
+          )
+          // Remove selection
+          javascriptEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
           )
@@ -717,6 +818,22 @@ var DynamicLists = (function() {
         resolve();
       });
 
+      var filterLoopPromise = new Promise(function(resolve) {
+        var filterLoopTemplateCompiler;
+        if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].filter) {
+          filterLoopTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].filter];
+        }
+        if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.filterHTML !== 'undefined') {
+          filterLoopTemplateCode = _this.config.advancedSettings.filterHTML;
+        } else if (typeof filterLoopTemplateCompiler !== 'undefined') {
+          filterLoopTemplateCode = filterLoopTemplateCompiler();
+        } else {
+          filterLoopTemplateCode = '';
+        }
+
+        resolve();
+      });
+
       var otherLoopPromise = new Promise(function(resolve) {
         var otherLoopTemplateCompiler;
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout]['other-loop']) {
@@ -753,13 +870,15 @@ var DynamicLists = (function() {
         });
       }
 
-      return Promise.all([basePromise, loopPromise, otherLoopPromise, cssPromise, jsPromise]);
+      return Promise.all([basePromise, loopPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
     setupCodeEditors: function(selectedLayout) {
       var baseTemplate = document.getElementById('base-template');
       var baseTemplateType = $(baseTemplate).data('type');
       var loopTemplate = document.getElementById('loop-template');
       var loopTemplateType = $(loopTemplate).data('type');
+      var filterLoopTemplate = document.getElementById('filter-loop-template');
+      var filterLoopTemplateType = $(filterLoopTemplate).data('type');
       var otherLoopTemplate = document.getElementById('other-loop-template');
       var otherLoopTemplateType = $(otherLoopTemplate).data('type');
       var cssStyle = document.getElementById('css-styles');
@@ -800,6 +919,24 @@ var DynamicLists = (function() {
           }
 
           if (loopTemplateEditor) {
+            resolve();
+          }
+        });
+
+        var filterLoopTemplatePromise = new Promise(function(resolve) {
+          if (filterLoopTemplateEditor) {
+            filterLoopTemplateEditor.getDoc().setValue(filterLoopTemplateCode);
+          } else if (filterLoopTemplate) {
+            filterLoopTemplateEditor = CodeMirror.fromTextArea(
+              filterLoopTemplate,
+              _this.codeMirrorConfig(filterLoopTemplateType)
+            )
+            filterLoopTemplateEditor.on('change', function() {
+              // Do stuff
+            });
+          }
+
+          if (filterLoopTemplateEditor) {
             resolve();
           }
         });
@@ -858,7 +995,7 @@ var DynamicLists = (function() {
           }
         });
 
-        Promise.all([baseTemplatePromise, loopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
+        Promise.all([baseTemplatePromise, loopTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
           .then(function() {
             _this.resizeCodeEditors();
           });
@@ -898,7 +1035,7 @@ var DynamicLists = (function() {
       _this.getCodeEditorData(listLayout);
       resetToDefaults = false;
     },
-    saveLists: function() {
+    saveLists: function(toReload) {
       var data = {};
       data.advancedSettings = {};
 
@@ -946,6 +1083,10 @@ var DynamicLists = (function() {
       if (data.advancedSettings.htmlEnabled) {
         data.advancedSettings.loopHTML = loopTemplateEditor.getValue();
         data.advancedSettings.baseHTML = baseTemplateEditor.getValue();
+
+        if (data.layout === 'small-card') {
+          _this.config.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+        }
         if (data.layout === 'agenda') {
           _this.config.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
         }
@@ -960,6 +1101,12 @@ var DynamicLists = (function() {
       }
 
       _this.config = data;
+
+      if (toReload) {
+        Fliplet.Widget.save(_this.config).then(function () {
+          Fliplet.Studio.emit('reload-widget-instance', widgetId);
+        });
+      }
     },
     deleteDataSource: function(id) {
       return Fliplet.DataSources.delete(id);

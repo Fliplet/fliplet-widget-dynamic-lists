@@ -1,3 +1,7 @@
+.mode-interact .content-section {
+  pointer-events: none;
+}
+
 /* SEARCH / FILTERS */
 .section-label-wrapper {
   width: 100%;
