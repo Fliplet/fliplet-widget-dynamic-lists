@@ -9,6 +9,7 @@ var DynamicLists = (function() {
   var allDataSources = [];
   var newDataSource;
   var dataSourceColumns;
+  var resetToDefaults = false;
 
   var $filterAccordionContainer = $('#filter-accordion');
   var $sortAccordionContainer = $('#sort-accordion');
@@ -131,6 +132,7 @@ var DynamicLists = (function() {
         .on('click', '[data-advanced]', function() {
           _this.goToAdvanced();
         })
+        .on('click', '[data-back-settings]', _this.goToSettings)
         .on('click', '#manage-data, [data-edit-datasource]', _this.manageAppData)
         .on('click', '[data-reset-default]', _this.resetToDefaults)
         .on('click', '[data-add-sort-panel]', function() {
@@ -183,10 +185,37 @@ var DynamicLists = (function() {
         })
         .on('change', '.advanced-tab input[type="checkbox"]', function() {
           var input = $(this).attr('id');
-          if ( $(this).is(":checked") ) {
+          var activateWarning = 'Important\nYou will be responsible for any changes you make, and any bugs that Fliplet fixes might not be applied to your list.\n\nAre you sure you want to continue?';
+          var deactivateWarning = 'Deactivating this option will revert back to use the component\'s original code.\n\nAre you sure you want to continue?';
+
+          if ( $(this).is(":checked") && !resetToDefaults) {
+            var activate = confirm(activateWarning);
+            if (!activate) {
+              $(this).prop('checked', false);
+              return;
+            }
             $('.editor-holder.' + input).removeClass('disabled');
-          } else {
+            return;
+          }
+
+          if ( $(this).is(":checked") && resetToDefaults ) {
+            $('.editor-holder.' + input).removeClass('disabled');
+            return;
+          }
+
+          if ( !$(this).is(":checked") && !resetToDefaults ) {
+            var deactivate = confirm(deactivateWarning);
+            if (!deactivate) {
+              $(this).prop('checked', true);
+              return;
+            }
             $('.editor-holder.' + input).addClass('disabled');
+            return;
+          }
+
+          if ( !$(this).is(":checked") && resetToDefaults ) {
+            $('.editor-holder.' + input).addClass('disabled');
+            return;
           }
         })
         .on('change', '#enable-search', function() {
@@ -861,12 +890,13 @@ var DynamicLists = (function() {
         return;
       }
 
+      resetToDefaults = true;
       $('input#enable-templates').prop('checked', false).trigger('change');
       $('input#enable-css').prop('checked', false).trigger('change');
       $('input#enable-javascript').prop('checked', false).trigger('change');
       _this.config.advancedSettings = {};
       _this.getCodeEditorData(listLayout);
-      _this.goToSettings();
+      resetToDefaults = false;
     },
     saveLists: function() {
       var data = {};
