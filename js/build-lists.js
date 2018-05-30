@@ -1,5 +1,6 @@
 var allowClick = true;
 var clusterize;
+var mixer;
 
 var DynamicLists = function(data, container) {
   var _this = this;
@@ -143,17 +144,45 @@ var DynamicLists = function(data, container) {
 
 DynamicLists.prototype.init = function() {
   this.initializeClusterize();
+  this.initializeMixer();
   // Ready
   this.$container.find('.content-section').addClass('ready');
 }
 
+DynamicLists.prototype.initializeMixer = function() {
+  var _this= this;
+
+  mixer = mixitup('#directory-longlist-wrapper-' + _this.data.id, {
+    selectors: {
+      target: '.longlist-item'
+    },
+    multifilter: {
+      enable: true // enable the multifilter extension for the mixer
+    },
+    load: {
+      filter: 'all'
+    },
+    layout: {
+      allowNestedTargets: false
+    },
+    animation: {
+      "duration": 250,
+      "nudge": true,
+      "reverseOut": false,
+      "effects": "fade scale(0.45) translateZ(-100px)"
+    }
+  });
+}
+
 DynamicLists.prototype.initializeClusterize = function() {
+  var _this = this;
+
   $('body').addClass('clusterize-scroll');
-  this.$container.find('#directory-longlist-wrapper').addClass('clusterize-content');
+  _this.$container.find('#directory-longlist-wrapper-' + _this.data.id).addClass('clusterize-content');
 
   clusterize = new Clusterize({
     scrollElem: document.body,
-    contentId: 'directory-longlist-wrapper'
+    contentId: 'directory-longlist-wrapper-' + _this.data.id
   });
 }
 
@@ -249,12 +278,12 @@ DynamicLists.prototype.renderBaseHTML = function() {
   }
 
   var template = Handlebars.compile(baseHTML());
-
-  this.$container.html(template());
+  this.$container.html(template(this.data));
 }
 
 DynamicLists.prototype.renderLoopHTML = function(records) {
   var loopHTML = '';
+  var modifiedData = this.convertCategories(this.listItems);
 
   if (typeof this.data.layout !== 'undefined') {
     loopHTML = Fliplet.Widget.Templates[this.layoutMapping[this.data.layout]['loop']];
@@ -262,7 +291,46 @@ DynamicLists.prototype.renderLoopHTML = function(records) {
 
   var template = Handlebars.compile(loopHTML());
 
-  this.$container.find('#directory-longlist-wrapper').html(template(records));
+  this.$container.find('#directory-longlist-wrapper-' + this.data.id).html(template(modifiedData));
+  this.addFilters(modifiedData);
+}
+
+DynamicLists.prototype.addFilters = function(data) {
+  var _this = this;
+  var filters = [];
+
+  data.forEach(function(row) {
+    row.data.filters.forEach(function(filter) {
+      filters.push(filter);
+    });
+  });
+
+  var uniqueCategories = _.uniqBy(filters, function(obj) {
+    return obj.data.name;
+  });
+
+  var allFilters = [];
+  _this.data.filterFields.forEach(function(filter) {
+    var arrangedFilters = {
+      name: filter,
+      data: []
+    };
+    uniqueCategories.forEach(function(item) {
+      if (item.type === filter) {
+        arrangedFilters.data.push(item.data);
+      }
+    });
+
+    arrangedFilters.data = _.orderBy(arrangedFilters.data, function(item) {
+      return item.name;
+    }, ['asc']);
+
+    allFilters.push(arrangedFilters);
+  });
+
+  filtersTemplate = Fliplet.Widget.Templates['templates.build.' + _this.data.layout + '-filters'];
+  var template = Handlebars.compile(filtersTemplate());
+  this.$container.find('.filter-holder').html(template(allFilters));
 }
 
 DynamicLists.prototype.connectToDataSource = function() {
@@ -276,13 +344,49 @@ DynamicLists.prototype.connectToDataSource = function() {
     });
 }
 
+DynamicLists.prototype.convertCategories = function(data) {
+  var _this = this;
+
+  data.forEach(function(element) {
+    element.data['classes'] = '';
+    element.data['filters'] = [];
+    var lowerCaseTags = [];
+    _this.data.filterFields.forEach(function(filter) {
+      var arrayOfTags = [];
+      if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
+        var arrayOfTags = element.data[filter].split(',').map(function(item) {
+          return item.trim();
+        });
+      }
+      arrayOfTags.forEach(function(item, index) {
+        var classConverted = item.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+        if (classConverted === '') {
+          return;
+        }
+        var newObj = {
+          type: filter,
+          data: {
+            name: item,
+            class: '.' + classConverted
+          }
+        }
+        lowerCaseTags.push(classConverted);
+        element.data['filters'].push(newObj);
+      });
+      
+    });
+    element.data['classes'] = lowerCaseTags.join(' ');
+  });
+  return data;
+}
+
 DynamicLists.prototype.searchData = function(value) {
   var _this = this;
 
   // Removes cards
-  _this.$container.find('#directory-longlist-wrapper').html('');
+  _this.$container.find('#directory-longlist-wrapper-' + _this.data.id).html('');
   // Remove filters
-  _this.$container.find('.filter-holder').html('')  
+  _this.$container.find('.filter-holder').html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
   
@@ -306,7 +410,6 @@ DynamicLists.prototype.searchData = function(value) {
     });
   }
   
-
   // Simulate that search is taking a half a second
   // OPTIONAL - setTimeout can be removed
   setTimeout(function() {
