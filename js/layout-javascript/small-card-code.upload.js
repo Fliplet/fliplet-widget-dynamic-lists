@@ -5,11 +5,18 @@ var SmallCardsLayout = (function() {
   var clusterize;
   var mixer;
 
+  var emailField = 'Email';
+  var myProfileData;
+  var myUserData;
+
   var listItems;
   var layoutMapping = {
     'small-card': {
       'base': 'templates.build.small-card-base',
-      'loop': 'templates.build.small-card-loop'
+      'loop': 'templates.build.small-card-loop',
+      'detail': 'templates.build.small-card-detail',
+      'profile-icon': 'templates.build.small-card-profile-icon',
+      'user-profile': 'templates.build.small-card-user-profile'
     }
   };
 
@@ -31,7 +38,15 @@ var SmallCardsLayout = (function() {
     this.$container = $(container);
 
     this.registerHandlebarsHelpers();
-    this.initialize();
+    Fliplet.Session.get().then(function(session) {
+      if (session && session.entries && session.entries.dataSource) {
+        myUserData = session.entries.dataSource.data;
+      } else {
+        myUserData = session.user;
+      }
+      
+      _this.initialize();
+    });
   }
 
   SmallCardsLayout.prototype = {
@@ -39,6 +54,9 @@ var SmallCardsLayout = (function() {
     constructor: SmallCardsLayout,
 
     registerHandlebarsHelpers: function() {
+      var partialDOM = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['detail']]();
+      Handlebars.registerPartial('profile', partialDOM);
+
       Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
         switch (operator) {
           case '==':
@@ -82,6 +100,10 @@ var SmallCardsLayout = (function() {
           setTimeout(function() {
             allowClick = true;
           }, 100);
+        })
+        .on('click', '.my-profile-container', function() {
+          var directoryDetailWrapper = $(this).find('.directory-detail-wrapper');
+          _this.expandElement(directoryDetailWrapper);
         })
         .on('click', '.longlist-item', function(event) {
           event.stopPropagation();
@@ -239,8 +261,46 @@ var SmallCardsLayout = (function() {
           }
 
           listItems = records;
+
+          // Get user profile
+          if (myUserData) {
+            debugger;
+            // Create flag for current user
+            records.forEach(function(el, idx) {
+              if (el.data[emailField] === (myUserData[emailField] || myUserData['email'])) {
+                records[idx].isCurrentUser = true;
+              }
+            });
+
+            myProfileData = _.filter(records, function(row) {
+              return row.isCurrentUser;
+            });
+
+            // Remove current user from list on entries
+            /*
+            _.remove(records, function(row) {
+              return row.isCurrentUser;
+            });
+            */
+          }
+          
           // Render Loop HTML
           _this.renderLoopHTML(records);
+
+          // Render user profile
+          if (myProfileData.length) {
+            var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
+            var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+            $('.my-profile-placeholder').html(myProfileTemplateCompiled(myProfileData[0]));
+
+            var profileIconTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['profile-icon']];
+            var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+            $('.my-profile-icon').html(profileIconTemplateCompiled(myProfileData[0]));
+
+            $('.my-profile-container').removeClass('disabled');
+          }
+          
+          // Listeners and Ready
           _this.attachObservers();
           _this.onReady();
         });

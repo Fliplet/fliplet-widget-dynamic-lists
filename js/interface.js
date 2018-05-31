@@ -47,6 +47,7 @@ var DynamicLists = (function() {
       'base': 'templates.build.small-card-base',
       'loop': 'templates.build.small-card-loop',
       'filter': 'templates.build.small-card-filters',
+      'detail': 'templates.build.small-card-detail',
       'css': 'small-card',
       'js': 'small-card'
     },
@@ -61,6 +62,7 @@ var DynamicLists = (function() {
   
   var baseTemplateEditor;
   var loopTemplateEditor;
+  var detailTemplateEditor;
   var filterLoopTemplateEditor;
   var otherLoopTemplateEditor;
   var cssStyleEditor
@@ -68,6 +70,7 @@ var DynamicLists = (function() {
 
   var baseTemplateCode = '';
   var loopTemplateCode = '';
+  var detailTemplateCode = '';
   var filterLoopTemplateCode = '';
   var otherLoopTemplateCode = '';
   var cssCode = '';
@@ -427,6 +430,7 @@ var DynamicLists = (function() {
         // Load code editor tabs
         if (listLayout === 'small-card') {
           $('.filter-loop-item').removeClass('hidden');
+          $('.detail-view-item').removeClass('hidden');
         }
         if (listLayout === 'agenda') {
           $('.date-loop-item').removeClass('hidden');
@@ -868,6 +872,22 @@ var DynamicLists = (function() {
         resolve();
       });
 
+      var detailPromise = new Promise(function(resolve) {
+        var detailTemplateCompiler;
+        if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].detail) {
+          detailTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].detail];
+        }
+        if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.detailHTML !== 'undefined') {
+          detailTemplateCode = !fromReset ? _this.config.advancedSettings.detailHTML : detailTemplateEditor.getValue();
+        } else if (typeof detailTemplateCompiler !== 'undefined') {
+          detailTemplateCode = detailTemplateCompiler();
+        } else {
+          detailTemplateCode = '';
+        }
+
+        resolve();
+      });
+
       var filterLoopPromise = new Promise(function(resolve) {
         var filterLoopTemplateCompiler;
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].filter) {
@@ -920,13 +940,15 @@ var DynamicLists = (function() {
         });
       }
 
-      return Promise.all([basePromise, loopPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
+      return Promise.all([basePromise, loopPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
     setupCodeEditors: function(selectedLayout, fromReset) {
       var baseTemplate = document.getElementById('base-template');
       var baseTemplateType = $(baseTemplate).data('type');
       var loopTemplate = document.getElementById('loop-template');
       var loopTemplateType = $(loopTemplate).data('type');
+      var detailTemplate = document.getElementById('detail-view-template');
+      var detailTemplateType = $(detailTemplate).data('type');
       var filterLoopTemplate = document.getElementById('filter-loop-template');
       var filterLoopTemplateType = $(filterLoopTemplate).data('type');
       var otherLoopTemplate = document.getElementById('other-loop-template');
@@ -963,6 +985,21 @@ var DynamicLists = (function() {
           }
 
           if (loopTemplateEditor) {
+            resolve();
+          }
+        });
+
+        var detailTemplatePromise = new Promise(function(resolve) {
+          if (detailTemplateEditor) {
+            detailTemplateEditor.getDoc().setValue(detailTemplateCode);
+          } else if (detailTemplate) {
+            detailTemplateEditor = CodeMirror.fromTextArea(
+              detailTemplate,
+              _this.codeMirrorConfig(detailTemplateType)
+            );
+          }
+
+          if (detailTemplateEditor) {
             resolve();
           }
         });
@@ -1027,7 +1064,7 @@ var DynamicLists = (function() {
           }
         });
 
-        Promise.all([baseTemplatePromise, loopTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
+        Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
           .then(function() {
             _this.resizeCodeEditors();
           });
