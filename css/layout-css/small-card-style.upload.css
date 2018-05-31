@@ -2,6 +2,10 @@
   pointer-events: none;
 }
 
+*.lock {
+  overflow: hidden;
+}
+
 /* User profile */
 .my-profile-container {
   line-height: 1;
