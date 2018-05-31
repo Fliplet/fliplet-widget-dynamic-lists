@@ -264,7 +264,6 @@ var SmallCardsLayout = (function() {
 
           // Get user profile
           if (myUserData) {
-            debugger;
             // Create flag for current user
             records.forEach(function(el, idx) {
               if (el.data[emailField] === (myUserData[emailField] || myUserData['email'])) {
