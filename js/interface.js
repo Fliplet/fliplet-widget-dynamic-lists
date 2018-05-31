@@ -233,37 +233,32 @@ var DynamicLists = (function() {
           $(this).siblings('.panel-heading').find('.fa-chevron-down').removeClass('fa-chevron-down').addClass('fa-chevron-right');
         })
         .on('change', '.advanced-tab input[type="checkbox"]', function() {
-          var input = $(this).attr('id');
-          var activateWarning = 'Important\nYou will be responsible for any changes you make, and any bugs that Fliplet fixes might not be applied to your list.\n\nAre you sure you want to continue?';
-          var deactivateWarning = 'Deactivating this option will revert back to use the component\'s original code.\n\nAre you sure you want to continue?';
+          var $input = $(this);
+          var inputId = $(this).attr('id');
+          var activateWarning = '<p>With this option enabled you will take responsability for maintaining the code. If Fliplet updates the component, those changes might not be applied to your component.<br><strong>You can always revert back to the original components code.</strong></p><p>Are you sure you want to continue?</p>';
 
           if ( $(this).is(":checked") && !resetToDefaults) {
-            var activate = confirm(activateWarning);
-            if (!activate) {
-              $(this).prop('checked', false);
+            Fliplet.Modal.confirm({
+              title: 'Important',
+              message: activateWarning
+            }).then(function (result) {
+              if (!result) {
+                $input.prop('checked', false);
+                return;
+              }
+
+              $('.editor-holder.' + inputId).removeClass('disabled');
               return;
-            }
-            $('.editor-holder.' + input).removeClass('disabled');
-            return;
+            });
           }
 
           if ( $(this).is(":checked") && resetToDefaults ) {
-            $('.editor-holder.' + input).removeClass('disabled');
+            $('.editor-holder.' + inputId).removeClass('disabled');
             return;
           }
 
-          if ( !$(this).is(":checked") && !resetToDefaults ) {
-            var deactivate = confirm(deactivateWarning);
-            if (!deactivate) {
-              $(this).prop('checked', true);
-              return;
-            }
-            $('.editor-holder.' + input).addClass('disabled');
-            return;
-          }
-
-          if ( !$(this).is(":checked") && resetToDefaults ) {
-            $('.editor-holder.' + input).addClass('disabled');
+          if ( !$(this).is(":checked") ) {
+            $('.editor-holder.' + inputId).addClass('disabled');
             return;
           }
         })
@@ -1003,8 +998,8 @@ var DynamicLists = (function() {
       });
     },
     resizeCodeEditors: function() {
-      var baseContentHeight = $('.advanced-tab .alert').outerHeight(true) + $('.advanced-tab .checkbox').outerHeight(true) - 10 + $('.advanced-tabs-level-one').outerHeight(true) + $('.advanced-tabs-level-two').outerHeight(true);
-      var contentHeight = $('.advanced-tab .alert').outerHeight(true) + $('.advanced-tab .checkbox').outerHeight(true) - 10 + $('.advanced-tabs-level-one').outerHeight(true);
+      var baseContentHeight = $('.advanced-tab .checkbox').outerHeight(true) - 10 + $('.advanced-tabs-level-one').outerHeight(true) + $('.advanced-tabs-level-two').outerHeight(true);
+      var contentHeight = $('.advanced-tab .checkbox').outerHeight(true) - 10 + $('.advanced-tabs-level-one').outerHeight(true);
       var containerHeight = $('.advanced-tab .state-wrapper').height();
       var baseDiff = (containerHeight - baseContentHeight) / 1;
       var diff = (containerHeight - contentHeight) / 1;
@@ -1023,18 +1018,22 @@ var DynamicLists = (function() {
       }, 1);
     },
     resetToDefaults: function() {
-      var confirmationDialog = confirm('You will lose all the changes you made.\n\nAre you sure you want to continue?');
-      if (!confirmationDialog) {
-        return;
-      }
+      Fliplet.Modal.confirm({
+        title: 'Reset to default',
+        message: '<p>You will lose all the changes you made.<p>Are you sure you want to continue?</p>'
+      }).then(function (result) {
+        if (!result) {
+          return;
+        }
 
-      resetToDefaults = true;
-      $('input#enable-templates').prop('checked', false).trigger('change');
-      $('input#enable-css').prop('checked', false).trigger('change');
-      $('input#enable-javascript').prop('checked', false).trigger('change');
-      _this.config.advancedSettings = {};
-      _this.getCodeEditorData(listLayout);
-      resetToDefaults = false;
+        resetToDefaults = true;
+        $('input#enable-templates').prop('checked', false).trigger('change');
+        $('input#enable-css').prop('checked', false).trigger('change');
+        $('input#enable-javascript').prop('checked', false).trigger('change');
+        _this.config.advancedSettings = {};
+        _this.getCodeEditorData(listLayout);
+        resetToDefaults = false;
+      });
     },
     saveLists: function(toReload) {
       var data = {};
