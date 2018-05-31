@@ -112,7 +112,7 @@
         -->
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
-            <label>Data source to power your list</label>
+            <label>Your list data</label>
           </div>
           <div class="col-sm-8">
             <div class="create-holder">
@@ -126,7 +126,7 @@
         </div>
         <div class="form-group clearfix disabled">
           <div class="col-sm-4 control-label">
-            <label>Sort your list before displaying it</label>
+            <label>How do you want to sort your list?</label>
           </div>
           <div class="col-sm-8">
             <div class="sort-panels-holder empty">
@@ -139,7 +139,7 @@
         </div>
         <div class="form-group clearfix disabled">
           <div class="col-sm-4 control-label">
-            <label>Filter your list before displaying it</label>
+            <label>How do you want to filter your list?</label>
           </div>
           <div class="col-sm-8">
             <div class="filter-panels-holder empty">
@@ -187,7 +187,7 @@
           </div>
         </div>
 
-        <div class="form-group clearfix disabled in-progress">
+        <div class="form-group clearfix style-specific hidden">
           <div class="col-sm-4 control-label">
             <label>Style specific settings</label>
           </div>
@@ -228,11 +228,8 @@
   <div class="advanced-tab state future">
     <header>
       <div class="title-holder">
+        <div class="go-back" data-back-settings><i class="fa fa-angle-left"></i> Back to settings</div>
         <p>Advanced settings</p>
-        <div class="btn btn-sm btn-default" data-back-settings>Go back</div>
-      </div>
-      <div class="secondary-holder">
-        <div class="btn btn-sm btn-danger" data-reset-default>Reset to default settings</div>
       </div>
     </header>
     <div class="state-wrapper">
@@ -249,11 +246,16 @@
 
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="templates">
-          <div class="checkbox checkbox-icon">
-            <input type="checkbox" id="enable-templates">
-            <label for="enable-templates">
-              <span class="check"><i class="fa fa-check"></i></span> I want to edit the list HTML template
-            </label>
+          <div class="action-control-holder">
+            <div class="action-control">
+              <div class="checkbox checkbox-icon">
+                <input type="checkbox" id="enable-templates">
+                <label for="enable-templates">
+                  <span class="check"><i class="fa fa-check"></i></span> I want to edit the list HTML template
+                </label>
+              </div>
+            </div>
+            <div class="btn btn-sm btn-danger hidden" data-id="enable-templates" data-reset-default>Reset</div>
           </div>
 
           <div class="editor-holder enable-templates disabled">
@@ -281,22 +283,32 @@
           </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="css">
-          <div class="checkbox checkbox-icon">
-            <input type="checkbox" id="enable-css">
-            <label for="enable-css">
-              <span class="check"><i class="fa fa-check"></i></span> I want to edit the list CSS
-            </label>
+          <div class="action-control-holder">
+            <div class="action-control">
+              <div class="checkbox checkbox-icon">
+                <input type="checkbox" id="enable-css">
+                <label for="enable-css">
+                  <span class="check"><i class="fa fa-check"></i></span> I want to edit the list CSS
+                </label>
+              </div>
+            </div>
+            <div class="btn btn-sm btn-danger hidden" data-id="enable-css" data-reset-default>Reset</div>
           </div>
           <div class="editor-holder enable-css disabled">
             <textarea id="css-styles" data-type="css"></textarea>
           </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="javascript">
-          <div class="checkbox checkbox-icon">
-            <input type="checkbox" id="enable-javascript">
-            <label for="enable-javascript">
-              <span class="check"><i class="fa fa-check"></i></span> I want to edit the list JavaScript
-            </label>
+          <div class="action-control-holder">
+            <div class="action-control">
+              <div class="checkbox checkbox-icon">
+                <input type="checkbox" id="enable-javascript">
+                <label for="enable-javascript">
+                  <span class="check"><i class="fa fa-check"></i></span> I want to edit the list JavaScript
+                </label>
+              </div>
+            </div>
+            <div class="btn btn-sm btn-danger hidden" data-id="enable-javascript" data-reset-default>Reset</div>
           </div>
           <div class="editor-holder enable-javascript disabled">
             <textarea id="js-code" data-type="javascript"></textarea>

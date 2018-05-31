@@ -5,7 +5,9 @@
         <i class="fa fa-ellipsis-v"></i><i class="fa fa-ellipsis-v"></i>
       </div>
       <span class="fa fa-chevron-{{#if fromLoading}}right{{else}}down{{/if}}"></span>
-      <span class="panel-title-text">{{title}}</span>
+      <span class="panel-title-text">
+        <span class="column">{{column}}</span> - <span class="logic">{{logic}}</span> - <span class="value">{{value}}</span>
+      </span>
     </h4>
     <a href="#"><span class="icon-delete fa fa-trash"></span></a>
   </div>
@@ -18,7 +20,7 @@
         </div>
         <div class="col-sm-8">
           <label for="select-data-field-{{id}}" class="select-proxy-display">
-            <select name="select-data-field-{{id}}" id="select-data-field-{{id}}" data-label="-- Select a data field" class="hidden-select form-control">
+            <select name="select-data-field-{{id}}" id="select-data-field-{{id}}" data-field="field" data-label="-- Select a data field" class="hidden-select form-control">
               <option value="none">-- Select a data field</option>
               {{#each columns}}
               <option value="{{this}}">{{this}}</option>
@@ -36,9 +38,9 @@
         </div>
         <div class="col-sm-8">
           <label for="logic-field-{{id}}" class="select-proxy-display">
-            <select name="logic-field-{{id}}" id="logic-field-{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+            <select name="logic-field-{{id}}" id="logic-field-{{id}}" data-field="logic" data-label="-- Select an option" class="hidden-select form-control">
               <option value="none">-- Select an option</option>
-              <option value="==" selected="">Equals</option>
+              <option value="==">Equals</option>
               <option value="!=">Doesn't equal</option>
               <option value="contains">Contains</option>
               <option value="notcontain">Doesn't contain</option>
@@ -59,7 +61,7 @@
           <label for="value-field-{{id}}">Value</label>
         </div>
         <div class="col-sm-8">
-          <input type="text" name="value-field-{{id}}" id="value-field-{{id}}" class="form-control">
+          <input type="text" name="value-field-{{id}}" id="value-field-{{id}}" data-field="value" class="form-control">
         </div>
       </div>
 

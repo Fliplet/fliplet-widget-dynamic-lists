@@ -5,7 +5,9 @@
         <i class="fa fa-ellipsis-v"></i><i class="fa fa-ellipsis-v"></i>
       </div>
       <span class="fa fa-chevron-{{#if fromLoading}}right{{else}}down{{/if}}"></span>
-      <span class="panel-title-text">{{title}}</span>
+      <span class="panel-title-text">
+        <span class="column">{{column}}</span> - <span class="sort-by">{{sortBy}}</span> - <span class="order-by">{{orderBy}}</span>
+      </span>
     </h4>
     <a href="#"><span class="icon-delete fa fa-trash"></span></a>
   </div>
@@ -18,7 +20,7 @@
         </div>
         <div class="col-sm-8">
           <label for="select-data-field-{{id}}" class="select-proxy-display">
-            <select name="select-data-field-{{id}}" id="select-data-field-{{id}}" data-label="-- Select a data field" class="hidden-select form-control">
+            <select name="select-data-field-{{id}}" id="select-data-field-{{id}}" data-field="field" data-label="-- Select a data field" class="hidden-select form-control">
               <option value="none">-- Select a data field</option>
               {{#each columns}}
               <option value="{{this}}">{{this}}</option>
@@ -36,7 +38,7 @@
         </div>
         <div class="col-sm-8">
           <label for="sort-by-field-{{id}}" class="select-proxy-display">
-            <select name="sort-by-field-{{id}}" id="sort-by-field-{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+            <select name="sort-by-field-{{id}}" id="sort-by-field-{{id}}" data-field="sort" data-label="-- Select an option" class="hidden-select form-control">
               <option value="none">-- Select an option</option>
               <option value="alphabetical">Alphabetical (A-Z)</option>
               <option value="numerical">Numerical (0-9)</option>
@@ -53,7 +55,7 @@
         </div>
         <div class="col-sm-8">
           <label for="order-by-field-{{id}}" class="select-proxy-display">
-            <select name="order-by-field-{{id}}" id="order-by-field-{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+            <select name="order-by-field-{{id}}" id="order-by-field-{{id}}" data-field="order" data-label="-- Select an option" class="hidden-select form-control">
               <option value="none">-- Select an option</option>
               <option value="ascending">Ascending</option>
               <option value="descending">Descending</option>

@@ -89,7 +89,8 @@ var DynamicLists = (function() {
           'sortBy': 'alphabetical',
           'title': 'Sort condition 1'
         }
-      ]
+      ],
+      'style-specific': []
     }
   }
   var defaultColumns = {
@@ -181,28 +182,83 @@ var DynamicLists = (function() {
         .on('click', '[data-advanced]', function() {
           _this.goToAdvanced();
         })
-        .on('click', '[data-back-settings]', _this.goToSettings)
+        .on('click', '[data-back-settings]', function() {
+          _this.goToSettings('advanced');
+        })
         .on('click', '#manage-data, [data-edit-datasource]', _this.manageAppData)
-        .on('click', '[data-reset-default]', _this.resetToDefaults)
+        .on('click', '[data-reset-default]', function() {
+          var buttonId = $(this).data('id');
+
+          _this.resetToDefaults(buttonId);
+        })
         .on('click', '[data-add-sort-panel]', function() {
           var item = {};
           item.id = _this.makeid(8);
           item.title = 'Sort condition ' + ($('#sort-accordion .panel').length + 1);
+          item.column = 'Field';
+          item.sortBy = 'Sort';
+          item.orderBy = 'Order';
           item.columns = dataSourceColumns;
           _this.config.sortOptions.push(item);
 
           _this.addSortItem(item);
           _this.checkSortPanelLength();
         })
+        .on('change', '.sort-panels-holder select', function() {
+          var value = $(this).val();
+          var type = $(this).data('field');
+
+          if (type === 'field') {
+            $(this).parents('.sort-panel').find('.panel-title-text .column').html(value);
+          }
+          if (type === 'sort') {
+            $(this).parents('.sort-panel').find('.panel-title-text .sort-by').html(value);
+          }
+          if (type === 'order') {
+            $(this).parents('.sort-panel').find('.panel-title-text .order-by').html(value);
+          }
+        })
         .on('click', '[data-add-filter-panel]', function() {
           var item = {};
           item.id = _this.makeid(8);
-          item.title = 'Filter ' + ($('#filter-accordion .panel').length + 1);
+          item.column = 'Field';
+          item.logic = 'Logic';
+          item.value = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
           _this.addFilterItem(item);
           _this.checkFilterPanelLength();
+        })
+        .on('change', '.filter-panels-holder select', function() {
+          var value = $(this).val();
+          var type = $(this).data('field');
+          var logicMap = {
+            '==': 'Equals',
+            '!=': 'Doesn\'t equal',
+            'contains': 'Contains',
+            'notcontain': 'Doesn\'t contain',
+            'regex': 'Regex',
+            '>': 'Greater than',
+            '>=': 'Greater or equal to',
+            '<': 'Less than',
+            '<=': 'Less or equal to'
+          };
+
+          if (type === 'field') {
+            $(this).parents('.filter-panel').find('.panel-title-text .column').html(value);
+          }
+          if (type === 'logic') {
+            $(this).parents('.filter-panel').find('.panel-title-text .logic').html(logicMap[value]);
+          }
+        })
+        .on('keyup', '.filter-panels-holder input', function() {
+          var value = $(this).val();
+          var type = $(this).data('field');
+
+          if (type === 'value') {
+            $(this).parents('.filter-panel').find('.panel-title-text .value').html(value);
+          }
         })
         .on('click', '.sort-panel .icon-delete', function() {
           var $item = $(this).closest("[data-id], .panel"),
@@ -247,17 +303,20 @@ var DynamicLists = (function() {
                 return;
               }
 
+              $('.btn[data-id="' + inputId + '"]').removeClass('hidden');
               $('.editor-holder.' + inputId).removeClass('disabled');
               return;
             });
           }
 
           if ( $(this).is(":checked") && resetToDefaults ) {
+            $('.btn[data-id="' + inputId + '"]').removeClass('hidden');
             $('.editor-holder.' + inputId).removeClass('disabled');
             return;
           }
 
           if ( !$(this).is(":checked") ) {
+            $('.btn[data-id="' + inputId + '"]').addClass('hidden');
             $('.editor-holder.' + inputId).addClass('disabled');
             return;
           }
@@ -314,9 +373,9 @@ var DynamicLists = (function() {
     },
     init: function() {
       //_this.getDataSources();
+      _this.setupCodeEditors();
       _this.loadData();
       _this.initializeSortSortable();
-      _this.setupCodeEditors();
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -324,6 +383,12 @@ var DynamicLists = (function() {
       } else {
         // Load data source
         _this.changeCreateDsButton(_this.config.dataSource);
+
+        // Check style specific options
+        if (_this.config['style-specific'].length) {
+          $('.style-specific').removeClass('hidden');
+          // @TODO: Show/Hide individual options depending on the style
+        }
 
         // Load sort options
         _.forEach(_this.config.sortOptions, function(item) {
@@ -376,7 +441,8 @@ var DynamicLists = (function() {
           resetToDefaults = false;
         }
 
-        _this.goToSettings();
+        _this.setupCodeEditors(listLayout);
+        _this.goToSettings('layouts');
       }
 
       setTimeout(function() {
@@ -392,30 +458,18 @@ var DynamicLists = (function() {
         $('#filter-column-fields-tokenfield').tokenfield('setTokens', _this.config.filterFields );
       }
     },
-    goToSettings: function() {
-      var countOfPanels = $('.state').length;
-      var indexOfActive = $('.state.present').index();
-
-      if (indexOfActive === 0) {
-        $('.state.present').removeClass('present').addClass('past');
+    goToSettings: function(context) {
+      if (context === 'advanced') {
+        $('.advanced-tab').removeClass('present').addClass('future');
+      }
+      if (context === 'layouts') {
         $('.settings-tab').removeClass('future').addClass('present');
       }
 
-      if (indexOfActive === countOfPanels - 1) {
-        $('.state.present').removeClass('present').addClass('future');
-        $('.settings-tab').removeClass('past').addClass('present');
-      }
-
       Fliplet.Studio.emit('widget-mode', 'normal');
-
-      _this.setupCodeEditors(listLayout);
     },
     goToAdvanced: function() {
-      $('.state.present').removeClass('present').addClass('past');
-      $('.settings-tab').removeClass('future').addClass('past');
       $('.advanced-tab').removeClass('future').addClass('present');
-      _this.setupCodeEditors(listLayout);
-
       Fliplet.Studio.emit('widget-mode', 'wide');
     },
     setUpTokenFields: function() {
@@ -781,14 +835,14 @@ var DynamicLists = (function() {
         }
       }
     },
-    getCodeEditorData: function(selectedLayout) {
+    getCodeEditorData: function(selectedLayout, fromReset) {
       var basePromise = new Promise(function(resolve) {
         var baseTemplateCompiler;
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].base) {
           baseTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].base];
         }
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.baseHTML !== 'undefined') {
-          baseTemplateCode = _this.config.advancedSettings.baseHTML;
+          baseTemplateCode = !fromReset ? _this.config.advancedSettings.baseHTML : baseTemplateEditor.getValue();
         } else if (typeof baseTemplateCompiler !== 'undefined') {
           baseTemplateCode = baseTemplateCompiler();
         } else {
@@ -804,7 +858,7 @@ var DynamicLists = (function() {
           loopTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].loop];
         }
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.loopHTML !== 'undefined') {
-          loopTemplateCode = _this.config.advancedSettings.loopHTML;
+          loopTemplateCode = !fromReset ? _this.config.advancedSettings.loopHTML : loopTemplateEditor.getValue();
         } else if (typeof loopTemplateCompiler !== 'undefined') {
           loopTemplateCode = loopTemplateCompiler();
         } else {
@@ -820,7 +874,7 @@ var DynamicLists = (function() {
           filterLoopTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].filter];
         }
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.filterHTML !== 'undefined') {
-          filterLoopTemplateCode = _this.config.advancedSettings.filterHTML;
+          filterLoopTemplateCode = !fromReset ? _this.config.advancedSettings.filterHTML : filterLoopTemplateEditor.getValue();
         } else if (typeof filterLoopTemplateCompiler !== 'undefined') {
           filterLoopTemplateCode = filterLoopTemplateCompiler();
         } else {
@@ -836,7 +890,7 @@ var DynamicLists = (function() {
           otherLoopTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout]['other-loop']];
         }
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.otherLoopHTML !== 'undefined') {
-          otherLoopTemplateCode = _this.config.advancedSettings.otherLoopHTML;
+          otherLoopTemplateCode = !fromReset ? _this.config.advancedSettings.otherLoopHTML : otherLoopTemplateEditor.getValue();
         } else if (typeof otherLoopTemplateCompiler !== 'undefined') {
           otherLoopTemplateCode = otherLoopTemplateCompiler();
         } else {
@@ -847,7 +901,7 @@ var DynamicLists = (function() {
       });
 
       if (_this.config.advancedSettings.cssEnabled && typeof _this.config.advancedSettings.cssCode !== 'undefined') {
-        cssCode = _this.config.advancedSettings.cssCode;
+        cssCode = !fromReset ? _this.config.advancedSettings.cssCode : cssStyleEditor.getValue();
       } else if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].css) {
         var cssUrl = $('[data-' + layoutMapping[selectedLayout].css + '-css-url]').data(layoutMapping[selectedLayout].css + '-css-url');
         var cssPromise = Fliplet.API.request('v1/communicate/proxy/' + cssUrl).then(function(response) {
@@ -857,7 +911,7 @@ var DynamicLists = (function() {
       }
 
       if (_this.config.advancedSettings.jsEnabled && typeof _this.config.advancedSettings.jsCode !== 'undefined') {
-        jsCode = _this.config.advancedSettings.jsCode;
+        jsCode = !fromReset ? _this.config.advancedSettings.jsCode : javascriptEditor.getValue();
       } else if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].js) {
         var jsUrl = $('[data-' + layoutMapping[selectedLayout].js + '-js-url]').data(layoutMapping[selectedLayout].js + '-js-url');
         var jsPromise = Fliplet.API.request('v1/communicate/proxy/' + jsUrl).then(function(response) {
@@ -868,7 +922,7 @@ var DynamicLists = (function() {
 
       return Promise.all([basePromise, loopPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
-    setupCodeEditors: function(selectedLayout) {
+    setupCodeEditors: function(selectedLayout, fromReset) {
       var baseTemplate = document.getElementById('base-template');
       var baseTemplateType = $(baseTemplate).data('type');
       var loopTemplate = document.getElementById('loop-template');
@@ -882,7 +936,7 @@ var DynamicLists = (function() {
       var javascript = document.getElementById('js-code');
       var javascriptType = $(javascript).data('type');
 
-      _this.getCodeEditorData(selectedLayout).then(function() {
+      _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
         var baseTemplatePromise = new Promise(function(resolve) {
           if (baseTemplateEditor) {
             baseTemplateEditor.getDoc().setValue(baseTemplateCode);
@@ -890,10 +944,7 @@ var DynamicLists = (function() {
             baseTemplateEditor = CodeMirror.fromTextArea(
               baseTemplate,
               _this.codeMirrorConfig(baseTemplateType)
-            )
-            baseTemplateEditor.on('change', function() {
-              // Do stuff
-            });
+            );
           }
 
           if (baseTemplateEditor) {
@@ -908,10 +959,7 @@ var DynamicLists = (function() {
             loopTemplateEditor = CodeMirror.fromTextArea(
               loopTemplate,
               _this.codeMirrorConfig(loopTemplateType)
-            )
-            loopTemplateEditor.on('change', function() {
-              // Do stuff
-            });
+            );
           }
 
           if (loopTemplateEditor) {
@@ -926,10 +974,7 @@ var DynamicLists = (function() {
             filterLoopTemplateEditor = CodeMirror.fromTextArea(
               filterLoopTemplate,
               _this.codeMirrorConfig(filterLoopTemplateType)
-            )
-            filterLoopTemplateEditor.on('change', function() {
-              // Do stuff
-            });
+            );
           }
 
           if (filterLoopTemplateEditor) {
@@ -944,10 +989,7 @@ var DynamicLists = (function() {
             otherLoopTemplateEditor = CodeMirror.fromTextArea(
               otherLoopTemplate,
               _this.codeMirrorConfig(otherLoopTemplateType)
-            )
-            otherLoopTemplateEditor.on('change', function() {
-              // Do stuff
-            });
+            );
           }
 
           if (otherLoopTemplateEditor) {
@@ -962,10 +1004,7 @@ var DynamicLists = (function() {
             cssStyleEditor = CodeMirror.fromTextArea(
               cssStyle,
               _this.codeMirrorConfig(cssStyleType)
-            )
-            cssStyleEditor.on('change', function() {
-              // Do stuff
-            });
+            );
           }
 
           if (cssStyleEditor) {
@@ -980,10 +1019,7 @@ var DynamicLists = (function() {
             javascriptEditor = CodeMirror.fromTextArea(
               javascript,
               _this.codeMirrorConfig(javascriptType)
-            )
-            javascriptEditor.on('change', function() {
-              // Do stuff
-            });
+            );
           }
 
           if (javascriptEditor) {
@@ -998,8 +1034,8 @@ var DynamicLists = (function() {
       });
     },
     resizeCodeEditors: function() {
-      var baseContentHeight = $('.advanced-tab .checkbox').outerHeight(true) - 10 + $('.advanced-tabs-level-one').outerHeight(true) + $('.advanced-tabs-level-two').outerHeight(true);
-      var contentHeight = $('.advanced-tab .checkbox').outerHeight(true) - 10 + $('.advanced-tabs-level-one').outerHeight(true);
+      var baseContentHeight = $('.action-control-holder').outerHeight(true) + $('.advanced-tabs-level-one').outerHeight(true) + $('.advanced-tabs-level-two').outerHeight(true);
+      var contentHeight = $('.action-control-holder').outerHeight(true) + $('.advanced-tabs-level-one').outerHeight(true);
       var containerHeight = $('.advanced-tab .state-wrapper').height();
       var baseDiff = (containerHeight - baseContentHeight) / 1;
       var diff = (containerHeight - contentHeight) / 1;
@@ -1017,7 +1053,7 @@ var DynamicLists = (function() {
         });
       }, 1);
     },
-    resetToDefaults: function() {
+    resetToDefaults: function(id) {
       Fliplet.Modal.confirm({
         title: 'Reset to default',
         message: '<p>You will lose all the changes you made.<p>Are you sure you want to continue?</p>'
@@ -1027,11 +1063,30 @@ var DynamicLists = (function() {
         }
 
         resetToDefaults = true;
-        $('input#enable-templates').prop('checked', false).trigger('change');
-        $('input#enable-css').prop('checked', false).trigger('change');
-        $('input#enable-javascript').prop('checked', false).trigger('change');
-        _this.config.advancedSettings = {};
-        _this.getCodeEditorData(listLayout);
+        // Uncheck checkbox
+        $('input#' + id).prop('checked', false).trigger('change');
+        // Reset settings
+        if (id === 'enable-templates') {
+          _this.config.advancedSettings.baseHTML = undefined;
+          _this.config.advancedSettings.loopHTML = undefined;
+          if (listLayout === 'small-card') {
+            _this.config.advancedSettings.filterHTML = undefined;
+          }
+          if (listLayout === 'agenda') {
+            _this.config.advancedSettings.otherLoopHTML = undefined;
+          }
+          _this.config.advancedSettings.htmlEnabled = false;
+        } 
+        if (id === 'enable-css') {
+          _this.config.advancedSettings.cssCode = undefined;
+          _this.config.advancedSettings.cssEnabled = false;
+        } 
+        if (id === 'enable-javascript') {
+          _this.config.advancedSettings.jsCode = undefined;
+          _this.config.advancedSettings.jsEnabled = false;
+        } 
+        // Update codeeditor
+        _this.setupCodeEditors(listLayout, true);
         resetToDefaults = false;
       });
     },
@@ -1100,7 +1155,7 @@ var DynamicLists = (function() {
         data.advancedSettings.jsCode = javascriptEditor.getValue();
       }
 
-      _this.config = $.extend(true, data, _this.config);
+      _this.config = $.extend(true, _this.config, data);
 
       if (toReload) {
         Fliplet.Widget.save(_this.config).then(function () {

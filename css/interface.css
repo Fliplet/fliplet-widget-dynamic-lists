@@ -51,6 +51,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  background-color: #f2f6f7;
   padding: 15px 0 0;
   transition: all 0.2s ease-out;
 }
@@ -78,7 +79,8 @@ header p {
   line-height: 30px;
 }
 
-header .btn {
+header .btn,
+.action-control-holder .btn {
   padding: 5px 10px;
   font-size: 12px;
   line-height: 1.5;
@@ -243,6 +245,12 @@ header .btn {
   display: none;
 }
 
+.panel-title-text .column,
+.panel-title-text .sort-by,
+.panel-title-text .order-by {
+  text-transform: capitalize;
+}
+
 .panel {
   opacity: 1;
   -webkit-transition: opacity 100ms linear;
@@ -289,6 +297,13 @@ header .btn {
 .panel-heading .fa-chevron-down,
 .panel-heading .fa-chevron-right {
   margin-right: 10px;
+}
+
+.panel-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
 }
 
 .panel-title .fa {
@@ -369,8 +384,30 @@ header .btn {
   display: flex;
 }
 
-.advanced-tab header .title-holder .btn + .btn {
-  margin-left: 5px;
+.advanced-tab header .go-back {
+  position: relative;
+  margin-right: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-right: 1px solid rgba(51, 51, 51, 0.2);
+  line-height: 30px;
+  cursor: pointer;
+}
+
+.advanced-tab header .go-back .fa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 2em;
+  height: 30px;
+  line-height: 1em;
+}
+
+.advanced-tab .action-control-holder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
 }
 
 .form-group.disabled {
@@ -403,10 +440,6 @@ header .btn {
 .advanced-tabs-level-two > li.active > a:focus,
 .advanced-tabs-level-two > li.active > a:hover {
   border-bottom: none;
-}
-
-.advanced-tab .checkbox {
-  margin-bottom: 25px;
 }
 
 .editor-holder {
