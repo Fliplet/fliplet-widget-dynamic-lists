@@ -129,7 +129,7 @@ header .btn,
   bottom: 20px;
   left: 20px;
   padding: 15px;
-  background-color: rgba(35, 43, 63, 0.85);
+  background-color: rgba(35, 43, 63, 0.95);
   opacity: 0;
   visibility: hidden;
   display: flex;
