@@ -143,7 +143,7 @@ var DynamicLists = (function() {
   function DynamicLists(configuration) {
     _this = this;
 
-    this.config = $.extend(true, {
+    _this.config = $.extend(true, {
       sortOptions: [],
       filterOptions: [],
       social: {
@@ -153,9 +153,10 @@ var DynamicLists = (function() {
       },
       advancedSettings: {}
     }, configuration);
+    _this.widgetId = configuration.id;
 
-    this.attachListeners();
-    this.init();
+    _this.attachListeners();
+    _this.init();
   }
 
   DynamicLists.prototype = {
@@ -1100,11 +1101,11 @@ var DynamicLists = (function() {
         data.advancedSettings.jsCode = javascriptEditor.getValue();
       }
 
-      _this.config = data;
+      _this.config = $.extend(true, data, _this.config);
 
       if (toReload) {
         Fliplet.Widget.save(_this.config).then(function () {
-          Fliplet.Studio.emit('reload-widget-instance', widgetId);
+          Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
         });
       }
     },

@@ -5,8 +5,8 @@
   "icon": "img/icon.png",
   "tags": ["type:component", "category:advanced"],
   "provider_only": false,
+  "html_tag": "div",
   "providers": [
-    "com.fliplet.file-manager",
     "com.fliplet.link"
   ],
   "interface": {
