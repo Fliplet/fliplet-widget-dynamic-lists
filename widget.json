@@ -3,7 +3,7 @@
   "package": "com.fliplet.dynamic-lists",
   "version": "1.0.0",
   "icon": "img/icon.png",
-  "tags": ["type:component", "category:advanced"],
+  "tags": ["type:component", "category:list", "beta:true"],
   "provider_only": false,
   "html_tag": "div",
   "providers": [
