@@ -1,9 +1,9 @@
 \{{#each this}}
-  <div class="longlist-item \{{data.[classes]}}">
-    <div class="longlist-image">
-      <div class="directory-detail-wrapper" data-entry-id="\{{id}}">
-        <div class="directory-detail-image-wrapper">
-          <div class="directory-detail-image" style="background-image: url('\{{data.[Image]}}')"></div>
+  <div class="small-card-list-item \{{data.[classes]}}">
+    <div class="small-card-list-image">
+      <div class="small-card-list-detail-wrapper" data-entry-id="\{{id}}">
+        <div class="small-card-list-detail-image-wrapper">
+          <div class="small-card-list-detail-image" style="background-image: url('\{{data.[Image]}}')"></div>
           <i class="fa fa-user"></i>
         </div>
         
@@ -13,10 +13,10 @@
 
       </div>
     </div>
-    <div class="longlist-text-wrapper">
-      <div class="longlist-name">\{{data.[First Name]}} \{{data.[Last Name]}}</div>
-      <div class="longlist-role">\{{data.[Title]}}</div>
-      <div class="longlist-location">\{{data.[Location]}}</div>
+    <div class="small-card-list-text-wrapper">
+      <div class="small-card-list-name">\{{data.[First Name]}} \{{data.[Last Name]}}</div>
+      <div class="small-card-list-role">\{{data.[Title]}}</div>
+      <div class="small-card-list-location">\{{data.[Location]}}</div>
     </div>
   </div>
   \{{/each}}

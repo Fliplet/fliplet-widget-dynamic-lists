@@ -1199,12 +1199,6 @@ var DynamicLists = (function() {
           Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
         });
       }
-    },
-    deleteDataSource: function(id) {
-      return Fliplet.DataSources.delete(id);
-    },
-    getCurrentDataSource: function() {
-      return newDataSource;
     }
   }
 

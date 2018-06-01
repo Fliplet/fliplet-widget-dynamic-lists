@@ -1,13 +1,13 @@
-<div class="content-section">
-  <div class="section-label-wrapper">
+<div class="small-card-list-container">
+  <div class="section-top-wrapper">
     <div class="my-profile-container disabled">
       <div class="my-profile-icon"></div>
       <div class="my-profile-placeholder"></div>
       <div class="my-profile-text">My profile</div>
     </div>
     \{{#ifCond searchEnabled '||' filtersEnabled}}
-    <div class="directory-search-icon">
-      <div class="directory-search-cancel"><span class="fa fa-times"></span></div>
+    <div class="list-search-icon">
+      <div class="list-search-cancel"><span class="fa fa-times"></span></div>
       \{{#ifCond searchEnabled '&&' filtersEnabled}}
       <i class="fa fa-search"></i>
       \{{else}}
@@ -45,7 +45,7 @@
     </div>
   </div>
   \{{/ifCond}}
-  <div class="directory-longlist-wrapper" id="directory-longlist-wrapper-\{{id}}">
+  <div class="small-card-list-wrapper" id="small-card-list-wrapper-\{{id}}">
       <!-- Longlist content will appear here -->
   </div>
   <div class="loading-data">

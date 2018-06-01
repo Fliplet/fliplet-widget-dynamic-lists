@@ -1,4 +1,4 @@
-.mode-interact .content-section {
+.mode-interact .small-card-list-container {
   pointer-events: none;
 }
 
@@ -61,7 +61,7 @@
 }
 
 /* SEARCH / FILTERS */
-.section-label-wrapper {
+.section-top-wrapper {
   width: 100%;
   padding: 0;
   display: flex;
@@ -69,15 +69,11 @@
   align-items: center;
 }
 
-.section-label-wrapper .section-label {
-  padding: 0;
-}
-
-.directory-search-icon {
+.list-search-icon {
   cursor: pointer;
 }
 
-.directory-search-icon .fa {
+.list-search-icon .fa {
   display: inline-block;
   opacity: 0.3;
   font-size: 20px;
@@ -87,12 +83,12 @@
   line-height: 35px;
 }
 
-.directory-search-icon .fa-search.active,
-.directory-search-icon .fa-filter.active {
+.list-search-icon .fa-search.active,
+.list-search-icon .fa-filter.active {
   display: none;
 }
 
-.directory-search-cancel {
+.list-search-cancel {
   display: inline-block;
   opacity: 0;
   font-size: 20px;
@@ -100,11 +96,11 @@
   padding-right: 0;
 }
 
-.content-section .fa-times {
+.small-card-list-container .fa-times {
   text-decoration: none;
 }
 
-.directory-search-cancel.active {
+.list-search-cancel.active {
   opacity: 1;
 }
 
@@ -232,18 +228,18 @@
 }
 
 /* List */
-.directory-longlist-wrapper {
+.small-card-list-wrapper {
   padding: 15px 0;
   padding-bottom: calc(15px + env(safe-area-inset-bottom));
   outline: none;
   display: none;
 }
 
-.ready .directory-longlist-wrapper {
+.ready .small-card-list-wrapper {
   display: block;
 }
 
-.directory-longlist-wrapper:focus {
+.small-card-list-wrapper:focus {
   outline: none;
 }
 
@@ -258,7 +254,7 @@
   display: none;
 }
 
-.longlist-item {
+.small-card-list-item {
   width: 100%;
   height: 80px;
   margin: 0 0 15px 0;
@@ -271,14 +267,14 @@
   transition: box-shadow 0.15s ease-out;
 }
 
-.no-touchevents .longlist-item:active,
-.no-touchevents .longlist-item:focus,
-.no-touchevents .longlist-item:active:focus,
-.longlist-item.hover {
+.no-touchevents .small-card-list-item:active,
+.no-touchevents .small-card-list-item:focus,
+.no-touchevents .small-card-list-item:active:focus,
+.small-card-list-item.hover {
   box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
 }
 
-.longlist-image {
+.small-card-list-image {
   width: 60px;
   height: 100%;
   background-position: center;
@@ -286,15 +282,15 @@
   position: relative;
 }
 
-.longlist-image .directory-detail-image {
+.small-card-list-image .small-card-list-detail-image {
   border-radius: 15px 0 0 15px;
 }
 
-.longlist-image .directory-detail-wrapper.open .directory-detail-image {
+.small-card-list-image .small-card-list-detail-wrapper.open .small-card-list-detail-image {
   border-radius: 0;
 }
 
-.longlist-text-wrapper {
+.small-card-list-text-wrapper {
   height: 100%;
   padding: 0 0 0 15px;
   flex: 1;
@@ -305,20 +301,20 @@
   align-items: flex-start;
 }
 
-.longlist-name {
+.small-card-list-name {
   color: #333333;
   font-size: 16px;
   font-weight: 700;
 }
 
-.longlist-role {
+.small-card-list-role {
   color: #333333;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.4;
 }
 
-.longlist-location {
+.small-card-list-location {
   color: #333333;
   opacity: 0.5;
   font-size: 12px;
@@ -326,7 +322,7 @@
   line-height: 1.6;
 }
 
-.directory-detail-image-wrapper {
+.small-card-list-detail-image-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -336,7 +332,7 @@
   background-color: rgba(51,51,51,0.04);
 }
 
-.directory-detail-image-wrapper .fa {
+.small-card-list-detail-image-wrapper .fa {
   position: absolute;
   top: 0;
   left: 0;
@@ -349,13 +345,13 @@
   font-size: 3em;
 }
 
-.open .directory-detail-image-wrapper .fa {
+.open .small-card-list-detail-image-wrapper .fa {
   font-size: 8em;
 }
 
 /* DIRECTORY DETAIL VIEW */
 
-.directory-detail-wrapper {
+.small-card-list-detail-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -364,7 +360,7 @@
   background-color: #ffffff;
 }
 
-.directory-detail-image {
+.small-card-list-detail-image {
   position: absolute;
   top: 0;
   left: 0;
@@ -375,12 +371,12 @@
   background-size: cover;
 }
 
-.directory-detail-image.open {
+.small-card-list-detail-image.open {
   width: 100vw;
   height: 100vw;
 }
 
-.directory-detail-close-btn {
+.small-card-list-detail-close-btn {
   opacity: 0;
   position: absolute;
   right: 15px;
@@ -398,12 +394,12 @@
   pointer-events: none;
 }
 
-.directory-detail-close-btn.open {
+.small-card-list-detail-close-btn.open {
   opacity: 1;
   pointer-events: all;
 }
 
-.directory-detail-content-scroll-wrapper {
+.small-card-list-detail-content-scroll-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -414,11 +410,11 @@
   transition: all 0.2s ease-out;
 }
 
-.directory-detail-content-scroll-wrapper.open {
+.small-card-list-detail-content-scroll-wrapper.open {
   height: 100%;
 }
 
-.directory-detail-content-wrapper {
+.small-card-list-detail-content-wrapper {
   top: calc(100vw - 20px);
   position: relative;
   background-color: #ffffff;
@@ -428,7 +424,7 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
-.directory-detail-edit-icon {
+.small-card-list-detail-edit-icon {
   position: absolute;
   top: 0;
   right: 0;
@@ -438,7 +434,7 @@
   opacity: 0.3;
 }
 
-.directory-detail-name {
+.small-card-list-detail-name {
   margin-bottom: 20px;
   font-size: 32px;
   line-height: 1.3;
@@ -448,7 +444,7 @@
   position: relative;
 }
 
-.directory-detail-name:after {
+.small-card-list-detail-name:after {
   content: '';
   display: block;
   width: 60%;
@@ -459,7 +455,7 @@
   left: 0;
 }
 
-.directory-detail-role {
+.small-card-list-detail-role {
   margin: 0 0 5px 0;
   font-size: 24px;
   color: #333333;
@@ -467,7 +463,7 @@
   font-weight: 500;
 }
 
-.directory-detail-location {
+.small-card-list-detail-location {
   margin: 0 0 10px 0;
   font-size: 16px;
   color: #333333;
@@ -475,13 +471,13 @@
   font-weight: 500;
 }
 
-.directory-detail-buttons-wrapper {
+.small-card-list-detail-buttons-wrapper {
   margin: 20px 0;
   display: flex;
   align-items: center;
 }
 
-.directory-detail-button {
+.small-card-list-detail-button {
   width: 60px;
   margin: 0 20px 0 0;
   display: flex;
@@ -490,33 +486,33 @@
   justify-content: center;
 }
 
-.directory-detail-button a,
-.directory-detail-button a:hover,
-.directory-detail-button a:focus
-.directory-detail-button a:active,
-.directory-detail-button a:active:hover,
-.directory-detail-button a:active:focus {
+.small-card-list-detail-button a,
+.small-card-list-detail-button a:hover,
+.small-card-list-detail-button a:focus
+.small-card-list-detail-button a:active,
+.small-card-list-detail-button a:active:hover,
+.small-card-list-detail-button a:active:focus {
   color: #333333;
   text-decoration: none;
 }
 
-.directory-detail-button .send-message {
+.small-card-list-detail-button .send-message {
   cursor: pointer;
 }
 
-.directory-detail-button-image {
+.small-card-list-detail-button-image {
   opacity: 0.3;
   text-align: center;
   font-size: 35px;
 }
 
-.directory-detail-button-text {
+.small-card-list-detail-button-text {
   font-size: 10px;
   text-align: center;
   opacity: 0.5;
 }
 
-.directory-detail-label {
+.small-card-list-detail-label {
   font-size: 12px;
   opacity: 0.5;
   text-transform: uppercase;

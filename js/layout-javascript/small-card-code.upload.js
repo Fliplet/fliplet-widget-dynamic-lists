@@ -1,6 +1,7 @@
 var SmallCardsLayout = (function() {
   var _this;
 
+  // Global variables
   var allowClick = true;
   var clusterize;
   var mixer;
@@ -34,10 +35,13 @@ var SmallCardsLayout = (function() {
     console.log(data);
     _this = this;
 
+    // Makes data and the component container available to Public functions
     this.data = data;
     this.$container = $(container);
 
+    // Register handlebars helpers
     this.registerHandlebarsHelpers();
+    // Get the current session data
     Fliplet.Session.get().then(function(session) {
       if (session && session.entries && session.entries.dataSource) {
         myUserData = session.entries.dataSource.data;
@@ -45,6 +49,7 @@ var SmallCardsLayout = (function() {
         myUserData = session.user;
       }
       
+      // Start running the Public functions
       _this.initialize();
     });
   }
@@ -54,6 +59,8 @@ var SmallCardsLayout = (function() {
     constructor: SmallCardsLayout,
 
     registerHandlebarsHelpers: function() {
+      // Register your handlebars helpers here
+
       var partialDOM = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['detail']]();
       Handlebars.registerPartial('profile', partialDOM);
 
@@ -85,16 +92,17 @@ var SmallCardsLayout = (function() {
       });
     },
     attachObservers: function() {
+      // Attach your event listeners here
       $(document)
-        .on('touchstart', '.longlist-item', function(event) {
+        .on('touchstart', '.small-card-list-item', function(event) {
           event.stopPropagation();
           $(this).addClass('hover');
         })
-        .on('touchmove', '.longlist-item', function() {
+        .on('touchmove', '.small-card-list-item', function() {
           allowClick = false;
           $(this).removeClass('hover');
         })
-        .on('touchend touchcancel', '.longlist-item', function() {
+        .on('touchend touchcancel', '.small-card-list-item', function() {
           $(this).removeClass('hover');
           // Delay to compensate for the fast click event
           setTimeout(function() {
@@ -102,53 +110,51 @@ var SmallCardsLayout = (function() {
           }, 100);
         })
         .on('click', '.my-profile-container', function() {
-          var directoryDetailWrapper = $(this).find('.directory-detail-wrapper');
+          var directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
           _this.expandElement(directoryDetailWrapper);
         })
-        .on('click', '.longlist-item', function(event) {
+        .on('click', '.small-card-list-item', function(event) {
           event.stopPropagation();
           // find the element to expand and expand it
           if (allowClick) {
-            var directoryDetailWrapper = $(this).find('.directory-detail-wrapper');
+            var directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
             _this.expandElement(directoryDetailWrapper);
           }
         })
-        .on('click', '.directory-detail-close-btn', function(event) {
+        .on('click', '.small-card-list-detail-close-btn', function(event) {
           event.stopPropagation();
           // find the element to collpase and collpase it
-          var directoryDetailWrapper = $(this).parents('.directory-detail-wrapper');
+          var directoryDetailWrapper = $(this).parents('.small-card-list-detail-wrapper');
           _this.collapseElement(directoryDetailWrapper);
         })
-        .on('click', '.directory-search-icon .fa-search, .directory-search-icon .fa-filter', function() {
+        .on('click', '.list-search-icon .fa-search, .list-search-icon .fa-filter', function() {
           var $elementClicked = $(this);
-          var $parentElement = $elementClicked.parents('.content-section');
+          var $parentElement = $elementClicked.parents('.small-card-list-container');
 
           if (!$parentElement.find('.hidden-filter-controls').hasClass('active')) {
             $parentElement.find('.hidden-filter-controls').addClass('active');
-            $parentElement.find('.directory-search-apply').addClass('active');
-            $parentElement.find('.directory-search-cancel').addClass('active');
+            $parentElement.find('.list-search-cancel').addClass('active');
             $elementClicked.addClass('active');
 
             var targetHeight = $parentElement.find('.hidden-filter-controls-content').outerHeight();
             $parentElement.find('.hidden-filter-controls').animate({ height: targetHeight, }, 200);
           }
         })
-        .on('click', '.directory-search-cancel', function() {
+        .on('click', '.list-search-cancel', function() {
           var $elementClicked = $(this);
-          var $parentElement = $elementClicked.parents('.content-section');
+          var $parentElement = $elementClicked.parents('.small-card-list-container');
 
           if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
             $parentElement.find('.hidden-filter-controls').removeClass('active');
             $elementClicked.removeClass('active');
-            $parentElement.find('.directory-search-apply').removeClass('active');
-            $parentElement.find('.directory-search-icon .fa-search').removeClass('active');
-            $parentElement.find('.directory-search-icon .fa-filter').removeClass('active');
+            $parentElement.find('.list-search-icon .fa-search').removeClass('active');
+            $parentElement.find('.list-search-icon .fa-filter').removeClass('active');
             $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
           }
         })
         .on('keydown', '.search-holder input', function(e) {
           var $inputField = $(this);
-          var $parentElement = $inputField.parents('.content-section');
+          var $parentElement = $inputField.parents('.small-card-list-container');
           var value = $inputField.val().toLowerCase();
           if (event.which == 13 || event.keyCode == 13) {
             if (value === '') {
@@ -165,7 +171,7 @@ var SmallCardsLayout = (function() {
         })
         .on('click', '.search-query span', function() {
           var $elementClicked = $(this);
-          var $parentElement = $elementClicked.parents('.content-section');
+          var $parentElement = $elementClicked.parents('.small-card-list-container');
 
           _this.backToSearch();
           $parentElement.find('.search-holder input').focus();
@@ -178,6 +184,8 @@ var SmallCardsLayout = (function() {
       // Connect to data source to get rows
       _this.connectToDataSource()
         .then(function (records) {
+          // Received the rows
+
           var sorted;
           var filtered;
 
@@ -260,6 +268,7 @@ var SmallCardsLayout = (function() {
             records = filtered;
           }
 
+          // Make rows available Globally
           listItems = records;
 
           // Get user profile
@@ -311,10 +320,29 @@ var SmallCardsLayout = (function() {
 
       return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
         .then(function (connection) {
+          // If you want to do specific queries to return your rows
+          // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
           return connection.find();
+        })
+        .catch(function (error) {
+          Fliplet.UI.Toast({
+            message: 'Error loading data',
+            actions: [
+              {
+                label: 'Details',
+                action: function () {
+                  Fliplet.UI.Toast({
+                    html: error.message || error
+                  });
+                }
+              }
+            ]
+          });
         });
     },
     renderBaseHTML: function() {
+      // Function that renders the List container
+
       var baseHTML = '';
 
       if (typeof _this.data.layout !== 'undefined') {
@@ -328,6 +356,8 @@ var SmallCardsLayout = (function() {
       _this.$container.html(template(_this.data));
     },
     renderLoopHTML: function(records) {
+      // Function that renders the List template
+
       var loopHTML = '';
       var modifiedData = _this.convertCategories(records);
 
@@ -339,10 +369,12 @@ var SmallCardsLayout = (function() {
       ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
       : Handlebars.compile(loopHTML());
 
-      _this.$container.find('#directory-longlist-wrapper-' + _this.data.id).html(template(modifiedData));
+      _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(modifiedData));
       _this.addFilters(modifiedData);
     },
     addFilters: function(data) {
+      // Function that renders the filters
+
       var filters = [];
 
       data.forEach(function(row) {
@@ -382,6 +414,8 @@ var SmallCardsLayout = (function() {
       _this.$container.find('.filter-holder').html(template(allFilters));
     },
     convertCategories: function(data) {
+      // Function that get and converts the categories for the filters to work
+
       data.forEach(function(element) {
         element.data['classes'] = '';
         element.data['filters'] = [];
@@ -415,8 +449,10 @@ var SmallCardsLayout = (function() {
       return data;
     },
     searchData: function(value) {
+      // Function called when user executes a search
+
       // Removes cards
-      _this.$container.find('#directory-longlist-wrapper-' + _this.data.id).html('');
+      _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html('');
       // Remove filters
       _this.$container.find('.filter-holder').html('');
       // Adds search query to HTML
@@ -442,7 +478,7 @@ var SmallCardsLayout = (function() {
         });
       }
       
-      // Simulate that search is taking a half a second
+      // Simulate that search is taking half a second
       // OPTIONAL - setTimeout can be removed
       setTimeout(function() {
         _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
@@ -461,9 +497,14 @@ var SmallCardsLayout = (function() {
       }, 500);
     },
     backToSearch: function() {
+      // Function that is called when user wants to return
+      // to the search input after searching for a value first
+
       _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
     },
     clearSearch: function() {
+      // Function called when user clears the search field
+
       // Removes value from search box
       _this.$container.find('.search-field').find('input').val('').blur();
       // Resets all classes related to search
@@ -476,15 +517,20 @@ var SmallCardsLayout = (function() {
       _this.init();
     },
     onReady: function() {
+      // Function called when it's ready to show the list and remove the Loading
+
       _this.initializeClusterize();
       _this.initializeMixer();
       // Ready
-      _this.$container.find('.content-section').addClass('ready');
+      _this.$container.find('.small-card-list-container').addClass('ready');
     },
     initializeMixer: function() {
-      mixer = mixitup('#directory-longlist-wrapper-' + _this.data.id, {
+      // Function that initializes MixItUP
+      // Plugin used for filtering
+
+      mixer = mixitup('#small-card-list-wrapper-' + _this.data.id, {
         selectors: {
-          target: '.longlist-item'
+          target: '.small-card-list-item'
         },
         multifilter: {
           enable: true // enable the multifilter extension for the mixer
@@ -504,15 +550,20 @@ var SmallCardsLayout = (function() {
       });
     },
     initializeClusterize: function() {
+      // Function that initializes Clusterize
+      // Plugin used for making long lists render smoothly
+
       $('body').addClass('clusterize-scroll');
-      _this.$container.find('#directory-longlist-wrapper-' + _this.data.id).addClass('clusterize-content');
+      _this.$container.find('#small-card-list-wrapper-' + _this.data.id).addClass('clusterize-content');
 
       clusterize = new Clusterize({
         scrollElem: document.body,
-        contentId: 'directory-longlist-wrapper-' + _this.data.id
+        contentId: 'small-card-list-wrapper-' + _this.data.id
       });
     },
     expandElement: function(elementToExpand) {
+      // Function called when a list item is tapped to expand
+
       //check to see if element is already expanded
       if (!elementToExpand.hasClass('open')) {
         var currentPosition = elementToExpand.offset();
@@ -525,8 +576,8 @@ var SmallCardsLayout = (function() {
         var expandWidth = $('body').outerWidth();
         var expandHeight = $('body').outerHeight();
 
-        var directoryDetailImageWrapper = elementToExpand.find('.directory-detail-image-wrapper');
-        var directoryDetailImage = elementToExpand.find('.directory-detail-image');
+        var directoryDetailImageWrapper = elementToExpand.find('.small-card-list-detail-image-wrapper');
+        var directoryDetailImage = elementToExpand.find('.small-card-list-detail-image');
 
         // freeze the current scroll position of the background content
         $('body').addClass('lock');
@@ -551,8 +602,8 @@ var SmallCardsLayout = (function() {
         }, 200, 'swing');
 
         elementToExpand.addClass('open');
-        elementToExpand.find('.directory-detail-close-btn').addClass('open');
-        elementToExpand.find('.directory-detail-content-scroll-wrapper').addClass('open');
+        elementToExpand.find('.small-card-list-detail-close-btn').addClass('open');
+        elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').addClass('open');
 
         directoryDetailImageWrapper.css({
           height: directoryDetailImageWrapper.outerHeight(),
@@ -577,10 +628,12 @@ var SmallCardsLayout = (function() {
       }
     },
     collapseElement: function(elementToCollapse) {
+      // Function called when a list item is tapped to close
+
       $('body').removeClass('lock');
 
-      var directoryDetailImageWrapper = elementToCollapse.find('.directory-detail-image-wrapper');
-      var directoryDetailImage = elementToCollapse.find('.directory-detail-image');
+      var directoryDetailImageWrapper = elementToCollapse.find('.small-card-list-detail-image-wrapper');
+      var directoryDetailImage = elementToCollapse.find('.small-card-list-detail-image');
 
       var collapseTarget = elementToCollapse.parent();
       var elementScrollTop = $(window).scrollTop();
@@ -619,8 +672,8 @@ var SmallCardsLayout = (function() {
       });
 
       elementToCollapse.removeClass('open');
-      elementToCollapse.find('.directory-detail-close-btn').removeClass('open');
-      elementToCollapse.find('.directory-detail-content-scroll-wrapper').removeClass('open');
+      elementToCollapse.find('.small-card-list-detail-close-btn').removeClass('open');
+      elementToCollapse.find('.small-card-list-detail-content-scroll-wrapper').removeClass('open');
     }
   }
 
