@@ -493,7 +493,7 @@ var SmallCardsLayout = (function() {
         // Remove duplicates
         searchedData = _.uniq(searchedData);
         _this.renderLoopHTML(searchedData);
-        _this.init();
+        _this.onReady();
       }, 500);
     },
     backToSearch: function() {
@@ -514,7 +514,7 @@ var SmallCardsLayout = (function() {
       mixer.destroy();
       clusterize.destroy();
       _this.renderLoopHTML(listItems);
-      _this.init();
+      _this.onReady();
     },
     onReady: function() {
       // Function called when it's ready to show the list and remove the Loading
