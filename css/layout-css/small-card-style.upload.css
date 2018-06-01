@@ -192,6 +192,10 @@
   padding-bottom: 5px;
 }
 
+.hidden-filter-controls-filter-container + .hidden-filter-controls-label {
+  padding-top: 10px;
+}
+
 .hidden-filter-controls-label span {
   font-weight: bold;
   text-transform: capitalize;
