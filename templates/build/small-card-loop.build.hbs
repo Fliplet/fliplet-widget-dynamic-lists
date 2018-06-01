@@ -1,0 +1,22 @@
+\{{#each this}}
+  <div class="small-card-list-item \{{data.[classes]}}">
+    <div class="small-card-list-image">
+      <div class="small-card-list-detail-wrapper" data-entry-id="\{{id}}">
+        <div class="small-card-list-detail-image-wrapper">
+          <div class="small-card-list-detail-image" style="background-image: url('\{{data.[Image]}}')"></div>
+          <i class="fa fa-user"></i>
+        </div>
+        
+        <!-- Don't delete this -->
+        <!-- This is where the detail view will be added -->
+        \{{> profile}}
+
+      </div>
+    </div>
+    <div class="small-card-list-text-wrapper">
+      <div class="small-card-list-name">\{{data.[First Name]}} \{{data.[Last Name]}}</div>
+      <div class="small-card-list-role">\{{data.[Title]}}</div>
+      <div class="small-card-list-location">\{{data.[Location]}}</div>
+    </div>
+  </div>
+  \{{/each}}

@@ -1,0 +1,18 @@
+{{#if layout}}
+  {{#if advancedSettings.cssEnabled}}
+  <style>
+  {{{advancedSettings.cssCode}}}
+  </style>
+  {{/if}}
+  <div data-dynamic-lists-id="{{ id }}" data-dynamic-lists-uuid="{{uuid}}"></div>
+  {{#if advancedSettings.jsEnabled}}
+  <script type="text/javascript">
+  {{{advancedSettings.jsCode}}}
+  </script>
+  {{/if}}
+{{else}}
+<div class="dynamic-list-placeholder">
+  <h3>List (from data source)</h3>
+  <p>Click here to edit the settings.</p>
+</div>
+{{/if}}

@@ -1,0 +1,79 @@
+{
+  "name": "List (from data source)",
+  "package": "com.fliplet.dynamic-lists",
+  "version": "1.0.0",
+  "icon": "img/icon.png",
+  "tags": ["type:component", "category:advanced"],
+  "provider_only": false,
+  "html_tag": "div",
+  "providers": [
+    "com.fliplet.link"
+  ],
+  "interface": {
+    "dependencies": [
+      "fliplet-core",
+      "fliplet-datasources",
+      "fliplet-studio-ui",
+      "jquery-ui",
+      "bootstrap",
+      "animate-css",
+      "handlebars",
+      "codemirror"
+    ],
+    "assets": [
+      "vendor/codemirror/lib/codemirror.css",
+      "vendor/codemirror/mode/htmlmixed/htmlmixed.js",
+      "vendor/codemirror/mode/css/css.js",
+      "vendor/codemirror/addon/fold/foldgutter.css",
+      "vendor/codemirror/addon/fold/foldgutter.js",
+      "vendor/codemirror/addon/fold/foldcode.js",
+      "vendor/codemirror/addon/fold/brace-fold.js",
+      "vendor/codemirror/addon/fold/comment-fold.js",
+      "vendor/codemirror/addon/fold/indent-fold.js",
+      "vendor/codemirror/addon/fold/xml-fold.js",
+      "vendor/codemirror/addon/format/formatting.js",
+      "vendor/codemirror/addon/display/autorefresh.js",
+      "vendor/codemirror/addon/edit/matchbrackets.js",
+      "vendor/codemirror/addon/selection/active-line.js",
+      "vendor/jquery-ui.min.css",
+      "vendor/bootstrap-tokenfield.min.css",
+      "vendor/bootstrap-tokenfield.min.js",
+      "js/interface.templates.js",
+      "js/build.templates.js",
+      "js/interface.js",
+      "js/interface-lists.js",
+      "css/interface.css"
+    ]
+  },
+  "build": {
+    "dependencies": [
+      "fliplet-core",
+      "fliplet-session",
+      "fliplet-datasources",
+      "font-awesome",
+      "bootstrap",
+      "jquery-ui",
+      "moment",
+      "lodash",
+      "handlebars",
+      "animate-css"
+    ],
+    "assets": [
+      "js/build.templates.js",
+      "vendor/mixitup.min.js",
+      "vendor/mixitup-multifilter.min.js",
+      "vendor/clusterize.min.js",
+      "js/build-lists.js",
+      "js/layout-javascript/small-card-code.upload.js",
+      "js/build.js",
+      "vendor/style.css",
+      "css/build.css",
+      "css/layout-css/small-card-style.upload.css"
+    ]
+  },
+  "references": [
+    "action.page:page",
+    "image.id:mediaFile",
+    "source:dataSource"
+  ]
+}
