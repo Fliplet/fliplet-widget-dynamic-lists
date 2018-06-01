@@ -30,20 +30,6 @@ Fliplet.Widget.onSaveRequest(function () {
   $('form').submit();
 });
 
-Fliplet.Widget.toggleCancelButton(false);
-Fliplet.Widget.onCancelRequest(function () {
-  var dataSourceCreated = dynamicLists.getCurrentDataSource();
-
-  if (typeof dataSourceCreated !== 'undefined' && !widgetData.layout) {
-    dynamicLists.deleteDataSource(dataSourceCreated.id).then(function() {
-      Fliplet.Widget.complete();
-    });
-    return;
-  }
-
-  Fliplet.Widget.complete();
-});
-
 function initialize() {
   dynamicLists = new DynamicLists(widgetData);
 }
