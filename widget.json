@@ -48,6 +48,7 @@
   "build": {
     "dependencies": [
       "fliplet-core",
+      "fliplet-session",
       "fliplet-datasources",
       "font-awesome",
       "bootstrap",
