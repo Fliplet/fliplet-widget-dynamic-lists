@@ -750,6 +750,20 @@ var DynamicLists = (function() {
           )
         }
 
+        if (detailTemplateEditor) {
+          var totalLinesDetailTemplateEditor = detailTemplateEditor.lineCount()
+          var totalCharsDetailTemplateEditor = detailTemplateEditor.getTextArea().value.length
+          otherLoopTemplateEditor.autoFormatRange(
+            { line: 0, ch: 0 },
+            { line: totalLinesDetailTemplateEditor, ch: totalCharsDetailTemplateEditor }
+          )
+          // Remove selection
+          detailTemplateEditor.setSelection(
+            { line: 0, ch: 0 },
+            { line: 0, ch: 0 }
+          )
+        }
+
         if (filterLoopTemplateEditor) {
           var totalLinesFilterLoopTemplateEditor = filterLoopTemplateEditor.lineCount()
           var totalCharsFilterLoopTemplateEditor = filterLoopTemplateEditor.getTextArea().value.length
@@ -1179,6 +1193,7 @@ var DynamicLists = (function() {
       
       if (data.advancedSettings.htmlEnabled) {
         data.advancedSettings.loopHTML = loopTemplateEditor.getValue();
+        data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
         data.advancedSettings.baseHTML = baseTemplateEditor.getValue();
 
         if (data.layout === 'small-card') {
