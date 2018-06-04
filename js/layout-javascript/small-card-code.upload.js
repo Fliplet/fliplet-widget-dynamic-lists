@@ -308,6 +308,9 @@ var SmallCardsLayout = (function() {
             $('.my-profile-container').removeClass('disabled');
           }
           
+          return;
+        })
+        .then(function() {
           // Listeners and Ready
           _this.attachObservers();
           _this.onReady();
@@ -518,9 +521,10 @@ var SmallCardsLayout = (function() {
     },
     onReady: function() {
       // Function called when it's ready to show the list and remove the Loading
-
       _this.initializeClusterize();
-      _this.initializeMixer();
+      if (_this.data.filtersEnabled) {
+        _this.initializeMixer();
+      }
       // Ready
       _this.$container.find('.small-card-list-container').addClass('ready');
     },
@@ -530,6 +534,7 @@ var SmallCardsLayout = (function() {
 
       mixer = mixitup('#small-card-list-wrapper-' + _this.data.id, {
         selectors: {
+          control: '[data-mixitup-control]',
           target: '.small-card-list-item'
         },
         multifilter: {

@@ -19,7 +19,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-detail"] = Ha
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-filters"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "{{#each this}}\n<div class=\"hidden-filter-controls-label\">Filter by <span>{{[name]}}</span></div>\n<div class=\"hidden-filter-controls-filter-container\">\n  <div class=\"hidden-filter-controls-filter-wrapper\">\n    <fieldset data-filter-group>\n      {{#each [data]}}\n      <div class=\"btn hidden-filter-controls-filter\" data-toggle=\"{{[class]}}\">{{[name]}}</div>\n      {{/each}}\n    </fieldset>\n  </div>\n</div>\n{{/each}}";
+    return "{{#each this}}\n<div class=\"hidden-filter-controls-label\">Filter by <span>{{[name]}}</span></div>\n<div class=\"hidden-filter-controls-filter-container\">\n  <div class=\"hidden-filter-controls-filter-wrapper\">\n    <fieldset data-filter-group>\n      {{#each [data]}}\n      <div class=\"btn hidden-filter-controls-filter\" data-mixitup-control data-toggle=\"{{[class]}}\">{{[name]}}</div>\n      {{/each}}\n    </fieldset>\n  </div>\n</div>\n{{/each}}";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-loop"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {

@@ -385,73 +385,76 @@ var DynamicLists = (function() {
         Fliplet.Studio.emit('widget-mode', 'wide');
       } else {
         // Load data source
-        _this.changeCreateDsButton(_this.config.dataSource);
+        _this.changeCreateDsButton(_this.config.dataSource)
+          .then(function() {
+            // Check style specific options
+          if (_this.config['style-specific'].length) {
+            $('.style-specific').removeClass('hidden');
+            // @TODO: Show/Hide individual options depending on the style
+          }
 
-        // Check style specific options
-        if (_this.config['style-specific'].length) {
-          $('.style-specific').removeClass('hidden');
-          // @TODO: Show/Hide individual options depending on the style
-        }
+          // Load sort options
+          _.forEach(_this.config.sortOptions, function(item) {
+            item.fromLoading = true; // Flag to close accordions
+            item.columns = dataSourceColumns;
+            _this.addSortItem(item);
+            $('#sort-accordion #select-data-field-' + item.id).val(item.column);
+            $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
+            $('#sort-accordion #order-by-field-' + item.id).val(item.orderBy);
+          });
+          _this.checkSortPanelLength();
 
-        // Load sort options
-        _.forEach(_this.config.sortOptions, function(item) {
-          item.fromLoading = true; // Flag to close accordions
-          _this.addSortItem(item);
-          item.column = $('#sort-accordion #select-data-field-' + item.id).val(item.column);
-          item.sortBy = $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
-          item.orderBy = $('#sort-accordion #order-by-field-' + item.id).val(item.orderBy);
-        });
-        _this.checkSortPanelLength();
+          // Load filter options
+          _.forEach(_this.config.filterOptions, function(item) {
+            item.fromLoading = true; // Flag to close accordions
+            item.columns = dataSourceColumns;
+            _this.addFilterItem(item);
+            $('#filter-accordion #select-data-field-' + item.id).val(item.column);
+            $('#filter-accordion #logic-field-' + item.id).val(item.logic);
+            $('#filter-accordion #value-field-' + item.id).val(item.value);
+          });
+          _this.checkFilterPanelLength();
 
-        // Load filter options
-        _.forEach(_this.config.filterOptions, function(item) {
-          item.fromLoading = true; // Flag to close accordions
-          _this.addFilterItem(item);
-          $('#filter-accordion #select-data-field-' + item.id).val(item.column);
-          $('#filter-accordion #logic-field-' + item.id).val(item.logic);
-          $('#filter-accordion #value-field-' + item.id).val(item.value);
-        });
-        _this.checkFilterPanelLength();
+          // Load Search/Filter fields
+          $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
+          $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
 
-        // Load Search/Filter fields
-        $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
-        $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
+          // Load social feature
+          $('#enable-likes').prop('checked', _this.config.social.likes);
+          $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
+          $('#enable-comments').prop('checked', _this.config.social.comments);
 
-        // Load social feature
-        $('#enable-likes').prop('checked', _this.config.social.likes);
-        $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
-        $('#enable-comments').prop('checked', _this.config.social.comments);
+          // Select layout
+          listLayout = _this.config.layout;
+          isLayoutSelected = true;
+          $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
-        // Select layout
-        listLayout = _this.config.layout;
-        isLayoutSelected = true;
-        $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
+          // Load code editor tabs
+          if (listLayout === 'small-card') {
+            $('.filter-loop-item').removeClass('hidden');
+            $('.detail-view-item').removeClass('hidden');
+          }
+          if (listLayout === 'agenda') {
+            $('.date-loop-item').removeClass('hidden');
+          }
 
-        // Load code editor tabs
-        if (listLayout === 'small-card') {
-          $('.filter-loop-item').removeClass('hidden');
-          $('.detail-view-item').removeClass('hidden');
-        }
-        if (listLayout === 'agenda') {
-          $('.date-loop-item').removeClass('hidden');
-        }
+          // Load advanced settings
+          if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
+            resetToDefaults = true;
+            $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
+            $('input#enable-css').prop('checked', _this.config.advancedSettings.cssEnabled).trigger('change');
+            $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
+            resetToDefaults = false;
+          }
 
-        // Load advanced settings
-        if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
-          resetToDefaults = true;
-          $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
-          $('input#enable-css').prop('checked', _this.config.advancedSettings.cssEnabled).trigger('change');
-          $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
-          resetToDefaults = false;
-        }
-
-        _this.setupCodeEditors(listLayout);
-        _this.goToSettings('layouts');
+          _this.setupCodeEditors(listLayout);
+          _this.goToSettings('layouts');
+          });
       }
 
       setTimeout(function() {
         $('.state').removeClass('loading is-loading');  
-      }, 300);
+      }, 500);
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
@@ -504,30 +507,30 @@ var DynamicLists = (function() {
     },
     getColumns: function(dataSourceId) {
       if (dataSourceId && dataSourceId !== '') {
-        Fliplet.DataSources.getById(dataSourceId, {
+        return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
         }).then(function (dataSource) {
           dataSourceColumns = dataSource.columns;
           _this.setUpTokenFields();
+          return;
         });
       }
     },
     reloadDataSources: function(dataSourceId) {
-      return Fliplet.DataSources.get({
-        type: null
-      }, {
+      return Fliplet.DataSources.getById(dataSourceId, {
         cache: false
-      }).then(function(results) {
-        allDataSources = results;
-        $dataSources.html('<option value="none">-- Select a data source</option><option disabled>------</option><option value="new">Create a new data source</option><option disabled>------</option>');
-        allDataSources.forEach(function (d) {
-          $dataSources.append('<option value="' + d.id + '">' + d.name + '</option>');
-        });
+      }).then(function(ds) {
+        dataSourceColumns = ds.columns;
+        $('[data-field="field"]').each(function(index, obj) {
+          var value = $(obj).val();
 
-        if (dataSourceId) {
-          $dataSources.val(dataSourceId);
-        }
-        $dataSources.trigger('change');
+          $(obj).html('');
+          $(obj).append('<option value="none">-- Select a data field</option>');
+          dataSourceColumns.forEach(function(value, index) {
+            $(obj).append('<option value="'+ value +'">'+ value +'</option>');
+          });
+          $(obj).val(value);
+        });
       });
     },
     getDataSources: function() {
@@ -597,12 +600,13 @@ var DynamicLists = (function() {
     },
     changeCreateDsButton: function(dataSource) {
       newDataSource = dataSource;
-      _this.getColumns(dataSource.id);
-
-      $('.selected-datasource span').html(dataSource.name);
-      $('.create-holder').addClass('hidden');
-      $('.edit-holder').removeClass('hidden');
-      $('.form-group').removeClass('disabled');
+      return _this.getColumns(dataSource.id)
+        .then(function() {
+          $('.selected-datasource span').html(dataSource.name);
+          $('.create-holder').addClass('hidden');
+          $('.edit-holder').removeClass('hidden');
+          $('.form-group').removeClass('disabled');
+        });
     },
     checkSortPanelLength: function() {
       if ($('#sort-accordion .panel').length) {
@@ -1128,7 +1132,7 @@ var DynamicLists = (function() {
       });
     },
     saveLists: function(toReload) {
-      var data = {};
+      var data = _this.config;
       data.advancedSettings = {};
 
       data.layout = listLayout;
@@ -1177,10 +1181,10 @@ var DynamicLists = (function() {
         data.advancedSettings.baseHTML = baseTemplateEditor.getValue();
 
         if (data.layout === 'small-card') {
-          _this.config.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+          data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
         }
         if (data.layout === 'agenda') {
-          _this.config.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
+          data.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
         }
       }
 
@@ -1192,7 +1196,7 @@ var DynamicLists = (function() {
         data.advancedSettings.jsCode = javascriptEditor.getValue();
       }
 
-      _this.config = $.extend(true, _this.config, data);
+      _this.config = data;
 
       if (toReload) {
         Fliplet.Widget.save(_this.config).then(function () {
