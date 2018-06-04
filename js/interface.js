@@ -531,6 +531,7 @@ var DynamicLists = (function() {
           });
           $(obj).val(value);
         });
+        _this.setUpTokenFields();
       });
     },
     getDataSources: function() {
