@@ -178,8 +178,10 @@ var DynamicLists = (function() {
           $('.state.present').addClass('is-loading');
           // Create data source
           _this.createDataSourceFromLayout().then(function() {
-            _this.loadData();
-            _this.saveLists(true);
+            _this.loadData()
+              .then(function() {
+                _this.saveLists(true);
+              });
           });
         })
         .on('click', '[data-advanced]', function() {
@@ -381,80 +383,85 @@ var DynamicLists = (function() {
       _this.initializeSortSortable();
     },
     loadData: function() {
-      if (!_this.config.layout) {
-        Fliplet.Studio.emit('widget-mode', 'wide');
-      } else {
-        // Load data source
-        _this.changeCreateDsButton(_this.config.dataSource)
-          .then(function() {
-            // Check style specific options
-          if (_this.config['style-specific'].length) {
-            $('.style-specific').removeClass('hidden');
-            // @TODO: Show/Hide individual options depending on the style
-          }
-
-          // Load sort options
-          _.forEach(_this.config.sortOptions, function(item) {
-            item.fromLoading = true; // Flag to close accordions
-            item.columns = dataSourceColumns;
-            _this.addSortItem(item);
-            $('#sort-accordion #select-data-field-' + item.id).val(item.column);
-            $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
-            $('#sort-accordion #order-by-field-' + item.id).val(item.orderBy);
-          });
-          _this.checkSortPanelLength();
-
-          // Load filter options
-          _.forEach(_this.config.filterOptions, function(item) {
-            item.fromLoading = true; // Flag to close accordions
-            item.columns = dataSourceColumns;
-            _this.addFilterItem(item);
-            $('#filter-accordion #select-data-field-' + item.id).val(item.column);
-            $('#filter-accordion #logic-field-' + item.id).val(item.logic);
-            $('#filter-accordion #value-field-' + item.id).val(item.value);
-          });
-          _this.checkFilterPanelLength();
-
-          // Load Search/Filter fields
-          $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
-          $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
-
-          // Load social feature
-          $('#enable-likes').prop('checked', _this.config.social.likes);
-          $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
-          $('#enable-comments').prop('checked', _this.config.social.comments);
-
-          // Select layout
-          listLayout = _this.config.layout;
-          isLayoutSelected = true;
-          $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
-
-          // Load code editor tabs
-          if (listLayout === 'small-card') {
-            $('.filter-loop-item').removeClass('hidden');
-            $('.detail-view-item').removeClass('hidden');
-          }
-          if (listLayout === 'agenda') {
-            $('.date-loop-item').removeClass('hidden');
-          }
-
-          // Load advanced settings
-          if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
-            resetToDefaults = true;
-            $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
-            $('input#enable-css').prop('checked', _this.config.advancedSettings.cssEnabled).trigger('change');
-            $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
-            resetToDefaults = false;
-          }
-
-          _this.setupCodeEditors(listLayout);
-          _this.goToSettings('layouts');
-          });
-      }
-
       setTimeout(function() {
         $('.state').removeClass('loading is-loading');  
       }, 500);
+
+      if (!_this.config.layout) {
+        return new Promise(function(resolve) {
+          Fliplet.Studio.emit('widget-mode', 'wide');
+          resolve();
+        });
+      } else {
+        // Load data source
+        return _this.changeCreateDsButton(_this.config.dataSource)
+          .then(function() {
+            // Check style specific options
+            if (_this.config['style-specific'].length) {
+              $('.style-specific').removeClass('hidden');
+              // @TODO: Show/Hide individual options depending on the style
+            }
+
+            // Load sort options
+            _.forEach(_this.config.sortOptions, function(item) {
+              item.fromLoading = true; // Flag to close accordions
+              item.columns = dataSourceColumns;
+              _this.addSortItem(item);
+              $('#sort-accordion #select-data-field-' + item.id).val(item.column);
+              $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
+              $('#sort-accordion #order-by-field-' + item.id).val(item.orderBy);
+            });
+            _this.checkSortPanelLength();
+
+            // Load filter options
+            _.forEach(_this.config.filterOptions, function(item) {
+              item.fromLoading = true; // Flag to close accordions
+              item.columns = dataSourceColumns;
+              _this.addFilterItem(item);
+              $('#filter-accordion #select-data-field-' + item.id).val(item.column);
+              $('#filter-accordion #logic-field-' + item.id).val(item.logic);
+              $('#filter-accordion #value-field-' + item.id).val(item.value);
+            });
+            _this.checkFilterPanelLength();
+
+            // Load Search/Filter fields
+            $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
+            $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
+
+            // Load social feature
+            $('#enable-likes').prop('checked', _this.config.social.likes);
+            $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
+            $('#enable-comments').prop('checked', _this.config.social.comments);
+
+            // Select layout
+            listLayout = _this.config.layout;
+            isLayoutSelected = true;
+            $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
+
+            // Load code editor tabs
+            if (listLayout === 'small-card') {
+              $('.filter-loop-item').removeClass('hidden');
+              $('.detail-view-item').removeClass('hidden');
+            }
+            if (listLayout === 'agenda') {
+              $('.date-loop-item').removeClass('hidden');
+            }
+
+            // Load advanced settings
+            if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
+              resetToDefaults = true;
+              $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
+              $('input#enable-css').prop('checked', _this.config.advancedSettings.cssEnabled).trigger('change');
+              $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
+              resetToDefaults = false;
+            }
+
+            _this.setupCodeEditors(listLayout);
+            _this.goToSettings('layouts');
+
+            return;
+          });
+      }
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
@@ -595,7 +602,8 @@ var DynamicLists = (function() {
         _this.config.layout = listLayout;
         _this.config.dataSource = ds;
         _this.config.dataSourceId = ds.id;
-        _this.config = $.extend(true, defaultSettings[listLayout], _this.config);
+        _this.config = $.extend(true, _this.config, defaultSettings[listLayout]);
+
         return ds;
       });
     },

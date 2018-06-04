@@ -16,7 +16,7 @@
   cursor: pointer;
 }
 
-.my-profile-container.disabled,
+.profile-disabled .my-profile-container,
 .loading .my-profile-container {
   display: none;
   pointer-events: none;
@@ -66,6 +66,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.section-top-wrapper.profile-disabled {
+  justify-content: flex-end;
 }
 
 .list-search-icon {

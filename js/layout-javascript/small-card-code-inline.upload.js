@@ -1,16 +1,4 @@
 var SmallCardsLayoutInline = (function() {
-  var _this;
-
-  // Global variables
-  var allowClick = true;
-  var clusterize;
-  var mixer;
-
-  var emailField = 'Email';
-  var myProfileData;
-  var myUserData;
-
-  var listItems;
   var layoutMapping = {
     'small-card': {
       'base': 'templates.build.small-card-base',
@@ -33,11 +21,22 @@ var SmallCardsLayoutInline = (function() {
   // Constructor
   function SmallCardsLayoutInline(data, container) {
     console.log(data);
-    _this = this;
+    var _this = this;
+
+    // Global variables
+    var allowClick = true;
+    var clusterize;
+    var mixer;
+
+    var emailField = 'Email';
+    var myProfileData;
+    var myUserData;
+
+    var listItems;
 
     // Makes data and the component container available to Public functions
     this.data = data;
-    this.$container = $(container);
+    this.$container = $('[data-dynamic-lists-id="' + _this.data.id + '"]');
 
     // Register handlebars helpers
     this.registerHandlebarsHelpers();
@@ -305,7 +304,7 @@ var SmallCardsLayoutInline = (function() {
             var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
             $('.my-profile-icon').html(profileIconTemplateCompiled(myProfileData[0]));
 
-            $('.my-profile-container').removeClass('disabled');
+            $('.section-top-wrapper').removeClass('profile-disabled');
           }
           
           return;
@@ -356,7 +355,8 @@ var SmallCardsLayoutInline = (function() {
       ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
       : Handlebars.compile(baseHTML());
 
-      _this.$container.html(template(_this.data));
+      debugger;
+      $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
     },
     renderLoopHTML: function(records) {
       // Function that renders the List template

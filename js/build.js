@@ -7,11 +7,11 @@ $('[data-dynamic-lists-id]').each(function(){
   var data = Fliplet.Widget.getData(id);
 
   if (data.layout === 'small-card' && !data.advancedSettings.jsEnabled) {
-    dynamicLists[id] = new SmallCardsLayout(data, container);
+    dynamicLists[id] = new SmallCardsLayout(id, data, container);
     return;
   }
   if (data.layout === 'small-card' && data.advancedSettings.jsEnabled) {
-    dynamicLists[id] = new SmallCardsLayoutInline(data, container);
+    dynamicLists[id] = new SmallCardsLayoutInline(id, data, container);
     return;
   }
 
