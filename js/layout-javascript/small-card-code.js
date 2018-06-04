@@ -210,7 +210,9 @@ var SmallCardsLayout = (function() {
               var values = [];
 
               fields.forEach(function(field) {
-                values.push(record.data[field].toString());
+                if (record.data[field] !== '' && record.data[field] !== null && typeof record.data[field] !== 'undefined') {
+                  values.push(record.data[field].toString());
+                }
               });
 
               return values;
