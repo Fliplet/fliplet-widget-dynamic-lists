@@ -10,6 +10,10 @@ $('[data-dynamic-lists-id]').each(function(){
     dynamicLists[id] = new SmallCardsLayout(data, container);
     return;
   }
+  if (data.layout === 'small-card' && data.advancedSettings.jsEnabled) {
+    dynamicLists[id] = new SmallCardsLayoutInline(data, container);
+    return;
+  }
 
   dynamicLists[id] = new DynamicLists(data, container);
 });
