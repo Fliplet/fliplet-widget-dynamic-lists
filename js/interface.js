@@ -561,7 +561,7 @@ var DynamicLists = (function() {
         cache: false
       }).then(function(ds) {
         dataSourceColumns = ds.columns;
-        _updateFieldsWithColumns(dataSourceColumns);
+        _this.updateFieldsWithColumns(dataSourceColumns);
       });
     },
     getDataSources: function() {
