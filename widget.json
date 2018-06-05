@@ -62,7 +62,6 @@
       "vendor/mixitup-multifilter.min.js",
       "vendor/clusterize.min.js",
       "js/build-lists.js",
-      "js/layout-javascript/small-card-code.js",
       "js/build.js",
       "vendor/style.css",
       "css/build.css",
