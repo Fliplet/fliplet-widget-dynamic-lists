@@ -262,10 +262,9 @@ DynamicList.prototype.initialize = function() {
 
         // Filter data
         filtered = _.filter(records, function(record) {
-          var matched;
+          var matched = 0;
 
-          filters.forEach(function(filter) {
-            matched = 0;
+          filters.some(function(filter) {
             var condition = filter.condition;
 
             if (condition === 'contains') {
@@ -285,15 +284,15 @@ DynamicList.prototype.initialize = function() {
               if (patt.test(record.data[filter.column])){
                 matched++;
               }
-              return ;
+              return;
             }
             if (operators[condition](record.data[filter.column], filter.value)) {
               matched++;
-              return ;
+              return;
             }
           });
 
-          return matched > 0 ? true : false;
+          return matched >= filters.length ? true : false;
         });
         records = filtered;
       }
