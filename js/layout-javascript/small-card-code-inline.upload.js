@@ -415,7 +415,6 @@ SmallCardsLayoutInline.prototype.addFilters = function(data) {
 
     allFilters.push(arrangedFilters);
   });
-  console.log(allFilters);
 
   filtersTemplate = Fliplet.Widget.Templates['templates.build.' + _this.data.layout + '-filters'];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
