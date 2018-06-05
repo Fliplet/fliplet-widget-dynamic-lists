@@ -65,8 +65,8 @@ var DynamicLists = (function() {
   var detailTemplateEditor;
   var filterLoopTemplateEditor;
   var otherLoopTemplateEditor;
-  var cssStyleEditor
-  var javascriptEditor
+  var cssStyleEditor;
+  var javascriptEditor;
 
   var baseTemplateCode = '';
   var loopTemplateCode = '';
@@ -177,12 +177,13 @@ var DynamicLists = (function() {
 
           $('.state.present').addClass('is-loading');
           // Create data source
-          _this.createDataSourceFromLayout().then(function() {
-            _this.loadData()
-              .then(function() {
-                _this.saveLists(true);
-              });
-          });
+          _this.createDataSourceFromLayout()
+            .then(function() {
+              return _this.loadData();
+            })
+            .then(function() {
+              _this.saveLists(true);
+            });
         })
         .on('click', '[data-advanced]', function() {
           _this.goToAdvanced();
@@ -266,8 +267,8 @@ var DynamicLists = (function() {
           }
         })
         .on('click', '.sort-panel .icon-delete', function() {
-          var $item = $(this).closest("[data-id], .panel"),
-            id = $item.data('id');
+          var $item = $(this).closest("[data-id], .panel");
+          var id = $item.data('id');
 
           _.remove(_this.config.sortOptions, {
             id: id
@@ -277,8 +278,8 @@ var DynamicLists = (function() {
           _this.checkSortPanelLength();
         })
         .on('click', '.filter-panel .icon-delete', function() {
-          var $item = $(this).closest("[data-id], .panel"),
-            id = $item.data('id');
+          var $item = $(this).closest("[data-id], .panel");
+          var id = $item.data('id');
 
           _.remove(_this.config.filterOptions, {
             id: id
@@ -529,6 +530,7 @@ var DynamicLists = (function() {
       }).then(function(ds) {
         dataSourceColumns = ds.columns;
         $('[data-field="field"]').each(function(index, obj) {
+          // @TODO Refactor to avoid DOM manipulation in every .each() loop
           var value = $(obj).val();
 
           $(obj).html('');
@@ -546,10 +548,12 @@ var DynamicLists = (function() {
       Fliplet.DataSources.get({
         organizationId: organizationId
       }).then(function (dataSources) {
+        var options = [];
         allDataSources = dataSources;
         dataSources.forEach(function (d) {
-          $dataSources.append('<option value="' + d.id + '">' + d.name + '</option>');
+          options.push('<option value="' + d.id + '">' + d.name + '</option>');
         });
+        $dataSources.append(options.join(''));
 
         if (widgetData.data && widgetData.data.dataSourceId) {
           $dataSources.val(widgetData.data.dataSourceId);
@@ -560,6 +564,7 @@ var DynamicLists = (function() {
       });
     },
     createDataSource: function() {
+      // @TODO Replace with .createDataSourceFromLayout()
       event.preventDefault();
       var name = prompt('Please type a name for your data source:', appName + ' - ' + pageTitle);
 
@@ -961,10 +966,10 @@ var DynamicLists = (function() {
         jsCode = !fromReset ? _this.config.advancedSettings.jsCode : javascriptEditor.getValue();
       } else if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].js) {
         var jsUrl = $('[data-' + layoutMapping[selectedLayout].js + '-js-url]').data(layoutMapping[selectedLayout].js + '-js-url');
-        var jsPromise = Fliplet.API.request('v1/communicate/proxy/' + jsUrl).then(function(response) {
-          jsCode = response;
-          return;
-        });
+        var jsPromise = Fliplet.API.request('v1/communicate/proxy/' + jsUrl )
+          .then(function(response) {
+            jsCode = response;
+          });
       }
 
       return Promise.all([basePromise, loopPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
