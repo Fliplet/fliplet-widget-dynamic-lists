@@ -24,6 +24,7 @@ var SmallCardsLayout = function(id, data, container) {
   // Makes data and the component container available to Public functions
   this.data = data;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
+  this.queryOptions = {};
 
   // Other variables
   // Global variables
@@ -185,6 +186,7 @@ SmallCardsLayout.prototype.initialize = function() {
       // Received the rows
 
       var sorted;
+      var ordered;
       var filtered;
 
       // Prepare sorting
@@ -193,7 +195,10 @@ SmallCardsLayout.prototype.initialize = function() {
         var sortOrder = [];
 
         _this.data.sortOptions.forEach(function(option) {
-          fields.push(option.column);
+          fields.push({
+            column: option.column,
+            type: option.sortBy
+          });
 
           if (option.orderBy === 'ascending') {
             sortOrder.push('asc');
@@ -204,18 +209,42 @@ SmallCardsLayout.prototype.initialize = function() {
         });
 
         // Sort data
-        sorted = _.orderBy(records, function(record) {
+        sorted = _.sortBy(records, function (obj) {
+          fields.forEach(function(field) {
+            obj.data[field.column] = obj.data[field.column] || '';
+            var value = obj.data[field.column].toString().toUpperCase();
+
+            if (field.type === "alphabetical") {
+              return value.match(/[A-Za-z]/)
+              ? value
+              : '{' + value;
+            }
+
+            if (field.type === "numerical") {
+              return value.match(/[0-9]/)
+              ? value
+              : '{' + value;
+            }
+
+            if (field.type === "date") {
+              obj.data[field.column] = moment(value).format('YYYYMMDD');
+              return obj.data[field.column];
+            }
+          });
+        });
+
+        ordered = _.orderBy(sorted, function(record) {
           var values = [];
 
           fields.forEach(function(field) {
-            if (record.data[field] !== '' && record.data[field] !== null && typeof record.data[field] !== 'undefined') {
-              values.push(record.data[field].toString());
+            if (record.data[field.column] !== '' && record.data[field.column] !== null && typeof record.data[field.column] !== 'undefined') {
+              values.push(record.data[field.column].toString());
             }
           });
 
           return values;
         }, sortOrder);
-        records = sorted;
+        records = ordered;
       }
 
       // Prepare filtering
@@ -328,7 +357,7 @@ SmallCardsLayout.prototype.connectToDataSource = function() {
     .then(function (connection) {
       // If you want to do specific queries to return your rows
       // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-      return connection.find();
+      return connection.find(_this.queryOptions);
     })
     .catch(function (error) {
       Fliplet.UI.Toast({
