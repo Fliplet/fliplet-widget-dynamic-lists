@@ -52,7 +52,7 @@ var SmallCardsLayoutInline = function(id, data, container) {
   });
 };
 
-SmallCardsLayout.prototype.registerHandlebarsHelpers = function() {
+SmallCardsLayoutInline.prototype.registerHandlebarsHelpers = function() {
   // Register your handlebars helpers here
   var _this = this;
   var partialDOM = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['detail']]();
@@ -86,7 +86,7 @@ SmallCardsLayout.prototype.registerHandlebarsHelpers = function() {
   });
 }
 
-SmallCardsLayout.prototype.attachObservers = function() {
+SmallCardsLayoutInline.prototype.attachObservers = function() {
   var _this = this;
   // Attach your event listeners here
   _this.$container
@@ -174,7 +174,7 @@ SmallCardsLayout.prototype.attachObservers = function() {
     });
 }
 
-SmallCardsLayout.prototype.initialize = function() {
+SmallCardsLayoutInline.prototype.initialize = function() {
   var _this = this;
   // Render Base HTML template
   _this.renderBaseHTML();
@@ -318,7 +318,7 @@ SmallCardsLayout.prototype.initialize = function() {
     });
 }
 
-SmallCardsLayout.prototype.connectToDataSource = function() {
+SmallCardsLayoutInline.prototype.connectToDataSource = function() {
   var _this = this;
   var options = {
     offline: true
@@ -347,7 +347,7 @@ SmallCardsLayout.prototype.connectToDataSource = function() {
     });
 }
 
-SmallCardsLayout.prototype.renderBaseHTML = function() {
+SmallCardsLayoutInline.prototype.renderBaseHTML = function() {
   // Function that renders the List container
   var _this = this;
   var baseHTML = '';
@@ -363,7 +363,7 @@ SmallCardsLayout.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
 }
 
-SmallCardsLayout.prototype.renderLoopHTML = function(records) {
+SmallCardsLayoutInline.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
   var loopHTML = '';
@@ -381,7 +381,7 @@ SmallCardsLayout.prototype.renderLoopHTML = function(records) {
   _this.addFilters(modifiedData);
 }
 
-SmallCardsLayout.prototype.addFilters = function(data) {
+SmallCardsLayoutInline.prototype.addFilters = function(data) {
   // Function that renders the filters
   var _this = this;
   var filters = [];
@@ -425,7 +425,7 @@ SmallCardsLayout.prototype.addFilters = function(data) {
   _this.$container.find('.filter-holder').html(template(allFilters));
 }
 
-SmallCardsLayout.prototype.convertCategories = function(data) {
+SmallCardsLayoutInline.prototype.convertCategories = function(data) {
   // Function that get and converts the categories for the filters to work
   var _this = this;
 
@@ -462,7 +462,7 @@ SmallCardsLayout.prototype.convertCategories = function(data) {
   return data;
 }
 
-SmallCardsLayout.prototype.searchData = function(value) {
+SmallCardsLayoutInline.prototype.searchData = function(value) {
   // Function called when user executes a search
   var _this = this;
 
@@ -512,7 +512,7 @@ SmallCardsLayout.prototype.searchData = function(value) {
   }, 500);
 }
 
-SmallCardsLayout.prototype.backToSearch = function() {
+SmallCardsLayoutInline.prototype.backToSearch = function() {
   // Function that is called when user wants to return
   // to the search input after searching for a value first
   var _this = this;
@@ -520,7 +520,7 @@ SmallCardsLayout.prototype.backToSearch = function() {
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
 }
 
-SmallCardsLayout.prototype.clearSearch = function() {
+SmallCardsLayoutInline.prototype.clearSearch = function() {
   // Function called when user clears the search field
   var _this = this;
 
@@ -536,7 +536,7 @@ SmallCardsLayout.prototype.clearSearch = function() {
   _this.onReady();
 }
 
-SmallCardsLayout.prototype.onReady = function() {
+SmallCardsLayoutInline.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
 
@@ -548,7 +548,7 @@ SmallCardsLayout.prototype.onReady = function() {
   _this.$container.find('.small-card-list-container').addClass('ready');
 }
 
-SmallCardsLayout.prototype.initializeMixer = function() {
+SmallCardsLayoutInline.prototype.initializeMixer = function() {
   // Function that initializes MixItUP
   // Plugin used for filtering
   var _this = this;
@@ -576,7 +576,7 @@ SmallCardsLayout.prototype.initializeMixer = function() {
   });
 }
 
-SmallCardsLayout.prototype.initializeClusterize = function() {
+SmallCardsLayoutInline.prototype.initializeClusterize = function() {
   // Function that initializes _this.clusterize
   // Plugin used for making long lists render smoothly
   var _this = this;
@@ -590,7 +590,7 @@ SmallCardsLayout.prototype.initializeClusterize = function() {
   });
 }
 
-SmallCardsLayout.prototype.expandElement = function(elementToExpand) {
+SmallCardsLayoutInline.prototype.expandElement = function(elementToExpand) {
   // Function called when a list item is tapped to expand
   var _this = this;
 
@@ -658,7 +658,7 @@ SmallCardsLayout.prototype.expandElement = function(elementToExpand) {
   }
 }
 
-SmallCardsLayout.prototype.collapseElement = function(elementToCollapse) {
+SmallCardsLayoutInline.prototype.collapseElement = function(elementToCollapse) {
   // Function called when a list item is tapped to close
   var _this = this;
 
