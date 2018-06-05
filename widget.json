@@ -70,6 +70,6 @@
     ]
   },
   "references": [
-    "source:dataSource"
+    "dataSourceId:dataSource"
   ]
 }
