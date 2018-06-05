@@ -233,9 +233,10 @@ SmallCardsLayout.prototype.initialize = function() {
 
         // Filter data
         filtered = _.filter(records, function(record) {
-          var matched = 0;
+          var matched;
 
           filters.forEach(function(filter) {
+            matched = 0;
             var condition = filter.condition;
 
             if (condition === 'contains') {

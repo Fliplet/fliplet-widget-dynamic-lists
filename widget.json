@@ -6,9 +6,7 @@
   "tags": ["type:component", "category:list", "beta:true"],
   "provider_only": false,
   "html_tag": "div",
-  "providers": [
-    "com.fliplet.link"
-  ],
+  "providers": [],
   "interface": {
     "dependencies": [
       "fliplet-core",
@@ -72,8 +70,6 @@
     ]
   },
   "references": [
-    "action.page:page",
-    "image.id:mediaFile",
     "source:dataSource"
   ]
 }
