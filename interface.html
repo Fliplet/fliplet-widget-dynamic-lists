@@ -96,26 +96,6 @@
     </header>
     <div class="state-wrapper">
       <form class="settings-form">
-        <!-- HIDE SELECTION OF DATA SOURCES
-        <div class="form-group clearfix">
-          <div class="col-sm-4 control-label">
-            <label for="select-menu">Select a data source for your list</label>
-          </div>
-          <div class="col-sm-8">
-            <label for="select_datasource" class="select-proxy-display">
-              <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>
-                <option value="none">-- Select a data source</option>
-                <option disabled>------</option>
-                <option value="new">Create a new data source</option>
-                <option disabled>------</option>
-              </select>
-              <span class="icon fa fa-chevron-down"></span>
-              <span class="select-value-proxy">-- Please wait</span>
-            </label>
-            <small id="manage-data" class="hidden"><a href="#">Edit data source</a></small>
-          </div>
-        </div>
-        -->
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
             <label>Your list data</label>
@@ -127,6 +107,19 @@
             <div class="edit-holder hidden">
               <div class="btn btn-default" data-edit-datasource>Edit list data</div>
               <p class="text-helper selected-datasource hidden"><strong>Data selected:</strong> <span></span></p>
+              <p class="text-helper select-new-data-source"><a href="#">Select a data source</a></p>
+            </div>
+            <div class="select-datasource-holder hidden">
+              <label for="select_datasource" class="select-proxy-display">
+                <select name="select_datasource" id="select_datasource" data-label="select" class="hidden-select form-control" disabled>
+                  <option value="none">-- Select a data source</option>
+                  <option disabled>------</option>
+                  <option value="new">Create a new data source</option>
+                  <option disabled>------</option>
+                </select>
+                <span class="icon fa fa-chevron-down"></span>
+                <span class="select-value-proxy">-- Please wait</span>
+              </label>
             </div>
           </div>
         </div>

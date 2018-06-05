@@ -76,7 +76,7 @@ var DynamicLists = (function() {
   var cssCode = '';
   var jsCode = '';
 
-  var $dataSources = $('[name="dataSource"]');
+  var $dataSources = $('[name="select_datasource"]');
   var defaultSettings = {
     'small-card': {
       'filtersEnabled': true,
@@ -342,27 +342,39 @@ var DynamicLists = (function() {
           } else {
             $('.filter-fields').addClass('hidden');
           }
+        })
+        .on('click', '.select-new-data-source', function() {
+          Fliplet.Modal.confirm({
+            title: 'Changing data source',
+            message: '<p>If you select a different data source you will need to use the <strong>Advanced Settings</strong to map your column names on the HTML templates.</p><p>Are you sure you want to continue?</p>'
+          }).then(function (result) {
+            if (!result) {
+              return;
+            }
+            $('.edit-holder').addClass('hidden');
+            $('.select-datasource-holder').removeClass('hidden');
+          });
         });
 
       $dataSources.on( 'change', function() {
         var selectedDataSourceId = $(this).val();
         if (selectedDataSourceId === 'none') {
-          $('#manage-data').addClass('hidden');
           return;
         }
         if (selectedDataSourceId === 'new') {
-          $('#manage-data').addClass('hidden');
+          $('.edit-holder').removeClass('hidden');
+          $('.select-datasource-holder').addClass('hidden');
           _this.createDataSource();
           return;
         }
+        $('.edit-holder').removeClass('hidden');
+        $('.select-datasource-holder').addClass('hidden');
         _this.getColumns(selectedDataSourceId);
       });
     },
     manageAppData: function() {
-      var dataSourceId = $dataSources.val();
-      if (!dataSourceId) {
-        dataSourceId = newDataSource.id;
-      }
+      var dataSourceId = newDataSource.id;
+
       Fliplet.Studio.emit('overlay', {
         name: 'widget',
         options: {
@@ -378,7 +390,7 @@ var DynamicLists = (function() {
       });
     },
     init: function() {
-      //_this.getDataSources();
+      _this.getDataSources();
       _this.setupCodeEditors();
       _this.loadData();
       _this.initializeSortSortable();
@@ -518,29 +530,38 @@ var DynamicLists = (function() {
         return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
         }).then(function (dataSource) {
+          newDataSource = dataSource;
           dataSourceColumns = dataSource.columns;
-          _this.setUpTokenFields();
+          _this.updateFieldsWithColumns(dataSourceColumns);
           return;
         });
       }
+    },
+    updateFieldsWithColumns: function(dataSourceColumns) {
+      var options;
+      $('[data-field="field"]').each(function(index, obj) {
+        // @TODO Refactor to avoid DOM manipulation in every .each() loop
+        var oldValue = $(obj).val();
+        var options = [];
+        var valueFound = false;
+        $(obj).html('');
+        $(obj).append('<option value="none">-- Select a data field</option>');
+        
+        dataSourceColumns.forEach(function(value, index) {
+          valueFound = oldValue === value;
+          options.push('<option value="'+ value +'">'+ value +'</option>');
+        });
+        $(obj).append(options.join(''));
+        $(obj).val(valueFound ? oldValue : "none");
+      });
+      _this.setUpTokenFields();
     },
     reloadDataSources: function(dataSourceId) {
       return Fliplet.DataSources.getById(dataSourceId, {
         cache: false
       }).then(function(ds) {
         dataSourceColumns = ds.columns;
-        $('[data-field="field"]').each(function(index, obj) {
-          // @TODO Refactor to avoid DOM manipulation in every .each() loop
-          var value = $(obj).val();
-
-          $(obj).html('');
-          $(obj).append('<option value="none">-- Select a data field</option>');
-          dataSourceColumns.forEach(function(value, index) {
-            $(obj).append('<option value="'+ value +'">'+ value +'</option>');
-          });
-          $(obj).val(value);
-        });
-        _this.setUpTokenFields();
+        _updateFieldsWithColumns(dataSourceColumns);
       });
     },
     getDataSources: function() {
@@ -564,34 +585,35 @@ var DynamicLists = (function() {
       });
     },
     createDataSource: function() {
-      // @TODO Replace with .createDataSourceFromLayout()
       event.preventDefault();
-      var name = prompt('Please type a name for your data source:', appName + ' - ' + pageTitle);
+      Fliplet.Modal.prompt({
+        title: 'Please type a name for your data source:',
+        value: appName + ' - ' + layoutMapping[listLayout].name
+      }).then(function (name) {
+        if (name === null) {
+          $dataSources.val('none').trigger('change');
+          return;
+        }
 
-      if (name === null) {
-        $('#manage-data').addClass('hidden');
-        $dataSources.val('none').trigger('change');
-        return;
-      }
+        if (name === '') {
+          $dataSources.val('none').trigger('change');
+          alert('You must enter a data source name');
+          return;
+        }
 
-      if (name === '') {
-        $('#manage-data').addClass('hidden');
-        $dataSources.val('none').trigger('change');
-        alert('You must enter a data source name');
-        return;
-      }
-
-      Fliplet.DataSources.create({
-        name: name,
-        organizationId: organizationId,
-        entries: defaultEntries[listLayout],
-        columns: defaultColumns[listLayout],
-        definition: {'bundleImages': true}
-      }).then(function(ds) {
-        allDataSources.push(ds);
-        $dataSources.append('<option value="' + ds.id + '">' + ds.name + '</option>');
-        $dataSources.val(ds.id).trigger('change');
-      });
+        Fliplet.DataSources.create({
+          name: name,
+          organizationId: organizationId,
+          entries: defaultEntries[listLayout],
+          columns: defaultColumns[listLayout],
+          definition: {'bundleImages': true}
+        }).then(function(ds) {
+          allDataSources.push(ds);
+          $dataSources.append('<option value="' + ds.id + '">' + ds.name + '</option>');
+          $dataSources.val(ds.id).trigger('change');
+          _this.getColumns(ds.id);
+        });
+      });   
     },
     createDataSourceFromLayout: function() {
       var name = appName + ' - List - ' + layoutMapping[listLayout].name;
