@@ -39,6 +39,10 @@ var DynamicList = function(id, data, container) {
   this.listItems;
 
   // Register handlebars helpers
+  this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[layoutMapping[this.data.layout]['detail']]());
+
   this.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.Session.get().then(function(session) {
@@ -56,11 +60,6 @@ var DynamicList = function(id, data, container) {
 DynamicList.prototype.registerHandlebarsHelpers = function() {
   // Register your handlebars helpers here
   var _this = this;
-
-  var partialDOM = _this.data.advancedSettings && _this.data.advancedSettings.detailHTML
-  ? _this.data.advancedSettings.detailHTML
-  : Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['detail']]();
-  Handlebars.registerPartial('profile', partialDOM);
 
   Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
     switch (operator) {
@@ -329,6 +328,7 @@ DynamicList.prototype.initialize = function() {
 
       // Render user profile
       if (_this.myProfileData.length) {
+        _this.myProfileData[0].data.profileHTML = _this.profileHTML(_this.myProfileData[0]);
         var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
         _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.myProfileData[0]));
@@ -400,13 +400,13 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
 
-  if (typeof _this.data.layout !== 'undefined') {
-    loopHTML = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['loop']];
-  }
+  modifiedData.forEach(function(obj, index) {
+    modifiedData[index].data.profileHTML = _this.profileHTML(modifiedData[index]);
+  });
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(loopHTML());
+  : Handlebars.compile(Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(modifiedData));
   _this.addFilters(modifiedData);
