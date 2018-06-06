@@ -92,8 +92,7 @@
 }
 
 .list-search-cancel {
-  display: inline-block;
-  opacity: 0;
+  display: none;
   font-size: 20px;
   padding-left: 0;
   padding-right: 0;
@@ -104,7 +103,7 @@
 }
 
 .list-search-cancel.active {
-  opacity: 1;
+  display: inline-block;
 }
 
 .hidden-filter-controls {
