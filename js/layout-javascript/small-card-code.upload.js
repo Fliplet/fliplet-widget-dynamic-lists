@@ -56,7 +56,10 @@ var DynamicList = function(id, data, container) {
 DynamicList.prototype.registerHandlebarsHelpers = function() {
   // Register your handlebars helpers here
   var _this = this;
-  var partialDOM = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['detail']]();
+
+  var partialDOM = _this.data.advancedSettings && _this.data.advancedSettings.detailHTML
+  ? _this.data.advancedSettings.detailHTML
+  : Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['detail']]();
   Handlebars.registerPartial('profile', partialDOM);
 
   Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
