@@ -566,9 +566,7 @@ var DynamicLists = (function() {
     },
     getDataSources: function() {
       // Load the data source
-      Fliplet.DataSources.get({
-        organizationId: organizationId
-      }).then(function (dataSources) {
+      Fliplet.DataSources.get().then(function (dataSources) {
         var options = [];
         allDataSources = dataSources;
         dataSources.forEach(function (d) {
