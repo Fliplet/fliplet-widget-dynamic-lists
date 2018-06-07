@@ -12,7 +12,7 @@ window.flWidgetLayout = [
     'id': 'news-feed',
     'name': 'Cards with description',
     'description': 'Suitable for news feeds',
-    'gif': window.__widgetData[widgetId].assetsUrl + 'img/small-card.gif',
-    'image': window.__widgetData[widgetId].assetsUrl + 'img/small-card.jpg'
+    'gif': window.__widgetData[widgetId].assetsUrl + 'img/news-feed.gif',
+    'image': window.__widgetData[widgetId].assetsUrl + 'img/news-feed.jpg'
   }
 ];
