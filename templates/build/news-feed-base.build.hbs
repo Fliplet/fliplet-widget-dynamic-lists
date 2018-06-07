@@ -1,0 +1,21 @@
+<div class="news-feed-list-container loading">
+  \{{#if filtersEnabled}}
+  <div class="filter-controls">
+    <div class="filter-controls-content">
+      <div class="filter-holder">
+        <!-- Filters here -->
+      </div>
+    </div>
+  </div>
+  \{{/if}}
+  <div class="news-feed-list-wrapper" id="news-feed-list-wrapper-\{{id}}">
+    <!-- List items will appear here -->
+  </div>
+
+  <div class="offline-holder">
+    <i class="fa fa-exclamation-triangle"></i> Hmm... no connection
+  </div>
+  <div class="loading-holder">
+    <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+  </div>
+</div>
