@@ -19,46 +19,9 @@ var DynamicLists = (function() {
   var tokenField = Fliplet.Widget.Templates['templates.interface.field-token'];
 
   // ADD NEW MAPPING FOR ALL NEW STYLES THAT ARE ADDED
-  var layoutMapping = {
-    'news-feed': {
-      'name': 'Cards with description',
-      'base': 'templates.build.cards-desc-base',
-      'loop': 'templates.build.cards-desc-loop',
-      'css': 'news-feed',
-      'js': 'news-feed'
-    },
-    'card-feed': {
-      'name': 'Full image cards',
-      'base': 'templates.build.cards-full-desc-base',
-      'loop': 'templates.build.cards-full-desc-loop',
-      'css': 'card-feed',
-      'js': 'card-feed'
-    },
-    'agenda': {
-      'name': 'Agenda',
-      'base': 'templates.build.agenda-base',
-      'loop': 'templates.build.agenda-loop',
-      'other-loop': 'templates.build.agenda-date-loop',
-      'css': 'agenda',
-      'js': 'agenda'
-    },
-    'small-card': {
-      'name': 'Small expandable cards',
-      'base': 'templates.build.small-card-base',
-      'loop': 'templates.build.small-card-loop',
-      'filter': 'templates.build.small-card-filters',
-      'detail': 'templates.build.small-card-detail',
-      'css': 'small-card',
-      'js': 'small-card'
-    },
-    'horizontal-card': {
-      'name': 'Horizontal list of small cards',
-      'base': 'templates.build.horizontal-card-base',
-      'loop': 'templates.build.horizontal-card-loop',
-      'css': 'horizontal-card',
-      'js': 'horizontal-card'
-    }
-  }
+  var layoutsTemplate = Fliplet.Widget.Templates['templates.interface.layouts'];
+  var listLayouts = window.flWidgetLayout;
+  var layoutMapping = window.flLayoutMapping;
   
   var baseTemplateEditor;
   var loopTemplateEditor;
@@ -77,71 +40,9 @@ var DynamicLists = (function() {
   var jsCode = '';
 
   var $dataSources = $('[name="select_datasource"]');
-  var defaultSettings = {
-    'small-card': {
-      'filtersEnabled': true,
-      'filterFields': ['Location', 'Sectors', 'Expertize'],
-      'searchEnabled': true,
-      'searchFields': ['First Name', 'Last Name', 'Title'],
-      'sortOptions': [
-        {
-          'column': 'First Name',
-          'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize'],
-          'id': 'ajdmjZrT',
-          'orderBy': 'ascending',
-          'sortBy': 'alphabetical',
-          'title': 'Sort condition 1'
-        }
-      ],
-      'style-specific': []
-    }
-  }
-  var defaultColumns = {
-    'small-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize']
-  };
-  var defaultEntries = {
-    'small-card': [
-      {
-        'First Name': 'Jane',
-        'Last Name': 'Smith',
-        'Title': 'Head of Marketing',
-        'Location': 'London',
-        'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-        'Email': 'jasmith@email.com',
-        'Telephone': '+440000000000',
-        'Linkedin': 'https://www.linkedin.com/in/user/',
-        'Bio': 'Candy crush marketer, wearable tech captain, tech whisperer. Deeper dives start here.',
-        'Sectors': 'Software, IT, Marketing, Design',
-        'Expertize': 'SEO'
-      },
-      {
-        'First Name': 'John',
-        'Last Name': 'Smith',
-        'Title': 'Head of Product',
-        'Location': 'London',
-        'Image': 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-        'Email': 'jsmith@email.com',
-        'Telephone': '+440000000000',
-        'Linkedin': 'https://www.linkedin.com/in/user/',
-        'Bio': 'MySpace ambassador, bitcoin virtuoso, android soothsayer. Beanie baby collector.',
-        'Sectors': 'Software, IT, Programming, Design, Development, Management',
-        'Expertize': 'Design'
-      },
-      {
-        'First Name': 'Mary',
-        'Last Name': 'Jane',
-        'Title': 'Consultant',
-        'Location': 'London',
-        'Image': 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-        'Email': 'jsmith@email.com',
-        'Telephone': '+440000000000',
-        'Linkedin': 'https://www.linkedin.com/in/user/',
-        'Bio': 'Content czar, BuzzFeed egghead-in-chief, interwebz sherpa. Burning the candle at both ends.',
-        'Sectors': 'Management, Finance, Business',
-        'Expertize': 'Business Management'
-      }
-    ]
-  };
+  var defaultSettings = window.flListLayoutConfig;
+  var defaultColumns = window.flListLayoutTableColumnConfig;
+  var defaultEntries = window.flListLayoutTableConfig;
 
   // Constructor
   function DynamicLists(configuration) {
@@ -158,6 +59,8 @@ var DynamicLists = (function() {
       advancedSettings: {}
     }, configuration);
     _this.widgetId = configuration.id;
+
+    $('.layouts-flex').html(layoutsTemplate(listLayouts));
 
     _this.attachListeners();
     _this.init();
@@ -406,15 +309,21 @@ var DynamicLists = (function() {
           resolve();
         });
       } else {
+        if (_this.config['style-specific'].length) {
+          _.forEach(_this.config['style-specific'], function(item) {
+            $('.' + item).removeClass('hidden');
+          });
+        } else if (_this.config.layout === 'small-card') {
+          // Because initial component didn't have this option
+          // This makes it backwards compatible
+          _this.config['style-specific'] = ['list-filter', 'list-search'];
+          _.forEach(_this.config['style-specific'], function(item) {
+            $('.' + item).removeClass('hidden');
+          });
+        }
         // Load data source
         return _this.changeCreateDsButton(_this.config.dataSource)
           .then(function() {
-            // Check style specific options
-            if (_this.config['style-specific'].length) {
-              $('.style-specific').removeClass('hidden');
-              // @TODO: Show/Hide individual options depending on the style
-            }
-
             // Load sort options
             _.forEach(_this.config.sortOptions, function(item) {
               item.fromLoading = true; // Flag to close accordions
@@ -455,6 +364,9 @@ var DynamicLists = (function() {
             if (listLayout === 'small-card') {
               $('.filter-loop-item').removeClass('hidden');
               $('.detail-view-item').removeClass('hidden');
+            }
+            if (listLayout === 'news-feed') {
+              $('.filter-loop-item').removeClass('hidden');
             }
             if (listLayout === 'agenda') {
               $('.date-loop-item').removeClass('hidden');
@@ -1160,7 +1072,12 @@ var DynamicLists = (function() {
         if (id === 'enable-templates') {
           _this.config.advancedSettings.baseHTML = undefined;
           _this.config.advancedSettings.loopHTML = undefined;
+
           if (listLayout === 'small-card') {
+            _this.config.advancedSettings.filterHTML = undefined;
+            _this.config.advancedSettings.detailHTML = undefined;
+          }
+          if (listLayout === 'news-feed') {
             _this.config.advancedSettings.filterHTML = undefined;
           }
           if (listLayout === 'agenda') {
@@ -1214,12 +1131,6 @@ var DynamicLists = (function() {
       data.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
         $('#filter-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
 
-      // Get social feature
-      _this.config.social.likes = $('#enable-likes').is(":checked");
-      _this.config.social.bookmark = $('#enable-bookmarks').is(":checked");
-      _this.config.social.comments = $('#enable-comments').is(":checked");
-      data.social = _this.config.social;
-
       // Advanced Settings
       var advancedInUse;
       data.advancedSettings.htmlEnabled = $('input#enable-templates').is(":checked");
@@ -1228,10 +1139,13 @@ var DynamicLists = (function() {
       
       if (data.advancedSettings.htmlEnabled) {
         data.advancedSettings.loopHTML = loopTemplateEditor.getValue();
-        data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
         data.advancedSettings.baseHTML = baseTemplateEditor.getValue();
 
         if (data.layout === 'small-card') {
+          data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
+          data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+        }
+        if (data.layout === 'news-feed') {
           data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
         }
         if (data.layout === 'agenda') {
@@ -1245,6 +1159,31 @@ var DynamicLists = (function() {
 
       if (data.advancedSettings.jsEnabled) {
         data.advancedSettings.jsCode = javascriptEditor.getValue();
+      }
+
+      // Get social feature
+      _this.config.social.bookmark = $('#enable-bookmarks').is(":checked");
+      _this.config.social.comments = $('#enable-comments').is(":checked");
+      _this.config.social.likes = $('#enable-likes').is(":checked");
+
+      data.social = _this.config.social;
+
+      if (_this.config.social.likes && !_this.config.likesDataSourceId) {
+        // Create likes data source
+        return Fliplet.DataSources.create({
+          name: appName + ' - Likes',
+          organizationId: organizationId // optional
+        }).then(function (dataSource) {
+          data.likesDataSourceId = dataSource.id;
+
+          _this.config = data;
+
+          if (toReload) {
+            Fliplet.Widget.save(_this.config).then(function () {
+              Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
+            });
+          }
+        });
       }
 
       _this.config = data;

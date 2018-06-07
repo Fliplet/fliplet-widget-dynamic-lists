@@ -11,82 +11,7 @@
         </div>
       </div>
       <div class="layouts-flex">
-        <div class="layout-holder" data-layout="small-card">
-          <div class="layout-info">
-            <p class="title">Small expandable cards</p>
-          </div>
-          <div class="image-holder">
-            <div class="selected-screen">
-              <i class="fa fa-check-circle"></i>
-              <div class="layout-info">
-                <p>Suitable for directories of people</p>
-              </div>
-            </div>
-            <img class="animated-gif" src="{{ asset 'img/small-card.gif'}}" />
-            <img class="static-img" src="{{ asset 'img/small-card.png'}}" />
-          </div>
-        </div>
-        <div class="layout-holder in-progress" data-layout="news-feed">
-          <div class="layout-info">
-            <p class="title">More layouts coming soon</p>
-          </div>
-          <div class="image-holder">
-            <div class="selected-screen">
-              <i class="fa fa-check-circle"></i>
-              <div class="layout-info">
-                <p>Expandable card style suitable for a news feed</p>
-              </div>
-            </div>
-            <div class="image-placeholder">Coming soon</div>
-          </div>
-        </div>
-        <!--
-        <div class="layout-holder in-progress" data-layout="card-feed">
-          <div class="layout-info">
-            <p class="title">Full image cards</p>
-          </div>
-          <div class="image-holder">
-            <div class="selected-screen">
-              <i class="fa fa-check-circle"></i>
-              <div class="layout-info">
-                <p>Expandable card style suitable for feeds with rich media content.</p>
-              </div>
-            </div>
-            <img class="animated-gif" src="{{ asset 'img/small-card.gif'}}" />
-            <img class="static-img" src="{{ asset 'img/small-card.png'}}" />
-          </div>
-        </div>
-        <div class="layout-holder in-progress" data-layout="agenda">
-          <div class="layout-info">
-            <p class="title">Agenda</p>
-          </div>
-          <div class="image-holder">
-            <div class="selected-screen">
-              <i class="fa fa-check-circle"></i>
-              <div class="layout-info">
-                <p>A list of small expandable cards with date slider.</p>
-              </div>
-            </div>
-            <img class="animated-gif" src="{{ asset 'img/small-card.gif'}}" />
-            <img class="static-img" src="{{ asset 'img/small-card.png'}}" />
-          </div>
-        </div>
-        <div class="layout-holder in-progress" data-layout="horizontal-card">
-          <div class="layout-info">
-            <p class="title">Horizontal list of cards</p>
-          </div>
-          <div class="image-holder">
-            <div class="selected-screen">
-              <i class="fa fa-check-circle"></i>
-              <div class="layout-info">
-                <p>An horizontal scrollable list of small expandable cards.</p>
-              </div>
-            </div>
-            <img class="animated-gif" src="{{ asset 'img/small-card.gif'}}" />
-            <img class="static-img" src="{{ asset 'img/small-card.png'}}" />
-          </div>
-        </div>
-        -->
+        <!-- layouts will be added here -->      
       </div>
     </div>
   </div>
@@ -150,7 +75,7 @@
           </div>
         </div>
 
-        <div class="form-group clearfix disabled">
+        <div class="form-group clearfix list-search disabled hidden">
           <div class="col-sm-4 control-label">
             <label>List search</label>
           </div>
@@ -163,12 +88,12 @@
             </div>
 
             <div class="search-fields hidden">
-
+              <!-- field will be added here -->
             </div>
           </div>
         </div>
 
-        <div class="form-group clearfix disabled">
+        <div class="form-group clearfix list-filter disabled hidden">
           <div class="col-sm-4 control-label">
             <label>List filters</label>
           </div>
@@ -181,14 +106,14 @@
             </div>
 
             <div class="filter-fields hidden">
-              
+              <!-- field will be added here -->
             </div>
           </div>
         </div>
 
-        <div class="form-group clearfix style-specific hidden">
+        <div class="form-group clearfix list-likes disabled hidden">
           <div class="col-sm-4 control-label">
-            <label>Style specific settings</label>
+            <label>Likes</label>
           </div>
           <div class="col-sm-8">
             <div class="checkbox checkbox-icon">
@@ -197,27 +122,15 @@
                 <span class="check"><i class="fa fa-check"></i></span> Allow users to like list items
               </label>
             </div>
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="enable-bookmarks">
-              <label for="enable-bookmarks">
-                <span class="check"><i class="fa fa-check"></i></span> Allow users to bookmark list items
-              </label>
-            </div>
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="enable-comments">
-              <label for="enable-comments">
-                <span class="check"><i class="fa fa-check"></i></span> Allow users to comment on list items
-              </label>
-            </div>
           </div>
         </div>
         <hr>
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
-            <label>Advanced settings</label>
+            <label>Developer options</label>
           </div>
           <div class="col-sm-8">
-            <div class="btn btn-default" data-advanced>Go to advanced settings <i class="fa fa-angle-right"></i></div>
+            <div class="btn btn-default" data-advanced>Edit component's code <i class="fa fa-angle-right"></i></div>
           </div>
         </div>
 
@@ -227,13 +140,15 @@
   <div class="advanced-tab state future">
     <header>
       <div class="title-holder">
-        <div class="go-back" data-back-settings><i class="fa fa-angle-left"></i> Back to basic settings</div>
-        <p>Advanced settings</p>
+        <div class="go-back" data-back-settings><i class="fa fa-angle-left"></i> Back to settings</div>
+        <p>Developer options</p>
       </div>
     </header>
     <div class="state-wrapper">
       <div class="hidden" data-small-card-css-url="{{ asset 'css/layout-css/small-card-style.upload.css' }}"></div>
       <div class="hidden" data-small-card-js-url="{{ asset 'js/layout-javascript/small-card-code.js' }}"></div>
+      <div class="hidden" data-news-feed-css-url="{{ asset 'css/layout-css/news-feed-style.upload.css' }}"></div>
+      <div class="hidden" data-news-feed-js-url="{{ asset 'js/layout-javascript/news-feed-code.js' }}"></div>
 
       <ul class="nav nav-tabs advanced-tabs-level-one">
         <li role="presentation" class="active"><a href="#templates" data-toggle="tab">HTML</a></li>

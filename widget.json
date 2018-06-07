@@ -38,6 +38,10 @@
       "vendor/bootstrap-tokenfield.min.js",
       "js/interface.templates.js",
       "js/build.templates.js",
+      "js/layout-mapping/list-layouts.js",
+      "js/layout-mapping/layout-mapping.js",
+      "js/default-configs/layouts-config.js",
+      "js/default-table-data/layouts-table-config.js",
       "js/interface.js",
       "js/interface-lists.js",
       "css/interface.css"
@@ -54,18 +58,21 @@
       "moment",
       "lodash",
       "handlebars",
-      "animate-css"
+      "animate-css",
+      "fliplet-like:0.1"
     ],
     "assets": [
       "js/build.templates.js",
       "vendor/mixitup.min.js",
       "vendor/mixitup-multifilter.min.js",
       "vendor/clusterize.min.js",
+      "js/layout-mapping/layout-mapping.js",
       "js/build-lists.js",
       "js/build.js",
       "vendor/style.css",
       "css/build.css",
-      "css/layout-css/small-card-style.upload.css"
+      "css/layout-css/small-card-style.upload.css",
+      "css/layout-css/news-feed-style.upload.css"
     ]
   },
   "references": [
