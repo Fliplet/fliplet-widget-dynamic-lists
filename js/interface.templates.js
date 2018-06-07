@@ -77,9 +77,9 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.layouts"] = Handleba
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n    <div class=\"layout-info\">\n      <p class=\"title\">"
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
-    + "</p>\n    </div>\n    <div class=\"image-holder\">\n      <div class=\"selected-screen\">\n        <i class=\"fa fa-check-circle\"></i>\n        <div class=\"layout-info\">\n          <p>"
+    + "</p>\n      <p class=\"description\">"
     + alias4(((helper = (helper = helpers.description || (depth0 != null ? depth0.description : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"description","hash":{},"data":data}) : helper)))
-    + "</p>\n        </div>\n      </div>\n      <img class=\"animated-gif\" src=\""
+    + "</p>\n    </div>\n    <div class=\"image-holder\">\n      <div class=\"selected-screen\">\n        <i class=\"fa fa-check-circle\"></i>\n        <div class=\"layout-info\">\n          \n        </div>\n      </div>\n      <img class=\"animated-gif\" src=\""
     + alias4(((helper = (helper = helpers.gif || (depth0 != null ? depth0.gif : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"gif","hash":{},"data":data}) : helper)))
     + "\" />\n      <img class=\"static-img\" src=\""
     + alias4(((helper = (helper = helpers.image || (depth0 != null ? depth0.image : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"image","hash":{},"data":data}) : helper)))
