@@ -3,6 +3,7 @@ var layoutMapping = {
     'base': 'templates.build.small-card-base',
     'loop': 'templates.build.small-card-loop',
     'detail': 'templates.build.small-card-detail',
+    'filter': 'templates.build.small-card-filters',
     'profile-icon': 'templates.build.small-card-profile-icon',
     'user-profile': 'templates.build.small-card-user-profile'
   }
@@ -447,7 +448,7 @@ DynamicList.prototype.addFilters = function(data) {
     allFilters.push(arrangedFilters);
   });
 
-  filtersTemplate = Fliplet.Widget.Templates['templates.build.' + _this.data.layout + '-filters'];
+  filtersTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
   ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
   : Handlebars.compile(filtersTemplate());
