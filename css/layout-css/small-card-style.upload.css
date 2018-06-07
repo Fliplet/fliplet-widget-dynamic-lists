@@ -236,7 +236,6 @@
 /* List */
 .small-card-list-wrapper {
   padding: 15px 0;
-  padding-bottom: calc(15px + env(safe-area-inset-bottom));
   outline: none;
   display: none;
 }
@@ -387,9 +386,10 @@
   position: absolute;
   right: 15px;
   top: 15px;
-  height: 28px;
-  width: 28px;
-  line-height: 27px;
+  height: 38px;
+  width: 38px;
+  line-height: 38px;
+  font-size: 24px;
   background: rgba(255,255,255,0.5);
   border-radius: 50%;
   color: #333333;
