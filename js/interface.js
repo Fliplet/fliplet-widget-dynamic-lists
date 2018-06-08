@@ -1183,6 +1183,23 @@ var DynamicLists = (function() {
           }
         });
       }
+      if (_this.config.social.bookmark && !_this.config.bookmarkDataSourceId) {
+        // Create likes data source
+        return Fliplet.DataSources.create({
+          name: appName + ' - Bookmarks',
+          organizationId: organizationId // optional
+        }).then(function (dataSource) {
+          data.bookmarkDataSourceId = dataSource.id;
+
+          _this.config = data;
+
+          if (toReload) {
+            Fliplet.Widget.save(_this.config).then(function () {
+              Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
+            });
+          }
+        });
+      }
 
       _this.config = data;
 

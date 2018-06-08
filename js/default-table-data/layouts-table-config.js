@@ -66,5 +66,55 @@ window.flListLayoutTableConfig = {
       'Date': '2018-04-14',
       'Content': '<p>Twenty months after launching its Craigslist competitor, Marketplace, and relentlessly promoting it with placement in the main navigation bar, Facebook  will start earning money off its classifieds section. Facebook today begins testing Marketplace ads in the U.S. that let average users pay to “Boost” their listing to more people through the News Feed. While they’re easy for novices, requiring buyers to only set a budget and how long the ads will run, there are no additional targeting options beyond being shown to age 18+ users in nearby ZIP codes.</p>'
     }
+  ],
+  'agenda': [
+    {
+      'Title': 'Registration and coffee',
+      'Date': '2018-04-14',
+      'Start Time': '09:00',
+      'End Time': '09:45',
+      'Location': 'Hotel\'s Restaurant',
+      'Content': '<p>Registration will take place in the foyer.  Please make sure to pick up you badge and brochure.</p>'
+    },
+    {
+      'Title': 'What does the future hold',
+      'Date': '2018-04-14',
+      'Start Time': '10:00',
+      'End Time': '11:30',
+      'Location': 'Room 123',
+      'Content': '<p>Professor John Smith will discuss the future trends in our industry. This will be followed by a group activity</p>'
+    },
+    {
+      'Title': 'Team work',
+      'Date': '2018-04-14',
+      'Start Time': '14:00',
+      'End Time': '15:00',
+      'Location': 'Room 156',
+      'Content': '<p>Time to roll up your sleeves. We\'ve got a range of team building activities lined up.  The sessions will be hosted by the Legz Akimbo theatre company. Good luck!!</p>'
+    },
+    {
+      'Title': 'Morning coffee',
+      'Date': '2018-04-15',
+      'Start Time': '09:00',
+      'End Time': '09:45',
+      'Location': 'Hotel\'s Restaurant',
+      'Content': '<p>Rise and shine! Have a great breakfast.</p>'
+    },
+    {
+      'Title': 'Defining success in our industry',
+      'Date': '2018-04-15',
+      'Start Time': '10:00',
+      'End Time': '11:30',
+      'Location': 'Room 144',
+      'Content': '<p>Professor John Smith will discuss what defines success in our industry. This will be followed by a group activity</p>'
+    },
+    {
+      'Title': 'Day 2 round up',
+      'Date': '2018-04-15',
+      'Start Time': '17:00',
+      'End Time': '18:00',
+      'Location': 'Room 101',
+      'Content': '<p>A round up of the days events hosted by your team director. The session will be used to answer any of your questions and discuss the key takeaways from the activities.</p>'
+    }
   ]
 };
