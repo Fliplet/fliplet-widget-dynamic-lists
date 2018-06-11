@@ -41,9 +41,44 @@ var DynamicList = function(id, data, container) {
 
   this.listItems;
 
+  // Register handlebars helpers
+  this.registerHandlebarsHelpers();
   // Start running the Public functions
-  _this.initialize();
+  this.initialize();
+  console.log(this.data);
 };
+
+DynamicList.prototype.registerHandlebarsHelpers = function() {
+  // Register your handlebars helpers here
+  var _this = this;
+
+  Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+    switch (operator) {
+      case '==':
+        return (v1 == v2) ? options.fn(this) : options.inverse(this);
+      case '===':
+        return (v1 === v2) ? options.fn(this) : options.inverse(this);
+      case '!=':
+        return (v1 != v2) ? options.fn(this) : options.inverse(this);
+      case '!==':
+        return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+      case '<':
+        return (v1 < v2) ? options.fn(this) : options.inverse(this);
+      case '<=':
+        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+      case '>':
+        return (v1 > v2) ? options.fn(this) : options.inverse(this);
+      case '>=':
+        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+      case '&&':
+        return (v1 && v2) ? options.fn(this) : options.inverse(this);
+      case '||':
+        return (v1 || v2) ? options.fn(this) : options.inverse(this);
+      default:
+        return options.inverse(this);
+    }
+  });
+}
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -54,6 +89,15 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
+    .on('touchstart', '.agenda-list-controls', function(event) {
+      $(this).addClass('hover');
+    })
+    .on('touchmove', '.agenda-list-controls', function(e) {
+      $(this).removeClass('hover');
+    })
+    .on('touchend touchcancel', '.agenda-list-controls', function() {
+      $(this).removeClass('hover');
+    })
     .on('touchstart', '.agenda-list-item', function(event) {
       event.stopPropagation();
       $(this).addClass('hover');
@@ -70,14 +114,15 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.agenda-list-item-content', function() {
+      event.stopPropagation();
       if (_this.isPanning && !_this.allowClick && $(this).parents('.agenda-list-item').hasClass('open')) {
         return;
       }
-      expandElement($(this));
+      _this.expandElement($(this));
     })
     .on('click', '.agenda-list-item .agenda-item-close-btn', function(event) {
       event.stopPropagation();
-      collapseElement($(this));
+      _this.collapseElement($(this));
     })
     .on('keydown', function(e) {
       if (e.keyCode === 39) {
@@ -89,7 +134,7 @@ DynamicList.prototype.attachObservers = function() {
         var indexOfClickedDate = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active').next());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-        moveForwardDate(indexOfClickedDate, indexDifference);
+        _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
       }
       if (e.keyCode === 37) {
@@ -101,7 +146,7 @@ DynamicList.prototype.attachObservers = function() {
         var indexOfClickedDate = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active').prev());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-        moveBackDate(indexOfClickedDate, indexDifference);
+        _this.moveBackDate(indexOfClickedDate, indexDifference);
         return;
       }
     })
@@ -117,12 +162,12 @@ DynamicList.prototype.attachObservers = function() {
       var indexDifference = indexOfClickedDate - indexOfActiveDate
 
       if (indexDifference < indexOfActiveDate) {
-        moveBackDate(indexOfClickedDate, indexDifference);
+        _this.moveBackDate(indexOfClickedDate, indexDifference);
         return;
       }
 
       if (indexDifference >= indexOfActiveDate) {
-        moveForwardDate(indexOfClickedDate, indexDifference);
+        _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
       }
     });
@@ -358,6 +403,7 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       // Listeners and Ready
+      _this.setupCards();
       _this.attachObservers();
       _this.scrollEvent();
       _this.onReady();
@@ -433,12 +479,11 @@ DynamicList.prototype.renderDatesHTML = function(dates) {
   _this.centerDate();
 }
 
-DynamicList.prototype.onReady = function() {
-  // Function called when it's ready to show the list and remove the Loading
+DynamicList.prototype.setupCards = function() {
   var _this = this;
 
-  _this.setCardHeight();
   _this.initializeMixer();
+  _this.setCardHeight();
   _this.bindChatTouchEvents();
 
   // Sets up the like and bookmark buttons
@@ -447,13 +492,18 @@ DynamicList.prototype.onReady = function() {
       _this.prepareSetupBookmark(element);
     });
   }
+}
+
+DynamicList.prototype.onReady = function() {
+  // Function called when it's ready to show the list and remove the Loading
+  var _this = this;
 
   // Ready
   _this.$container.find('.agenda-list-container').removeClass('loading').addClass('ready');
   // Wait for bookmark to appear on the page
   setTimeout(function() {
     _this.checkBookmarked();
-  }, 1000);
+  }, 2000);
 }
 
 /* ANIMATION FOR DATES BACK AND FORWARD */
@@ -706,7 +756,7 @@ DynamicList.prototype.bindChatTouchEvents = function() {
   _this.hammer = _this.hammer || new Hammer(handle);
 
   _this.hammer.on('panright panleft', function(e) {
-    if (checkScrollHorizontal(e)) {
+    if (_this.checkScrollHorizontal(e)) {
       _this.isPanning = true;
       _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
       _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index($('.agenda-list-day-holder.active'));
@@ -764,116 +814,122 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   // Function called when a list item is tapped to expand
   var _this = this;
 
-  //check to see if element is already expanded
-  if (!elementToExpand.hasClass('open')) {
-    var currentPosition = elementToExpand.offset();
-    var elementScrollTop = $(window).scrollTop();
-    var netOffset = currentPosition.top - elementScrollTop;
+  // Adds class 'open' to help with styling
+  elementToExpand.parents('.agenda-list-item').addClass('open');
 
-    var expandPosition = $('body').offset();
-    var expandTop = expandPosition.top;
-    var expandLeft = expandPosition.left;
-    var expandWidth = $('body').outerWidth();
-    var expandHeight = $('body').outerHeight();
+  // Prevents 'body' scroll
+  _this.$container.find('.agenda-list-day-holder').addClass('lock');
+  $('body').addClass('lock');
+  
+  // freeze the current scroll position of the background page expand-wrapper
+  var elementOffset = _this.$container.find('.agenda-list-container').offset();
+  var elementScrollTop = $('body').scrollTop();
+  var netOffset = elementOffset.top - elementScrollTop;
+  var expandPosition = _this.$container.find('.agenda-list-container').offset();
+  var expandTop = expandPosition.top;
+  var expandLeft = expandPosition.left;
+  var expandWidth = _this.$container.find('.agenda-list-container').outerWidth();
+  var expandHeight = _this.$container.find('.agenda-list-container').outerHeight();
 
-    var directoryDetailImageWrapper = elementToExpand.find('.small-card-list-detail-image-wrapper');
-    var directoryDetailImage = elementToExpand.find('.small-card-list-detail-image');
+  _this.$container.find('.agenda-list-container').css({
+    'top': netOffset,
+    'position': 'fixed',
+    'z-index': '11'
+  });  
 
-    // freeze the current scroll position of the background content
-    $('body').addClass('lock');
+  // convert the expand-item to fixed position without moving it
+  elementToExpand.css({
+    'top' : elementToExpand.offset().top - $('body').scrollTop(),
+    'left' : elementToExpand.offset().left,
+    'height' : elementToExpand.height(),
+    'width' : elementToExpand.width(),
+    'max-width': expandWidth,
+    'position' : 'fixed'
+  });
 
-    // convert the expand-item to fixed position with a high z-index without moving it 
-    elementToExpand.css({
-      'top': netOffset,
-      'left': currentPosition.left,
-      'height': elementToExpand.height(),
-      'width': elementToExpand.width(),
-      'max-width': expandWidth,
-      'position': 'fixed',
-      'z-index': 11,
-    });
-
-    elementToExpand.animate({
+  // start expand-item animation to the expand wrapper
+  // expand the element with class .about-tile-bg-image
+  elementToExpand.animate(
+    {
       'left': expandLeft,
       'top': expandTop,
       'height': expandHeight,
       'width': expandWidth,
       'max-width': expandWidth
-    }, 200, 'swing');
-
-    elementToExpand.addClass('open');
-    elementToExpand.find('.small-card-list-detail-close-btn').addClass('open');
-    elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').addClass('open');
-
-    directoryDetailImageWrapper.css({
-      height: directoryDetailImageWrapper.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImageWrapper.animate({
-      height: '100vw'
     },
-    200,
-    'swing'
-    );
+    200, // animation timing in millisecs
+    'swing',  //animation easing
+    function() {
+      elementToExpand.css({
+        'right': 0,
+        'bottom': 0,
+        'width': 'auto',
+        'height': 'auto'
+      });
 
-    directoryDetailImage.css({
-      height: directoryDetailImage.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImage.animate({
-      height: '100vw'
-    }, 200, 'swing');
-  }
+      elementToExpand.find('.slide-under').css({
+        position: 'fixed'
+      });
+    }
+  );
 }
 
-DynamicList.prototype.collapseElement = function(elementToCollapse) {
+DynamicList.prototype.collapseElement = function(collapseButton) {
   // Function called when a list item is tapped to close
   var _this = this;
 
+  // find the element to collapse 
+  var elementToCollpseParent = collapseButton.parents('.agenda-list-item');
+  var elementToCollpse = elementToCollpseParent.find('.agenda-list-item-content');
+  // find the location of the placeholder
+  var elementToCollpsePlaceholder = elementToCollpse.parents('.agenda-list-item');
+  var elementToCollpsePlaceholderTop = elementToCollpsePlaceholder.offset().top - $('body').scrollTop();
+  var elementToCollpsePlaceholderLeft = elementToCollpsePlaceholder.offset().left;
+  var elementToCollpsePlaceholderHeight = elementToCollpsePlaceholder.outerHeight();
+  var elementToCollpsePlaceholderWidth = elementToCollpsePlaceholder.outerWidth();
+
+  elementToCollpse.find('.slide-under').css({
+    position: 'absolute'
+  });
+
+  // convert the width and height to numeric values
+  elementToCollpse.css({
+    'right': 'auto',
+    'bottom': 'auto',
+    'width': elementToCollpse.outerWidth(),
+    'height': elementToCollpse.outerHeight(),
+  });
+
+  _this.$container.find('.agenda-list-container').css({
+    'top': 0,
+    'position': 'fixed',
+    'z-index': '1'
+  });
+     
+  elementToCollpse.animate(
+    {
+      'left': elementToCollpsePlaceholderLeft,
+      'top': elementToCollpsePlaceholderTop,
+      'height': elementToCollpsePlaceholderHeight,
+      'width': elementToCollpsePlaceholderWidth
+    },
+    200, // animation timing in millisecs
+    'linear',  //animation easing
+    function() {
+      // Removes class 'open'
+      elementToCollpseParent.removeClass('open');
+
+      elementToCollpse.css({
+        'position': 'relative',
+        'top': 'auto',
+        'left': 'auto',
+        'width': '100%',
+        'height': '100%'
+      });
+    }
+  );
+
+  // Stops preventing 'body' scroll
+  _this.$container.find('.agenda-list-item').removeClass('open');
   $('body').removeClass('lock');
-
-  var directoryDetailImageWrapper = elementToCollapse.find('.small-card-list-detail-image-wrapper');
-  var directoryDetailImage = elementToCollapse.find('.small-card-list-detail-image');
-
-  var collapseTarget = elementToCollapse.parent();
-  var elementScrollTop = $(window).scrollTop();
-  var targetCollpsePlaceholderTop = collapseTarget.offset().top - elementScrollTop;
-  var targetCollpsePlaceholderLeft = collapseTarget.offset().left;
-  var targetCollapseHeight = collapseTarget.outerHeight();
-  var targetCollapseWidth = collapseTarget.outerWidth();
-
-  elementToCollapse.animate({
-    top: targetCollpsePlaceholderTop,
-    left: targetCollpsePlaceholderLeft,
-    height: targetCollapseHeight,
-    width: targetCollapseWidth
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({
-      // after animating convert the collpase item to position absolute with a low z-index without moving it 
-      'position': 'absolute',
-      'z-index': '1',
-      'top': 0,
-      'left': 0,
-      'height': '100%',
-      'width': '100%',
-    });
-  });
-
-  directoryDetailImageWrapper.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear');
-
-  directoryDetailImage.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({ height: '100%', });
-  });
-
-  elementToCollapse.removeClass('open');
-  elementToCollapse.find('.small-card-list-detail-close-btn').removeClass('open');
-  elementToCollapse.find('.small-card-list-detail-content-scroll-wrapper').removeClass('open');
 }

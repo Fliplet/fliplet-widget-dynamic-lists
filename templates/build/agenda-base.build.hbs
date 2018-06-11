@@ -1,11 +1,13 @@
 <div class="agenda-list-container loading">
+  \{{#ifCond social '&&' social.bookmark}}
   <div class="agenda-list-controls">
     <div class="toggle-agenda" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
       <span class="fa fa-bookmark-o"></span>
       <span class="fa fa-bookmark"></span>
-      <div class="agenda-list-label">MY AGENDA</div>
+      <div class="agenda-list-label">My Agenda</div>
     </div>
   </div>
+  \{{/ifCond}}
   <!-- Days slider -->
   <div class="agenda-date-selector">
     <ul>
