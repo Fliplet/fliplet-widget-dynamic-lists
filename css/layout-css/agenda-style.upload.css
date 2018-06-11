@@ -1,4 +1,4 @@
-[data-name="List (from data source)"] {
+[data-dynamic-lists-layout="agenda"] {
   height: 100vh;
 }
 
@@ -464,7 +464,6 @@
   width: 38px;
   line-height: 38px;
   font-size: 24px;
-  padding: 6px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   color: #337ab7;
