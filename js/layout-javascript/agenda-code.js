@@ -113,10 +113,10 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.agenda-list-item', function(event) {
-      if (_this.isPanning && !_this.allowClick && $(this).parents('.agenda-list-item').hasClass('open')) {
+      if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
         return;
       }
-      
+
       event.stopPropagation();
       var elementToExpand = $(this).find('.agenda-list-item-content');
       _this.expandElement(elementToExpand);
