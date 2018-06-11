@@ -112,7 +112,7 @@ DynamicList.prototype.attachObservers = function() {
         allowClick = true;
       }, 100);
     })
-    .on('click', '.agenda-list-item', function() {
+    .on('click', '.agenda-list-item', function(event) {
       if (_this.isPanning && !_this.allowClick && $(this).parents('.agenda-list-item').hasClass('open')) {
         return;
       }

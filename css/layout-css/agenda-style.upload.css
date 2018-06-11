@@ -482,7 +482,6 @@
 
 /* BOOKMARK */
 .bookmark-wrapper {
-  cursor: pointer;
   line-height: 1;
   padding: 10px;
   font-size: 25px;
@@ -507,6 +506,7 @@
 
 .agenda-item-bookmark-holder {
   color: #dddddd;
+  cursor: pointer;
 }
 
 .agenda-list-item:not(.open) .agenda-item-bookmark-holder {
