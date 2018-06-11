@@ -45,7 +45,6 @@ var DynamicList = function(id, data, container) {
   this.registerHandlebarsHelpers();
   // Start running the Public functions
   this.initialize();
-  console.log(this.data);
 };
 
 DynamicList.prototype.registerHandlebarsHelpers = function() {
