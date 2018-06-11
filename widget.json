@@ -59,7 +59,7 @@
       "lodash",
       "handlebars",
       "animate-css",
-      "fliplet-like:0.1",
+      "fliplet-like:0.2",
       "hammer.js"
     ],
     "assets": [

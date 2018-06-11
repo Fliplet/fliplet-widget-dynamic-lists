@@ -451,11 +451,11 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
   LikeButton({
     target: '.news-feed-like-holder-' + id,
     dataSourceId: _this.data.likesDataSourceId,
-    identifier: { 
+    content: { 
       entryId: identifier,
       pageId: Fliplet.Env.get('pageId')
     },
-    value: Fliplet.Env.get('pageTitle') + '/' + title,
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
     likeLabel: '<i class="fa fa-heart-o fa-lg"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
     likedLabel: '<i class="fa fa-heart fa-lg animated bounceIn"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
     likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',

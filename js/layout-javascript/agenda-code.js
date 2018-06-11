@@ -666,11 +666,12 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
     btn: LikeButton({
       target: '.agenda-item-bookmark-holder-' + id,
       dataSourceId: _this.data.bookmarkDataSourceId,
-      identifier: { 
-        entryId: identifier
+      content: {
+        entryId: identifier,
+        pageId: Fliplet.Env.get('pageId')
       },
       allowAnonymous: true,
-      value: Fliplet.Env.get('pageTitle') + '/' + title,
+      name: Fliplet.Env.get('pageTitle') + '/' + title,
       likeLabel: '<span class="fa fa-bookmark-o"></span>', 
       likedLabel: '<span class="fa fa-bookmark"></span>',
       likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
