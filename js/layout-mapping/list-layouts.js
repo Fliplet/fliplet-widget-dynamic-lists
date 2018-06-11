@@ -19,7 +19,7 @@ window.flWidgetLayout = [
     'id': 'agenda',
     'name': 'Agenda',
     'description': 'Create an agenda - Requires full screen',
-    'gif': window.__widgetData[widgetId].assetsUrl + 'img/news-feed.gif',
-    'image': window.__widgetData[widgetId].assetsUrl + 'img/news-feed.jpg'
+    'gif': window.__widgetData[widgetId].assetsUrl + 'img/agenda.gif',
+    'image': window.__widgetData[widgetId].assetsUrl + 'img/agenda.jpg'
   }
 ];
