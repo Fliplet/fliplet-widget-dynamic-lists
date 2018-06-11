@@ -1,7 +1,7 @@
 {{#each this}}
   <div class="layout-holder" data-layout="{{ id }}">
     <div class="layout-info">
-      <p class="title">{{ name }}</p>
+      <p class="title">{{ name }} {{#if warning}}<span class="label label-warning">{{ warning }}</span>{{/if}}</p>
       <p class="description">{{ description }}</p>
     </div>
     <div class="image-holder">

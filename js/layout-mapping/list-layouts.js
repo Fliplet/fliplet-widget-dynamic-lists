@@ -18,7 +18,8 @@ window.flWidgetLayout = [
   {
     'id': 'agenda',
     'name': 'Agenda',
-    'description': 'Create an agenda - Requires full screen',
+    'warning': 'Requires full screen',
+    'description': 'Create an agenda',
     'gif': window.__widgetData[widgetId].assetsUrl + 'img/agenda.gif',
     'image': window.__widgetData[widgetId].assetsUrl + 'img/agenda.jpg'
   }

@@ -202,6 +202,13 @@ header .btn,
   font-size: 14px;
   text-transform: uppercase;
   margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.layout-info .label {
+  margin-left: 10px;
+  text-transform: none;
 }
 
 .layout-info .description {
