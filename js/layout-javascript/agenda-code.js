@@ -98,7 +98,6 @@ DynamicList.prototype.attachObservers = function() {
       $(this).removeClass('hover');
     })
     .on('touchstart', '.agenda-list-item', function(event) {
-      event.stopPropagation();
       $(this).addClass('hover');
     })
     .on('touchmove', '.agenda-list-item', function(e) {
