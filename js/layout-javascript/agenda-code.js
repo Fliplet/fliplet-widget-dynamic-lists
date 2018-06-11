@@ -114,7 +114,6 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.agenda-list-item-content', function() {
-      event.stopPropagation();
       if (_this.isPanning && !_this.allowClick && $(this).parents('.agenda-list-item').hasClass('open')) {
         return;
       }
