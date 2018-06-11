@@ -835,7 +835,11 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     'top': netOffset,
     'position': 'fixed',
     'z-index': '11'
-  });  
+  });
+
+  _this.$container.find('.agenda-cards-wrapper').css({
+    'z-index': '11'
+  });
 
   // convert the expand-item to fixed position without moving it
   elementToExpand.css({
@@ -902,7 +906,12 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
 
   _this.$container.find('.agenda-list-container').css({
     'top': 0,
+    'top': 'env(safe-area-inset-top)',
     'position': 'fixed',
+    'z-index': '1'
+  });
+
+  _this.$container.find('.agenda-cards-wrapper').css({
     'z-index': '1'
   });
      
