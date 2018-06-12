@@ -19,8 +19,8 @@ window.flListLayoutConfig = {
   'news-feed': {
     'filtersEnabled': true,
     'filterFields': ['Categories'],
-    'searchEnabled': false,
-    'searchFields': [],
+    'searchEnabled': true,
+    'searchFields': ['Title', 'Categories', 'Content'],
     'sortOptions': [
       {
         'column': 'Date',
@@ -34,7 +34,7 @@ window.flListLayoutConfig = {
     'social': {
       'likes': true
     },
-    'style-specific': ['list-filter', 'list-likes']
+    'style-specific': ['list-filter', 'list-search', 'list-likes']
   },
   'agenda': {
     'filtersEnabled': false,
