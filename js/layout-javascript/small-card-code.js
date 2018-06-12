@@ -30,7 +30,6 @@ var DynamicList = function(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
-  this.clusterize;
   this.mixer;
 
   this.emailField = 'Email';
@@ -127,7 +126,7 @@ DynamicList.prototype.attachObservers = function() {
       var directoryDetailWrapper = $(this).parents('.small-card-list-detail-wrapper');
       _this.collapseElement(directoryDetailWrapper);
     })
-    .on('click', '.list-search-icon .fa-search, .list-search-icon .fa-filter', function() {
+    .on('click', '.list-search-icon.search-only .fa-search', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.small-card-list-container');
 
@@ -139,6 +138,16 @@ DynamicList.prototype.attachObservers = function() {
         var targetHeight = $parentElement.find('.hidden-filter-controls-content').outerHeight();
         $parentElement.find('.hidden-filter-controls').animate({ height: targetHeight, }, 200);
       }
+    })
+    .on('click', '.list-search-icon.to-overlay', function() {
+      var $elementClicked = $(this);
+      var $parentElement = $elementClicked.parents('.small-card-list-container');
+      $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+    })
+    .on('click', '.small-card-overlay-close', function() {
+      var $elementClicked = $(this);
+      var $parentElement = $elementClicked.parents('.small-card-search-filter-overlay');
+      $parentElement.removeClass('display');
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
@@ -161,6 +170,10 @@ DynamicList.prototype.attachObservers = function() {
           _this.clearSearch();
           return;
         }
+
+        if ($inputField.hasClass('from-overlay')) {
+          $inputField.parents('.small-card-search-filter-overlay').removeClass('display');
+        }
         $inputField.blur();
         $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
         _this.searchData(value);
@@ -175,6 +188,12 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.backToSearch();
       $parentElement.find('.search-holder input').focus();
+    })
+    .on('show.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
+      $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
+    })
+    .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
+      $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     });
 }
 
@@ -534,8 +553,9 @@ DynamicList.prototype.searchData = function(value) {
       return;
     }
 
-    _this.mixer.destroy();
-    _this.clusterize.destroy();
+    if (_this.data.filtersEnabled) {
+      _this.mixer.destroy();
+    }
     // Remove duplicates
     searchedData = _.uniq(searchedData);
     _this.renderLoopHTML(searchedData);
@@ -556,13 +576,14 @@ DynamicList.prototype.clearSearch = function() {
   var _this = this;
 
   // Removes value from search box
-  _this.$container.find('.search-field').find('input').val('').blur();
+  _this.$container.find('.search-holder').find('input').val('').blur();
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
 
   // Resets list
-  _this.mixer.destroy();
-  _this.clusterize.destroy();
+  if (_this.data.filtersEnabled) {
+    _this.mixer.destroy();
+  }
   _this.renderLoopHTML(_this.listItems);
   _this.onReady();
 }
@@ -571,7 +592,6 @@ DynamicList.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
 
-  _this.initializeClusterize();
   if (_this.data.filtersEnabled) {
     _this.initializeMixer();
   }
@@ -604,20 +624,6 @@ DynamicList.prototype.initializeMixer = function() {
       "reverseOut": false,
       "effects": "fade scale(0.45) translateZ(-100px)"
     }
-  });
-}
-
-DynamicList.prototype.initializeClusterize = function() {
-  // Function that initializes _this.clusterize
-  // Plugin used for making long lists render smoothly
-  var _this = this;
-
-  $('body').addClass('clusterize-scroll');
-  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).addClass('clusterize-content');
-
-  _this.clusterize = new Clusterize({
-    scrollElem: document.body,
-    contentId: 'small-card-list-wrapper-' + _this.data.id
   });
 }
 
