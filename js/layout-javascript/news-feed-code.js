@@ -27,7 +27,6 @@ var DynamicList = function(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
-  this.clusterize;
   this.mixer;
 
   this.listItems;
@@ -369,7 +368,6 @@ DynamicList.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
 
-  _this.initializeClusterize();
   if (_this.data.filtersEnabled) {
     _this.initializeMixer();
   }
@@ -413,20 +411,6 @@ DynamicList.prototype.initializeMixer = function() {
       "reverseOut": false,
       "effects": "fade scale(0.45) translateZ(-100px)"
     }
-  });
-}
-
-DynamicList.prototype.initializeClusterize = function() {
-  // Function that initializes _this.clusterize
-  // Plugin used for making long lists render smoothly
-  var _this = this;
-
-  $('body').addClass('clusterize-scroll');
-  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).addClass('clusterize-content');
-
-  _this.clusterize = new Clusterize({
-    scrollElem: document.body,
-    contentId: 'news-feed-list-wrapper-' + _this.data.id
   });
 }
 

@@ -1,12 +1,23 @@
-\{{#each this}}
-<div class="hidden-filter-controls-label">Filter by <span>\{{[name]}}</span></div>
-<div class="hidden-filter-controls-filter-container">
-  <div class="hidden-filter-controls-filter-wrapper">
-    <fieldset data-filter-group>
-      \{{#each [data]}}
-      <div class="btn hidden-filter-controls-filter" data-mixitup-control="\{{../[id]}}" data-toggle="\{{[class]}}">\{{[name]}}</div>
-      \{{/each}}
-    </fieldset>
-  </div>
+<div class="panel-group" id="small-card-filters-accordion">
+  \{{#each this}}
+    <div class="panel panel-default small-card-filters-panel">
+      <div class="panel-heading" data-toggle="collapse" data-target="#collapse-\{{@index}}">
+        <h4 class="panel-title">
+          <span class="panel-title-text">
+            \{{[name]}}
+          </span>
+          <span class="fa fa-angle-down"></span>
+        </h4>
+      </div>
+      <div id="collapse-\{{@index}}" class="panel-collapse collapse">
+        <div class="panel-body">
+          <fieldset data-filter-group>
+            \{{#each [data]}}
+            <div class="btn hidden-filter-controls-filter" data-mixitup-control="\{{../[id]}}" data-toggle="\{{[class]}}">\{{[name]}}</div>
+            \{{/each}}
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  \{{/each}}
 </div>
-\{{/each}}

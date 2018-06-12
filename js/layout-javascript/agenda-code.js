@@ -27,7 +27,6 @@ var DynamicList = function(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
-  this.clusterize;
   this.hammer;
   this.mixer= [];
   this.bookmarkButtons = [];

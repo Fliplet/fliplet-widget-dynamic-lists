@@ -211,6 +211,7 @@
   height: 100%;
   background-color: transparent;
   overflow: auto;
+  top: initial;
 }
 
 .news-feed-list-item:not(.open) .slide-over {
