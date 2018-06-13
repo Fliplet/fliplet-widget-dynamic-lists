@@ -126,23 +126,20 @@ DynamicList.prototype.attachObservers = function() {
       var directoryDetailWrapper = $(this).parents('.small-card-list-detail-wrapper');
       _this.collapseElement(directoryDetailWrapper);
     })
-    .on('click', '.list-search-icon.search-only .fa-search', function() {
+    .on('click', '.list-search-icon .fa-search, .list-search-icon .fa-filter', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.small-card-list-container');
 
-      if (!$parentElement.find('.hidden-filter-controls').hasClass('active')) {
-        $parentElement.find('.hidden-filter-controls').addClass('active');
-        $parentElement.find('.list-search-cancel').addClass('active');
-        $elementClicked.addClass('active');
-
-        var targetHeight = $parentElement.find('.hidden-filter-controls-content').outerHeight();
-        $parentElement.find('.hidden-filter-controls').animate({ height: targetHeight, }, 200);
+      if (_this.data.filtersInOverlay) {
+        $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+        return;
       }
-    })
-    .on('click', '.list-search-icon.to-overlay', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.small-card-list-container');
-      $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+
+      $parentElement.find('.hidden-filter-controls').addClass('active');
+      $parentElement.find('.list-search-cancel').addClass('active');
+      $elementClicked.addClass('active');
+
+      _this.calculateFiltersHeight($parentElement);
     })
     .on('click', '.small-card-overlay-close', function() {
       var $elementClicked = $(this);
@@ -436,6 +433,9 @@ DynamicList.prototype.addFilters = function(data) {
   // Function that renders the filters
   var _this = this;
   var filters = [];
+  var filtersData = {
+    'filtersInOverlay': _this.data.filtersInOverlay
+  };
 
   data.forEach(function(row) {
     row.data.filters.forEach(function(filter) {
@@ -467,12 +467,14 @@ DynamicList.prototype.addFilters = function(data) {
     allFilters.push(arrangedFilters);
   });
 
+  filtersData.filters = allFilters
+
   filtersTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
   ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
   : Handlebars.compile(filtersTemplate());
 
-  _this.$container.find('.filter-holder').html(template(allFilters));
+  _this.$container.find('.filter-holder').html(template(filtersData));
 }
 
 DynamicList.prototype.convertCategories = function(data) {
@@ -512,6 +514,13 @@ DynamicList.prototype.convertCategories = function(data) {
   return data;
 }
 
+DynamicList.prototype.calculateFiltersHeight = function(element) {
+  var targetHeight = element.find('.hidden-filter-controls-content').height();
+  element.find('.hidden-filter-controls').animate({
+    height: targetHeight,
+  }, 200);
+}
+
 DynamicList.prototype.searchData = function(value) {
   // Function called when user executes a search
   var _this = this;
@@ -547,6 +556,7 @@ DynamicList.prototype.searchData = function(value) {
   // OPTIONAL - setTimeout can be removed
   setTimeout(function() {
     _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
 
     if (!searchedData.length) {
       _this.$container.find('.hidden-filter-controls').addClass('no-results');
@@ -560,7 +570,7 @@ DynamicList.prototype.searchData = function(value) {
     searchedData = _.uniq(searchedData);
     _this.renderLoopHTML(searchedData);
     _this.onReady();
-  }, 500);
+  }, 0);
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -569,6 +579,7 @@ DynamicList.prototype.backToSearch = function() {
   var _this = this;
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
+  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
 }
 
 DynamicList.prototype.clearSearch = function() {
@@ -579,6 +590,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur();
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
+  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
 
   // Resets list
   if (_this.data.filtersEnabled) {

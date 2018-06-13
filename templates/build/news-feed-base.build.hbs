@@ -1,20 +1,109 @@
 <div class="news-feed-list-container loading">
-  \{{#if filtersEnabled}}
-  <div class="filter-controls">
-    <div class="filter-controls-content">
-      <div class="filter-holder">
-        <!-- Filters here -->
+  <!-- Filter Overlay -->
+  \{{#if filtersInOverlay}}
+  <div class="news-feed-search-filter-overlay">
+    <div class="news-feed-overlay-screen"></div>
+    <div class="news-feed-overlay-wrapper">
+      <div class="news-feed-overlay-header">
+        \{{#ifCond searchEnabled '&&' filtersEnabled}}
+        Search &amp; Filter
+        \{{else}}
+          \{{#if searchEnabled}}
+          Search
+          \{{/if}}
+          \{{#if filtersEnabled}}
+          Filter
+          \{{/if}}
+        \{{/ifCond}}
+        <div class="news-feed-overlay-close">
+          <i class="fa fa-angle-down"></i>
+        </div>
+      </div>
+      <div class="news-feed-overlay-content">
+        <div class="hidden-filter-controls">
+          <div class="hidden-filter-controls-content">
+            \{{#if searchEnabled}}
+            <div class="hidden-filter-controls-search">
+              <div class="search-holder">
+                <i class="fa fa-search"></i>
+                <input type="search" name="search-feed" class="form-control from-overlay" placeholder="Search...">
+              </div>
+              <div class="search-query-holder">
+                <div class="search-query">
+                Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+                </div>
+              </div>
+            </div>
+            \{{/if}}
+            \{{#if filtersEnabled}}
+            <div class="filters-header">Filter by</div>
+            <div class="filter-holder">
+              <!-- Filters here -->
+            </div>
+            \{{/if}}
+          </div>
+        </div>
       </div>
     </div>
   </div>
   \{{/if}}
+  <!-- End of Filter Overlay -->
+
+  <!-- Top bar with profile and search icons -->
+  \{{#ifCond searchEnabled '||' filtersEnabled}}
+  <div class="section-top-wrapper">
+    <div class="list-search-icon">
+      \{{#ifCond filtersInOverlay '!==' true}}
+      <div class="list-search-cancel"><span class="fa fa-times"></span></div>
+      \{{/ifCond}}
+      \{{#ifCond searchEnabled '&&' filtersEnabled}}
+      <i class="fa fa-search"></i>
+      \{{else}}
+        \{{#if searchEnabled}}
+        <i class="fa fa-search"></i>
+        \{{/if}}
+        \{{#if filtersEnabled}}
+        <i class="fa fa-filter"></i>
+        \{{/if}}
+      \{{/ifCond}}
+    </div>
+  </div>
+  \{{/ifCond}}
+  <!-- End of Top bar -->
+
+  <!-- Inline Search and Filters -->
+  \{{#ifCond filtersInOverlay '!==' true}}
+    \{{#ifCond searchEnabled '||' filtersEnabled}}
+    <div class="hidden-filter-controls">
+      <div class="hidden-filter-controls-content">
+        \{{#if searchEnabled}}
+        <div class="hidden-filter-controls-search">
+          <div class="search-holder">
+            <i class="fa fa-search"></i>
+            <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
+          </div>
+          <div class="search-query-holder">
+            <div class="search-query">
+            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+            </div>
+          </div>
+        </div>
+        \{{/if}}
+        \{{#if filtersEnabled}}
+        <div class="filter-holder">
+          <!-- Filters here -->
+        </div>
+        \{{/if}}
+      </div>
+    </div>
+    \{{/ifCond}}
+  \{{/ifCond}}
+  <!-- End of Inline Search and Filters -->
+
   <div class="news-feed-list-wrapper" id="news-feed-list-wrapper-\{{id}}">
     <!-- List items will appear here -->
   </div>
 
-  <div class="offline-holder">
-    <i class="fa fa-exclamation-triangle"></i> Hmm... no connection
-  </div>
   <div class="loading-holder">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
   </div>

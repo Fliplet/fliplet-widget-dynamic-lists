@@ -31,9 +31,44 @@ var DynamicList = function(id, data, container) {
 
   this.listItems;
 
+  // Register handlebars helpers
+  this.registerHandlebarsHelpers();
+
    // Start running the Public functions
   this.initialize();
 };
+
+DynamicList.prototype.registerHandlebarsHelpers = function() {
+  // Register your handlebars helpers here
+  var _this = this;
+
+  Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+    switch (operator) {
+      case '==':
+        return (v1 == v2) ? options.fn(this) : options.inverse(this);
+      case '===':
+        return (v1 === v2) ? options.fn(this) : options.inverse(this);
+      case '!=':
+        return (v1 != v2) ? options.fn(this) : options.inverse(this);
+      case '!==':
+        return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+      case '<':
+        return (v1 < v2) ? options.fn(this) : options.inverse(this);
+      case '<=':
+        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+      case '>':
+        return (v1 > v2) ? options.fn(this) : options.inverse(this);
+      case '>=':
+        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+      case '&&':
+        return (v1 && v2) ? options.fn(this) : options.inverse(this);
+      case '||':
+        return (v1 || v2) ? options.fn(this) : options.inverse(this);
+      default:
+        return options.inverse(this);
+    }
+  });
+}
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -70,6 +105,72 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
       // find the element to collpase and collpase it
       _this.collapseElement($(this));
+    })
+    .on('click', '.list-search-icon .fa-search, .list-search-icon .fa-filter', function() {
+      var $elementClicked = $(this);
+      var $parentElement = $elementClicked.parents('.news-feed-list-container');
+
+      if (_this.data.filtersInOverlay) {
+        $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
+        return;
+      }
+
+      $parentElement.find('.hidden-filter-controls').addClass('active');
+      $parentElement.find('.list-search-cancel').addClass('active');
+      $elementClicked.addClass('active');
+
+      _this.calculateFiltersHeight($parentElement);
+    })
+    .on('click', '.news-feed-overlay-close', function() {
+      var $elementClicked = $(this);
+      var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
+      $parentElement.removeClass('display');
+    })
+    .on('click', '.list-search-cancel', function() {
+      var $elementClicked = $(this);
+      var $parentElement = $elementClicked.parents('.news-feed-list-container');
+
+      if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
+        $parentElement.find('.hidden-filter-controls').removeClass('active');
+        $elementClicked.removeClass('active');
+        $parentElement.find('.list-search-icon .fa-search').removeClass('active');
+        $parentElement.find('.list-search-icon .fa-filter').removeClass('active');
+        $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+      }
+    })
+    .on('keydown', '.search-holder input', function(e) {
+      var $inputField = $(this);
+      var $parentElement = $inputField.parents('.news-feed-list-container');
+      var value = $inputField.val().toLowerCase();
+      if (event.which == 13 || event.keyCode == 13) {
+        if (value === '') {
+          _this.clearSearch();
+          return;
+        }
+
+        if ($inputField.hasClass('from-overlay')) {
+          $inputField.parents('.news-feed-search-filter-overlay').removeClass('display');
+        }
+        $inputField.blur();
+        $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+        _this.searchData(value);
+      }
+    })
+    .on('click', '.clear-search', function() {
+      _this.clearSearch();
+    })
+    .on('click', '.search-query span', function() {
+      var $elementClicked = $(this);
+      var $parentElement = $elementClicked.parents('.news-feed-list-container');
+
+      _this.backToSearch();
+      $parentElement.find('.search-holder input').focus();
+    })
+    .on('show.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
+      $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
+    })
+    .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
+      $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     });
 }
 
@@ -288,6 +389,9 @@ DynamicList.prototype.addFilters = function(data) {
   // Function that renders the filters
   var _this = this;
   var filters = [];
+  var filtersData = {
+    'filtersInOverlay': _this.data.filtersInOverlay
+  };
 
   data.forEach(function(row) {
     row.data.filters.forEach(function(filter) {
@@ -319,12 +423,14 @@ DynamicList.prototype.addFilters = function(data) {
     allFilters.push(arrangedFilters);
   });
 
+  filtersData.filters = allFilters
+
   filtersTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
   ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
   : Handlebars.compile(filtersTemplate());
 
-  _this.$container.find('.filter-holder').html(template(allFilters));
+  _this.$container.find('.filter-holder').html(template(filtersData));
 }
 
 DynamicList.prototype.convertCategories = function(data) {
@@ -384,6 +490,92 @@ DynamicList.prototype.onReady = function() {
 
   // Ready
   _this.$container.find('.news-feed-list-container').removeClass('loading').addClass('ready');
+}
+
+DynamicList.prototype.calculateFiltersHeight = function(element) {
+  var targetHeight = element.find('.hidden-filter-controls-content').height();
+  element.find('.hidden-filter-controls').animate({
+    height: targetHeight,
+  }, 200);
+}
+
+DynamicList.prototype.searchData = function(value) {
+  // Function called when user executes a search
+  var _this = this;
+
+  // Removes cards
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
+  // Remove filters
+  _this.$container.find('.filter-holder').html('');
+  // Adds search query to HTML
+  _this.$container.find('.current-query').html(value);
+  
+  // Search
+  var searchedData = [];
+  var filteredData;
+
+  if (_this.data.searchEnabled && _this.data.searchFields.length) {
+    _this.data.searchFields.forEach(function(field) {    
+      filteredData = _.filter(_this.listItems, function(obj) {
+        if (obj.data[field] !== null) {
+          return obj.data[field].toLowerCase().indexOf(value) > -1;
+        }
+      });
+
+      if (filteredData.length) {
+        filteredData.forEach(function(item) {
+          searchedData.push(item);
+        });
+      }
+    });
+  }
+  
+  // Simulate that search is taking half a second
+  // OPTIONAL - setTimeout can be removed
+  setTimeout(function() {
+    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+
+    if (!searchedData.length) {
+      _this.$container.find('.hidden-filter-controls').addClass('no-results');
+      return;
+    }
+
+    if (_this.data.filtersEnabled) {
+      _this.mixer.destroy();
+    }
+    // Remove duplicates
+    searchedData = _.uniq(searchedData);
+    _this.renderLoopHTML(searchedData);
+    _this.onReady();
+  }, 0);
+}
+
+DynamicList.prototype.backToSearch = function() {
+  // Function that is called when user wants to return
+  // to the search input after searching for a value first
+  var _this = this;
+
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
+  _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+}
+
+DynamicList.prototype.clearSearch = function() {
+  // Function called when user clears the search field
+  var _this = this;
+
+  // Removes value from search box
+  _this.$container.find('.search-holder').find('input').val('').blur();
+  // Resets all classes related to search
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
+  _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+
+  // Resets list
+  if (_this.data.filtersEnabled) {
+    _this.mixer.destroy();
+  }
+  _this.renderLoopHTML(_this.listItems);
+  _this.onReady();
 }
 
 DynamicList.prototype.initializeMixer = function() {

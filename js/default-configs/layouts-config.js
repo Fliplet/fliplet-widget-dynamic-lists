@@ -2,6 +2,7 @@ window.flListLayoutConfig = {
   'small-card': {
     'filtersEnabled': true,
     'filterFields': ['Location', 'Sectors', 'Expertize'],
+    'filtersInOverlay': false,
     'searchEnabled': true,
     'searchFields': ['First Name', 'Last Name', 'Title'],
     'sortOptions': [
@@ -19,6 +20,7 @@ window.flListLayoutConfig = {
   'news-feed': {
     'filtersEnabled': true,
     'filterFields': ['Categories'],
+    'filtersInOverlay': false,
     'searchEnabled': true,
     'searchFields': ['Title', 'Categories', 'Content'],
     'sortOptions': [
@@ -39,6 +41,7 @@ window.flListLayoutConfig = {
   'agenda': {
     'filtersEnabled': false,
     'filterFields': [],
+    'filtersInOverlay': false,
     'searchEnabled': false,
     'searchFields': [],
     'sortOptions': [
