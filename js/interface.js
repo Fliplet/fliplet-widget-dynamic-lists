@@ -365,15 +365,22 @@ var DynamicLists = (function() {
             $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
             // Load code editor tabs
-            if (listLayout === 'small-card') {
-              $('.filter-loop-item').removeClass('hidden');
-              $('.detail-view-item').removeClass('hidden');
-            }
-            if (listLayout === 'news-feed') {
-              $('.filter-loop-item').removeClass('hidden');
-            }
-            if (listLayout === 'agenda') {
-              $('.date-loop-item').removeClass('hidden');
+            switch(listLayout) {
+              case 'small-card':
+                $('.filter-loop-item').removeClass('hidden');
+                $('.detail-view-item').removeClass('hidden');
+                break;
+              case 'news-feed':
+                $('.filter-loop-item').removeClass('hidden');
+                break;
+              case 'agenda':
+                $('.date-loop-item').removeClass('hidden');
+                break;
+              case 'small-h-card':
+                $('.detail-view-item').removeClass('hidden');
+                break;
+              default:
+                break;
             }
 
             // Load advanced settings
@@ -459,16 +466,14 @@ var DynamicLists = (function() {
         // @TODO Refactor to avoid DOM manipulation in every .each() loop
         var oldValue = $(obj).val();
         var options = [];
-        var valueFound = false;
         $(obj).html('');
         $(obj).append('<option value="none">-- Select a data field</option>');
         
         dataSourceColumns.forEach(function(value, index) {
-          valueFound = oldValue === value;
           options.push('<option value="'+ value +'">'+ value +'</option>');
         });
         $(obj).append(options.join(''));
-        $(obj).val(valueFound ? oldValue : "none");
+        $(obj).val(oldValue);
       });
       _this.setUpTokenFields();
     },
@@ -478,6 +483,7 @@ var DynamicLists = (function() {
       }).then(function(ds) {
         dataSourceColumns = ds.columns;
         _this.updateFieldsWithColumns(dataSourceColumns);
+
       });
     },
     getDataSources: function() {
@@ -1075,16 +1081,24 @@ var DynamicLists = (function() {
           _this.config.advancedSettings.baseHTML = undefined;
           _this.config.advancedSettings.loopHTML = undefined;
 
-          if (listLayout === 'small-card') {
-            _this.config.advancedSettings.filterHTML = undefined;
-            _this.config.advancedSettings.detailHTML = undefined;
+          switch(listLayout) {
+            case 'small-card':
+              _this.config.advancedSettings.filterHTML = undefined;
+              _this.config.advancedSettings.detailHTML = undefined;
+              break;
+            case 'news-feed':
+              _this.config.advancedSettings.filterHTML = undefined;
+              break;
+            case 'agenda':
+              _this.config.advancedSettings.otherLoopHTML = undefined;
+              break;
+            case 'small-h-card':
+              _this.config.advancedSettings.detailHTML = undefined;
+              break;
+            default:
+              break;
           }
-          if (listLayout === 'news-feed') {
-            _this.config.advancedSettings.filterHTML = undefined;
-          }
-          if (listLayout === 'agenda') {
-            _this.config.advancedSettings.otherLoopHTML = undefined;
-          }
+
           _this.config.advancedSettings.htmlEnabled = false;
         } 
         if (id === 'enable-css') {
@@ -1144,15 +1158,22 @@ var DynamicLists = (function() {
         data.advancedSettings.loopHTML = loopTemplateEditor.getValue();
         data.advancedSettings.baseHTML = baseTemplateEditor.getValue();
 
-        if (data.layout === 'small-card') {
-          data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
-          data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
-        }
-        if (data.layout === 'news-feed') {
-          data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
-        }
-        if (data.layout === 'agenda') {
-          data.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
+        switch(listLayout) {
+          case 'small-card':
+            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
+            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+            break;
+          case 'news-feed':
+            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+            break;
+          case 'agenda':
+            data.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
+            break;
+          case 'small-h-card':
+            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
+            break;
+          default:
+            break;
         }
       }
 

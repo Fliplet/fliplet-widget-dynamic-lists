@@ -116,5 +116,46 @@ window.flListLayoutTableConfig = {
       'Location': 'Room 101',
       'Content': '<p>A round up of the days events hosted by your team director. The session will be used to answer any of your questions and discuss the key takeaways from the activities.</p>'
     }
+  ],
+  'small-h-card': [
+    {
+      'First Name': 'Jane',
+      'Last Name': 'Smith',
+      'Title': 'Head of Marketing',
+      'Location': 'London',
+      'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+      'Email': 'jasmith@email.com',
+      'Telephone': '+440000000000',
+      'Linkedin': 'https://www.linkedin.com/in/user/',
+      'Bio': 'Candy crush marketer, wearable tech captain, tech whisperer. Deeper dives start here.',
+      'Sectors': 'Software, IT, Marketing, Design',
+      'Expertize': 'SEO'
+    },
+    {
+      'First Name': 'John',
+      'Last Name': 'Smith',
+      'Title': 'Head of Product',
+      'Location': 'London',
+      'Image': 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+      'Email': 'jsmith@email.com',
+      'Telephone': '+440000000000',
+      'Linkedin': 'https://www.linkedin.com/in/user/',
+      'Bio': 'MySpace ambassador, bitcoin virtuoso, android soothsayer. Beanie baby collector.',
+      'Sectors': 'Software, IT, Programming, Design, Development, Management',
+      'Expertize': 'Design'
+    },
+    {
+      'First Name': 'Mary',
+      'Last Name': 'Jane',
+      'Title': 'Consultant',
+      'Location': 'London',
+      'Image': 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+      'Email': 'jsmith@email.com',
+      'Telephone': '+440000000000',
+      'Linkedin': 'https://www.linkedin.com/in/user/',
+      'Bio': 'Content czar, BuzzFeed egghead-in-chief, interwebz sherpa. Burning the candle at both ends.',
+      'Sectors': 'Management, Finance, Business',
+      'Expertize': 'Business Management'
+    }
   ]
 };

@@ -22,5 +22,12 @@ window.flWidgetLayout = [
     'description': 'Create an agenda',
     'gif': window.__widgetData[widgetId].assetsUrl + 'img/agenda.gif',
     'image': window.__widgetData[widgetId].assetsUrl + 'img/agenda.jpg'
+  },
+  {
+    'id': 'small-h-card',
+    'name': 'Small horizontal cards',
+    'description': 'Suitable for featured items',
+    'gif': window.__widgetData[widgetId].assetsUrl + 'img/agenda.gif',
+    'image': window.__widgetData[widgetId].assetsUrl + 'img/agenda.jpg'
   }
 ];
