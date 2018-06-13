@@ -161,7 +161,10 @@ DynamicList.prototype.attachObservers = function() {
     .on('keydown', '.search-holder input', function(e) {
       var $inputField = $(this);
       var $parentElement = $inputField.parents('.small-card-list-container');
-      var value = $inputField.val().toLowerCase();
+      var value = $inputField.val();
+      if (value.length) {
+        value = value.toLowerCase();
+      }
       if (event.which == 13 || event.keyCode == 13) {
         if (value === '') {
           _this.clearSearch();
@@ -282,10 +285,16 @@ DynamicList.prototype.initialize = function() {
         // Filter data
         filtered = _.filter(records, function(record) {
           var matched = 0;
+          if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+            record.data[filter.column] = record.data[filter.column].toLowerCase();
+          }
 
           filters.some(function(filter) {
             var condition = filter.condition;
-
+            if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+              filter.value = filter.value.toLowerCase();
+            }
+            
             if (condition === 'contains') {
               if (record.data[filter.column].indexOf(filter.value) > -1) {
                 matched++;
@@ -539,7 +548,7 @@ DynamicList.prototype.searchData = function(value) {
   if (_this.data.searchEnabled && _this.data.searchFields.length) {
     _this.data.searchFields.forEach(function(field) {    
       filteredData = _.filter(_this.listItems, function(obj) {
-        if (obj.data[field] !== null) {
+        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
           return obj.data[field].toLowerCase().indexOf(value) > -1;
         }
       });
