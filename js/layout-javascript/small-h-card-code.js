@@ -280,20 +280,6 @@ DynamicList.prototype.initialize = function() {
       
       // Render Loop HTML
       _this.renderLoopHTML(records);
-
-      // Render user profile
-      if (_this.myProfileData.length) {
-        _this.myProfileData[0].data.profileHTML = _this.profileHTML(_this.myProfileData[0]);
-        var myProfileTemplate = Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['user-profile']];
-        var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-        _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.myProfileData[0]));
-
-        var profileIconTemplate = Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['profile-icon']];
-        var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-        _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.myProfileData[0]));
-
-        _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
-      }
       
       return;
     })
