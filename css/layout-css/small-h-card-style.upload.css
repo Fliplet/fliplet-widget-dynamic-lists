@@ -21,7 +21,7 @@
 .small-h-card-list-wrapper {
   width: 100%;
   min-height: 156px;
-  margin: 0 0 40px 0;
+  margin: 15px 0 40px 0;
   display: none;
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -41,8 +41,8 @@
   cursor: pointer;
 }
 
-.small-h-card-list-item:last-child {
-  padding: 0 15px 0 15px;
+.small-h-card-list-item:first-child {
+  padding: 0;
 }
 
 .small-h-card-list-image {
@@ -52,7 +52,7 @@
   background-size: cover;
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 10px 10px 25px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 6px 20px 0px rgba(0, 0, 0, 0.1);
   margin: 0 0 10px 0;
   cursor: pointer;
   position: relative;
@@ -79,32 +79,11 @@
   text-transform: uppercase;
 }
 
-.small-h-card-list-item {
-  width: 100%;
-  height: 80px;
-  margin: 0 0 15px 0;
-  display: flex;
-  align-items: center;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0px 6px 20px 0px rgba(0,0,0,0.1);
-  cursor: pointer;
-  transition: box-shadow 0.15s ease-out;
-}
-
-.no-touchevents .small-h-card-list-item:active,
-.no-touchevents .small-h-card-list-item:focus,
-.no-touchevents .small-h-card-list-item:active:focus,
-.small-h-card-list-item.hover {
+.no-touchevents .small-h-card-list-item:active .small-h-card-list-image,
+.no-touchevents .small-h-card-list-item:focus .small-h-card-list-image,
+.no-touchevents .small-h-card-list-item:active:focus .small-h-card-list-image,
+.small-h-card-list-item.hover .small-h-card-list-image {
   box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
-}
-
-.small-h-card-list-image {
-  width: 60px;
-  height: 100%;
-  background-position: center;
-  background-size: cover;
-  position: relative;
 }
 
 .small-h-card-list-image .small-h-card-list-detail-image {
@@ -113,38 +92,6 @@
 
 .small-h-card-list-image .small-h-card-list-detail-wrapper.open .small-h-card-list-detail-image {
   border-radius: 0;
-}
-
-.small-h-card-list-text-wrapper {
-  height: 100%;
-  padding: 0 0 0 15px;
-  flex: 1;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.small-h-card-list-name {
-  color: #333333;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.small-h-card-list-role {
-  color: #333333;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-.small-h-card-list-location {
-  color: #333333;
-  opacity: 0.5;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.6;
 }
 
 .small-h-card-list-detail-image-wrapper {
