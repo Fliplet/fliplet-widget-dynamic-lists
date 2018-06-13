@@ -27,7 +27,7 @@ window.flWidgetLayout = [
     'id': 'small-h-card',
     'name': 'Small horizontal cards',
     'description': 'Suitable for featured items',
-    'gif': window.__widgetData[widgetId].assetsUrl + 'img/agenda.gif',
-    'image': window.__widgetData[widgetId].assetsUrl + 'img/agenda.jpg'
+    'gif': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.gif',
+    'image': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.jpg'
   }
 ];
