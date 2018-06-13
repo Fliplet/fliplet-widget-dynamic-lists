@@ -139,8 +139,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.find('.list-search-cancel').addClass('active');
       $elementClicked.addClass('active');
 
-      var targetHeight = $parentElement.find('.hidden-filter-controls-content').height();
-      $parentElement.find('.hidden-filter-controls').animate({ height: targetHeight, }, 200);
+      _this.calculateFiltersHeight($parentElement);
     })
     .on('click', '.small-card-overlay-close', function() {
       var $elementClicked = $(this);
@@ -515,6 +514,13 @@ DynamicList.prototype.convertCategories = function(data) {
   return data;
 }
 
+DynamicList.prototype.calculateFiltersHeight = function(element) {
+  var targetHeight = element.find('.hidden-filter-controls-content').height();
+  element.find('.hidden-filter-controls').animate({
+    height: targetHeight,
+  }, 200);
+}
+
 DynamicList.prototype.searchData = function(value) {
   // Function called when user executes a search
   var _this = this;
@@ -550,6 +556,7 @@ DynamicList.prototype.searchData = function(value) {
   // OPTIONAL - setTimeout can be removed
   setTimeout(function() {
     _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
 
     if (!searchedData.length) {
       _this.$container.find('.hidden-filter-controls').addClass('no-results');
@@ -563,7 +570,7 @@ DynamicList.prototype.searchData = function(value) {
     searchedData = _.uniq(searchedData);
     _this.renderLoopHTML(searchedData);
     _this.onReady();
-  }, 500);
+  }, 0);
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -572,6 +579,7 @@ DynamicList.prototype.backToSearch = function() {
   var _this = this;
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
+  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
 }
 
 DynamicList.prototype.clearSearch = function() {
@@ -582,6 +590,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur();
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
+  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
 
   // Resets list
   if (_this.data.filtersEnabled) {
