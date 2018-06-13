@@ -459,16 +459,14 @@ var DynamicLists = (function() {
         // @TODO Refactor to avoid DOM manipulation in every .each() loop
         var oldValue = $(obj).val();
         var options = [];
-        var valueFound = false;
         $(obj).html('');
         $(obj).append('<option value="none">-- Select a data field</option>');
         
         dataSourceColumns.forEach(function(value, index) {
-          valueFound = oldValue === value;
           options.push('<option value="'+ value +'">'+ value +'</option>');
         });
         $(obj).append(options.join(''));
-        $(obj).val(valueFound ? oldValue : "none");
+        $(obj).val(oldValue);
       });
       _this.setUpTokenFields();
     },

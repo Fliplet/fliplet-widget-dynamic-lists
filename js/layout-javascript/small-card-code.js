@@ -161,7 +161,10 @@ DynamicList.prototype.attachObservers = function() {
     .on('keydown', '.search-holder input', function(e) {
       var $inputField = $(this);
       var $parentElement = $inputField.parents('.small-card-list-container');
-      var value = $inputField.val().toLowerCase();
+      var value = $inputField.val();
+      if (value.length) {
+        value = value.toLowerCase();
+      }
       if (event.which == 13 || event.keyCode == 13) {
         if (value === '') {
           _this.clearSearch();
@@ -539,7 +542,7 @@ DynamicList.prototype.searchData = function(value) {
   if (_this.data.searchEnabled && _this.data.searchFields.length) {
     _this.data.searchFields.forEach(function(field) {    
       filteredData = _.filter(_this.listItems, function(obj) {
-        if (obj.data[field] !== null) {
+        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
           return obj.data[field].toLowerCase().indexOf(value) > -1;
         }
       });
