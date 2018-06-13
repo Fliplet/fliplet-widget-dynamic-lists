@@ -1,4 +1,4 @@
-var layoutMapping = {
+var smallHorizontalLayoutMapping = {
   'small-h-card': {
     'base': 'templates.build.small-h-card-base',
     'loop': 'templates.build.small-h-card-loop',
@@ -37,7 +37,7 @@ var DynamicList = function(id, data, container) {
   // Register handlebars helpers
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[layoutMapping[this.data.layout]['detail']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[smallHorizontalLayoutMapping[this.data.layout]['detail']]());
 
   this.registerHandlebarsHelpers();
   // Get the current session data
@@ -284,11 +284,11 @@ DynamicList.prototype.initialize = function() {
       // Render user profile
       if (_this.myProfileData.length) {
         _this.myProfileData[0].data.profileHTML = _this.profileHTML(_this.myProfileData[0]);
-        var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
+        var myProfileTemplate = Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
         _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.myProfileData[0]));
 
-        var profileIconTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['profile-icon']];
+        var profileIconTemplate = Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['profile-icon']];
         var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
         _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.myProfileData[0]));
 
@@ -339,7 +339,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   var baseHTML = '';
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -359,7 +359,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['loop']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).html(template(records));
 }
