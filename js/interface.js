@@ -241,9 +241,12 @@ var DynamicLists = (function() {
         .on('change', '#enable-filters', function() {
           if ( $(this).is(":checked") ) {
             $('.filter-fields').removeClass('hidden');
+            $('.filter-in-overlay').removeClass('hidden');
             $('#filter-column-fields-tokenfield').tokenfield('update');
           } else {
             $('.filter-fields').addClass('hidden');
+            $('#enable-filter-overlay').prop('checked', false);
+            $('.filter-in-overlay').addClass('hidden');
           }
         })
         .on('click', '.select-new-data-source', function() {
@@ -349,6 +352,7 @@ var DynamicLists = (function() {
             // Load Search/Filter fields
             $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
             $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
+            $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
 
             // Load social feature
             $('#enable-likes').prop('checked', _this.config.social.likes);
@@ -1128,6 +1132,7 @@ var DynamicLists = (function() {
         $('#search-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
         $('#filter-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
+      data.filtersInOverlay = $('#enable-filter-overlay').is(":checked");
 
       // Advanced Settings
       var advancedInUse;
