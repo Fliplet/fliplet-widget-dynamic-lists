@@ -285,14 +285,15 @@ DynamicList.prototype.initialize = function() {
         // Filter data
         filtered = _.filter(records, function(record) {
           var matched = 0;
-          if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-            record.data[filter.column] = record.data[filter.column].toLowerCase();
-          }
-
+          
           filters.some(function(filter) {
             var condition = filter.condition;
+            // Case insensitive
             if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
               filter.value = filter.value.toLowerCase();
+            }
+            if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+              record.data[filter.column] = record.data[filter.column].toLowerCase();
             }
             
             if (condition === 'contains') {
