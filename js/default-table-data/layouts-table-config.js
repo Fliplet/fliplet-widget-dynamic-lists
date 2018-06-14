@@ -46,25 +46,25 @@ window.flListLayoutTableConfig = {
   ],
   'news-feed': [
     {
-      'Title': 'This robotic hose-dragon could jet its way into burning buildings',
-      'Image': 'https://images.pexels.com/photos/220201/pexels-photo-220201.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-      'Categories': 'Gadgets',
+      'Title': 'This year’s most popular business apps',
+      'Image': 'https://cdn.fliplet.com/apps/2659/de1ac7174a201cff518f13b38a293d30363-001-3021.jpg',
+      'Categories': 'Enterprise software',
       'Date': '2018-03-25',
-      'Content': '<p>While hose-toting drones may be a fantasy, hose-powered robo-dragons (or robotic hose-dragons — however you like it) are very much a reality. This strange but potentially useful robot from Japanese researchers could snake into the windows of burning buildings, blasting everything around it with the powerful jets of water it uses to maneuver itself.</p><p>Yes, it’s a real thing: Created by Tohoku University and Hachinohe College, the DragonFireFighter was presented last month at the International Conference on Robotics and Automation.</p><p>It works on the same principle your hose does when you turn it on and it starts flapping around everywhere. Essentially your hose is acting as a simple jet: the force of the water being blasted out pushes the hose itself in the opposite direction. So what if the hose had several nozzles, pointing in several directions, that could be opened and closed independently?</p><p>Well, you’d have a robotic hose-dragon. And we do.</p>'
+      'Content': '<p>Most enteprises now agree that their bottom line could benefit from bespoke apps.  But which ones are they building and where do they think the real value lies?</p><p>Fliplet works with many of the world’s industry leading businesses. We’ve crunched the data to identify the trends in the world of enterprise app building.  In this report we’ll share some of the findings and talk through a few case studies that are at the cutting edge</p><h3>Revenue generation or cost savings</h3><p>Technology in the workplace is often thought of as a way to streamline process, reducing friction and ultimately creating cost savings.  However it is actually the revenue generating functions that are making the widest use of apps.  Sales and marketing teams are using apps to reach out to new clients and engage more with existing ones.  They tend to be amongst the most prolific app builders - producing an a new app every couple of months</p><p>To learn more about enterprise app trends - visit <a href=“https://fliplet.com”>Fliplet.com</a></p>'
     },
     {
-      'Title': 'Intel teases a massive 28-core',
-      'Image': 'https://images.pexels.com/photos/373543/pexels-photo-373543.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-      'Categories': 'Technology',
+      'Title': 'Artificial intelligence in the workplace',
+      'Image': 'https://cdn.fliplet.com/apps/2659/7b98218ffd06b23fd5b99bfaf53bbd7c194-850-1800.jpg',
+      'Categories': 'Machine Learning',
       'Date': '2018-06-05',
-      'Content': '<p>Intel is feeling increasing pressure from AMD and Qualcomm and the competition will get even more intense if reports that Apple is working on its own chips to replace Intel processors in Macs are true. In an interview with Engadget last week before Computex, Intel’s client computing head Gregory Bryant said that Intel would reveal an even more powerful chip than last year’s showstopper, the 18-core, 36-thread Intel i9-7980XE.</p>'
+      'Content': '<p>Venture capitalists are investing heavily in AI; China has made dominance in AI a national goal; Elon Musk and Stephen Hawking have warned us about letting AI escape from our grip...  So why haven’t we seen more of it in our every day lives...</p><p>The short answer is that we have - it’s just that AI is often invisible; working in the background; making existing processes 5-10% more efficient rather than inventing entirely new processes.  This is particularly true in the areas of recommendation engines, big data analysis and healthcare diagnosis</p><p>The areas where AI has had the greatest media coverage have been impersonating humans, chess playing and of course as evil overlords of humans. This is a vast overstatement of AIs current powers.  It might be something to be wary of in the future but current manifestations of AI fall somewhat short of the media hype</p>'
     },
     {
-      'Title': 'Facebook finally monetizes Marketplace with ads from users and brands',
-      'Image': 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+      'Title': 'Why do business apps lag so far behind consumer apps?',
+      'Image': 'https://cdn.fliplet.com/apps/2659/5f292d9d7898a4c654ad87c90a40f66c156-875-9870.jpg',
       'Categories': 'Apps',
       'Date': '2018-04-14',
-      'Content': '<p>Twenty months after launching its Craigslist competitor, Marketplace, and relentlessly promoting it with placement in the main navigation bar, Facebook  will start earning money off its classifieds section. Facebook today begins testing Marketplace ads in the U.S. that let average users pay to “Boost” their listing to more people through the News Feed. While they’re easy for novices, requiring buyers to only set a budget and how long the ads will run, there are no additional targeting options beyond being shown to age 18+ users in nearby ZIP codes.</p>'
+      'Content': '<p>When I started my first job I was amazed at the cutting edge technology my employer had lavished on me. Not one but two flat screens greeted me. No clunky cathode ray tubes in site. Swipe card passes granted me swift access to a lift that arrived as I walked up to it. And of course the icing on the cake - a shiny new Blackberry</p><p>But somewhere along the way business technology brands got left behind.  Consumer brands surged forward. Apple shot passed Blackberry and Microsoft. Google and Amazon - two consumer brands at their core - made huge inroads into enterprise software and server architecture. An average consumer app today makes its corporate equivalent look prehistoric.</p>'
     }
   ],
   'agenda': [
