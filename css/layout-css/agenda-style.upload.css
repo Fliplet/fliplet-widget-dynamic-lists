@@ -261,7 +261,7 @@
   transition: box-shadow 0.15s ease-out, opacity 0.2s ease-out;
   opacity: 1;
   margin-bottom: 20px;
-  white-space: initial;
+  white-space: normal;
 }
 
 .no-touchevents .agenda-list-item:active,
@@ -362,7 +362,8 @@
 }
 
 .slide-over .agenda-item-inner-content .agenda-item-info-holder {
-  flex: 0;
+  min-width: 60px;
+  width: 60px;
   margin-right: 15px;
   text-align: center;
 }
