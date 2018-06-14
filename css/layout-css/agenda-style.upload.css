@@ -274,7 +274,7 @@
 
 .agenda-list-item.open {
   border-radius: 0;
-  overflow: auto;
+  overflow: visible;
 }
 
 .agenda-list-item-content {

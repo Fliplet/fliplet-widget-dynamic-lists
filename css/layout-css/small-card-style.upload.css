@@ -470,7 +470,7 @@
 }
 
 .small-card-list-item.open {
-  overflow: auto;
+  overflow: visible;
 }
 
 .small-card-list-image {
