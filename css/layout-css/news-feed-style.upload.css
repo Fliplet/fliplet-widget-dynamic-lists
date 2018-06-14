@@ -428,6 +428,7 @@
 
 .news-feed-list-item.open {
   border-radius: 0;
+  overflow: visible;
 }
 
 .news-feed-item-content {

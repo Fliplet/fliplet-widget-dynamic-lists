@@ -280,6 +280,7 @@
 
 .agenda-list-item.open {
   border-radius: 0;
+  overflow: visible;
 }
 
 .agenda-list-item-content {
