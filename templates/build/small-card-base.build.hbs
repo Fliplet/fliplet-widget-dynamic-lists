@@ -1,4 +1,55 @@
 <div class="small-card-list-container">
+  <!-- Filter Overlay -->
+  \{{#if filtersInOverlay}}
+  <div class="small-card-search-filter-overlay">
+    <div class="small-card-overlay-screen"></div>
+    <div class="small-card-overlay-wrapper">
+      <div class="small-card-overlay-header">
+        \{{#ifCond searchEnabled '&&' filtersEnabled}}
+        Search &amp; Filter
+        \{{else}}
+          \{{#if searchEnabled}}
+          Search
+          \{{/if}}
+          \{{#if filtersEnabled}}
+          Filter
+          \{{/if}}
+        \{{/ifCond}}
+        <div class="small-card-overlay-close">
+          <i class="fa fa-times"></i>
+        </div>
+      </div>
+      <div class="small-card-overlay-content">
+        <div class="hidden-filter-controls">
+          <div class="hidden-filter-controls-content">
+            \{{#if searchEnabled}}
+            <div class="hidden-filter-controls-search">
+              <div class="search-holder">
+                <i class="fa fa-search"></i>
+                <input type="search" name="search-feed" class="form-control from-overlay" placeholder="Search...">
+              </div>
+              <div class="search-query-holder">
+                <div class="search-query">
+                Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+                </div>
+              </div>
+            </div>
+            \{{/if}}
+            \{{#if filtersEnabled}}
+            <div class="filters-header">Filter by</div>
+            <div class="filter-holder">
+              <!-- Filters here -->
+            </div>
+            \{{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  \{{/if}}
+  <!-- End of Filter Overlay -->
+
+  <!-- Top bar with profile and search icons -->
   <div class="section-top-wrapper profile-disabled">
     <div class="my-profile-container">
       <div class="my-profile-icon"></div>
@@ -7,7 +58,9 @@
     </div>
     \{{#ifCond searchEnabled '||' filtersEnabled}}
     <div class="list-search-icon">
+      \{{#ifCond filtersInOverlay '!==' true}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
+      \{{/ifCond}}
       \{{#ifCond searchEnabled '&&' filtersEnabled}}
       <i class="fa fa-search"></i>
       \{{else}}
@@ -21,32 +74,39 @@
     </div>
     \{{/ifCond}}
   </div>
-  \{{#ifCond searchEnabled '||' filtersEnabled}}
-  <div class="hidden-filter-controls">
-    <div class="hidden-filter-controls-content">
-      \{{#if searchEnabled}}
-      <div class="hidden-filter-controls-search">
-        <div class="search-holder">
-          <i class="fa fa-search"></i>
-          <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
-        </div>
-        <div class="search-query-holder">
-          <div class="search-query">
-          Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+  <!-- End of Top bar -->
+
+  <!-- Inline Search and Filters -->
+  \{{#ifCond filtersInOverlay '!==' true}}
+    \{{#ifCond searchEnabled '||' filtersEnabled}}
+    <div class="hidden-filter-controls">
+      <div class="hidden-filter-controls-content">
+        \{{#if searchEnabled}}
+        <div class="hidden-filter-controls-search">
+          <div class="search-holder">
+            <i class="fa fa-search"></i>
+            <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
+          </div>
+          <div class="search-query-holder">
+            <div class="search-query">
+            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+            </div>
           </div>
         </div>
+        \{{/if}}
+        \{{#if filtersEnabled}}
+        <div class="filter-holder">
+          <!-- Filters here -->
+        </div>
+        \{{/if}}
       </div>
-      \{{/if}}
-      \{{#if filtersEnabled}}
-      <div class="filter-holder">
-        <!-- Filters here -->
-      </div>
-      \{{/if}}
     </div>
-  </div>
+    \{{/ifCond}}
   \{{/ifCond}}
+  <!-- End of Inline Search and Filters -->
+
   <div class="small-card-list-wrapper" id="small-card-list-wrapper-\{{id}}">
-      <!-- Longlist content will appear here -->
+      <!-- List items will appear here -->
   </div>
   <div class="loading-data">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...

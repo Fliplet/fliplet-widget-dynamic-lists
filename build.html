@@ -8,7 +8,7 @@
   {{{advancedSettings.cssCode}}}
   </style>
   {{/if}}
-  <div data-dynamic-lists-id="{{ id }}" data-dynamic-lists-uuid="{{uuid}}"></div>
+  <div data-dynamic-lists-id="{{ id }}" data-dynamic-lists-layout="{{ layout }}" data-dynamic-lists-uuid="{{uuid}}"></div>
   {{#if advancedSettings.jsEnabled}}
   <script type="text/javascript">
     Fliplet().then(function () {
@@ -29,7 +29,9 @@
   {{else}}
     <script type="text/javascript">
       var assetUrl = {
-        'small-card': '{{{ asset "js/layout-javascript/small-card-code.js" }}}'
+        'small-card': '{{{ asset "js/layout-javascript/small-card-code.js" }}}',
+        'news-feed': '{{{ asset "js/layout-javascript/news-feed-code.js" }}}',
+        'agenda': '{{{ asset "js/layout-javascript/agenda-code.js" }}}'
       };
     </script>
     <div data-script-insert="{{ id }}" class="hidden"></div>

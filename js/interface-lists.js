@@ -1,5 +1,5 @@
 var widgetId = Fliplet.Widget.getDefaultId();
-var widgetData = Fliplet.Widget.getData() || {};
+var widgetData = Fliplet.Widget.getData(widgetId) || {};
 var dynamicLists;
 
 function save(notifyComplete) {
