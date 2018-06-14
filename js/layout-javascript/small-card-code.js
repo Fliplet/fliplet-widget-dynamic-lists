@@ -691,6 +691,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     }, 200, 'swing');
 
     elementToExpand.addClass('open');
+    elementToExpand.parents('.small-card-list-item').addClass('open');
     elementToExpand.find('.small-card-list-detail-close-btn').addClass('open');
     elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').addClass('open');
 
@@ -763,6 +764,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   });
 
   elementToCollapse.removeClass('open');
+  elementToCollapse.parents('.small-card-list-item').removeClass('open');
   elementToCollapse.find('.small-card-list-detail-close-btn').removeClass('open');
   elementToCollapse.find('.small-card-list-detail-content-scroll-wrapper').removeClass('open');
 }
