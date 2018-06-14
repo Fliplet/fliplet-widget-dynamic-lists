@@ -787,7 +787,9 @@ var DynamicLists = (function() {
     },
     codeMirrorConfig: function(mode) {
       return {
-        mode,
+        mode: {
+          name: mode
+        },
         lineNumbers: true,
         autoRefresh: true,
         lineWrapping: true,
