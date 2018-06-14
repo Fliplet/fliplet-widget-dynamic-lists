@@ -145,7 +145,7 @@ DynamicList.prototype.attachObservers = function() {
       if (value.length) {
         value = value.toLowerCase();
       }
-      if (event.which == 13 || event.keyCode == 13) {
+      if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
           _this.clearSearch();
           return;
