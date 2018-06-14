@@ -190,7 +190,6 @@
 
 .agenda-list-day-holder {
   display: inline-block;
-  white-space: normal;
   font-size: 16px;
   padding: 116px 15px 15px;
   margin: auto;
@@ -262,6 +261,7 @@
   transition: box-shadow 0.15s ease-out, opacity 0.2s ease-out;
   opacity: 1;
   margin-bottom: 20px;
+  white-space: initial;
 }
 
 .no-touchevents .agenda-list-item:active,
