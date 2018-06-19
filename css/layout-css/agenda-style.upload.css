@@ -27,6 +27,11 @@
   box-shadow: 0px 6px 20px 0px rgba(0, 0, 0, 0.2);
 }
 
+.fl-with-bottom-menu .agenda-list-controls {
+  bottom: 80px;
+  bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
 .fl-with-bottom-menu.fl-menu-circle-right .agenda-list-controls {
   right: auto;
   left: 15px;
@@ -206,6 +211,10 @@
   padding-bottom: 95px;
 }
 
+.fl-with-bottom-menu .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder {
+  padding-bottom: 160px;
+}
+
 .agenda-state-messages {
   position: absolute;
   top: 160px;
@@ -253,7 +262,6 @@
 
 .agenda-list-item {
   position: relative;
-  height: 45vh;
   width: 100%;
   border-radius: 20px;
   overflow: hidden;
@@ -425,7 +433,7 @@
   font-size: 20px;
 }
 
-.agenda-list-item.open .inner-content .agenda-item-session-location .agenda-item-start-date-time {
+.agenda-list-item.open .agenda-item-inner-content .agenda-item-session-location .agenda-item-start-date-time {
   display: block;
   margin: 0 0 4px 0;
 }
