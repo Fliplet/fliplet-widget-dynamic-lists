@@ -693,7 +693,7 @@ DynamicList.prototype.initializeMixer = function() {
 DynamicList.prototype.setCardHeight = function() {
   var _this = this;
 
-  _this.$container.find('.agenda-list-item ').each(function(index, element) {
+  _this.$container.find('.agenda-list-item').each(function(index, element) {
     var containerHeight = $(element).find('.agenda-item-inner-content').outerHeight();
 
     $(element).css({
