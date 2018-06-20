@@ -352,9 +352,9 @@ DynamicList.prototype.initialize = function() {
       // Save them in an array
       for (var i = 0; i < numberOfPlacholderDays; i++) { 
         var newDate = {
-          week: moment(firstDate).subtract(i, 'days').format("ddd"),
-          day: moment(firstDate).subtract(i, 'days').format("DD"),
-          month: moment(firstDate).subtract(i, 'days').format("MMM"),
+          week: moment(firstDate).utc().subtract(i, 'days').format("ddd"),
+          day: moment(firstDate).utc().subtract(i, 'days').format("DD"),
+          month: moment(firstDate).utc().subtract(i, 'days').format("MMM"),
           placeholder: true
         }
         calendarDates.unshift(newDate);
@@ -370,9 +370,9 @@ DynamicList.prototype.initialize = function() {
       uniqueDates.forEach(function(obj) {
         var newDate = new Date(obj.data['Date']).toUTCString();
         var newDateObject = {
-          week: moment(newDate).format("ddd"),
-          day: moment(newDate).format("DD"),
-          month: moment(newDate).format("MMM"),
+          week: moment(newDate).utc().format("ddd"),
+          day: moment(newDate).utc().format("DD"),
+          month: moment(newDate).utc().format("MMM"),
           placeholder: false
         }
         calendarDates.push(newDateObject);
@@ -382,9 +382,9 @@ DynamicList.prototype.initialize = function() {
       // Save them in an array
       for (var i = 0; i < numberOfPlacholderDays; i++) { 
         var newDate = {
-          week: moment(lastDate).add(i, 'days').format("ddd"),
-          day: moment(lastDate).add(i, 'days').format("DD"),
-          month: moment(lastDate).add(i, 'days').format("MMM"),
+          week: moment(lastDate).utc().add(i, 'days').format("ddd"),
+          day: moment(lastDate).utc().add(i, 'days').format("DD"),
+          month: moment(lastDate).utc().add(i, 'days').format("MMM"),
           placeholder: true
         }
         calendarDates.push(newDate);
@@ -393,7 +393,7 @@ DynamicList.prototype.initialize = function() {
       // Converts date format
       records.forEach(function(obj, index) {
         var newDate = new Date(obj.data['Date']).toUTCString();
-        records[index].data['Date'] = moment(newDate).format("ddd Do MMM");
+        records[index].data['Date'] = moment(newDate).utc().format("ddd Do MMM");
       });
 
       var newRecords = _.values(_.groupBy(records, function(row) {
