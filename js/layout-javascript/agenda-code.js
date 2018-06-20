@@ -340,10 +340,10 @@ DynamicList.prototype.initialize = function() {
       }
 
       // set first date in agenda
-      firstDate = new Date(records[0].data['Date']);
+      firstDate = new Date(records[0].data['Date']).toUTCString();
 
       // set last date in agenda
-      lastDate = new Date(records[records.length - 1].data['Date']);
+      lastDate = new Date(records[records.length - 1].data['Date']).toUTCString();
 
       // Make rows available Globally
       _this.listItems = records;
@@ -352,9 +352,9 @@ DynamicList.prototype.initialize = function() {
       // Save them in an array
       for (var i = 0; i < numberOfPlacholderDays; i++) { 
         var newDate = {
-          week: moment(firstDate).subtract(i + 1, 'days').format("ddd"),
-          day: moment(firstDate).subtract(i + 1, 'days').format("DD"),
-          month: moment(firstDate).subtract(i + 1, 'days').format("MMM"),
+          week: moment(firstDate).subtract(i, 'days').format("ddd"),
+          day: moment(firstDate).subtract(i, 'days').format("DD"),
+          month: moment(firstDate).subtract(i, 'days').format("MMM"),
           placeholder: true
         }
         calendarDates.unshift(newDate);
@@ -368,7 +368,7 @@ DynamicList.prototype.initialize = function() {
       // Get the event dates
       // Save in an array
       uniqueDates.forEach(function(obj) {
-        var newDate = new Date(obj.data['Date']);
+        var newDate = new Date(obj.data['Date']).toUTCString();
         var newDateObject = {
           week: moment(newDate).format("ddd"),
           day: moment(newDate).format("DD"),
@@ -382,9 +382,9 @@ DynamicList.prototype.initialize = function() {
       // Save them in an array
       for (var i = 0; i < numberOfPlacholderDays; i++) { 
         var newDate = {
-          week: moment(lastDate).add(i + 1, 'days').format("ddd"),
-          day: moment(lastDate).add(i + 1, 'days').format("DD"),
-          month: moment(lastDate).add(i + 1, 'days').format("MMM"),
+          week: moment(lastDate).add(i, 'days').format("ddd"),
+          day: moment(lastDate).add(i, 'days').format("DD"),
+          month: moment(lastDate).add(i, 'days').format("MMM"),
           placeholder: true
         }
         calendarDates.push(newDate);
@@ -392,7 +392,7 @@ DynamicList.prototype.initialize = function() {
 
       // Converts date format
       records.forEach(function(obj, index) {
-        var newDate = new Date(obj.data['Date']);
+        var newDate = new Date(obj.data['Date']).toUTCString();
         records[index].data['Date'] = moment(newDate).format("ddd Do MMM");
       });
 
@@ -693,7 +693,7 @@ DynamicList.prototype.initializeMixer = function() {
 DynamicList.prototype.setCardHeight = function() {
   var _this = this;
 
-  _this.$container.find('.agenda-list-item ').each(function(index, element) {
+  _this.$container.find('.agenda-list-item').each(function(index, element) {
     var containerHeight = $(element).find('.agenda-item-inner-content').outerHeight();
 
     $(element).css({
