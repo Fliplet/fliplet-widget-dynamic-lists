@@ -196,16 +196,12 @@
 }
 
 /* SEARCH / FILTERS */
-.section-top-wrapper {
+.news-feed-list-container .section-top-wrapper {
   width: 100%;
   padding: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.section-top-wrapper {
   justify-content: flex-end;
+  align-items: center;
 }
 
 .list-search-icon {

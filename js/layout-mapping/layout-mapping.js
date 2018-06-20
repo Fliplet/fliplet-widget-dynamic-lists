@@ -23,5 +23,12 @@ window.flLayoutMapping = {
     'other-loop': 'templates.build.agenda-dates-loop',
     'css': 'agenda',
     'js': 'agenda'
+  },
+  'small-h-card': {
+    'base': 'templates.build.small-h-card-base',
+    'loop': 'templates.build.small-h-card-loop',
+    'detail': 'templates.build.small-h-card-detail',
+    'css': 'small-h-card',
+    'js': 'small-h-card'
   }
 };

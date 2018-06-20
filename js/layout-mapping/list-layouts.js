@@ -14,5 +14,20 @@ window.flWidgetLayout = [
     'description': 'Suitable for news feeds',
     'gif': window.__widgetData[widgetId].assetsUrl + 'img/news-feed.gif',
     'image': window.__widgetData[widgetId].assetsUrl + 'img/news-feed.jpg'
+  },
+  {
+    'id': 'agenda',
+    'name': 'Agenda',
+    'warning': 'Requires full screen',
+    'description': 'Create an agenda',
+    'gif': window.__widgetData[widgetId].assetsUrl + 'img/agenda.gif',
+    'image': window.__widgetData[widgetId].assetsUrl + 'img/agenda.jpg'
+  },
+  {
+    'id': 'small-h-card',
+    'name': 'Small horizontal cards',
+    'description': 'Suitable for featured items',
+    'gif': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.gif',
+    'image': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.jpg'
   }
 ];

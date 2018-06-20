@@ -66,5 +66,23 @@ window.flListLayoutConfig = {
       'bookmark': true
     },
     'style-specific': ['list-bookmark']
+  },
+  'small-h-card': {
+    'filtersEnabled': false,
+    'filterFields': [],
+    'filtersInOverlay': false,
+    'searchEnabled': false,
+    'searchFields': [],
+    'sortOptions': [
+      {
+        'column': 'First Name',
+        'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize'],
+        'id': 'ajdmjZrT',
+        'orderBy': 'ascending',
+        'sortBy': 'alphabetical',
+        'title': 'First Name - Alphabetical - Ascending'
+      }
+    ],
+    'style-specific': []
   }
 }
