@@ -1,5 +1,6 @@
 window.flLayoutMapping = {
   'small-card': {
+    'name': 'Small expandable cards',
     'base': 'templates.build.small-card-base',
     'loop': 'templates.build.small-card-loop',
     'filter': 'templates.build.small-card-filters',
@@ -10,6 +11,7 @@ window.flLayoutMapping = {
     'js': 'small-card'
   },
   'news-feed': {
+    'name': 'Cards with description',
     'base': 'templates.build.news-feed-base',
     'loop': 'templates.build.news-feed-loop',
     'detail': 'templates.build.news-feed-detail',
@@ -18,6 +20,7 @@ window.flLayoutMapping = {
     'js': 'news-feed'
   },
   'agenda': {
+    'name': 'Agenda',
     'base': 'templates.build.agenda-base',
     'loop': 'templates.build.agenda-cards-loop',
     'other-loop': 'templates.build.agenda-dates-loop',
@@ -25,6 +28,7 @@ window.flLayoutMapping = {
     'js': 'agenda'
   },
   'small-h-card': {
+    'name': 'Small horizontal cards',
     'base': 'templates.build.small-h-card-base',
     'loop': 'templates.build.small-h-card-loop',
     'detail': 'templates.build.small-h-card-detail',

@@ -257,7 +257,7 @@
   align-items: center;
 }
 
-.section-top-wrapper {
+.section-top-wrapper.profile-disabled {
   justify-content: flex-end;
 }
 

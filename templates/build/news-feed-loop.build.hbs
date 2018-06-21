@@ -7,7 +7,7 @@
     <div class="container-fluid slide-over">
       <div class="news-feed-item-inner-content" data-position="20vh" data-position-expanded="40vh" style="top: 20vh">
         <div class="news-feed-info-holder">
-          <div class="news-feed-date-category">\{{data.[Date]}} / \{{data.[Categories]}}</div>
+          <div class="news-feed-date-category">\{{data.[Date]}} \{{#ifCond data.[Date] '&&' data.[Categories]}}/\{{/ifCond}} \{{data.[Categories]}}</div>
           \{{#if likesEnabled}}
           <div class="news-feed-like-holder news-feed-like-holder-\{{id}}">
             <!-- Like button will be here -->
