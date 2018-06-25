@@ -264,6 +264,7 @@ var DynamicLists = (function() {
 
       $dataSources.on( 'change', function() {
         var selectedDataSourceId = $(this).val();
+        console.log('DS Selected: ', selectedDataSourceId);
         if (selectedDataSourceId === 'none') {
           return;
         }
@@ -486,11 +487,49 @@ var DynamicLists = (function() {
 
       });
     },
+    formatState: function(state) {
+      console.log(state)
+      if (state.id === 'none') {
+        return $(
+          '<span>' + state.text + '</span>'
+        );
+      }
+      if (state.id === 'new') {
+        return $(
+          '<span>' + state.text + '</span>'
+        );
+      }
+      if (state.id === '------') {
+        return $(
+          '<span>' + state.text + '</span>'
+        );
+      }
+      var $state = $(
+        '<span>' + state.name + ' - ' + state.id + '</span>'
+      );
+      return $state;
+    },
     getDataSources: function() {
       // Load the data source
-      Fliplet.DataSources.get().then(function (dataSources) {
+      Fliplet.DataSources.get({
+        roles: 'publisher,editor',
+        type: null
+      }, {
+        cache: false
+      }).then(function (dataSources) {
+        console.log(dataSources);
         var options = [];
         allDataSources = dataSources;
+
+        $('#select_datasource').select2({
+          data: allDataSources,
+          placeholder: '-- Select a data source',
+          templateResult: _this.formatState,
+          width: '100%'
+        });
+
+
+        /*
         dataSources.forEach(function (d) {
           options.push('<option value="' + d.id + '">' + d.name + '</option>');
         });
@@ -502,6 +541,7 @@ var DynamicLists = (function() {
         $dataSources.trigger('change');
 
         $dataSources.prop('disabled', '');
+        */
       });
     },
     createDataSource: function() {
