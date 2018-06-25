@@ -492,6 +492,19 @@
   position: absolute;
 }
 
+.news-feed-item-content .slide-under .fa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+}
+
 .news-feed-item-content .banner {
   position: relative;
   height: 412px;
@@ -574,7 +587,6 @@
 .slide-over .news-feed-item-inner-content .news-feed-item-description {
   font-size: 16px;
   line-height: 1.5;
-  opacity: 0.6;
 }
 
 .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description {

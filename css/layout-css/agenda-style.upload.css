@@ -196,7 +196,7 @@
 .agenda-list-day-holder {
   display: inline-block;
   font-size: 16px;
-  padding: 116px 15px 15px;
+  padding: 131px 15px 15px;
   margin: auto;
   width: 100vw;
   height: 100%;
@@ -204,7 +204,7 @@
 }
 
 .fl-with-top-menu .agenda-list-day-holder {
-  padding-top: 160px;
+  padding-top: 175px;
 }
 
 .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder {
@@ -224,7 +224,8 @@
 
 .loading-holder {
   text-align: center;
-  color: #dddddd;
+  color: #333333;
+  opacity: 0.5;
   cursor: pointer;
 }
 
@@ -251,7 +252,8 @@
   display: block;
   text-align: center;
   font-size: 16px;
-  color: #dddddd;
+  color: #333333;
+  opacity: 0.5;
 }
 
 .agenda-list-card-holder.mixing:after {
@@ -418,7 +420,8 @@
 .slide-over .agenda-item-inner-content .agenda-item-session-location {
   font-size: 0.9em;
   line-height: 1.4;
-  color: #999999;
+  color: #333333;
+  opacity: 0.6;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

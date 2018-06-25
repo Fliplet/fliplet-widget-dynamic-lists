@@ -11,7 +11,8 @@
   padding-top: 25px;
   display: block;
   text-align: center;
-  color: #dddddd;
+  color: #333333;
+  opacity: 0.5;
 }
 
 .ready .loading-data {

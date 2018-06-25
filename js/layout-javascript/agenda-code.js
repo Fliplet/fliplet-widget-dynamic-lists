@@ -508,9 +508,16 @@ DynamicList.prototype.onReady = function() {
   // Ready
   _this.$container.find('.agenda-list-container').removeClass('loading').addClass('ready');
   // Wait for bookmark to appear on the page
-  setTimeout(function() {
+  var checkTimer = 0;
+  var checkInterval = setInterval(function() {
+    // Check for 10 seconds
+    if (checkTimer > 10) {
+      clearInterval(checkInterval);
+      return;
+    }
     _this.checkBookmarked();
-  }, 2000);
+    checkTimer++;
+  }, 1000);
 }
 
 /* ANIMATION FOR DATES BACK AND FORWARD */
