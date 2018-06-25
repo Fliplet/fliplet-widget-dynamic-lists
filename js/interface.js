@@ -488,7 +488,6 @@ var DynamicLists = (function() {
       });
     },
     formatState: function(state) {
-      console.log(state)
       if (state.id === 'none') {
         return $(
           '<span>' + state.text + '</span>'
@@ -509,6 +508,30 @@ var DynamicLists = (function() {
       );
       return $state;
     },
+    customDsSearch: function(params, data) {
+      console.log(params);
+      console.log(data);
+      // If there are no search terms, return all of the data
+      if ($.trim(params.term) === '') {
+        return data;
+      }
+
+      // Do not display the item if there is no 'text' property
+      if (typeof data.text === 'undefined' || typeof data.name === 'undefined') {
+        return null;
+      }
+
+      if (data.name.indexOf(params.term) > -1) {
+        var modifiedData = $.extend({}, data, true);
+
+        // You can return modified objects from here
+        // This includes matching the `children` how you want in nested data sets
+        return modifiedData;
+      }
+
+      // Return `null` if the term should not be displayed
+      return null;
+    },
     getDataSources: function() {
       // Load the data source
       Fliplet.DataSources.get({
@@ -517,7 +540,6 @@ var DynamicLists = (function() {
       }, {
         cache: false
       }).then(function (dataSources) {
-        console.log(dataSources);
         var options = [];
         allDataSources = dataSources;
 
@@ -525,7 +547,8 @@ var DynamicLists = (function() {
           data: allDataSources,
           placeholder: '-- Select a data source',
           templateResult: _this.formatState,
-          width: '100%'
+          width: '100%',
+          matcher: _this.customDsSearch
         });
 
 
