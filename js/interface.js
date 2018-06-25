@@ -521,7 +521,9 @@ var DynamicLists = (function() {
         return null;
       }
 
-      if (data.name.indexOf(params.term) > -1) {
+      var name = data.name.toLowerCase();
+      var term = params.term.toLowerCase();
+      if (name.indexOf(term) > -1) {
         var modifiedData = $.extend({}, data, true);
 
         // You can return modified objects from here
