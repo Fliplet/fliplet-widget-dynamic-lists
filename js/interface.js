@@ -1277,6 +1277,9 @@ var DynamicLists = (function() {
           }
         });
       }
+      if (!_this.config.social.likes && _this.config.likesDataSourceId) {
+        _this.config.likesDataSourceId = undefined;
+      }
       if (_this.config.social.bookmark && !_this.config.bookmarkDataSourceId) {
         // Create likes data source
         return Fliplet.DataSources.create({
@@ -1293,6 +1296,9 @@ var DynamicLists = (function() {
             });
           }
         });
+      }
+      if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
+        _this.config.bookmarkDataSourceId = undefined;
       }
 
       _this.config = data;
