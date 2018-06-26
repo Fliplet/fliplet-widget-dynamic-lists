@@ -246,6 +246,7 @@ header .btn,
   padding: 9px;
   border: 1px solid #d3dbde;
   border-radius: 4px;
+  background-color: #e4e9eb;
   cursor: pointer;
   z-index: 1;
 }
