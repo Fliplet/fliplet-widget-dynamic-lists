@@ -1183,6 +1183,8 @@ var DynamicLists = (function() {
       });
     },
     saveLists: function(toReload) {
+      var likesPromise;
+      var bookmarksPromise;
       var data = _this.config;
       data.advancedSettings = {};
 
@@ -1260,54 +1262,44 @@ var DynamicLists = (function() {
 
       data.social = _this.config.social;
 
-      if (_this.config.social.likes && !_this.config.likesDataSourceId) {
+      if (_this.config.social.likes && (!_this.config.likesDataSourceId || _this.config.likesDataSourceId === '')) {
         // Create likes data source
-        return Fliplet.DataSources.create({
+        likesPromise = Fliplet.DataSources.create({
           name: appName + ' - Likes',
           organizationId: organizationId // optional
         }).then(function (dataSource) {
-          data.likesDataSourceId = dataSource.id;
-
-          _this.config = data;
-
-          if (toReload) {
-            Fliplet.Widget.save(_this.config).then(function () {
-              Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
-            });
-          }
+          _this.config.likesDataSourceId = dataSource.id;
         });
+      } else if (!_this.config.social.likes && _this.config.likesDataSourceId) {
+        _this.config.likesDataSourceId = '';
       }
-      if (!_this.config.social.likes && _this.config.likesDataSourceId) {
-        _this.config.likesDataSourceId = undefined;
-      }
-      if (_this.config.social.bookmark && !_this.config.bookmarkDataSourceId) {
+      if (_this.config.social.bookmark && (!_this.config.bookmarkDataSourceId || _this.config.bookmarkDataSourceId === '')) {
         // Create likes data source
-        return Fliplet.DataSources.create({
+        bookmarksPromise = Fliplet.DataSources.create({
           name: appName + ' - Bookmarks',
           organizationId: organizationId // optional
         }).then(function (dataSource) {
-          data.bookmarkDataSourceId = dataSource.id;
+          _this.config.bookmarkDataSourceId = dataSource.id;
+        });
+      } else if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
+        _this.config.bookmarkDataSourceId = '';
+      }      
 
-          _this.config = data;
+      if (toReload) {
+        return Promise.all([likesPromise, bookmarksPromise])
+          .then(function() {
+            _this.config = data;
 
-          if (toReload) {
             Fliplet.Widget.save(_this.config).then(function () {
               Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
             });
-          }
-        });
-      }
-      if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
-        _this.config.bookmarkDataSourceId = undefined;
+
+            return;
+          });
       }
 
       _this.config = data;
-
-      if (toReload) {
-        Fliplet.Widget.save(_this.config).then(function () {
-          Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
-        });
-      }
+      return Promise.all([likesPromise, bookmarksPromise]);
     }
   }
 
