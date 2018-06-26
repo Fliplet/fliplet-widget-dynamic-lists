@@ -81,6 +81,8 @@
     ]
   },
   "references": [
-    "dataSourceId:dataSource"
+    "dataSourceId:dataSource",
+    "likesDataSourceId:dataSource",
+    "bookmarkDataSourceId:dataSource"
   ]
 }
