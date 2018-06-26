@@ -39,7 +39,7 @@ var DynamicLists = (function() {
   var cssCode = '';
   var jsCode = '';
 
-  var $dataSources = $('[name="select_datasource"]');
+  var $dataSources = $('#select_datasource')
   var defaultSettings = window.flListLayoutConfig;
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
@@ -264,7 +264,7 @@ var DynamicLists = (function() {
 
       $dataSources.on( 'change', function() {
         var selectedDataSourceId = $(this).val();
-        console.log('DS Selected: ', selectedDataSourceId);
+
         if (selectedDataSourceId === 'none') {
           return;
         }
@@ -277,6 +277,16 @@ var DynamicLists = (function() {
         $('.edit-holder').removeClass('hidden');
         $('.select-datasource-holder').addClass('hidden');
         _this.getColumns(selectedDataSourceId);
+      });
+
+      Fliplet.Studio.onMessage(function(event) {
+        if (event.data && event.data.event === 'overlay-close' && event.data.data && event.data.data.dataSourceId) {
+          _this.reloadDataSources().then(function(dataSources) {
+            allDataSources = dataSources;
+            _this.initSelect2(allDataSources);
+            Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
+          });
+        }
       });
     },
     manageAppData: function() {
@@ -479,38 +489,40 @@ var DynamicLists = (function() {
       _this.setUpTokenFields();
     },
     reloadDataSources: function(dataSourceId) {
-      return Fliplet.DataSources.getById(dataSourceId, {
+      return Fliplet.DataSources.get({
+        roles: 'publisher,editor',
+        type: null
+      }, {
         cache: false
-      }).then(function(ds) {
-        dataSourceColumns = ds.columns;
-        _this.updateFieldsWithColumns(dataSourceColumns);
-
       });
     },
     formatState: function(state) {
       if (state.id === 'none') {
         return $(
-          '<span>' + state.text + '</span>'
+          '<div class="select2-value-holder">' + state.text + '</div>'
         );
       }
       if (state.id === 'new') {
         return $(
-          '<span>' + state.text + '</span>'
+          '<div class="select2-value-holder">' + state.text + '</div>'
         );
       }
       if (state.id === '------') {
         return $(
-          '<span>' + state.text + '</span>'
+          '<div class="select2-value-holder">' + state.text + '</div>'
         );
       }
-      var $state = $(
-        '<span>' + state.name + ' - ' + state.id + '</span>'
+      if (typeof state.name === 'undefined' && typeof state.text !== 'undefined') {
+        return $(
+          '<div class="select2-value-holder">' + state.text + ' <small>ID: ' + state.id + '</small></div>'
+        );
+      }
+
+      return $(
+        '<div class="select2-value-holder">' + state.name + ' <small>ID: ' + state.id + '</small></div>'
       );
-      return $state;
     },
     customDsSearch: function(params, data) {
-      console.log(params);
-      console.log(data);
       // If there are no search terms, return all of the data
       if ($.trim(params.term) === '') {
         return data;
@@ -534,6 +546,16 @@ var DynamicLists = (function() {
       // Return `null` if the term should not be displayed
       return null;
     },
+    initSelect2: function(dataSources) {
+      $dataSources.select2({
+        data: dataSources,
+        placeholder: '-- Select a data source',
+        templateResult: _this.formatState,
+        width: '100%',
+        matcher: _this.customDsSearch,
+        dropdownAutoWidth: true
+      });
+    },
     getDataSources: function() {
       // Load the data source
       Fliplet.DataSources.get({
@@ -544,29 +566,7 @@ var DynamicLists = (function() {
       }).then(function (dataSources) {
         var options = [];
         allDataSources = dataSources;
-
-        $('#select_datasource').select2({
-          data: allDataSources,
-          placeholder: '-- Select a data source',
-          templateResult: _this.formatState,
-          width: '100%',
-          matcher: _this.customDsSearch
-        });
-
-
-        /*
-        dataSources.forEach(function (d) {
-          options.push('<option value="' + d.id + '">' + d.name + '</option>');
-        });
-        $dataSources.append(options.join(''));
-
-        if (widgetData.data && widgetData.data.dataSourceId) {
-          $dataSources.val(widgetData.data.dataSourceId);
-        }
-        $dataSources.trigger('change');
-
-        $dataSources.prop('disabled', '');
-        */
+        _this.initSelect2(allDataSources);
       });
     },
     createDataSource: function() {
@@ -594,8 +594,9 @@ var DynamicLists = (function() {
           definition: {'bundleImages': true}
         }).then(function(ds) {
           allDataSources.push(ds);
-          $dataSources.append('<option value="' + ds.id + '">' + ds.name + '</option>');
-          $dataSources.val(ds.id).trigger('change');
+
+          var newOption = new Option(ds.name, ds.id, true, true);
+          $dataSources.append(newOption).trigger('change');
           _this.getColumns(ds.id);
         });
       });   
