@@ -35,6 +35,13 @@
               <p class="text-helper select-new-data-source"><a href="#">Select a data source</a></p>
             </div>
             <div class="select-datasource-holder hidden">
+              <select name="select_datasource" id="select_datasource" data-label="select" class="form-control">
+                <option value="none">-- Select a data source</option>
+                <option disabled>------</option>
+                <option value="new">Create a new data source</option>
+                <option disabled>------</option>
+              </select>
+              <!--
               <label for="select_datasource" class="select-proxy-display">
                 <select name="select_datasource" id="select_datasource" data-label="select" class="hidden-select form-control" disabled>
                   <option value="none">-- Select a data source</option>
@@ -45,6 +52,7 @@
                 <span class="icon fa fa-chevron-down"></span>
                 <span class="select-value-proxy">-- Please wait</span>
               </label>
+            -->
             </div>
           </div>
         </div>
