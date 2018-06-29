@@ -352,9 +352,9 @@ DynamicList.prototype.initialize = function() {
       // Save them in an array
       for (var i = 0; i < numberOfPlacholderDays; i++) { 
         var newDate = {
-          week: moment(firstDate).utc().subtract(i, 'days').format("ddd"),
-          day: moment(firstDate).utc().subtract(i, 'days').format("DD"),
-          month: moment(firstDate).utc().subtract(i, 'days').format("MMM"),
+          week: moment(firstDate).utc().subtract(i + 1, 'days').format("ddd"),
+          day: moment(firstDate).utc().subtract(i + 1, 'days').format("DD"),
+          month: moment(firstDate).utc().subtract(i + 1, 'days').format("MMM"),
           placeholder: true
         }
         calendarDates.unshift(newDate);
@@ -382,9 +382,9 @@ DynamicList.prototype.initialize = function() {
       // Save them in an array
       for (var i = 0; i < numberOfPlacholderDays; i++) { 
         var newDate = {
-          week: moment(lastDate).utc().add(i, 'days').format("ddd"),
-          day: moment(lastDate).utc().add(i, 'days').format("DD"),
-          month: moment(lastDate).utc().add(i, 'days').format("MMM"),
+          week: moment(lastDate).utc().add(i + 1, 'days').format("ddd"),
+          day: moment(lastDate).utc().add(i + 1, 'days').format("DD"),
+          month: moment(lastDate).utc().add(i + 1, 'days').format("MMM"),
           placeholder: true
         }
         calendarDates.push(newDate);
