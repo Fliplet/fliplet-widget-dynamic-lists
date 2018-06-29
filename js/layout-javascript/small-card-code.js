@@ -244,13 +244,13 @@ DynamicList.prototype.initialize = function() {
 
             if (field.type === "numerical") {
               return value.match(/[0-9]/)
-              ? value
+              ? parseInt(value, 10)
               : '{' + value;
             }
 
             if (field.type === "date") {
-              obj.data[field.column] = moment(value).format('YYYYMMDD');
-              return obj.data[field.column];
+              var newDate = new Date(value).getTime();
+              return newDate;
             }
           });
         });

@@ -257,7 +257,7 @@ DynamicList.prototype.initialize = function() {
 
             if (field.type === "numerical") {
               return value.match(/[0-9]/)
-              ? value
+              ? parseInt(value, 10)
               : '{' + value;
             }
 
