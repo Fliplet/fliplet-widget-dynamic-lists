@@ -41,18 +41,6 @@
                 <option value="new">Create a new data source</option>
                 <option disabled>------</option>
               </select>
-              <!--
-              <label for="select_datasource" class="select-proxy-display">
-                <select name="select_datasource" id="select_datasource" data-label="select" class="hidden-select form-control" disabled>
-                  <option value="none">-- Select a data source</option>
-                  <option disabled>------</option>
-                  <option value="new">Create a new data source</option>
-                  <option disabled>------</option>
-                </select>
-                <span class="icon fa fa-chevron-down"></span>
-                <span class="select-value-proxy">-- Please wait</span>
-              </label>
-            -->
             </div>
           </div>
         </div>
@@ -152,7 +140,56 @@
             </div>
           </div>
         </div>
-        <hr>
+        <div class="form-group clearfix list-comments disabled hidden">
+          <div class="col-sm-4 control-label">
+            <label>Comments</label>
+            <p class="text-warning"><small>Coming soon: Ability to mention users in comments and receive notifications when a comment is posted.</small></p>
+          </div>
+          <div class="col-sm-8">
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-comments">
+              <label for="enable-comments">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to comment on list items
+              </label>
+            </div>
+
+            <div class="select-user-datasource-holder hidden">
+              <label>Select the users data source</label>
+              <select name="select_user_datasource" id="select_user_datasource" class="form-control">
+                <option value="none">-- Select a data source</option>
+                <option disabled>------</option>
+              </select>
+            </div>
+            <div class="select-user-firstname-holder hidden">
+              <label>User's first name data field</label>
+              <select name="select_user_fname" id="select_user_fname" class="form-control">
+                <option value="none">-- Select the first name data field</option>
+                <option disabled>------</option>
+              </select>
+            </div>
+            <div class="select-user-lastname-holder hidden">
+              <label>User's last name data field</label>
+              <select name="select_user_lname" id="select_user_lname" class="form-control">
+                <option value="none">-- Select the last name data field</option>
+                <option disabled>------</option>
+              </select>
+            </div>
+            <div class="select-user-email-holder hidden">
+              <label>User's email data field</label>
+              <select name="select_user_email" id="select_user_email" class="form-control">
+                <option value="none">-- Select the email data field</option>
+                <option disabled>------</option>
+              </select>
+            </div>
+            <div class="select-user-photo-holder hidden">
+              <label>User's photo data field</label>
+              <select name="select_user_photo" id="select_user_photo" class="form-control">
+                <option value="none">-- Select the photo data field</option>
+                <option disabled>------</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
             <label>Developer options</label>
@@ -177,6 +214,8 @@
       <div class="hidden" data-small-card-js-url="{{ asset 'js/layout-javascript/small-card-code.js' }}"></div>
       <div class="hidden" data-news-feed-css-url="{{ asset 'css/layout-css/news-feed-style.upload.css' }}"></div>
       <div class="hidden" data-news-feed-js-url="{{ asset 'js/layout-javascript/news-feed-code.js' }}"></div>
+      <div class="hidden" data-feed-comments-css-url="{{ asset 'css/layout-css/feed-comments-style.upload.css' }}"></div>
+      <div class="hidden" data-feed-comments-js-url="{{ asset 'js/layout-javascript/feed-comments-code.js' }}"></div>
       <div class="hidden" data-agenda-css-url="{{ asset 'css/layout-css/agenda-style.upload.css' }}"></div>
       <div class="hidden" data-agenda-js-url="{{ asset 'js/layout-javascript/agenda-code.js' }}"></div>
       <div class="hidden" data-small-h-card-css-url="{{ asset 'css/layout-css/small-h-card-style.upload.css' }}"></div>

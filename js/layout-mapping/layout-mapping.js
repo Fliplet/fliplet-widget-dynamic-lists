@@ -14,10 +14,17 @@ window.flLayoutMapping = {
     'name': 'Cards with description',
     'base': 'templates.build.news-feed-base',
     'loop': 'templates.build.news-feed-loop',
-    'detail': 'templates.build.news-feed-detail',
     'filter': 'templates.build.news-feed-filters',
     'css': 'news-feed',
     'js': 'news-feed'
+  },
+  'feed-comments': {
+    'name': 'Feed with comments',
+    'base': 'templates.build.feed-comments-base',
+    'loop': 'templates.build.feed-comments-loop',
+    'filter': 'templates.build.feed-comments-filters',
+    'css': 'feed-comments',
+    'js': 'feed-comments'
   },
   'agenda': {
     'name': 'Agenda',

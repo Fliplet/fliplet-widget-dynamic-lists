@@ -1,0 +1,14 @@
+\{{#each this}}
+  <div class="fl-individual-comment final \{{#if currentUser}}current-user\{{/if}}" data-id="\{{id}}">
+    <div class="top-comment-holder">
+      <div class="fl-comment-thumb">
+        <div class="fl-comment-image" style="background-image: url('\{{ photo }}')"></div>
+        <i class="fa fa-user"></i>
+      </div>
+      <div class="fl-comment-info-holder">
+        <div class="fl-comment-user">\{{ firstName }} \{{ lastName }}<span class="separator"><i class="fa fa-circle"></i></span><span>\{{ literalDate }}</span></div>
+        <div class="fl-comment-value">\{{ formatComment text }}</div>
+      </div>
+    </div>
+  </div>
+  \{{/each}}

@@ -641,7 +641,7 @@ header .btn,
 }
 
 .select2-value-holder {
-  color: #14505e;
+  color: #333333;
   font-size: 1em;
 }
 
@@ -651,4 +651,15 @@ header .btn,
 
 .select2-value-holder small {
   margin-left: 10px;
+}
+
+.select-user-datasource-holder {
+  margin-top: 15px;
+}
+
+.select-user-firstname-holder,
+.select-user-lastname-holder,
+.select-user-email-holder,
+.select-user-photo-holder {
+  margin-top: 10px;
 }

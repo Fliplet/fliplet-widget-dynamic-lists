@@ -69,6 +69,7 @@
       "vendor/mixitup.min.js",
       "vendor/mixitup-multifilter.min.js",
       "vendor/clusterize.min.js",
+      "vendor/autosize.js",
       "js/layout-mapping/layout-mapping.js",
       "js/build-lists.js",
       "js/build.js",
@@ -76,6 +77,7 @@
       "css/build.css",
       "css/layout-css/small-card-style.upload.css",
       "css/layout-css/news-feed-style.upload.css",
+      "css/layout-css/feed-comments-style.upload.css",
       "css/layout-css/agenda-style.upload.css",
       "css/layout-css/small-h-card-style.upload.css"
     ]
@@ -83,6 +85,8 @@
   "references": [
     "dataSourceId:dataSource",
     "likesDataSourceId:dataSource",
-    "bookmarkDataSourceId:dataSource"
+    "bookmarkDataSourceId:dataSource",
+    "commentsDataSourceId:dataSource",
+    "userDataSourceId:dataSource"
   ]
 }
