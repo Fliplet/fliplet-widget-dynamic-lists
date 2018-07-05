@@ -261,7 +261,9 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.news-feed-comment-close-panel', function() {
       $('.news-feed-comment-panel').removeClass('open');
       $('.news-feed-list-item.open .slide-over').removeClass('lock');
-      $('body').removeClass('lock');
+      if (!$('.news-feed-list-item').hasClass('open')) {
+        $('body').removeClass('lock');
+      }
     })
     .on('click', '.news-feed-comment-input-holder .comment', function() {
       var entryId = $('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
