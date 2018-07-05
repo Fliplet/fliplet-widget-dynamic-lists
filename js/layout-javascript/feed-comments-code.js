@@ -270,7 +270,7 @@ DynamicList.prototype.attachObservers = function() {
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val();
 
-      $commentArea.val('');
+      $commentArea.val('').trigger('change');;
       autosize.update($commentArea);
 
       if (comment !== '') {
@@ -320,7 +320,7 @@ DynamicList.prototype.attachObservers = function() {
 
       $('.fl-individual-comment').removeClass('editing');
       $('.news-feed-comment-input-holder').removeClass('editing');
-      $commentArea.val('');
+      $commentArea.val('').trigger('change');
       autosize.update($commentArea);
 
       if (comment !== '') {
@@ -332,7 +332,7 @@ DynamicList.prototype.attachObservers = function() {
       $('.news-feed-comment-input-holder').removeClass('editing');
 
       var $messageArea = $('[data-comment-body]');
-      $messageArea.val('');
+      $messageArea.val('').trigger('change');
       autosize.update($messageArea);
     })
     .on('click', '.final .fl-comment-value', function(e) {
