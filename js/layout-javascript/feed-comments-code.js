@@ -254,12 +254,14 @@ DynamicList.prototype.attachObservers = function() {
       var identifier = $(this).parents('.news-feed-list-item').data('entry-id');
       _this.entryClicked = identifier;
       _this.showComments(identifier);
+      $('body').addClass('lock');
       $('.news-feed-list-item.open .slide-over').addClass('lock');
       $('.news-feed-comment-panel').addClass('open');
     })
     .on('click', '.news-feed-comment-close-panel', function() {
       $('.news-feed-comment-panel').removeClass('open');
       $('.news-feed-list-item.open .slide-over').removeClass('lock');
+      $('body').removeClass('lock');
     })
     .on('click', '.news-feed-comment-input-holder .comment', function() {
       var entryId = $('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
