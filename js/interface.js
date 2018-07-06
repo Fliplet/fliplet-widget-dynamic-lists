@@ -514,7 +514,7 @@ var DynamicLists = (function() {
         name: 'user-name-column-fields',
         id: 'user-name-column-fields-tokenfield'
       }));
-      debugger;
+
       $('#user-name-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
           source: userDataSourceColumns,
