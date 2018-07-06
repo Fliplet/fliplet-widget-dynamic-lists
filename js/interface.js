@@ -8,7 +8,9 @@ var DynamicLists = (function() {
   var isLayoutSelected = false;
   var allDataSources = [];
   var newDataSource;
+  var newUserDataSource;
   var dataSourceColumns;
+  var userDataSourceColumns;
   var resetToDefaults = false;
 
   var $filterAccordionContainer = $('#filter-accordion');
@@ -39,7 +41,8 @@ var DynamicLists = (function() {
   var cssCode = '';
   var jsCode = '';
 
-  var $dataSources = $('#select_datasource')
+  var $dataSources = $('#select_datasource');
+  var $newUserDataSource = $('#select_user_datasource');
   var defaultSettings = window.flListLayoutConfig;
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
@@ -260,6 +263,13 @@ var DynamicLists = (function() {
             $('.edit-holder').addClass('hidden');
             $('.select-datasource-holder').removeClass('hidden');
           });
+        })
+        .on('change', '#enable-comments', function() {
+          if ( $(this).is(":checked") ) {
+            $('.select-user-datasource-holder').removeClass('hidden');
+          } else {
+            $('.select-user-datasource-holder').addClass('hidden');
+          }
         });
 
       $dataSources.on( 'change', function() {
@@ -279,11 +289,26 @@ var DynamicLists = (function() {
         _this.getColumns(selectedDataSourceId);
       });
 
+      $newUserDataSource.on( 'change', function() {
+        var selectedDataSourceId = $(this).val();
+
+        if (selectedDataSourceId === 'none') {
+          $('.select-user-firstname-holder').addClass('hidden');
+          $('.select-user-lastname-holder').addClass('hidden');
+          $('.select-user-email-holder').addClass('hidden');
+          $('.select-user-photo-holder').addClass('hidden');
+          return;
+        }
+
+        _this.getUserColumns(selectedDataSourceId);
+      });
+
       Fliplet.Studio.onMessage(function(event) {
         if (event.data && event.data.event === 'overlay-close' && event.data.data && event.data.data.dataSourceId) {
           _this.reloadDataSources().then(function(dataSources) {
             allDataSources = dataSources;
             _this.initSelect2(allDataSources);
+            _this.initSecondSelect2(allDataSources);
             Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
           });
         }
@@ -384,6 +409,9 @@ var DynamicLists = (function() {
               case 'news-feed':
                 $('.filter-loop-item').removeClass('hidden');
                 break;
+              case 'feed-comments':
+                $('.filter-loop-item').removeClass('hidden');
+                break;
               case 'agenda':
                 $('.date-loop-item').removeClass('hidden');
                 break;
@@ -407,6 +435,23 @@ var DynamicLists = (function() {
             _this.goToSettings('layouts');
 
             return;
+          })
+          .then(function() {
+            if (_this.config.userDataSourceId) {
+              return _this.getUserColumns(_this.config.userDataSourceId);
+            }
+
+            return;
+          })
+          .then(function() {
+            if (_this.config.social.comments) {
+              $('#select_user_fname').val(_this.config.userFirstNameColumn ? _this.config.userFirstNameColumn : 'none');
+              $('#select_user_lname').val(_this.config.userLastNameColumn ? _this.config.userLastNameColumn : 'none');
+              $('#select_user_email').val(_this.config.userEmailColumn ? _this.config.userEmailColumn : 'none');
+              $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
+              $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
+              $('.select-user-datasource-holder').removeClass('hidden');
+            }
           });
       }
     },
@@ -471,10 +516,21 @@ var DynamicLists = (function() {
         });
       }
     },
+    getUserColumns: function(dataSourceId) {
+      if (dataSourceId && dataSourceId !== '') {
+        return Fliplet.DataSources.getById(dataSourceId, {
+          cache: false
+        }).then(function (dataSource) {
+          newUserDataSource = dataSource;
+          userDataSourceColumns = dataSource.columns;
+          _this.updateUserFieldsWithColumns(dataSourceColumns);
+          return;
+        });
+      }
+    },
     updateFieldsWithColumns: function(dataSourceColumns) {
       var options;
       $('[data-field="field"]').each(function(index, obj) {
-        // @TODO Refactor to avoid DOM manipulation in every .each() loop
         var oldValue = $(obj).val();
         var options = [];
         $(obj).html('');
@@ -488,6 +544,67 @@ var DynamicLists = (function() {
       });
       _this.setUpTokenFields();
     },
+    updateUserFieldsWithColumns: function(dataSourceColumns) {
+      var fOptions = [];
+      var lOptions = [];
+      var eOptions = [];
+      var pOptions = [];
+
+      // Get old values
+      var oldFirstNameValue = $('.select-user-firstname-holder select').val();
+      var oldLastNameValue = $('.select-user-lastname-holder select').val();
+      var oldEmailValue = $('.select-user-email-holder select').val();
+      var oldPhotoValue = $('.select-user-photo-holder select').val();
+
+      // Reset
+      $('.select-user-firstname-holder select').html('');
+      $('.select-user-lastname-holder select').html('');
+      $('.select-user-email-holder select').html('');
+      $('.select-user-photo-holder select').html('');
+
+      // Append options
+      // First Name
+      $('.select-user-firstname-holder select').append('<option value="none">-- Select the first name data field</option>');
+      $('.select-user-firstname-holder select').append('<option disabled>------</option>');
+      userDataSourceColumns.forEach(function(value, index) {
+        fOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('.select-user-firstname-holder select').append(fOptions.join(''));
+      $('.select-user-firstname-holder select').val(oldFirstNameValue);
+
+      // Last Name
+      $('.select-user-lastname-holder select').append('<option value="none">-- Select the last name data field</option>');
+      $('.select-user-lastname-holder select').append('<option disabled>------</option>');
+      userDataSourceColumns.forEach(function(value, index) {
+        lOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('.select-user-lastname-holder select').append(lOptions.join(''));
+      $('.select-user-lastname-holder select').val(oldLastNameValue);
+
+      // Email
+      $('.select-user-email-holder select').append('<option value="none">-- Select the email data field</option>');
+      $('.select-user-email-holder select').append('<option disabled>------</option>');
+      userDataSourceColumns.forEach(function(value, index) {
+        eOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('.select-user-email-holder select').append(eOptions.join(''));
+      $('.select-user-email-holder select').val(oldEmailValue);
+
+      // Photo
+      $('.select-user-photo-holder select').append('<option value="none">-- Select the photo data field</option>');
+      $('.select-user-photo-holder select').append('<option disabled>------</option>');
+      userDataSourceColumns.forEach(function(value, index) {
+        pOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('.select-user-photo-holder select').append(pOptions.join(''));
+      $('.select-user-photo-holder select').val(oldPhotoValue);
+
+      // Show select fields
+      $('.select-user-firstname-holder').removeClass('hidden');
+      $('.select-user-lastname-holder').removeClass('hidden');
+      $('.select-user-email-holder').removeClass('hidden');
+      $('.select-user-photo-holder').removeClass('hidden');
+    },
     reloadDataSources: function(dataSourceId) {
       return Fliplet.DataSources.get({
         roles: 'publisher,editor',
@@ -499,27 +616,27 @@ var DynamicLists = (function() {
     formatState: function(state) {
       if (state.id === 'none') {
         return $(
-          '<div class="select2-value-holder">' + state.text + '</div>'
+          '<span class="select2-value-holder">' + state.text + '</span>'
         );
       }
       if (state.id === 'new') {
         return $(
-          '<div class="select2-value-holder">' + state.text + '</div>'
+          '<span class="select2-value-holder">' + state.text + '</span>'
         );
       }
       if (state.id === '------') {
         return $(
-          '<div class="select2-value-holder">' + state.text + '</div>'
+          '<span class="select2-value-holder">' + state.text + '</span>'
         );
       }
       if (typeof state.name === 'undefined' && typeof state.text !== 'undefined') {
         return $(
-          '<div class="select2-value-holder">' + state.text + ' <small>ID: ' + state.id + '</small></div>'
+          '<span class="select2-value-holder">' + state.text + ' <small>ID: ' + state.id + '</small></span>'
         );
       }
 
       return $(
-        '<div class="select2-value-holder">' + state.name + ' <small>ID: ' + state.id + '</small></div>'
+        '<span class="select2-value-holder">' + state.name + ' <small>ID: ' + state.id + '</small></span>'
       );
     },
     customDsSearch: function(params, data) {
@@ -551,6 +668,18 @@ var DynamicLists = (function() {
         data: dataSources,
         placeholder: '-- Select a data source',
         templateResult: _this.formatState,
+        templateSelection: _this.formatState,
+        width: '100%',
+        matcher: _this.customDsSearch,
+        dropdownAutoWidth: true
+      });
+    },
+    initSecondSelect2: function(dataSources) {
+      $newUserDataSource.select2({
+        data: dataSources,
+        placeholder: '-- Select a data source',
+        templateResult: _this.formatState,
+        templateSelection: _this.formatState,
         width: '100%',
         matcher: _this.customDsSearch,
         dropdownAutoWidth: true
@@ -567,6 +696,7 @@ var DynamicLists = (function() {
         var options = [];
         allDataSources = dataSources;
         _this.initSelect2(allDataSources);
+        _this.initSecondSelect2(allDataSources);
       });
     },
     createDataSource: function() {
@@ -1157,6 +1287,9 @@ var DynamicLists = (function() {
             case 'news-feed':
               _this.config.advancedSettings.filterHTML = undefined;
               break;
+            case 'feed-comments':
+              _this.config.advancedSettings.filterHTML = undefined;
+              break;
             case 'agenda':
               _this.config.advancedSettings.otherLoopHTML = undefined;
               break;
@@ -1185,6 +1318,7 @@ var DynamicLists = (function() {
     saveLists: function(toReload) {
       var likesPromise;
       var bookmarksPromise;
+      var commentsPromise;
       var data = _this.config;
       data.advancedSettings = {};
 
@@ -1236,6 +1370,9 @@ var DynamicLists = (function() {
           case 'news-feed':
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
+          case 'feed-comments':
+            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+            break;
           case 'agenda':
             data.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
             break;
@@ -1262,6 +1399,15 @@ var DynamicLists = (function() {
 
       data.social = _this.config.social;
 
+      if (_this.config.social.comments) {
+        data.userDataSource = newUserDataSource;
+        data.userDataSourceId = newUserDataSource.id || $newUserDataSource.val();
+        data.userFirstNameColumn = $('#select_user_fname').val();
+        data.userLastNameColumn = $('#select_user_lname').val();
+        data.userEmailColumn = $('#select_user_email').val();
+        data.userPhotoColumn = $('#select_user_photo').val();
+      }
+
       if (_this.config.social.likes && (!_this.config.likesDataSourceId || _this.config.likesDataSourceId === '')) {
         // Create likes data source
         likesPromise = Fliplet.DataSources.create({
@@ -1283,10 +1429,21 @@ var DynamicLists = (function() {
         });
       } else if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
         _this.config.bookmarkDataSourceId = '';
-      }      
+      }
+      if (_this.config.social.comments && (!_this.config.commentsDataSourceId || _this.config.commentsDataSourceId === '')) {
+        // Create likes data source
+        commentsPromise = Fliplet.DataSources.create({
+          name: appName + ' - Comments',
+          organizationId: organizationId // optional
+        }).then(function (dataSource) {
+          _this.config.commentsDataSourceId = dataSource.id;
+        });
+      } else if (!_this.config.social.comments && _this.config.commentsDataSourceId) {
+        _this.config.commentsDataSourceId = '';
+      }
 
       if (toReload) {
-        return Promise.all([likesPromise, bookmarksPromise])
+        return Promise.all([likesPromise, bookmarksPromise, commentsPromise])
           .then(function() {
             _this.config = data;
 
@@ -1299,7 +1456,7 @@ var DynamicLists = (function() {
       }
 
       _this.config = data;
-      return Promise.all([likesPromise, bookmarksPromise]);
+      return Promise.all([likesPromise, bookmarksPromise, commentsPromise]);
     }
   }
 

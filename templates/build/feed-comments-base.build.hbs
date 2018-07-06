@@ -1,0 +1,137 @@
+<div class="news-feed-list-container loading">
+  <!-- Filter Overlay -->
+  \{{#if filtersInOverlay}}
+  <div class="news-feed-search-filter-overlay">
+    <div class="news-feed-overlay-screen"></div>
+    <div class="news-feed-overlay-wrapper">
+      <div class="news-feed-overlay-header">
+        \{{#ifCond searchEnabled '&&' filtersEnabled}}
+        Search &amp; Filter
+        \{{else}}
+          \{{#if searchEnabled}}
+          Search
+          \{{/if}}
+          \{{#if filtersEnabled}}
+          Filter
+          \{{/if}}
+        \{{/ifCond}}
+        <div class="news-feed-overlay-close">
+          <i class="fa fa-times"></i>
+        </div>
+      </div>
+      <div class="news-feed-overlay-content">
+        <div class="hidden-filter-controls">
+          <div class="hidden-filter-controls-content">
+            \{{#if searchEnabled}}
+            <div class="hidden-filter-controls-search">
+              <div class="search-holder">
+                <i class="fa fa-search"></i>
+                <input type="search" name="search-feed" class="form-control from-overlay" placeholder="Search...">
+              </div>
+              <div class="search-query-holder">
+                <div class="search-query">
+                Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+                </div>
+              </div>
+            </div>
+            \{{/if}}
+            \{{#if filtersEnabled}}
+            <div class="filters-header">Filter by</div>
+            <div class="filter-holder">
+              <!-- Filters here -->
+            </div>
+            \{{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  \{{/if}}
+  <!-- End of Filter Overlay -->
+
+  <!-- Top bar with profile and search icons -->
+  \{{#ifCond searchEnabled '||' filtersEnabled}}
+  <div class="section-top-wrapper">
+    <div class="list-search-icon">
+      \{{#ifCond filtersInOverlay '!==' true}}
+      <div class="list-search-cancel"><span class="fa fa-times"></span></div>
+      \{{/ifCond}}
+      \{{#ifCond searchEnabled '&&' filtersEnabled}}
+      <i class="fa fa-search"></i>
+      \{{else}}
+        \{{#if searchEnabled}}
+        <i class="fa fa-search"></i>
+        \{{/if}}
+        \{{#if filtersEnabled}}
+        <i class="fa fa-filter"></i>
+        \{{/if}}
+      \{{/ifCond}}
+    </div>
+  </div>
+  \{{/ifCond}}
+  <!-- End of Top bar -->
+
+  <!-- Inline Search and Filters -->
+  \{{#ifCond filtersInOverlay '!==' true}}
+    \{{#ifCond searchEnabled '||' filtersEnabled}}
+    <div class="hidden-filter-controls">
+      <div class="hidden-filter-controls-content">
+        \{{#if searchEnabled}}
+        <div class="hidden-filter-controls-search">
+          <div class="search-holder">
+            <i class="fa fa-search"></i>
+            <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
+          </div>
+          <div class="search-query-holder">
+            <div class="search-query">
+            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+            </div>
+          </div>
+        </div>
+        \{{/if}}
+        \{{#if filtersEnabled}}
+        <div class="filter-holder">
+          <!-- Filters here -->
+        </div>
+        \{{/if}}
+      </div>
+    </div>
+    \{{/ifCond}}
+  \{{/ifCond}}
+  <!-- End of Inline Search and Filters -->
+
+  <div class="news-feed-list-wrapper" id="news-feed-list-wrapper-\{{id}}">
+    <!-- List items will appear here -->
+  </div>
+
+  <div class="loading-holder">
+    <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+  </div>
+</div>
+
+<div class="news-feed-comment-panel">
+  <div class="news-feed-comment-panel-header">
+    <div class="news-feed-comment-panel-title">Comments</div>
+    <div class="news-feed-comment-close-panel"><i class="fa fa-times"></i></div>
+  </div>
+
+  <div class="comments-offline">You are offline</div>
+
+  <div class="news-feed-comment-area">
+    <!-- Comments will be added here -->
+    <div class="loading-holder">
+      <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+    </div>
+  </div>
+
+  <div class="news-feed-comment-input-holder">
+    <div class="input-first-row">
+      <textarea class="form-control" rows="1" placeholder="Type comment" data-comment-body></textarea>
+    </div>
+    <div class="input-second-row">
+      <div class="btn btn-primary comment">Comment</div>
+      <div class="btn btn-link cancel">Cancel</div>
+      <div class="btn btn-primary save">Save</div>
+    </div>
+  </div>
+</div>
