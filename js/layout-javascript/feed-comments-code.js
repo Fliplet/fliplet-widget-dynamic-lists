@@ -1095,7 +1095,7 @@ DynamicList.prototype.connectToCommentsDataSource = function(id) {
             id: user.id,
             username: user.data[_this.data.userFirstNameColumn].toLowerCase().charAt(0) + user.data[_this.data.userLastNameColumn].toLowerCase().replace(/\s/g, ''),
             name: user.data[_this.data.userFirstNameColumn] + ' ' + user.data[_this.data.userLastNameColumn],
-            image: user.data[_this.data.userPhotoColumn]
+            image: user.data[_this.data.userPhotoColumn] || ''
           }
           usersInfoToMention.push(userInfo);
         });
@@ -1197,10 +1197,10 @@ DynamicList.prototype.showComments = function(id) {
         lastWeek: 'dddd, HH:mm',
         sameElse: 'MMM Do YY, HH:mm'
       });
-      entryComments.entries[index].firstName = entry.data.user.data[_this.data.userFirstNameColumn];
-      entryComments.entries[index].lastName = entry.data.user.data[_this.data.userLastNameColumn];
-      entryComments.entries[index].photo = entry.data.user.data[_this.data.userPhotoColumn];
-      entryComments.entries[index].text = entry.data.text;
+      entryComments.entries[index].firstName = entry.data.user.data[_this.data.userFirstNameColumn] || '';
+      entryComments.entries[index].lastName = entry.data.user.data[_this.data.userLastNameColumn] || '';
+      entryComments.entries[index].photo = entry.data.user.data[_this.data.userPhotoColumn] || '';
+      entryComments.entries[index].text = entry.data.text || '';
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       // Check if comment is from current user
@@ -1228,6 +1228,14 @@ DynamicList.prototype.showComments = function(id) {
 DynamicList.prototype.sendComment = function(id, value) {
   var _this = this;
   var guid = Fliplet.guid();
+
+  if (!_this.currentUser && !_this.currentUser.data) {
+    return Fliplet.Navigate.popup({
+      title: 'Invalid login',
+      message: 'You must be logged in to use this feature.'
+    });
+  }
+
   _this.appendTempComment(id, value, guid);
 
   var entryConnection = _.find(_this.commentsConnection, function(connection) {
@@ -1338,7 +1346,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
     }),
     firstName: _this.currentUser.data[_this.data.userFirstNameColumn],
     lastName: _this.currentUser.data[_this.data.userLastNameColumn],
-    photo: _this.currentUser.data[_this.data.userPhotoColumn],
+    photo: _this.currentUser.data[_this.data.userPhotoColumn] || '',
     text: value
   };
 
@@ -1372,7 +1380,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
     literalDate: commentData.literalDate,
     firstName: commentData.data.user.data[_this.data.userFirstNameColumn],
     lastName: commentData.data.user.data[_this.data.userLastNameColumn],
-    photo: commentData.data.user.data[_this.data.userPhotoColumn],
+    photo: commentData.data.user.data[_this.data.userPhotoColumn] || '',
     text: commentData.data.text
   };
   

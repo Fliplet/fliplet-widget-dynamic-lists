@@ -161,18 +161,11 @@
               </select>
             </div>
             <div class="select-user-firstname-holder hidden">
-              <label>User's first name data field</label>
-              <select name="select_user_fname" id="select_user_fname" class="form-control">
-                <option value="none">-- Select the first name data field</option>
-                <option disabled>------</option>
-              </select>
-            </div>
-            <div class="select-user-lastname-holder hidden">
-              <label>User's last name data field</label>
-              <select name="select_user_lname" id="select_user_lname" class="form-control">
-                <option value="none">-- Select the last name data field</option>
-                <option disabled>------</option>
-              </select>
+              <label>User's name data field(s)</label>
+              <p><small>Select any that apply if you have two fields for the users name.</small></p>
+              <div class="user-name-fields">
+                <!-- field will be added here -->
+              </div>
             </div>
             <div class="select-user-email-holder hidden">
               <label>User's email data field</label>
@@ -182,7 +175,7 @@
               </select>
             </div>
             <div class="select-user-photo-holder hidden">
-              <label>User's photo data field</label>
+              <label>User's photo data field <small>(optional)</small></label>
               <select name="select_user_photo" id="select_user_photo" class="form-control">
                 <option value="none">-- Select the photo data field</option>
                 <option disabled>------</option>
