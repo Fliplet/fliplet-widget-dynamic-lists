@@ -464,6 +464,11 @@ var DynamicLists = (function() {
         $('#filter-column-fields-tokenfield').tokenfield('setTokens', _this.config.filterFields );
       }
     },
+    loadUserTokenFields: function() {
+      if (_this.config.userNameFields) {
+        $('#user-name-column-fields-tokenfield').tokenfield('setTokens', _this.config.userNameFields );
+      }
+    },
     goToSettings: function(context) {
       if (context === 'advanced') {
         $('.advanced-tab').removeClass('present').addClass('future');
@@ -503,6 +508,22 @@ var DynamicLists = (function() {
       });
 
       _this.loadTokenFields();
+    },
+    setUpUserTokenFields: function() {
+      $('.user-name-fields').html(tokenField({
+        name: 'user-name-column-fields',
+        id: 'user-name-column-fields-tokenfield'
+      }));
+
+      $('#user-name-column-fields-tokenfield').tokenfield('destroy').tokenfield({
+        autocomplete: {
+          source: userDataSourceColumns,
+          delay: 100
+        },
+        showAutocompleteOnFocus: true
+      });
+
+      _this.loadUserTokenFields();
     },
     getColumns: function(dataSourceId) {
       if (dataSourceId && dataSourceId !== '') {
@@ -604,6 +625,8 @@ var DynamicLists = (function() {
       $('.select-user-lastname-holder').removeClass('hidden');
       $('.select-user-email-holder').removeClass('hidden');
       $('.select-user-photo-holder').removeClass('hidden');
+
+      _this.setUpUserTokenFields();
     },
     reloadDataSources: function(dataSourceId) {
       return Fliplet.DataSources.get({
@@ -1402,8 +1425,8 @@ var DynamicLists = (function() {
       if (_this.config.social.comments) {
         data.userDataSource = newUserDataSource;
         data.userDataSourceId = newUserDataSource.id || $newUserDataSource.val();
-        data.userFirstNameColumn = $('#select_user_fname').val();
-        data.userLastNameColumn = $('#select_user_lname').val();
+        data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
+        $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
         data.userEmailColumn = $('#select_user_email').val();
         data.userPhotoColumn = $('#select_user_photo').val();
       }

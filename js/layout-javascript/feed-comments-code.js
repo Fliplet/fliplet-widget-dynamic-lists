@@ -1091,11 +1091,29 @@ DynamicList.prototype.connectToCommentsDataSource = function(id) {
         _this.allUsers = users;
         var usersInfoToMention = [];
         _this.allUsers.forEach(function(user) {
+          var userName = '';
+          var userNickname = '';
+          var counter = 1;
+
+          if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+            _this.data.userNameFields.forEach(function(name, i) {
+              userName += user.data[name] + ' ';
+              userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+            });
+            userName = userName.trim();
+            userNickname = userNickname.trim();
+
+            counter++;
+          } else {
+            userName = user.data[_this.data.userNameFields[0]];
+            userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+          }
+
           var userInfo = {
             id: user.id,
-            username: user.data[_this.data.userFirstNameColumn].toLowerCase().charAt(0) + user.data[_this.data.userLastNameColumn].toLowerCase().replace(/\s/g, ''),
-            name: user.data[_this.data.userFirstNameColumn] + ' ' + user.data[_this.data.userLastNameColumn],
-            image: user.data[_this.data.userPhotoColumn]
+            username: userNickname,
+            name: userName,
+            image: user.data[_this.data.userPhotoColumn] || ''
           }
           usersInfoToMention.push(userInfo);
         });
@@ -1188,6 +1206,18 @@ DynamicList.prototype.showComments = function(id) {
       // Convert data/time
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
+      var userName = '';
+
+      if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+        _this.data.userNameFields.forEach(function(name, i) {
+          userName += entry.data.user.data[name] + ' ';
+        });
+
+        userName = userName.trim();
+      } else {
+        userName = entry.data.user.data[_this.data.userNameFields[0]];
+      }
+
       entryComments.entries[index].timeInMilliseconds = timeInMilliseconds;
       entryComments.entries[index].literalDate = moment(entry.createdAt).calendar(null, {
         sameDay: '[Today], HH:mm',
@@ -1197,10 +1227,9 @@ DynamicList.prototype.showComments = function(id) {
         lastWeek: 'dddd, HH:mm',
         sameElse: 'MMM Do YY, HH:mm'
       });
-      entryComments.entries[index].firstName = entry.data.user.data[_this.data.userFirstNameColumn];
-      entryComments.entries[index].lastName = entry.data.user.data[_this.data.userLastNameColumn];
-      entryComments.entries[index].photo = entry.data.user.data[_this.data.userPhotoColumn];
-      entryComments.entries[index].text = entry.data.text;
+      entryComments.entries[index].userName = userName;
+      entryComments.entries[index].photo = entry.data.user.data[_this.data.userPhotoColumn] || '';
+      entryComments.entries[index].text = entry.data.text || '';
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       // Check if comment is from current user
@@ -1228,6 +1257,14 @@ DynamicList.prototype.showComments = function(id) {
 DynamicList.prototype.sendComment = function(id, value) {
   var _this = this;
   var guid = Fliplet.guid();
+
+  if (!_this.currentUser && !_this.currentUser.data) {
+    return Fliplet.Navigate.popup({
+      title: 'Invalid login',
+      message: 'You must be logged in to use this feature.'
+    });
+  }
+
   _this.appendTempComment(id, value, guid);
 
   var entryConnection = _.find(_this.commentsConnection, function(connection) {
@@ -1246,6 +1283,8 @@ DynamicList.prototype.sendComment = function(id, value) {
     _this.getUser()
       .then(function (user) {
         var device = Fliplet.Navigator.device();
+        var userName = '';
+
         if (user === device.uuid) {
           Fliplet.Navigate.popup({
             title: 'Invalid login',
@@ -1255,8 +1294,17 @@ DynamicList.prototype.sendComment = function(id, value) {
           return Promise.reject('User must be logged in.');
         }
 
+        if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+          _this.data.userNameFields.forEach(function(name, i) {
+            userName += user.data[name] + ' ';
+          });
+          userName = userName.trim();
+        } else {
+          userName = user.data[_this.data.userNameFields[0]];
+        }
+
         var comment = {
-          fromName: user.data[_this.data.userFirstNameColumn] + ' ' + user.data[_this.data.userLastNameColumn],
+          fromName: userName,
           user: user
         };
 
@@ -1325,6 +1373,13 @@ DynamicList.prototype.sendComment = function(id, value) {
 DynamicList.prototype.appendTempComment = function(id, value, guid) {
   var _this = this;
   var timestamp = (new Date()).toISOString().replace('Z', '').replace('T', ' ');
+  var userName = '';
+
+  if (_this.data.userNameFields && _this.data.userNameFields > 1) {
+    userName = _this.data.userNameFields.join(' ');
+  } else {
+    userName = _this.data.userNameFields[0];
+  }
 
   var commentInfo = {
     id: guid,
@@ -1336,9 +1391,8 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
       lastWeek: 'dddd, HH:mm',
       sameElse: 'MMM Do YY, HH:mm'
     }),
-    firstName: _this.currentUser.data[_this.data.userFirstNameColumn],
-    lastName: _this.currentUser.data[_this.data.userLastNameColumn],
-    photo: _this.currentUser.data[_this.data.userPhotoColumn],
+    userName: userName,
+    photo: _this.currentUser.data[_this.data.userPhotoColumn] || '',
     text: value
   };
 
@@ -1354,6 +1408,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
 
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
+  var userName = '';
 
   if (!commentData.literalDate) {
     commentData.literalDate = moment(commentData.createdAt).calendar(null, {
@@ -1366,13 +1421,21 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
     });
   }
 
+  if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+    _this.data.userNameFields.forEach(function(name, i) {
+      userName += commentData.data.user.data[name] + ' ';
+    });
+    userName = userName.trim();
+  } else {
+    userName = commentData.data.user.data[_this.data.userNameFields[0]];
+  }
+
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
   var commentInfo = {
     id: commentData.id,
     literalDate: commentData.literalDate,
-    firstName: commentData.data.user.data[_this.data.userFirstNameColumn],
-    lastName: commentData.data.user.data[_this.data.userLastNameColumn],
-    photo: commentData.data.user.data[_this.data.userPhotoColumn],
+    userName: userName,
+    photo: commentData.data.user.data[_this.data.userPhotoColumn] || '',
     text: commentData.data.text
   };
   
