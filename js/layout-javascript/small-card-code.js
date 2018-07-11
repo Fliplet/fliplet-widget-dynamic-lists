@@ -111,6 +111,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.my-profile-container', function() {
       var directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
       _this.expandElement(directoryDetailWrapper);
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'profile_open'
+      });
     })
     .on('click', '.small-card-list-item', function(event) {
       event.stopPropagation();
@@ -119,6 +124,13 @@ DynamicList.prototype.attachObservers = function() {
         var directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
         _this.expandElement(directoryDetailWrapper);
       }
+
+      var entryTitle = $(this).find('.small-card-list-name').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_open',
+        label: entryTitle
+      });
     })
     .on('click', '.small-card-list-detail-close-btn', function(event) {
       event.stopPropagation();
@@ -132,6 +144,11 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'search_filter_controls_overlay_activate'
+        });
         return;
       }
 
@@ -140,6 +157,11 @@ DynamicList.prototype.attachObservers = function() {
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'search_filter_controls_activate'
+      });
     })
     .on('click', '.small-card-overlay-close', function() {
       var $elementClicked = $(this);
@@ -170,6 +192,12 @@ DynamicList.prototype.attachObservers = function() {
           _this.clearSearch();
           return;
         }
+
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'search',
+          label: value
+        });
 
         if ($inputField.hasClass('from-overlay')) {
           $inputField.parents('.small-card-search-filter-overlay').removeClass('display');
@@ -645,6 +673,15 @@ DynamicList.prototype.initializeMixer = function() {
       "nudge": true,
       "reverseOut": false,
       "effects": "fade scale(0.45) translateZ(-100px)"
+    },
+    callbacks: {
+      onMixClick: function(state, originalEvent) {
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter',
+          label: this.innerText
+        });
+      }
     }
   });
 }

@@ -107,6 +107,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.my-profile-container', function() {
       var directoryDetailWrapper = $(this).find('.small-h-card-list-detail-wrapper');
       _this.expandElement(directoryDetailWrapper);
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'profile_open'
+      });
     })
     .on('click', '.small-h-card-list-item', function(event) {
       event.stopPropagation();
@@ -115,6 +120,13 @@ DynamicList.prototype.attachObservers = function() {
         var directoryDetailWrapper = $(this).find('.small-h-card-list-detail-wrapper');
         _this.expandElement(directoryDetailWrapper);
       }
+
+      var entryTitle = $(this).find('.small-h-card-list-item-text').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_open',
+        label: entryTitle
+      });
     })
     .on('click', '.small-h-card-list-detail-close-btn', function(event) {
       event.stopPropagation();

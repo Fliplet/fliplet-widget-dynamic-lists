@@ -30,6 +30,7 @@ var DynamicList = function(id, data, container) {
   this.mixer;
 
   this.listItems;
+  this.likeButtons = [];
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -100,6 +101,13 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.allowClick) {
         _this.expandElement(elementToExpand);
       }
+
+      var entryTitle = $(this).find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_open',
+        label: entryTitle
+      });
     })
     .on('click', '.news-feed-item-close-btn-wrapper', function(event) {
       event.stopPropagation();
@@ -112,6 +120,11 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
+
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'search_filter_controls_overlay_activate'
+        });
         return;
       }
 
@@ -120,6 +133,11 @@ DynamicList.prototype.attachObservers = function() {
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'search_filter_controls_activate'
+      });
     })
     .on('click', '.news-feed-overlay-close', function() {
       var $elementClicked = $(this);
@@ -151,6 +169,12 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'search',
+          label: value
+        });
+
         if ($inputField.hasClass('from-overlay')) {
           $inputField.parents('.news-feed-search-filter-overlay').removeClass('display');
         }
@@ -174,6 +198,26 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
+    });
+    
+    _this.likeButtons.forEach(function(button) {
+      button.btn.on('liked', function(data){
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_like',
+          label: entryTitle
+        });
+      });
+
+      button.btn.on('unliked', function(data){
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_unlike',
+          label: entryTitle
+        });
+      });
     });
 }
 
@@ -612,6 +656,15 @@ DynamicList.prototype.initializeMixer = function() {
       "nudge": true,
       "reverseOut": false,
       "effects": "fade scale(0.45) translateZ(-100px)"
+    },
+    callbacks: {
+      onMixClick: function(state, originalEvent) {
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter',
+          label: this.innerText
+        });
+      }
     }
   });
 }
@@ -634,20 +687,23 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
   var _this = this;
 
   // Sets up the like feature
-  LikeButton({
-    target: '.news-feed-like-holder-' + id,
-    dataSourceId: _this.data.likesDataSourceId,
-    content: { 
-      entryId: identifier,
-      pageId: Fliplet.Env.get('pageId')
-    },
-    name: Fliplet.Env.get('pageTitle') + '/' + title,
-    likeLabel: '<i class="fa fa-heart-o fa-lg"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
-    likedLabel: '<i class="fa fa-heart fa-lg animated bounceIn"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
-    likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
-    likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
-    addType: 'html'
-  })
+  _this.likeButtons.push({
+    btn: LikeButton({
+      target: '.news-feed-like-holder-' + id,
+      dataSourceId: _this.data.likesDataSourceId,
+      content: { 
+        entryId: identifier,
+        pageId: Fliplet.Env.get('pageId')
+      },
+      name: Fliplet.Env.get('pageTitle') + '/' + title,
+      likeLabel: '<i class="fa fa-heart-o fa-lg"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
+      likedLabel: '<i class="fa fa-heart fa-lg animated bounceIn"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
+      likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
+      likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+      addType: 'html'
+    }),
+    id: id
+  });
 }
 
 DynamicList.prototype.expandElement = function(elementToExpand) {
