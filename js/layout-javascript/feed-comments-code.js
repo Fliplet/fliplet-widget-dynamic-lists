@@ -1393,7 +1393,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
   var timestamp = (new Date()).toISOString().replace('Z', '').replace('T', ' ');
   var userName = '';
 
-  if (_this.data.userNameFields && _this.data.userNameFields > 1) {
+  if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
       userName += _this.currentUser.data[name] + ' ';
     });
