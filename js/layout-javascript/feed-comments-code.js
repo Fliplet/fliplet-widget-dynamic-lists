@@ -414,6 +414,7 @@ DynamicList.prototype.initialize = function() {
       _this.myUserData = session.entries.dataSource.data;
     } else if (session && session.entries && session.entries.saml2) {
       _this.myUserData = session.entries.saml2.user;
+      _this.myUserData.isSaml2 = true;
     } else {
       _this.myUserData = session.user;
     }
@@ -1234,9 +1235,24 @@ DynamicList.prototype.showComments = function(id) {
       entryComments.entries[index].text = entry.data.text || '';
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
+      var dataSourceEmail = '';
+      if (entry.data.user && entry.data.user.data[_this.data.userEmailColumn]) {
+        dataSourceEmail = entry.data.user.data[_this.data.userEmailColumn];
+      }
       // Check if comment is from current user
-      if (entry.data.user && entry.data.user.data[_this.data.userEmailColumn] === myEmail) {
-        entryComments.entries[index].currentUser = true;
+      if (_this.myUserData && _this.myUserData.isSaml2) {
+        var myEmailParts = myEmail.match(/[^\.]+/);
+        var toComparePart = myEmailParts[0];
+        var dataSourceEmailParts = dataSourceEmail.match(/[^\.]+/);
+        var toComparePart2 = dataSourceEmailParts[0];
+
+        if (toComparePart === toComparePart2) {
+          entryComments.entries[index].currentUser = true;
+        }
+      } else {
+        if (dataSourceEmail === myEmail) {
+          entryComments.entries[index].currentUser = true;
+        }
       }
     });
     entryComments.entries = _.orderBy(entryComments.entries, ['timeInMilliseconds'], ['asc']);
@@ -1433,6 +1449,10 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
+  var commentEmail = '';
+  if (commentData.data.user.data[_this.data.userEmailColumn]) {
+    commentEmail = commentData.data.user.data[_this.data.userEmailColumn];
+  }
   var commentInfo = {
     id: commentData.id,
     literalDate: commentData.literalDate,
@@ -1442,9 +1462,22 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   };
   
   if (context === 'final') {
-    if (commentData.data.user.data[_this.data.userEmailColumn] === myEmail) {
-      commentInfo.currentUser = true;
+    // Check if comment is from current user
+    if (_this.myUserData && _this.myUserData.isSaml2) {
+      var myEmailParts = myEmail.match(/[^\.]+/);
+      var toComparePart = myEmailParts[0];
+      var commentEmailParts = commentEmail.match(/[^\.]+/);
+      var toComparePart2 = commentEmailParts[0];
+
+      if (toComparePart === toComparePart2) {
+        commentInfo.currentUser = true;
+      }
+    } else {
+      if (commentEmail === myEmail) {
+        commentInfo.currentUser = true;
+      }
     }
+
     var commentTemplate = Fliplet.Widget.Templates[feedCommentsLayoutMapping[_this.data.layout]['single-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
