@@ -1276,7 +1276,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var _this = this;
   var guid = Fliplet.guid();
 
-  if (!_this.currentUser && !_this.currentUser.data) {
+  if (!_this.currentUser || (_this.currentUser && !_this.currentUser.data)) {
     return Fliplet.Navigate.popup({
       title: 'Invalid login',
       message: 'You must be logged in to use this feature.'
@@ -1394,9 +1394,12 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
   var userName = '';
 
   if (_this.data.userNameFields && _this.data.userNameFields > 1) {
-    userName = _this.data.userNameFields.join(' ');
+    _this.data.userNameFields.forEach(function(name, i) {
+      userName += _this.currentUser.data[name] + ' ';
+    });
+    userName = userName.trim();
   } else {
-    userName = _this.data.userNameFields[0];
+    userName = _this.currentUser.data[_this.data.userNameFields[0]];
   }
 
   var commentInfo = {
