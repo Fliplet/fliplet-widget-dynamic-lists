@@ -34,6 +34,7 @@ var DynamicList = function(id, data, container) {
   this.autosizeInit = false;
 
   this.listItems;
+  this.likeButtons = [];
   this.commentsConnection = [];
   this.comments = [];
   this.allUsers;
@@ -174,6 +175,12 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.allowClick) {
         _this.expandElement(elementToExpand);
       }
+      var entryTitle = $(this).find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_open',
+        label: entryTitle
+      });
     })
     .on('click', '.news-feed-item-close-btn-wrapper', function(event) {
       event.stopPropagation();
@@ -186,6 +193,11 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
+
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'search_filter_controls_overlay_activate'
+        });
         return;
       }
 
@@ -194,6 +206,11 @@ DynamicList.prototype.attachObservers = function() {
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'search_filter_controls_activate'
+      });
     })
     .on('click', '.news-feed-overlay-close', function() {
       var $elementClicked = $(this);
@@ -224,6 +241,12 @@ DynamicList.prototype.attachObservers = function() {
           _this.clearSearch();
           return;
         }
+
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'search',
+          label: value
+        });
 
         if ($inputField.hasClass('from-overlay')) {
           $inputField.parents('.news-feed-search-filter-overlay').removeClass('display');
@@ -257,6 +280,11 @@ DynamicList.prototype.attachObservers = function() {
       $('body').addClass('lock');
       $('.news-feed-list-item.open .slide-over').addClass('lock');
       $('.news-feed-comment-panel').addClass('open');
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'comments_open'
+      });
     })
     .on('click', '.news-feed-comment-close-panel', function() {
       $('.news-feed-comment-panel').removeClass('open');
@@ -276,6 +304,11 @@ DynamicList.prototype.attachObservers = function() {
       if (comment !== '') {
         _this.sendComment(entryId, comment);
       }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'comment_send'
+      });
     })
     .on('focus', '[data-comment-body]', function() {
       var _that = $(this);
@@ -290,6 +323,11 @@ DynamicList.prototype.attachObservers = function() {
           });
         }, 0);
       }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'comment_type'
+      });
     })
     .on('blur', '[data-comment-body]', function() {
       var _that = $(this);
@@ -326,6 +364,11 @@ DynamicList.prototype.attachObservers = function() {
       if (comment !== '') {
         _this.saveComment(entryId, commentId, comment);
       }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'comment_save_edit'
+      });
     })
     .on('click', '.news-feed-comment-input-holder .cancel', function() {
       $('.fl-individual-comment').removeClass('editing');
@@ -350,6 +393,11 @@ DynamicList.prototype.attachObservers = function() {
               label: 'Copy',
               action: function (i) {
                 elementToCopy.copyText();
+
+                Fliplet.Analytics.trackEvent({
+                  category: 'list_dynamic_' + _this.data.layout,
+                  action: 'comment_copy'
+                });
               }
             },
             {
@@ -363,6 +411,11 @@ DynamicList.prototype.attachObservers = function() {
                 $messageArea.val(textToEdit);
                 autosize.update($messageArea);
                 $messageArea.focus();
+
+                Fliplet.Analytics.trackEvent({
+                  category: 'list_dynamic_' + _this.data.layout,
+                  action: 'comment_edit'
+                });
               }
             },
             {
@@ -376,6 +429,11 @@ DynamicList.prototype.attachObservers = function() {
 
                 Fliplet.Navigate.confirm(options)
                   .then(function(result) {
+                    Fliplet.Analytics.trackEvent({
+                      category: 'list_dynamic_' + _this.data.layout,
+                      action: 'comment_delete'
+                    });
+
                     if (!result) {
                       return;
                     }
@@ -395,12 +453,42 @@ DynamicList.prototype.attachObservers = function() {
               label: 'Copy',
               action: function (i) {
                 elementToCopy.copyText();
+
+                Fliplet.Analytics.trackEvent({
+                  category: 'list_dynamic_' + _this.data.layout,
+                  action: 'comment_copy'
+                });
               }
             }
           ],
           cancel: 'Cancel'
         });
       }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'comment_options'
+      });
+    });
+
+    _this.likeButtons.forEach(function(button) {
+      button.btn.on('liked', function(data){
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_like',
+          label: entryTitle
+        });
+      });
+
+      button.btn.on('unliked', function(data){
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_unlike',
+          label: entryTitle
+        });
+      });
     });
 }
 
@@ -865,6 +953,15 @@ DynamicList.prototype.initializeMixer = function() {
       "nudge": true,
       "reverseOut": false,
       "effects": "fade scale(0.45) translateZ(-100px)"
+    },
+    callbacks: {
+      onMixClick: function(state, originalEvent) {
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter',
+          label: this.innerText
+        });
+      }
     }
   });
 }
@@ -887,20 +984,23 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
   var _this = this;
 
   // Sets up the like feature
-  LikeButton({
-    target: '.news-feed-like-holder-' + id,
-    dataSourceId: _this.data.likesDataSourceId,
-    content: { 
-      entryId: identifier,
-      pageId: Fliplet.Env.get('pageId')
-    },
-    name: Fliplet.Env.get('pageTitle') + '/' + title,
-    likeLabel: '<i class="fa fa-heart-o fa-lg"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
-    likedLabel: '<i class="fa fa-heart fa-lg animated bounceIn"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
-    likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
-    likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
-    addType: 'html'
-  })
+  _this.likeButtons.push({
+    btn: LikeButton({
+      target: '.news-feed-like-holder-' + id,
+      dataSourceId: _this.data.likesDataSourceId,
+      content: { 
+        entryId: identifier,
+        pageId: Fliplet.Env.get('pageId')
+      },
+      name: Fliplet.Env.get('pageTitle') + '/' + title,
+      likeLabel: '<i class="fa fa-heart-o fa-lg"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
+      likedLabel: '<i class="fa fa-heart fa-lg animated bounceIn"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
+      likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
+      likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+      addType: 'html'
+    }),
+    id: id
+  });
 }
 
 DynamicList.prototype.expandElement = function(elementToExpand) {

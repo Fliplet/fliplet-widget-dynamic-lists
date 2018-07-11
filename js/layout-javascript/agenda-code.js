@@ -119,6 +119,13 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
       var elementToExpand = $(this).find('.agenda-list-item-content');
       _this.expandElement(elementToExpand);
+
+      var entryTitle = $(this).find('.agenda-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_open',
+        label: entryTitle
+      });
     })
     .on('click', '.agenda-list-item .agenda-item-close-btn', function(event) {
       event.stopPropagation();
@@ -170,15 +177,33 @@ DynamicList.prototype.attachObservers = function() {
         _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
       }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter_date',
+        label: $(this).find('.week').text() + ' ' + $(this).find('.day').text() + ' ' + $(this).find('.month').text()
+      });
     });
 
   _this.bookmarkButtons.forEach(function(button) {
     button.btn.on('liked', function(data){
       this.$btn.parents('.agenda-list-item').addClass('bookmarked');
+      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_bookmark',
+        label: entryTitle
+      });
     });
 
     button.btn.on('unliked', function(data){
       this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
+      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unbookmark',
+        label: entryTitle
+      });
     });
   });
 }
@@ -688,6 +713,11 @@ DynamicList.prototype.initializeMixer = function() {
         },
         onMixClick: function(state, originalEvent) {
           $(state.container).addClass('mixing');
+
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'bookmarks_show'
+          });
         }
       }
     });
