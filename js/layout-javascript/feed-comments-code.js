@@ -410,8 +410,10 @@ DynamicList.prototype.initialize = function() {
   _this.renderBaseHTML();
 
   Fliplet.Session.get().then(function(session) {
-    if (session && session.entries) {
+    if (session && session.entries && session.entries.dataSource) {
       _this.myUserData = session.entries.dataSource.data;
+    } else if (session && session.entries && session.entries.saml2) {
+      _this.myUserData = session.entries.saml2.user;
     } else {
       _this.myUserData = session.user;
     }
