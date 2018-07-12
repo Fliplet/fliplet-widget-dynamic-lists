@@ -48,6 +48,9 @@ var DynamicList = function(id, data, container) {
   Fliplet.Session.get().then(function(session) {
     if (session && session.entries && session.entries.dataSource) {
       _this.myUserData = session.entries.dataSource.data;
+    } else if (session && session.entries && session.entries.saml2) {
+      _this.myUserData = session.entries.saml2.user;
+      _this.myUserData.isSaml2 = true;
     } else {
       _this.myUserData = session.user;
     }
