@@ -354,6 +354,9 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var _this = this;
 
   records.forEach(function(obj, index) {
+    if (records[index].data.Image) {
+      records[index].data.Image = Fliplet.Media.authenticate(records[index].data.Image);
+    }
     records[index].data.profileHTML = _this.profileHTML(records[index]);
   });
 
