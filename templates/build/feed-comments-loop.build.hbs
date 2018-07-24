@@ -2,7 +2,7 @@
 <div class="news-feed-list-item mix \{{data.[classes]}}" data-entry-id="\{{id}}">
   <div class="news-feed-item-content">
     <section class="slide-under">
-      <div class="banner" data-height="20vh" data-height-expanded="45vh" style="height: 20vh; background-image: url('\{{data.[Image]}}');"></div>
+      <div class="banner" data-height="20vh" data-height-expanded="45vh" style="height: 20vh; background-image: url('\{{auth data.[Image]}}');"></div>
       <i class="fa fa-picture-o"></i>
     </section>
     <div class="container-fluid slide-over">
@@ -26,7 +26,7 @@
         </div>
         <h2 class="news-feed-item-title">\{{data.[Title]}}</h2>
         <div class="news-feed-item-description">
-          \{{{data.[Content]}}}
+          \{{{auth data.[Content]}}}
         </div>
         \{{#if commentsEnabled}}
         <div class="news-feed-comment-inner-holder">
