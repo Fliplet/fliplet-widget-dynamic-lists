@@ -640,16 +640,6 @@ DynamicList.prototype.initialize = function() {
             records[i].data['Date'] = moment(obj.data['Date']).utc().format("MMM DD YYYY");
           }
 
-          // Add authentication for images
-          if (obj.data['Image']) {
-            obj.data['Image'] = Fliplet.Media.authenticate(obj.data['Image']);
-          }
-
-          // Add authentication for images in content
-          if (obj.data['Content']) {
-            obj.data['Content'] = Fliplet.Media.authenticate(obj.data['Content']);
-          }
-
           // Add likes flag
           if (_this.data.social && _this.data.social.likes) {
             records[i].likesEnabled = true;
