@@ -16,11 +16,27 @@
             <i class="fa fa-heart-o fa-lg like-placeholder"></i>
           </div>
           \{{/if}}
+          \{{#if commentsEnabled}}
+          <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}}">
+            <!-- Like button will be here -->
+            <!-- Like placeholder -->
+            <i class="fa fa-comment-o fa-lg comment-placeholder"></i>
+          </div>
+          \{{/if}}
         </div>
         <h2 class="news-feed-item-title">\{{data.[Title]}}</h2>
         <div class="news-feed-item-description">
           \{{{data.[Content]}}}
         </div>
+        \{{#if commentsEnabled}}
+        <div class="news-feed-comment-inner-holder">
+          <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}}">
+            <!-- Like button will be here -->
+            <!-- Like placeholder -->
+            <i class="fa fa-comment-o fa-lg comment-placeholder"></i>
+          </div>
+        </div>
+        \{{/if}}
       </div>
     </div>
     <div class="news-feed-item-close-btn-wrapper">

@@ -34,27 +34,6 @@ window.flListLayoutConfig = {
       }
     ],
     'social': {
-      'likes': true
-    },
-    'style-specific': ['list-filter', 'list-search', 'list-likes']
-  },
-  'feed-comments': {
-    'filtersEnabled': true,
-    'filterFields': ['Categories'],
-    'filtersInOverlay': false,
-    'searchEnabled': true,
-    'searchFields': ['Title', 'Categories', 'Content'],
-    'sortOptions': [
-      {
-        'column': 'Date',
-        'columns': ['Title', 'Date', 'Categories', 'Image', 'Content'],
-        'id': 'ajdmjZrT',
-        'orderBy': 'descending',
-        'sortBy': 'date',
-        'title': 'Date - Date - Descending'
-      }
-    ],
-    'social': {
       'likes': true,
       'comments': true
     },
