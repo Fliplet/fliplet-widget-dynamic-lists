@@ -837,6 +837,42 @@ DynamicList.prototype.onReady = function() {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
       _this.getCommentsCount(element);
     });
+
+    // Get users info
+    _this.connectToUsersDataSource().then(function(users) {
+      _this.allUsers = users;
+      var usersInfoToMention = [];
+      _this.allUsers.forEach(function(user) {
+        var userName = '';
+        var userNickname = '';
+        var counter = 1;
+
+        if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+          _this.data.userNameFields.forEach(function(name, i) {
+            userName += user.data[name] + ' ';
+            userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+          });
+          userName = userName.trim();
+          userNickname = userNickname.trim();
+
+          counter++;
+        } else {
+          userName = user.data[_this.data.userNameFields[0]];
+          userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+        }
+
+        var userInfo = {
+          id: user.id,
+          username: userNickname,
+          name: userName,
+          image: user.data[_this.data.userPhotoColumn] || ''
+        }
+        usersInfoToMention.push(userInfo);
+      });
+      _this.usersToMention = usersInfoToMention;
+
+      _this.getUser();
+    });
   }
 
   // Ready
@@ -1153,23 +1189,20 @@ DynamicList.prototype.getCommentsCount = function(element) {
 
 DynamicList.prototype.connectToCommentsDataSource = function(id) {
   var _this = this;
-  var options = {
-    offline: true
+  var content = {
+    contentDataSourceEntryId: id,
+    type: 'comment'
   }
-
-  return Fliplet.DataSources.connect(_this.data.commentsDataSourceId, options)
-    .then(function(connection) {
-      _this.commentsConnection.push({
-        contentDataSourceEntryId: id,
-        connection: connection
-      });
-      return connection.query({
+  return Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
+    .then(function(instance) {
+      return instance.query({
+        allowGrouping: true,
         where: {
-          contentDataSourceEntryId: id
+          content: content
         }
       });
     })
-    .then(function(entries) {
+    .then(function(entries){
       var foundExisting = false;
       _this.comments.forEach(function(obj, index) {
         if (obj.contentDataSourceEntryId === id) {
@@ -1190,44 +1223,8 @@ DynamicList.prototype.connectToCommentsDataSource = function(id) {
         });
       }
 
-      _this.connectToUsersDataSource().then(function(users) {
-        _this.allUsers = users;
-        var usersInfoToMention = [];
-        _this.allUsers.forEach(function(user) {
-          var userName = '';
-          var userNickname = '';
-          var counter = 1;
-
-          if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-            _this.data.userNameFields.forEach(function(name, i) {
-              userName += user.data[name] + ' ';
-              userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
-            });
-            userName = userName.trim();
-            userNickname = userNickname.trim();
-
-            counter++;
-          } else {
-            userName = user.data[_this.data.userNameFields[0]];
-            userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
-          }
-
-          var userInfo = {
-            id: user.id,
-            username: userNickname,
-            name: userName,
-            image: user.data[_this.data.userPhotoColumn] || ''
-          }
-          usersInfoToMention.push(userInfo);
-        });
-        _this.usersToMention = usersInfoToMention;
-
-        _this.getUser()
-          .then(function() {
-            _this.updateCommentCounter(id);
-          });
-      });
-
+      _this.updateCommentCounter(id);
+      
       return;
     })
     .catch(function (error) {
@@ -1313,12 +1310,12 @@ DynamicList.prototype.showComments = function(id) {
 
       if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
         _this.data.userNameFields.forEach(function(name, i) {
-          userName += entry.data.user.data[name] + ' ';
+          userName += entry.data.settings.user.data[name] + ' ';
         });
 
         userName = userName.trim();
       } else {
-        userName = entry.data.user.data[_this.data.userNameFields[0]];
+        userName = entry.data.settings.user.data[_this.data.userNameFields[0]];
       }
 
       entryComments.entries[index].timeInMilliseconds = timeInMilliseconds;
@@ -1331,13 +1328,13 @@ DynamicList.prototype.showComments = function(id) {
         sameElse: 'MMM Do YY, HH:mm'
       });
       entryComments.entries[index].userName = userName;
-      entryComments.entries[index].photo = entry.data.user.data[_this.data.userPhotoColumn] || '';
-      entryComments.entries[index].text = entry.data.text || '';
+      entryComments.entries[index].photo = entry.data.settings.user.data[_this.data.userPhotoColumn] || '';
+      entryComments.entries[index].text = entry.data.settings.text || '';
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       var dataSourceEmail = '';
-      if (entry.data.user && entry.data.user.data[_this.data.userEmailColumn]) {
-        dataSourceEmail = entry.data.user.data[_this.data.userEmailColumn];
+      if (entry.data.settings.user && entry.data.settings.user.data[_this.data.userEmailColumn]) {
+        dataSourceEmail = entry.data.settings.user.data[_this.data.userEmailColumn];
       }
       // Check if comment is from current user
       if (_this.myUserData && _this.myUserData.isSaml2) {
@@ -1385,107 +1382,111 @@ DynamicList.prototype.sendComment = function(id, value) {
 
   _this.appendTempComment(id, value, guid);
 
-  var entryConnection = _.find(_this.commentsConnection, function(connection) {
-    return connection.contentDataSourceEntryId === id;
+  _this.comments.forEach(function(obj, idx) {
+    if (obj.contentDataSourceEntryId === id) {
+      _this.comments[idx].count++
+    }
   });
+  
+  _this.updateCommentCounter(id);
 
-  if (entryConnection) {
-    _this.comments.forEach(function(obj, idx) {
-      if (obj.contentDataSourceEntryId === id) {
-        _this.comments[idx].count++
-      }
-    });
-    
-    _this.updateCommentCounter(id);
+  _this.getUser()
+    .then(function (user) {
+      var device = Fliplet.Navigator.device();
+      var userName = '';
 
-    _this.getUser()
-      .then(function (user) {
-        var device = Fliplet.Navigator.device();
-        var userName = '';
-
-        if (user === device.uuid) {
-          Fliplet.Navigate.popup({
-            title: 'Invalid login',
-            message: 'You must be logged in to use this feature.'
-          });
-
-          return Promise.reject('User must be logged in.');
-        }
-
-        if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-          _this.data.userNameFields.forEach(function(name, i) {
-            userName += user.data[name] + ' ';
-          });
-          userName = userName.trim();
-        } else {
-          userName = user.data[_this.data.userNameFields[0]];
-        }
-
-        var comment = {
-          fromName: userName,
-          user: user
-        };
-
-        _.assignIn(comment, { contentDataSourceEntryId: id });
-
-        var query;
-        var timestamp = (new Date()).toISOString().replace('Z', '').replace('T', ' ');
-
-        // Get mentioned user(s)
-        var mentionRegexp = /\B@[a-z0-9_-]+/ig;
-        var mentions = value.match(mentionRegexp);
-        var usersMentioned = [];
-
-        if (mentions && mentions.length) {
-          var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
-            return mentions.indexOf('@' + userToMention.username) > -1;
-          });
-
-          if (filteredUsers && filteredUsers.length) {
-            filteredUsers.forEach(function(filteredUser) {
-              var foundUser = _.find(_this.allUsers, function(user) {
-                return user.id === filteredUser.id;
-              });
-
-              if (foundUser) {
-                usersMentioned.push(foundUser);
-              }
-            });
-          }
-        }
-
-        comment.mentions = [];
-        if (usersMentioned && usersMentioned.length) {
-          usersMentioned.forEach(function(user) {
-            comment.mentions.push(user.id);
-          });
-        }
-        
-        comment.text = value;
-        comment.timestamp = timestamp;
-        entryConnection.connection.insert(comment)
-          .then(function(comment) {
-            _this.comments.forEach(function(obj, idx) {
-              if (obj.contentDataSourceEntryId === id) {
-                _this.comments[idx].entries.push(comment);
-              }
-            });
-            _this.replaceComment(guid, comment, 'final');
-          });
-        return;
-      })
-      .catch(function onQueryError(error) {
-        // Reverses count if error occurs
-        console.error(error);
-        _this.comments.forEach(function(obj, idx) {
-          if (obj.contentDataSourceEntryId === id) {
-            _this.comments[idx].count--
-          }
+      if (user === device.uuid) {
+        Fliplet.Navigate.popup({
+          title: 'Invalid login',
+          message: 'You must be logged in to use this feature.'
         });
 
-        _this.updateCommentCounter(id);
+        return Promise.reject('User must be logged in.');
+      }
+
+      if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+        _this.data.userNameFields.forEach(function(name, i) {
+          userName += user.data[name] + ' ';
+        });
+        userName = userName.trim();
+      } else {
+        userName = user.data[_this.data.userNameFields[0]];
+      }
+
+      var comment = {
+        fromName: userName,
+        user: user
+      };
+
+      var content = {
+        contentDataSourceEntryId: id,
+        type: 'comment'
+      }
+
+      _.assignIn(comment, { contentDataSourceEntryId: id });
+
+      var query;
+      var timestamp = (new Date()).toISOString().replace('Z', '').replace('T', ' ');
+
+      // Get mentioned user(s)
+      var mentionRegexp = /\B@[a-z0-9_-]+/ig;
+      var mentions = value.match(mentionRegexp);
+      var usersMentioned = [];
+
+      if (mentions && mentions.length) {
+        var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
+          return mentions.indexOf('@' + userToMention.username) > -1;
+        });
+
+        if (filteredUsers && filteredUsers.length) {
+          filteredUsers.forEach(function(filteredUser) {
+            var foundUser = _.find(_this.allUsers, function(user) {
+              return user.id === filteredUser.id;
+            });
+
+            if (foundUser) {
+              usersMentioned.push(foundUser);
+            }
+          });
+        }
+      }
+
+      comment.mentions = [];
+      if (usersMentioned && usersMentioned.length) {
+        usersMentioned.forEach(function(user) {
+          comment.mentions.push(user.id);
+        });
+      }
+      
+      comment.text = value;
+      comment.timestamp = timestamp;
+
+      return Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
+        .then(function(instance) {
+          return instance.create(content, {
+            settings: comment
+          })
+        })
+        .then(function(comment) {
+          _this.comments.forEach(function(obj, idx) {
+            if (obj.contentDataSourceEntryId === id) {
+              _this.comments[idx].entries.push(comment);
+            }
+          });
+          _this.replaceComment(guid, comment, 'final');
+        });
+    })
+    .catch(function onQueryError(error) {
+      // Reverses count if error occurs
+      console.error(error);
+      _this.comments.forEach(function(obj, idx) {
+        if (obj.contentDataSourceEntryId === id) {
+          _this.comments[idx].count--
+        }
       });
-  }
+
+      _this.updateCommentCounter(id);
+    });
 }
 
 DynamicList.prototype.appendTempComment = function(id, value, guid) {
@@ -1544,24 +1545,24 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
-      userName += commentData.data.user.data[name] + ' ';
+      userName += commentData.data.settings.user.data[name] + ' ';
     });
     userName = userName.trim();
   } else {
-    userName = commentData.data.user.data[_this.data.userNameFields[0]];
+    userName = commentData.data.settings.user.data[_this.data.userNameFields[0]];
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
   var commentEmail = '';
-  if (commentData.data.user.data[_this.data.userEmailColumn]) {
-    commentEmail = commentData.data.user.data[_this.data.userEmailColumn];
+  if (commentData.data.settings.user.data[_this.data.userEmailColumn]) {
+    commentEmail = commentData.data.settings.user.data[_this.data.userEmailColumn];
   }
   var commentInfo = {
     id: commentData.id,
     literalDate: commentData.literalDate,
     userName: userName,
-    photo: commentData.data.user.data[_this.data.userPhotoColumn] || '',
-    text: commentData.data.text
+    photo: commentData.data.settings.user.data[_this.data.userPhotoColumn] || '',
+    text: commentData.data.settings.text
   };
   
   if (context === 'final') {
@@ -1628,20 +1629,28 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
   }
   
   if (commentData) {
-    commentData.data.text = value;
+    commentData.data.settings.text = value;
     _this.replaceComment(commentId, commentData, 'temp');
   }
 
-  var entryConnection = _.find(_this.commentsConnection, function(connection) {
-    return connection.contentDataSourceEntryId === entryId;
-  });
+  var content = {
+    contentDataSourceEntryId: entryId,
+    type: 'comment'
+  }
 
-  if (entryConnection) {   
-    entryConnection.connection.update(commentId, {
-      text: value
+  Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
+    .then(function(instance) {
+      return instance.update({
+        settings: {
+          text: value
+        }
+      }, {
+        where: {
+          content: content
+        }
+      });
     })
-    .then(function(comment) {
+    .then(function() {
       _this.replaceComment(commentId, commentData, 'final');
     });
-  }
 }
