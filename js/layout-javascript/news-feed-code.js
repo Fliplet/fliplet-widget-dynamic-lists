@@ -187,7 +187,7 @@ DynamicList.prototype.attachObservers = function() {
       // find the element to collpase and collpase it
       _this.collapseElement($(this));
     })
-    .on('click', '.list-search-icon .fa-search, .list-search-icon .fa-filter', function() {
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.news-feed-list-container');
 
@@ -224,8 +224,7 @@ DynamicList.prototype.attachObservers = function() {
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
         $elementClicked.removeClass('active');
-        $parentElement.find('.list-search-icon .fa-search').removeClass('active');
-        $parentElement.find('.list-search-icon .fa-filter').removeClass('active');
+        $parentElement.find('.list-search-icon .fa-sliders').removeClass('active');
         $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
       }
     })
@@ -818,11 +817,35 @@ DynamicList.prototype.convertCategories = function(data) {
 DynamicList.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
+  var imagePromises = [];
+
+  // Wait for image to load
+  _this.$container.find('.news-feed-list-item').each(function(index, element) {
+    var promise = new Promise(function(resolve, reject) {
+      var image = $(element).find('.image-banner img')[0];
+
+      if (image) {
+        if (image.complete) {
+          resolve();
+        } else {
+          image.addEventListener('load', resolve);
+        }
+      } else {
+        resolve();
+      }
+    });
+
+    imagePromises.push(promise);
+  });
+
+  Promise.all(imagePromises)
+    .then(function() {
+      _this.setCardHeight();
+    });
 
   if (_this.data.filtersEnabled) {
     _this.initializeMixer();
   }
-  _this.setCardHeight();
 
   if (_this.data.social && _this.data.social.likes) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
@@ -944,7 +967,12 @@ DynamicList.prototype.backToSearch = function() {
   var _this = this;
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
-  _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+  
+  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
+    _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+  } else {
+    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+  }
 }
 
 DynamicList.prototype.clearSearch = function() {
@@ -955,7 +983,12 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur();
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
-  _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+
+  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
+    _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+  } else {
+    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+  }
 
   // Resets list
   if (_this.data.filtersEnabled) {
@@ -1008,7 +1041,13 @@ DynamicList.prototype.setCardHeight = function() {
   _this.$container.find('.news-feed-list-item').each(function(index, element) {
     var slideHeight = $(element).find('.slide-under').outerHeight();
     var containerHeight = $(element).find('.news-feed-item-inner-content').outerHeight();
-    var contentHeight = slideHeight + containerHeight
+    var contentHeight;
+
+    if (slideHeight) {
+      contentHeight = slideHeight + containerHeight
+    } else {
+      contentHeight = containerHeight
+    }
 
     $(element).css({
       height: contentHeight
@@ -1068,22 +1107,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     'position': 'fixed'
   });
 
-  var expandedHeight = elementToExpand.find('.banner').data('height-expanded');
-  elementToExpand.find('.banner').animate({
-      height: expandedHeight
-    },
-    400,
-    'easeOutBack'
-  );
-
-  var expandedPosition = elementToExpand.find('.news-feed-item-inner-content').data('position-expanded');
-  elementToExpand.find('.news-feed-item-inner-content').animate({
-      top: expandedPosition
-    },
-    400,
-    'easeOutBack'
-  );
-
   // start expand-item animation to the expand wrapper
   // expand the element with class .about-tile-bg-image
   elementToExpand.animate({
@@ -1102,9 +1125,15 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
         'height': 'auto'
       });
 
-      elementToExpand.find('.slide-under').css({
-        position: 'fixed'
-      });
+      var windowWidth = $('body').width();
+      if (windowWidth < 640) {
+        elementToExpand.find('.slide-under').css({
+          position: 'fixed'
+        });
+
+        var expandedPosition = elementToExpand.find('.slide-under').outerHeight();
+        elementToExpand.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+      }
     }
   );
 }
@@ -1123,9 +1152,11 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   var elementToCollpsePlaceholderHeight = elementToCollpseParent.outerHeight();
   var elementToCollpsePlaceholderWidth = elementToCollpseParent.outerWidth();
 
-  elementToCollpse.find('.slide-under').css({
-    position: 'absolute'
-  });
+  var windowWidth = $('body').width();
+  if (windowWidth < 640) {
+    elementToCollpse.find('.slide-under').css({ position: 'relative' });
+    elementToCollpse.find('.news-feed-item-inner-content').css({ top: '0px' });
+  }
 
   // convert the width and height to numeric values
   elementToCollpse.css({
@@ -1134,22 +1165,6 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
     'width': elementToCollpse.outerWidth(),
     'height': elementToCollpse.outerHeight(),
   });
-
-  var collapsedHeight = elementToCollpse.find('.banner').data('height');
-  elementToCollpse.find('.banner').animate({
-      height: collapsedHeight
-    },
-    200,
-    'linear'
-  );
-
-  var collapsedPosition = elementToCollpse.find('.news-feed-item-inner-content').data('position');
-  elementToCollpse.find('.news-feed-item-inner-content').animate({
-      top: collapsedPosition
-    },
-    200,
-    'linear'
-  );
 
   elementToCollpse.animate({
       'left': elementToCollpsePlaceholderLeft,
