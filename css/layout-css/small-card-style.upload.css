@@ -547,7 +547,7 @@
   width: 100%;
   text-align: left;
   cursor: default;
-  pointer-events: none;
+  pointer-events: all;
   background-color: #ffffff;
 }
 
@@ -741,7 +741,8 @@
     align-items: flex-start;
   }
 
-  .small-card-list-image .small-card-list-detail-wrapper.open .small-card-list-detail-image {
+  .small-card-list-image .small-card-list-detail-wrapper.open .small-card-list-detail-image,
+  .my-profile-placeholder .small-card-list-detail-wrapper.open .small-card-list-detail-image {
     border-radius: 20px 20px 0 0;
   }
 
