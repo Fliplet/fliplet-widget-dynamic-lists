@@ -198,6 +198,8 @@
 /* User profile */
 .my-profile-container {
   line-height: 1;
+  text-align: center;
+  margin-right: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
