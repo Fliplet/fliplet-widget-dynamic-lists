@@ -117,7 +117,6 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.small-h-card-list-item', function(event) {
-      event.stopPropagation();
       // find the element to expand and expand it
       if (_this.allowClick) {
         var directoryDetailWrapper = $(this).find('.small-h-card-list-detail-wrapper');
