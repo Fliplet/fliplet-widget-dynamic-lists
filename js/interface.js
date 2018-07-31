@@ -409,6 +409,9 @@ var DynamicLists = (function() {
               case 'news-feed':
                 $('.filter-loop-item').removeClass('hidden');
                 break;
+              case 'feed-comments': 
+                $('.filter-loop-item').removeClass('hidden'); 
+                break;
               case 'agenda':
                 $('.date-loop-item').removeClass('hidden');
                 break;
@@ -1307,6 +1310,9 @@ var DynamicLists = (function() {
             case 'news-feed':
               _this.config.advancedSettings.filterHTML = undefined;
               break;
+            case 'feed-comments': 
+              _this.config.advancedSettings.filterHTML = undefined; 
+              break;
             case 'agenda':
               _this.config.advancedSettings.otherLoopHTML = undefined;
               break;
@@ -1386,6 +1392,9 @@ var DynamicLists = (function() {
             break;
           case 'news-feed':
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+            break;
+          case 'feed-comments': 
+            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue(); 
             break;
           case 'agenda':
             data.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
