@@ -391,9 +391,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     var expandWidth = $('body').outerWidth();
     var expandHeight = $('body').outerHeight();
 
-    var directoryDetailImageWrapper = elementToExpand.find('.small-h-card-list-detail-image-wrapper');
-    var directoryDetailImage = elementToExpand.find('.small-h-card-list-detail-image');
-
     // freeze the current scroll position of the background content
     $('body').addClass('lock');
 
@@ -419,27 +416,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     elementToExpand.addClass('open');
     elementToExpand.find('.small-h-card-list-detail-close-btn').addClass('open');
     elementToExpand.find('.small-h-card-list-detail-content-scroll-wrapper').addClass('open');
-
-    directoryDetailImageWrapper.css({
-      height: directoryDetailImageWrapper.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImageWrapper.animate({
-      height: '100vw'
-    },
-    200,
-    'swing'
-    );
-
-    directoryDetailImage.css({
-      height: directoryDetailImage.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImage.animate({
-      height: '100vw'
-    }, 200, 'swing');
   }
 }
 
@@ -448,9 +424,6 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   var _this = this;
 
   $('body').removeClass('lock');
-
-  var directoryDetailImageWrapper = elementToCollapse.find('.small-h-card-list-detail-image-wrapper');
-  var directoryDetailImage = elementToCollapse.find('.small-h-card-list-detail-image');
 
   var collapseTarget = elementToCollapse.parent();
   var elementScrollTop = $(window).scrollTop();
@@ -476,18 +449,8 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
       'width': '100%',
     });
   });
-
-  directoryDetailImageWrapper.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear');
-
-  directoryDetailImage.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({ height: '100%', });
-  });
-
+  
+  elementToCollapse.css({ height: '100%', });
   elementToCollapse.removeClass('open');
   elementToCollapse.find('.small-h-card-list-detail-close-btn').removeClass('open');
   elementToCollapse.find('.small-h-card-list-detail-content-scroll-wrapper').removeClass('open');

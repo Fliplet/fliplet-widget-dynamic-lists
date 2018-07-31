@@ -734,6 +734,7 @@
     max-width: 600px;
     margin: 0 auto;
     height: auto;
+    display: block;
   }
 
   .small-card-list-detail-wrapper.open .small-card-list-detail-image {
@@ -763,10 +764,5 @@
     padding: 40px;
     border-radius: 0 0 20px 20px;
     height: auto;
-  }
-
-  .small-card-list-detail-wrapper.open .small-card-list-detail-image-wrapper {
-    height: auto;
-    display: block;
   }
 }
