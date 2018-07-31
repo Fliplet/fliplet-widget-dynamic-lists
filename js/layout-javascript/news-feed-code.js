@@ -1142,43 +1142,43 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   // Function called when a list item is tapped to close
   var _this = this;
 
-  var elementToCollpseParent = collapseButton.parents('.news-feed-list-item');
-  var elementToCollpse = elementToCollpseParent.find('.news-feed-item-content');
+  var elementToCollapseParent = collapseButton.parents('.news-feed-list-item');
+  var elementToCollapse = elementToCollapseParent.find('.news-feed-item-content');
   
   // find the location of the placeholder
   var elementScrollTop = $(window).scrollTop();
-  var elementToCollpsePlaceholderTop = elementToCollpseParent.offset().top - elementScrollTop;
-  var elementToCollpsePlaceholderLeft = elementToCollpseParent.offset().left;
-  var elementToCollpsePlaceholderHeight = elementToCollpseParent.outerHeight();
-  var elementToCollpsePlaceholderWidth = elementToCollpseParent.outerWidth();
+  var elementToCollapsePlaceholderTop = elementToCollapseParent.offset().top - elementScrollTop;
+  var elementToCollapsePlaceholderLeft = elementToCollapseParent.offset().left;
+  var elementToCollapsePlaceholderHeight = elementToCollapseParent.outerHeight();
+  var elementToCollapsePlaceholderWidth = elementToCollapseParent.outerWidth();
 
   var windowWidth = $('body').width();
   if (windowWidth < 640) {
-    elementToCollpse.find('.slide-under').css({ position: 'relative' });
-    elementToCollpse.find('.news-feed-item-inner-content').css({ top: '0px' });
+    elementToCollapse.find('.slide-under').css({ position: 'relative' });
+    elementToCollapse.find('.news-feed-item-inner-content').css({ top: '0px' });
   }
 
   // convert the width and height to numeric values
-  elementToCollpse.css({
+  elementToCollapse.css({
     'right': 'auto',
     'bottom': 'auto',
-    'width': elementToCollpse.outerWidth(),
-    'height': elementToCollpse.outerHeight(),
+    'width': elementToCollapse.outerWidth(),
+    'height': elementToCollapse.outerHeight(),
   });
 
-  elementToCollpse.animate({
-      'left': elementToCollpsePlaceholderLeft,
-      'top': elementToCollpsePlaceholderTop,
-      'height': elementToCollpsePlaceholderHeight,
-      'width': elementToCollpsePlaceholderWidth
+  elementToCollapse.animate({
+      'left': elementToCollapsePlaceholderLeft,
+      'top': elementToCollapsePlaceholderTop,
+      'height': elementToCollapsePlaceholderHeight,
+      'width': elementToCollapsePlaceholderWidth
     },
     200, // animation timing in millisecs
     'linear', //animation easing
     function() {
       // Removes class 'open'
-      elementToCollpseParent.removeClass('open');
+      elementToCollapseParent.removeClass('open');
 
-      elementToCollpse.css({
+      elementToCollapse.css({
         'position': 'relative',
         'top': 'auto',
         'left': 'auto',

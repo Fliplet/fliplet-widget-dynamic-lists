@@ -656,7 +656,6 @@
 
 @media screen and (min-width: 640px) {
   .news-feed-list-item.open .news-feed-item-content {
-    z-index: 11;
     background: rgba(0, 0, 0, 0.8);
     padding: 40px 0;
     overflow: auto;
