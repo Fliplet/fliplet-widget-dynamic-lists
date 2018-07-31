@@ -545,6 +545,9 @@
   left: 0;
   height: 100%;
   width: 100%;
+  text-align: left;
+  cursor: default;
+  pointer-events: none;
   background-color: #ffffff;
 }
 
