@@ -1078,6 +1078,7 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
 DynamicList.prototype.expandElement = function(elementToExpand) {
   // Function called when a list item is tapped to expand
   var _this = this;
+  var windowWidth = $('body').width();
 
   // Adds class 'open' to help with styling
   elementToExpand.parents('.news-feed-list-item').addClass('open');
@@ -1112,8 +1113,8 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       'height': expandHeight,
       'width': expandWidth
     },
-    400, // animation timing in millisecs
-    'easeOutBack', //animation easing
+    windowWidth < 640 ? 400 : 200, // animation timing in millisecs
+    windowWidth < 640 ? 'easeOutBack' : 'linear', //animation easing
     function() {
       elementToExpand.css({
         'right': 0,
@@ -1122,7 +1123,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
         'height': 'auto'
       });
 
-      var windowWidth = $('body').width();
       if (windowWidth < 640) {
         elementToExpand.find('.slide-under').css({
           position: 'fixed'
@@ -1327,23 +1327,23 @@ DynamicList.prototype.showComments = function(id) {
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       var dataSourceEmail = '';
+
       if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
         dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
       }
+
       // Check if comment is from current user
       if (_this.myUserData && _this.myUserData.isSaml2) {
-        var myEmailParts = myEmail.match(/[^\.]+/);
+        var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
         var toComparePart = myEmailParts[0];
-        var dataSourceEmailParts = dataSourceEmail.match(/[^\.]+/);
+        var dataSourceEmailParts = dataSourceEmail.match(/[^\@]+[^\.]+/);
         var toComparePart2 = dataSourceEmailParts[0];
 
         if (toComparePart === toComparePart2) {
           entryComments.entries[index].currentUser = true;
         }
-      } else {
-        if (dataSourceEmail === myEmail) {
-          entryComments.entries[index].currentUser = true;
-        }
+      } else if (dataSourceEmail === myEmail) {
+        entryComments.entries[index].currentUser = true;
       }
     });
     entryComments.entries = _.orderBy(entryComments.entries, ['timeInMilliseconds'], ['asc']);
@@ -1368,14 +1368,22 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (!_this.myUserData || (_this.myUserData && !_this.myUserData[_this.data.userEmailColumn])) {
+  if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
     return Fliplet.Navigate.popup({
       title: 'Invalid login',
       message: 'You must be logged in to use this feature.'
     });
   }
 
-  _this.appendTempComment(id, value, guid);
+  var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
+  var userFromDataSource = _.find(_this.allUsers, function(user) {
+    var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
+    var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
+
+    return toCompareDataEmailPart === toCompareEmailPart;
+  });
+
+  _this.appendTempComment(id, value, guid, userFromDataSource);
 
   _this.comments.forEach(function(obj, idx) {
     if (obj.contentDataSourceEntryId === id) {
@@ -1387,16 +1395,24 @@ DynamicList.prototype.sendComment = function(id, value) {
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
-      userName += _this.myUserData[name] + ' ';
+      if (_this.myUserData.isSaml2) {
+        userName += userFromDataSource.data[name] + ' ';
+      } else {
+        userName += _this.myUserData[name] + ' ';
+      }
     });
     userName = userName.trim();
   } else {
-    userName = _this.myUserData[_this.data.userNameFields[0]];
+    if (_this.myUserData.isSaml2) {
+      userName += userFromDataSource.data[_this.data.userNameFields[0]];
+    } else {
+      userName = _this.myUserData[_this.data.userNameFields[0]];
+    }
   }
 
   var comment = {
     fromName: userName,
-    user: _this.myUserData
+    user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
   };
 
   var content = {
@@ -1470,18 +1486,26 @@ DynamicList.prototype.sendComment = function(id, value) {
     });
 }
 
-DynamicList.prototype.appendTempComment = function(id, value, guid) {
+DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
   var userName = '';
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
-      userName += _this.myUserData[name] + ' ';
+      if (_this.myUserData.isSaml2) {
+        userName += userFromDataSource.data[name] + ' ';
+      } else {
+        userName += _this.myUserData[name] + ' ';
+      }
     });
     userName = userName.trim();
   } else {
-    userName = _this.myUserData[_this.data.userNameFields[0]];
+    if (_this.myUserData.isSaml2) {
+      userName += userFromDataSource.data[_this.data.userNameFields[0]];
+    } else {
+      userName = _this.myUserData[_this.data.userNameFields[0]];
+    }
   }
 
   var commentInfo = {
@@ -1549,9 +1573,9 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   if (context === 'final') {
     // Check if comment is from current user
     if (_this.myUserData && _this.myUserData.isSaml2) {
-      var myEmailParts = myEmail.match(/[^\.]+/);
+      var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
       var toComparePart = myEmailParts[0];
-      var commentEmailParts = commentEmail.match(/[^\.]+/);
+      var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
       var toComparePart2 = commentEmailParts[0];
 
       if (toComparePart === toComparePart2) {
