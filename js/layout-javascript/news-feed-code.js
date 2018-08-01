@@ -843,8 +843,8 @@ DynamicList.prototype.onReady = function() {
     });
 
   if (_this.data.filtersEnabled) {
-      _this.initializeMixer();
-    }
+    _this.initializeMixer();
+  }
 
   if (_this.data.social && _this.data.social.likes) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
