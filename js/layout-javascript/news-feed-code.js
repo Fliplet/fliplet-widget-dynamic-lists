@@ -1327,7 +1327,6 @@ DynamicList.prototype.showComments = function(id) {
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       var dataSourceEmail = '';
-      var userFromDataSource;
 
       if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
         dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
@@ -1335,16 +1334,9 @@ DynamicList.prototype.showComments = function(id) {
 
       // Check if comment is from current user
       if (_this.myUserData && _this.myUserData.isSaml2) {
-        userFromDataSource = _.find(_this.allUsers, function(user) {
-          var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
-          var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
-
-          return toCompareDataEmailPart === toCompareEmailPart;
-        });
-
         var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
         var toComparePart = myEmailParts[0];
-        var dataSourceEmailParts = userFromDataSource.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/);
+        var dataSourceEmailParts = dataSourceEmail.match(/[^\@]+[^\.]+/);
         var toComparePart2 = dataSourceEmailParts[0];
 
         if (toComparePart === toComparePart2) {
@@ -1383,7 +1375,15 @@ DynamicList.prototype.sendComment = function(id, value) {
     });
   }
 
-  _this.appendTempComment(id, value, guid);
+  var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
+  var userFromDataSource = _.find(_this.allUsers, function(user) {
+    var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
+    var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
+
+    return toCompareDataEmailPart === toCompareEmailPart;
+  });
+
+  _this.appendTempComment(id, value, guid, userFromDataSource);
 
   _this.comments.forEach(function(obj, idx) {
     if (obj.contentDataSourceEntryId === id) {
@@ -1393,21 +1393,21 @@ DynamicList.prototype.sendComment = function(id, value) {
   
   _this.updateCommentCounter(id);
 
-  var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
-  var userFromDataSource = _.find(_this.allUsers, function(user) {
-    var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
-    var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
-
-    return toCompareDataEmailPart === toCompareEmailPart;
-  });
-
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
-      userName += _this.myUserData[name] + ' ';
+      if (_this.myUserData.isSaml2) {
+        userName += userFromDataSource.data[name] + ' ';
+      } else {
+        userName += _this.myUserData[name] + ' ';
+      }
     });
     userName = userName.trim();
   } else {
-    userName = _this.myUserData[_this.data.userNameFields[0]];
+    if (_this.myUserData.isSaml2) {
+      userName += userFromDataSource.data[_this.data.userNameFields[0]];
+    } else {
+      userName = _this.myUserData[_this.data.userNameFields[0]];
+    }
   }
 
   var comment = {
@@ -1486,21 +1486,10 @@ DynamicList.prototype.sendComment = function(id, value) {
     });
 }
 
-DynamicList.prototype.appendTempComment = function(id, value, guid) {
+DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
   var userName = '';
-  var userFromDataSource;
-  var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
-
-  if (_this.myUserData && _this.myUserData.isSaml2) {
-    userFromDataSource = _.find(_this.allUsers, function(user) {
-      var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
-      var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
-
-      return toCompareDataEmailPart === toCompareEmailPart;
-    });
-  }
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
