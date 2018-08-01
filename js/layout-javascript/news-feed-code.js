@@ -1327,23 +1327,31 @@ DynamicList.prototype.showComments = function(id) {
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       var dataSourceEmail = '';
+      var userFromDataSource;
+
       if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
         dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
       }
+
       // Check if comment is from current user
       if (_this.myUserData && _this.myUserData.isSaml2) {
-        var myEmailParts = myEmail.match(/[^\.]+/);
+        userFromDataSource = _.find(_this.allUsers, function(user) {
+          var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
+          var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
+
+          return toCompareDataEmailPart === toCompareEmailPart;
+        });
+
+        var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
         var toComparePart = myEmailParts[0];
-        var dataSourceEmailParts = dataSourceEmail.match(/[^\.]+/);
+        var dataSourceEmailParts = userFromDataSource.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/);
         var toComparePart2 = dataSourceEmailParts[0];
 
         if (toComparePart === toComparePart2) {
           entryComments.entries[index].currentUser = true;
         }
-      } else {
-        if (dataSourceEmail === myEmail) {
-          entryComments.entries[index].currentUser = true;
-        }
+      } else if (dataSourceEmail === myEmail) {
+        entryComments.entries[index].currentUser = true;
       }
     });
     entryComments.entries = _.orderBy(entryComments.entries, ['timeInMilliseconds'], ['asc']);
@@ -1368,7 +1376,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (!_this.myUserData || (_this.myUserData && !_this.myUserData[_this.data.userEmailColumn])) {
+  if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
     return Fliplet.Navigate.popup({
       title: 'Invalid login',
       message: 'You must be logged in to use this feature.'
@@ -1385,6 +1393,14 @@ DynamicList.prototype.sendComment = function(id, value) {
   
   _this.updateCommentCounter(id);
 
+  var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
+  var userFromDataSource = _.find(_this.allUsers, function(user) {
+    var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
+    var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
+
+    return toCompareDataEmailPart === toCompareEmailPart;
+  });
+
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
       userName += _this.myUserData[name] + ' ';
@@ -1396,7 +1412,7 @@ DynamicList.prototype.sendComment = function(id, value) {
 
   var comment = {
     fromName: userName,
-    user: _this.myUserData
+    user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
   };
 
   var content = {
@@ -1474,14 +1490,33 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
   var userName = '';
+  var userFromDataSource;
+  var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
+
+  if (_this.myUserData && _this.myUserData.isSaml2) {
+    userFromDataSource = _.find(_this.allUsers, function(user) {
+      var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
+      var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
+
+      return toCompareDataEmailPart === toCompareEmailPart;
+    });
+  }
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
-      userName += _this.myUserData[name] + ' ';
+      if (_this.myUserData.isSaml2) {
+        userName += userFromDataSource.data[name] + ' ';
+      } else {
+        userName += _this.myUserData[name] + ' ';
+      }
     });
     userName = userName.trim();
   } else {
-    userName = _this.myUserData[_this.data.userNameFields[0]];
+    if (_this.myUserData.isSaml2) {
+      userName += userFromDataSource.data[_this.data.userNameFields[0]];
+    } else {
+      userName = _this.myUserData[_this.data.userNameFields[0]];
+    }
   }
 
   var commentInfo = {
@@ -1549,9 +1584,9 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   if (context === 'final') {
     // Check if comment is from current user
     if (_this.myUserData && _this.myUserData.isSaml2) {
-      var myEmailParts = myEmail.match(/[^\.]+/);
+      var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
       var toComparePart = myEmailParts[0];
-      var commentEmailParts = commentEmail.match(/[^\.]+/);
+      var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
       var toComparePart2 = commentEmailParts[0];
 
       if (toComparePart === toComparePart2) {
