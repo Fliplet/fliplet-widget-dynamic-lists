@@ -40,7 +40,6 @@ var DynamicList = function(id, data, container) {
   this.usersToMention = [];
   this.myProfileData;
   this.myUserData;
-  this.currentUser;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
 
@@ -893,8 +892,6 @@ DynamicList.prototype.onReady = function() {
         usersInfoToMention.push(userInfo);
       });
       _this.usersToMention = usersInfoToMention;
-
-      _this.getUser();
     });
   }
 
@@ -1271,24 +1268,6 @@ DynamicList.prototype.connectToUsersDataSource = function() {
     });
 }
 
-DynamicList.prototype.getUser = function() {
-  var _this = this;
-  return Fliplet.Profile.get('email')
-    .then(function(email) {
-      var user = email;
-      if (!user) {
-        var device = Fliplet.Navigator.device();
-        user = device.uuid;
-        _this.currentUser = user;
-      } else {
-        _this.currentUser = _.find(_this.allUsers, function(singleUser) {
-          return singleUser.data[_this.data.userEmailColumn] === user;
-        });
-      }
-      return Promise.resolve(_this.currentUser);
-    });
-}
-
 DynamicList.prototype.updateCommentCounter = function(id) {
   var _this = this;
   // Get comments for entry
@@ -1325,12 +1304,12 @@ DynamicList.prototype.showComments = function(id) {
 
       if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
         _this.data.userNameFields.forEach(function(name, i) {
-          userName += entry.data.settings.user.data[name] + ' ';
+          userName += entry.data.settings.user[name] + ' ';
         });
 
         userName = userName.trim();
       } else {
-        userName = entry.data.settings.user.data[_this.data.userNameFields[0]];
+        userName = entry.data.settings.user[_this.data.userNameFields[0]];
       }
 
       entryComments.entries[index].timeInMilliseconds = timeInMilliseconds;
@@ -1343,13 +1322,13 @@ DynamicList.prototype.showComments = function(id) {
         sameElse: 'MMM Do YY, HH:mm'
       });
       entryComments.entries[index].userName = userName;
-      entryComments.entries[index].photo = entry.data.settings.user.data[_this.data.userPhotoColumn] || '';
+      entryComments.entries[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments.entries[index].text = entry.data.settings.text || '';
 
       var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       var dataSourceEmail = '';
-      if (entry.data.settings.user && entry.data.settings.user.data[_this.data.userEmailColumn]) {
-        dataSourceEmail = entry.data.settings.user.data[_this.data.userEmailColumn];
+      if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
+        dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
       }
       // Check if comment is from current user
       if (_this.myUserData && _this.myUserData.isSaml2) {
@@ -1387,8 +1366,9 @@ DynamicList.prototype.showComments = function(id) {
 DynamicList.prototype.sendComment = function(id, value) {
   var _this = this;
   var guid = Fliplet.guid();
+  var userName = '';
 
-  if (!_this.currentUser || (_this.currentUser && !_this.currentUser.data)) {
+  if (!_this.myUserData || (_this.myUserData && !_this.myUserData[_this.data.userEmailColumn])) {
     return Fliplet.Navigate.popup({
       title: 'Invalid login',
       message: 'You must be logged in to use this feature.'
@@ -1405,92 +1385,77 @@ DynamicList.prototype.sendComment = function(id, value) {
   
   _this.updateCommentCounter(id);
 
-  _this.getUser()
-    .then(function (user) {
-      var device = Fliplet.Navigator.device();
-      var userName = '';
+  if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+    _this.data.userNameFields.forEach(function(name, i) {
+      userName += _this.myUserData[name] + ' ';
+    });
+    userName = userName.trim();
+  } else {
+    userName = _this.myUserData[_this.data.userNameFields[0]];
+  }
 
-      if (user === device.uuid) {
-        Fliplet.Navigate.popup({
-          title: 'Invalid login',
-          message: 'You must be logged in to use this feature.'
+  var comment = {
+    fromName: userName,
+    user: _this.myUserData
+  };
+
+  var content = {
+    contentDataSourceEntryId: id,
+    type: 'comment'
+  }
+
+  _.assignIn(comment, { contentDataSourceEntryId: id });
+
+  var query;
+
+  var timestamp = (new Date()).toISOString();
+
+  // Get mentioned user(s)
+  var mentionRegexp = /\B@[a-z0-9_-]+/ig;
+  var mentions = value.match(mentionRegexp);
+  var usersMentioned = [];
+
+  if (mentions && mentions.length) {
+    var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
+      return mentions.indexOf('@' + userToMention.username) > -1;
+    });
+
+    if (filteredUsers && filteredUsers.length) {
+      filteredUsers.forEach(function(filteredUser) {
+        var foundUser = _.find(_this.allUsers, function(user) {
+          return user.id === filteredUser.id;
         });
 
-        return Promise.reject('User must be logged in.');
-      }
-
-      if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-        _this.data.userNameFields.forEach(function(name, i) {
-          userName += user.data[name] + ' ';
-        });
-        userName = userName.trim();
-      } else {
-        userName = user.data[_this.data.userNameFields[0]];
-      }
-
-      var comment = {
-        fromName: userName,
-        user: user
-      };
-
-      var content = {
-        contentDataSourceEntryId: id,
-        type: 'comment'
-      }
-
-      _.assignIn(comment, { contentDataSourceEntryId: id });
-
-      var query;
-
-      var timestamp = (new Date()).toISOString();
-
-      // Get mentioned user(s)
-      var mentionRegexp = /\B@[a-z0-9_-]+/ig;
-      var mentions = value.match(mentionRegexp);
-      var usersMentioned = [];
-
-      if (mentions && mentions.length) {
-        var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
-          return mentions.indexOf('@' + userToMention.username) > -1;
-        });
-
-        if (filteredUsers && filteredUsers.length) {
-          filteredUsers.forEach(function(filteredUser) {
-            var foundUser = _.find(_this.allUsers, function(user) {
-              return user.id === filteredUser.id;
-            });
-
-            if (foundUser) {
-              usersMentioned.push(foundUser);
-            }
-          });
+        if (foundUser) {
+          usersMentioned.push(foundUser);
         }
-      }
+      });
+    }
+  }
 
-      comment.mentions = [];
-      if (usersMentioned && usersMentioned.length) {
-        usersMentioned.forEach(function(user) {
-          comment.mentions.push(user.id);
-        });
-      }
-      
-      comment.text = value;
-      comment.timestamp = timestamp;
+  comment.mentions = [];
+  if (usersMentioned && usersMentioned.length) {
+    usersMentioned.forEach(function(user) {
+      comment.mentions.push(user.id);
+    });
+  }
+  
+  comment.text = value;
+  comment.timestamp = timestamp;
 
-      return Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
-        .then(function(instance) {
-          return instance.create(content, {
-            settings: comment
-          })
-        })
-        .then(function(comment) {
-          _this.comments.forEach(function(obj, idx) {
-            if (obj.contentDataSourceEntryId === id) {
-              _this.comments[idx].entries.push(comment);
-            }
-          });
-          _this.replaceComment(guid, comment, 'final');
-        });
+  return Fliplet.Profile.Content({dataSourceId: _this.data.commentsDataSourceId})
+    .then(function(instance) {
+      return instance.create(content, {
+        settings: comment
+      })
+    })
+    .then(function(comment) {
+      _this.comments.forEach(function(obj, idx) {
+        if (obj.contentDataSourceEntryId === id) {
+          _this.comments[idx].entries.push(comment);
+        }
+      });
+      _this.replaceComment(guid, comment, 'final');
     })
     .catch(function onQueryError(error) {
       // Reverses count if error occurs
@@ -1512,11 +1477,11 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
-      userName += _this.currentUser.data[name] + ' ';
+      userName += _this.myUserData[name] + ' ';
     });
     userName = userName.trim();
   } else {
-    userName = _this.currentUser.data[_this.data.userNameFields[0]];
+    userName = _this.myUserData[_this.data.userNameFields[0]];
   }
 
   var commentInfo = {
@@ -1530,7 +1495,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid) {
       sameElse: 'MMM Do YY, HH:mm'
     }),
     userName: userName,
-    photo: _this.currentUser.data[_this.data.userPhotoColumn] || '',
+    photo: _this.myUserData[_this.data.userPhotoColumn] || '',
     text: value
   };
 
@@ -1561,23 +1526,23 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
     _this.data.userNameFields.forEach(function(name, i) {
-      userName += commentData.data.settings.user.data[name] + ' ';
+      userName += commentData.data.settings.user[name] + ' ';
     });
     userName = userName.trim();
   } else {
-    userName = commentData.data.settings.user.data[_this.data.userNameFields[0]];
+    userName = commentData.data.settings.user[_this.data.userNameFields[0]];
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
   var commentEmail = '';
-  if (commentData.data.settings.user.data[_this.data.userEmailColumn]) {
-    commentEmail = commentData.data.settings.user.data[_this.data.userEmailColumn];
+  if (commentData.data.settings.user[_this.data.userEmailColumn]) {
+    commentEmail = commentData.data.settings.user[_this.data.userEmailColumn];
   }
   var commentInfo = {
     id: commentData.id,
     literalDate: commentData.literalDate,
     userName: userName,
-    photo: commentData.data.settings.user.data[_this.data.userPhotoColumn] || '',
+    photo: commentData.data.settings.user[_this.data.userPhotoColumn] || '',
     text: commentData.data.settings.text
   };
   
@@ -1657,9 +1622,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
   Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
     .then(function(instance) {
       return instance.update({
-        settings: {
-          text: value
-        }
+        settings: commentData.data.settings
       }, {
         where: {
           content: content
