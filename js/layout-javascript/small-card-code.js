@@ -140,7 +140,7 @@ DynamicList.prototype.attachObservers = function() {
       var directoryDetailWrapper = $(this).parents('.small-card-list-detail-wrapper');
       _this.collapseElement(directoryDetailWrapper);
     })
-    .on('click', '.list-search-icon .fa-search, .list-search-icon .fa-filter', function() {
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.small-card-list-container');
 
@@ -177,8 +177,7 @@ DynamicList.prototype.attachObservers = function() {
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
         $elementClicked.removeClass('active');
-        $parentElement.find('.list-search-icon .fa-search').removeClass('active');
-        $parentElement.find('.list-search-icon .fa-filter').removeClass('active');
+        $parentElement.find('.list-search-icon .fa-sliders').removeClass('active');
         $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
       }
     })
@@ -619,7 +618,12 @@ DynamicList.prototype.backToSearch = function() {
   var _this = this;
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
-  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
+
+  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
+    _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
+  } else {
+    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+  }
 }
 
 DynamicList.prototype.clearSearch = function() {
@@ -630,7 +634,12 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur();
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
-  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
+
+  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
+    _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
+  } else {
+    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+  }
 
   // Resets list
   if (_this.data.filtersEnabled) {
@@ -704,9 +713,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     var expandWidth = $('body').outerWidth();
     var expandHeight = $('body').outerHeight();
 
-    var directoryDetailImageWrapper = elementToExpand.find('.small-card-list-detail-image-wrapper');
-    var directoryDetailImage = elementToExpand.find('.small-card-list-detail-image');
-
     // freeze the current scroll position of the background content
     $('body').addClass('lock');
 
@@ -733,27 +739,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     elementToExpand.parents('.small-card-list-item').addClass('open');
     elementToExpand.find('.small-card-list-detail-close-btn').addClass('open');
     elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').addClass('open');
-
-    directoryDetailImageWrapper.css({
-      height: directoryDetailImageWrapper.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImageWrapper.animate({
-      height: '100vw'
-    },
-    200,
-    'swing'
-    );
-
-    directoryDetailImage.css({
-      height: directoryDetailImage.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImage.animate({
-      height: '100vw'
-    }, 200, 'swing');
   }
 }
 
@@ -762,9 +747,6 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   var _this = this;
 
   $('body').removeClass('lock');
-
-  var directoryDetailImageWrapper = elementToCollapse.find('.small-card-list-detail-image-wrapper');
-  var directoryDetailImage = elementToCollapse.find('.small-card-list-detail-image');
 
   var collapseTarget = elementToCollapse.parent();
   var elementScrollTop = $(window).scrollTop();
@@ -791,17 +773,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
     });
   });
 
-  directoryDetailImageWrapper.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear');
-
-  directoryDetailImage.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({ height: '100%', });
-  });
-
+  elementToCollapse.css({ height: '100%', });
   elementToCollapse.removeClass('open');
   elementToCollapse.parents('.small-card-list-item').removeClass('open');
   elementToCollapse.find('.small-card-list-detail-close-btn').removeClass('open');

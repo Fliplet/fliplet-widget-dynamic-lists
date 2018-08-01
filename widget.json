@@ -62,6 +62,7 @@
       "handlebars",
       "animate-css",
       "fliplet-like:0.2",
+      "fliplet-content:0.1",
       "hammer.js"
     ],
     "assets": [
