@@ -843,8 +843,8 @@ DynamicList.prototype.onReady = function() {
     });
 
   if (_this.data.filtersEnabled) {
-    _this.initializeMixer();
-  }
+      _this.initializeMixer();
+    }
 
   if (_this.data.social && _this.data.social.likes) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
@@ -1078,6 +1078,7 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
 DynamicList.prototype.expandElement = function(elementToExpand) {
   // Function called when a list item is tapped to expand
   var _this = this;
+  var windowWidth = $('body').width();
 
   // Adds class 'open' to help with styling
   elementToExpand.parents('.news-feed-list-item').addClass('open');
@@ -1112,8 +1113,8 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       'height': expandHeight,
       'width': expandWidth
     },
-    400, // animation timing in millisecs
-    'easeOutBack', //animation easing
+    windowWidth < 640 ? 400 : 200, // animation timing in millisecs
+    windowWidth < 640 ? 'easeOutBack' : 'linear', //animation easing
     function() {
       elementToExpand.css({
         'right': 0,
@@ -1122,7 +1123,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
         'height': 'auto'
       });
 
-      var windowWidth = $('body').width();
       if (windowWidth < 640) {
         elementToExpand.find('.slide-under').css({
           position: 'fixed'

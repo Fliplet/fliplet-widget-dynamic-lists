@@ -69,7 +69,6 @@
       "js/build.templates.js",
       "vendor/mixitup.min.js",
       "vendor/mixitup-multifilter.min.js",
-      "vendor/clusterize.min.js",
       "vendor/autosize.js",
       "js/layout-mapping/layout-mapping.js",
       "js/build-lists.js",
