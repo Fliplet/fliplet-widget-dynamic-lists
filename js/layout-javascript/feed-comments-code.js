@@ -1291,7 +1291,7 @@ DynamicList.prototype.updateCommentCounter = function(id) {
   var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">Comment</span>';
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var html = counterCompiled(data);
-  $('.news-feed-comemnt-holder-' + id).html(html);
+  $('.news-feed-comment-holder-' + id).html(html);
 }
 
 DynamicList.prototype.showComments = function(id) {
