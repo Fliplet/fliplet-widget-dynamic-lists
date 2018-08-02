@@ -18,14 +18,6 @@ window.flLayoutMapping = {
     'css': 'news-feed',
     'js': 'news-feed'
   },
-  'feed-comments': {
-    'name': 'Feed with comments',
-    'base': 'templates.build.feed-comments-base',
-    'loop': 'templates.build.feed-comments-loop',
-    'filter': 'templates.build.feed-comments-filters',
-    'css': 'feed-comments',
-    'js': 'feed-comments'
-  },
   'agenda': {
     'name': 'Agenda',
     'base': 'templates.build.agenda-base',
@@ -41,5 +33,13 @@ window.flLayoutMapping = {
     'detail': 'templates.build.small-h-card-detail',
     'css': 'small-h-card',
     'js': 'small-h-card'
+  },
+  'simple-list': {
+    'name': 'Simple list',
+    'base': 'templates.build.simple-list-base',
+    'loop': 'templates.build.simple-list-loop',
+    'detail': 'templates.build.simple-list-detail',
+    'css': 'simple-list',
+    'js': 'simple-list'
   }
 };

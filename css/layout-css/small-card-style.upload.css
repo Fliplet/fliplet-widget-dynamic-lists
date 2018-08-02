@@ -198,6 +198,8 @@
 /* User profile */
 .my-profile-container {
   line-height: 1;
+  text-align: center;
+  margin-right: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -276,7 +278,7 @@
 }
 
 .list-search-icon .fa-search.active,
-.list-search-icon .fa-filter.active {
+.list-search-icon .fa-sliders.active {
   display: none;
 }
 
@@ -556,6 +558,9 @@
   left: 0;
   height: 100%;
   width: 100%;
+  text-align: left;
+  cursor: default;
+  pointer-events: all;
   background-color: #ffffff;
 }
 
@@ -582,7 +587,7 @@
   top: 15px;
   height: 38px;
   width: 38px;
-  line-height: 38px;
+  line-height: 36px;
   font-size: 24px;
   background: rgba(255,255,255,0.5);
   border-radius: 50%;
@@ -603,8 +608,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  height: 0;
   width: 100vw;
+  height: 0;
   z-index: 12;
   overflow: auto;
   transition: all 0.2s ease-out;

@@ -361,7 +361,10 @@ var DynamicLists = (function() {
           });
         }
         // Load data source
-        return _this.changeCreateDsButton(_this.config.dataSource)
+        return _this.getDataSourceById(_this.config.dataSourceId)
+          .then(function(datasource) {
+            return _this.changeCreateDsButton(datasource)
+          })
           .then(function() {
             // Load sort options
             _.forEach(_this.config.sortOptions, function(item) {
@@ -407,9 +410,6 @@ var DynamicLists = (function() {
                 $('.detail-view-item').removeClass('hidden');
                 break;
               case 'news-feed':
-                $('.filter-loop-item').removeClass('hidden');
-                break;
-              case 'feed-comments':
                 $('.filter-loop-item').removeClass('hidden');
                 break;
               case 'agenda':
@@ -561,7 +561,9 @@ var DynamicLists = (function() {
           options.push('<option value="'+ value +'">'+ value +'</option>');
         });
         $(obj).append(options.join(''));
-        $(obj).val(oldValue);
+        if (oldValue && oldValue.length) {
+          $(obj).val(oldValue);
+        }
       });
       _this.setUpTokenFields();
     },
@@ -708,6 +710,9 @@ var DynamicLists = (function() {
         dropdownAutoWidth: true
       });
     },
+    getDataSourceById: function(id) {
+      return Fliplet.DataSources.getById(id)
+    },
     getDataSources: function() {
       // Load the data source
       Fliplet.DataSources.get({
@@ -766,7 +771,6 @@ var DynamicLists = (function() {
       }).then(function(ds) {
         allDataSources.push(ds);
         _this.config.layout = listLayout;
-        _this.config.dataSource = ds;
         _this.config.dataSourceId = ds.id;
         _this.config = $.extend(true, _this.config, defaultSettings[listLayout]);
 
@@ -1310,9 +1314,6 @@ var DynamicLists = (function() {
             case 'news-feed':
               _this.config.advancedSettings.filterHTML = undefined;
               break;
-            case 'feed-comments':
-              _this.config.advancedSettings.filterHTML = undefined;
-              break;
             case 'agenda':
               _this.config.advancedSettings.otherLoopHTML = undefined;
               break;
@@ -1346,7 +1347,6 @@ var DynamicLists = (function() {
       data.advancedSettings = {};
 
       data.layout = listLayout;
-      data.dataSource = newDataSource;
       data.dataSourceId = newDataSource.id;
 
       // Get sorting options
@@ -1391,9 +1391,6 @@ var DynamicLists = (function() {
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           case 'news-feed':
-            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
-            break;
-          case 'feed-comments':
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           case 'agenda':
