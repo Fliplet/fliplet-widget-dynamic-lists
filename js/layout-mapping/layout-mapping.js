@@ -18,13 +18,13 @@ window.flLayoutMapping = {
     'css': 'news-feed',
     'js': 'news-feed'
   },
-  'feed-comments': {  
-    'name': 'Feed with comments', 
-    'base': 'templates.build.feed-comments-base', 
-    'loop': 'templates.build.feed-comments-loop', 
-    'filter': 'templates.build.feed-comments-filters',  
-    'css': 'feed-comments', 
-    'js': 'feed-comments' 
+  'feed-comments': {
+    'name': 'Feed with comments',
+    'base': 'templates.build.feed-comments-base',
+    'loop': 'templates.build.feed-comments-loop',
+    'filter': 'templates.build.feed-comments-filters',
+    'css': 'feed-comments',
+    'js': 'feed-comments'
   },
   'agenda': {
     'name': 'Agenda',
