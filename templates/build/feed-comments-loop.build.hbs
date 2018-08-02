@@ -1,15 +1,12 @@
 \{{#each this}}
 <div class="news-feed-list-item mix \{{data.[classes]}}" data-entry-id="\{{id}}">
   <div class="news-feed-item-content">
-    \{{#if data.[Image]}}
     <section class="slide-under">
-      <div class="image-banner">
-        <img src="\{{data.[Image]}}">
-      </div>
+      <div class="banner" data-height="20vh" data-height-expanded="45vh" style="height: 20vh; background-image: url('\{{auth data.[Image]}}');"></div>
+      <i class="fa fa-picture-o"></i>
     </section>
-    \{{/if}}
     <div class="container-fluid slide-over">
-      <div class="news-feed-item-inner-content">
+      <div class="news-feed-item-inner-content" data-position="20vh" data-position-expanded="40vh" style="top: 20vh">
         <div class="news-feed-info-holder">
           <div class="news-feed-date-category">\{{data.[Date]}} \{{#ifCond data.[Date] '&&' data.[Categories]}}/\{{/ifCond}} \{{data.[Categories]}}</div>
           \{{#if likesEnabled}}
