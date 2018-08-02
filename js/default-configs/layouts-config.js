@@ -34,9 +34,10 @@ window.flListLayoutConfig = {
       }
     ],
     'social': {
-      'likes': true
+      'likes': true,
+      'comments': true
     },
-    'style-specific': ['list-filter', 'list-search', 'list-likes']
+    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-comments']
   },
   'feed-comments': {
     'filtersEnabled': true,
