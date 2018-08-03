@@ -306,31 +306,46 @@ DynamicList.prototype.initialize = function() {
 
 DynamicList.prototype.connectToDataSource = function() {
   var _this = this;
-  var options = {
-    offline: true
+  var cache = { offline: true };
+
+  function getData (options) {
+    options = options || cache;
+    return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
+      .then(function (connection) {
+        // If you want to do specific queries to return your rows
+        // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
+        return connection.find(_this.queryOptions);
+      });
   }
 
-  return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
-    .then(function (connection) {
-      // If you want to do specific queries to return your rows
-      // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-      return connection.find(_this.queryOptions);
-    })
-    .catch(function (error) {
-      Fliplet.UI.Toast({
-        message: 'Error loading data',
-        actions: [
-          {
-            label: 'Details',
-            action: function () {
-              Fliplet.UI.Toast({
-                html: error.message || error
-              });
-            }
+  return Fliplet.Hooks.run('flListDataBeforeGetData', {
+    config: _this.data,
+    container: _this.$container
+  }).then(function() {
+    if (_this.data.getData) {
+      getData = _this.data.getData;
+
+      if (_this.data.hasOwnProperty('cache')) {
+        cache.offline = _this.data.cache;
+      }
+    }
+
+    return getData(cache);
+  }).catch(function (error) {
+    Fliplet.UI.Toast({
+      message: 'Error loading data',
+      actions: [
+        {
+          label: 'Details',
+          action: function () {
+            Fliplet.UI.Toast({
+              html: error.message || error
+            });
           }
-        ]
-      });
+        }
+      ]
     });
+  });
 }
 
 DynamicList.prototype.renderBaseHTML = function() {
