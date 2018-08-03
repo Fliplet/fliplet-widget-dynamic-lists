@@ -482,7 +482,7 @@
   top: calc(15px + env(safe-area-inset-top));
   height: 38px;
   width: 38px;
-  line-height: 38px;
+  line-height: 36px;
   font-size: 24px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
@@ -544,4 +544,17 @@
 
 .bookmark-wrapper .fa-bookmark {
   color: #337ab7;
+}
+
+@media screen and (min-width: 640px) {
+  .agenda-list-item.open .agenda-list-item-content {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 40px 0;
+    overflow: hidden;
+  }
+
+  .agenda-list-item.open .slide-over {
+    height: auto;
+    border-radius: 20px;
+  }
 }
