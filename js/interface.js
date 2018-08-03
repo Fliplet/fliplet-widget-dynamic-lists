@@ -361,63 +361,125 @@ var DynamicLists = (function() {
           });
         }
 
-        if (!_this.config.dataSourceId) {
-          _this.setupCodeEditors(listLayout);
-          _this.goToSettings('layouts');
-        } else {
-          // Load data source
-          return _this.getDataSourceById(_this.config.dataSourceId)
-            .then(function(datasource) {
-              return _this.changeCreateDsButton(datasource)
-            })
-            .then(function() {
-              // Load sort options
-              _.forEach(_this.config.sortOptions, function(item) {
-                item.fromLoading = true; // Flag to close accordions
-                item.columns = dataSourceColumns;
-                _this.addSortItem(item);
-                $('#sort-accordion #select-data-field-' + item.id).val(item.column);
-                $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
-                $('#sort-accordion #order-by-field-' + item.id).val(item.orderBy);
-              });
-              _this.checkSortPanelLength();
+        // Load data source
+        return _this.getDataSourceById(_this.config.dataSourceId)
+          .then(function(datasource) {
+            return _this.changeCreateDsButton(datasource)
+          })
+          .then(function() {
+            // Load sort options
+            _.forEach(_this.config.sortOptions, function(item) {
+              item.fromLoading = true; // Flag to close accordions
+              item.columns = dataSourceColumns;
+              _this.addSortItem(item);
+              $('#sort-accordion #select-data-field-' + item.id).val(item.column);
+              $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
+              $('#sort-accordion #order-by-field-' + item.id).val(item.orderBy);
+            });
+            _this.checkSortPanelLength();
 
-              // Load filter options
-              _.forEach(_this.config.filterOptions, function(item) {
-                item.fromLoading = true; // Flag to close accordions
-                item.columns = dataSourceColumns;
-                _this.addFilterItem(item);
-                $('#filter-accordion #select-data-field-' + item.id).val(item.column);
-                $('#filter-accordion #logic-field-' + item.id).val(item.logic);
-                $('#filter-accordion #value-field-' + item.id).val(item.value);
-              });
-              _this.checkFilterPanelLength();
+            // Load filter options
+            _.forEach(_this.config.filterOptions, function(item) {
+              item.fromLoading = true; // Flag to close accordions
+              item.columns = dataSourceColumns;
+              _this.addFilterItem(item);
+              $('#filter-accordion #select-data-field-' + item.id).val(item.column);
+              $('#filter-accordion #logic-field-' + item.id).val(item.logic);
+              $('#filter-accordion #value-field-' + item.id).val(item.value);
+            });
+            _this.checkFilterPanelLength();
 
+            // Load Search/Filter fields
+            $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
+            $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
+            $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
+
+            // Load social feature
+            $('#enable-likes').prop('checked', _this.config.social.likes);
+            $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
+            $('#enable-comments').prop('checked', _this.config.social.comments);
+
+            // Select layout
+            listLayout = _this.config.layout;
+            isLayoutSelected = true;
+            $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
+
+            // Load code editor tabs
+            switch(listLayout) {
+              case 'small-card':
+                $('.filter-loop-item').removeClass('hidden');
+                $('.detail-view-item').removeClass('hidden');
+                break;
+              case 'news-feed':
+                $('.filter-loop-item').removeClass('hidden');
+                break;
+              case 'feed-comments':
+                $('.filter-loop-item').removeClass('hidden');
+                break;
+              case 'agenda':
+                $('.date-loop-item').removeClass('hidden');
+                break;
+              case 'small-h-card':
+                $('.detail-view-item').removeClass('hidden');
+                break;
+              default:
+                break;
+            }
+
+            // Load advanced settings
+            if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
+              resetToDefaults = true;
+              $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
+              $('input#enable-css').prop('checked', _this.config.advancedSettings.cssEnabled).trigger('change');
+              $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
+              resetToDefaults = false;
+            }
+
+            return;
+          })
+          .then(function() {
+            if (_this.config.userDataSourceId) {
+              return _this.getUserColumns(_this.config.userDataSourceId);
+            }
+
+            return;
+          })
+          .then(function() {
+            if (_this.config.social.comments) {
+              $('#select_user_fname').val(_this.config.userFirstNameColumn ? _this.config.userFirstNameColumn : 'none');
+              $('#select_user_lname').val(_this.config.userLastNameColumn ? _this.config.userLastNameColumn : 'none');
+              $('#select_user_email').val(_this.config.userEmailColumn ? _this.config.userEmailColumn : 'none');
+              $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
+              $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
+              $('.select-user-datasource-holder').removeClass('hidden');
+            }
+
+            _this.setupCodeEditors(listLayout);
+            _this.goToSettings('layouts');
+
+            return;
+          })
+          .catch(function(error) {
+            if (error) {
               // Load Search/Filter fields
               $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
               $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
               $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
-
-              // Load social feature
+               // Load social feature
               $('#enable-likes').prop('checked', _this.config.social.likes);
               $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
               $('#enable-comments').prop('checked', _this.config.social.comments);
-
-              // Select layout
+               // Select layout
               listLayout = _this.config.layout;
               isLayoutSelected = true;
               $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
-
-              // Load code editor tabs
+               // Load code editor tabs
               switch(listLayout) {
                 case 'small-card':
                   $('.filter-loop-item').removeClass('hidden');
                   $('.detail-view-item').removeClass('hidden');
                   break;
                 case 'news-feed':
-                  $('.filter-loop-item').removeClass('hidden');
-                  break;
-                case 'feed-comments':
                   $('.filter-loop-item').removeClass('hidden');
                   break;
                 case 'agenda':
@@ -429,8 +491,7 @@ var DynamicLists = (function() {
                 default:
                   break;
               }
-
-              // Load advanced settings
+               // Load advanced settings
               if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
                 resetToDefaults = true;
                 $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
@@ -438,30 +499,14 @@ var DynamicLists = (function() {
                 $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
                 resetToDefaults = false;
               }
-
-              return;
-            })
-            .then(function() {
-              if (_this.config.userDataSourceId) {
-                return _this.getUserColumns(_this.config.userDataSourceId);
-              }
-
+               $('.create-holder').addClass('hidden');
+              $('.edit-holder').removeClass('hidden');
+              $('.form-group').removeClass('disabled');
+               // Continue
               _this.setupCodeEditors(listLayout);
               _this.goToSettings('layouts');
-
-              return;
-            })
-            .then(function() {
-              if (_this.config.social.comments) {
-                $('#select_user_fname').val(_this.config.userFirstNameColumn ? _this.config.userFirstNameColumn : 'none');
-                $('#select_user_lname').val(_this.config.userLastNameColumn ? _this.config.userLastNameColumn : 'none');
-                $('#select_user_email').val(_this.config.userEmailColumn ? _this.config.userEmailColumn : 'none');
-                $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
-                $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
-                $('.select-user-datasource-holder').removeClass('hidden');
-              }
-            });
-        }
+            }
+          });
       }
     },
     loadTokenFields: function() {
