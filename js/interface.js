@@ -1420,7 +1420,6 @@ var DynamicLists = (function() {
       data.social = _this.config.social;
 
       if (_this.config.social.comments) {
-        data.userDataSource = newUserDataSource;
         data.userDataSourceId = newUserDataSource ? newUserDataSource.id : $newUserDataSource.val();
         data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
         $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
