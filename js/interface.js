@@ -453,6 +453,7 @@ var DynamicLists = (function() {
 
             _this.setupCodeEditors(listLayout);
             _this.goToSettings('layouts');
+
             return;
           })
           .catch(function(error) {
@@ -491,7 +492,7 @@ var DynamicLists = (function() {
                   break;
               }
 
-              // Load advanced settings
+               // Load advanced settings
               if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
                 resetToDefaults = true;
                 $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
@@ -503,8 +504,8 @@ var DynamicLists = (function() {
               $('.create-holder').addClass('hidden');
               $('.edit-holder').removeClass('hidden');
               $('.form-group').removeClass('disabled');
-
-              // Continue
+              
+               // Continue
               _this.setupCodeEditors(listLayout);
               _this.goToSettings('layouts');
             }
