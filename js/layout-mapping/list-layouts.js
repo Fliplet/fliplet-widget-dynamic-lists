@@ -29,13 +29,12 @@ window.flWidgetLayout = [
     'description': 'Suitable for featured items',
     'gif': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.gif',
     'image': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.jpg'
+  },
+  {
+    'id': 'simple-list',
+    'name': 'Simple list',
+    'description': 'Suitable for simple data lists',
+    'gif': window.__widgetData[widgetId].assetsUrl + 'img/simple-list.gif',
+    'image': window.__widgetData[widgetId].assetsUrl + 'img/simple-list.jpg'
   }
-  // ,
-  // {
-  //   'id': 'simple-list',
-  //   'name': 'Simple list',
-  //   'description': 'Suitable for simple data lists',
-  //   'gif': window.__widgetData[widgetId].assetsUrl + 'img/simple-list.gif',
-  //   'image': window.__widgetData[widgetId].assetsUrl + 'img/simple-list.jpg'
-  // }
 ];

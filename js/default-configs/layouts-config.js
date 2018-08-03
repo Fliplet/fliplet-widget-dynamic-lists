@@ -85,24 +85,13 @@ window.flListLayoutConfig = {
       }
     ],
     'style-specific': []
+  },
+  'simple-list': {
+    'filtersEnabled': true,
+    'filterFields': ['Category'],
+    'filtersInOverlay': false,
+    'searchEnabled': true,
+    'searchFields': ['Title', 'Category'],
+    'style-specific': ['list-filter', 'list-search']
   }
-  // ,
-  // 'simple-list': {
-  //   'filtersEnabled': true,
-  //   'filterFields': ['Location', 'Sectors', 'Expertize'],
-  //   'filtersInOverlay': false,
-  //   'searchEnabled': true,
-  //   'searchFields': ['First Name', 'Last Name', 'Title'],
-  //   'sortOptions': [
-  //     {
-  //       'column': 'First Name',
-  //       'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize'],
-  //       'id': 'ajdmjZrT',
-  //       'orderBy': 'ascending',
-  //       'sortBy': 'alphabetical',
-  //       'title': 'First Name - Alphabetical - Ascending'
-  //     }
-  //   ],
-  //   'style-specific': ['list-filter', 'list-search']
-  // }
 }

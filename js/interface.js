@@ -419,6 +419,9 @@ var DynamicLists = (function() {
               case 'small-h-card':
                 $('.detail-view-item').removeClass('hidden');
                 break;
+              case 'simple-list':
+                $('.filter-loop-item').removeClass('hidden');
+                break;
               default:
                 break;
             }
@@ -487,6 +490,9 @@ var DynamicLists = (function() {
                   break;
                 case 'small-h-card':
                   $('.detail-view-item').removeClass('hidden');
+                  break;
+                case 'simple-list':
+                  $('.filter-loop-item').removeClass('hidden');
                   break;
                 default:
                   break;
@@ -1377,6 +1383,9 @@ var DynamicLists = (function() {
             case 'small-h-card':
               _this.config.advancedSettings.detailHTML = undefined;
               break;
+            case 'simple-list':
+              _this.config.advancedSettings.filterHTML = undefined;
+              break;
             default:
               break;
           }
@@ -1455,6 +1464,9 @@ var DynamicLists = (function() {
             break;
           case 'small-h-card':
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
+            break;
+          case 'simple-list':
+            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           default:
             break;

@@ -157,26 +157,25 @@ window.flListLayoutTableConfig = {
       'Sectors': 'Management, Finance, Business',
       'Expertize': 'Business Management'
     }
+  ],
+  'simple-list': [
+    {
+      'Title': 'Fusce Nullam',
+      'Description': 'Maecenas sed diam eget risus varius blandit sit amet non magna. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Maecenas faucibus mollis interdum. Nulla vitae elit libero, a pharetra augue.',
+      'Category': 'Euismod Sollicitudin',
+      'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
+    },
+    {
+      'Title': 'Cursus Justo Parturient',
+      'Description': 'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.',
+      'Category': 'Ullamcorper',
+      'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
+    },
+    {
+      'Title': 'Ultricies Nibh Justo Aenean',
+      'Description': 'Donec id elit non mi porta gravida at eget metus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Sed posuere consectetur est at lobortis.',
+      'Category': 'Magna',
+      'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
+    }
   ]
-  // ,
-  // 'simple-list': [
-  //   {
-  //     'Title': 'Fusce Nullam',
-  //     'Description': 'Maecenas sed diam eget risus varius blandit sit amet non magna. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Maecenas faucibus mollis interdum. Nulla vitae elit libero, a pharetra augue.',
-  //     'Category': 'Euismod Sollicitudin',
-  //     'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
-  //   },
-  //   {
-  //     'Title': 'Cursus Justo Parturient',
-  //     'Description': 'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.',
-  //     'Category': 'Ullamcorper',
-  //     'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
-  //   },
-  //   {
-  //     'Title': 'Ultricies Nibh Justo Aenean',
-  //     'Description': 'Donec id elit non mi porta gravida at eget metus. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Sed posuere consectetur est at lobortis.',
-  //     'Category': 'Magna',
-  //     'Image': 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
-  //   }
-  // ]
 };
