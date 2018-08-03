@@ -156,7 +156,7 @@
   top: 15px;
   height: 38px;
   width: 38px;
-  line-height: 38px;
+  line-height: 36px;
   font-size: 24px;
   background: rgba(255,255,255,0.5);
   border-radius: 50%;
@@ -291,4 +291,46 @@
   opacity: 0.5;
   text-transform: uppercase;
   margin: 20px 0 0 0;
+}
+
+@media screen and (min-width: 640px) {
+  .small-h-card-list-image {
+    width: 180px;
+    height: 216px;
+  }
+  
+  .small-h-card-list-detail-wrapper {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .small-h-card-list-detail-wrapper.open {
+    padding: 40px 0;
+    overflow: auto;
+  }
+
+  .open .small-h-card-list-detail-image-wrapper {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .small-h-card-list-image .small-h-card-list-detail-wrapper.open .small-h-card-list-detail-image {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .small-h-card-list-detail-close-btn {
+    position: fixed;
+  }
+
+  .small-h-card-list-detail-content-scroll-wrapper.open {
+    height: auto;
+    position: relative;
+  }
+
+  .open .small-h-card-list-detail-content-wrapper {
+    top: auto;
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 0 0 20px 20px;
+  }
 }

@@ -413,9 +413,6 @@ var DynamicLists = (function() {
               case 'news-feed':
                 $('.filter-loop-item').removeClass('hidden');
                 break;
-              case 'feed-comments':
-                $('.filter-loop-item').removeClass('hidden');
-                break;
               case 'agenda':
                 $('.date-loop-item').removeClass('hidden');
                 break;
@@ -465,15 +462,18 @@ var DynamicLists = (function() {
               $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
               $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
               $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
-               // Load social feature
+
+              // Load social feature
               $('#enable-likes').prop('checked', _this.config.social.likes);
               $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
               $('#enable-comments').prop('checked', _this.config.social.comments);
-               // Select layout
+
+              // Select layout
               listLayout = _this.config.layout;
               isLayoutSelected = true;
               $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
-               // Load code editor tabs
+
+              // Load code editor tabs
               switch(listLayout) {
                 case 'small-card':
                   $('.filter-loop-item').removeClass('hidden');
@@ -491,6 +491,7 @@ var DynamicLists = (function() {
                 default:
                   break;
               }
+
                // Load advanced settings
               if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
                 resetToDefaults = true;
@@ -499,9 +500,11 @@ var DynamicLists = (function() {
                 $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
                 resetToDefaults = false;
               }
-               $('.create-holder').addClass('hidden');
+
+              $('.create-holder').addClass('hidden');
               $('.edit-holder').removeClass('hidden');
               $('.form-group').removeClass('disabled');
+              
                // Continue
               _this.setupCodeEditors(listLayout);
               _this.goToSettings('layouts');
@@ -1368,9 +1371,6 @@ var DynamicLists = (function() {
             case 'news-feed':
               _this.config.advancedSettings.filterHTML = undefined;
               break;
-            case 'feed-comments':
-              _this.config.advancedSettings.filterHTML = undefined;
-              break;
             case 'agenda':
               _this.config.advancedSettings.otherLoopHTML = undefined;
               break;
@@ -1448,9 +1448,6 @@ var DynamicLists = (function() {
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           case 'news-feed':
-            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
-            break;
-          case 'feed-comments':
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           case 'agenda':

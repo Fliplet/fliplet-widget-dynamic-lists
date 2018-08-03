@@ -16,14 +16,6 @@ window.flWidgetLayout = [
     'image': window.__widgetData[widgetId].assetsUrl + 'img/news-feed.jpg'
   },
   {
-    'id': 'feed-comments',
-    'name': 'Feed with comments',
-    'warning': 'Comments require login',
-    'description': 'Feed list with ability to add comments',
-    'gif': window.__widgetData[widgetId].assetsUrl + 'img/feed-comments.gif',
-    'image': window.__widgetData[widgetId].assetsUrl + 'img/feed-comments.jpg'
-  },
-  {
     'id': 'agenda',
     'name': 'Agenda',
     'warning': 'Requires full screen',
@@ -38,4 +30,12 @@ window.flWidgetLayout = [
     'gif': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.gif',
     'image': window.__widgetData[widgetId].assetsUrl + 'img/small-h-card.jpg'
   }
+  // ,
+  // {
+  //   'id': 'simple-list',
+  //   'name': 'Simple list',
+  //   'description': 'Suitable for simple data lists',
+  //   'gif': window.__widgetData[widgetId].assetsUrl + 'img/simple-list.gif',
+  //   'image': window.__widgetData[widgetId].assetsUrl + 'img/simple-list.jpg'
+  // }
 ];

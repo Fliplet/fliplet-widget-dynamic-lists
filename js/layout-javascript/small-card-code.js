@@ -140,7 +140,7 @@ DynamicList.prototype.attachObservers = function() {
       var directoryDetailWrapper = $(this).parents('.small-card-list-detail-wrapper');
       _this.collapseElement(directoryDetailWrapper);
     })
-    .on('click', '.list-search-icon .fa-search, .list-search-icon .fa-filter', function() {
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.small-card-list-container');
 
@@ -177,8 +177,7 @@ DynamicList.prototype.attachObservers = function() {
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
         $elementClicked.removeClass('active');
-        $parentElement.find('.list-search-icon .fa-search').removeClass('active');
-        $parentElement.find('.list-search-icon .fa-filter').removeClass('active');
+        $parentElement.find('.list-search-icon .fa-sliders').removeClass('active');
         $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
       }
     })
