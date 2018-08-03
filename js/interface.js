@@ -360,6 +360,7 @@ var DynamicLists = (function() {
             $('.' + item).removeClass('hidden');
           });
         }
+
         // Load data source
         return _this.getDataSourceById(_this.config.dataSourceId)
           .then(function(datasource) {
@@ -431,9 +432,6 @@ var DynamicLists = (function() {
               resetToDefaults = false;
             }
 
-            _this.setupCodeEditors(listLayout);
-            _this.goToSettings('layouts');
-
             return;
           })
           .then(function() {
@@ -451,6 +449,64 @@ var DynamicLists = (function() {
               $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
               $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
               $('.select-user-datasource-holder').removeClass('hidden');
+            }
+
+            _this.setupCodeEditors(listLayout);
+            _this.goToSettings('layouts');
+            return;
+          })
+          .catch(function(error) {
+            if (error) {
+              // Load Search/Filter fields
+              $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
+              $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
+              $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
+
+              // Load social feature
+              $('#enable-likes').prop('checked', _this.config.social.likes);
+              $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
+              $('#enable-comments').prop('checked', _this.config.social.comments);
+
+              // Select layout
+              listLayout = _this.config.layout;
+              isLayoutSelected = true;
+              $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
+
+              // Load code editor tabs
+              switch(listLayout) {
+                case 'small-card':
+                  $('.filter-loop-item').removeClass('hidden');
+                  $('.detail-view-item').removeClass('hidden');
+                  break;
+                case 'news-feed':
+                  $('.filter-loop-item').removeClass('hidden');
+                  break;
+                case 'agenda':
+                  $('.date-loop-item').removeClass('hidden');
+                  break;
+                case 'small-h-card':
+                  $('.detail-view-item').removeClass('hidden');
+                  break;
+                default:
+                  break;
+              }
+
+              // Load advanced settings
+              if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
+                resetToDefaults = true;
+                $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
+                $('input#enable-css').prop('checked', _this.config.advancedSettings.cssEnabled).trigger('change');
+                $('input#enable-javascript').prop('checked', _this.config.advancedSettings.jsEnabled).trigger('change');
+                resetToDefaults = false;
+              }
+
+              $('.create-holder').addClass('hidden');
+              $('.edit-holder').removeClass('hidden');
+              $('.form-group').removeClass('disabled');
+
+              // Continue
+              _this.setupCodeEditors(listLayout);
+              _this.goToSettings('layouts');
             }
           });
       }
