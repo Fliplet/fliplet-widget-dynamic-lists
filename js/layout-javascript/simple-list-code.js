@@ -7,7 +7,8 @@ var simpleListLayoutMapping = {
   'simple-list': {
     'base': 'templates.build.simple-list-base',
     'loop': 'templates.build.simple-list-loop',
-    'filter': 'templates.build.simple-list-filters'
+    'filter': 'templates.build.simple-list-filters',
+    'detail': 'templates.build.simple-list-detail'
   }
 };
 
@@ -85,9 +86,10 @@ DynamicList.prototype.attachObservers = function() {
   _this.$container
     .on('click', '.simple-list-item', function(event) {
       event.stopPropagation();
-      // @TODO:
-      // - Open entry
-      // - Get entry title
+      var entryId = $(this).data('entry-id');
+      var entryTitle = $(this).find('.list-item-title').text();
+
+      _this.showDetails(entryId);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -433,7 +435,7 @@ DynamicList.prototype.addFilters = function(data) {
   };
 
   data.forEach(function(row) {
-    row.data.filters.forEach(function(filter) {
+    row.data['flFilters'].forEach(function(filter) {
       filters.push(filter);
     });
   });
@@ -477,8 +479,8 @@ DynamicList.prototype.convertCategories = function(data) {
   var _this = this;
 
   data.forEach(function(element) {
-    element.data['classes'] = '';
-    element.data['filters'] = [];
+    element.data['flClasses'] = '';
+    element.data['flFilters'] = [];
     var lowerCaseTags = [];
     _this.data.filterFields.forEach(function(filter) {
       var arrayOfTags = [];
@@ -500,11 +502,11 @@ DynamicList.prototype.convertCategories = function(data) {
           }
         }
         lowerCaseTags.push(classConverted);
-        element.data['filters'].push(newObj);
+        element.data['flFilters'].push(newObj);
       });
       
     });
-    element.data['classes'] = lowerCaseTags.join(' ');
+    element.data['flClasses'] = lowerCaseTags.join(' ');
   });
   return data;
 }
@@ -652,4 +654,47 @@ DynamicList.prototype.initializeMixer = function() {
       }
     }
   });
+}
+
+DynamicList.prototype.showDetails = function(id) {
+  // Function that loads the selected entry data into an overlay for more details
+  var _this = this;
+
+  var entryData = _.find(_this.listItems, function(entry) {
+    return entry.id === id;
+  });
+
+  // PROCESSING DATA
+  // Setting image patterns to test
+  var base64Pattern = /^data:image\/[^;]+;base64,/i;
+  var imageURL = /^https?:\/\/[^ ]+\.(gif|jpg|jpeg|tiff|png)/i;
+
+  // Remove "fl" keys from data object
+  var keysToRemove = ['flClasses','flFilters'];
+  keysToRemove.forEach(function(key) {
+    delete entryData.data[key];
+  });
+
+  // Order columns by name [asc]
+  var data = entryData.data;
+  var orderedData = {};
+  Object.keys(data).sort().forEach(function(key) {
+    orderedData[key] = data[key];
+  });
+
+  // Check for images
+  Object.keys(orderedData).forEach(function(key) {
+    if (base64Pattern.test(orderedData[key])) {
+      orderedData[key] = '<img src="' + orderedData[key] + '"/>';
+    } else if (imageURL.test(orderedData[key])) {
+      orderedData[key] = '<img src="' + orderedData[key] + '"/>';
+    }
+  });
+
+  // Add to overlay
+  var template = Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['detail']]());
+  _this.$container.find('#simple-list-detail-overlay-' + _this.data.id).html(template(orderedData));
+
+  // @TODO
+  // Show overlay
 }
