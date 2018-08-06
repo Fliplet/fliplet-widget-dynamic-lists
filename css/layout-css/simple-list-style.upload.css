@@ -405,34 +405,30 @@
 .simple-list-item .list-item-description,
 .simple-list-item .list-item-subtitle {
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
 }
 
 .simple-list-item .list-item-title {
   font-size: 1.3em;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
-  overflow: hidden;
 }
 
-.list-item-title + .list-item-description {
-  margin-top: 0.5em;
+.simple-list-item .list-item-description {
   font-size: 1em;
   color: #999999;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
-  overflow: hidden;
 }
 
-.list-item-description + .list-item-subtitle {
-  margin-top: 0.5em;
+.simple-list-item .list-item-subtitle {
   font-size: 0.9em;
   color: #cccccc;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
-  overflow: hidden;
+}
+
+.list-item-title + .list-item-description,
+.list-item-description + .list-item-subtitle,
+.list-item-title + .list-item-subtitle {
+  margin-top: 0.5em;
 }
 
 .loading-holder {
