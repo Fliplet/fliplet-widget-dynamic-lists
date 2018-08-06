@@ -1,6 +1,6 @@
 \{{#if filtersInOverlay}}
   <div class="panel-group" id="simple-list-filters-accordion">
-    \{{#each filters}}
+    \{{#each flFilters}}
       <div class="panel panel-default simple-list-filters-panel">
         <div class="panel-heading" data-toggle="collapse" data-target="#collapse-\{{@index}}">
           <h4 class="panel-title">
@@ -23,7 +23,7 @@
     \{{/each}}
   </div>
 \{{else}}
-  \{{#each filters}}
+  \{{#each flFilters}}
   <div class="hidden-filter-controls-label">Filter by <span>\{{[name]}}</span></div>
   <div class="hidden-filter-controls-filter-container">
     <div class="hidden-filter-controls-filter-wrapper">

@@ -1,0 +1,8 @@
+\{{#each this}}
+  \{{#if this}}
+    \{{#ifCond this '||' ''}}
+    <div class="simple-list-detail-label">\{{@key}}</div>
+    <div class="simple-list-detail-value">\{{{this}}}</div>
+    \{{/ifCond}}
+  \{{/if}}
+\{{/each}}
