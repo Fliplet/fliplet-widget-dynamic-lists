@@ -393,6 +393,11 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   // Function called when a list item is tapped to expand
   var _this = this;
 
+  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+  if (elementToExpand.parents('.panel-group').length) {
+    elementToExpand.parents('.panel-group').addClass('remove-transform');
+  }
+
   //check to see if element is already expanded
   if (!elementToExpand.hasClass('open')) {
     var currentPosition = elementToExpand.offset();
@@ -500,6 +505,12 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   }, 200, 'linear',
   function() {
     elementToCollapse.css({ height: '100%', });
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    // Only happens when the closing animation finishes
+    if (elementToCollapse.parents('.panel-group').length) {
+      elementToCollapse.parents('.panel-group').removeClass('remove-transform');
+    }
   });
 
   elementToCollapse.removeClass('open');
