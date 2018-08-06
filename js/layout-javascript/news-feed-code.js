@@ -1095,6 +1095,11 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   var _this = this;
   var windowWidth = $('body').width();
 
+  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+  if (elementToExpand.parents('.panel-group').length) {
+    elementToExpand.parents('.panel-group').addClass('remove-transform');
+  }
+
   // Adds class 'open' to help with styling
   elementToExpand.parents('.news-feed-list-item').addClass('open');
 
@@ -1197,6 +1202,12 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
         'width': '100%',
         'height': '100%'
       });
+
+      // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+      // Only happens when the closing animation finishes
+      if (elementToCollapse.parents('.panel-group').length) {
+        elementToCollapse.parents('.panel-group').removeClass('remove-transform');
+      }
     }
   );
 
