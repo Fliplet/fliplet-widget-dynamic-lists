@@ -188,7 +188,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.news-feed-list-container');
+      var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
@@ -218,7 +218,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.news-feed-list-container');
+      var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
@@ -229,7 +229,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('keydown', '.search-holder input', function(e) {
       var $inputField = $(this);
-      var $parentElement = $inputField.parents('.news-feed-list-container');
+      var $parentElement = $inputField.parents('.new-news-feed-list-container');
       var value = $inputField.val();
       if (value.length) {
         value = value.toLowerCase();
@@ -259,7 +259,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.search-query span', function() {
       var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.news-feed-list-container');
+      var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
       _this.backToSearch();
       $parentElement.find('.search-holder input').focus();
@@ -277,7 +277,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.showComments(identifier);
       $('body').addClass('lock');
       $('.news-feed-list-item.open .slide-over').addClass('lock');
-      $('.news-feed-comment-panel').addClass('open');
+      $('.new-news-feed-comment-panel').addClass('open');
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -285,7 +285,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.news-feed-comment-close-panel', function() {
-      $('.news-feed-comment-panel').removeClass('open');
+      $('.new-news-feed-comment-panel').removeClass('open');
       $('.news-feed-list-item.open .slide-over').removeClass('lock');
       if (!$('.news-feed-list-item').hasClass('open')) {
         $('body').removeClass('lock');
@@ -313,7 +313,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (Modernizr.ios) {
         setTimeout(function() {
-          _that.parents('.news-feed-comment-panel').addClass('typing');
+          _that.parents('.new-news-feed-comment-panel').addClass('typing');
 
           // Adds binding
           $(document).on('touchstart', '[data-comment-body]', function() {
@@ -332,7 +332,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (Modernizr.ios) {
         setTimeout(function() {
-          _that.parents('.news-feed-comment-panel').removeClass('typing');
+          _that.parents('.new-news-feed-comment-panel').removeClass('typing');
 
           // Removes binding
           $(document).off('touchstart', '[data-comment-body]');
@@ -911,7 +911,7 @@ DynamicList.prototype.onReady = function() {
   }
 
   // Ready
-  _this.$container.find('.news-feed-list-container').removeClass('loading').addClass('ready');
+  _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
 }
 
 DynamicList.prototype.calculateFiltersHeight = function(element) {
@@ -956,7 +956,7 @@ DynamicList.prototype.searchData = function(value) {
   // OPTIONAL - setTimeout can be removed
   setTimeout(function() {
     _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
-    _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
 
     if (!searchedData.length) {
       _this.$container.find('.hidden-filter-controls').addClass('no-results');
@@ -981,7 +981,7 @@ DynamicList.prototype.backToSearch = function() {
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
   
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-    _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
   } else {
     _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
   }
@@ -997,7 +997,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
 
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-    _this.calculateFiltersHeight(_this.$container.find('.news-feed-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
   } else {
     _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
   }
@@ -1096,8 +1096,8 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   var windowWidth = $('body').width();
 
   // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').length) {
-    elementToExpand.parents('.panel-group').addClass('remove-transform');
+  if (elementToExpand.parents('.panel-group').not('.filter-overlay').length) {
+    elementToExpand.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
   }
 
   // Adds class 'open' to help with styling
@@ -1205,8 +1205,8 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
 
       // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
       // Only happens when the closing animation finishes
-      if (elementToCollapse.parents('.panel-group').length) {
-        elementToCollapse.parents('.panel-group').removeClass('remove-transform');
+      if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
+        elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
       }
     }
   );

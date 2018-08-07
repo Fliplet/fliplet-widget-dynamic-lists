@@ -386,7 +386,7 @@ DynamicList.prototype.onReady = function() {
   var _this = this;
 
   // Ready
-  _this.$container.find('.small-h-card-list-container').addClass('ready');
+  _this.$container.find('.new-small-h-card-list-container').addClass('ready');
 }
 
 DynamicList.prototype.expandElement = function(elementToExpand) {
