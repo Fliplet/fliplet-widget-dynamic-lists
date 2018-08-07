@@ -7,7 +7,7 @@
 }
 
 /* List */
-[data-version="1.0.0"] .loading-data {
+.loading-data {
   padding-top: 25px;
   display: block;
   text-align: center;
@@ -15,11 +15,11 @@
   opacity: 0.5;
 }
 
-[data-version="1.0.0"].ready .loading-data {
+.ready .loading-data {
   display: none;
 }
 
-[data-version="1.0.0"] .small-h-card-list-wrapper {
+.small-h-card-list-wrapper {
   width: 100%;
   min-height: 156px;
   margin: 15px 0 40px 0;
@@ -28,25 +28,25 @@
   overflow-x: auto;
 }
 
-[data-version="1.0.0"].ready .small-h-card-list-wrapper {
+.ready .small-h-card-list-wrapper {
   display: flex;
 }
 
-.lock [data-version="1.0.0"] .small-h-card-list-wrapper {
+.lock .small-h-card-list-wrapper {
   overflow-x: visible;
 }
 
-[data-version="1.0.0"] .small-h-card-list-item {
+.small-h-card-list-item {
   padding: 0 0 0 15px;
   width: auto;
   cursor: pointer;
 }
 
-[data-version="1.0.0"] .small-h-card-list-item:first-child {
+.small-h-card-list-item:first-child {
   padding: 0;
 }
 
-[data-version="1.0.0"] .small-h-card-list-image {
+.small-h-card-list-image {
   width: 100px;
   height: 120px;
   background-position: center;
@@ -59,43 +59,43 @@
   position: relative;
 }
 
-.lock [data-version="1.0.0"] .small-h-card-list-image {
+.lock .small-h-card-list-image {
   cursor: pointer;
 }
 
-[data-version="1.0.0"] .small-h-card-list-image .small-h-card-list-detail-image,
-[data-version="1.0.0"] .small-h-card-list-image .small-h-card-list-detail-wrapper {
+.small-h-card-list-image .small-h-card-list-detail-image,
+.small-h-card-list-image .small-h-card-list-detail-wrapper {
   border-radius: 15px;
 }
 
-[data-version="1.0.0"] .small-h-card-list-image .small-h-card-list-detail-wrapper.open .small-h-card-list-detail-image,
-[data-version="1.0.0"] .small-h-card-list-image .small-h-card-list-detail-wrapper.open {
+.small-h-card-list-image .small-h-card-list-detail-wrapper.open .small-h-card-list-detail-image,
+.small-h-card-list-image .small-h-card-list-detail-wrapper.open {
   border-radius: 0;
 }
 
-[data-version="1.0.0"] .small-h-card-list-item-text {
+.small-h-card-list-item-text {
   font-size: 10px;
   text-align: center;
   line-height: 1.3;
   text-transform: uppercase;
 }
 
-.no-touchevents [data-version="1.0.0"] .small-h-card-list-item:active .small-h-card-list-image,
-.no-touchevents [data-version="1.0.0"] .small-h-card-list-item:focus .small-h-card-list-image,
-.no-touchevents [data-version="1.0.0"] .small-h-card-list-item:active:focus .small-h-card-list-image,
-[data-version="1.0.0"] .small-h-card-list-item.hover .small-h-card-list-image {
+.no-touchevents .small-h-card-list-item:active .small-h-card-list-image,
+.no-touchevents .small-h-card-list-item:focus .small-h-card-list-image,
+.no-touchevents .small-h-card-list-item:active:focus .small-h-card-list-image,
+.small-h-card-list-item.hover .small-h-card-list-image {
   box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
 }
 
-[data-version="1.0.0"] .small-h-card-list-image .small-h-card-list-detail-image {
+.small-h-card-list-image .small-h-card-list-detail-image {
   border-radius: 15px 0 0 15px;
 }
 
-[data-version="1.0.0"] .small-h-card-list-image .small-h-card-list-detail-wrapper.open .small-h-card-list-detail-image {
+.small-h-card-list-image .small-h-card-list-detail-wrapper.open .small-h-card-list-detail-image {
   border-radius: 0;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-image-wrapper {
+.small-h-card-list-detail-image-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -105,7 +105,7 @@
   background-color: rgba(51,51,51,0.04);
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-image-wrapper .fa {
+.small-h-card-list-detail-image-wrapper .fa {
   position: absolute;
   top: 0;
   left: 0;
@@ -118,13 +118,13 @@
   font-size: 3em;
 }
 
-[data-version="1.0.0"] .open .small-h-card-list-detail-image-wrapper .fa {
+.open .small-h-card-list-detail-image-wrapper .fa {
   font-size: 8em;
 }
 
 /* DIRECTORY DETAIL VIEW */
 
-[data-version="1.0.0"] .small-h-card-list-detail-wrapper {
+.small-h-card-list-detail-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -133,7 +133,7 @@
   background-color: #ffffff;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-image {
+.small-h-card-list-detail-image {
   position: absolute;
   top: 0;
   left: 0;
@@ -144,12 +144,12 @@
   background-size: cover;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-image.open {
+.small-h-card-list-detail-image.open {
   width: 100vw;
   height: 100vw;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-close-btn {
+.small-h-card-list-detail-close-btn {
   opacity: 0;
   position: absolute;
   right: 15px;
@@ -168,12 +168,12 @@
   pointer-events: none;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-close-btn.open {
+.small-h-card-list-detail-close-btn.open {
   opacity: 1;
   pointer-events: all;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-content-scroll-wrapper {
+.small-h-card-list-detail-content-scroll-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -184,11 +184,11 @@
   transition: all 0.2s ease-out;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-content-scroll-wrapper.open {
+.small-h-card-list-detail-content-scroll-wrapper.open {
   height: 100%;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-content-wrapper {
+.small-h-card-list-detail-content-wrapper {
   top: calc(100vw - 20px);
   position: relative;
   background-color: #ffffff;
@@ -198,7 +198,7 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-edit-icon {
+.small-h-card-list-detail-edit-icon {
   position: absolute;
   top: 0;
   right: 0;
@@ -208,7 +208,7 @@
   opacity: 0.3;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-name {
+.small-h-card-list-detail-name {
   margin-bottom: 20px;
   font-size: 32px;
   line-height: 1.3;
@@ -218,7 +218,7 @@
   position: relative;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-name:after {
+.small-h-card-list-detail-name:after {
   content: '';
   display: block;
   width: 60%;
@@ -229,7 +229,7 @@
   left: 0;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-role {
+.small-h-card-list-detail-role {
   margin: 0 0 5px 0;
   font-size: 24px;
   color: #333333;
@@ -237,7 +237,7 @@
   font-weight: 500;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-location {
+.small-h-card-list-detail-location {
   margin: 0 0 10px 0;
   font-size: 16px;
   color: #333333;
@@ -245,13 +245,13 @@
   font-weight: 500;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-buttons-wrapper {
+.small-h-card-list-detail-buttons-wrapper {
   margin: 20px 0;
   display: flex;
   align-items: center;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-button {
+.small-h-card-list-detail-button {
   width: 60px;
   margin: 0 20px 0 0;
   display: flex;
@@ -260,33 +260,33 @@
   justify-content: center;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-button a,
-[data-version="1.0.0"] .small-h-card-list-detail-button a:hover,
-[data-version="1.0.0"] .small-h-card-list-detail-button a:focus
-[data-version="1.0.0"] .small-h-card-list-detail-button a:active,
-[data-version="1.0.0"] .small-h-card-list-detail-button a:active:hover,
-[data-version="1.0.0"] .small-h-card-list-detail-button a:active:focus {
+.small-h-card-list-detail-button a,
+.small-h-card-list-detail-button a:hover,
+.small-h-card-list-detail-button a:focus
+.small-h-card-list-detail-button a:active,
+.small-h-card-list-detail-button a:active:hover,
+.small-h-card-list-detail-button a:active:focus {
   color: #333333;
   text-decoration: none;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-button .send-message {
+.small-h-card-list-detail-button .send-message {
   cursor: pointer;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-button-image {
+.small-h-card-list-detail-button-image {
   opacity: 0.3;
   text-align: center;
   font-size: 35px;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-button-text {
+.small-h-card-list-detail-button-text {
   font-size: 10px;
   text-align: center;
   opacity: 0.5;
 }
 
-[data-version="1.0.0"] .small-h-card-list-detail-label {
+.small-h-card-list-detail-label {
   font-size: 12px;
   opacity: 0.5;
   text-transform: uppercase;
