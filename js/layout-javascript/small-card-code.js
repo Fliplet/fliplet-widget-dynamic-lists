@@ -142,7 +142,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.small-card-list-container');
+      var $parentElement = $elementClicked.parents('.new-small-card-list-container');
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
@@ -172,7 +172,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.small-card-list-container');
+      var $parentElement = $elementClicked.parents('.new-small-card-list-container');
 
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
@@ -183,7 +183,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('keydown', '.search-holder input', function(e) {
       var $inputField = $(this);
-      var $parentElement = $inputField.parents('.small-card-list-container');
+      var $parentElement = $inputField.parents('.new-small-card-list-container');
       var value = $inputField.val();
       if (value.length) {
         value = value.toLowerCase();
@@ -213,7 +213,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.search-query span', function() {
       var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.small-card-list-container');
+      var $parentElement = $elementClicked.parents('.new-small-card-list-container');
 
       _this.backToSearch();
       $parentElement.find('.search-holder input').focus();
@@ -610,7 +610,7 @@ DynamicList.prototype.searchData = function(value) {
   // OPTIONAL - setTimeout can be removed
   setTimeout(function() {
     _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
-    _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
 
     if (!searchedData.length) {
       _this.$container.find('.hidden-filter-controls').addClass('no-results');
@@ -633,7 +633,7 @@ DynamicList.prototype.backToSearch = function() {
   var _this = this;
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
-  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
+  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
 }
 
 DynamicList.prototype.clearSearch = function() {
@@ -644,7 +644,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur();
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
-  _this.calculateFiltersHeight(_this.$container.find('.small-card-list-container'));
+  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
 
   // Resets list
   if (_this.data.filtersEnabled) {
@@ -662,7 +662,7 @@ DynamicList.prototype.onReady = function() {
     _this.initializeMixer();
   }
   // Ready
-  _this.$container.find('.small-card-list-container').addClass('ready');
+  _this.$container.find('.new-small-card-list-container').addClass('ready');
 }
 
 DynamicList.prototype.initializeMixer = function() {
@@ -707,8 +707,8 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   var _this = this;
 
   // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').length) {
-    elementToExpand.parents('.panel-group').addClass('remove-transform');
+  if (elementToExpand.parents('.panel-group').not('.filter-overlay').length) {
+    elementToExpand.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
   }
 
   //check to see if element is already expanded
@@ -822,8 +822,8 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     // Only happens when the closing animation finishes
-    if (elementToCollapse.parents('.panel-group').length) {
-      elementToCollapse.parents('.panel-group').removeClass('remove-transform');
+    if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
+      elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
   });
 
