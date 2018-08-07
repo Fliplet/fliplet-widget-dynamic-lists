@@ -726,8 +726,8 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   var _this = this;
 
   // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').length) {
-    elementToExpand.parents('.panel-group').addClass('remove-transform');
+  if (elementToExpand.parents('.panel-group').not('.filters-overlay').length) {
+    elementToExpand.parents('.panel-group').not('.filters-overlay').addClass('remove-transform');
   }
 
   // Adds class 'open' to help with styling
@@ -860,8 +860,8 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
 
       // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
       // Only happens when the closing animation finishes
-      if (elementToCollpse.parents('.panel-group').length) {
-        elementToCollpse.parents('.panel-group').removeClass('remove-transform');
+      if (elementToCollpse.parents('.panel-group').not('.filters-overlay').length) {
+        elementToCollpse.parents('.panel-group').not('.filters-overlay').removeClass('remove-transform');
       }
     }
   );
