@@ -270,7 +270,26 @@ var DynamicLists = (function() {
           } else {
             $('.select-user-datasource-holder').addClass('hidden');
           }
+        })
+        .on('change', '[name="list-control"]', function() {
+        var values = [];
+
+        $('[name="list-control"]:checked').each(function(){
+          values.push($(this).val());
         });
+
+        if (values.indexOf('add-entry') !== -1) {
+          $('#add-entry-link').parents('.hidden-settings').addClass('active');
+        } else {
+          $('#add-entry-link').parents('.hidden-settings').removeClass('active');
+        }
+
+        if (values.indexOf('edit-entry') !== -1) {
+          $('#edit-entry-link').parents('.hidden-settings').addClass('active');
+        } else {
+          $('#edit-entry-link').parents('.hidden-settings').removeClass('active');
+        }
+      });;
 
       $dataSources.on( 'change', function() {
         var selectedDataSourceId = $(this).val();
@@ -403,6 +422,11 @@ var DynamicLists = (function() {
             listLayout = _this.config.layout;
             isLayoutSelected = true;
             $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
+
+            // Load Add. Edit, Delete
+            $('#add_entry').prop('checked', _this.config.addEntry).trigger('change');
+            $('#edit_entry').prop('checked', _this.config.editEntry).trigger('change');
+            $('#delete_entry').prop('checked', _this.config.deleteEntry).trigger('change');
 
             // Load code editor tabs
             switch(listLayout) {
@@ -1528,6 +1552,29 @@ var DynamicLists = (function() {
         });
       } else if (!_this.config.social.comments && _this.config.commentsDataSourceId) {
         _this.config.commentsDataSourceId = '';
+      }
+
+      // Add, edit, delete options
+      var profileValues = [];
+
+      $('[name="list-control"]:checked').each(function(){
+        profileValues.push($(this).val());
+      });
+
+      if (profileValues.indexOf('add-entry') !== -1) {
+        data.addEntry = true;
+      } else {
+        data.addEntry = false;
+      }
+      if (profileValues.indexOf('edit-entry') !== -1) {
+        data.editEntry = true;
+      } else {
+        data.editEntry = false;
+      }
+      if (profileValues.indexOf('delete-entry') !== -1) {
+        data.deleteEntry = true;
+      } else {
+        data.deleteEntry = false;
       }
 
       if (toReload) {

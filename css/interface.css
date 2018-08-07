@@ -663,3 +663,16 @@ header .btn,
 .select-user-photo-holder {
   margin-top: 10px;
 }
+
+.hidden-settings {
+  display: none;
+  padding: 10px 10px 0;
+  margin-left: 25px;
+  margin-top: 5px;
+  background-color: #d9e5e8;
+  border-radius: 6px;
+}
+
+.hidden-settings.active {
+  display: block;
+}
