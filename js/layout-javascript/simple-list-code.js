@@ -36,6 +36,7 @@ var DynamicList = function(id, data, container) {
   this.mixer;
 
   this.listItems;
+  this.entryOverlay;
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -78,10 +79,6 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
-  // Attach your event listeners here
-  $(window).resize(function() {
-    _this.setCardHeight();
-  });
 
   _this.$container
     .on('click', '.simple-list-item', function(event) {
@@ -97,9 +94,8 @@ DynamicList.prototype.attachObservers = function() {
         label: entryTitle
       });
     })
-    .on('click', '.something', function(event) {
-      // @TODO:
-      // - Close detail overlay
+    .on('click', '.simple-list-detail-overlay-close', function(event) {
+      _this.closeDetails();
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -184,6 +180,70 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('hide.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
+    })
+    .on('click', '.dynamic-list-add-item', function() {
+      var options = {
+        title: 'Link not configured',
+        message: 'Form not found. Please check the component\'s configuration.',
+      };
+
+      if (_this.data.addEntryLinkAction) {
+        _this.data.addEntryLinkAction.query = '?mode=add';
+
+        if (typeof _this.data.addEntryLinkAction.page !== 'undefined' && _this.data.addEntryLinkAction.page !== '') {
+          Fliplet.Navigate.to(_this.data.addEntryLinkAction)
+            .catch(function() {
+              Fliplet.UI.Toast(options);
+            });
+        } else {
+          FFliplet.UI.Toast(options);
+        }
+      }
+    })
+    .on('click', '.dynamic-list-edit-item', function() {
+      var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
+      var options = {
+        title: 'Link not configured',
+        message: 'Form not found. Please check the component\'s configuration.',
+      };
+
+      if (_this.data.editEntryLinkAction) {
+        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=';
+
+        if (typeof _this.data.editEntryLinkAction.page !== 'undefined' && _this.data.editEntryLinkAction.page !== '') {
+          Fliplet.Navigate.to(_this.data.editEntryLinkAction)
+            .catch(function() {
+              Fliplet.UI.Toast(options);
+            });
+        } else {
+          FFliplet.UI.Toast(options);
+        }
+      }
+    })
+    .on('click', '.dynamic-list-delete-item', function() {
+      var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
+      var options = {
+        title: 'Are you sure you want to delete the list entry?',
+        labels: [
+          {
+            label: 'Delete',
+            action: function (i) {
+              Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
+                return connection.removeById(entryID);
+              }).then(function onRemove() {
+                _.remove(_this.listItems, function(entry) {
+                  return entry.id === parseInt(entryID, 10);
+                });
+                _this.closeDetails();
+                _this.renderLoopHTML(_this.listItems);
+              });
+            }
+          }
+        ],
+        cancel: true
+      }
+
+      Fliplet.UI.Actions(options);
     });
 }
 
@@ -412,7 +472,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
+DynamicList.prototype.renderLoopHTML = function(records, refresh) {
   // Function that renders the List template
   var _this = this;
   var loopHTML = '';
@@ -422,8 +482,12 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(modifiedData));
-  _this.addFilters(modifiedData);
+  if (!refresh) {
+    _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(modifiedData));
+    _this.addFilters(modifiedData);
+  } else {
+    _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(records));
+  }
 }
 
 DynamicList.prototype.addFilters = function(data) {
@@ -691,10 +755,46 @@ DynamicList.prototype.showDetails = function(id) {
     }
   });
 
-  // Add to overlay
+  // Process template with data
+  var entryId = {
+    id: id
+  };
+  var wrapper = '<div class="simple-list-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var $overlay = _this.$container.find('#simple-list-detail-overlay-' + _this.data.id);
   var template = Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['detail']]());
-  _this.$container.find('#simple-list-detail-overlay-' + _this.data.id).html(template(orderedData));
+  var wrapperTemplate = Handlebars.compile(wrapper);
 
-  // @TODO
-  // Show overlay
+  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+  if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+    _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+  }
+
+  // Adds content to overlay
+  $overlay.find('.simple-list-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+  $overlay.find('.simple-list-detail-wrapper').append(template(orderedData));
+
+  // Trigger animations
+  $('body').addClass('lock');
+  _this.$container.find('.simple-list-container').addClass('overlay-open');
+  $overlay.addClass('open');
+}
+
+DynamicList.prototype.closeDetails = function() {
+  // Function that closes the overlay
+  var _this = this;
+
+  var $overlay = _this.$container.find('#simple-list-detail-overlay-' + _this.data.id);
+  $('body').removeClass('lock');
+  $overlay.removeClass('open');
+  _this.$container.find('.simple-list-container').removeClass('overlay-open');
+
+  setTimeout(function() {
+    // Clears overlay
+    $overlay.find('.simple-list-detail-overlay-content-holder').html('');
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    }
+  }, 300);
 }
