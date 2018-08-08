@@ -221,6 +221,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
+      var _that = $(this);
       var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
       var options = {
         title: 'Are you sure you want to delete the list entry?',
@@ -234,6 +235,7 @@ DynamicList.prototype.attachObservers = function() {
                 _.remove(_this.listItems, function(entry) {
                   return entry.id === parseInt(entryID, 10);
                 });
+                _that.text('Delete').removeClass('disabled');
                 _this.closeDetails();
                 _this.renderLoopHTML(_this.listItems);
               });
@@ -242,6 +244,8 @@ DynamicList.prototype.attachObservers = function() {
         ],
         cancel: true
       }
+
+      _that.text('Deleting...').addClass('disabled');
 
       Fliplet.UI.Actions(options);
     });

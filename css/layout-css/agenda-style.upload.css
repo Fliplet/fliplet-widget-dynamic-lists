@@ -88,7 +88,7 @@
   display: flex;
   padding: 16px 0 10px 0;
   background-color: #ffffff;
-  z-index: 11;
+  z-index: 12;
 }
 
 .fl-with-top-menu .new-agenda-list-container .agenda-date-selector {
@@ -212,6 +212,14 @@
 
 .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder {
   padding-bottom: 160px;
+}
+
+.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry {
+  padding-bottom: 180px;
+}
+
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry {
+  padding-bottom: 240px;
 }
 
 .new-agenda-list-container .agenda-state-messages {
@@ -544,6 +552,14 @@
 
 .new-agenda-list-container .bookmark-wrapper .fa-bookmark {
   color: #337ab7;
+}
+
+.dynamic-list-controls {
+  display: none;
+}
+
+.agenda-list-item.open .dynamic-list-controls {
+  display: block;
 }
 
 @media screen and (min-width: 640px) {

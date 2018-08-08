@@ -1,3 +1,7 @@
+.dynamic-list-controls {
+  margin-top: 50px;
+}
+
 .dynamic-list-placeholder {
   padding: 20px;
   text-align: center;
@@ -9,17 +13,33 @@
   position: fixed;
   right: 15px;
   bottom: 15px;
+  bottom: calc(15px + env(safe-area-inset-bottom));
   z-index: 2;
   background-color: #337ab7;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
+  width: 65px;
+  height: 65px;
+  line-height: 65px;
   text-align: center;
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
-  font-size: 1.5em;
+  box-shadow: 0px 6px 20px 0px rgba(0, 0, 0, 0.2);
+  font-size: 2em;
   color: #fff;
   cursor: pointer;
+}
+
+.fl-with-bottom-menu .dynamic-list-add-item {
+  bottom: 80px;
+  bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+.new-agenda-list-container.has-agenda-toggle + .dynamic-list-add-item {
+  bottom: 100px;
+  bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+.fl-with-bottom-menu .new-agenda-list-container.has-agenda-toggle + .dynamic-list-add-item {
+  bottom: 166px;
+  bottom: calc(166px + env(safe-area-inset-bottom));
 }
 
 .dynamic-list-edit-item,

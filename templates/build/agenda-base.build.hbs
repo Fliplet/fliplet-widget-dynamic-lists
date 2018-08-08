@@ -1,4 +1,4 @@
-<div class="new-agenda-list-container loading">
+<div class="new-agenda-list-container loading \{{#ifCond social '&&' social.bookmark}}has-agenda-toggle\{{/ifCond}}">
   \{{#ifCond social '&&' social.bookmark}}
   <div class="agenda-list-controls">
     <div class="toggle-agenda" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
@@ -28,3 +28,9 @@
     </div>
   </div>
 </div>
+
+\{{#if addEntry}}
+<div class="dynamic-list-add-item">
+  <i class="fa fa-plus"></i>
+</div>
+\{{/if}}

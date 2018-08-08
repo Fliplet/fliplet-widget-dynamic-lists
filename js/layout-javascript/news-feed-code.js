@@ -467,6 +467,76 @@ DynamicList.prototype.attachObservers = function() {
         category: 'list_dynamic_' + _this.data.layout,
         action: 'comment_options'
       });
+    })
+    .on('click', '.dynamic-list-add-item', function() {
+      var options = {
+        title: 'Link not configured',
+        message: 'Form not found. Please check the component\'s configuration.',
+      };
+
+      if (_this.data.addEntryLinkAction) {
+        _this.data.addEntryLinkAction.query = '?mode=add';
+
+        if (typeof _this.data.addEntryLinkAction.page !== 'undefined' && _this.data.addEntryLinkAction.page !== '') {
+          Fliplet.Navigate.to(_this.data.addEntryLinkAction)
+            .catch(function() {
+              Fliplet.UI.Toast(options);
+            });
+        } else {
+          FFliplet.UI.Toast(options);
+        }
+      }
+    })
+    .on('click', '.dynamic-list-edit-item', function() {
+      var entryID = $(this).parents('.news-feed-list-item').data('entry-id');
+      var options = {
+        title: 'Link not configured',
+        message: 'Form not found. Please check the component\'s configuration.',
+      };
+
+      if (_this.data.editEntryLinkAction) {
+        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=';
+
+        if (typeof _this.data.editEntryLinkAction.page !== 'undefined' && _this.data.editEntryLinkAction.page !== '') {
+          Fliplet.Navigate.to(_this.data.editEntryLinkAction)
+            .catch(function() {
+              Fliplet.UI.Toast(options);
+            });
+        } else {
+          FFliplet.UI.Toast(options);
+        }
+      }
+    })
+    .on('click', '.dynamic-list-delete-item', function() {
+      var _that = $(this);
+      var entryID = $(this).parents('.news-feed-list-item').data('entry-id');
+      var options = {
+        title: 'Are you sure you want to delete the list entry?',
+        labels: [
+          {
+            label: 'Delete',
+            action: function (i) {
+              Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
+                return connection.removeById(entryID);
+              }).then(function onRemove() {
+                _.remove(_this.listItems, function(entry) {
+                  return entry.id === parseInt(entryID, 10);
+                });
+
+                _that.text('Delete').removeClass('disabled');
+                var $closeButton = _that.parents('.news-feed-list-item').find('.news-feed-item-close-btn-wrapper');
+                _this.collapseElement($closeButton);
+                _this.renderLoopHTML(_this.listItems);
+              });
+            }
+          }
+        ],
+        cancel: true
+      }
+
+      _that.text('Deleting...').addClass('disabled');
+
+      Fliplet.UI.Actions(options);
     });
     
     _this.likeButtons.forEach(function(button) {
@@ -734,6 +804,19 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var _this = this;
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
+
+  // Adds flag for Add, Edit and Delete buttons
+  modifiedData.forEach(function(obj, index) {
+    if (typeof _this.data.addEntry !== 'undefined') {
+      modifiedData[index].addEntry = _this.data.addEntry;
+    }
+    if (typeof _this.data.editEntry !== 'undefined') {
+      modifiedData[index].editEntry = _this.data.editEntry;
+    }
+    if (typeof _this.data.deleteEntry !== 'undefined') {
+      modifiedData[index].deleteEntry = _this.data.deleteEntry;
+    }
+  });
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)

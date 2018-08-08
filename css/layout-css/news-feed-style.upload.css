@@ -654,6 +654,14 @@
   line-height: 24px;
 }
 
+.dynamic-list-controls {
+  display: none;
+}
+
+.news-feed-list-item.open .dynamic-list-controls {
+  display: block;
+}
+
 @media screen and (min-width: 640px) {
   .new-news-feed-list-container .news-feed-list-item.open .news-feed-item-content {
     background: rgba(0, 0, 0, 0.8);
