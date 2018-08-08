@@ -293,6 +293,14 @@
   margin: 20px 0 0 0;
 }
 
+.dynamic-list-controls {
+  display: none;
+}
+
+.small-h-card-list-detail-wrapper.open .dynamic-list-controls {
+  display: block;
+}
+
 @media screen and (min-width: 640px) {
   .new-small-h-card-list-container .small-h-card-list-image {
     width: 180px;

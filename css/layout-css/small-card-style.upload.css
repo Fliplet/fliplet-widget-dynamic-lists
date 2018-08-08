@@ -724,6 +724,14 @@
   margin: 20px 0 0 0;
 }
 
+.dynamic-list-controls {
+  display: none;
+}
+
+.small-card-list-item.open .dynamic-list-controls {
+  display: block;
+}
+
 @media screen and (min-width: 640px) {
   .new-small-card-list-container .small-card-list-detail-wrapper {
     background-color: rgba(0, 0, 0, 0.8);

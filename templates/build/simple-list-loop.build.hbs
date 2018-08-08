@@ -1,19 +1,19 @@
 \{{#each this}}
-  <div class="small-h-card-list-item">
-    <div class="small-h-card-list-image">
-      <div class="small-h-card-list-detail-wrapper" data-entry-id="\{{id}}">
-        <div class="small-h-card-list-detail-image-wrapper">
-          <div class="small-h-card-list-detail-image">
-            <img src="\{{auth data.[Image]}}">
-          </div>
-        </div>
-
-        <!-- Don't delete this -->
-        <!-- This is where the detail view will be added -->
-        \{{{ data.[profileHTML] }}}
-
-      </div>
-    </div>
-    <div class="small-h-card-list-item-text">\{{data.[First Name]}} \{{data.[Last Name]}}</div>
+<div class="simple-list-item mix \{{data.[flClasses]}} \{{#unless data.[Image]}}no-image\{{/unless}}" data-entry-id="\{{id}}">
+  \{{#if data.[Image]}}
+  <div class="list-item-image" style="background-image: url('\{{auth data.[Image]}}')"></div>
+  \{{/if}}
+  <div class="list-item-body">
+    \{{#if data.[Title]}}
+    <p class="list-item-title">\{{data.[Title]}}</p>
+    \{{/if}}
+    \{{#if data.[Description]}}
+    <p class="list-item-description">\{{data.[Description]}}</p>
+    \{{/if}}
+    \{{#if data.[Category]}}
+    <p class="list-item-subtitle">\{{data.[Category]}}</p>
+    \{{/if}}
   </div>
+  <i class="list-item-arrow fa fa-angle-right" aria-hidden="true"></i>
+</div>
 \{{/each}}

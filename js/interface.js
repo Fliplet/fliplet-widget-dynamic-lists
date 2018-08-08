@@ -270,7 +270,17 @@ var DynamicLists = (function() {
           } else {
             $('.select-user-datasource-holder').addClass('hidden');
           }
+        })
+        .on('change', '[name="list-control"]', function() {
+        var values = [];
+
+        $('[name="list-control"]:checked').each(function(){
+          values.push($(this).val());
         });
+
+        $('#add-entry-link').parents('.hidden-settings')[values.indexOf('add-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+        $('#edit-entry-link').parents('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+      });;
 
       $dataSources.on( 'change', function() {
         var selectedDataSourceId = $(this).val();
@@ -404,6 +414,11 @@ var DynamicLists = (function() {
             isLayoutSelected = true;
             $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
+            // Load Add. Edit, Delete
+            $('#add_entry').prop('checked', _this.config.addEntry).trigger('change');
+            $('#edit_entry').prop('checked', _this.config.editEntry).trigger('change');
+            $('#delete_entry').prop('checked', _this.config.deleteEntry).trigger('change');
+
             // Load code editor tabs
             switch(listLayout) {
               case 'small-card':
@@ -418,6 +433,9 @@ var DynamicLists = (function() {
                 break;
               case 'small-h-card':
                 $('.detail-view-item').removeClass('hidden');
+                break;
+              case 'simple-list':
+                $('.filter-loop-item').removeClass('hidden');
                 break;
               default:
                 break;
@@ -487,6 +505,9 @@ var DynamicLists = (function() {
                   break;
                 case 'small-h-card':
                   $('.detail-view-item').removeClass('hidden');
+                  break;
+                case 'simple-list':
+                  $('.filter-loop-item').removeClass('hidden');
                   break;
                 default:
                   break;
@@ -1377,6 +1398,9 @@ var DynamicLists = (function() {
             case 'small-h-card':
               _this.config.advancedSettings.detailHTML = undefined;
               break;
+            case 'simple-list':
+              _this.config.advancedSettings.filterHTML = undefined;
+              break;
             default:
               break;
           }
@@ -1456,6 +1480,9 @@ var DynamicLists = (function() {
           case 'small-h-card':
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             break;
+          case 'simple-list':
+            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
+            break;
           default:
             break;
         }
@@ -1517,6 +1544,18 @@ var DynamicLists = (function() {
       } else if (!_this.config.social.comments && _this.config.commentsDataSourceId) {
         _this.config.commentsDataSourceId = '';
       }
+
+      // Add, edit, delete options
+      var profileValues = [];
+
+      $('[name="list-control"]:checked').each(function(){
+        profileValues.push($(this).val());
+      });
+
+
+      data.addEntry = profileValues.indexOf('add-entry') !== -1
+      data.editEntry = profileValues.indexOf('edit-entry') !== -1
+      data.deleteEntry = profileValues.indexOf('delete-entry') !== -1
 
       if (toReload) {
         return Promise.all([likesPromise, bookmarksPromise, commentsPromise])

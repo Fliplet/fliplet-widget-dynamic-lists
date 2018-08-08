@@ -183,6 +183,78 @@ DynamicList.prototype.attachObservers = function() {
         action: 'filter_date',
         label: $(this).find('.week').text() + ' ' + $(this).find('.day').text() + ' ' + $(this).find('.month').text()
       });
+    })
+    .on('click', '.dynamic-list-add-item', function() {
+      var options = {
+        title: 'Link not configured',
+        message: 'Form not found. Please check the component\'s configuration.',
+      };
+
+      if (_this.data.addEntryLinkAction) {
+        _this.data.addEntryLinkAction.query = '?mode=add';
+
+        if (typeof _this.data.addEntryLinkAction.page !== 'undefined' && _this.data.addEntryLinkAction.page !== '') {
+          Fliplet.Navigate.to(_this.data.addEntryLinkAction)
+            .catch(function() {
+              Fliplet.UI.Toast(options);
+            });
+        } else {
+          FFliplet.UI.Toast(options);
+        }
+      }
+    })
+    .on('click', '.dynamic-list-edit-item', function() {
+      var entryID = $(this).parents('.agenda-list-item').data('entry-id');
+      var options = {
+        title: 'Link not configured',
+        message: 'Form not found. Please check the component\'s configuration.',
+      };
+
+      if (_this.data.editEntryLinkAction) {
+        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=';
+
+        if (typeof _this.data.editEntryLinkAction.page !== 'undefined' && _this.data.editEntryLinkAction.page !== '') {
+          Fliplet.Navigate.to(_this.data.editEntryLinkAction)
+            .catch(function() {
+              Fliplet.UI.Toast(options);
+            });
+        } else {
+          FFliplet.UI.Toast(options);
+        }
+      }
+    })
+    .on('click', '.dynamic-list-delete-item', function() {
+      var _that = $(this);
+      var entryID = $(this).parents('.agenda-list-item').data('entry-id');
+      var options = {
+        title: 'Are you sure you want to delete the list entry?',
+        labels: [
+          {
+            label: 'Delete',
+            action: function (i) {
+              Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
+                return connection.removeById(entryID);
+              }).then(function onRemove() {
+                _.remove(_this.listItems, function(entry) {
+                  return entry.id === parseInt(entryID, 10);
+                });
+
+                _that.text('Delete').removeClass('disabled');
+                var $closeButton = _that.parents('.agenda-list-item').find('.agenda-list-item .agenda-item-close-btn');
+                _this.collapseElement($closeButton);
+
+                var selectedIndex = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
+                _this.renderDatesHTML(_this.listItems, selectedIndex);
+                _this.renderLoopHTML(_this.listItems);
+              });
+            }
+          }
+        ],
+        cancel: true
+      }
+
+      _that.text('Deleting...').addClass('disabled');
+      Fliplet.UI.Actions(options);
     });
 
   _this.bookmarkButtons.forEach(function(button) {
@@ -239,12 +311,6 @@ DynamicList.prototype.initialize = function() {
   _this.connectToDataSource()
     .then(function (records) {
       // Received the rows
-
-      var calendarDates = [];
-      var firstDate;
-      var lastDate;
-      var numberOfPlacholderDays = 3;
-
       var sorted;
       var ordered;
       var filtered;
@@ -364,72 +430,13 @@ DynamicList.prototype.initialize = function() {
         records = filtered;
       }
 
-      // set first date in agenda
-      firstDate = new Date(records[0].data['Date']).toUTCString();
-
-      // set last date in agenda
-      lastDate = new Date(records[records.length - 1].data['Date']).toUTCString();
-
-      // Make rows available Globally
-      _this.listItems = records;
-
-      // Adds 5 days before the first date
-      // Save them in an array
-      for (var i = 0; i < numberOfPlacholderDays; i++) { 
-        var newDate = {
-          week: moment(firstDate).utc().subtract(i + 1, 'days').format("ddd"),
-          day: moment(firstDate).utc().subtract(i + 1, 'days').format("DD"),
-          month: moment(firstDate).utc().subtract(i + 1, 'days').format("MMM"),
-          placeholder: true
-        }
-        calendarDates.unshift(newDate);
-      }
-
-      // Get only the unique dates
-      var uniqueDates = _.uniqBy(records, function(obj) {
-        return obj.data['Date'];
-      });
-
-      // Get the event dates
-      // Save in an array
-      uniqueDates.forEach(function(obj) {
-        var newDate = new Date(obj.data['Date']).toUTCString();
-        var newDateObject = {
-          week: moment(newDate).utc().format("ddd"),
-          day: moment(newDate).utc().format("DD"),
-          month: moment(newDate).utc().format("MMM"),
-          placeholder: false
-        }
-        calendarDates.push(newDateObject);
-      });
-
-      // Adds 5 days after the last date
-      // Save them in an array
-      for (var i = 0; i < numberOfPlacholderDays; i++) { 
-        var newDate = {
-          week: moment(lastDate).utc().add(i + 1, 'days').format("ddd"),
-          day: moment(lastDate).utc().add(i + 1, 'days').format("DD"),
-          month: moment(lastDate).utc().add(i + 1, 'days').format("MMM"),
-          placeholder: true
-        }
-        calendarDates.push(newDate);
-      }
-
-      // Converts date format
-      records.forEach(function(obj, index) {
-        var newDate = new Date(obj.data['Date']).toUTCString();
-        records[index].data['Date'] = moment(newDate).utc().format("ddd Do MMM");
-      });
-
-      var newRecords = _.values(_.groupBy(records, function(row) {
-        return row.data['Date'];
-      }));
+      _this.listItems = JSON.parse(JSON.stringify(records));
 
       // Render dates HTML
-      _this.renderDatesHTML(calendarDates);
+      _this.renderDatesHTML(_this.listItems);
 
       // Render Loop HTML
-      _this.renderLoopHTML(newRecords);
+      _this.renderLoopHTML(_this.listItems);
       
       return;
     })
@@ -502,27 +509,107 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
+DynamicList.prototype.renderLoopHTML = function(rows) {
   // Function that renders the List template
   var _this = this;
+  var clonedRecords = JSON.parse(JSON.stringify(rows));
+
+;
+
+   // Converts date format
+  clonedRecords.forEach(function(obj, index) {
+    var newDate = new Date(obj.data['Date']).toUTCString();
+    clonedRecords[index].data['Date'] = moment(newDate).utc().format("ddd Do MMM");
+  });
+
+  var newRecords = _.values(_.groupBy(clonedRecords, function(row) {
+    return row.data['Date'];
+  }));
+
+  // Adds flag for Add, Edit and Delete buttons
+  newRecords.forEach(function(obj, index) {
+    if (typeof _this.data.addEntry !== 'undefined') {
+      newRecords[index].addEntry = _this.data.addEntry;
+    }
+    if (typeof _this.data.editEntry !== 'undefined') {
+      newRecords[index].editEntry = _this.data.editEntry;
+    }
+    if (typeof _this.data.deleteEntry !== 'undefined') {
+      newRecords[index].deleteEntry = _this.data.deleteEntry;
+    }
+  });
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(records));
+  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
 }
 
-DynamicList.prototype.renderDatesHTML = function(dates) {
+DynamicList.prototype.renderDatesHTML = function(rows, index) {
   // Function that renders the Dates template
   var _this = this;
+  var calendarDates = [];
+  var firstDate;
+  var lastDate;
+  var numberOfPlacholderDays = 3;
+  var clonedRecords = JSON.parse(JSON.stringify(rows));
+
+  // set first date in agenda
+  firstDate = new Date(clonedRecords[0].data['Date']).toUTCString();
+
+  // set last date in agenda
+  lastDate = new Date(clonedRecords[clonedRecords.length - 1].data['Date']).toUTCString();
+
+  // Adds 5 days before the first date
+  // Save them in an array
+  for (var i = 0; i < numberOfPlacholderDays; i++) { 
+    var newDate = {
+      week: moment(firstDate).utc().subtract(i + 1, 'days').format("ddd"),
+      day: moment(firstDate).utc().subtract(i + 1, 'days').format("DD"),
+      month: moment(firstDate).utc().subtract(i + 1, 'days').format("MMM"),
+      placeholder: true
+    }
+    calendarDates.unshift(newDate);
+  }
+
+  // Get only the unique dates
+  var uniqueDates = _.uniqBy(clonedRecords, function(obj) {
+    return obj.data['Date'];
+  });
+
+  // Get the event dates
+  // Save in an array
+  uniqueDates.forEach(function(obj) {
+    var newDate = new Date(obj.data['Date']).toUTCString();
+    var newDateObject = {
+      week: moment(newDate).utc().format("ddd"),
+      day: moment(newDate).utc().format("DD"),
+      month: moment(newDate).utc().format("MMM"),
+      placeholder: false
+    }
+    calendarDates.push(newDateObject);
+  });
+
+  // Adds 5 days after the last date
+  // Save them in an array
+  for (var i = 0; i < numberOfPlacholderDays; i++) { 
+    var newDate = {
+      week: moment(lastDate).utc().add(i + 1, 'days').format("ddd"),
+      day: moment(lastDate).utc().add(i + 1, 'days').format("DD"),
+      month: moment(lastDate).utc().add(i + 1, 'days').format("MMM"),
+      placeholder: true
+    }
+    calendarDates.push(newDate);
+  }
+
   var template = _this.data.advancedSettings && _this.data.advancedSettings.otherLoopHTML
   ? Handlebars.compile(_this.data.advancedSettings.otherLoopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['other-loop']]());
 
-  _this.$container.find('.agenda-date-selector ul').html(template(dates));
+  _this.$container.find('.agenda-date-selector ul').html(template(calendarDates));
   // Selects the first date
-  $(_this.$container.find('.agenda-date-selector li').not('.placeholder')[0]).addClass('active');
+  $(_this.$container.find('.agenda-date-selector li').not('.placeholder')[index ? index : 0]).addClass('active');
   _this.centerDate();
 }
 

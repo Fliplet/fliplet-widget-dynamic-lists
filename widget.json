@@ -78,7 +78,8 @@
       "css/layout-css/small-card-style.upload.css",
       "css/layout-css/news-feed-style.upload.css",
       "css/layout-css/agenda-style.upload.css",
-      "css/layout-css/small-h-card-style.upload.css"
+      "css/layout-css/small-h-card-style.upload.css",
+      "css/layout-css/simple-list-style.upload.css"
     ]
   },
   "references": [

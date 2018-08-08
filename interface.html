@@ -183,6 +183,41 @@
             </div>
           </div>
         </div>
+
+        <div class="form-group clearfix">
+          <div class="col-sm-4 control-label">
+            <label>Allow users to add, edit and delete entries</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="add_entry" name="list-control" value="add-entry">
+              <label for="add_entry">
+                <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Add entries</span>
+              </label>
+              <div class="hidden-settings">
+                <p>Select the screen where users can add new entries.</p>
+                <div id="add-entry-link"></div>
+              </div>
+            </div>
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="edit_entry" name="list-control" value="edit-entry">
+              <label for="edit_entry">
+                <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Edit entries</span>
+              </label>
+              <div class="hidden-settings">
+                <p>Select the screen where users can edit existing entries.</p>
+                <div id="edit-entry-link"></div>
+              </div>
+            </div>
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="delete_entry" name="list-control" value="delete-entry">
+              <label for="delete_entry">
+                <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Delete entries</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
             <label>Developer options</label>
@@ -211,8 +246,8 @@
       <div class="hidden" data-agenda-js-url="{{ asset 'js/layout-javascript/agenda-code.js' }}"></div>
       <div class="hidden" data-small-h-card-css-url="{{ asset 'css/layout-css/small-h-card-style.upload.css' }}"></div>
       <div class="hidden" data-small-h-card-js-url="{{ asset 'js/layout-javascript/small-h-card-code.js' }}"></div>
-      <!-- <div class="hidden" data-simple-list-css-url="{{ asset 'css/layout-css/simple-list-style.upload.css' }}"></div>
-      <div class="hidden" data-simple-list-js-url="{{ asset 'js/layout-javascript/simple-list-code.js' }}"></div> -->
+      <div class="hidden" data-simple-list-css-url="{{ asset 'css/layout-css/simple-list-style.upload.css' }}"></div>
+      <div class="hidden" data-simple-list-js-url="{{ asset 'js/layout-javascript/simple-list-code.js' }}"></div>
 
       <ul class="nav nav-tabs advanced-tabs-level-one">
         <li role="presentation" class="active"><a href="#templates" data-toggle="tab">HTML</a></li>
