@@ -278,17 +278,8 @@ var DynamicLists = (function() {
           values.push($(this).val());
         });
 
-        if (values.indexOf('add-entry') !== -1) {
-          $('#add-entry-link').parents('.hidden-settings').addClass('active');
-        } else {
-          $('#add-entry-link').parents('.hidden-settings').removeClass('active');
-        }
-
-        if (values.indexOf('edit-entry') !== -1) {
-          $('#edit-entry-link').parents('.hidden-settings').addClass('active');
-        } else {
-          $('#edit-entry-link').parents('.hidden-settings').removeClass('active');
-        }
+        $('#add-entry-link').parents('.hidden-settings')[values.indexOf('add-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+        $('#edit-entry-link').parents('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
       });;
 
       $dataSources.on( 'change', function() {
@@ -1561,21 +1552,10 @@ var DynamicLists = (function() {
         profileValues.push($(this).val());
       });
 
-      if (profileValues.indexOf('add-entry') !== -1) {
-        data.addEntry = true;
-      } else {
-        data.addEntry = false;
-      }
-      if (profileValues.indexOf('edit-entry') !== -1) {
-        data.editEntry = true;
-      } else {
-        data.editEntry = false;
-      }
-      if (profileValues.indexOf('delete-entry') !== -1) {
-        data.deleteEntry = true;
-      } else {
-        data.deleteEntry = false;
-      }
+
+      data.addEntry = profileValues.indexOf('add-entry') !== -1
+      data.editEntry = profileValues.indexOf('edit-entry') !== -1
+      data.deleteEntry = profileValues.indexOf('delete-entry') !== -1
 
       if (toReload) {
         return Promise.all([likesPromise, bookmarksPromise, commentsPromise])
