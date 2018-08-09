@@ -97,7 +97,6 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   _this.$container
     .on('touchstart', '.small-card-list-item', function(event) {
-      event.stopPropagation();
       $(this).addClass('hover');
     })
     .on('touchmove', '.small-card-list-item', function() {
@@ -135,7 +134,6 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.small-card-list-detail-close-btn', function(event) {
-      event.stopPropagation();
       // find the element to collpase and collpase it
       var directoryDetailWrapper = $(this).parents('.small-card-list-detail-wrapper');
       _this.collapseElement(directoryDetailWrapper);

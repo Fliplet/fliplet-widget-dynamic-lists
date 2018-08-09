@@ -97,7 +97,6 @@ DynamicList.prototype.attachObservers = function() {
       $(this).removeClass('hover');
     })
     .on('touchstart', '.agenda-list-item', function(event) {
-      event.stopPropagation();
       $(this).addClass('hover');
     })
     .on('touchmove', '.agenda-list-item', function(e) {
@@ -116,7 +115,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      event.stopPropagation();
       var elementToExpand = $(this).find('.agenda-list-item-content');
       _this.expandElement(elementToExpand);
 
@@ -128,7 +126,6 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.agenda-list-item .agenda-item-close-btn', function(event) {
-      event.stopPropagation();
       _this.collapseElement($(this));
     })
     .on('keydown', function(e) {

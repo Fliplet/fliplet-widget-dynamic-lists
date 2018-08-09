@@ -154,7 +154,6 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('touchstart', '.news-feed-list-item', function(event) {
-      event.stopPropagation();
       $(this).addClass('hover');
     })
     .on('touchmove', '.news-feed-list-item', function() {
@@ -169,7 +168,6 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.news-feed-list-item', function(event) {
-      event.stopPropagation();
       var elementToExpand = $(this).find('.news-feed-item-content');
       // find the element to expand and expand it
       if (_this.allowClick) {
@@ -183,7 +181,6 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.news-feed-item-close-btn-wrapper', function(event) {
-      event.stopPropagation();
       // find the element to collpase and collpase it
       _this.collapseElement($(this));
     })
