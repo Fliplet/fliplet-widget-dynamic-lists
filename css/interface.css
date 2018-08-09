@@ -483,6 +483,49 @@ header .btn,
   opacity: 0.4;
 }
 
+.margin-15 {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#permissions-accordion.panel-group,
+#social-accordion.panel-group {
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+#permissions-accordion .panel-heading:hover,
+#social-accordion .panel-heading:hover {
+  cursor: pointer;
+}
+
+#permissions-accordion .panel-heading h4,
+#social-accordion .panel-heading h4 {
+  padding: 10px 40px 10px 15px;
+}
+
+#permissions-accordion .panel-title .fa,
+#social-accordion .panel-title .fa {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+}
+
+#permissions-accordion .panel-heading .fa-chevron-right,
+#social-accordion .panel-heading .fa-chevron-right {
+  margin: 0;
+}
+
+#permissions-accordion .panel-body,
+#social-accordion .panel-body {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* CODE EDITORS */
 .CodeMirror-lint-tooltip {
   background: #fff;
@@ -660,7 +703,8 @@ header .btn,
 .select-user-firstname-holder,
 .select-user-lastname-holder,
 .select-user-email-holder,
-.select-user-photo-holder {
+.select-user-photo-holder,
+.select-user-admin-holder {
   margin-top: 10px;
 }
 
@@ -669,10 +713,29 @@ header .btn,
   padding: 10px 10px 0;
   margin-left: 25px;
   margin-top: 5px;
-  background-color: #d9e5e8;
+  margin-bottom: 20px;
+  background-color: #e6eeef;
   border-radius: 6px;
+}
+
+.hidden-settings.comments-suboptions {
+  padding-bottom: 25px;
 }
 
 .hidden-settings.active {
   display: block;
+}
+
+.radio label.form-title,
+.checkbox label.form-title {
+  padding-left: 0;
+  font-weight: bold;
+}
+
+.checkbox .radio.radio-icon label > span.check {
+  border-radius: 50%;
+}
+
+.checkbox .radio.radio-icon label > span.check > i.fa {
+  top: 0;
 }

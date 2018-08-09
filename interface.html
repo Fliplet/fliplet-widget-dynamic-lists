@@ -114,106 +114,221 @@
           </div>
         </div>
 
-        <div class="form-group clearfix list-likes disabled hidden">
-          <div class="col-sm-4 control-label">
-            <label>Likes</label>
-          </div>
-          <div class="col-sm-8">
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="enable-likes">
-              <label for="enable-likes">
-                <span class="check"><i class="fa fa-check"></i></span> Allow users to like list items
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="form-group clearfix list-bookmark disabled hidden">
-          <div class="col-sm-4 control-label">
-            <label>Bookmarks</label>
-          </div>
-          <div class="col-sm-8">
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="enable-bookmarks">
-              <label for="enable-bookmarks">
-                <span class="check"><i class="fa fa-check"></i></span> Allow users to bookmark list items
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="form-group clearfix list-comments disabled hidden">
-          <div class="col-sm-4 control-label">
-            <label>Comments</label>
-            <p class="text-warning"><small>Coming soon: Ability to mention users in comments and receive notifications when a comment is posted.</small></p>
-          </div>
-          <div class="col-sm-8">
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="enable-comments">
-              <label for="enable-comments">
-                <span class="check"><i class="fa fa-check"></i></span> Allow users to comment on list items
-              </label>
-            </div>
+        <div class="margin-15">
+          <div class="panel-group hidden" id="social-accordion">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title" data-toggle="collapse" data-parent="#social-accordion" data-target="#collapseOne">
+                  <span class="panel-title-text">Social features</span>
+                  <i class="fa fa-chevron-down"></i>
+                </h4>
+              </div>
+              <div id="collapseOne" class="social-collapse panel-collapse collapse">
+                <div class="panel-body">
 
-            <div class="select-user-datasource-holder hidden">
+                  <div class="form-group clearfix list-likes disabled hidden">
+                    <div class="col-sm-4 control-label">
+                      <label>Likes</label>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon">
+                        <input type="checkbox" id="enable-likes">
+                        <label for="enable-likes">
+                          <span class="check"><i class="fa fa-check"></i></span> Allow users to like list items
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group clearfix list-bookmark disabled hidden">
+                    <div class="col-sm-4 control-label">
+                      <label>Bookmarks</label>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon">
+                        <input type="checkbox" id="enable-bookmarks">
+                        <label for="enable-bookmarks">
+                          <span class="check"><i class="fa fa-check"></i></span> Allow users to bookmark list items
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group clearfix list-comments disabled hidden">
+                    <div class="col-sm-4 control-label">
+                      <label>Comments</label>
+                      <p class="text-warning"><small>Coming soon: Ability to mention users in comments and receive notifications when a comment is posted.</small></p>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon">
+                        <input type="checkbox" id="enable-comments">
+                        <label for="enable-comments">
+                          <span class="check"><i class="fa fa-check"></i></span> Allow users to comment on list items
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="margin-15">
+          <div class="panel-group" id="permissions-accordion">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title" data-toggle="collapse" data-parent="#permissions-accordion" data-target="#collapseTwo">
+                  <span class="panel-title-text">Permission settings</span>
+                  <i class="fa fa-chevron-down"></i>
+                </h4>
+              </div>
+              <div id="collapseTwo" class="permissions-collapse panel-collapse collapse">
+                <div class="panel-body">
+                  <div class="form-group clearfix">
+                    <div class="col-sm-4 control-label">
+                      <label>Allow users to add, edit and delete entries</label>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon add-entry-checkbox">
+                        <input type="checkbox" id="add_entry" name="list-control" value="add-entry">
+                        <label for="add_entry">
+                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Add entries</span>
+                        </label>
+                        <div class="hidden-settings">
+                          <div class="form-group row clearfix">
+                            <div class="col-sm-4 control-label">
+                              <label class="form-title">Who can add entries?</label>
+                            </div>
+                            <div class="col-sm-8">
+                              <div class="radio radio-icon">
+                                <input type="radio" id="add-everyone" name="add-permissions" value="everyone">
+                                <label for="add-everyone">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Everyone can add</span>
+                                </label>
+                              </div>
+                              <div class="radio radio-icon">
+                                <input type="radio" id="add-admins" name="add-permissions" value="admins">
+                                <label for="add-admins">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Only admins can add</span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <p>Select the screen where users can add new entries.</p>
+                          <div id="add-entry-link"></div>
+                        </div>
+                      </div>
+                      <div class="checkbox checkbox-icon edit-entry-checkbox">
+                        <input type="checkbox" id="edit_entry" name="list-control" value="edit-entry">
+                        <label for="edit_entry">
+                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Edit entries</span>
+                        </label>
+                        <div class="hidden-settings">
+                          <div class="form-group row clearfix">
+                            <div class="col-sm-4 control-label">
+                              <label class="form-title">Who can edit entries?</label>
+                            </div>
+                            <div class="col-sm-8">
+                              <div class="radio radio-icon">
+                                <input type="radio" id="edit-everyone" name="edit-permissions" value="everyone">
+                                <label for="edit-everyone">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Everyone can edit</span>
+                                </label>
+                              </div>
+                              <div class="radio radio-icon">
+                                <input type="radio" id="edit-user" name="edit-permissions" value="user">
+                                <label for="edit-user">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Users can edit their own</span>
+                                </label>
+                              </div>
+                              <div class="radio radio-icon">
+                                <input type="radio" id="edit-admins" name="edit-permissions" value="admins">
+                                <label for="edit-admins">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Only admins can edit</span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <p>Select the screen where users can edit existing entries.</p>
+                          <div id="edit-entry-link"></div>
+                        </div>
+                      </div>
+                      <div class="checkbox checkbox-icon delete-entry-checkbox">
+                        <input type="checkbox" id="delete_entry" name="list-control" value="delete-entry">
+                        <label for="delete_entry">
+                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Delete entries</span>
+                        </label>
+                        <div class="hidden-settings">
+                          <div class="form-group row clearfix">
+                            <div class="col-sm-4 control-label">
+                              <label class="form-title">Who can edit entries?</label>
+                            </div>
+                            <div class="col-sm-8">
+                              <div class="radio radio-icon">
+                                <input type="radio" id="delete-everyone" name="delete-permissions" value="everyone">
+                                <label for="delete-everyone">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Everyone can delete</span>
+                                </label>
+                              </div>
+                              <div class="radio radio-icon">
+                                <input type="radio" id="delete-user" name="delete-permissions" value="user">
+                                <label for="delete-user">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Users can delete their own</span>
+                                </label>
+                              </div>
+                              <div class="radio radio-icon">
+                                <input type="radio" id="delete-admins" name="delete-permissions" value="admins">
+                                <label for="delete-admins">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Only admins can delete</span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-datasource-options hidden">
+          <div class="form-group clearfix">
+            <div class="col-xs-12 select-user-datasource-holder">
               <label>Select the users data source <small>(Required)</small></label>
               <select name="select_user_datasource" id="select_user_datasource" class="form-control">
                 <option value="none">-- Select a data source</option>
                 <option disabled>------</option>
               </select>
             </div>
-            <div class="select-user-firstname-holder hidden">
+            <div class="col-xs-12 select-user-firstname-holder hidden">
               <label>User's name data field(s) <small>(Required)</small></label>
               <p><small>Select any that apply if you have two fields for the users name.</small></p>
               <div class="user-name-fields">
                 <!-- field will be added here -->
               </div>
             </div>
-            <div class="select-user-email-holder hidden">
+            <div class="col-xs-12 select-user-email-holder hidden">
               <label>User's email data field <small>(Required)</small></label>
               <select name="select_user_email" id="select_user_email" class="form-control">
                 <option value="none">-- Select the email data field</option>
                 <option disabled>------</option>
               </select>
             </div>
-            <div class="select-user-photo-holder hidden">
+            <div class="col-xs-12 select-user-photo-holder hidden">
               <label>User's photo data field <small>(Optional)</small></label>
               <select name="select_user_photo" id="select_user_photo" class="form-control">
                 <option value="none">-- Select the photo data field</option>
                 <option disabled>------</option>
               </select>
             </div>
-          </div>
-        </div>
-
-        <div class="form-group clearfix">
-          <div class="col-sm-4 control-label">
-            <label>Allow users to add, edit and delete entries</label>
-          </div>
-          <div class="col-sm-8">
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="add_entry" name="list-control" value="add-entry">
-              <label for="add_entry">
-                <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Add entries</span>
-              </label>
-              <div class="hidden-settings">
-                <p>Select the screen where users can add new entries.</p>
-                <div id="add-entry-link"></div>
-              </div>
-            </div>
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="edit_entry" name="list-control" value="edit-entry">
-              <label for="edit_entry">
-                <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Edit entries</span>
-              </label>
-              <div class="hidden-settings">
-                <p>Select the screen where users can edit existing entries.</p>
-                <div id="edit-entry-link"></div>
-              </div>
-            </div>
-            <div class="checkbox checkbox-icon">
-              <input type="checkbox" id="delete_entry" name="list-control" value="delete-entry">
-              <label for="delete_entry">
-                <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Delete entries</span>
-              </label>
+            <div class="col-xs-12 select-user-admin-holder hidden">
+              <label>Field to identify Admins <small>(Optional)</small></label>
+              <select name="select_user_admin" id="select_user_admin" class="form-control">
+                <option value="none">-- Select the admin field</option>
+                <option disabled>------</option>
+              </select>
             </div>
           </div>
         </div>
