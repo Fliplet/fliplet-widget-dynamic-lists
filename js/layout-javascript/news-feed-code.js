@@ -35,6 +35,7 @@ var DynamicList = function(id, data, container) {
 
   this.listItems;
   this.likeButtons = [];
+  this.bookmarkButtons = [];
   this.comments = [];
   this.allUsers;
   this.usersToMention = [];
@@ -42,6 +43,8 @@ var DynamicList = function(id, data, container) {
   this.myUserData;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
+
+  this.data.bookmarksEnabled = _this.data.social.bookmark;
 
   this.setupCopyText();
 
@@ -558,6 +561,28 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     });
+
+    _this.bookmarkButtons.forEach(function(button) {
+      button.btn.on('liked', function(data){
+        this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_bookmark',
+          label: entryTitle
+        });
+      });
+
+      button.btn.on('unliked', function(data){
+        this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_unbookmark',
+          label: entryTitle
+        });
+      });
+    });
 }
 
 DynamicList.prototype.initialize = function() {
@@ -713,6 +738,13 @@ DynamicList.prototype.initialize = function() {
             records[i].likesEnabled = true;
           } else {
             records[i].likesEnabled = false;
+          }
+
+          // Add bookmarks flag
+          if (_this.data.social && _this.data.social.bookmark) {
+            records[i].bookmarksEnabled = true;
+          } else {
+            records[i].bookmarksEnabled = false;
           }
 
           // Add comments flag
@@ -953,6 +985,15 @@ DynamicList.prototype.onReady = function() {
     });
   }
 
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.$container.find('.news-feed-list-item').each(function(index, element) {
+      var cardId = $(element).data('entry-id');
+      var likeIndentifier = cardId + '-bookmark';
+      var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
+      _this.setupBookmarkButton(cardId, likeIndentifier, title);
+    });
+  }
+
   if (_this.data.social && _this.data.social.comments) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
       _this.getCommentsCount(element);
@@ -995,6 +1036,27 @@ DynamicList.prototype.onReady = function() {
 
   // Ready
   _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+
+  // Wait for bookmark to appear on the page
+  var checkTimer = 0;
+  var checkInterval = setInterval(function() {
+    // Check for 10 seconds
+    if (checkTimer > 10) {
+      clearInterval(checkInterval);
+      return;
+    }
+    _this.checkBookmarked();
+    checkTimer++;
+  }, 1000);
+}
+
+// Function to add class to card marking it as bookmarked - for filtering
+DynamicList.prototype.checkBookmarked = function() {
+  var _this = this;
+
+  _this.$container.find('.btn-bookmarked').each(function(idx, element) {
+    $(element).parents('.news-feed-list-item').addClass('bookmarked');
+  });
 }
 
 DynamicList.prototype.calculateFiltersHeight = function(element) {
@@ -1163,10 +1225,32 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
         pageId: Fliplet.Env.get('pageId')
       },
       name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<i class="fa fa-heart-o fa-lg"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
-      likedLabel: '<i class="fa fa-heart fa-lg animated bounceIn"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
-      likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
-      likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+      likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+      likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
+      likeWrapper: '<div class="news-feed-like-wrapper btn-bookmark"></div>',
+      likedWrapper: '<div class="news-feed-like-wrapper btn-bookmarked"></div>',
+      addType: 'html'
+    }),
+    id: id
+  });
+}
+
+DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.bookmarkButtons.push({
+    btn: LikeButton({
+      target: '.news-feed-bookmark-holder-' + id,
+      dataSourceId: _this.data.bookmarkDataSourceId,
+      content: { 
+        entryId: identifier
+      },
+      name: Fliplet.Env.get('pageTitle') + '/' + title,
+      likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+      likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+      likeWrapper: '<div class="news-feed-bookmark-wrapper btn-like"></div>',
+      likedWrapper: '<div class="news-feed-bookmark-wrapper btn-liked"></div>',
       addType: 'html'
     }),
     id: id

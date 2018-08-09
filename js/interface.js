@@ -362,6 +362,12 @@ var DynamicLists = (function() {
           _.forEach(_this.config['style-specific'], function(item) {
             $('.' + item).removeClass('hidden');
           });
+
+          // backwards compatible
+          if (_this.config.layout === 'news-feed' && typeof _this.config.social.bookmark === 'undefined') {
+            _this.config.social.bookmark = true;
+            $('.list-bookmark').removeClass('hidden');
+          }
         } else if (_this.config.layout === 'small-card') {
           // Because initial component didn't have this option
           // This makes it backwards compatible

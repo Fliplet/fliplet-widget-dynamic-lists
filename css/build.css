@@ -15,14 +15,17 @@
   bottom: 15px;
   bottom: calc(15px + env(safe-area-inset-bottom));
   z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #337ab7;
   border-radius: 50%;
-  width: 65px;
-  height: 65px;
-  line-height: 65px;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
   text-align: center;
   box-shadow: 0px 6px 20px 0px rgba(0, 0, 0, 0.2);
-  font-size: 2em;
+  font-size: 1.5em;
   color: #fff;
   cursor: pointer;
 }
@@ -42,23 +45,20 @@
   bottom: calc(166px + env(safe-area-inset-bottom));
 }
 
-.dynamic-list-edit-item,
-.dynamic-list-delete-item {
+.btn.dynamic-list-edit-item,
+.btn.dynamic-list-delete-item {
   display: inline-block;
-  clear: both;
-  width: auto;
-  padding: 10px 16px;
-  font-size: 18px;
-  line-height: 24px;
-  border: none;
-  text-align: center;
   cursor: pointer;
   border-radius: 6px;
-  white-space: initial;
 }
 
 .dynamic-list-edit-item {
   border: 1px solid #dddddd;
+}
+
+.dynamic-list-edit-item:hover,
+.dynamic-list-delete-item:hover {
+  border: 1px solid transparent;
 }
 
 .dynamic-list-edit-item:focus,
@@ -72,5 +72,5 @@
 }
 
 .dynamic-list-edit-item + .dynamic-list-delete-item {
-  margin-left: 10px;
+  margin-left: 5px;
 }
