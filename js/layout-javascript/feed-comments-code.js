@@ -326,7 +326,7 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
-        action: 'comment_type'
+        action: 'comment_entered'
       });
     })
     .on('blur', '[data-comment-body]', function() {
