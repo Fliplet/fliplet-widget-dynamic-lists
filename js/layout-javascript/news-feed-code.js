@@ -800,57 +800,57 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   // Function called when a list item is tapped to close
   var _this = this;
 
-  var elementToCollpseParent = collapseButton.parents('.news-feed-list-item');
-  var elementToCollpse = elementToCollpseParent.find('.news-feed-item-content');
+  var elementToCollapseParent = collapseButton.parents('.news-feed-list-item');
+  var elementToCollapse = elementToCollapseParent.find('.news-feed-item-content');
   
   // find the location of the placeholder
   var elementScrollTop = $(window).scrollTop();
-  var elementToCollpsePlaceholderTop = elementToCollpseParent.offset().top - elementScrollTop;
-  var elementToCollpsePlaceholderLeft = elementToCollpseParent.offset().left;
-  var elementToCollpsePlaceholderHeight = elementToCollpseParent.outerHeight();
-  var elementToCollpsePlaceholderWidth = elementToCollpseParent.outerWidth();
+  var elementToCollapsePlaceholderTop = elementToCollapseParent.offset().top - elementScrollTop;
+  var elementToCollapsePlaceholderLeft = elementToCollapseParent.offset().left;
+  var elementToCollapsePlaceholderHeight = elementToCollapseParent.outerHeight();
+  var elementToCollapsePlaceholderWidth = elementToCollapseParent.outerWidth();
 
-  elementToCollpse.find('.slide-under').css({
+  elementToCollapse.find('.slide-under').css({
     position: 'absolute'
   });
 
   // convert the width and height to numeric values
-  elementToCollpse.css({
+  elementToCollapse.css({
     'right': 'auto',
     'bottom': 'auto',
-    'width': elementToCollpse.outerWidth(),
-    'height': elementToCollpse.outerHeight(),
+    'width': elementToCollapse.outerWidth(),
+    'height': elementToCollapse.outerHeight(),
   });
 
-  var collapsedHeight = elementToCollpse.find('.banner').data('height');
-  elementToCollpse.find('.banner').animate({
+  var collapsedHeight = elementToCollapse.find('.banner').data('height');
+  elementToCollapse.find('.banner').animate({
       height: collapsedHeight
     },
     200,
     'linear'
   );
 
-  var collapsedPosition = elementToCollpse.find('.news-feed-item-inner-content').data('position');
-  elementToCollpse.find('.news-feed-item-inner-content').animate({
+  var collapsedPosition = elementToCollapse.find('.news-feed-item-inner-content').data('position');
+  elementToCollapse.find('.news-feed-item-inner-content').animate({
       top: collapsedPosition
     },
     200,
     'linear'
   );
 
-  elementToCollpse.animate({
-      'left': elementToCollpsePlaceholderLeft,
-      'top': elementToCollpsePlaceholderTop,
-      'height': elementToCollpsePlaceholderHeight,
-      'width': elementToCollpsePlaceholderWidth
+  elementToCollapse.animate({
+      'left': elementToCollapsePlaceholderLeft,
+      'top': elementToCollapsePlaceholderTop,
+      'height': elementToCollapsePlaceholderHeight,
+      'width': elementToCollapsePlaceholderWidth
     },
     200, // animation timing in millisecs
     'linear', //animation easing
     function() {
       // Removes class 'open'
-      elementToCollpseParent.removeClass('open');
+      elementToCollapseParent.removeClass('open');
 
-      elementToCollpse.css({
+      elementToCollapse.css({
         'position': 'relative',
         'top': 'auto',
         'left': 'auto',
@@ -860,8 +860,8 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
 
       // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
       // Only happens when the closing animation finishes
-      if (elementToCollpse.parents('.panel-group').not('.filters-overlay').length) {
-        elementToCollpse.parents('.panel-group').not('.filters-overlay').removeClass('remove-transform');
+      if (elementToCollapse.parents('.panel-group').not('.filters-overlay').length) {
+        elementToCollapse.parents('.panel-group').not('.filters-overlay').removeClass('remove-transform');
       }
     }
   );

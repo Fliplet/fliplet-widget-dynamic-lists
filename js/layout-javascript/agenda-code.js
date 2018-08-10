@@ -947,25 +947,25 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   var _this = this;
 
   // find the element to collapse 
-  var elementToCollpseParent = collapseButton.parents('.agenda-list-item');
-  var elementToCollpse = elementToCollpseParent.find('.agenda-list-item-content');
+  var elementToCollapseParent = collapseButton.parents('.agenda-list-item');
+  var elementToCollapse = elementToCollapseParent.find('.agenda-list-item-content');
   // find the location of the placeholder
-  var elementToCollpsePlaceholder = elementToCollpse.parents('.agenda-list-item');
-  var elementToCollpsePlaceholderTop = elementToCollpsePlaceholder.offset().top - $('body').scrollTop();
-  var elementToCollpsePlaceholderLeft = elementToCollpsePlaceholder.offset().left;
-  var elementToCollpsePlaceholderHeight = elementToCollpsePlaceholder.outerHeight();
-  var elementToCollpsePlaceholderWidth = elementToCollpsePlaceholder.outerWidth();
+  var elementToCollapsePlaceholder = elementToCollapse.parents('.agenda-list-item');
+  var elementToCollapsePlaceholderTop = elementToCollapsePlaceholder.offset().top - $('body').scrollTop();
+  var elementToCollapsePlaceholderLeft = elementToCollapsePlaceholder.offset().left;
+  var elementToCollapsePlaceholderHeight = elementToCollapsePlaceholder.outerHeight();
+  var elementToCollapsePlaceholderWidth = elementToCollapsePlaceholder.outerWidth();
 
-  elementToCollpse.find('.slide-under').css({
+  elementToCollapse.find('.slide-under').css({
     position: 'absolute'
   });
 
   // convert the width and height to numeric values
-  elementToCollpse.css({
+  elementToCollapse.css({
     'right': 'auto',
     'bottom': 'auto',
-    'width': elementToCollpse.outerWidth(),
-    'height': elementToCollpse.outerHeight(),
+    'width': elementToCollapse.outerWidth(),
+    'height': elementToCollapse.outerHeight(),
   });
 
   _this.$container.find('.agenda-list-container').css({
@@ -979,20 +979,20 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
     'z-index': '1'
   });
      
-  elementToCollpse.animate(
+  elementToCollapse.animate(
     {
-      'left': elementToCollpsePlaceholderLeft,
-      'top': elementToCollpsePlaceholderTop,
-      'height': elementToCollpsePlaceholderHeight,
-      'width': elementToCollpsePlaceholderWidth
+      'left': elementToCollapsePlaceholderLeft,
+      'top': elementToCollapsePlaceholderTop,
+      'height': elementToCollapsePlaceholderHeight,
+      'width': elementToCollapsePlaceholderWidth
     },
     200, // animation timing in millisecs
     'linear',  //animation easing
     function() {
       // Removes class 'open'
-      elementToCollpseParent.removeClass('open');
+      elementToCollapseParent.removeClass('open');
 
-      elementToCollpse.css({
+      elementToCollapse.css({
         'position': 'relative',
         'top': 'auto',
         'left': 'auto',
@@ -1002,8 +1002,8 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
 
       // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
       // Only happens when the closing animation finishes
-      if (elementToCollpse.parents('.panel-group').length) {
-        elementToCollpse.parents('.panel-group').removeClass('remove-transform');
+      if (elementToCollapse.parents('.panel-group').length) {
+        elementToCollapse.parents('.panel-group').removeClass('remove-transform');
       }
     }
   );

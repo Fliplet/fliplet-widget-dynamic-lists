@@ -823,8 +823,8 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     // Only happens when the closing animation finishes
-    if (elementToCollpse.parents('.panel-group').not('.filters-overlay').length) {
-      elementToCollpse.parents('.panel-group').not('.filters-overlay').removeClass('remove-transform');
+    if (elementToCollapse.parents('.panel-group').not('.filters-overlay').length) {
+      elementToCollapse.parents('.panel-group').not('.filters-overlay').removeClass('remove-transform');
     }
   });
 
