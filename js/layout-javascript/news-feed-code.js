@@ -39,7 +39,6 @@ var DynamicList = function(id, data, container) {
   this.comments = [];
   this.allUsers;
   this.usersToMention = [];
-  this.myProfileData;
   this.myUserData;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
@@ -820,6 +819,8 @@ DynamicList.prototype.renderBaseHTML = function() {
   var _this = this;
   var baseHTML = '';
 
+  var data = _this.getAddPermission(_this.data);
+
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['base']];
   }
@@ -828,7 +829,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
   : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
+  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
 DynamicList.prototype.renderLoopHTML = function(records) {
@@ -837,18 +838,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
 
-  // Adds flag for Add, Edit and Delete buttons
-  modifiedData.forEach(function(obj, index) {
-    if (typeof _this.data.addEntry !== 'undefined') {
-      modifiedData[index].addEntry = _this.data.addEntry;
-    }
-    if (typeof _this.data.editEntry !== 'undefined') {
-      modifiedData[index].editEntry = _this.data.editEntry;
-    }
-    if (typeof _this.data.deleteEntry !== 'undefined') {
-      modifiedData[index].deleteEntry = _this.data.deleteEntry;
-    }
-  });
+  modifiedData = _this.getPermissions(modifiedData);
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
@@ -856,6 +846,58 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(modifiedData));
   _this.addFilters(modifiedData);
+}
+
+DynamicList.prototype.getAddPermission = function(data) {
+  var _this = this;
+
+  if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
+    if (_this.data.editPermissions === 'admins') {
+      if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+        data.showAddEntry = data.addEntry;
+      }
+    } else if (_this.data.addPermissions === 'everyone') {
+      data.showAddEntry = data.addEntry;
+    }
+  }
+
+  return data;
+}
+
+DynamicList.prototype.getPermissions = function(entries) {
+  var _this = this;
+
+  // Adds flag for Edit and Delete buttons
+  entries.forEach(function(obj, index) {
+    if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
+      if (_this.data.editPermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.data.editPermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.data.addPermissions === 'everyone') {
+        entries[index].editEntry = _this.data.editEntry;
+      }
+    }
+    if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
+      if (_this.data.deletePermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.data.deletePermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.data.deletePermissions === 'everyone') {
+        entries[index].deleteEntry = _this.data.deleteEntry;
+      }
+    }
+  });
+
+  return entries;
 }
 
 DynamicList.prototype.addFilters = function(data) {

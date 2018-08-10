@@ -198,11 +198,17 @@ var DynamicLists = (function() {
           $(this).parents('.panel').remove();
           _this.checkFilterPanelLength();
         })
-        .on('show.bs.collapse', '.panel-collapse, .permissions-collapse, .social-collapse', function() {
+        .on('show.bs.collapse', '.panel-collapse', function() {
           $(this).siblings('.panel-heading').find('.fa-chevron-right').removeClass('fa-chevron-right').addClass('fa-chevron-down');
         })
-        .on('hide.bs.collapse', '.panel-collapse, .permissions-collapse, .social-collapse', function() {
+        .on('hide.bs.collapse', '.panel-collapse', function() {
           $(this).siblings('.panel-heading').find('.fa-chevron-down').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        })
+        .on('show.bs.collapse', '.permissions-collapse, .social-collapse', function() {
+          $(this).siblings('.panel-heading').find('.fa-chevron-down').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        })
+        .on('hide.bs.collapse', '.permissions-collapse, .social-collapse', function() {
+          $(this).siblings('.panel-heading').find('.fa-chevron-up').removeClass('fa-chevron-up').addClass('fa-chevron-down');
         })
         .on('change', '.advanced-tab input[type="checkbox"]', function() {
           var $input = $(this);
@@ -298,9 +304,7 @@ var DynamicLists = (function() {
           $('.select-user-admin-holder')[
             addRadioValues.indexOf('admins') !== -1 ||
             editRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('user') !== -1 ||
-            deleteRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
+            deleteRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             addRadioValues.indexOf('admins') !== -1 ||
             editRadioValues.indexOf('admins') !== -1 ||
@@ -315,11 +319,11 @@ var DynamicLists = (function() {
             editRadioValues.push($(this).val());
           });
 
+          $('.select-user-email-list-holder')[editRadioValues.indexOf('user') ? 'removeClass' : 'addClass']('hidden');
+
           $('.select-user-admin-holder')[
             editRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('user') !== -1 ||
             deleteRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('user') !== -1 ||
             addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             editRadioValues.indexOf('admins') !== -1 ||
@@ -335,11 +339,11 @@ var DynamicLists = (function() {
             deleteRadioValues.push($(this).val());
           });
 
+          $('.select-user-email-list-holder')[deleteRadioValues.indexOf('user') ? 'removeClass' : 'addClass']('hidden');
+
           $('.select-user-admin-holder')[
             editRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('user') !== -1 ||
             deleteRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('user') !== -1 ||
             addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             editRadioValues.indexOf('admins') !== -1 ||
@@ -497,6 +501,13 @@ var DynamicLists = (function() {
             $('#edit_entry').prop('checked', _this.config.editEntry).trigger('change');
             $('#delete_entry').prop('checked', _this.config.deleteEntry).trigger('change');
 
+            var addPermission = _this.config.addPermissions || 'everyone';
+            var editPermission = _this.config.editPermissions || 'everyone';
+            var deletePermission = _this.config.deletePermissions || 'everyone';
+            $('[name="add-permissions"][value="' + addPermission + '"]').prop('checked', true).trigger('change');
+            $('[name="edit-permissions"][value="' + editPermission + '"]').prop('checked', true).trigger('change');
+            $('[name="delete-permissions"][value="' + deletePermission + '"]').prop('checked', true).trigger('change');
+
             // Load code editor tabs
             switch(listLayout) {
               case 'small-card':
@@ -544,6 +555,7 @@ var DynamicLists = (function() {
               $('#select_user_email').val(_this.config.userEmailColumn ? _this.config.userEmailColumn : 'none');
               $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
               $('#select_user_admin').val(_this.config.userAdminColumn ? _this.config.userAdminColumn : 'none');
+              $('#select_user_email_data').val(_this.config.userListEmailColumn ? _this.config.userListEmailColumn : 'none');
               $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
 
               if (_this.config.social.comments) {
@@ -710,7 +722,6 @@ var DynamicLists = (function() {
       }
     },
     updateFieldsWithColumns: function(dataSourceColumns) {
-      var options;
       $('[data-field="field"]').each(function(index, obj) {
         var oldValue = $(obj).val();
         var options = [];
@@ -725,6 +736,21 @@ var DynamicLists = (function() {
           $(obj).val(oldValue);
         }
       });
+
+      var emailOldValue = $('#select_user_email_data').val();
+      var options = [];
+      $('#select_user_email_data').html('');
+      $('#select_user_email_data').append('<option value="none">-- Select a data field</option>');
+
+      dataSourceColumns.forEach(function(value, index) {
+        options.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+
+      $('#select_user_email_data').append(options.join(''));
+      if (emailOldValue && emailOldValue.length) {
+        $('#select_user_email_data').val(emailOldValue);
+      }
+
       _this.setUpTokenFields();
     },
     updateUserFieldsWithColumns: function(userDataSourceColumns) {
@@ -732,18 +758,21 @@ var DynamicLists = (function() {
       var lOptions = [];
       var eOptions = [];
       var pOptions = [];
+      var aOptions = [];
 
       // Get old values
       var oldFirstNameValue = $('.select-user-firstname-holder select').val();
       var oldLastNameValue = $('.select-user-lastname-holder select').val();
       var oldEmailValue = $('.select-user-email-holder select').val();
       var oldPhotoValue = $('.select-user-photo-holder select').val();
+      var oldAdminValue = $('.select-user-admin-holder select').val();
 
       // Reset
       $('.select-user-firstname-holder select').html('');
       $('.select-user-lastname-holder select').html('');
       $('.select-user-email-holder select').html('');
       $('.select-user-photo-holder select').html('');
+      $('.select-user-admin-holder select').html('');
 
       // Append options
       // First Name
@@ -786,10 +815,10 @@ var DynamicLists = (function() {
       $('.select-user-admin-holder select').append('<option value="none">-- Select the admin field</option>');
       $('.select-user-admin-holder select').append('<option disabled>------</option>');
       userDataSourceColumns.forEach(function(value, index) {
-        pOptions.push('<option value="'+ value +'">'+ value +'</option>');
+        aOptions.push('<option value="'+ value +'">'+ value +'</option>');
       });
-      $('.select-user-admin-holder select').append(pOptions.join(''));
-      $('.select-user-admin-holder select').val(oldPhotoValue);
+      $('.select-user-admin-holder select').append(aOptions.join(''));
+      $('.select-user-admin-holder select').val(oldAdminValue);
 
       // Show select fields
       $('.select-user-firstname-holder').removeClass('hidden');
@@ -800,7 +829,7 @@ var DynamicLists = (function() {
         $('.select-user-photo-holder').removeClass('hidden');
       }
       
-      if (_this.config.addEntryAdmin || _this.config.editEntryAdmin || _this.config.deteleEntryAdmin) {
+      if (_this.config.addPermissions === 'admins' || _this.config.editPermissions === 'admins' || _this.config.detelePermissions === 'admins') {
         $('.select-user-admin-holder').removeClass('hidden');
       }
 
@@ -1601,14 +1630,13 @@ var DynamicLists = (function() {
 
       data.social = _this.config.social;
 
-      if (_this.config.social.comments) {
-        data.userDataSourceId = newUserDataSource ? newUserDataSource.id : $newUserDataSource.val();
-        data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
-        $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
-        data.userEmailColumn = $('#select_user_email').val();
-        data.userPhotoColumn = $('#select_user_photo').val();
-        data.userAdminColumn = $('#select_user_admin').val();
-      }
+      data.userDataSourceId = newUserDataSource ? newUserDataSource.id : $newUserDataSource.val();
+      data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
+      $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
+      data.userEmailColumn = $('#select_user_email').val();
+      data.userPhotoColumn = $('#select_user_photo').val();
+      data.userAdminColumn = $('#select_user_admin').val();
+      data.userListEmailColumn = $('#select_user_email_data').val();
 
       if (_this.config.social.likes && (!_this.config.likesDataSourceId || _this.config.likesDataSourceId === '')) {
         // Create likes data source
@@ -1652,29 +1680,10 @@ var DynamicLists = (function() {
       data.addEntry = profileValues.indexOf('add-entry') !== -1
       data.editEntry = profileValues.indexOf('edit-entry') !== -1
       data.deleteEntry = profileValues.indexOf('delete-entry') !== -1
-
-      var addEntryValues = [];
-      $('[name="add-permissions"]:checked').each(function(){
-        addEntryValues.push($(this).val());
-      });
-      data.addEntryEveryone = addEntryValues.indexOf('everyone') !== -1
-      data.addEntryAdmin = addEntryValues.indexOf('admin') !== -1
-
-      var editEntryValues = [];
-      $('[name="add-permissions"]:checked').each(function(){
-        editEntryValues.push($(this).val());
-      });
-      data.editEntryEveryone = editEntryValues.indexOf('everyone') !== -1
-      data.editEntryUser = editEntryValues.indexOf('user') !== -1
-      data.editEntryAdmin = editEntryValues.indexOf('admin') !== -1
-
-      var deleteEntryValues = [];
-      $('[name="add-permissions"]:checked').each(function(){
-        deleteEntryValues.push($(this).val());
-      });
-      data.deleteEntryEveryone = deleteEntryValues.indexOf('everyone') !== -1
-      data.deleteEntryUser = deleteEntryValues.indexOf('user') !== -1
-      data.deleteEntryAdmin = deleteEntryValues.indexOf('admin') !== -1
+      
+      data.addPermissions = $('[name="add-permissions"]:checked').val();      
+      data.editPermissions = $('[name="edit-permissions"]:checked').val();
+      data.deletePermissions = $('[name="delete-permissions"]:checked').val();
 
       if (toReload) {
         return Promise.all([likesPromise, bookmarksPromise, commentsPromise])

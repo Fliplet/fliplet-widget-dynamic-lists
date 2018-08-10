@@ -185,18 +185,18 @@
                 <div class="panel-body">
                   <div class="form-group clearfix">
                     <div class="col-sm-4 control-label">
-                      <label>Allow users to add, edit and delete entries</label>
+                      <label>Allow users to add, edit and delete list items</label>
                     </div>
                     <div class="col-sm-8">
                       <div class="checkbox checkbox-icon add-entry-checkbox">
                         <input type="checkbox" id="add_entry" name="list-control" value="add-entry">
                         <label for="add_entry">
-                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Add entries</span>
+                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Add list items</span>
                         </label>
                         <div class="hidden-settings">
                           <div class="form-group row clearfix">
                             <div class="col-sm-4 control-label">
-                              <label class="form-title">Who can add entries?</label>
+                              <label class="form-title">Who can add list items?</label>
                             </div>
                             <div class="col-sm-8">
                               <div class="radio radio-icon">
@@ -213,19 +213,19 @@
                               </div>
                             </div>
                           </div>
-                          <p>Select the screen where users can add new entries.</p>
+                          <p>Select the screen where users can add new list items.</p>
                           <div id="add-entry-link"></div>
                         </div>
                       </div>
                       <div class="checkbox checkbox-icon edit-entry-checkbox">
                         <input type="checkbox" id="edit_entry" name="list-control" value="edit-entry">
                         <label for="edit_entry">
-                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Edit entries</span>
+                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Edit list items</span>
                         </label>
                         <div class="hidden-settings">
                           <div class="form-group row clearfix">
                             <div class="col-sm-4 control-label">
-                              <label class="form-title">Who can edit entries?</label>
+                              <label class="form-title">Who can edit list items?</label>
                             </div>
                             <div class="col-sm-8">
                               <div class="radio radio-icon">
@@ -248,19 +248,19 @@
                               </div>
                             </div>
                           </div>
-                          <p>Select the screen where users can edit existing entries.</p>
+                          <p>Select the screen where users can edit existing list items.</p>
                           <div id="edit-entry-link"></div>
                         </div>
                       </div>
                       <div class="checkbox checkbox-icon delete-entry-checkbox">
                         <input type="checkbox" id="delete_entry" name="list-control" value="delete-entry">
                         <label for="delete_entry">
-                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Delete entries</span>
+                          <span class="check"><i class="fa fa-check"></i></span> <span class="option-title">Delete list items</span>
                         </label>
                         <div class="hidden-settings">
                           <div class="form-group row clearfix">
                             <div class="col-sm-4 control-label">
-                              <label class="form-title">Who can edit entries?</label>
+                              <label class="form-title">Who can edit list items?</label>
                             </div>
                             <div class="col-sm-8">
                               <div class="radio radio-icon">
@@ -291,6 +291,15 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="col-xs-12 form-group clearfix select-user-email-list-holder hidden">
+          <label>List item user's email data field <small>(Required)</small></label>
+          <p><small>Select the data field where the email of the user that posted a list item is stored.</small></p>
+          <select name="select_user_email_data" id="select_user_email_data" class="form-control">
+            <option value="none">-- Select the email data field</option>
+            <option disabled>------</option>
+          </select>
         </div>
 
         <div class="user-datasource-options hidden">
@@ -324,7 +333,7 @@
               </select>
             </div>
             <div class="col-xs-12 select-user-admin-holder hidden">
-              <label>Field to identify Admins <small>(Optional)</small></label>
+              <label>Field to identify Admins <small>(Required)</small></label>
               <select name="select_user_admin" id="select_user_admin" class="form-control">
                 <option value="none">-- Select the admin field</option>
                 <option disabled>------</option>

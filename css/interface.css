@@ -327,6 +327,7 @@ header .btn,
 }
 
 .panel-heading .fa-chevron-down,
+.panel-heading .fa-chevron-up,
 .panel-heading .fa-chevron-right {
   margin-right: 10px;
 }
