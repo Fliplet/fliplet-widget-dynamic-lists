@@ -92,6 +92,14 @@ DynamicList.prototype.attachObservers = function() {
   var _this = this;
   // Attach your event listeners here
   _this.$container
+    .on('click', '.small-h-card-list-detail-button a', function() {
+      var _that = $(this);
+       Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'profile_buttons',
+        label: _that.find('.small-h-card-list-detail-button-text').text()
+      });
+    })
     .on('touchstart', '.small-h-card-list-item', function(event) {
       event.stopPropagation();
       $(this).addClass('hover');

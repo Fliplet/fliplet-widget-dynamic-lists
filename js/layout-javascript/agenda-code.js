@@ -96,6 +96,12 @@ DynamicList.prototype.attachObservers = function() {
     .on('touchend touchcancel', '.agenda-list-controls', function() {
       $(this).removeClass('hover');
     })
+    .on('click', '.agenda-list-controls', function(event) {
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'bookmarks_show'
+      });
+    })
     .on('touchstart', '.agenda-list-item', function(event) {
       event.stopPropagation();
       $(this).addClass('hover');
@@ -168,6 +174,12 @@ DynamicList.prototype.attachObservers = function() {
       var indexOfClickedDate = $('.agenda-date-selector li').not('.placeholder').index(this);
       var indexDifference = indexOfClickedDate - indexOfActiveDate
 
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter_date',
+        label: $(this).find('.week').text() + ' ' + $(this).find('.day').text() + ' ' + $(this).find('.month').text()
+      });
+
       if (indexDifference < indexOfActiveDate) {
         _this.moveBackDate(indexOfClickedDate, indexDifference);
         return;
@@ -177,12 +189,6 @@ DynamicList.prototype.attachObservers = function() {
         _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
       }
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter_date',
-        label: $(this).find('.week').text() + ' ' + $(this).find('.day').text() + ' ' + $(this).find('.month').text()
-      });
     })
     .on('click', '.dynamic-list-add-item', function() {
       var options = {
@@ -815,11 +821,6 @@ DynamicList.prototype.initializeMixer = function() {
         },
         onMixStart: function(state, originalEvent) {
           $(state.container).addClass('mixing');
-
-          Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'bookmarks_show'
-          });
         }
       }
     });
