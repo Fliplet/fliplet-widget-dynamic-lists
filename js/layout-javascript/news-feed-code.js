@@ -1269,8 +1269,8 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
       name: Fliplet.Env.get('pageTitle') + '/' + title,
       likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
       likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-      likeWrapper: '<div class="news-feed-like-wrapper btn-bookmark"></div>',
-      likedWrapper: '<div class="news-feed-like-wrapper btn-bookmarked"></div>',
+      likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
+      likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
       addType: 'html'
     }),
     id: id
@@ -1291,8 +1291,8 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
       name: Fliplet.Env.get('pageTitle') + '/' + title,
       likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
       likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-      likeWrapper: '<div class="news-feed-bookmark-wrapper btn-like"></div>',
-      likedWrapper: '<div class="news-feed-bookmark-wrapper btn-liked"></div>',
+      likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
+      likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
       addType: 'html'
     }),
     id: id
