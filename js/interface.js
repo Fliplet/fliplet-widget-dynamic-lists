@@ -319,7 +319,8 @@ var DynamicLists = (function() {
             editRadioValues.push($(this).val());
           });
 
-          $('.select-user-email-list-holder')[editRadioValues.indexOf('user') ? 'removeClass' : 'addClass']('hidden');
+          $('.select-user-email-list-holder')[editRadioValues.indexOf('user') !== -1 ||
+            deleteRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
             editRadioValues.indexOf('admins') !== -1 ||
@@ -339,7 +340,8 @@ var DynamicLists = (function() {
             deleteRadioValues.push($(this).val());
           });
 
-          $('.select-user-email-list-holder')[deleteRadioValues.indexOf('user') ? 'removeClass' : 'addClass']('hidden');
+          $('.select-user-email-list-holder')[deleteRadioValues.indexOf('user') !== -1 ||
+            editRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
             editRadioValues.indexOf('admins') !== -1 ||
