@@ -102,7 +102,7 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'profile_buttons',
-        label: _that.find('.small-card-list-detail-button-text').text();
+        label: _that.find('.small-card-list-detail-button-text').text()
       });
     })
     .on('touchstart', '.small-card-list-item', function(event) {
