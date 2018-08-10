@@ -726,7 +726,7 @@ DynamicList.prototype.initializeMixer = function() {
           }
           $(state.container).removeClass('mixing');
         },
-        onMixClick: function(state, originalEvent) {
+        onMixStart: function(state, originalEvent) {
           $(state.container).addClass('mixing');
 
           Fliplet.Analytics.trackEvent({
