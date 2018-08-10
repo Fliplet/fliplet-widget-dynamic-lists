@@ -1223,7 +1223,7 @@ DynamicList.prototype.initializeMixer = function() {
       "effects": "fade scale(0.45) translateZ(-100px)"
     },
     callbacks: {
-      onMixClick: function(state, originalEvent) {
+      onMixStart: function(state, originalEvent) {
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'filter',
