@@ -6,6 +6,7 @@ var addEntryLinkAction;
 var editEntryLinkAction;
 var linkAddEntryProvider;
 var linkEditEntryProvider;
+var withError = false;
 
 var addEntryLinkData = $.extend(true, {
   action: 'screen',
@@ -58,7 +59,9 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
-    save(true);
+    if (!withError) {
+      save(true);
+    }
   });
 }
 
@@ -68,13 +71,170 @@ function initialize() {
   dynamicLists = new DynamicLists(widgetData);
 }
 
+function validate(value) {
+  if (value && value !== '' && value !== 'none') {
+    return true;
+  }
+
+  return false;
+}
+
 function attahObservers() {
   $('form').submit(function (event) {
-  event.preventDefault();
-    Promise.all([
-      linkAddEntryProvider.forwardSaveRequest(),
-      linkEditEntryProvider.forwardSaveRequest()
-    ]);
+    event.preventDefault();
+    dynamicLists.saveLists()
+      .then(function() {
+        widgetData = dynamicLists.config;
+
+        // Validation for required fields
+        if (widgetData.addEntry && widgetData.addPermissions === 'admins') {
+          var errors = [];
+          var values = [];
+          values.push(widgetData.userDataSourceId);
+          values.push(widgetData.userEmailColumn);
+          values.push(widgetData.userAdminColumn);
+          
+          values.forEach(function(value) {
+            errors.push(validate(value));
+          });
+
+          if (errors.indexOf(false) > -1) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          }
+          $('.component-error').addClass('hidden');
+        }
+        if (widgetData.editEntry && widgetData.editPermissions === 'admins') {
+          var errors = [];
+          var values = [];
+          values.push(widgetData.userDataSourceId);
+          values.push(widgetData.userEmailColumn);
+          values.push(widgetData.userAdminColumn);
+          
+          values.forEach(function(value) {
+            errors.push(validate(value));
+          });
+
+          if (errors.indexOf(false) > -1) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          }
+          $('.component-error').addClass('hidden');
+        } else if (widgetData.editEntry && widgetData.editPermissions === 'user') {
+          var errors = [];
+          var values = [];
+          values.push(widgetData.userDataSourceId);
+          values.push(widgetData.userEmailColumn);
+          values.push(widgetData.userListEmailColumn);
+          
+          values.forEach(function(value) {
+            errors.push(validate(value));
+          });
+
+          if (errors.indexOf(false) > -1) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          }
+          $('.component-error').addClass('hidden');
+        }
+        if (widgetData.deleteEntry && widgetData.deletePermissions === 'admins') {
+          var errors = [];
+          var values = [];
+          values.push(widgetData.userDataSourceId);
+          values.push(widgetData.userEmailColumn);
+          values.push(widgetData.userAdminColumn);
+          
+          values.forEach(function(value) {
+            errors.push(validate(value));
+          });
+
+          if (errors.indexOf(false) > -1) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          }
+          $('.component-error').addClass('hidden');
+        } else if (widgetData.deleteEntry && widgetData.deletePermissions === 'user') {
+          var errors = [];
+          var values = [];
+          values.push(widgetData.userDataSourceId);
+          values.push(widgetData.userEmailColumn);
+          values.push(widgetData.userListEmailColumn);
+          
+          values.forEach(function(value) {
+            errors.push(validate(value));
+          });
+
+          if (errors.indexOf(false) > -1) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          }
+          $('.component-error').addClass('hidden');
+        }
+        if (widgetData.social && widgetData.social.comments) {
+          var errors = [];
+          var values = [];
+          values.push(widgetData.userDataSourceId);
+          values.push(widgetData.userEmailColumn);
+          
+          errors.push(widgetData.userNameFields && widgetData.userNameFields.length ? true : false);
+          values.forEach(function(value) {
+            errors.push(validate(value));
+          });
+
+          if (errors.indexOf(false) > -1) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          }
+          $('.component-error').addClass('hidden');
+        }
+
+        return Promise.all([
+          linkAddEntryProvider.forwardSaveRequest(),
+          linkEditEntryProvider.forwardSaveRequest()
+        ]);
+      });
   });
 
   Fliplet.Widget.onSaveRequest(function () {
@@ -83,20 +243,17 @@ function attahObservers() {
 }
 
 function save(notifyComplete) {
-  dynamicLists.saveLists()
-    .then(function() {
-      widgetData = dynamicLists.config;
-      widgetData.addEntryLinkAction = addEntryLinkAction;
-      widgetData.editEntryLinkAction = editEntryLinkAction;
-      Fliplet.Widget.save(widgetData).then(function () {
-        if (notifyComplete) {
-          Fliplet.Widget.complete();
-          window.location.reload();
-        } else {
-          Fliplet.Studio.emit('reload-widget-instance', widgetId);
-        }
-      });
-    });
+  widgetData.addEntryLinkAction = addEntryLinkAction;
+  widgetData.editEntryLinkAction = editEntryLinkAction;
+
+  Fliplet.Widget.save(widgetData).then(function () {
+    if (notifyComplete) {
+      Fliplet.Widget.complete();
+      window.location.reload();
+    } else {
+      Fliplet.Studio.emit('reload-widget-instance', widgetId);
+    }
+  });
 }
 
 initialize();
