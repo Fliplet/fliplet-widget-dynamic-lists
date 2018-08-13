@@ -476,7 +476,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
 }
 
-DynamicList.prototype.renderLoopHTML = function(records, refresh) {
+DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
   var loopHTML = '';
@@ -486,12 +486,8 @@ DynamicList.prototype.renderLoopHTML = function(records, refresh) {
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['loop']]());
 
-  if (!refresh) {
-    _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(modifiedData));
-    _this.addFilters(modifiedData);
-  } else {
-    _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(records));
-  }
+  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(modifiedData));
+  _this.addFilters(modifiedData);
 }
 
 DynamicList.prototype.addFilters = function(data) {

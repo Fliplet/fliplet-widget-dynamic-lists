@@ -16,12 +16,12 @@
   left: 0;
   z-index: 11;
   background-color: transparent;
-  transform: translate3d(0, 100%, 0);
+  opacity: 0;
   transition: all 0.2s ease-out;
 }
 
 .simple-list-search-filter-overlay.display {
-  transform: translate3d(0, 0, 0);
+  opacity: 1;
 }
 
 .simple-list-search-filter-overlay .simple-list-overlay-screen {
@@ -196,6 +196,11 @@
 }
 
 /* SEARCH / FILTERS */
+.simple-list-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
 .simple-list-container .section-top-wrapper {
   width: 100%;
   padding: 0;
@@ -368,21 +373,23 @@
 
 /* LIST ITEMS */
 .simple-list-wrapper {
-  max-width: 600px;
-  margin: 0 auto;
   padding: 15px 0 0;
 }
 
 .simple-list-item {
   cursor: pointer;
   border-bottom: 1px solid rgba(51,51,51,0.2);
-  padding: 10px 44px 10px 86px;
+  padding: 10px 24px 10px 86px;
   position: relative;
   min-height: 91px;
   display: flex;
   justify-content: center;
   align-content: center;
   flex-direction: column;
+}
+
+.simple-list-item:last-child {
+  border-bottom: none;
 }
 
 .simple-list-item.no-image {
@@ -412,18 +419,17 @@
 }
 
 .simple-list-item .list-item-title {
-  font-size: 1.3em;
+  font-size: 18px;
 }
 
 .simple-list-item .list-item-description {
-  font-size: 1em;
-  color: #999999;
+  font-size: 16px;
+  opacity: 0.7;
 }
 
 .simple-list-item .list-item-subtitle {
-  font-size: 0.9em;
-  color: #999999;
-  opacity: 0.6;
+  font-size: 12px;
+  opacity: 0.4;
 }
 
 .list-item-description + .list-item-subtitle {
@@ -434,12 +440,12 @@
   position: absolute;
   top: 50%;
   right: 0;
-  width: 44px;
+  width: 24px;
   height: 44px;
   line-height: 44px;
   margin-top: -22px;
   font-size: 2em;
-  text-align: center;
+  text-align: right;
 }
 
 .loading-holder {
@@ -462,41 +468,46 @@
   bottom: 0;
   z-index: 11;
   pointer-events: all;
-  -webkit-transform: translate3d(100%,0,0);
-  transform: translate3d(100%,0,0);
+  visibility: hidden;
+  opacity: 0;
   transition: all 0.2s ease-out;
+  /*-webkit-transform: translate3d(0, 100%, 0);
+  transform: translate3d(0, 100%, 0);*/
 }
 
 .simple-list-detail-overlay.open {
-  -webkit-transform: translate3d(0,0,0);
-  transform: translate3d(0,0,0);
+  visibility: visible;
+  opacity: 1;
+  /*-webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);*/
 }
 
-.simple-list-container .simple-list-detail-overlay-screen {
+.simple-list-detail-overlay .simple-list-detail-overlay-screen {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 11;
   background-color: rgba(0,0,0,0.8);
-  opacity: 0;
   pointer-events: none;
-  transition: all 0.2s ease-out;
 }
 
-.simple-list-container.overlay-open .simple-list-detail-overlay-screen {
-  opacity: 1;
+.simple-list-detail-overlay .simple-list-detail-overlay-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .simple-list-detail-overlay .simple-list-detail-overlay-panel {
   position: absolute;
-  top: 15px;
-  left: 15px;
-  right: 15px;
-  bottom: 15px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ffffff;
-  border-radius: 10px;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -539,10 +550,52 @@
   margin-bottom: 25px;
 }
 
+.simple-list-detail-overlay-close.tablet {
+  display: none;
+}
+
 @media screen and (min-width: 640px) {
+  .simple-list-detail-overlay .simple-list-detail-overlay-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    padding: 40px 0;
+  }
+
   .simple-list-detail-overlay .simple-list-detail-overlay-panel {
+    position: relative;
     max-width: 600px;
-    max-height: 700px;
     margin: auto auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+  }
+
+  .simple-list-detail-overlay-panel .simple-list-detail-overlay-content {
+    padding: 40px;
+  }
+
+  .simple-list-detail-overlay-close.tablet {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    color: #fff;
+    width: 68px;
+    height: 68px;
+    padding: 15px;
+    font-size: 1.2em;
+    line-height: 36px;
+    text-align: center;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  .simple-list-detail-overlay-panel .simple-list-detail-overlay-heading {
+    display: none;
   }
 }
