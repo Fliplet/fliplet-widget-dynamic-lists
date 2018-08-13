@@ -178,7 +178,7 @@
   top: 0;
   left: 0;
   height: 0;
-  width: 100vw;
+  width: 100%;
   z-index: 12;
   overflow: auto;
   transition: all 0.2s ease-out;

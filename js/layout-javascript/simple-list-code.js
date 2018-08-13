@@ -37,12 +37,22 @@ var DynamicList = function(id, data, container) {
 
   this.listItems;
   this.entryOverlay;
+  this.myUserData;
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
-
-   // Start running the Public functions
-  this.initialize();
+  // Get the current session data
+  Fliplet.Session.get().then(function(session) {
+    if (session && session.entries && session.entries.dataSource) {
+      _this.myUserData = session.entries.dataSource.data;
+    } else if (session && session.entries && session.entries.saml2) {
+      _this.myUserData = session.entries.saml2.user;
+      _this.myUserData.isSaml2 = true;
+    }
+    
+    // Start running the Public functions
+    _this.initialize();
+  });
 };
 
 DynamicList.prototype.registerHandlebarsHelpers = function() {
@@ -253,6 +263,7 @@ DynamicList.prototype.attachObservers = function() {
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
+
   // Render Base HTML template
   _this.renderBaseHTML();
 
@@ -465,6 +476,8 @@ DynamicList.prototype.renderBaseHTML = function() {
   var _this = this;
   var baseHTML = '';
 
+  var data = _this.getAddPermission(_this.data);
+
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['base']];
   }
@@ -473,7 +486,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
   : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
+  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
 DynamicList.prototype.renderLoopHTML = function(records) {
@@ -488,6 +501,58 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(modifiedData));
   _this.addFilters(modifiedData);
+}
+
+DynamicList.prototype.getAddPermission = function(data) {
+  var _this = this;
+
+  if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
+    if (_this.myUserData && _this.data.addPermissions === 'admins') {
+      if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+        data.showAddEntry = data.addEntry;
+      }
+    } else if (_this.data.addPermissions === 'everyone') {
+      data.showAddEntry = data.addEntry;
+    }
+  }
+
+  return data;
+}
+
+DynamicList.prototype.getPermissions = function(entries) {
+  var _this = this;
+
+  // Adds flag for Edit and Delete buttons
+  entries.forEach(function(obj, index) {
+    if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.editPermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.myUserData && _this.data.editPermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.data.addPermissions === 'everyone') {
+        entries[index].editEntry = _this.data.editEntry;
+      }
+    }
+    if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.deletePermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.myUserData && _this.data.deletePermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.data.deletePermissions === 'everyone') {
+        entries[index].deleteEntry = _this.data.deleteEntry;
+      }
+    }
+  });
+
+  return entries;
 }
 
 DynamicList.prototype.addFilters = function(data) {
@@ -724,7 +789,9 @@ DynamicList.prototype.showDetails = function(id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
 
-  var entryData = _.find(_this.listItems, function(entry) {
+  var modifiedData = _this.getPermissions(_this.listItems);
+
+  var entryData = _.find(modifiedData, function(entry) {
     return entry.id === id;
   });
 
@@ -755,6 +822,8 @@ DynamicList.prototype.showDetails = function(id) {
     }
   });
 
+  entryData.orderedData = orderedData;
+
   // Process template with data
   var entryId = {
     id: id
@@ -771,7 +840,7 @@ DynamicList.prototype.showDetails = function(id) {
 
   // Adds content to overlay
   $overlay.find('.simple-list-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  $overlay.find('.simple-list-detail-wrapper').append(template(orderedData));
+  $overlay.find('.simple-list-detail-wrapper').append(template(entryData));
 
   // Trigger animations
   $('body').addClass('lock');

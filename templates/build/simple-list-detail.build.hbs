@@ -1,4 +1,4 @@
-\{{#each this}}
+\{{#each orderedData}}
   \{{#if this}}
     \{{#ifCond this '||' ''}}
     <div class="simple-list-detail-label">\{{@key}}</div>
@@ -6,3 +6,13 @@
     \{{/ifCond}}
   \{{/if}}
 \{{/each}}
+\{{#ifCond editEntry '||' deleteEntry}}
+<div class="dynamic-list-controls">
+  \{{#if editEntry}}
+  <div class="btn btn-default dynamic-list-edit-item">Edit</div>
+  \{{/if}}
+  \{{#if deleteEntry}}
+  <div class="btn btn-danger dynamic-list-delete-item">Delete</div>
+  \{{/if}}
+</div>
+\{{/ifCond}}

@@ -33,9 +33,9 @@
   bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls {
-  right: auto;
-  left: 15px;
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls {
+  bottom: 15px;
+  bottom: calc(15px + env(safe-area-inset-bottom));
 }
 
 .no-touchevents .new-agenda-list-container .agenda-list-controls:active,

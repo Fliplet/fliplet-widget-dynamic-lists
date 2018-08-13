@@ -460,6 +460,14 @@
 }
 
 /** OVERLAY **/
+.dynamic-list-controls {
+  display: none;
+}
+
+.simple-list-detail-overlay.open .dynamic-list-controls {
+  display: block;
+}
+
 .simple-list-detail-overlay {
   position: fixed;
   top: 0;

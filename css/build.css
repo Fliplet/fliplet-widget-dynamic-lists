@@ -35,7 +35,13 @@
   bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-.new-agenda-list-container.has-agenda-toggle + .dynamic-list-add-item {
+.fl-with-bottom-menu.fl-menu-circle-left .dynamic-list-add-item {
+  bottom: 15px;
+  bottom: calc(15px + env(safe-area-inset-bottom));
+}
+
+.new-agenda-list-container.has-agenda-toggle + .dynamic-list-add-item,
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container.has-agenda-toggle + .dynamic-list-add-item {
   bottom: 100px;
   bottom: calc(100px + env(safe-area-inset-bottom));
 }

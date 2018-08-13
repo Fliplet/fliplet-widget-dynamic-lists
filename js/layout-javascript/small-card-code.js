@@ -51,8 +51,6 @@ var DynamicList = function(id, data, container) {
     } else if (session && session.entries && session.entries.saml2) {
       _this.myUserData = session.entries.saml2.user;
       _this.myUserData.isSaml2 = true;
-    } else {
-      _this.myUserData = session.user;
     }
     
     // Start running the Public functions
@@ -434,6 +432,7 @@ DynamicList.prototype.initialize = function() {
       }
 
       // Make rows available Globally
+      records = _this.getPermissions(records);
       _this.listItems = records;
 
       // Get user profile
@@ -532,6 +531,8 @@ DynamicList.prototype.renderBaseHTML = function() {
   var _this = this;
   var baseHTML = '';
 
+  var data = _this.getAddPermission(_this.data);
+
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['base']];
   }
@@ -540,7 +541,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
   : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
+  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
 DynamicList.prototype.renderLoopHTML = function(records) {
@@ -550,16 +551,6 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var modifiedData = _this.convertCategories(records);
 
   modifiedData.forEach(function(obj, index) {
-    if (typeof _this.data.addEntry !== 'undefined') {
-      modifiedData[index].addEntry = _this.data.addEntry;
-    }
-    if (typeof _this.data.editEntry !== 'undefined') {
-      modifiedData[index].editEntry = _this.data.editEntry;
-    }
-    if (typeof _this.data.deleteEntry !== 'undefined') {
-      modifiedData[index].deleteEntry = _this.data.deleteEntry;
-    }
-
     modifiedData[index].data.profileHTML = _this.profileHTML(modifiedData[index]);
   });
 
@@ -569,6 +560,58 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(modifiedData));
   _this.addFilters(modifiedData);
+}
+
+DynamicList.prototype.getAddPermission = function(data) {
+  var _this = this;
+
+  if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
+    if (_this.myUserData && _this.data.addPermissions === 'admins') {
+      if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+        data.showAddEntry = data.addEntry;
+      }
+    } else if (_this.data.addPermissions === 'everyone') {
+      data.showAddEntry = data.addEntry;
+    }
+  }
+
+  return data;
+}
+
+DynamicList.prototype.getPermissions = function(entries) {
+  var _this = this;
+
+  // Adds flag for Edit and Delete buttons
+  entries.forEach(function(obj, index) {
+    if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.editPermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.myUserData && _this.data.editPermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.data.addPermissions === 'everyone') {
+        entries[index].editEntry = _this.data.editEntry;
+      }
+    }
+    if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.deletePermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.myUserData && _this.data.deletePermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.data.deletePermissions === 'everyone') {
+        entries[index].deleteEntry = _this.data.deleteEntry;
+      }
+    }
+  });
+
+  return entries;
 }
 
 DynamicList.prototype.addFilters = function(data) {

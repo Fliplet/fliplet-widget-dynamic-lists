@@ -37,13 +37,24 @@ var DynamicList = function(id, data, container) {
   this.scrollValue = 0;
   this.copyOfScrollValue = _this.scrollValue;
   this.isPanning = false;
+  this.myUserData;
 
   this.listItems;
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
-  // Start running the Public functions
-  this.initialize();
+  // Get the current session data
+  Fliplet.Session.get().then(function(session) {
+    if (session && session.entries && session.entries.dataSource) {
+      _this.myUserData = session.entries.dataSource.data;
+    } else if (session && session.entries && session.entries.saml2) {
+      _this.myUserData = session.entries.saml2.user;
+      _this.myUserData.isSaml2 = true;
+    }
+    
+    // Start running the Public functions
+    _this.initialize();
+  });
 };
 
 DynamicList.prototype.registerHandlebarsHelpers = function() {
@@ -504,6 +515,8 @@ DynamicList.prototype.renderBaseHTML = function() {
   var _this = this;
   var baseHTML = '';
 
+  var data = _this.getAddPermission(_this.data);
+
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['base']];
   }
@@ -512,7 +525,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
   : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
+  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
 DynamicList.prototype.renderLoopHTML = function(rows) {
@@ -520,7 +533,7 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   var _this = this;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
 
-;
+  clonedRecords = _this.getPermissions(clonedRecords);
 
    // Converts date format
   clonedRecords.forEach(function(obj, index) {
@@ -531,19 +544,6 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   var newRecords = _.values(_.groupBy(clonedRecords, function(row) {
     return row.data['Date'];
   }));
-
-  // Adds flag for Add, Edit and Delete buttons
-  newRecords.forEach(function(obj, index) {
-    if (typeof _this.data.addEntry !== 'undefined') {
-      newRecords[index].addEntry = _this.data.addEntry;
-    }
-    if (typeof _this.data.editEntry !== 'undefined') {
-      newRecords[index].editEntry = _this.data.editEntry;
-    }
-    if (typeof _this.data.deleteEntry !== 'undefined') {
-      newRecords[index].deleteEntry = _this.data.deleteEntry;
-    }
-  });
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
@@ -617,6 +617,58 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   // Selects the first date
   $(_this.$container.find('.agenda-date-selector li').not('.placeholder')[index ? index : 0]).addClass('active');
   _this.centerDate();
+}
+
+DynamicList.prototype.getAddPermission = function(data) {
+  var _this = this;
+
+  if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
+    if (_this.myUserData && _this.data.addPermissions === 'admins') {
+      if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+        data.showAddEntry = data.addEntry;
+      }
+    } else if (_this.data.addPermissions === 'everyone') {
+      data.showAddEntry = data.addEntry;
+    }
+  }
+
+  return data;
+}
+
+DynamicList.prototype.getPermissions = function(entries) {
+  var _this = this;
+
+  // Adds flag for Edit and Delete buttons
+  entries.forEach(function(obj, index) {
+    if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.editPermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.myUserData && _this.data.editPermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.data.addPermissions === 'everyone') {
+        entries[index].editEntry = _this.data.editEntry;
+      }
+    }
+    if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.deletePermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.myUserData && _this.data.deletePermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.data.deletePermissions === 'everyone') {
+        entries[index].deleteEntry = _this.data.deleteEntry;
+      }
+    }
+  });
+
+  return entries;
 }
 
 DynamicList.prototype.setupCards = function() {
@@ -986,11 +1038,11 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   _this.$container.find('.new-agenda-list-container').css({
     'top': netOffset,
     'position': 'fixed',
-    'z-index': '11'
+    'z-index': '13'
   });
 
   _this.$container.find('.agenda-cards-wrapper').css({
-    'z-index': '11'
+    'z-index': '13'
   });
 
   // convert the expand-item to fixed position without moving it

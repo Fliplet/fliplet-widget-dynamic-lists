@@ -435,24 +435,28 @@ var DynamicLists = (function() {
         if (_this.config['style-specific'].length) {
           _.forEach(_this.config['style-specific'], function(item) {
             $('.' + item).removeClass('hidden');
+            if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
+              $('#social-accordion').removeClass('hidden');
+            }
           });
 
           // backwards compatible
           if (_this.config.layout === 'news-feed' && typeof _this.config.social.bookmark === 'undefined') {
             _this.config.social.bookmark = true;
             $('.list-bookmark').removeClass('hidden');
+            $('#social-accordion').removeClass('hidden');
           }
-
-          $('#social-accordion').removeClass('hidden');
         } else if (_this.config.layout === 'small-card') {
           // Because initial component didn't have this option
           // This makes it backwards compatible
           _this.config['style-specific'] = ['list-filter', 'list-search'];
           _.forEach(_this.config['style-specific'], function(item) {
             $('.' + item).removeClass('hidden');
-          });
 
-          $('#social-accordion').removeClass('hidden');
+            if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
+              $('#social-accordion').removeClass('hidden');
+            }
+          });
         }
 
         // Load data source
