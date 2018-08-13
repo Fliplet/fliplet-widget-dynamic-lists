@@ -459,6 +459,12 @@ var DynamicLists = (function() {
           });
         }
 
+        if (_this.config.layout === 'small-h-card') {
+          $('.add-entry-checkbox').addClass('hidden');
+          $('#add_entry').prop('checked', false).trigger('change');
+          _this.config.addEntry = false;
+        }
+
         // Load data source
         return _this.getDataSourceById(_this.config.dataSourceId)
           .then(function(datasource) {
