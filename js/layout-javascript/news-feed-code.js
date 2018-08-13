@@ -595,8 +595,6 @@ DynamicList.prototype.initialize = function() {
     } else if (session && session.entries && session.entries.saml2) {
       _this.myUserData = session.entries.saml2.user;
       _this.myUserData.isSaml2 = true;
-    } else {
-      _this.myUserData = session.user;
     }
 
     return;
@@ -1570,9 +1568,9 @@ DynamicList.prototype.showComments = function(id) {
       // Check if comment is from current user
       if (_this.myUserData && _this.myUserData.isSaml2) {
         var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
-        var toComparePart = myEmailParts[0];
+        var toComparePart = myEmailParts && myEmailParts.length ? myEmailParts[0] : '';
         var dataSourceEmailParts = dataSourceEmail.match(/[^\@]+[^\.]+/);
-        var toComparePart2 = dataSourceEmailParts[0];
+        var toComparePart2 = dataSourceEmailParts && dataSourceEmailParts.length ? dataSourceEmailParts[0] : '';
 
         if (toComparePart === toComparePart2) {
           entryComments.entries[index].currentUser = true;
@@ -1603,7 +1601,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
+  if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] || !_this.myUserData['email']))) {
     return Fliplet.Navigate.popup({
       title: 'Invalid login',
       message: 'You must be logged in to use this feature.'
