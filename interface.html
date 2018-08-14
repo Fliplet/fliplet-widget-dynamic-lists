@@ -376,7 +376,16 @@
             <label>Summary view fields</label>
           </div>
           <div class="col-sm-12">
-            Hello
+            <div class="rTable">
+              <div class="rTableRow row">
+                <div class="rTableHead enable">Enable/Disable</div>
+                <div class="rTableHead select">Field name</div>
+                <div class="rTableHead select">Field type</div>
+              </div>
+              <div class="table-panels-holder">
+                
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-group clearfix">
@@ -384,7 +393,27 @@
             <label>Detail view fields</label>
           </div>
           <div class="col-sm-12">
-            Hello
+            <div class="intro-form">
+              <p class="text-muted">Choose the action when a user taps on a list item</p>
+              <div class="radio radio-icon">
+                <input type="radio" id="detail-view" name="detail-view-action" value="false">
+                <label for="detail-view">
+                  <span class="check"><i class="fa fa-circle"></i></span> Show the detail view
+                </label>
+              </div>
+              <div class="radio radio-icon">
+                <input type="radio" id="detail-link" name="detail-view-action" value="true">
+                <label for="detail-link">
+                  <span class="check"><i class="fa fa-circle"></i></span> Open a link
+                </label>
+              </div>
+            </div>
+
+            <div class="panel-group" id="detail-view-accordion">
+              
+            </div>
+
+
           </div>
         </div>
       </div>

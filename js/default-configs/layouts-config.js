@@ -94,6 +94,28 @@ window.flListLayoutConfig = {
     'searchEnabled': true,
     'searchFields': ['Title', 'Category'],
     'style-specific': ['list-filter', 'list-search'],
-    'summary-fields': ['text', 'text', 'text']
+    'summary-fields': [
+      {
+        id: 'ajdmjRrT',
+        title: 'Title',
+        type: 'text',
+        column: 'Title',
+        enabled: true
+      },
+      {
+        id: 'aJdnjRrT',
+        title: 'Description',
+        type: 'text',
+        column: 'Description',
+        enabled: true
+      },
+      {
+        id: 'ajdmJrlT',
+        title: 'Category',
+        type: 'text',
+        column: 'Category',
+        enabled: true
+      }
+    ]
   }
 }

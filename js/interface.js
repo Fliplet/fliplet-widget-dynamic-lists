@@ -17,6 +17,10 @@ var DynamicLists = (function() {
   var $sortAccordionContainer = $('#sort-accordion');
   var filterPanelTemplate = Fliplet.Widget.Templates['templates.interface.filter-panels'];
   var sortPanelTemplate = Fliplet.Widget.Templates['templates.interface.sort-panels'];
+  var $summaryRowContainer = $('.table-panels-holder');
+  var summaryRowTemplate = Fliplet.Widget.Templates['templates.interface.summary-view-panels'];
+  var $detailsRowContainer = $('#detail-view-accordion');
+  var detailsRowTemplate = Fliplet.Widget.Templates['templates.interface.detail-view-panels'];
 
   var tokenField = Fliplet.Widget.Templates['templates.interface.field-token'];
 
@@ -58,6 +62,7 @@ var DynamicLists = (function() {
     _this.config = $.extend(true, {
       sortOptions: [],
       filterOptions: [],
+      detailViewOptions: [],
       social: {
         likes: false,
         bookmark: false,
@@ -357,6 +362,23 @@ var DynamicLists = (function() {
             deleteRadioValues.indexOf('admins') !== -1 ||
             deleteRadioValues.indexOf('user') !== -1 ||
             addRadioValues.indexOf('admins') !== -1  ? 'removeClass' : 'addClass']('hidden');
+        })
+        .on('change', '[name="select_field"]', function() {
+          var value = $(this).val();
+
+          if (value === 'custom') {
+            $(this).parents('.panel-body').find('.field-type').addClass('hidden');
+            $(this).parents('.panel-body').find('.custom-field-name').addClass('hidden');
+            $(this).parents('.panel-body').find('.hide-field-name').addClass('hidden');
+
+            $(this).parents('.panel-body').find('.custom-field').removeClass('hidden');
+          } else {
+            $(this).parents('.panel-body').find('.field-type').removeClass('hidden');
+            $(this).parents('.panel-body').find('.custom-field-name').removeClass('hidden');
+            $(this).parents('.panel-body').find('.hide-field-name').removeClass('hidden');
+
+            $(this).parents('.panel-body').find('.custom-field').addClass('hidden');
+          }
         });
 
       $dataSources.on( 'change', function() {
@@ -424,6 +446,7 @@ var DynamicLists = (function() {
       _this.setupCodeEditors();
       _this.loadData();
       _this.initializeSortSortable();
+      _this.initializeDetailSortable();
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -555,7 +578,7 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
-            if (_this.config.userDataSourceId) {
+            if (_this.config.userDataSourceId && _this.config.userDataSourceId !== 'none') {
               return _this.getUserColumns(_this.config.userDataSourceId);
             }
 
@@ -567,8 +590,36 @@ var DynamicLists = (function() {
               // @TODO: Add backwards compatibility
             }
 
-            // @TODO: Load static fields
-            // Load all columns
+            _.forEach(_this.config['summary-fields'], function(item) {
+              item.columns = dataSourceColumns;
+              _this.addSummaryItem(item);
+              $('[data-id="' + item.id + '"] #show_' + item.id).prop('checked', item.enabled);
+              $('[data-id="' + item.id + '"] #select_title_field_' + item.id).val(item.column || 'none');
+              $('[data-id="' + item.id + '"] #select_title_type_' + item.id).val(item.type);
+            });
+
+            if (!_this.config.detailViewOptions.length) {
+              _.forEach(dataSourceColumns, function(column, index) {
+                var item = {
+                  id: index + 1,
+                  columns: dataSourceColumns,
+                  column: column
+                }
+
+                _this.config.detailViewOptions.push(item);
+              });
+            }
+            _.forEach(_this.config.detailViewOptions, function(item) {              
+              _this.addDetailItem(item);
+
+              $('#detail-view-accordion #select_field_' + item.id).val(item.column || 'none');
+              $('#detail-view-accordion #select_field_type_' + item.id).val(item.type || 'text');
+              $('#detail-view-accordion #custom_field_' + item.id).val(item.customField || '');
+              $('#detail-view-accordion #custom_field_name_' + item.id).val(item.customFieldLabel || '');
+              $('#detail-view-accordion #disable_field_name_' + item.id).prop('checked', item.hideFieldLabel);
+            });
+
+            return;
           })
           .then(function() {
             if (_this.config.social.comments || _this.config.userDataSourceId) {
@@ -740,7 +791,7 @@ var DynamicLists = (function() {
       }
     },
     getUserColumns: function(dataSourceId) {
-      if (dataSourceId && dataSourceId !== '') {
+      if (dataSourceId && dataSourceId !== '' && dataSourceId !== 'none') {
         return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
         }).then(function (dataSource) {
@@ -750,6 +801,8 @@ var DynamicLists = (function() {
           return;
         });
       }
+
+      return;
     },
     updateFieldsWithColumns: function(dataSourceColumns) {
       $('[data-field="field"]').each(function(index, obj) {
@@ -1053,6 +1106,14 @@ var DynamicLists = (function() {
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
     },
+    addSummaryItem: function(data) {
+      var $newPanel = $(summaryRowTemplate(data));
+      $summaryRowContainer.append($newPanel);
+    },
+    addDetailItem: function(data) {
+      var $newPanel = $(detailsRowTemplate(data));
+      $detailsRowContainer.append($newPanel);
+    },
     initializeSortSortable: function() {
       $('#sort-accordion').sortable({
         handle: ".panel-heading",
@@ -1124,6 +1185,43 @@ var DynamicLists = (function() {
         },
         sort: function(event, ui) {
           $('#filter-accordion').sortable('refresh');
+        }
+      });
+    },
+    initializeDetailSortable: function() {
+      $('#detail-view-accordion').sortable({
+        handle: ".panel-heading",
+        cancel: ".icon-delete",
+        tolerance: 'pointer',
+        revert: 150,
+        placeholder: 'panel panel-default placeholder tile',
+        cursor: '-webkit-grabbing; -moz-grabbing;',
+        axis: 'y',
+        start: function(event, ui) {
+          var itemId = $(ui.item).data('id');
+
+          $('.panel-collapse.in').collapse('hide');
+          ui.item.addClass('focus').css('height', ui.helper.find('.panel-heading').outerHeight() + 2);
+          $('.panel').not(ui.item).addClass('faded');
+        },
+        stop: function(event, ui) {
+          var itemId = $(ui.item).data('id');
+          var movedItem = _.find(_this.config.detailViewOptions, function(item) {
+            return item.id === itemId;
+          });
+
+          ui.item.removeClass('focus');
+
+          var sortedIds = $("#detail-view-accordion").sortable("toArray", {
+            attribute: 'data-id'
+          });
+          _this.config.detailViewOptions = _.sortBy(_this.config.detailViewOptions, function(item) {
+            return sortedIds.indexOf(item.id);
+          });
+          $('.panel').not(ui.item).removeClass('faded');
+        },
+        sort: function(event, ui) {
+          $('#detailViewOptions').sortable('refresh');
         }
       });
     },
@@ -1603,6 +1701,24 @@ var DynamicLists = (function() {
 
       data.sortOptions = _this.config.sortOptions;
       data.filterOptions = _this.config.filterOptions;
+
+      // Get summary view options
+      _.forEach(_this.config['summary-fields'], function(item) {
+        item.column = $('.rTableRow[data-id="' + item.id + '"] #select_title_field_' + item.id).val();
+        item.type = $('.rTableRow[data-id="' + item.id + '"] #select_title_type_' + item.id).val();
+        item.enabled = $('.rTableRow[data-id="' + item.id + '"] #show_' + item.id).is(":checked");
+      });
+
+      // Get detail view options
+      _.forEach(_this.config.detailViewOptions, function(item) {
+        item.column = $('#detail-view-accordion #select_field_' + item.id).val();
+        item.type = $('#detail-view-accordion #select_field_type_' + item.id).val();
+        item.customField = $('#detail-view-accordion #custom_field_' + item.id).val();
+        item.customFieldEnabled = item.column === 'custom';
+        item.customFieldLabel = $('#detail-view-accordion #custom_field_name_' + item.id).val();
+        item.customFieldLabelEnabled = item.customFieldLabel.length ? true : false;
+        item.hideFieldLabel = $('#detail-view-accordion #disable_field_name_' + item.id).is(":checked");
+      });
 
       // Get search and filter
       data.searchEnabled = $('#enable-search').is(":checked");

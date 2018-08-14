@@ -751,3 +751,78 @@ header .btn,
   right: 15px;
   box-shadow: 0px 6px 10px 0px rgba(0, 0, 0, 0.2);
 }
+
+.rTable {
+  display: block;
+  width: 100%;
+}
+
+.rTableHeading, .rTableBody, .rTableFoot, .rTableRow{
+  clear: both;
+}
+
+.rTableHead, .rTableFoot{
+  opacity: 0.8;
+}
+
+.rTableCell, .rTableHead {
+  float: left;
+  overflow: hidden;
+  padding: 6px 15px;
+  width: 25%;
+}
+
+.rTableHead.enable,
+.rTableCell.enable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 18%;
+}
+
+.rTableHead.select,
+.rTableCell.select {
+  width: calc(50% - 18%);
+}
+
+.rTableHead.delete,
+.rTableCell.delete {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rTableCell.delete {
+  cursor: pointer;
+  height: 56px;
+}
+
+.rTableHead.delete i,
+.rTableCell.delete i {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 1.5em;
+  color: red;
+  cursor: pointer;
+}
+
+.rTable:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
+
+.intro-form {
+  margin-top: 10px;
+}
+
+#detail-view-accordion {
+  max-width: 750px;
+  margin: 0 auto;
+}

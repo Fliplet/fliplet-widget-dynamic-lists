@@ -1,0 +1,30 @@
+<div class="rTableRow row" data-id="{{id}}">
+  <div class="rTableCell enable">
+    <div class="checkbox checkbox-icon">
+      <input type="checkbox" name="show_summary_field" id="show_{{id}}">
+      <label for="show_{{id}}">
+        <span class="check"><i class="fa fa-check"></i></span> {{title}}:
+      </label>
+    </div>
+  </div>
+  <div class="rTableCell select field">
+    <select name="select_summary_field" id="select_title_field_{{id}}" class="form-control">
+      <option value="none">-- Select a data field</option>
+      <option disabled>------</option>
+      {{#each columns}}
+      <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="rTableCell select type">
+    <select name="select_summary_type" id="select_title_type_{{id}}" class="form-control disabled" disabled>
+      <option value="none">-- Select a type</option>
+      <option disabled>------</option>
+      <option value="image">Image</option>
+      <option value="text">Plain text</option>
+      <option value="html">HTML</option>
+      <option value="url">URL</option>
+      <option value="date">Date (eg: 14 Aug 2018)</option>
+    </select>
+  </div>
+</div>
