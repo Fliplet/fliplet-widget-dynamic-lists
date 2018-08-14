@@ -93,6 +93,7 @@ window.flListLayoutConfig = {
     'filtersInOverlay': false,
     'searchEnabled': true,
     'searchFields': ['Title', 'Category'],
-    'style-specific': ['list-filter', 'list-search']
+    'style-specific': ['list-filter', 'list-search'],
+    'summary-fields': ['text', 'text', 'text']
   }
 }

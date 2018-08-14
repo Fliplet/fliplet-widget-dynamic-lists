@@ -98,8 +98,12 @@ var DynamicLists = (function() {
         .on('click', '[data-advanced]', function() {
           _this.goToAdvanced();
         })
-        .on('click', '[data-back-settings]', function() {
-          _this.goToSettings('advanced');
+        .on('click', '[data-relations-fields]', function() {
+          _this.goToRelations();
+        })
+        .on('click', '.go-back', function() {
+          var context = $(this).data('back-settings');
+          _this.goToSettings(context);
         })
         .on('click', '#manage-data, [data-edit-datasource]', _this.manageAppData)
         .on('click', '[data-reset-default]', function() {
@@ -422,13 +426,10 @@ var DynamicLists = (function() {
       _this.initializeSortSortable();
     },
     loadData: function() {
-      setTimeout(function() {
-        $('.state').removeClass('loading is-loading');  
-      }, 500);
-
       if (!_this.config.layout) {
         return new Promise(function(resolve) {
           Fliplet.Studio.emit('widget-mode', 'wide');
+          $('.state').removeClass('loading is-loading');
           resolve();
         });
       } else {
@@ -561,6 +562,15 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
+            // Sets up the data view settings
+            if (typeof _this.config['summary-fields'] === undefined) {
+              // @TODO: Add backwards compatibility
+            }
+
+            // @TODO: Load static fields
+            // Load all columns
+          })
+          .then(function() {
             if (_this.config.social.comments || _this.config.userDataSourceId) {
               $('#select_user_fname').val(_this.config.userFirstNameColumn ? _this.config.userFirstNameColumn : 'none');
               $('#select_user_lname').val(_this.config.userLastNameColumn ? _this.config.userLastNameColumn : 'none');
@@ -577,6 +587,7 @@ var DynamicLists = (function() {
 
             _this.setupCodeEditors(listLayout);
             _this.goToSettings('layouts');
+            $('.state').removeClass('loading is-loading');
 
             return;
           })
@@ -657,6 +668,9 @@ var DynamicLists = (function() {
       if (context === 'advanced') {
         $('.advanced-tab').removeClass('present').addClass('future');
       }
+      if (context === 'relations') {
+        $('.relations-tab').removeClass('present').addClass('future');
+      }
       if (context === 'layouts') {
         $('.settings-tab').removeClass('future').addClass('present');
       }
@@ -665,6 +679,10 @@ var DynamicLists = (function() {
     },
     goToAdvanced: function() {
       $('.advanced-tab').removeClass('future').addClass('present');
+      Fliplet.Studio.emit('widget-mode', 'wide');
+    },
+    goToRelations: function() {
+      $('.relations-tab').removeClass('future').addClass('present');
       Fliplet.Studio.emit('widget-mode', 'wide');
     },
     setUpTokenFields: function() {

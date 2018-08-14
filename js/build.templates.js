@@ -43,7 +43,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.build.simple-list-base"] = Han
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.simple-list-detail"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "{{#each orderedData}}\n  {{#if this}}\n    {{#ifCond this '||' ''}}\n    <div class=\"simple-list-detail-label\">{{@key}}</div>\n    <div class=\"simple-list-detail-value\">{{{this}}}</div>\n    {{/ifCond}}\n  {{/if}}\n{{/each}}\n{{#ifCond editEntry '||' deleteEntry}}\n<div class=\"dynamic-list-controls\">\n  {{#if editEntry}}\n  <div class=\"btn btn-default dynamic-list-edit-item\">Edit</div>\n  {{/if}}\n  {{#if deleteEntry}}\n  <div class=\"btn btn-danger dynamic-list-delete-item\">Delete</div>\n  {{/if}}\n</div>\n{{/ifCond}}";
+    return "{{#each orderedData}}\n  {{#if this}}\n    {{#ifCond this '||' ''}}\n    <div class=\"simple-list-detail-label\">{{@key}}</div>\n    <div class=\"simple-list-detail-value\">{{{this}}}</div>\n    {{/ifCond}}\n  {{/if}}\n{{/each}}\n\n\n\n{{#ifCond editEntry '||' deleteEntry}}\n<div class=\"dynamic-list-controls\">\n  {{#if editEntry}}\n  <div class=\"btn btn-default dynamic-list-edit-item\">Edit</div>\n  {{/if}}\n  {{#if deleteEntry}}\n  <div class=\"btn btn-danger dynamic-list-delete-item\">Delete</div>\n  {{/if}}\n</div>\n{{/ifCond}}";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.simple-list-filters"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {

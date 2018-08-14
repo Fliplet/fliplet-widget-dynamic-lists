@@ -43,9 +43,7 @@
   display: block;
 }
 
-.layouts-tab,
-.settings-tab,
-.advanced-tab {
+.state {
   position: absolute;
   top: 0;
   left: 0;
@@ -409,15 +407,18 @@ header .btn,
   margin-left: 5px;
 }
 
-.advanced-tab header {
+.advanced-tab header,
+.relations-tab header {
   justify-content: space-between;
 }
 
-.advanced-tab header .title-holder {
+.advanced-tab header .title-holder,
+.relations-tab header .title-holder {
   display: flex;
 }
 
-.advanced-tab header .go-back {
+.advanced-tab header .go-back,
+.relations-tab header .go-back {
   position: relative;
   margin-right: 15px;
   padding-left: 15px;
@@ -427,7 +428,8 @@ header .btn,
   cursor: pointer;
 }
 
-.advanced-tab header .go-back .fa {
+.advanced-tab header .go-back .fa,
+.relations-tab header .go-back .fa {
   position: absolute;
   top: 0;
   left: 0;
