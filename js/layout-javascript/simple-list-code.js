@@ -393,7 +393,7 @@ DynamicList.prototype.initialize = function() {
       // Convert date and add flag for likes
       records.forEach(function(obj, i) {
         // Convert date
-        if (typeof obj.data['Date'] !== 'undefined' || obj.data['Date'] !== null || obj.data['Date'] !== '') {
+        if (typeof obj.data['Date'] !== 'undefined' && obj.data['Date'] !== null && obj.data['Date'] !== '') {
           records[i].data['Date'] = moment(obj.data['Date']).utc().format("MMM DD YYYY");
         }
 
@@ -494,6 +494,9 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var _this = this;
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
+
+  console.log(_this.data);
+  debugger;
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
@@ -808,21 +811,17 @@ DynamicList.prototype.showDetails = function(id) {
 
   // Order columns by name [asc]
   var data = entryData.data;
-  var orderedData = {};
-  Object.keys(data).sort().forEach(function(key) {
-    orderedData[key] = data[key];
-  });
 
   // Check for images
-  Object.keys(orderedData).forEach(function(key) {
-    if (base64Pattern.test(orderedData[key])) {
-      orderedData[key] = '<img src="' + orderedData[key] + '"/>';
-    } else if (imageURL.test(orderedData[key])) {
-      orderedData[key] = '<img src="' + orderedData[key] + '"/>';
+  Object.keys(data).forEach(function(key) {
+    if (base64Pattern.test(data[key])) {
+      data[key] = '<img src="' + data[key] + '"/>';
+    } else if (imageURL.test(data[key])) {
+      data[key] = '<img src="' + data[key] + '"/>';
     }
   });
 
-  entryData.orderedData = orderedData;
+  entryData.modifiedData = data;
 
   // Process template with data
   var entryId = {
