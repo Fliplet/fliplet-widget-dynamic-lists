@@ -1,88 +1,58 @@
-<div class="panel panel-default" data-id={{id}}>
-  <div class="panel-heading ui-sortable-handle">
-    <h4 class="panel-title collapsed" data-toggle="collapse" data-parent="#detail-view-accordion" data-target="#collapse-{{id}}" aria-expanded="false">
-      <div class="screen-reorder-handle">
-        <i class="fa fa-ellipsis-v"></i><i class="fa fa-ellipsis-v"></i>
-      </div>
-      <span class="fa fa-chevron-right"></span>
-      <span class="panel-title-text">Data field {{id}}</span>
-    </h4>
-    <a href="#"><span class="icon-delete fa fa-trash"></span></a>
+<div class="rTableRow clearfix" data-id="{{id}}">
+  <div class="original-row clearfix">
+    <div class="rTableCell title">
+      Data field:
+    </div>
+    <div class="rTableCell select field">
+      <select name="select_field" id="select_field_{{id}}" class="form-control">
+        <option value="none">-- Select a data field</option>
+        <option disabled>------</option>
+        <option value="custom">Custom</option>
+        <option disabled>------</option>
+        {{#each columns}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="rTableCell select type">
+      <select name="select_field_type" id="select_type_{{id}}" class="form-control">
+        <option value="none">-- Select a type</option>
+        <option disabled>------</option>
+        <option value="image">Image</option>
+        <option value="text">Plain text</option>
+        <option value="html">HTML</option>
+        <option value="url">URL</option>
+        <option value="date">Date (eg: 14 Aug 2018)</option>
+      </select>
+    </div>
+    <div class="rTableCell select type">
+      <select name="select_field_label" id="select_label_{{id}}" class="form-control">
+        <option value="none">-- Select an option</option>
+        <option disabled>------</option>
+        <option value="column-name">Column name as label</option>
+        <option value="custom-label">Custom label</option>
+        <option value="no-label">No label</option>
+      </select>
+    </div>
+    <div class="rTableCell title delete text-danger">
+      <i class="fa fa-trash-o" aria-hidden="true"></i>
+    </div>
   </div>
-  <div id="collapse-{{id}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-    <div class="panel-body row">
-      
-      <div class="form-group clearfix">
-        <div class="col-sm-4 control-label">
-          <label>Field name</label>
-          <p class="text-muted">Select the data source column to display.</p>
-        </div>
-        <div class="col-sm-8">
-          <select name="select_field" id="select_field_{{id}}" class="form-control">
-            <option value="none">-- Select a data field</option>
-            <option disabled>------</option>
-            <option value="custom">Custom</option>
-            <option disabled>------</option>
-            {{#each columns}}
-            <option value="{{this}}">{{this}}</option>
-            {{/each}}
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group clearfix field-type">
-        <div class="col-sm-4 control-label">
-          <label>Field type</label>
-          <p class="text-muted">Select the type of content you want to display.</p>
-        </div>
-        <div class="col-sm-8">
-          <select name="select_field_type" id="select_field_type_{{id}}" class="form-control">
-            <option value="none">-- Select a data field</option>
-            <option disabled>------</option>
-            <option value="image">Image</option>
-            <option value="text">Plain text</option>
-            <option value="html">HTML</option>
-            <option value="url">URL</option>
-            <option value="date">Date (eg: 14 Aug 2018)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group clearfix custom-field hidden">
-        <div class="col-sm-4 control-label">
-          <label>Custom field data</label>
-          <p class="text-muted">Use <code>\{{*}}</code> to wrap around a field name, e.g. <code>Location: \{{city}}, \{{country}}</code>.</p>
-        </div>
-        <div class="col-sm-8">
-          <input type="text" name="custom_field" id="custom_field_{{id}}" class="form-control">
-        </div>
-      </div>
-
-      <div class="form-group clearfix custom-field-name">
-        <div class="col-sm-4 control-label">
-          <label>Custom field name</label>
-          <p class="text-muted">Use this field to set a new name for your field.</p>
-        </div>
-        <div class="col-sm-8">
-          <input type="text" name="custom_field_name" id="custom_field_name_{{id}}" class="form-control">
-        </div>
-      </div>
-
-      <div class="form-group clearfix hide-field-name">
-        <div class="col-sm-4 control-label">
-          <label>Hide field name</label>
-          <p class="text-muted">By hidding the field name, only the content of that field will be displayed.</p>
-        </div>
-        <div class="col-sm-8">
-          <div class="checkbox checkbox-icon">
-            <input type="checkbox" name="disable_field_name" id="disable_field_name_{{id}}">
-            <label for="disable_field_name_{{id}}">
-              <span class="check"><i class="fa fa-check"></i></span> Yes hide
-            </label>
-          </div>
-        </div>
-      </div>
-
+  <div class="custom-field-input clearfix hidden">
+    <div class="rTableCell title">
+      Custom field
+    </div>
+    <div class="rTableCell select field">
+      <input type="text" class="form-control" id="custom_field_{{id}}">
+      <p class="text-muted field-text-info">Use <code>\{{*}}</code> to wrap around a field name, e.g. <code>Location: \{{city}}, \{{country}}</code>.</p>
+    </div>
+  </div>
+  <div class="custom-label-input clearfix hidden">
+    <div class="rTableCell title">
+      Custom label
+    </div>
+    <div class="rTableCell select field">
+      <input type="text" class="form-control" id="custom_field_name_{{id}}">
     </div>
   </div>
 </div>

@@ -99,22 +99,25 @@ window.flListLayoutConfig = {
         id: 'ajdmjRrT',
         title: 'Title',
         type: 'text',
-        column: 'Title',
-        enabled: true
+        column: 'Title'
       },
       {
         id: 'aJdnjRrT',
         title: 'Description',
         type: 'text',
-        column: 'Description',
-        enabled: true
+        column: 'Description'
       },
       {
         id: 'ajdmJrlT',
         title: 'Category',
         type: 'text',
-        column: 'Category',
-        enabled: true
+        column: 'Category'
+      },
+      {
+        id: 'gHlmJrlT',
+        title: 'Image',
+        type: 'image',
+        column: 'Image'
       }
     ]
   }

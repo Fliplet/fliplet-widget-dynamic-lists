@@ -757,32 +757,52 @@ header .btn,
   width: 100%;
 }
 
-.rTableHeading, .rTableBody, .rTableFoot, .rTableRow{
+.rTableRow {
   clear: both;
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
 }
 
-.rTableHead, .rTableFoot{
+.table-panels-holder .rTableRow:last-child,
+.detail-table-panels-holder .rTableRow:last-child {
+  border-bottom: none;
+}
+
+.rTableHead {
   opacity: 0.8;
 }
 
-.rTableCell, .rTableHead {
+.rTableCell,
+.rTableHead {
   float: left;
   overflow: hidden;
-  padding: 6px 15px;
+  padding: 0 5px;
   width: 25%;
 }
 
-.rTableHead.enable,
-.rTableCell.enable {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.rTableCell:first-child,
+.rTableHead:first-child {
+  padding-left: 0;
+}
+
+.rTableCell:last-child,
+.rTableHead:last-child {
+  padding-right: 0;
+}
+
+.custom-field-input .rTableCell:last-child,
+.custom-label-input .rTableCell:last-child {
+  padding-right: 5px;
+}
+
+.rTableHead.title,
+.rTableCell.title {
   width: 18%;
 }
 
 .rTableHead.select,
 .rTableCell.select {
-  width: calc(50% - 18%);
+  width: calc(45% - 18% - 10px);
 }
 
 .rTableHead.delete,
@@ -795,7 +815,7 @@ header .btn,
 
 .rTableCell.delete {
   cursor: pointer;
-  height: 56px;
+  height: 44px;
 }
 
 .rTableHead.delete i,
@@ -818,11 +838,26 @@ header .btn,
   height: 0;
 }
 
-.intro-form {
+.rTableCell .title-holder {
+  height: 44px;
+  line-height: 44px;
+}
+
+.rTableCell select[disabled] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.field-text-info {
+  font-size: 80%;
+  margin: 5px 0 0;
+}
+
+.custom-field-input,
+.custom-label-input {
   margin-top: 10px;
 }
 
-#detail-view-accordion {
-  max-width: 750px;
-  margin: 0 auto;
+.intro-form {
+  margin-top: 10px;
 }
