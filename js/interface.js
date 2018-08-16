@@ -604,6 +604,7 @@ var DynamicLists = (function() {
                 break;
               case 'simple-list':
                 $('.filter-loop-item').removeClass('hidden');
+                $('.detail-view-item').removeClass('hidden');
                 break;
               default:
                 break;
@@ -628,16 +629,16 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
+            // Sets up the data view settings
+            if (typeof _this.config['summary-fields'] === 'undefined') {
+              _this.config['summary-fields'] = defaultSettings[listLayout]['summary-fields'];
+            }
+            
             var actionValue = _this.config.summaryLinkOption || 'show';
             $('[name="detail-view-action"][value="' + actionValue + '"]').prop('checked', true).trigger('change');
 
             $('#select_field_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.column || 'none');
             $('#select_type_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.type || 'url');
-
-            // Sets up the data view settings
-            if (typeof _this.config['summary-fields'] === undefined) {
-              // @TODO: Add backwards compatibility
-            }
 
             _.forEach(_this.config['summary-fields'], function(item) {
               item.columns = dataSourceColumns;
@@ -727,6 +728,7 @@ var DynamicLists = (function() {
                   break;
                 case 'simple-list':
                   $('.filter-loop-item').removeClass('hidden');
+                  $('.detail-view-item').removeClass('hidden');
                   break;
                 default:
                   break;
@@ -1685,6 +1687,7 @@ var DynamicLists = (function() {
               break;
             case 'simple-list':
               _this.config.advancedSettings.filterHTML = undefined;
+              _this.config.advancedSettings.detailHTML = undefined;
               break;
             default:
               break;
@@ -1792,6 +1795,7 @@ var DynamicLists = (function() {
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             break;
           case 'simple-list':
+            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           default:

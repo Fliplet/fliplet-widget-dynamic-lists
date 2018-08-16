@@ -7,8 +7,8 @@ var simpleListLayoutMapping = {
   'simple-list': {
     'base': 'templates.build.simple-list-base',
     'loop': 'templates.build.simple-list-loop',
-    'filter': 'templates.build.simple-list-filters',
-    'detail': 'templates.build.simple-list-detail'
+    'detail': 'templates.build.simple-list-detail',
+    'filter': 'templates.build.simple-list-filters'
   }
 };
 
@@ -528,7 +528,11 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   // Uses sumamry view settings set by users
   modifiedData.forEach(function(entry) {
-    var newObject = {};
+    var newObject = {
+      id: entry.id,
+      flClasses: entry.data['flClasses'],
+      flFilters: entry.data['flFilters']
+    };
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
       if (obj.column === 'custom') {
@@ -537,9 +541,6 @@ DynamicList.prototype.renderLoopHTML = function(records) {
         var content = entry.data[obj.column];
       }
       newObject[obj.location] = content;
-      newObject['id'] = entry.id;
-      newObject['flClasses'] = entry.data['flClasses'];
-      newObject['flFilters'] = entry.data['flFilters'];
     });
     loopData.push(newObject);
   });

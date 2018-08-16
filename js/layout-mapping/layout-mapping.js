@@ -38,6 +38,7 @@ window.flLayoutMapping = {
     'name': 'Simple list',
     'base': 'templates.build.simple-list-base',
     'loop': 'templates.build.simple-list-loop',
+    'detail': 'templates.build.simple-list-detail',
     'filter': 'templates.build.news-feed-filters',
     'css': 'simple-list',
     'js': 'simple-list'
