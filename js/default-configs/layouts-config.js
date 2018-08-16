@@ -46,6 +46,38 @@ window.flListLayoutConfig = {
         location: 'Location',
         type: 'text',
         column: 'Location'
+      }
+    ],
+    'detail-fields': [
+      {
+        id: 'ajdmjRrT',
+        location: 'First Name',
+        type: 'text',
+        column: 'First Name'
+      },
+      {
+        id: 'aJdnjRrT',
+        location: 'Last Name',
+        type: 'text',
+        column: 'Last Name'
+      },
+      {
+        id: 'ajdmJrlT',
+        location: 'Title',
+        type: 'text',
+        column: 'Title'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      },
+      {
+        id: 'qWerTymn',
+        location: 'Location',
+        type: 'text',
+        column: 'Location'
       },
       {
         id: 'nMytReWq',
@@ -64,24 +96,6 @@ window.flListLayoutConfig = {
         location: 'Linkedin',
         type: 'text',
         column: 'Linkedin'
-      },
-      {
-        id: 'RWRgcUlf',
-        location: 'Bio',
-        type: 'text',
-        column: 'Bio'
-      },
-      {
-        id: 'Var9GOnu',
-        location: 'Sectors',
-        type: 'text',
-        column: 'Sectors'
-      },
-      {
-        id: 'ssbsEWPo',
-        location: 'Expertize',
-        type: 'text',
-        column: 'Expertize'
       }
     ]
   },
@@ -117,7 +131,7 @@ window.flListLayoutConfig = {
       {
         id: 'aJdnjRrT',
         location: 'Content',
-        type: 'text',
+        type: 'html',
         column: 'Content'
       },
       {
@@ -138,7 +152,8 @@ window.flListLayoutConfig = {
         type: 'date',
         column: 'Date'
       }
-    ]
+    ],
+    'detail-fields-disabled': true
   },
   'agenda': {
     'filtersEnabled': false,
@@ -167,7 +182,41 @@ window.flListLayoutConfig = {
     'social': {
       'bookmark': true
     },
-    'style-specific': ['list-bookmark']
+    'style-specific': ['list-bookmark'],
+    'summary-fields': [
+      {
+        id: 'ajdmjRrT',
+        location: 'Start Time',
+        type: 'date',
+        column: 'Start Time'
+      },
+      {
+        id: 'aJdnjRrT',
+        location: 'End Time',
+        type: 'date',
+        column: 'End Time'
+      },
+      {
+        id: 'ajdmJrlT',
+        location: 'Title',
+        type: 'text',
+        column: 'Title'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Location',
+        type: 'text',
+        column: 'Location'
+      }
+    ],
+    'detail-fields': [
+      {
+        id: 'ajdmjRrT',
+        location: 'Date',
+        type: 'date',
+        column: 'Date'
+      }
+    ]
   },
   'small-h-card': {
     'filtersEnabled': false,
@@ -185,7 +234,89 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': []
+    'style-specific': [],
+    'summary-fields': [
+      {
+        id: 'ajdmjRrT',
+        location: 'First Name',
+        type: 'text',
+        column: 'First Name'
+      },
+      {
+        id: 'aJdnjRrT',
+        location: 'Last Name',
+        type: 'text',
+        column: 'Last Name'
+      },
+      {
+        id: 'ajdmJrlT',
+        location: 'Title',
+        type: 'text',
+        column: 'Title'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      },
+      {
+        id: 'qWerTymn',
+        location: 'Location',
+        type: 'text',
+        column: 'Location'
+      }
+    ],
+    'detail-fields': [
+      {
+        id: 'ajdmjRrT',
+        location: 'First Name',
+        type: 'text',
+        column: 'First Name'
+      },
+      {
+        id: 'aJdnjRrT',
+        location: 'Last Name',
+        type: 'text',
+        column: 'Last Name'
+      },
+      {
+        id: 'ajdmJrlT',
+        location: 'Title',
+        type: 'text',
+        column: 'Title'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      },
+      {
+        id: 'qWerTymn',
+        location: 'Location',
+        type: 'text',
+        column: 'Location'
+      },
+      {
+        id: 'nMytReWq',
+        location: 'Email',
+        type: 'text',
+        column: 'Email'
+      },
+      {
+        id: 'tYrEqwMn',
+        location: 'Telephone',
+        type: 'text',
+        column: 'Telephone'
+      },
+      {
+        id: 'XLbdTD45',
+        location: 'Linkedin',
+        type: 'text',
+        column: 'Linkedin'
+      }
+    ]
   },
   'simple-list': {
     'filtersEnabled': true,
@@ -194,6 +325,7 @@ window.flListLayoutConfig = {
     'searchEnabled': true,
     'searchFields': ['Title', 'Category'],
     'style-specific': ['list-filter', 'list-search'],
+    'summary-fields-enabled': true,
     'summary-fields': [
       {
         id: 'ajdmjRrT',

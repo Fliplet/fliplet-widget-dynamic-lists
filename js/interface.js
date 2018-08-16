@@ -417,7 +417,8 @@ var DynamicLists = (function() {
             columns: dataSourceColumns,
             column: 'none',
             type: 'text',
-            fieldLabel: 'column-name'
+            fieldLabel: 'column-name',
+            editable: true
           };
 
           _this.config.detailViewOptions.push(item);
@@ -648,19 +649,42 @@ var DynamicLists = (function() {
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
             });
 
-            if (!_this.config.detailViewOptions.length) {
+            if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
               _.forEach(dataSourceColumns, function(column, index) {
                 var item = {
                   id: index + 1,
                   columns: dataSourceColumns,
                   column: column,
                   type: 'text',
-                  fieldLabel: 'column-name'
+                  fieldLabel: 'column-name',
+                  editable: true
                 }
 
                 _this.config.detailViewOptions.push(item);
               });
             }
+
+            if (defaultSettings[listLayout]['detail-fields'] && defaultSettings[listLayout]['detail-fields'].length) {
+              defaultSettings[listLayout]['detail-fields'].forEach(function(field) {
+                _this.config.detailViewOptions.some(function(option, index) {
+                  if (field.column === option.column) {
+                    _this.config.detailViewOptions[index].editable = false;
+                    _this.config.detailViewOptions[index].location = field.location;
+                    _this.config.detailViewOptions[index].type = field.type;
+                  }
+                });
+              });
+            }
+
+            // Remove duplicates from Detail view
+            _.forEach(_this.config['summary-fields'], function(field) {
+              _this.config.detailViewOptions.some(function(option, index) {
+                if (field.column === option.column) {
+                  _this.config.detailViewOptions.splice(index, 1);
+                }
+              });
+            });
+
             _.forEach(_this.config.detailViewOptions, function(item) {              
               _this.addDetailItem(item);
 

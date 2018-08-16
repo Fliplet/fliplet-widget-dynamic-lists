@@ -15,7 +15,7 @@
       </select>
     </div>
     <div class="rTableCell select type">
-      <select name="select_field_type" id="select_type_{{id}}" class="form-control">
+      <select name="select_field_type" id="select_type_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
         <option value="none">-- Select a type</option>
         <option disabled>------</option>
         <option value="image">Image</option>
@@ -26,7 +26,7 @@
       </select>
     </div>
     <div class="rTableCell select type">
-      <select name="select_field_label" id="select_label_{{id}}" class="form-control">
+      <select name="select_field_label" id="select_label_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
         <option value="none">-- Select an option</option>
         <option disabled>------</option>
         <option value="column-name">Column name as label</option>
@@ -34,9 +34,11 @@
         <option value="no-label">No label</option>
       </select>
     </div>
+    {{#if editable}}
     <div class="rTableCell title delete text-danger">
       <i class="fa fa-trash-o" aria-hidden="true"></i>
     </div>
+    {{/if}}
   </div>
   <div class="custom-field-input clearfix hidden">
     <div class="rTableCell title">

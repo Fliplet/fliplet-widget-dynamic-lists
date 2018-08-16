@@ -532,17 +532,99 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   // Function that renders the List template
   var _this = this;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
-
   clonedRecords = _this.getPermissions(clonedRecords);
 
-   // Converts date format
-  clonedRecords.forEach(function(obj, index) {
-    var newDate = new Date(obj.data['Date']).toUTCString();
-    clonedRecords[index].data['Date'] = moment(newDate).utc().format("ddd Do MMM");
+  var loopData = [];
+  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return !option.editable;
+  });
+  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return option.editable;
   });
 
-  var newRecords = _.values(_.groupBy(clonedRecords, function(row) {
-    return row.data['Date'];
+  // Uses sumamry view settings set by users
+  clonedRecords.forEach(function(entry) {
+    var newObject = {
+      id: entry.id,
+      editEntry: entry.editEntry,
+      deleteEntry: entry.deleteEntry,
+      isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
+      entryDetails: []
+    };
+    _this.data['summary-fields'].some(function(obj) {
+      var content = '';
+      if (obj.column === 'custom') {
+        content = Handlebars.compile(obj.customField)(entry.data)
+      } else {
+        var content = entry.data[obj.column];
+      }
+      newObject[obj.location] = content;
+    });
+
+    notDynamicData.some(function(obj) {
+      if (!newObject[obj.location]) {
+        var content = '';
+        if (obj.column === 'custom') {
+          content = Handlebars.compile(obj.customField)(entry.data)
+        } else {
+          var content = entry.data[obj.column];
+        }
+        newObject[obj.location] = content;
+      }
+    });
+
+    loopData.push(newObject);
+  });
+
+  // Define detail view data based on user's settings
+  var detailData = [];
+
+  dynamicData.forEach(function(obj) {
+    clonedRecords.some(function(entryData) {
+      var label = '';
+      var labelEnabled = true;
+      var content = '';
+
+      // Define label
+      if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
+        label = obj.column;
+      }
+      if (obj.fieldLabel === 'custom-label') {
+        label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      }
+      if (obj.fieldLabel === 'no-label') {
+        labelEnabled = false;
+      }
+      // Define content
+      if (obj.customFieldEnabled) {
+        content = Handlebars.compile(obj.customField)(entryData.data);
+      } else {
+        content = entryData.data[obj.column];
+      }
+      // Define data object
+      var newObject = {
+        id: entryData.id,
+        content: content,
+        label: label,
+        labelEnabled: labelEnabled,
+        type: obj.type
+      }
+
+      var matchingEntry = _.find(loopData, function(entry) {
+        return entry.id === newObject.id;
+      });
+      matchingEntry.entryDetails.push(newObject);
+    });
+  });
+
+   // Converts date format
+  loopData.forEach(function(obj, index) {
+    var newDate = new Date(obj['Date']).toUTCString();
+    loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
+  });
+
+  var newRecords = _.values(_.groupBy(loopData, function(row) {
+    return row['Date'];
   }));
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML

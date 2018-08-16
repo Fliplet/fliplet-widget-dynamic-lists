@@ -22,8 +22,11 @@ var operators = {
 var DynamicList = function(id, data, container) {
   var _this = this;
 
+  this.layoutMapping = window.flLayoutMapping;
+
   // Makes data and the component container available to Public functions
   this.data = data;
+  this.data['summary-fields'] = this.data['summary-fields'] || this.layoutMapping[this.data.layout]['summary-fields'];
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.queryOptions = {};
 
@@ -87,6 +90,36 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
       default:
         return options.inverse(this);
     }
+  });
+
+  Handlebars.registerHelper('validateImage', function(image) {
+    var validatedImage = image;
+    
+    if (!validatedImage) {
+      return '';
+    }
+    
+    if (Array.isArray(validatedImage) && !validatedImage.length) {
+      return '';
+    }
+    
+    // Validate thumbnail against URL and Base64 patterns
+    var urlPattern = /^https?:\/\//i;
+    var base64Pattern = /^data:image\/[^;]+;base64,/i;
+    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
+      return '';
+    }
+
+    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
+      // attach auth token
+      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
+    }
+
+    return validatedImage;
+  });
+
+  Handlebars.registerHelper('formatDate', function(date) {
+    return moment(date).utc().format('MMM Do YYYY');
   });
 }
 
@@ -547,9 +580,15 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
-  var loopHTML = '';
+
   var modifiedData = _this.convertCategories(records);
   var loopData = [];
+  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return !option.editable;
+  });
+  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return option.editable;
+  });
 
   // Uses sumamry view settings set by users
   modifiedData.forEach(function(entry) {
@@ -559,7 +598,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
       flFilters: entry.data['flFilters'],
       editEntry: entry.editEntry,
       deleteEntry: entry.deleteEntry,
-      isCurrentUser: entry.isCurrentUser,
+      isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
       entryDetails: []
     };
     _this.data['summary-fields'].some(function(obj) {
@@ -571,13 +610,26 @@ DynamicList.prototype.renderLoopHTML = function(records) {
       }
       newObject[obj.location] = content;
     });
+
+    notDynamicData.some(function(obj) {
+      if (!newObject[obj.location]) {
+        var content = '';
+        if (obj.column === 'custom') {
+          content = Handlebars.compile(obj.customField)(entry.data)
+        } else {
+          var content = entry.data[obj.column];
+        }
+        newObject[obj.location] = content;
+      }
+    });
+
     loopData.push(newObject);
   });
 
   // Define detail view data based on user's settings
   var detailData = [];
 
-  _this.data.detailViewOptions.forEach(function(obj) {
+  dynamicData.forEach(function(obj) {
     modifiedData.some(function(entryData) {
       var label = '';
       var labelEnabled = true;

@@ -301,6 +301,14 @@
   display: block;
 }
 
+.small-h-card-list-detail-wrapper .small-card-details-holder {
+  display: none;
+}
+
+.small-h-card-list-detail-wrapper.open .small-card-details-holder {
+  display: block;
+}
+
 @media screen and (min-width: 640px) {
   .new-small-h-card-list-container .small-h-card-list-image {
     width: 180px;
