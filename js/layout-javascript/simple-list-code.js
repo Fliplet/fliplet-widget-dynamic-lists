@@ -85,6 +85,36 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
         return options.inverse(this);
     }
   });
+
+  Handlebars.registerHelper('validateImage', function(image) {
+    var validatedImage = image;
+    
+    if (!validatedImage) {
+      return '';
+    }
+    
+    if (Array.isArray(validatedImage) && !validatedImage.length) {
+      return '';
+    }
+    
+    // Validate thumbnail against URL and Base64 patterns
+    var urlPattern = /^https?:\/\//i;
+    var base64Pattern = /^data:image\/[^;]+;base64,/i;
+    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
+      return '';
+    }
+
+    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
+      // attach auth token
+      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
+    }
+
+    return validatedImage;
+  });
+
+  Handlebars.registerHelper('formatDate', function(date) {
+    return moment(date).utc().format('MMM Do YYYY');
+  });
 }
 
 DynamicList.prototype.attachObservers = function() {
@@ -494,16 +524,32 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var _this = this;
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
+  var loopData = [];
 
-  console.log(_this.data);
-  debugger;
+  // Uses sumamry view settings set by users
+  modifiedData.forEach(function(entry) {
+    var newObject = {};
+    _this.data['summary-fields'].some(function(obj) {
+      var content = '';
+      if (obj.column === 'custom') {
+        content = Handlebars.compile(obj.customField)(entry.data)
+      } else {
+        var content = entry.data[obj.column];
+      }
+      newObject[obj.location] = content;
+      newObject['id'] = entry.id;
+      newObject['flClasses'] = entry.data['flClasses'];
+      newObject['flFilters'] = entry.data['flFilters'];
+    });
+    loopData.push(newObject);
+  });
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(modifiedData));
-  _this.addFilters(modifiedData);
+  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(loopData));
+  _this.addFilters(loopData);
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -567,7 +613,7 @@ DynamicList.prototype.addFilters = function(data) {
   };
 
   data.forEach(function(row) {
-    row.data['flFilters'].forEach(function(filter) {
+    row['flFilters'].forEach(function(filter) {
       filters.push(filter);
     });
   });
@@ -793,35 +839,48 @@ DynamicList.prototype.showDetails = function(id) {
   var _this = this;
 
   var modifiedData = _this.getPermissions(_this.listItems);
-
   var entryData = _.find(modifiedData, function(entry) {
     return entry.id === id;
   });
 
-  // PROCESSING DATA
-  // Setting image patterns to test
-  var base64Pattern = /^data:image\/[^;]+;base64,/i;
-  var imageURL = /^https?:\/\/[^ ]+\.(gif|jpg|jpeg|tiff|png)/i;
+  // Define detail view data based on user's settings
+  var newData = {
+    id: entryData.id,
+    editEntry: entryData.editEntry,
+    deleteEntry: entryData.deleteEntry,
+    data: []
+  };
 
-  // Remove "fl" keys from data object
-  var keysToRemove = ['flClasses','flFilters'];
-  keysToRemove.forEach(function(key) {
-    delete entryData.data[key];
-  });
+  _this.data.detailViewOptions.forEach(function(obj) {
+    var label = '';
+    var labelEnabled = true;
+    var content = '';
 
-  // Order columns by name [asc]
-  var data = entryData.data;
-
-  // Check for images
-  Object.keys(data).forEach(function(key) {
-    if (base64Pattern.test(data[key])) {
-      data[key] = '<img src="' + data[key] + '"/>';
-    } else if (imageURL.test(data[key])) {
-      data[key] = '<img src="' + data[key] + '"/>';
+    // Define label
+    if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
+      label = obj.column;
     }
+    if (obj.fieldLabel === 'custom-label') {
+      label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+    }
+    if (obj.fieldLabel === 'no-label') {
+      labelEnabled = false;
+    }
+    // Define content
+    if (obj.customFieldEnabled) {
+      content = Handlebars.compile(obj.customField)(entryData.data);
+    } else {
+      content = entryData.data[obj.column];
+    }
+    // Define data object
+    var newObject = {
+      content: content,
+      label: label,
+      labelEnabled: labelEnabled,
+      type: obj.type
+    }
+    newData.data.push(newObject);
   });
-
-  entryData.modifiedData = data;
 
   // Process template with data
   var entryId = {
@@ -839,7 +898,7 @@ DynamicList.prototype.showDetails = function(id) {
 
   // Adds content to overlay
   $overlay.find('.simple-list-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  $overlay.find('.simple-list-detail-wrapper').append(template(entryData));
+  $overlay.find('.simple-list-detail-wrapper').append(template(newData));
 
   // Trigger animations
   $('body').addClass('lock');

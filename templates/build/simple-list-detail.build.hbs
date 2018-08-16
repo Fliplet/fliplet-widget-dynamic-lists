@@ -1,10 +1,52 @@
-\{{#each modifiedData}}
-  \{{#if this}}
-    \{{#ifCond this '||' ''}}
-    <div class="simple-list-detail-label">\{{@key}}</div>
-    <div class="simple-list-detail-value">\{{{this}}}</div>
-    \{{/ifCond}}
-  \{{/if}}
+\{{#each data}}
+  <!-- Image template -->
+  \{{#ifCond type '==' 'image'}}
+    \{{#if labelEnabled}}
+    <div class="simple-list-detail-label">\{{label}}</div>
+    \{{/if}}
+
+    <div class="simple-list-detail-value">
+      <img src="\{{validateImage content}}">
+    </div>
+  \{{/ifCond}}
+
+  <!-- Plain text template -->
+  \{{#ifCond type '==' 'text'}}
+    \{{#if labelEnabled}}
+    <div class="simple-list-detail-label">\{{label}}</div>
+    \{{/if}}
+
+    <div class="simple-list-detail-value">\{{content}}</div>
+  \{{/ifCond}}
+
+  <!-- HTML template -->
+  \{{#ifCond type '==' 'html'}}
+    \{{#if labelEnabled}}
+    <div class="simple-list-detail-label">\{{label}}</div>
+    \{{/if}}
+
+    <div class="simple-list-detail-value">\{{{content}}}</div>
+  \{{/ifCond}}
+
+  <!-- URL template -->
+  \{{#ifCond type '==' 'url'}}
+    \{{#if labelEnabled}}
+    <div class="simple-list-detail-label">\{{label}}</div>
+    \{{/if}}
+
+    <div class="simple-list-detail-value">
+      <a href="\{{content}}" target="_blank">Tap to open</a>
+    </div>
+  \{{/ifCond}}
+
+  <!-- Date template -->
+  \{{#ifCond type '==' 'date'}}
+    \{{#if labelEnabled}}
+    <div class="simple-list-detail-label">\{{label}}</div>
+    \{{/if}}
+
+    <div class="simple-list-detail-value">"\{{formatDate content}}</div>
+  \{{/ifCond}}
 \{{/each}}
 
 
