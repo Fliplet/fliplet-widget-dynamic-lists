@@ -15,7 +15,75 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': ['list-filter', 'list-search']
+    'style-specific': ['list-filter', 'list-search'],
+    'summary-fields': [
+      {
+        id: 'ajdmjRrT',
+        location: 'First Name',
+        type: 'text',
+        column: 'First Name'
+      },
+      {
+        id: 'aJdnjRrT',
+        location: 'Last Name',
+        type: 'text',
+        column: 'Last Name'
+      },
+      {
+        id: 'ajdmJrlT',
+        location: 'Title',
+        type: 'text',
+        column: 'Title'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      },
+      {
+        id: 'qWerTymn',
+        location: 'Location',
+        type: 'text',
+        column: 'Location'
+      },
+      {
+        id: 'nMytReWq',
+        location: 'Email',
+        type: 'text',
+        column: 'Email'
+      },
+      {
+        id: 'tYrEqwMn',
+        location: 'Telephone',
+        type: 'text',
+        column: 'Telephone'
+      },
+      {
+        id: 'XLbdTD45',
+        location: 'Linkedin',
+        type: 'text',
+        column: 'Linkedin'
+      },
+      {
+        id: 'RWRgcUlf',
+        location: 'Bio',
+        type: 'text',
+        column: 'Bio'
+      },
+      {
+        id: 'Var9GOnu',
+        location: 'Sectors',
+        type: 'text',
+        column: 'Sectors'
+      },
+      {
+        id: 'ssbsEWPo',
+        location: 'Expertize',
+        type: 'text',
+        column: 'Expertize'
+      }
+    ]
   },
   'news-feed': {
     'filtersEnabled': true,

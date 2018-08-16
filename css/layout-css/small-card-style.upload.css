@@ -738,6 +738,14 @@
   display: block;
 }
 
+.small-card-list-item .small-card-details-holder {
+  display: none;
+}
+
+.small-card-list-item.open .small-card-details-holder {
+  display: block;
+}
+
 @media screen and (min-width: 640px) {
   .new-small-card-list-container .small-card-list-detail-wrapper {
     background-color: rgba(0, 0, 0, 0.8);

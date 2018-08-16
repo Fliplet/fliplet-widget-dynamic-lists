@@ -549,17 +549,82 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var _this = this;
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
+  var loopData = [];
 
-  modifiedData.forEach(function(obj, index) {
-    modifiedData[index].data.profileHTML = _this.profileHTML(modifiedData[index]);
+  // Uses sumamry view settings set by users
+  modifiedData.forEach(function(entry) {
+    var newObject = {
+      id: entry.id,
+      flClasses: entry.data['flClasses'],
+      flFilters: entry.data['flFilters'],
+      editEntry: entry.editEntry,
+      deleteEntry: entry.deleteEntry,
+      isCurrentUser: entry.isCurrentUser,
+      entryDetails: []
+    };
+    _this.data['summary-fields'].some(function(obj) {
+      var content = '';
+      if (obj.column === 'custom') {
+        content = Handlebars.compile(obj.customField)(entry.data)
+      } else {
+        var content = entry.data[obj.column];
+      }
+      newObject[obj.location] = content;
+    });
+    loopData.push(newObject);
+  });
+
+  // Define detail view data based on user's settings
+  var detailData = [];
+
+  _this.data.detailViewOptions.forEach(function(obj) {
+    modifiedData.some(function(entryData) {
+      var label = '';
+      var labelEnabled = true;
+      var content = '';
+
+      // Define label
+      if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
+        label = obj.column;
+      }
+      if (obj.fieldLabel === 'custom-label') {
+        label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      }
+      if (obj.fieldLabel === 'no-label') {
+        labelEnabled = false;
+      }
+      // Define content
+      if (obj.customFieldEnabled) {
+        content = Handlebars.compile(obj.customField)(entryData.data);
+      } else {
+        content = entryData.data[obj.column];
+      }
+      // Define data object
+      var newObject = {
+        id: entryData.id,
+        content: content,
+        label: label,
+        labelEnabled: labelEnabled,
+        type: obj.type
+      }
+
+      var matchingEntry = _.find(loopData, function(entry) {
+        return entry.id === newObject.id;
+      });
+      matchingEntry.entryDetails.push(newObject);
+    });
+  });
+
+  loopData.forEach(function(obj, index) {
+    loopData[index].profileHTML = _this.profileHTML(loopData[index]);
   });
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(modifiedData));
-  _this.addFilters(modifiedData);
+  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
+  _this.addFilters(loopData);
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -623,7 +688,7 @@ DynamicList.prototype.addFilters = function(data) {
   };
 
   data.forEach(function(row) {
-    row.data.filters.forEach(function(filter) {
+    row['flFilters'].forEach(function(filter) {
       filters.push(filter);
     });
   });
@@ -667,8 +732,8 @@ DynamicList.prototype.convertCategories = function(data) {
   var _this = this;
 
   data.forEach(function(element) {
-    element.data['classes'] = '';
-    element.data['filters'] = [];
+    element.data['flClasses'] = '';
+    element.data['flFilters'] = [];
     var lowerCaseTags = [];
     _this.data.filterFields.forEach(function(filter) {
       var arrayOfTags = [];
@@ -690,11 +755,11 @@ DynamicList.prototype.convertCategories = function(data) {
           }
         }
         lowerCaseTags.push(classConverted);
-        element.data['filters'].push(newObj);
+        element.data['flFilters'].push(newObj);
       });
       
     });
-    element.data['classes'] = lowerCaseTags.join(' ');
+    element.data['flClasses'] = lowerCaseTags.join(' ');
   });
   return data;
 }
