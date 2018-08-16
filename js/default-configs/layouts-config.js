@@ -97,25 +97,25 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
-        title: 'Title',
+        location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'aJdnjRrT',
-        title: 'Description',
+        location: 'Description',
         type: 'text',
         column: 'Description'
       },
       {
         id: 'ajdmJrlT',
-        title: 'Category',
+        location: 'Category',
         type: 'text',
         column: 'Category'
       },
       {
         id: 'gHlmJrlT',
-        title: 'Image',
+        location: 'Image',
         type: 'image',
         column: 'Image'
       }

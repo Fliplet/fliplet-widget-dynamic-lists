@@ -764,7 +764,8 @@ header .btn,
 }
 
 .table-panels-holder .rTableRow:last-child,
-.detail-table-panels-holder .rTableRow:last-child {
+.detail-table-panels-holder .rTableRow:last-child,
+.detail-table-panels-holder ~ .rTableRow {
   border-bottom: none;
 }
 

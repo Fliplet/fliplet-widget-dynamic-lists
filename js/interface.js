@@ -1749,7 +1749,7 @@ var DynamicLists = (function() {
       // Get detail view options
       _.forEach(_this.config.detailViewOptions, function(item) {
         item.column = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_field_' + item.id).val();
-        item.type = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_field_type_' + item.id).val();
+        item.type = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
         item.fieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_label_' + item.id).val();
         item.customField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';

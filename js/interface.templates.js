@@ -196,7 +196,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.summary-view-panels"
   return "<div class=\"rTableRow clearfix\" data-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n  <div class=\"original-row clearfix\">\n    <div class=\"rTableCell title\">\n      "
-    + alias4(((helper = (helper = helpers.title || (depth0 != null ? depth0.title : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"title","hash":{},"data":data}) : helper)))
+    + alias4(((helper = (helper = helpers.location || (depth0 != null ? depth0.location : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"location","hash":{},"data":data}) : helper)))
     + ":\n    </div>\n    <div class=\"rTableCell select field\">\n      <select name=\"select_summary_field\" id=\"select_field_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"form-control\">\n        <option value=\"none\">-- Select a data field</option>\n        <option disabled>------</option>\n        <option value=\"custom\">Custom</option>\n        <option disabled>------</option>\n"
