@@ -695,6 +695,25 @@
   display: block;
 }
 
+.news-feed-list-item .news-feed-details-holder {
+  display: none;
+}
+
+.news-feed-list-item.open .news-feed-details-holder {
+  display: block;
+}
+
+.news-feed-detail-label {
+  opacity: 0.5;
+  font-size: 0.8em;
+  margin-bottom: 4px;
+}
+
+.news-feed-detail-value {
+  font-size: 1em;
+  margin-bottom: 25px;
+}
+
 @media screen and (min-width: 640px) {
   .new-news-feed-list-container .news-feed-list-item.open .news-feed-item-content {
     background: rgba(0, 0, 0, 0.8);

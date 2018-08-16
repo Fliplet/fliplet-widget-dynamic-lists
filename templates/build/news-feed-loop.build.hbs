@@ -1,17 +1,17 @@
 \{{#each this}}
-<div class="news-feed-list-item mix \{{data.[classes]}}" data-entry-id="\{{id}}">
+<div class="news-feed-list-item mix \{{[flClasses]}}" data-entry-id="\{{id}}">
   <div class="news-feed-item-content">
-    \{{#if data.[Image]}}
+    \{{#if [Image]}}
     <section class="slide-under">
       <div class="image-banner">
-        <img src="\{{auth data.[Image]}}">
+        <img src="\{{auth [Image]}}">
       </div>
     </section>
     \{{/if}}
     <div class="container-fluid slide-over">
       <div class="news-feed-item-inner-content">
         <div class="news-feed-info-holder">
-          <div class="news-feed-date-category">\{{data.[Date]}} \{{#ifCond data.[Date] '&&' data.[Categories]}}/\{{/ifCond}} \{{data.[Categories]}}</div>
+          <div class="news-feed-date-category">\{{formatDate [Date]}} \{{#ifCond [Date] '&&' [Categories]}}/\{{/ifCond}} \{{[Categories]}}</div>
           \{{#if likesEnabled}}
           <div class="news-feed-like-holder news-feed-like-holder-\{{id}}">
             <!-- Like button will be here -->
@@ -36,9 +36,61 @@
           </div>
           \{{/if}}
         </div>
-        <h2 class="news-feed-item-title">\{{data.[Title]}}</h2>
+        <h2 class="news-feed-item-title">\{{[Title]}}</h2>
         <div class="news-feed-item-description">
-          \{{{auth data.[Content]}}}
+          \{{{auth [Content]}}}
+        </div>
+        <div class="news-feed-details-holder">
+          \{{#each entryDetails}}
+            <!-- Image template -->
+            \{{#ifCond type '==' 'image'}}
+              \{{#if labelEnabled}}
+              <div class="news-feed-detail-label">\{{label}}</div>
+              \{{/if}}
+
+              <div class="news-feed-detail-value">
+                <img src="\{{validateImage content}}">
+              </div>
+            \{{/ifCond}}
+
+            <!-- Plain text template -->
+            \{{#ifCond type '==' 'text'}}
+              \{{#if labelEnabled}}
+              <div class="news-feed-detail-label">\{{label}}</div>
+              \{{/if}}
+
+              <div class="news-feed-detail-value">\{{content}}</div>
+            \{{/ifCond}}
+
+            <!-- HTML template -->
+            \{{#ifCond type '==' 'html'}}
+              \{{#if labelEnabled}}
+              <div class="news-feed-detail-label">\{{label}}</div>
+              \{{/if}}
+
+              <div class="news-feed-detail-value">\{{{content}}}</div>
+            \{{/ifCond}}
+
+            <!-- URL template -->
+            \{{#ifCond type '==' 'url'}}
+              \{{#if labelEnabled}}
+              <div class="news-feed-detail-label">\{{label}}</div>
+              \{{/if}}
+
+              <div class="news-feed-detail-value">
+                <a href="\{{content}}" target="_blank">Tap to open</a>
+              </div>
+            \{{/ifCond}}
+
+            <!-- Date template -->
+            \{{#ifCond type '==' 'date'}}
+              \{{#if labelEnabled}}
+              <div class="news-feed-detail-label">\{{label}}</div>
+              \{{/if}}
+
+              <div class="news-feed-detail-value">"\{{formatDate content}}</div>
+            \{{/ifCond}}
+          \{{/each}}
         </div>
         <div class="news-feed-inner-holder \{{#ifCond editEntry '||' deleteEntry}}has-edit-controls\{{/ifCond}}">
           \{{#ifCond editEntry '||' deleteEntry}}

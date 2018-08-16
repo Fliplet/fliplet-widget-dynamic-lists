@@ -36,9 +36,41 @@ window.flListLayoutConfig = {
     'social': {
       'likes': true,
       'bookmark': true,
-      'comments': true
+      'comments': false
     },
-    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments']
+    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments'],
+    'summary-fields': [
+      {
+        id: 'ajdmjRrT',
+        location: 'Title',
+        type: 'text',
+        column: 'Title'
+      },
+      {
+        id: 'aJdnjRrT',
+        location: 'Content',
+        type: 'text',
+        column: 'Content'
+      },
+      {
+        id: 'ajdmJrlT',
+        location: 'Categories',
+        type: 'text',
+        column: 'Categories'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      },
+      {
+        id: 'gHlJkerT',
+        location: 'Date',
+        type: 'date',
+        column: 'Date'
+      }
+    ]
   },
   'agenda': {
     'filtersEnabled': false,
