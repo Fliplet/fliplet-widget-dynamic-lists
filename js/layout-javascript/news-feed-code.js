@@ -889,14 +889,14 @@ DynamicList.prototype.renderLoopHTML = function(records) {
         deleteEntry: entry.deleteEntry,
         likesEnabled: entry.likesEnabled,
         bookmarksEnabled: entry.bookmarksEnabled,
-        commentsEnabled: entry.commentsEnabled,
-        entryDetails: []
+        commentsEnabled: entry.commentsEnabled
       };
 
       $.extend(true, newObject, entry.data);
 
       loopData.push(newObject);
     });
+    
     _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
     _this.addFilters(loopData);
     return;

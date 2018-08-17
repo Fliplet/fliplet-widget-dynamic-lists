@@ -608,17 +608,15 @@ DynamicList.prototype.renderLoopHTML = function(records) {
         flFilters: entry.data['flFilters'],
         editEntry: entry.editEntry,
         deleteEntry: entry.deleteEntry,
-        likesEnabled: entry.likesEnabled,
-        bookmarksEnabled: entry.bookmarksEnabled,
-        commentsEnabled: entry.commentsEnabled,
-        entryDetails: []
+        isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false
       };
 
       $.extend(true, newObject, entry.data);
 
       loopData.push(newObject);
     });
-    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
+    
+    _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
     _this.addFilters(loopData);
     return;
   }
@@ -703,8 +701,6 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   loopData.forEach(function(obj, index) {
     loopData[index].profileHTML = _this.profileHTML(loopData[index]);
   });
-
-  
 
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
   _this.addFilters(loopData);
