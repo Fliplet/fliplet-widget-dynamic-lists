@@ -550,6 +550,42 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return option.editable;
   });
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['loop']]());
+
+  // IF STATEMENT FOR BACKWARDS COMPATABILITY
+  if (!_this.data.detailViewOptions) {
+    clonedRecords.forEach(function(entry) {
+      var newObject = {
+        id: entry.id,
+        flClasses: entry.data['flClasses'],
+        flFilters: entry.data['flFilters'],
+        editEntry: entry.editEntry,
+        deleteEntry: entry.deleteEntry,
+        likesEnabled: entry.likesEnabled,
+        bookmarksEnabled: entry.bookmarksEnabled,
+        commentsEnabled: entry.commentsEnabled
+      };
+
+      $.extend(true, newObject, entry.data);
+
+      loopData.push(newObject);
+    });
+    
+    // Converts date format
+    loopData.forEach(function(obj, index) {
+      var newDate = new Date(obj['Date']).toUTCString();
+      loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
+    });
+
+    var newRecords = _.values(_.groupBy(loopData, function(row) {
+      return row['Date'];
+    }));
+
+    _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
+    return;
+  }
 
   // Uses sumamry view settings set by users
   clonedRecords.forEach(function(entry) {
@@ -626,7 +662,7 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
     });
   });
 
-   // Converts date format
+  // Converts date format
   loopData.forEach(function(obj, index) {
     var newDate = new Date(obj['Date']).toUTCString();
     loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
@@ -635,10 +671,6 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   var newRecords = _.values(_.groupBy(loopData, function(row) {
     return row['Date'];
   }));
-
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
 }

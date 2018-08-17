@@ -84,6 +84,26 @@
           <div class="small-h-card-list-detail-body-text">"\{{formatDate content}}</div>
         \{{/ifCond}}
       \{{/each}}
+
+      <!-- BACKWARDS COMPATABILITY -->
+      \{{#unless entryDetails}}
+        \{{#if [Bio]}}
+        <div class="small-h-card-list-detail-label">Bio</div>
+        <div class="small-h-card-list-detail-body-text">\{{[Bio]}}</div>
+        \{{/if}} \{{#if [Sectors]}}
+        <div class="small-h-card-list-detail-label">Sector</div>
+        <div class="small-h-card-list-detail-body-text">\{{[Sectors]}}</div>
+        \{{/if}} \{{#if [Expertize]}}
+        <div class="small-h-card-list-detail-label">Areas of expertize</div>
+        <div class="small-h-card-list-detail-body-text">\{{[Expertize]}}</div>
+        \{{/if}} \{{#if [Telephone]}}
+        <div class="small-h-card-list-detail-label">Telephone</div>
+        <div class="small-h-card-list-detail-body-text">\{{[Telephone]}}</div>
+        \{{/if}} \{{#if [Email]}}
+        <div class="small-h-card-list-detail-label">Email</div>
+        <div class="small-h-card-list-detail-body-text">\{{[Email]}}</div>
+        \{{/if}}
+      \{{/unless}}
     </div>
 
     <!-- Edit or Delete buttons -->

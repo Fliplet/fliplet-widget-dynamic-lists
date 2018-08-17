@@ -76,6 +76,10 @@
                       <div class="agenda-item-detail-body-text">"\{{formatDate content}}</div>
                     \{{/ifCond}}
                   \{{/each}}
+
+                  \{{#unless entryDetails}}
+                    \{{{auth [Content]}}}
+                  \{{/unless}}
                 </div>
 
                 \{{#ifCond editEntry '||' deleteEntry}}
