@@ -462,6 +462,7 @@ var DynamicLists = (function() {
         if (event.data && event.data.event === 'overlay-close' && event.data.data && event.data.data.dataSourceId) {
           _this.reloadDataSources().then(function(dataSources) {
             allDataSources = dataSources;
+            _this.getColumns(_this.config.dataSourceId);
             _this.initSelect2(allDataSources);
             _this.initSecondSelect2(allDataSources);
             Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
@@ -903,11 +904,9 @@ var DynamicLists = (function() {
       var options = [];
       $('#select_user_email_data').html('');
       $('#select_user_email_data').append('<option value="none">-- Select a data field</option>');
-
       dataSourceColumns.forEach(function(value, index) {
         options.push('<option value="'+ value +'">'+ value +'</option>');
       });
-
       $('#select_user_email_data').append(options.join(''));
       if (emailOldValue && emailOldValue.length) {
         $('#select_user_email_data').val(emailOldValue);
@@ -919,15 +918,51 @@ var DynamicLists = (function() {
       $('#select_field_link').html('');
       $('#select_field_link').append('<option value="none">-- Select a data field</option>');
       $('#select_field_link').append('<option disabled>------</option>');
-
       dataSourceColumns.forEach(function(value, index) {
         linkOptions.push('<option value="'+ value +'">'+ value +'</option>');
       });
-
-      $('#select_field_link').append(linkOptions.join(''));
+      $('#select_field_link').append(options.join(''));
       if (linkFieldValue && linkFieldValue.length) {
         $('#select_field_link').val(linkFieldValue);
       }
+
+      // Summary fields
+      $('[name="select_summary_field"]').each(function(index, obj) {
+        var oldValue = $(obj).val();
+        var options = [];
+        $(obj).html('');
+        $(obj).append('<option value="none">-- Select a data field</option>');
+        $(obj).append('<option disabled>------</option>');
+        $(obj).append('<option value="custom">Custom</option>');
+        $(obj).append('<option disabled>------</option>');
+        
+        dataSourceColumns.forEach(function(value, index) {
+          options.push('<option value="'+ value +'">'+ value +'</option>');
+        });
+        $(obj).append(options.join(''));
+        if (oldValue && oldValue.length) {
+          $(obj).val(oldValue);
+        }
+      });
+      
+      // Detail fields
+      $('[name="select_field"]').each(function(index, obj) {
+        var oldValue = $(obj).val();
+        var options = [];
+        $(obj).html('');
+        $(obj).append('<option value="none">-- Select a data field</option>');
+        $(obj).append('<option disabled>------</option>');
+        $(obj).append('<option value="custom">Custom</option>');
+        $(obj).append('<option disabled>------</option>');
+        
+        dataSourceColumns.forEach(function(value, index) {
+          options.push('<option value="'+ value +'">'+ value +'</option>');
+        });
+        $(obj).append(options.join(''));
+        if (oldValue && oldValue.length) {
+          $(obj).val(oldValue);
+        }
+      });
 
       _this.setUpTokenFields();
     },
