@@ -747,7 +747,7 @@
 }
 
 @media screen and (min-width: 640px) {
-  .new-small-card-list-container .small-card-list-detail-wrapper {
+  .new-small-card-list-container .small-card-list-detail-wrapper.open {
     background-color: rgba(0, 0, 0, 0.8);
   }
 
