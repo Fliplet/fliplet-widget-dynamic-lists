@@ -70,7 +70,7 @@
       "vendor/mixitup.min.js",
       "vendor/mixitup-multifilter.min.js",
       "vendor/autosize.js",
-      "js/layout-mapping/layout-mapping.js",
+      "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",
       "vendor/style.css",
