@@ -257,6 +257,7 @@ DynamicList.prototype.attachObservers = function() {
           {
             label: 'Delete',
             action: function (i) {
+              _that.text('Deleting...').addClass('disabled');
               Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
                 return connection.removeById(entryID);
               }).then(function onRemove() {
@@ -264,13 +265,14 @@ DynamicList.prototype.attachObservers = function() {
                   return entry.id === parseInt(entryID, 10);
                 });
 
-                _that.text('Delete').removeClass('disabled');
                 var $closeButton = _that.parents('.agenda-list-item').find('.agenda-list-item .agenda-item-close-btn');
                 _this.collapseElement($closeButton);
 
                 var selectedIndex = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
                 _this.renderDatesHTML(_this.listItems, selectedIndex);
                 _this.renderLoopHTML(_this.listItems);
+
+                _that.text('Delete').removeClass('disabled');
               });
             }
           }
@@ -278,7 +280,6 @@ DynamicList.prototype.attachObservers = function() {
         cancel: true
       }
 
-      _that.text('Deleting...').addClass('disabled');
       Fliplet.UI.Actions(options);
     });
 

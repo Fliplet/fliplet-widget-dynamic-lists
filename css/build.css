@@ -1,3 +1,7 @@
+.btn.disabled {
+  pointer-events: none;
+}
+
 .dynamic-list-controls {
   margin-top: 50px;
 }

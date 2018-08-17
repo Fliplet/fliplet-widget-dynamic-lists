@@ -566,6 +566,7 @@ DynamicList.prototype.attachObservers = function() {
           {
             label: 'Delete',
             action: function (i) {
+              _that.text('Deleting...').addClass('disabled');
               Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
                 return connection.removeById(entryID);
               }).then(function onRemove() {
@@ -577,6 +578,8 @@ DynamicList.prototype.attachObservers = function() {
                 var $closeButton = _that.parents('.news-feed-list-item').find('.news-feed-item-close-btn-wrapper');
                 _this.collapseElement($closeButton);
                 _this.renderLoopHTML(_this.listItems);
+
+                _that.text('Delete').removeClass('disabled');
               });
             }
           }

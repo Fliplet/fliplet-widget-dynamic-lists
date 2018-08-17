@@ -277,6 +277,7 @@ DynamicList.prototype.attachObservers = function() {
           {
             label: 'Delete',
             action: function (i) {
+              _that.text('Deleting...').addClass('disabled');
               Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
                 return connection.removeById(entryID);
               }).then(function onRemove() {
@@ -286,6 +287,8 @@ DynamicList.prototype.attachObservers = function() {
                 _that.text('Delete').removeClass('disabled');
                 _this.closeDetails();
                 _this.renderLoopHTML(_this.listItems);
+
+                _that.text('Delete').removeClass('disabled');
               });
             }
           }
