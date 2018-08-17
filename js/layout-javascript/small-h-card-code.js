@@ -494,6 +494,32 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return option.editable;
   });
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
+
+  // IF STATEMENT FOR BACKWARDS COMPATABILITY
+  if (!_this.data.detailViewOptions) {
+    modifiedData.forEach(function(entry) {
+      var newObject = {
+        id: entry.id,
+        editEntry: entry.editEntry,
+        deleteEntry: entry.deleteEntry,
+        isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
+      };
+
+      $.extend(true, newObject, entry.data);
+
+      loopData.push(newObject);
+    });
+
+    loopData.forEach(function(obj, index) {
+      loopData[index].profileHTML = _this.profileHTML(loopData[index]);
+    });
+
+    _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).html(template(loopData));
+    return;
+  }
 
   // Uses sumamry view settings set by users
   records.forEach(function(entry) {
@@ -573,10 +599,6 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   loopData.forEach(function(obj, index) {
     loopData[index].profileHTML = _this.profileHTML(loopData[index]);
   });
-
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).html(template(loopData));
 }
