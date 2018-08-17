@@ -25,11 +25,11 @@ var operators = {
 var DynamicList = function(id, data, container) {
   var _this = this;
 
-  this.layoutMapping = window.flLayoutMapping;
+  this.flListLayoutConfig = window.flListLayoutConfig;
 
   // Makes data and the component container available to Public functions
   this.data = data;
-  this.data['summary-fields'] = this.data['summary-fields'] || this.layoutMapping[this.data.layout]['summary-fields'];
+  this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.queryOptions = {};
 
