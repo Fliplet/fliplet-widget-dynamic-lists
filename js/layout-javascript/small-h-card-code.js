@@ -500,7 +500,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   // IF STATEMENT FOR BACKWARDS COMPATABILITY
   if (!_this.data.detailViewOptions) {
-    modifiedData.forEach(function(entry) {
+    records.forEach(function(entry) {
       var newObject = {
         id: entry.id,
         editEntry: entry.editEntry,
