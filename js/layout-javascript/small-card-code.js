@@ -615,7 +615,11 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
       loopData.push(newObject);
     });
-    
+
+    loopData.forEach(function(obj, index) {
+      loopData[index].profileHTML = _this.profileHTML(loopData[index]);
+    });
+
     _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
     _this.addFilters(loopData);
     return;
