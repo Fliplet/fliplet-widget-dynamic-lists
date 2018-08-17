@@ -135,17 +135,22 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
         return;
       }
-
       event.stopPropagation();
       var elementToExpand = $(this).find('.agenda-list-item-content');
-      _this.expandElement(elementToExpand);
-
+      var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text();
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
+
+      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+        _this.openLinkAction(entryId);
+        return;
+      }
+      
+      _this.expandElement(elementToExpand);
     })
     .on('click', '.agenda-list-item .agenda-item-close-btn', function(event) {
       event.stopPropagation();
@@ -1092,7 +1097,26 @@ DynamicList.prototype.sliderGoTo = function(number) {
       _this.moveBackDate(_this.activeSlideIndex, -1);
     }
   }
-};
+}
+
+DynamicList.prototype.openLinkAction = function(entryId) {
+  var _this = this;
+  var entry = _.find(_this.listItems, function(entry) {
+    return entry.id === entryId;
+  });
+
+  if (!entry) {
+    return;
+  }
+
+  var value = entry.data[_this.data.summaryLinkAction.column];
+  
+  if (_this.data.summaryLinkAction.type === 'url') {
+    Fliplet.Navigate.url(value);
+  } else {
+    Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
+  }
+}
 
 DynamicList.prototype.expandElement = function(elementToExpand) {
   // Function called when a list item is tapped to expand

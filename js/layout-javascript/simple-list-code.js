@@ -129,13 +129,18 @@ DynamicList.prototype.attachObservers = function() {
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text();
 
-      _this.showDetails(entryId);
-
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
+
+      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+        _this.openLinkAction(entryId);
+        return;
+      }
+
+      _this.showDetails(entryId);
     })
     .on('click', '.simple-list-detail-overlay-close', function(event) {
       _this.closeDetails();
@@ -836,6 +841,25 @@ DynamicList.prototype.initializeMixer = function() {
       }
     }
   });
+}
+
+DynamicList.prototype.openLinkAction = function(entryId) {
+  var _this = this;
+  var entry = _.find(_this.listItems, function(entry) {
+    return entry.id === entryId;
+  });
+
+  if (!entry) {
+    return;
+  }
+
+  var value = entry.data[_this.data.summaryLinkAction.column];
+  
+  if (_this.data.summaryLinkAction.type === 'url') {
+    Fliplet.Navigate.url(value);
+  } else {
+    Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
+  }
 }
 
 DynamicList.prototype.showDetails = function(id) {
