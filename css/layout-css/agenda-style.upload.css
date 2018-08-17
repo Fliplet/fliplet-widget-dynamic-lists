@@ -321,6 +321,7 @@
 
 .new-agenda-list-container .agenda-list-item-content .container-fluid {
   max-width: 600px;
+  margin: 0;
 }
 
 /* CARD CONTENT */

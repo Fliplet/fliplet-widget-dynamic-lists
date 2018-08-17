@@ -1669,7 +1669,7 @@ DynamicList.prototype.showComments = function(id) {
         var dataSourceEmailParts = dataSourceEmail.match(/[^\@]+[^\.]+/);
         var toComparePart2 = dataSourceEmailParts && dataSourceEmailParts.length ? dataSourceEmailParts[0] : '';
 
-        if (toComparePart === toComparePart2) {
+        if (toComparePart.toLowerCase() === toComparePart2.toLowerCase()) {
           entryComments.entries[index].currentUser = true;
         }
       } else if (dataSourceEmail === myEmail) {
@@ -1710,8 +1710,15 @@ DynamicList.prototype.sendComment = function(id, value) {
     var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
     var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
 
-    return toCompareDataEmailPart === toCompareEmailPart;
+    return toCompareDataEmailPart.toLowerCase() === toCompareEmailPart.toLowerCase();
   });
+
+  if (!userFromDataSource) {
+    return Fliplet.Navigate.popup({
+      title: 'Invalid user',
+      message: 'We couldn\'t find your user details.'
+    });
+  }
 
   _this.appendTempComment(id, value, guid, userFromDataSource);
 
@@ -1908,7 +1915,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
       var toComparePart2 = commentEmailParts[0];
 
-      if (toComparePart === toComparePart2) {
+      if (toComparePart.toLowerCase() === toComparePart2.toLowerCase()) {
         commentInfo.currentUser = true;
       }
     } else {
