@@ -36,16 +36,16 @@ window.flListLayoutConfig = {
         column: 'Title'
       },
       {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
-      },
-      {
         id: 'qWerTymn',
         location: 'Location',
         type: 'text',
         column: 'Location'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
       }
     ],
     'detail-fields': [
@@ -68,16 +68,16 @@ window.flListLayoutConfig = {
         column: 'Title'
       },
       {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
-      },
-      {
         id: 'qWerTymn',
         location: 'Location',
         type: 'text',
         column: 'Location'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
       },
       {
         id: 'nMytReWq',
@@ -141,16 +141,16 @@ window.flListLayoutConfig = {
         column: 'Categories'
       },
       {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
-      },
-      {
         id: 'gHlJkerT',
         location: 'Date',
         type: 'date',
         column: 'Date'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
       }
     ],
     'detail-fields-disabled': true
@@ -255,16 +255,16 @@ window.flListLayoutConfig = {
         column: 'Title'
       },
       {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
-      },
-      {
         id: 'qWerTymn',
         location: 'Location',
         type: 'text',
         column: 'Location'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
       }
     ],
     'detail-fields': [
@@ -287,16 +287,16 @@ window.flListLayoutConfig = {
         column: 'Title'
       },
       {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
-      },
-      {
         id: 'qWerTymn',
         location: 'Location',
         type: 'text',
         column: 'Location'
+      },
+      {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
       },
       {
         id: 'nMytReWq',
@@ -328,6 +328,12 @@ window.flListLayoutConfig = {
     'summary-fields-enabled': true,
     'summary-fields': [
       {
+        id: 'gHlmJrlT',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      },
+      {
         id: 'ajdmjRrT',
         location: 'Title',
         type: 'text',
@@ -344,12 +350,6 @@ window.flListLayoutConfig = {
         location: 'Category',
         type: 'text',
         column: 'Category'
-      },
-      {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
       }
     ]
   }
