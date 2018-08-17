@@ -676,14 +676,16 @@ var DynamicLists = (function() {
               });
             }
 
-            // Remove duplicates from Detail view
-            _.forEach(_this.config['summary-fields'], function(field) {
-              _this.config.detailViewOptions.some(function(option, index) {
-                if (field.column === option.column) {
-                  _this.config.detailViewOptions.splice(index, 1);
-                }
+            // Remove duplicates from Detail view unless it's Simple List
+            if (_this.config.layout !== 'simple-list') {
+              _.forEach(_this.config['summary-fields'], function(field) {
+                _this.config.detailViewOptions.some(function(option, index) {
+                  if (field.column === option.column) {
+                    _this.config.detailViewOptions.splice(index, 1);
+                  }
+                });
               });
-            });
+            }
 
             _.forEach(_this.config.detailViewOptions, function(item) {              
               _this.addDetailItem(item);
