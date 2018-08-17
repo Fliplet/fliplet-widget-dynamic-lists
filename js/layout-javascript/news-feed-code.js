@@ -871,7 +871,36 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
   modifiedData = _this.getPermissions(modifiedData);
+
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['loop']]());
+
   var loopData = [];
+
+  // IF STATEMENT FOR BACKWARDS COMPATABILITY
+  if (!_this.data.detailViewOptions) {
+    modifiedData.forEach(function(entry) {
+      var newObject = {
+        id: entry.id,
+        flClasses: entry.data['flClasses'],
+        flFilters: entry.data['flFilters'],
+        editEntry: entry.editEntry,
+        deleteEntry: entry.deleteEntry,
+        likesEnabled: entry.likesEnabled,
+        bookmarksEnabled: entry.bookmarksEnabled,
+        commentsEnabled: entry.commentsEnabled,
+        entryDetails: []
+      };
+      entry.data.some(function(obj) {
+        $.extend(true, newObject, obj.data);
+      });
+      loopData.push(newObject);
+    });
+    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
+    _this.addFilters(loopData);
+    return;
+  }
 
   // Uses sumamry view settings set by users
   modifiedData.forEach(function(entry) {
@@ -939,10 +968,6 @@ DynamicList.prototype.renderLoopHTML = function(records) {
       matchingEntry.entryDetails.push(newObject);
     });
   });
-
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
   _this.addFilters(loopData);
