@@ -892,9 +892,9 @@ DynamicList.prototype.renderLoopHTML = function(records) {
         commentsEnabled: entry.commentsEnabled,
         entryDetails: []
       };
-      entry.data.some(function(obj) {
-        $.extend(true, newObject, obj.data);
-      });
+
+      $.extend(true, newObject, entry.data);
+
       loopData.push(newObject);
     });
     _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
