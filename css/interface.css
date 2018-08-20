@@ -16,6 +16,72 @@
   filter: grayscale(100%);
 }
 
+.tokenfield.form-control {
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  line-height: initial;
+  box-shadow: none;
+}
+
+.tokenfield .token-input {
+  display: block;
+  width: 100%;
+  height: 44px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #ffffff;
+  background-image: none;
+  border-radius: 6px;
+  border: 1px solid #e4e9eb;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.tokenfield .token-input:focus {
+  border: 1px solid #00abd1;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 171, 210, .6);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 171, 210, .6);
+}
+
+.tokenfield .token {
+  position: relative;
+  margin: -1px 5px 10px 0;
+  padding: 6px 19px 6px 12px;
+  height: auto;
+  border: none;
+  background-color: #e4e9eb;
+  border-bottom: 2px solid #cfd3d5;
+}
+
+.tokenfield .token.active {
+  border-color: #00abd1;
+}
+
+.tokenfield .token .close {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.tokenfield .token .token-label {
+  display: initial;
+  overflow: initial;
+  text-overflow: initial;
+  padding-left: 0;
+}
+
 .dynamic-list-widget-holder {
   position: absolute;
   left: 0;
@@ -83,6 +149,20 @@ header .btn,
   font-size: 12px;
   line-height: 1.5;
   border-radius: 3px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.edit-holder .btn ~ .btn {
+  margin: 0 0 0 15px;
+}
+
+.edit-holder .btn-secondary {
+  color: #14505e;
+  border-color: #14505e;
+  opacity: 0.7;
 }
 
 .state-wrapper {
@@ -230,7 +310,7 @@ header .btn,
 .sort-panels-holder,
 .filter-panels-holder {
   position: relative;
-  padding-bottom: 46px;
+  padding-bottom: 40px;
   overflow: hidden;
 }
 
@@ -242,9 +322,11 @@ header .btn,
   left: 0;
   text-align: center;
   padding: 9px;
-  border: 1px solid #d3dbde;
+  border: 1px solid #14505e;
+  color: #14505e;
+  opacity: 0.7;
   border-radius: 4px;
-  background-color: #e4e9eb;
+  background-color: transparent;
   cursor: pointer;
   z-index: 1;
 }
@@ -261,10 +343,11 @@ header .btn,
   box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 
-.panel-group {
+.sort-panels-holder .panel-group,
+.filter-panels-holder .panel-group {
   display: block;
   -webkit-user-select: none;
-  padding: 10px 0 10px;
+  padding: 0 0 8px;
   overflow-y: auto;
   overflow-x: hidden;
   margin: 0;
@@ -324,12 +407,6 @@ header .btn,
   padding: 10px 40px 10px 6px;
 }
 
-.panel-heading .fa-chevron-down,
-.panel-heading .fa-chevron-up,
-.panel-heading .fa-chevron-right {
-  margin-right: 10px;
-}
-
 .panel-title {
   white-space: nowrap;
   overflow: hidden;
@@ -341,13 +418,24 @@ header .btn,
   cursor: pointer;
 }
 
-.panel-heading .icon-delete {
+.panel-chevron {
   position: absolute;
   top: 0;
   right: 0;
+  opacity: 0.3;
+  width: 38px;
+  height: 38px;
+  line-height: 38px;
+  text-align: center;
+}
+
+.panel-heading .icon-delete {
+  position: absolute;
+  top: 0;
+  right: 38px;
   opacity: 0;
   color: #E60000;
-  width: 38px;
+  width: 20px;
   height: 38px;
   line-height: 38px;
   text-align: center;
@@ -363,9 +451,13 @@ header .btn,
   float: left;
   margin-right: 6px;
   text-align: center;
-  border-right: 1px solid #999;
-  opacity: 0.7;
+  opacity: 0.3;
   line-height: 18px;
+  font-size: 1.2em;
+}
+
+.panel-heading .screen-reorder-handle .fa ~ .fa {
+  margin-left: 2px;
 }
 
 .panel-collapse {
@@ -494,7 +586,7 @@ header .btn,
 #permissions-accordion.panel-group,
 #social-accordion.panel-group {
   padding: 0;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
 
 #permissions-accordion .panel-heading:hover,
@@ -512,6 +604,7 @@ header .btn,
   position: absolute;
   top: 0;
   right: 0;
+  opacity: 0.3;
   width: 40px;
   height: 35px;
   line-height: 35px;
@@ -527,6 +620,16 @@ header .btn,
 #social-accordion .panel-body {
   padding-left: 0;
   padding-right: 0;
+}
+
+.social-collapse .form-group,
+.permissions-collapse .form-group {
+  margin-bottom: 15px;
+}
+
+.social-collapse .form-group:last-child,
+.permissions-collapse .form-group:last-child {
+  margin-bottom: 0;
 }
 
 /* CODE EDITORS */

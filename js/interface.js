@@ -207,16 +207,10 @@ var DynamicLists = (function() {
           $(this).parents('.panel').remove();
           _this.checkFilterPanelLength();
         })
-        .on('show.bs.collapse', '.panel-collapse', function() {
-          $(this).siblings('.panel-heading').find('.fa-chevron-right').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-        })
-        .on('hide.bs.collapse', '.panel-collapse', function() {
-          $(this).siblings('.panel-heading').find('.fa-chevron-down').removeClass('fa-chevron-down').addClass('fa-chevron-right');
-        })
-        .on('show.bs.collapse', '.permissions-collapse, .social-collapse', function() {
+        .on('show.bs.collapse', '.panel-collapse, .permissions-collapse, .social-collapse', function() {
           $(this).siblings('.panel-heading').find('.fa-chevron-down').removeClass('fa-chevron-down').addClass('fa-chevron-up');
         })
-        .on('hide.bs.collapse', '.permissions-collapse, .social-collapse', function() {
+        .on('hide.bs.collapse', '.panel-collapse, .permissions-collapse, .social-collapse', function() {
           $(this).siblings('.panel-heading').find('.fa-chevron-up').removeClass('fa-chevron-up').addClass('fa-chevron-down');
         })
         .on('change', '.advanced-tab input[type="checkbox"]', function() {
