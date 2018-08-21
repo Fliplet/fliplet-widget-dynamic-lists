@@ -814,6 +814,14 @@ header .btn,
   margin-top: 10px;
 }
 
+.select-user-firstname-holder label,
+.select-user-lastname-holder label,
+.select-user-email-holder label,
+.select-user-photo-holder label,
+.select-user-admin-holder label {
+  font-weight: normal;
+}
+
 .hidden-settings {
   display: none;
   padding: 10px 10px 0;
