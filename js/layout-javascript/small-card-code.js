@@ -499,7 +499,7 @@ DynamicList.prototype.initialize = function() {
       _this.renderLoopHTML(records);
 
       // Render user profile
-      if (_this.myProfileData.length) {
+      if (_this.myProfileData && _this.myProfileData.length) {
         _this.myProfileData[0].data.profileHTML = _this.profileHTML(_this.myProfileData[0]);
         var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
