@@ -5,13 +5,13 @@
   \{{/if}}
   <div class="list-item-body">
     \{{#if [Title]}}
-    <p class="list-item-title">\{{[Title]}}</p>
+    <div class="list-item-title">\{{[Title]}}</div>
     \{{/if}}
     \{{#if [Description]}}
-    <div class="list-item-description">\{{{[Description]}}}</div>
+    <div class="list-item-description">\{{plaintext [Description]}}</div>
     \{{/if}}
     \{{#if [Category]}}
-    <p class="list-item-subtitle">\{{[Category]}}</p>
+    <div class="list-item-subtitle">\{{[Category]}}</div>
     \{{/if}}
   </div>
   <i class="list-item-arrow fa fa-angle-right" aria-hidden="true"></i>

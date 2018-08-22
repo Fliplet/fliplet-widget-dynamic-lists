@@ -118,6 +118,11 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
   Handlebars.registerHelper('formatDate', function(date) {
     return moment(date).utc().format('MMM Do YYYY');
   });
+
+  Handlebars.registerHelper('plaintext', function(context) {
+    result = $('<div></div>').html(context).text();
+    return $('<div></div>').html(result).text();
+  });
 }
 
 DynamicList.prototype.attachObservers = function() {
