@@ -80,6 +80,7 @@ function validate(value) {
 }
 
 function attahObservers() {
+  $('[data-toggle="tooltip"]').tooltip();
   $('form').submit(function (event) {
     event.preventDefault();
     dynamicLists.saveLists()
