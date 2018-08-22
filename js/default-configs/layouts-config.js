@@ -342,7 +342,7 @@ window.flListLayoutConfig = {
       {
         id: 'aJdnjRrT',
         location: 'Description',
-        type: 'text',
+        type: 'html',
         column: 'Description'
       },
       {
