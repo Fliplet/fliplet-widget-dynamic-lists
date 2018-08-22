@@ -87,19 +87,37 @@ function attahObservers() {
         widgetData = dynamicLists.config;
 
         // Validation for required fields
-        if (widgetData.addEntry && widgetData.addPermissions === 'admins') {
+        if ((widgetData.addEntry && widgetData.addPermissions === 'admins')
+          || (widgetData.editEntry && widgetData.editPermissions === 'admins')
+          || (widgetData.deleteEntry && widgetData.deletePermissions === 'admins')) {
           var errors = [];
           var values = [];
-          values.push(widgetData.userDataSourceId);
-          values.push(widgetData.userEmailColumn);
-          values.push(widgetData.userAdminColumn);
+
+          values.push({
+            value: widgetData.userDataSourceId,
+            field: '#select_user_datasource'
+          });
+          values.push({
+            value: widgetData.userEmailColumn,
+            field: '#select_user_email'
+          });
+          values.push({
+            value: widgetData.userAdminColumn,
+            field: '#select_user_admin'
+          });
           
-          values.forEach(function(value) {
-            errors.push(validate(value));
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
           });
 
-          if (errors.indexOf(false) > -1) {
+          if (errors && errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
@@ -108,22 +126,46 @@ function attahObservers() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
             return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
           }
-          $('.component-error').addClass('hidden');
         }
-        if (widgetData.editEntry && widgetData.editPermissions === 'admins') {
+
+        if ((widgetData.editEntry && widgetData.editPermissions === 'user')
+          || (widgetData.deleteEntry && widgetData.deletePermissions === 'user')) {
           var errors = [];
           var values = [];
-          values.push(widgetData.userDataSourceId);
-          values.push(widgetData.userEmailColumn);
-          values.push(widgetData.userAdminColumn);
-          
-          values.forEach(function(value) {
-            errors.push(validate(value));
+
+          values.push({
+            value: widgetData.userDataSourceId,
+            field: '#select_user_datasource'
+          });
+          values.push({
+            value: widgetData.userEmailColumn,
+            field: '#select_user_email'
+          });
+          values.push({
+            value: widgetData.userListEmailColumn,
+            field: '#select_user_email_data'
           });
 
-          if (errors.indexOf(false) > -1) {
+          if (widgetData.userNameFields && widgetData.userNameFields.length) {
+            errors.push('#user-name-column-fields-tokenfield');
+          }
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors && errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
@@ -132,92 +174,41 @@ function attahObservers() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
             return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
           }
-          $('.component-error').addClass('hidden');
-        } else if (widgetData.editEntry && widgetData.editPermissions === 'user') {
-          var errors = [];
-          var values = [];
-          values.push(widgetData.userDataSourceId);
-          values.push(widgetData.userEmailColumn);
-          values.push(widgetData.userListEmailColumn);
-          
-          values.forEach(function(value) {
-            errors.push(validate(value));
-          });
-
-          if (errors.indexOf(false) > -1) {
-            $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            if (!linkAddEntryProvider || !linkEditEntryProvider) {
-              withError = true;
-              linkProviderInit();
-            }
-            setTimeout(function() {
-              $('.component-error').addClass('hidden').removeClass('bounceInUp');
-            }, 4000);
-            return;
-          }
-          $('.component-error').addClass('hidden');
         }
-        if (widgetData.deleteEntry && widgetData.deletePermissions === 'admins') {
-          var errors = [];
-          var values = [];
-          values.push(widgetData.userDataSourceId);
-          values.push(widgetData.userEmailColumn);
-          values.push(widgetData.userAdminColumn);
-          
-          values.forEach(function(value) {
-            errors.push(validate(value));
-          });
 
-          if (errors.indexOf(false) > -1) {
-            $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            if (!linkAddEntryProvider || !linkEditEntryProvider) {
-              withError = true;
-              linkProviderInit();
-            }
-            setTimeout(function() {
-              $('.component-error').addClass('hidden').removeClass('bounceInUp');
-            }, 4000);
-            return;
-          }
-          $('.component-error').addClass('hidden');
-        } else if (widgetData.deleteEntry && widgetData.deletePermissions === 'user') {
-          var errors = [];
-          var values = [];
-          values.push(widgetData.userDataSourceId);
-          values.push(widgetData.userEmailColumn);
-          values.push(widgetData.userListEmailColumn);
-          
-          values.forEach(function(value) {
-            errors.push(validate(value));
-          });
-
-          if (errors.indexOf(false) > -1) {
-            $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            if (!linkAddEntryProvider || !linkEditEntryProvider) {
-              withError = true;
-              linkProviderInit();
-            }
-            setTimeout(function() {
-              $('.component-error').addClass('hidden').removeClass('bounceInUp');
-            }, 4000);
-            return;
-          }
-          $('.component-error').addClass('hidden');
-        }
         if (widgetData.social && widgetData.social.comments) {
           var errors = [];
           var values = [];
-          values.push(widgetData.userDataSourceId);
-          values.push(widgetData.userEmailColumn);
+
+          values.push({
+            value: widgetData.userDataSourceId,
+            field: '#select_user_datasource'
+          });
+          values.push({
+            value: widgetData.userEmailColumn,
+            field: '#select_user_email'
+          });
           
-          errors.push(widgetData.userNameFields && widgetData.userNameFields.length ? true : false);
-          values.forEach(function(value) {
-            errors.push(validate(value));
+          if (widgetData.userNameFields && widgetData.userNameFields.length) {
+            errors.push('#user-name-column-fields-tokenfield');
+          }
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
           });
 
-          if (errors.indexOf(false) > -1) {
+          if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
@@ -226,8 +217,10 @@ function attahObservers() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
             return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
           }
-          $('.component-error').addClass('hidden');
         }
 
         return Promise.all([

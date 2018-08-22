@@ -973,3 +973,8 @@ header .btn,
 .intro-form {
   margin-top: 10px;
 }
+
+.has-error .select2-selection,
+.has-error .token-input {
+  border-color: #a94442;
+}
