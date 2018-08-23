@@ -123,6 +123,10 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
     result = $('<div></div>').html(context).text();
     return $('<div></div>').html(result).text();
   });
+
+  Handlebars.registerHelper('removeSpaces', function(context) {
+    return context.replace(/\s+/g, '');
+  });
 }
 
 DynamicList.prototype.attachObservers = function() {

@@ -117,6 +117,10 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
   Handlebars.registerHelper('formatDate', function(date) {
     return moment(date).utc().format('MMM Do YYYY');
   });
+
+  Handlebars.registerHelper('removeSpaces', function(context) {
+    return context.replace(/\s+/g, '');
+  });
 }
 
 DynamicList.prototype.attachObservers = function() {

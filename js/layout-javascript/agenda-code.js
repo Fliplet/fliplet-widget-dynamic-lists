@@ -90,6 +90,40 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
         return options.inverse(this);
     }
   });
+
+  Handlebars.registerHelper('validateImage', function(image) {
+    var validatedImage = image;
+    
+    if (!validatedImage) {
+      return '';
+    }
+    
+    if (Array.isArray(validatedImage) && !validatedImage.length) {
+      return '';
+    }
+    
+    // Validate thumbnail against URL and Base64 patterns
+    var urlPattern = /^https?:\/\//i;
+    var base64Pattern = /^data:image\/[^;]+;base64,/i;
+    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
+      return '';
+    }
+
+    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
+      // attach auth token
+      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
+    }
+
+    return validatedImage;
+  });
+
+  Handlebars.registerHelper('formatDate', function(date) {
+    return moment(date).utc().format('MMM Do YYYY');
+  });
+
+  Handlebars.registerHelper('removeSpaces', function(context) {
+    return context.replace(/\s+/g, '');
+  });
 }
 
 DynamicList.prototype.attachObservers = function() {

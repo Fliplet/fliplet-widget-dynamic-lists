@@ -59,7 +59,14 @@
 .btn.dynamic-list-delete-item {
   display: inline-block;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 40px;
+  padding: 8px 18px;
+  font-size: 0.9em;
+}
+
+.dynamic-list-delete-item {
+  background-color: #f92c26;
+  border-color: #f92c26;
 }
 
 .dynamic-list-edit-item {

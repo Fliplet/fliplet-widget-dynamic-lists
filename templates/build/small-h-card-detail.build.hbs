@@ -75,6 +75,28 @@
           </div>
         \{{/ifCond}}
 
+        <!-- Telephone template -->
+        \{{#ifCond type '==' 'tel'}}
+          \{{#if labelEnabled}}
+          <div class="simple-list-detail-label">\{{label}}</div>
+          \{{/if}}
+
+          <div class="simple-list-detail-value">
+            <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
+          </div>
+        \{{/ifCond}}
+
+        <!-- Email template -->
+        \{{#ifCond type '==' 'mail'}}
+          \{{#if labelEnabled}}
+          <div class="simple-list-detail-label">\{{label}}</div>
+          \{{/if}}
+
+          <div class="simple-list-detail-value">
+            <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
+          </div>
+        \{{/ifCond}}
+
         <!-- Date template -->
         \{{#ifCond type '==' 'date'}}
           \{{#if labelEnabled}}
