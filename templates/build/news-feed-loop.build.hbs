@@ -50,73 +50,87 @@
           \{{#each entryDetails}}
             <!-- Image template -->
             \{{#ifCond type '==' 'image'}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+              \{{#if content}}
+                \{{#if labelEnabled}}
+                <div class="news-feed-detail-label">\{{label}}</div>
+                \{{/if}}
 
-              <div class="news-feed-detail-value">
-                <img src="\{{validateImage content}}">
-              </div>
+                <div class="news-feed-detail-value">
+                  <img src="\{{validateImage content}}">
+                </div>
+              \{{/if}}
             \{{/ifCond}}
 
             <!-- Plain text template -->
             \{{#ifCond type '==' 'text'}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+              \{{#if content}}
+                \{{#if labelEnabled}}
+                <div class="news-feed-detail-label">\{{label}}</div>
+                \{{/if}}
 
-              <div class="news-feed-detail-value">\{{content}}</div>
+                <div class="news-feed-detail-value">\{{content}}</div>
+              \{{/if}}
             \{{/ifCond}}
 
             <!-- HTML template -->
             \{{#ifCond type '==' 'html'}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+              \{{#if content}}
+                \{{#if labelEnabled}}
+                <div class="news-feed-detail-label">\{{label}}</div>
+                \{{/if}}
 
-              <div class="news-feed-detail-value">\{{{content}}}</div>
+                <div class="news-feed-detail-value">\{{{content}}}</div>
+              \{{/if}}
             \{{/ifCond}}
 
             <!-- URL template -->
             \{{#ifCond type '==' 'url'}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+              \{{#if content}}
+                \{{#if labelEnabled}}
+                <div class="news-feed-detail-label">\{{label}}</div>
+                \{{/if}}
 
-              <div class="news-feed-detail-value">
-                <a href="\{{content}}" target="_blank">Tap to open</a>
-              </div>
+                <div class="news-feed-detail-value">
+                  <a href="\{{content}}" target="_blank">Tap to open</a>
+                </div>
+              \{{/if}}
             \{{/ifCond}}
 
             <!-- Telephone template -->
             \{{#ifCond type '==' 'tel'}}
-              \{{#if labelEnabled}}
-              <div class="simple-list-detail-label">\{{label}}</div>
-              \{{/if}}
+              \{{#if content}}
+                \{{#if labelEnabled}}
+                <div class="simple-list-detail-label">\{{label}}</div>
+                \{{/if}}
 
-              <div class="simple-list-detail-value">
-                <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
-              </div>
+                <div class="simple-list-detail-value">
+                  <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
+                </div>
+              \{{/if}}
             \{{/ifCond}}
 
             <!-- Email template -->
             \{{#ifCond type '==' 'mail'}}
-              \{{#if labelEnabled}}
-              <div class="simple-list-detail-label">\{{label}}</div>
-              \{{/if}}
+              \{{#if content}}
+                \{{#if labelEnabled}}
+                <div class="simple-list-detail-label">\{{label}}</div>
+                \{{/if}}
 
-              <div class="simple-list-detail-value">
-                <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
-              </div>
+                <div class="simple-list-detail-value">
+                  <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
+                </div>
+              \{{/if}}
             \{{/ifCond}}
 
             <!-- Date template -->
             \{{#ifCond type '==' 'date'}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+              \{{#if content}}
+                \{{#if labelEnabled}}
+                <div class="news-feed-detail-label">\{{label}}</div>
+                \{{/if}}
 
-              <div class="news-feed-detail-value">"\{{formatDate content}}</div>
+                <div class="news-feed-detail-value">"\{{formatDate content}}</div>
+              \{{/if}}
             \{{/ifCond}}
           \{{/each}}
         </div>
