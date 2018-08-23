@@ -41,6 +41,7 @@ var DynamicList = function(id, data, container) {
   this.listItems;
   this.entryOverlay;
   this.myUserData;
+  this.dataSourceColumns;
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -465,10 +466,19 @@ DynamicList.prototype.initialize = function() {
       // Make rows available Globally
       _this.listItems = records;
       
-      // Render Loop HTML
-      _this.renderLoopHTML(records);
-      
       return;
+    })
+    .then(function() {
+      return Fliplet.DataSources.getById(_this.data.dataSourceId);
+    })
+    .then(function(dataSource) {
+      _this.dataSourceColumns = dataSource.columns;
+      return
+    })
+    .then(function() {
+      // Render Loop HTML
+      _this.renderLoopHTML(_this.listItems);
+      return
     })
     .then(function() {
       // Listeners and Ready
@@ -878,6 +888,8 @@ DynamicList.prototype.showDetails = function(id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
 
+  var savedColumns = [];
+
   var modifiedData = _this.getPermissions(_this.listItems);
   var entryData = _.find(modifiedData, function(entry) {
     return entry.id === id;
@@ -920,7 +932,24 @@ DynamicList.prototype.showDetails = function(id) {
       type: obj.type
     }
     newData.data.push(newObject);
+    savedColumns.push(obj.column);
   });
+
+  if (_this.data.detailViewAutoUpdate) {
+    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    if (extraColumns && extraColumns.length) {
+      extraColumns.forEach(function(column) {
+        var newColumnData = {
+          content: entryData.data[column],
+          label: column,
+          labelEnabled: true,
+          type: 'text'
+        };
+
+        newData.data.push(newColumnData);
+      });
+    }
+  }
 
   // Process template with data
   var entryId = {

@@ -36,6 +36,7 @@ var DynamicList = function(id, data, container) {
   this.myUserData;
 
   this.listItems;
+  this.dataSourceColumns;
 
   // Register handlebars helpers
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
@@ -413,10 +414,19 @@ DynamicList.prototype.initialize = function() {
         */
       }
       
-      // Render Loop HTML
-      _this.renderLoopHTML(records);
-      
       return;
+    })
+    .then(function() {
+      return Fliplet.DataSources.getById(_this.data.dataSourceId);
+    })
+    .then(function(dataSource) {
+      _this.dataSourceColumns = dataSource.columns;
+      return
+    })
+    .then(function() {
+      // Render Loop HTML
+      _this.renderLoopHTML(_this.listItems);
+      return
     })
     .then(function() {
       // Listeners and Ready
@@ -490,6 +500,8 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
+
+  var savedColumns = [];
 
   var loopData = [];
   var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
@@ -597,11 +609,34 @@ DynamicList.prototype.renderLoopHTML = function(records) {
         return entry.id === newObject.id;
       });
       matchingEntry.entryDetails.push(newObject);
+      savedColumns.push(obj.column);
     });
   });
 
   loopData.forEach(function(obj, index) {
-    loopData[index].profileHTML = _this.profileHTML(loopData[index]);
+    if (_this.data.detailViewAutoUpdate) {
+      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+      if (extraColumns && extraColumns.length) {
+
+        var entryData = _.find(records, function(modEntry) {
+          return modEntry.id = obj.id;
+        });
+
+        extraColumns.forEach(function(column) {
+          var newColumnData = {
+            id: entryData.id,
+            content: entryData.data[column],
+            label: column,
+            labelEnabled: true,
+            type: 'text'
+          };
+
+          obj.entryDetails.push(newColumnData);
+        });
+      }
+    }
+
+    obj.profileHTML = _this.profileHTML(obj);
   });
 
   _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).html(template(loopData));

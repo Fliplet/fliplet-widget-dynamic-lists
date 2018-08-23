@@ -43,6 +43,7 @@ var DynamicList = function(id, data, container) {
   this.myUserData;
 
   this.listItems;
+  this.dataSourceColumns;
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -494,11 +495,20 @@ DynamicList.prototype.initialize = function() {
 
       // Render dates HTML
       _this.renderDatesHTML(_this.listItems);
-
-      // Render Loop HTML
-      _this.renderLoopHTML(_this.listItems);
       
       return;
+    })
+    .then(function() {
+      return Fliplet.DataSources.getById(_this.data.dataSourceId);
+    })
+    .then(function(dataSource) {
+      _this.dataSourceColumns = dataSource.columns;
+      return
+    })
+    .then(function() {
+      // Render Loop HTML
+      _this.renderLoopHTML(_this.listItems);
+      return
     })
     .then(function() {
       // Listeners and Ready
@@ -574,6 +584,9 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.renderLoopHTML = function(rows) {
   // Function that renders the List template
   var _this = this;
+
+  var savedColumns = [];
+
   var clonedRecords = JSON.parse(JSON.stringify(rows));
   clonedRecords = _this.getPermissions(clonedRecords);
 
@@ -693,11 +706,38 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
         return entry.id === newObject.id;
       });
       matchingEntry.entryDetails.push(newObject);
+      savedColumns.push(obj.column);
     });
+  });
+
+  clonedRecords.forEach(function(entry, index) {
+    
   });
 
   // Converts date format
   loopData.forEach(function(obj, index) {
+    if (_this.data.detailViewAutoUpdate) {
+      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+      if (extraColumns && extraColumns.length) {
+
+        var entryData = _.find(clonedRecords, function(modEntry) {
+          return modEntry.id = obj.id;
+        });
+
+        extraColumns.forEach(function(column) {
+          var newColumnData = {
+            id: entryData.id,
+            content: entryData.data[column],
+            label: column,
+            labelEnabled: true,
+            type: 'text'
+          };
+
+          obj.entryDetails.push(newColumnData);
+        });
+      }
+    }
+
     var newDate = new Date(obj['Date']).toUTCString();
     loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
   });

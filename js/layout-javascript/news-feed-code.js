@@ -37,6 +37,7 @@ var DynamicList = function(id, data, container) {
   this.autosizeInit = false;
 
   this.listItems;
+  this.dataSourceColumns;
   this.likeButtons = [];
   this.bookmarkButtons = [];
   this.comments = [];
@@ -795,10 +796,19 @@ DynamicList.prototype.initialize = function() {
       // Make rows available Globally
       _this.listItems = records;
       
-      // Render Loop HTML
-      _this.renderLoopHTML(records);
-      
       return;
+    })
+    .then(function() {
+      return Fliplet.DataSources.getById(_this.data.dataSourceId);
+    })
+    .then(function(dataSource) {
+      _this.dataSourceColumns = dataSource.columns;
+      return
+    })
+    .then(function() {
+      // Render Loop HTML
+      _this.renderLoopHTML(_this.listItems);
+      return
     })
     .then(function() {
       // Listeners and Ready
@@ -872,6 +882,9 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
+
+  var savedColumns = [];
+
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
   modifiedData = _this.getPermissions(modifiedData);
@@ -970,8 +983,33 @@ DynamicList.prototype.renderLoopHTML = function(records) {
         return entry.id === newObject.id;
       });
       matchingEntry.entryDetails.push(newObject);
+      savedColumns.push(obj.column);
     });
   });
+
+  if (_this.data.detailViewAutoUpdate) {
+    loopData.forEach(function(entry, index) {
+      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+      if (extraColumns && extraColumns.length) {
+
+        var entryData = _.find(modifiedData, function(modEntry) {
+          return modEntry.id = entry.id;
+        });
+
+        extraColumns.forEach(function(column) {
+          var newColumnData = {
+            id: entryData.id,
+            content: entryData.data[column],
+            label: column,
+            labelEnabled: true,
+            type: 'text'
+          };
+
+          entry.entryDetails.push(newColumnData);
+        });
+      }
+    });
+  }
 
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
   _this.addFilters(loopData);

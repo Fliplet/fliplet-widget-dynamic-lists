@@ -692,6 +692,8 @@ var DynamicLists = (function() {
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
             });
 
+            $('input#enable-auto-update').prop('checked', _this.config.detailViewAutoUpdate);
+
             return;
           })
           .then(function() {
@@ -1815,6 +1817,8 @@ var DynamicLists = (function() {
         item.customFieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_name_' + item.id).val();
         item.fieldLabelDisabled = item.fieldLabel === 'no-label';
       });
+
+      data.detailViewAutoUpdate = $('input#enable-auto-update').is(":checked");
 
       // Get search and filter
       data.searchEnabled = $('#enable-search').is(":checked");
