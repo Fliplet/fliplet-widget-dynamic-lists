@@ -200,9 +200,14 @@ DynamicList.prototype.attachObservers = function() {
       var $inputField = $(this);
       var $parentElement = $inputField.parents('.simple-list-container');
       var value = $inputField.val();
+
       if (value.length) {
+        $inputField.addClass('not-empty');
         value = value.toLowerCase();
+      } else {
+        $inputField.removeClass('not-empty');
       }
+
       if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
           _this.clearSearch();
@@ -222,6 +227,33 @@ DynamicList.prototype.attachObservers = function() {
         $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
         _this.searchData(value);
       }
+    })
+    .on('click', '.search-holder .search-btn', function(e) {
+      var $inputField = $(this).parents('.search-holder').find('.search-feed');
+      var $parentElement = $inputField.parents('.simple-list-container');
+      var value = $inputField.val();
+
+      if (value.length) {
+        value = value.toLowerCase();
+      }
+
+      if (value === '') {
+        _this.clearSearch();
+        return;
+      }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'search',
+        label: value
+      });
+
+      if ($inputField.hasClass('from-overlay')) {
+        $inputField.parents('.simple-list-search-filter-overlay').removeClass('display');
+      }
+      $inputField.blur();
+      $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+      _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
       _this.clearSearch();
@@ -810,7 +842,7 @@ DynamicList.prototype.clearSearch = function() {
   var _this = this;
 
   // Removes value from search box
-  _this.$container.find('.search-holder').find('input').val('').blur();
+  _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
 
