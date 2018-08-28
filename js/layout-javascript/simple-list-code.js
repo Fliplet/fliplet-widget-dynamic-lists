@@ -137,6 +137,12 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('click', '.hidden-filter-controls-filter', function() {
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: $(this).text()
+      });
+
       $(this).toggleClass('mixitup-control-active');
       _this.filterClasses = [];
 
@@ -807,7 +813,6 @@ DynamicList.prototype.searchData = function(value) {
 
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
-
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
   
