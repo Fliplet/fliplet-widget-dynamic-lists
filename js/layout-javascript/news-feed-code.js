@@ -209,36 +209,9 @@ DynamicList.prototype.attachObservers = function() {
         action: 'filter',
         label: $(this).text()
       });
-      
+
       $(this).toggleClass('mixitup-control-active');
-      _this.filterClasses = [];
-
-      if (_this.data.social && _this.data.social.bookmark) {
-        _this.mixer.destroy();
-      }
-
-      if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
-        var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-        _this.renderLoopHTML(listData);
-        _this.onReady();
-        return;
-      }
-      
-      $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
-        _this.filterClasses.push($(element).data('toggle'));
-      });
-
-      var filteredData = _.filter(_this.listItems, function(row) {
-        var filters = [];
-        row.data['flFilters'].forEach(function(obj) {
-          filters.push(obj.data.class);
-        });
-
-        return _this.filterClasses.some(v => filters.indexOf(v) >= 0);
-      });
-
-      _this.renderLoopHTML(filteredData || _this.listItems);
-      _this.onReady();
+      _this.filterList();
     })
     .on('touchstart', '.news-feed-list-item', function(event) {
       event.stopPropagation();
@@ -1185,6 +1158,38 @@ DynamicList.prototype.addFilters = function(data) {
   : Handlebars.compile(filtersTemplate());
 
   _this.$container.find('.filter-holder').html(template(filtersData));
+}
+
+DynamicList.prototype.filterList = function() {
+  var _this = this;
+  _this.filterClasses = [];
+
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.mixer.destroy();
+  }
+
+  if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
+    var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+    _this.renderLoopHTML(listData);
+    _this.onReady();
+    return;
+  }
+  
+  $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
+    _this.filterClasses.push($(element).data('toggle'));
+  });
+
+  var filteredData = _.filter(_this.listItems, function(row) {
+    var filters = [];
+    row.data['flFilters'].forEach(function(obj) {
+      filters.push(obj.data.class);
+    });
+
+    return _this.filterClasses.some(v => filters.indexOf(v) >= 0);
+  });
+
+  _this.renderLoopHTML(filteredData || _this.listItems);
+  _this.onReady();
 }
 
 DynamicList.prototype.convertCategories = function(data) {
