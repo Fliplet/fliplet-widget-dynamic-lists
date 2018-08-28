@@ -36,7 +36,6 @@ var DynamicList = function(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
-  this.mixer;
 
   this.listItems;
   this.modifiedListItems;
@@ -791,10 +790,6 @@ DynamicList.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
 
-  if (_this.data.filtersEnabled) {
-    //_this.initializeMixer();
-  }
-
   // Ready
   _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
 }
@@ -812,8 +807,7 @@ DynamicList.prototype.searchData = function(value) {
 
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
-  // Remove filters
-  _this.$container.find('.filter-holder').html('');
+
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
   
@@ -887,51 +881,10 @@ DynamicList.prototype.clearSearch = function() {
   }
 
   // Resets list
-  if (_this.data.filtersEnabled) {
-    _this.mixer.destroy();
-  }
-
   _this.searchedListItems = undefined;
   _this.renderLoopHTML(_this.listItems);
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
-}
-
-DynamicList.prototype.initializeMixer = function() {
-  // Function that initializes MixItUP
-  // Plugin used for filtering
-  var _this = this;
-
-  _this.mixer = mixitup('#simple-list-wrapper-' + _this.data.id, {
-    selectors: {
-      control: '[data-mixitup-control="' + _this.data.id + '"]',
-      target: '.simple-list-item'
-    },
-    multifilter: {
-      enable: true // enable the multifilter extension for the _this.mixer
-    },
-    load: {
-      filter: 'all'
-    },
-    layout: {
-      allowNestedTargets: false
-    },
-    animation: {
-      "duration": 250,
-      "nudge": true,
-      "reverseOut": false,
-      "effects": "fade scale(0.45) translateZ(-100px)"
-    },
-    callbacks: {
-      onMixStart: function(state, originalEvent) {
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'filter',
-          label: this.innerText
-        });
-      }
-    }
-  });
 }
 
 DynamicList.prototype.openLinkAction = function(entryId) {
