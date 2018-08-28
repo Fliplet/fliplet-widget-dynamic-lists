@@ -944,7 +944,7 @@ DynamicList.prototype.convertCategories = function(data) {
           type: filter,
           data: {
             name: item,
-            class: '.' + classConverted
+            class: classConverted
           }
         }
         lowerCaseTags.push(classConverted);
