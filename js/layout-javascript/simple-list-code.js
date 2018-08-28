@@ -39,9 +39,12 @@ var DynamicList = function(id, data, container) {
   this.mixer;
 
   this.listItems;
+  this.modifiedListItems;
+  this.searchedListItems;
   this.entryOverlay;
   this.myUserData;
   this.dataSourceColumns;
+  this.filterClasses = [];
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -134,6 +137,36 @@ DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
   _this.$container
+    .on('click', '.hidden-filter-controls-filter', function() {
+      $(this).toggleClass('mixitup-control-active');
+      _this.filterClasses = [];
+
+      if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
+        var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+        _this.renderLoopHTML(listData);
+        _this.onReady();
+        return;
+      }
+      
+      $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
+        _this.filterClasses.push($(element).data('toggle'));
+      });
+
+      var filteredData = _.filter(_this.listItems, function(row) {
+        var filters = [];
+        row.data['flFilters'].forEach(function(obj) {
+          filters.push(obj.data.class);
+        });
+
+        return _this.filterClasses.some(v => filters.indexOf(v) >= 0);
+      });
+
+      if (!filteredData || !filteredData.length) {
+        return;
+      }
+      _this.renderLoopHTML(filteredData);
+      _this.onReady();
+    })
     .on('click', '.simple-list-item', function(event) {
       event.stopPropagation();
       var entryId = $(this).data('entry-id');
@@ -510,6 +543,7 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Loop HTML
       _this.renderLoopHTML(_this.listItems);
+      _this.addFilters(_this.modifiedListItems);
       return
     })
     .then(function() {
@@ -607,12 +641,13 @@ DynamicList.prototype.renderLoopHTML = function(records) {
     loopData.push(newObject);
   });
 
+  _this.modifiedListItems = loopData;
+
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(loopData));
-  _this.addFilters(loopData);
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -739,7 +774,7 @@ DynamicList.prototype.convertCategories = function(data) {
           type: filter,
           data: {
             name: item,
-            class: '.' + classConverted
+            class: classConverted
           }
         }
         lowerCaseTags.push(classConverted);
@@ -757,7 +792,7 @@ DynamicList.prototype.onReady = function() {
   var _this = this;
 
   if (_this.data.filtersEnabled) {
-    _this.initializeMixer();
+    //_this.initializeMixer();
   }
 
   // Ready
@@ -813,12 +848,11 @@ DynamicList.prototype.searchData = function(value) {
       return;
     }
 
-    if (_this.data.filtersEnabled) {
-      _this.mixer.destroy();
-    }
     // Remove duplicates
     searchedData = _.uniq(searchedData);
+    _this.searchedListItems = searchedData;
     _this.renderLoopHTML(searchedData);
+    _this.addFilters(_this.modifiedListItems);
     _this.onReady();
   }, 0);
 }
@@ -856,7 +890,10 @@ DynamicList.prototype.clearSearch = function() {
   if (_this.data.filtersEnabled) {
     _this.mixer.destroy();
   }
+
+  _this.searchedListItems = undefined;
   _this.renderLoopHTML(_this.listItems);
+  _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
 
