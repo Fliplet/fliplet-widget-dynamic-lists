@@ -268,7 +268,7 @@ var DynamicLists = (function() {
         .on('click', '.select-new-data-source', function() {
           Fliplet.Modal.confirm({
             title: 'Changing data source',
-            message: '<p>If you select a different data source you will need to use the <strong>Advanced Settings</strong to map your column names on the HTML templates.</p><p>Are you sure you want to continue?</p>'
+            message: '<p>If you select a different data source you will need to map which fields you want to be displayed or hidden in the <strong>Data view settings</strong>.</p><p>Are you sure you want to continue?</p>'
           }).then(function (result) {
             if (!result) {
               return;
