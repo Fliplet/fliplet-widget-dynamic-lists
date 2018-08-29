@@ -989,7 +989,11 @@ DynamicList.prototype.showDetails = function(id) {
   };
   var wrapper = '<div class="simple-list-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = _this.$container.find('#simple-list-detail-overlay-' + _this.data.id);
-  var template = Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['detail']]());
+
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.detailHTML
+  ? Handlebars.compile(_this.data.advancedSettings.detailHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['detail']]());
+
   var wrapperTemplate = Handlebars.compile(wrapper);
 
   // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
