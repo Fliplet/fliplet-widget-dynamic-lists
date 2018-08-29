@@ -1,8 +1,98 @@
-\{{#each this}}
-  \{{#if this}}
-    \{{#ifCond this '||' ''}}
-    <div class="simple-list-detail-label">\{{@key}}</div>
-    <div class="simple-list-detail-value">\{{{this}}}</div>
-    \{{/ifCond}}
-  \{{/if}}
+\{{#each data}}
+  <!-- Image template -->
+  \{{#ifCond type '==' 'image'}}
+    \{{#if content}}
+      \{{#if labelEnabled}}
+      <div class="simple-list-detail-label">\{{label}}</div>
+      \{{/if}}
+
+      <div class="simple-list-detail-value">
+        <img src="\{{validateImage content}}">
+      </div>
+    \{{/if}}
+  \{{/ifCond}}
+
+  <!-- Plain text template -->
+  \{{#ifCond type '==' 'text'}}
+    \{{#if content}}
+      \{{#if labelEnabled}}
+      <div class="simple-list-detail-label">\{{label}}</div>
+      \{{/if}}
+
+      <div class="simple-list-detail-value">\{{content}}</div>
+    \{{/if}}
+  \{{/ifCond}}
+
+  <!-- HTML template -->
+  \{{#ifCond type '==' 'html'}}
+    \{{#if content}}
+      \{{#if labelEnabled}}
+      <div class="simple-list-detail-label">\{{label}}</div>
+      \{{/if}}
+
+      <div class="simple-list-detail-value">\{{{content}}}</div>
+    \{{/if}}
+  \{{/ifCond}}
+
+  <!-- URL template -->
+  \{{#ifCond type '==' 'url'}}
+    \{{#if content}}
+      \{{#if labelEnabled}}
+      <div class="simple-list-detail-label">\{{label}}</div>
+      \{{/if}}
+
+      <div class="simple-list-detail-value">
+        <a href="\{{content}}" target="_blank">Tap to open</a>
+      </div>
+    \{{/if}}
+  \{{/ifCond}}
+
+  <!-- Telephone template -->
+  \{{#ifCond type '==' 'tel'}}
+    \{{#if content}}
+      \{{#if labelEnabled}}
+      <div class="simple-list-detail-label">\{{label}}</div>
+      \{{/if}}
+
+      <div class="simple-list-detail-value">
+        <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
+      </div>
+    \{{/if}}
+  \{{/ifCond}}
+
+  <!-- Email template -->
+  \{{#ifCond type '==' 'mail'}}
+    \{{#if content}}
+      \{{#if labelEnabled}}
+      <div class="simple-list-detail-label">\{{label}}</div>
+      \{{/if}}
+
+      <div class="simple-list-detail-value">
+        <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
+      </div>
+    \{{/if}}
+  \{{/ifCond}}
+
+  <!-- Date template -->
+  \{{#ifCond type '==' 'date'}}
+    \{{#if content}}
+      \{{#if labelEnabled}}
+      <div class="simple-list-detail-label">\{{label}}</div>
+      \{{/if}}
+
+      <div class="simple-list-detail-value">"\{{formatDate content}}</div>
+    \{{/if}}
+  \{{/ifCond}}
 \{{/each}}
+
+<!-- Edit and Delete buttons -->
+\{{#ifCond editEntry '||' deleteEntry}}
+<div class="dynamic-list-controls">
+  \{{#if editEntry}}
+  <div class="btn btn-default dynamic-list-edit-item">Edit</div>
+  \{{/if}}
+  \{{#if deleteEntry}}
+  <div class="btn btn-danger dynamic-list-delete-item">Delete</div>
+  \{{/if}}
+</div>
+\{{/ifCond}}

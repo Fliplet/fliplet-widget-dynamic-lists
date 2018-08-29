@@ -1,17 +1,17 @@
 \{{#each this}}
-<div class="simple-list-item mix \{{data.[flClasses]}} \{{#unless data.[Image]}}no-image\{{/unless}}" data-entry-id="\{{id}}">
-  \{{#if data.[Image]}}
-  <div class="list-item-image" style="background-image: url('\{{auth data.[Image]}}')"></div>
+<div class="simple-list-item mix \{{[flClasses]}} \{{#unless [Image]}}no-image\{{/unless}}" data-entry-id="\{{id}}">
+  \{{#if [Image]}}
+  <div class="list-item-image" style="background-image: url('\{{auth [Image]}}')"></div>
   \{{/if}}
   <div class="list-item-body">
-    \{{#if data.[Title]}}
-    <p class="list-item-title">\{{data.[Title]}}</p>
+    \{{#if [Title]}}
+    <div class="list-item-title">\{{[Title]}}</div>
     \{{/if}}
-    \{{#if data.[Description]}}
-    <p class="list-item-description">\{{data.[Description]}}</p>
+    \{{#if [Description]}}
+    <div class="list-item-description">\{{plaintext [Description]}}</div>
     \{{/if}}
-    \{{#if data.[Category]}}
-    <p class="list-item-subtitle">\{{data.[Category]}}</p>
+    \{{#if [Category]}}
+    <div class="list-item-subtitle">\{{[Category]}}</div>
     \{{/if}}
   </div>
   <i class="list-item-arrow fa fa-angle-right" aria-hidden="true"></i>

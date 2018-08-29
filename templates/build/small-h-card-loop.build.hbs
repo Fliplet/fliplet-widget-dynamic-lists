@@ -3,16 +3,16 @@
     <div class="small-h-card-list-image">
       <div class="small-h-card-list-detail-wrapper" data-entry-id="\{{id}}">
         <div class="small-h-card-list-detail-image-wrapper">
-          <div class="small-h-card-list-detail-image" style="background-image: url('\{{auth data.[Image]}}')"></div>
+          <div class="small-h-card-list-detail-image" style="background-image: url('\{{auth [Image]}}')"></div>
           <i class="fa fa-user"></i>
         </div>
 
         <!-- Don't delete this -->
         <!-- This is where the detail view will be added -->
-        \{{{ data.[profileHTML] }}}
+        \{{{ [profileHTML] }}}
 
       </div>
     </div>
-    <div class="small-h-card-list-item-text">\{{data.[First Name]}} \{{data.[Last Name]}}</div>
+    <div class="small-h-card-list-item-text">\{{[First Name]}} \{{[Last Name]}}</div>
   </div>
 \{{/each}}

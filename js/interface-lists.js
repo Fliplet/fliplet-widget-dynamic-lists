@@ -6,6 +6,7 @@ var addEntryLinkAction;
 var editEntryLinkAction;
 var linkAddEntryProvider;
 var linkEditEntryProvider;
+var withError = false;
 
 var addEntryLinkData = $.extend(true, {
   action: 'screen',
@@ -58,7 +59,9 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
-    save(true);
+    if (!withError) {
+      save(true);
+    }
   });
 }
 
@@ -68,13 +71,164 @@ function initialize() {
   dynamicLists = new DynamicLists(widgetData);
 }
 
+function validate(value) {
+  if (value && value !== '' && value !== 'none') {
+    return true;
+  }
+
+  return false;
+}
+
 function attahObservers() {
+  $('[data-toggle="tooltip"]').tooltip();
   $('form').submit(function (event) {
-  event.preventDefault();
-    Promise.all([
-      linkAddEntryProvider.forwardSaveRequest(),
-      linkEditEntryProvider.forwardSaveRequest()
-    ]);
+    event.preventDefault();
+    dynamicLists.saveLists()
+      .then(function() {
+        widgetData = dynamicLists.config;
+
+        // Validation for required fields
+        if ((widgetData.addEntry && widgetData.addPermissions === 'admins')
+          || (widgetData.editEntry && widgetData.editPermissions === 'admins')
+          || (widgetData.deleteEntry && widgetData.deletePermissions === 'admins')) {
+          var errors = [];
+          var values = [];
+
+          values.push({
+            value: widgetData.userDataSourceId,
+            field: '#select_user_datasource'
+          });
+          values.push({
+            value: widgetData.userEmailColumn,
+            field: '#select_user_email'
+          });
+          values.push({
+            value: widgetData.userAdminColumn,
+            field: '#select_user_admin'
+          });
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors && errors.length) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
+          }
+        }
+
+        if ((widgetData.editEntry && widgetData.editPermissions === 'user')
+          || (widgetData.deleteEntry && widgetData.deletePermissions === 'user')) {
+          var errors = [];
+          var values = [];
+
+          values.push({
+            value: widgetData.userDataSourceId,
+            field: '#select_user_datasource'
+          });
+          values.push({
+            value: widgetData.userEmailColumn,
+            field: '#select_user_email'
+          });
+          values.push({
+            value: widgetData.userListEmailColumn,
+            field: '#select_user_email_data'
+          });
+
+          if (widgetData.userNameFields && widgetData.userNameFields.length) {
+            errors.push('#user-name-column-fields-tokenfield');
+          }
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors && errors.length) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
+          }
+        }
+
+        if (widgetData.social && widgetData.social.comments) {
+          var errors = [];
+          var values = [];
+
+          values.push({
+            value: widgetData.userDataSourceId,
+            field: '#select_user_datasource'
+          });
+          values.push({
+            value: widgetData.userEmailColumn,
+            field: '#select_user_email'
+          });
+          
+          if (widgetData.userNameFields && widgetData.userNameFields.length) {
+            errors.push('#user-name-column-fields-tokenfield');
+          }
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors.length) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
+          }
+        }
+
+        return Promise.all([
+          linkAddEntryProvider.forwardSaveRequest(),
+          linkEditEntryProvider.forwardSaveRequest()
+        ]);
+      });
   });
 
   Fliplet.Widget.onSaveRequest(function () {
@@ -83,20 +237,17 @@ function attahObservers() {
 }
 
 function save(notifyComplete) {
-  dynamicLists.saveLists()
-    .then(function() {
-      widgetData = dynamicLists.config;
-      widgetData.addEntryLinkAction = addEntryLinkAction;
-      widgetData.editEntryLinkAction = editEntryLinkAction;
-      Fliplet.Widget.save(widgetData).then(function () {
-        if (notifyComplete) {
-          Fliplet.Widget.complete();
-          window.location.reload();
-        } else {
-          Fliplet.Studio.emit('reload-widget-instance', widgetId);
-        }
-      });
-    });
+  widgetData.addEntryLinkAction = addEntryLinkAction;
+  widgetData.editEntryLinkAction = editEntryLinkAction;
+
+  Fliplet.Widget.save(widgetData).then(function () {
+    if (notifyComplete) {
+      Fliplet.Widget.complete();
+      window.location.reload();
+    } else {
+      Fliplet.Studio.emit('reload-widget-instance', widgetId);
+    }
+  });
 }
 
 initialize();

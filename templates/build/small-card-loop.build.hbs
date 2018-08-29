@@ -1,22 +1,23 @@
 \{{#each this}}
-  <div class="small-card-list-item mix \{{data.[classes]}}" data-entry-id="\{{id}}">
-    <div class="small-card-list-image">
+  <div class="small-card-list-item mix \{{[flClasses]}}" data-entry-id="\{{id}}">
+    <div class="small-card-list-image \{{#unless [Image]}}no-image\{{/unless}}">
       <div class="small-card-list-detail-wrapper" data-entry-id="\{{id}}">
+        \{{#if [Image]}}
         <div class="small-card-list-detail-image-wrapper">
-          <div class="small-card-list-detail-image" style="background-image: url('\{{auth data.[Image]}}')"></div>
+          <div class="small-card-list-detail-image" style="background-image: url('\{{auth [Image]}}')"></div>
           <i class="fa fa-user"></i>
         </div>
+        \{{/if}}
         
         <!-- Don't delete this -->
         <!-- This is where the detail view will be added -->
-        \{{{ data.[profileHTML] }}}
-
+        \{{{ [profileHTML] }}}
       </div>
     </div>
     <div class="small-card-list-text-wrapper">
-      <div class="small-card-list-name">\{{data.[First Name]}} \{{data.[Last Name]}}</div>
-      <div class="small-card-list-role">\{{data.[Title]}}</div>
-      <div class="small-card-list-location">\{{data.[Location]}}</div>
+      <div class="small-card-list-name">\{{[First Name]}} \{{[Last Name]}}</div>
+      <div class="small-card-list-role">\{{[Title]}}</div>
+      <div class="small-card-list-location">\{{[Location]}}</div>
     </div>
   </div>
   \{{/each}}

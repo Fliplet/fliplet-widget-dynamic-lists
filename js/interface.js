@@ -17,6 +17,10 @@ var DynamicLists = (function() {
   var $sortAccordionContainer = $('#sort-accordion');
   var filterPanelTemplate = Fliplet.Widget.Templates['templates.interface.filter-panels'];
   var sortPanelTemplate = Fliplet.Widget.Templates['templates.interface.sort-panels'];
+  var $summaryRowContainer = $('.table-panels-holder');
+  var summaryRowTemplate = Fliplet.Widget.Templates['templates.interface.summary-view-panels'];
+  var $detailsRowContainer = $('.detail-table-panels-holder');
+  var detailsRowTemplate = Fliplet.Widget.Templates['templates.interface.detail-view-panels'];
 
   var tokenField = Fliplet.Widget.Templates['templates.interface.field-token'];
 
@@ -47,6 +51,10 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
+  var addRadioValues = [];
+  var editRadioValues = [];
+  var deleteRadioValues = [];
+
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -54,6 +62,7 @@ var DynamicLists = (function() {
     _this.config = $.extend(true, {
       sortOptions: [],
       filterOptions: [],
+      detailViewOptions: [],
       social: {
         likes: false,
         bookmark: false,
@@ -94,8 +103,12 @@ var DynamicLists = (function() {
         .on('click', '[data-advanced]', function() {
           _this.goToAdvanced();
         })
-        .on('click', '[data-back-settings]', function() {
-          _this.goToSettings('advanced');
+        .on('click', '[data-relations-fields]', function() {
+          _this.goToRelations();
+        })
+        .on('click', '.go-back', function() {
+          var context = $(this).data('back-settings');
+          _this.goToSettings(context);
         })
         .on('click', '#manage-data, [data-edit-datasource]', _this.manageAppData)
         .on('click', '[data-reset-default]', function() {
@@ -194,11 +207,11 @@ var DynamicLists = (function() {
           $(this).parents('.panel').remove();
           _this.checkFilterPanelLength();
         })
-        .on('show.bs.collapse', '.panel-collapse', function() {
-          $(this).siblings('.panel-heading').find('.fa-chevron-right').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+        .on('show.bs.collapse', '.panel-collapse, .permissions-collapse, .social-collapse', function() {
+          $(this).siblings('.panel-heading').find('.fa-chevron-down').removeClass('fa-chevron-down').addClass('fa-chevron-up');
         })
-        .on('hide.bs.collapse', '.panel-collapse', function() {
-          $(this).siblings('.panel-heading').find('.fa-chevron-down').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        .on('hide.bs.collapse', '.panel-collapse, .permissions-collapse, .social-collapse', function() {
+          $(this).siblings('.panel-heading').find('.fa-chevron-up').removeClass('fa-chevron-up').addClass('fa-chevron-down');
         })
         .on('change', '.advanced-tab input[type="checkbox"]', function() {
           var $input = $(this);
@@ -255,7 +268,7 @@ var DynamicLists = (function() {
         .on('click', '.select-new-data-source', function() {
           Fliplet.Modal.confirm({
             title: 'Changing data source',
-            message: '<p>If you select a different data source you will need to use the <strong>Advanced Settings</strong to map your column names on the HTML templates.</p><p>Are you sure you want to continue?</p>'
+            message: '<p>If you select a different data source you will need to map which fields you want to be displayed or hidden in the <strong>Data view settings</strong>.</p><p>Are you sure you want to continue?</p>'
           }).then(function (result) {
             if (!result) {
               return;
@@ -266,21 +279,146 @@ var DynamicLists = (function() {
         })
         .on('change', '#enable-comments', function() {
           if ( $(this).is(":checked") ) {
-            $('.select-user-datasource-holder').removeClass('hidden');
+            $('.user-datasource-options').removeClass('hidden');
+            $('.select-user-photo-holder').removeClass('hidden');
           } else {
-            $('.select-user-datasource-holder').addClass('hidden');
+            $('.user-datasource-options').addClass('hidden');
+            $('.select-user-photo-holder').addClass('hidden');
           }
         })
         .on('change', '[name="list-control"]', function() {
-        var values = [];
+          var values = [];
 
-        $('[name="list-control"]:checked').each(function(){
-          values.push($(this).val());
+          $('[name="list-control"]:checked').each(function(){
+            values.push($(this).val());
+          });
+
+          $('.add-entry-checkbox').find('.hidden-settings')[values.indexOf('add-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+          $('.edit-entry-checkbox').find('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+          $('.delete-entry-checkbox').find('.hidden-settings')[values.indexOf('delete-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+        })
+        .on('change', '[name="add-permissions"]', function() {
+          addRadioValues = [];
+
+          $('[name="add-permissions"]:checked').each(function(){
+            addRadioValues.push($(this).val());
+          });
+
+          $('.select-user-admin-holder')[
+            addRadioValues.indexOf('admins') !== -1 ||
+            editRadioValues.indexOf('admins') !== -1 ||
+            deleteRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+          $('.user-datasource-options')[
+            addRadioValues.indexOf('admins') !== -1 ||
+            editRadioValues.indexOf('admins') !== -1 ||
+            editRadioValues.indexOf('user') !== -1 ||
+            deleteRadioValues.indexOf('admins') !== -1 ||
+            deleteRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
+        })
+        .on('change', '[name="edit-permissions"]', function() {
+          editRadioValues = [];
+
+          $('[name="edit-permissions"]:checked').each(function(){
+            editRadioValues.push($(this).val());
+          });
+
+          $('.select-user-email-list-holder')[editRadioValues.indexOf('user') !== -1 ||
+            deleteRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
+
+          $('.select-user-admin-holder')[
+            editRadioValues.indexOf('admins') !== -1 ||
+            deleteRadioValues.indexOf('admins') !== -1 ||
+            addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+          $('.user-datasource-options')[
+            editRadioValues.indexOf('admins') !== -1 ||
+            editRadioValues.indexOf('user') !== -1 ||
+            deleteRadioValues.indexOf('admins') !== -1 ||
+            deleteRadioValues.indexOf('user') !== -1 ||
+            addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+        })
+        .on('change', '[name="delete-permissions"]', function() {
+          deleteRadioValues = [];
+
+          $('[name="delete-permissions"]:checked').each(function(){
+            deleteRadioValues.push($(this).val());
+          });
+
+          $('.select-user-email-list-holder')[deleteRadioValues.indexOf('user') !== -1 ||
+            editRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
+
+          $('.select-user-admin-holder')[
+            editRadioValues.indexOf('admins') !== -1 ||
+            deleteRadioValues.indexOf('admins') !== -1 ||
+            addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+          $('.user-datasource-options')[
+            editRadioValues.indexOf('admins') !== -1 ||
+            editRadioValues.indexOf('user') !== -1 ||
+            deleteRadioValues.indexOf('admins') !== -1 ||
+            deleteRadioValues.indexOf('user') !== -1 ||
+            addRadioValues.indexOf('admins') !== -1  ? 'removeClass' : 'addClass']('hidden');
+        })
+        .on('change', '[name="detail-view-action"]', function() {
+          var value = $('[name="detail-view-action"]:checked').val();
+
+          if (value === 'show') {
+            $('.detail-view-table').removeClass('hidden');
+            $('.detail-link-action').addClass('hidden');
+          } else {
+            $('.detail-view-table').addClass('hidden');
+            $('.detail-link-action').removeClass('hidden');
+          }
+        })
+        .on('change', '[name="select_summary_field"]', function() {
+          var value = $(this).val();
+
+          if (value === 'custom') {
+            $(this).parents('.rTableRow').find('.custom-field-input').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.custom-field-input').addClass('hidden');
+          }
+        })
+        .on('change', '[name="select_field"]', function() {
+          var value = $(this).val();
+
+          if (value === 'custom') {
+            $(this).parents('.rTableRow').find('.custom-field-input').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.custom-field-input').addClass('hidden');
+          }
+        })
+        .on('change', '[name="select_field_label"]', function() {
+          var value = $(this).val();
+
+          if (value === 'custom-label') {
+            $(this).parents('.rTableRow').find('.custom-label-input').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.custom-label-input').addClass('hidden');
+          }
+        })
+        .on('click', '.rTableCell.delete', function() {
+          var fieldId = $(this).parents('.rTableRow').data('id');
+          var $row = $(this).parents('.rTableRow');
+
+          _.remove(_this.config.detailViewOptions, function(option) {
+            return option.id === fieldId;
+          });
+
+          $row.remove();
+        })
+        .on('click', '.add-data-field', function() {
+          var item = {
+            id: _this.makeid(8),
+            columns: dataSourceColumns,
+            column: 'none',
+            type: 'text',
+            fieldLabel: 'column-name',
+            editable: true
+          };
+
+          _this.config.detailViewOptions.push(item);
+
+          _this.addDetailItem(item);
         });
-
-        $('#add-entry-link').parents('.hidden-settings')[values.indexOf('add-entry') !== -1 ? 'addClass' : 'removeClass']('active');
-        $('#edit-entry-link').parents('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
-      });;
 
       $dataSources.on( 'change', function() {
         var selectedDataSourceId = $(this).val();
@@ -302,11 +440,12 @@ var DynamicLists = (function() {
       $newUserDataSource.on( 'change', function() {
         var selectedDataSourceId = $(this).val();
 
-        if (selectedDataSourceId === 'none') {
+        if (selectedDataSourceId === 'none' || selectedDataSourceId === '') {
           $('.select-user-firstname-holder').addClass('hidden');
           $('.select-user-lastname-holder').addClass('hidden');
           $('.select-user-email-holder').addClass('hidden');
           $('.select-user-photo-holder').addClass('hidden');
+          $('.select-user-admin-holder').addClass('hidden');
           return;
         }
 
@@ -317,6 +456,7 @@ var DynamicLists = (function() {
         if (event.data && event.data.event === 'overlay-close' && event.data.data && event.data.data.dataSourceId) {
           _this.reloadDataSources().then(function(dataSources) {
             allDataSources = dataSources;
+            _this.getColumns(_this.config.dataSourceId);
             _this.initSelect2(allDataSources);
             _this.initSecondSelect2(allDataSources);
             Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
@@ -348,27 +488,44 @@ var DynamicLists = (function() {
       _this.initializeSortSortable();
     },
     loadData: function() {
-      setTimeout(function() {
-        $('.state').removeClass('loading is-loading');  
-      }, 500);
-
       if (!_this.config.layout) {
         return new Promise(function(resolve) {
           Fliplet.Studio.emit('widget-mode', 'wide');
+          $('.state').removeClass('loading is-loading');
           resolve();
         });
       } else {
         if (_this.config['style-specific'].length) {
           _.forEach(_this.config['style-specific'], function(item) {
             $('.' + item).removeClass('hidden');
+            if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
+              $('#social-accordion').removeClass('hidden');
+            }
           });
+
+          // backwards compatible
+          if (_this.config.layout === 'news-feed' && typeof _this.config.social.bookmark === 'undefined') {
+            _this.config.social.bookmark = true;
+            $('.list-bookmark').removeClass('hidden');
+            $('#social-accordion').removeClass('hidden');
+          }
         } else if (_this.config.layout === 'small-card') {
           // Because initial component didn't have this option
           // This makes it backwards compatible
           _this.config['style-specific'] = ['list-filter', 'list-search'];
           _.forEach(_this.config['style-specific'], function(item) {
             $('.' + item).removeClass('hidden');
+
+            if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
+              $('#social-accordion').removeClass('hidden');
+            }
           });
+        }
+
+        if (_this.config.layout === 'small-h-card') {
+          $('.add-entry-checkbox').addClass('hidden');
+          $('#add_entry').prop('checked', false).trigger('change');
+          _this.config.addEntry = false;
         }
 
         // Load data source
@@ -419,6 +576,13 @@ var DynamicLists = (function() {
             $('#edit_entry').prop('checked', _this.config.editEntry).trigger('change');
             $('#delete_entry').prop('checked', _this.config.deleteEntry).trigger('change');
 
+            var addPermission = _this.config.addPermissions || 'everyone';
+            var editPermission = _this.config.editPermissions || 'everyone';
+            var deletePermission = _this.config.deletePermissions || 'everyone';
+            $('[name="add-permissions"][value="' + addPermission + '"]').prop('checked', true).trigger('change');
+            $('[name="edit-permissions"][value="' + editPermission + '"]').prop('checked', true).trigger('change');
+            $('[name="delete-permissions"][value="' + deletePermission + '"]').prop('checked', true).trigger('change');
+
             // Load code editor tabs
             switch(listLayout) {
               case 'small-card':
@@ -436,6 +600,7 @@ var DynamicLists = (function() {
                 break;
               case 'simple-list':
                 $('.filter-loop-item').removeClass('hidden');
+                $('.detail-view-item').removeClass('hidden');
                 break;
               default:
                 break;
@@ -453,24 +618,103 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
-            if (_this.config.userDataSourceId) {
+            if (_this.config.userDataSourceId && _this.config.userDataSourceId !== 'none') {
               return _this.getUserColumns(_this.config.userDataSourceId);
             }
 
             return;
           })
           .then(function() {
-            if (_this.config.social.comments) {
+            // Sets up the data view settings
+            if (typeof _this.config['summary-fields'] === 'undefined') {
+              _this.config['summary-fields'] = defaultSettings[listLayout]['summary-fields'];
+            }
+            
+            var actionValue = _this.config.summaryLinkOption || 'show';
+            $('[name="detail-view-action"][value="' + actionValue + '"]').prop('checked', true).trigger('change');
+
+            $('#select_field_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.column || 'none');
+            $('#select_type_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.type || 'url');
+
+            _.forEach(_this.config['summary-fields'], function(item) {
+              item.columns = dataSourceColumns;
+              _this.addSummaryItem(item);
+              $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
+              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
+            });
+
+            if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
+              _.forEach(dataSourceColumns, function(column, index) {
+                var item = {
+                  id: index + 1,
+                  columns: dataSourceColumns,
+                  column: column,
+                  type: 'text',
+                  fieldLabel: 'column-name',
+                  editable: true
+                }
+
+                _this.config.detailViewOptions.push(item);
+              });
+            }
+
+            if (defaultSettings[listLayout]['detail-fields'] && defaultSettings[listLayout]['detail-fields'].length) {
+              defaultSettings[listLayout]['detail-fields'].forEach(function(field) {
+                _this.config.detailViewOptions.some(function(option, index) {
+                  if (field.column === option.column) {
+                    _this.config.detailViewOptions[index].editable = false;
+                    _this.config.detailViewOptions[index].location = field.location;
+                    _this.config.detailViewOptions[index].type = field.type;
+                  }
+                });
+              });
+            }
+
+            // Remove duplicates from Detail view unless it's Simple List
+            if (_this.config.layout !== 'simple-list') {
+              _.forEach(_this.config['summary-fields'], function(field) {
+                _this.config.detailViewOptions.some(function(option, index) {
+                  if (field.column === option.column) {
+                    _this.config.detailViewOptions.splice(index, 1);
+                  }
+                });
+              });
+            }
+
+            _.forEach(_this.config.detailViewOptions, function(item) {  
+              item.columns = dataSourceColumns;
+              _this.addDetailItem(item);
+
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
+            });
+
+            $('input#enable-auto-update').prop('checked', _this.config.detailViewAutoUpdate);
+
+            return;
+          })
+          .then(function() {
+            if (_this.config.social.comments || _this.config.userDataSourceId) {
               $('#select_user_fname').val(_this.config.userFirstNameColumn ? _this.config.userFirstNameColumn : 'none');
               $('#select_user_lname').val(_this.config.userLastNameColumn ? _this.config.userLastNameColumn : 'none');
               $('#select_user_email').val(_this.config.userEmailColumn ? _this.config.userEmailColumn : 'none');
               $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
+              $('#select_user_admin').val(_this.config.userAdminColumn ? _this.config.userAdminColumn : 'none');
+              $('#select_user_email_data').val(_this.config.userListEmailColumn ? _this.config.userListEmailColumn : 'none');
               $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
-              $('.select-user-datasource-holder').removeClass('hidden');
+
+              if (_this.config.social.comments) {
+                $('.user-datasource-options').removeClass('hidden');
+              }
             }
 
             _this.setupCodeEditors(listLayout);
             _this.goToSettings('layouts');
+            $('.state').removeClass('loading is-loading');
 
             return;
           })
@@ -508,6 +752,7 @@ var DynamicLists = (function() {
                   break;
                 case 'simple-list':
                   $('.filter-loop-item').removeClass('hidden');
+                  $('.detail-view-item').removeClass('hidden');
                   break;
                 default:
                   break;
@@ -551,6 +796,9 @@ var DynamicLists = (function() {
       if (context === 'advanced') {
         $('.advanced-tab').removeClass('present').addClass('future');
       }
+      if (context === 'relations') {
+        $('.relations-tab').removeClass('present').addClass('future');
+      }
       if (context === 'layouts') {
         $('.settings-tab').removeClass('future').addClass('present');
       }
@@ -559,6 +807,10 @@ var DynamicLists = (function() {
     },
     goToAdvanced: function() {
       $('.advanced-tab').removeClass('future').addClass('present');
+      Fliplet.Studio.emit('widget-mode', 'wide');
+    },
+    goToRelations: function() {
+      $('.relations-tab').removeClass('future').addClass('present');
       Fliplet.Studio.emit('widget-mode', 'wide');
     },
     setUpTokenFields: function() {
@@ -616,19 +868,20 @@ var DynamicLists = (function() {
       }
     },
     getUserColumns: function(dataSourceId) {
-      if (dataSourceId && dataSourceId !== '') {
+      if (dataSourceId && dataSourceId !== '' && dataSourceId !== 'none') {
         return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
         }).then(function (dataSource) {
           newUserDataSource = dataSource;
           userDataSourceColumns = dataSource.columns;
-          _this.updateUserFieldsWithColumns(dataSourceColumns);
+          _this.updateUserFieldsWithColumns(userDataSourceColumns);
           return;
         });
       }
+
+      return;
     },
     updateFieldsWithColumns: function(dataSourceColumns) {
-      var options;
       $('[data-field="field"]').each(function(index, obj) {
         var oldValue = $(obj).val();
         var options = [];
@@ -643,25 +896,93 @@ var DynamicLists = (function() {
           $(obj).val(oldValue);
         }
       });
+
+      var emailOldValue = $('#select_user_email_data').val();
+      var options = [];
+      $('#select_user_email_data').html('');
+      $('#select_user_email_data').append('<option value="none">-- Select a data field</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        options.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_user_email_data').append(options.join(''));
+      if (emailOldValue && emailOldValue.length) {
+        $('#select_user_email_data').val(emailOldValue);
+      }
+
+      // Summary link field
+      var linkFieldValue = $('#select_field_link').val();
+      var linkOptions = [];
+      $('#select_field_link').html('');
+      $('#select_field_link').append('<option value="none">-- Select a data field</option>');
+      $('#select_field_link').append('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        linkOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_field_link').append(options.join(''));
+      if (linkFieldValue && linkFieldValue.length) {
+        $('#select_field_link').val(linkFieldValue);
+      }
+
+      // Summary fields
+      $('[name="select_summary_field"]').each(function(index, obj) {
+        var oldValue = $(obj).val();
+        var options = [];
+        $(obj).html('');
+        $(obj).append('<option value="none">-- Select a data field</option>');
+        $(obj).append('<option disabled>------</option>');
+        $(obj).append('<option value="custom">Custom</option>');
+        $(obj).append('<option disabled>------</option>');
+        
+        dataSourceColumns.forEach(function(value, index) {
+          options.push('<option value="'+ value +'">'+ value +'</option>');
+        });
+        $(obj).append(options.join(''));
+        if (oldValue && oldValue.length) {
+          $(obj).val(oldValue);
+        }
+      });
+      
+      // Detail fields
+      $('[name="select_field"]').each(function(index, obj) {
+        var oldValue = $(obj).val();
+        var options = [];
+        $(obj).html('');
+        $(obj).append('<option value="none">-- Select a data field</option>');
+        $(obj).append('<option disabled>------</option>');
+        $(obj).append('<option value="custom">Custom</option>');
+        $(obj).append('<option disabled>------</option>');
+        
+        dataSourceColumns.forEach(function(value, index) {
+          options.push('<option value="'+ value +'">'+ value +'</option>');
+        });
+        $(obj).append(options.join(''));
+        if (oldValue && oldValue.length) {
+          $(obj).val(oldValue);
+        }
+      });
+
       _this.setUpTokenFields();
     },
-    updateUserFieldsWithColumns: function(dataSourceColumns) {
+    updateUserFieldsWithColumns: function(userDataSourceColumns) {
       var fOptions = [];
       var lOptions = [];
       var eOptions = [];
       var pOptions = [];
+      var aOptions = [];
 
       // Get old values
       var oldFirstNameValue = $('.select-user-firstname-holder select').val();
       var oldLastNameValue = $('.select-user-lastname-holder select').val();
       var oldEmailValue = $('.select-user-email-holder select').val();
       var oldPhotoValue = $('.select-user-photo-holder select').val();
+      var oldAdminValue = $('.select-user-admin-holder select').val();
 
       // Reset
       $('.select-user-firstname-holder select').html('');
       $('.select-user-lastname-holder select').html('');
       $('.select-user-email-holder select').html('');
       $('.select-user-photo-holder select').html('');
+      $('.select-user-admin-holder select').html('');
 
       // Append options
       // First Name
@@ -700,11 +1021,27 @@ var DynamicLists = (function() {
       $('.select-user-photo-holder select').append(pOptions.join(''));
       $('.select-user-photo-holder select').val(oldPhotoValue);
 
+      // Admin
+      $('.select-user-admin-holder select').append('<option value="none">-- Select the admin field</option>');
+      $('.select-user-admin-holder select').append('<option disabled>------</option>');
+      userDataSourceColumns.forEach(function(value, index) {
+        aOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('.select-user-admin-holder select').append(aOptions.join(''));
+      $('.select-user-admin-holder select').val(oldAdminValue);
+
       // Show select fields
       $('.select-user-firstname-holder').removeClass('hidden');
       $('.select-user-lastname-holder').removeClass('hidden');
       $('.select-user-email-holder').removeClass('hidden');
-      $('.select-user-photo-holder').removeClass('hidden');
+
+      if (_this.config.social && _this.config.social.comments) {
+        $('.select-user-photo-holder').removeClass('hidden');
+      }
+      
+      if (_this.config.addPermissions === 'admins' || _this.config.editPermissions === 'admins' || _this.config.detelePermissions === 'admins') {
+        $('.select-user-admin-holder').removeClass('hidden');
+      }
 
       _this.setUpUserTokenFields();
     },
@@ -895,6 +1232,14 @@ var DynamicLists = (function() {
     addFilterItem: function(data) {
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
+    },
+    addSummaryItem: function(data) {
+      var $newPanel = $(summaryRowTemplate(data));
+      $summaryRowContainer.append($newPanel);
+    },
+    addDetailItem: function(data) {
+      var $newPanel = $(detailsRowTemplate(data));
+      $detailsRowContainer.append($newPanel);
     },
     initializeSortSortable: function() {
       $('#sort-accordion').sortable({
@@ -1400,6 +1745,7 @@ var DynamicLists = (function() {
               break;
             case 'simple-list':
               _this.config.advancedSettings.filterHTML = undefined;
+              _this.config.advancedSettings.detailHTML = undefined;
               break;
             default:
               break;
@@ -1447,6 +1793,34 @@ var DynamicLists = (function() {
       data.sortOptions = _this.config.sortOptions;
       data.filterOptions = _this.config.filterOptions;
 
+      data.summaryLinkOption = $('[name="detail-view-action"]:checked').val();
+      data.summaryLinkAction = {
+        column: $('#select_field_link').val(),
+        type: $('#select_type_link').val()
+      };
+
+      // Get summary view options
+      _.forEach(_this.config['summary-fields'], function(item) {
+        item.column = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_field_' + item.id).val();
+        item.type = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
+        item.customFieldEnabled = item.column === 'custom';
+        item.customField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_field_' + item.id).val();
+      });
+
+      // Get detail view options
+      _.forEach(_this.config.detailViewOptions, function(item) {
+        item.column = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_field_' + item.id).val();
+        item.type = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
+        item.fieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_label_' + item.id).val();
+        item.customField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_' + item.id).val();
+        item.customFieldEnabled = item.column === 'custom';
+        item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
+        item.customFieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_name_' + item.id).val();
+        item.fieldLabelDisabled = item.fieldLabel === 'no-label';
+      });
+
+      data.detailViewAutoUpdate = $('input#enable-auto-update').is(":checked");
+
       // Get search and filter
       data.searchEnabled = $('#enable-search').is(":checked");
       data.filtersEnabled = $('#enable-filters').is(":checked");
@@ -1481,6 +1855,7 @@ var DynamicLists = (function() {
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             break;
           case 'simple-list':
+            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           default:
@@ -1503,13 +1878,13 @@ var DynamicLists = (function() {
 
       data.social = _this.config.social;
 
-      if (_this.config.social.comments) {
-        data.userDataSourceId = newUserDataSource ? newUserDataSource.id : $newUserDataSource.val();
-        data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
-        $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
-        data.userEmailColumn = $('#select_user_email').val();
-        data.userPhotoColumn = $('#select_user_photo').val();
-      }
+      data.userDataSourceId = newUserDataSource ? newUserDataSource.id : $newUserDataSource.val();
+      data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
+      $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
+      data.userEmailColumn = $('#select_user_email').val();
+      data.userPhotoColumn = $('#select_user_photo').val();
+      data.userAdminColumn = $('#select_user_admin').val();
+      data.userListEmailColumn = $('#select_user_email_data').val();
 
       if (_this.config.social.likes && (!_this.config.likesDataSourceId || _this.config.likesDataSourceId === '')) {
         // Create likes data source
@@ -1547,15 +1922,16 @@ var DynamicLists = (function() {
 
       // Add, edit, delete options
       var profileValues = [];
-
       $('[name="list-control"]:checked').each(function(){
         profileValues.push($(this).val());
       });
-
-
       data.addEntry = profileValues.indexOf('add-entry') !== -1
       data.editEntry = profileValues.indexOf('edit-entry') !== -1
       data.deleteEntry = profileValues.indexOf('delete-entry') !== -1
+      
+      data.addPermissions = $('[name="add-permissions"]:checked').val();
+      data.editPermissions = $('[name="edit-permissions"]:checked').val();
+      data.deletePermissions = $('[name="delete-permissions"]:checked').val();
 
       if (toReload) {
         return Promise.all([likesPromise, bookmarksPromise, commentsPromise])

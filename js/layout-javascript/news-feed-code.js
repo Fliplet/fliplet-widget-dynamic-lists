@@ -22,8 +22,11 @@ var operators = {
 var DynamicList = function(id, data, container) {
   var _this = this;
 
+  this.flListLayoutConfig = window.flListLayoutConfig;
+
   // Makes data and the component container available to Public functions
   this.data = data;
+  this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.queryOptions = {};
 
@@ -34,22 +37,37 @@ var DynamicList = function(id, data, container) {
   this.autosizeInit = false;
 
   this.listItems;
+  this.modifiedListItems;
+  this.searchedListItems;
+  this.dataSourceColumns;
   this.likeButtons = [];
+  this.bookmarkButtons = [];
   this.comments = [];
   this.allUsers;
   this.usersToMention = [];
-  this.myProfileData;
   this.myUserData;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
+
+  this.data.bookmarksEnabled = _this.data.social.bookmark;
 
   this.setupCopyText();
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
 
-   // Start running the Public functions
-  this.initialize();
+  // Get the current session data
+  Fliplet.Session.get().then(function(session) {
+    if (session && session.entries && session.entries.dataSource) {
+      _this.myUserData = session.entries.dataSource.data;
+    } else if (session && session.entries && session.entries.saml2) {
+      _this.myUserData = session.entries.saml2.user;
+      _this.myUserData.isSaml2 = true;
+    }
+    
+    // Start running the Public functions
+    _this.initialize();
+  });
 };
 
 DynamicList.prototype.setupCopyText = function() {
@@ -141,6 +159,40 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
 
     return new Handlebars.SafeString(text);
   });
+
+  Handlebars.registerHelper('validateImage', function(image) {
+    var validatedImage = image;
+    
+    if (!validatedImage) {
+      return '';
+    }
+    
+    if (Array.isArray(validatedImage) && !validatedImage.length) {
+      return '';
+    }
+    
+    // Validate thumbnail against URL and Base64 patterns
+    var urlPattern = /^https?:\/\//i;
+    var base64Pattern = /^data:image\/[^;]+;base64,/i;
+    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
+      return '';
+    }
+
+    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
+      // attach auth token
+      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
+    }
+
+    return validatedImage;
+  });
+
+  Handlebars.registerHelper('formatDate', function(date) {
+    return moment(date).utc().format('MMM Do YYYY');
+  });
+
+  Handlebars.registerHelper('removeSpaces', function(context) {
+    return context.replace(/\s+/g, '');
+  });
 }
 
 DynamicList.prototype.attachObservers = function() {
@@ -151,6 +203,16 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
+    .on('click', '.hidden-filter-controls-filter', function() {
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: $(this).text()
+      });
+
+      $(this).toggleClass('mixitup-control-active');
+      _this.filterList();
+    })
     .on('touchstart', '.news-feed-list-item', function(event) {
       event.stopPropagation();
       $(this).addClass('hover');
@@ -169,17 +231,22 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.news-feed-list-item', function(event) {
       event.stopPropagation();
       var elementToExpand = $(this).find('.news-feed-item-content');
-      // find the element to expand and expand it
-      if (_this.allowClick) {
-        _this.expandElement(elementToExpand);
-      }
-
+      var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text();
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
+
+      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+        _this.openLinkAction(entryId);
+        return;
+      }
+      // find the element to expand and expand it
+      if (_this.allowClick) {
+        _this.expandElement(elementToExpand);
+      }
     })
     .on('click', '.news-feed-item-close-btn-wrapper', function(event) {
       event.stopPropagation();
@@ -231,9 +298,14 @@ DynamicList.prototype.attachObservers = function() {
       var $inputField = $(this);
       var $parentElement = $inputField.parents('.new-news-feed-list-container');
       var value = $inputField.val();
+
       if (value.length) {
+        $inputField.addClass('not-empty');
         value = value.toLowerCase();
+      } else {
+        $inputField.removeClass('not-empty');
       }
+      
       if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
           _this.clearSearch();
@@ -253,6 +325,33 @@ DynamicList.prototype.attachObservers = function() {
         $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
         _this.searchData(value);
       }
+    })
+    .on('click', '.search-holder .search-btn', function(e) {
+      var $inputField = $(this).parents('.search-holder').find('.search-feed');
+      var $parentElement = $inputField.parents('.new-news-feed-list-container');
+      var value = $inputField.val();
+
+      if (value.length) {
+        value = value.toLowerCase();
+      }
+
+      if (value === '') {
+        _this.clearSearch();
+        return;
+      }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'search',
+        label: value
+      });
+
+      if ($inputField.hasClass('from-overlay')) {
+        $inputField.parents('.simple-list-search-filter-overlay').removeClass('display');
+      }
+      $inputField.blur();
+      $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+      _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
       _this.clearSearch();
@@ -516,6 +615,7 @@ DynamicList.prototype.attachObservers = function() {
           {
             label: 'Delete',
             action: function (i) {
+              _that.text('Deleting...').addClass('disabled');
               Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
                 return connection.removeById(entryID);
               }).then(function onRemove() {
@@ -527,6 +627,8 @@ DynamicList.prototype.attachObservers = function() {
                 var $closeButton = _that.parents('.news-feed-list-item').find('.news-feed-item-close-btn-wrapper');
                 _this.collapseElement($closeButton);
                 _this.renderLoopHTML(_this.listItems);
+
+                _that.text('Delete').removeClass('disabled');
               });
             }
           }
@@ -558,6 +660,28 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     });
+
+    _this.bookmarkButtons.forEach(function(button) {
+      button.btn.on('liked', function(data){
+        this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_bookmark',
+          label: entryTitle
+        });
+      });
+
+      button.btn.on('unliked', function(data){
+        this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
+        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_unbookmark',
+          label: entryTitle
+        });
+      });
+    });
 }
 
 DynamicList.prototype.initialize = function() {
@@ -565,176 +689,177 @@ DynamicList.prototype.initialize = function() {
   // Render Base HTML template
   _this.renderBaseHTML();
 
-  Fliplet.Session.get().then(function(session) {
-    if (session && session.entries && session.entries.dataSource) {
-      _this.myUserData = session.entries.dataSource.data;
-    } else if (session && session.entries && session.entries.saml2) {
-      _this.myUserData = session.entries.saml2.user;
-      _this.myUserData.isSaml2 = true;
-    }
+  // Connect to data source to get rows
+  _this.connectToDataSource()
+    .then(function (records) {
+      // Received the rows
 
-    return;
-  }).then(function() {
-    // Connect to data source to get rows
-    _this.connectToDataSource()
-      .then(function (records) {
-        // Received the rows
+      var sorted;
+      var ordered;
+      var filtered;
 
-        var sorted;
-        var ordered;
-        var filtered;
+      // Prepare sorting
+      if (_this.data.sortOptions.length) {
+        var fields = [];
+        var sortOrder = [];
 
-        // Prepare sorting
-        if (_this.data.sortOptions.length) {
-          var fields = [];
-          var sortOrder = [];
-
-          _this.data.sortOptions.forEach(function(option) {
-            fields.push({
-              column: option.column,
-              type: option.sortBy
-            });
-
-            if (option.orderBy === 'ascending') {
-              sortOrder.push('asc');
-            }
-            if (option.orderBy === 'descending') {
-              sortOrder.push('desc');
-            }
+        _this.data.sortOptions.forEach(function(option) {
+          fields.push({
+            column: option.column,
+            type: option.sortBy
           });
 
-          // Sort data
-          sorted = _.sortBy(records, function (obj) {
-            fields.forEach(function(field) {
-              obj.data[field.column] = obj.data[field.column] || '';
-              var value = obj.data[field.column].toString().toUpperCase();
-
-              if (field.type === "alphabetical") {
-                return value.match(/[A-Za-z]/)
-                ? value
-                : '{' + value;
-              }
-
-              if (field.type === "numerical") {
-                return value.match(/[0-9]/)
-                ? parseInt(value, 10)
-                : '{' + value;
-              }
-
-              if (field.type === "date") {
-                var newDate = new Date(value).getTime();
-                return newDate;
-              }
-            });
-          });
-
-          ordered = _.orderBy(sorted, function(record) {
-            var values = [];
-
-            fields.forEach(function(field) {
-              if (record.data[field.column] !== '' && record.data[field.column] !== null && typeof record.data[field.column] !== 'undefined') {
-                values.push(record.data[field.column].toString());
-              }
-            });
-
-            return values;
-          }, sortOrder);
-          records = ordered;
-        }
-
-        // Prepare filtering
-        if (_this.data.filterOptions.length) {
-          var filters = [];
-
-          _this.data.filterOptions.forEach(function(option) {
-            var filter = {
-              column: option.column,
-              condition: option.logic,
-              value: option.value
-            }
-            filters.push(filter);
-          });
-
-          // Filter data
-          filtered = _.filter(records, function(record) {
-            var matched = 0;
-
-            filters.some(function(filter) {
-              var condition = filter.condition;
-              // Case insensitive
-              if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-                filter.value = filter.value.toLowerCase();
-              }
-              if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-                record.data[filter.column] = record.data[filter.column].toLowerCase();
-              }
-
-              if (condition === 'contains') {
-                if (record.data[filter.column].indexOf(filter.value) > -1) {
-                  matched++;
-                }
-                return;
-              }
-              if (condition === 'notcontain') {
-                if (record.data[filter.column].indexOf(filter.value) === -1) {
-                  matched++;
-                }
-                return;
-              }
-              if (condition === 'regex') {
-                var pattern = new RegExp(filter.value);
-                if (patt.test(record.data[filter.column])){
-                  matched++;
-                }
-                return;
-              }
-              if (operators[condition](record.data[filter.column], filter.value)) {
-                matched++;
-                return;
-              }
-            });
-
-            return matched >= filters.length ? true : false;
-          });
-          records = filtered;
-        }
-
-        // Convert date and add flag for likes
-        records.forEach(function(obj, i) {
-          // Convert date
-          if (typeof obj.data['Date'] !== 'undefined' || obj.data['Date'] !== null || obj.data['Date'] !== '') {
-            records[i].data['Date'] = moment(obj.data['Date']).utc().format("MMM DD YYYY");
+          if (option.orderBy === 'ascending') {
+            sortOrder.push('asc');
           }
-
-          // Add likes flag
-          if (_this.data.social && _this.data.social.likes) {
-            records[i].likesEnabled = true;
-          } else {
-            records[i].likesEnabled = false;
-          }
-
-          // Add comments flag
-          if (_this.data.social && _this.data.social.comments) {
-            records[i].commentsEnabled = true;
-          } else {
-            records[i].commentsEnabled = false;
+          if (option.orderBy === 'descending') {
+            sortOrder.push('desc');
           }
         });
 
-        // Make rows available Globally
-        _this.listItems = records;
-        
-        // Render Loop HTML
-        _this.renderLoopHTML(records);
-        
-        return;
-      })
-      .then(function() {
-        // Listeners and Ready
-        _this.attachObservers();
-        _this.onReady();
+        // Sort data
+        sorted = _.sortBy(records, function (obj) {
+          fields.forEach(function(field) {
+            obj.data[field.column] = obj.data[field.column] || '';
+            var value = obj.data[field.column].toString().toUpperCase();
+
+            if (field.type === "alphabetical") {
+              return value.match(/[A-Za-z]/)
+              ? value
+              : '{' + value;
+            }
+
+            if (field.type === "numerical") {
+              return value.match(/[0-9]/)
+              ? parseInt(value, 10)
+              : '{' + value;
+            }
+
+            if (field.type === "date") {
+              var newDate = new Date(value).getTime();
+              return newDate;
+            }
+          });
+        });
+
+        ordered = _.orderBy(sorted, function(record) {
+          var values = [];
+
+          fields.forEach(function(field) {
+            if (record.data[field.column] !== '' && record.data[field.column] !== null && typeof record.data[field.column] !== 'undefined') {
+              values.push(record.data[field.column].toString());
+            }
+          });
+
+          return values;
+        }, sortOrder);
+        records = ordered;
+      }
+
+      // Prepare filtering
+      if (_this.data.filterOptions.length) {
+        var filters = [];
+
+        _this.data.filterOptions.forEach(function(option) {
+          var filter = {
+            column: option.column,
+            condition: option.logic,
+            value: option.value
+          }
+          filters.push(filter);
+        });
+
+        // Filter data
+        filtered = _.filter(records, function(record) {
+          var matched = 0;
+
+          filters.some(function(filter) {
+            var condition = filter.condition;
+            // Case insensitive
+            if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+              filter.value = filter.value.toLowerCase();
+            }
+            if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+              record.data[filter.column] = record.data[filter.column].toLowerCase();
+            }
+
+            if (condition === 'contains') {
+              if (record.data[filter.column].indexOf(filter.value) > -1) {
+                matched++;
+              }
+              return;
+            }
+            if (condition === 'notcontain') {
+              if (record.data[filter.column].indexOf(filter.value) === -1) {
+                matched++;
+              }
+              return;
+            }
+            if (condition === 'regex') {
+              var pattern = new RegExp(filter.value);
+              if (patt.test(record.data[filter.column])){
+                matched++;
+              }
+              return;
+            }
+            if (operators[condition](record.data[filter.column], filter.value)) {
+              matched++;
+              return;
+            }
+          });
+
+          return matched >= filters.length ? true : false;
+        });
+        records = filtered;
+      }
+
+      // Convert date and add flag for likes
+      records.forEach(function(obj, i) {
+        // Add likes flag
+        if (_this.data.social && _this.data.social.likes) {
+          records[i].likesEnabled = true;
+        } else {
+          records[i].likesEnabled = false;
+        }
+
+        // Add bookmarks flag
+        if (_this.data.social && _this.data.social.bookmark) {
+          records[i].bookmarksEnabled = true;
+        } else {
+          records[i].bookmarksEnabled = false;
+        }
+
+        // Add comments flag
+        if (_this.data.social && _this.data.social.comments) {
+          records[i].commentsEnabled = true;
+        } else {
+          records[i].commentsEnabled = false;
+        }
       });
-  });
+
+      // Make rows available Globally
+      _this.listItems = records;
+      
+      return;
+    })
+    .then(function() {
+      return Fliplet.DataSources.getById(_this.data.dataSourceId);
+    })
+    .then(function(dataSource) {
+      _this.dataSourceColumns = dataSource.columns;
+      return
+    })
+    .then(function() {
+      // Render Loop HTML
+      _this.renderLoopHTML(_this.listItems);
+      _this.addFilters(_this.modifiedListItems);
+      return
+    })
+    .then(function() {
+      // Listeners and Ready
+      _this.attachObservers();
+      _this.onReady();
+    });
 }
 
 DynamicList.prototype.connectToDataSource = function() {
@@ -786,6 +911,8 @@ DynamicList.prototype.renderBaseHTML = function() {
   var _this = this;
   var baseHTML = '';
 
+  var data = _this.getAddPermission(_this.data);
+
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['base']];
   }
@@ -794,34 +921,195 @@ DynamicList.prototype.renderBaseHTML = function() {
   ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
   : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(_this.data));
+  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
 DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
+
+  var savedColumns = [];
+
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
-
-  // Adds flag for Add, Edit and Delete buttons
-  modifiedData.forEach(function(obj, index) {
-    if (typeof _this.data.addEntry !== 'undefined') {
-      modifiedData[index].addEntry = _this.data.addEntry;
-    }
-    if (typeof _this.data.editEntry !== 'undefined') {
-      modifiedData[index].editEntry = _this.data.editEntry;
-    }
-    if (typeof _this.data.deleteEntry !== 'undefined') {
-      modifiedData[index].deleteEntry = _this.data.deleteEntry;
-    }
-  });
+  modifiedData = _this.getPermissions(modifiedData);
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(modifiedData));
-  _this.addFilters(modifiedData);
+  var loopData = [];
+
+  // IF STATEMENT FOR BACKWARDS COMPATABILITY
+  if (!_this.data.detailViewOptions) {
+    modifiedData.forEach(function(entry) {
+      var newObject = {
+        id: entry.id,
+        flClasses: entry.data['flClasses'],
+        flFilters: entry.data['flFilters'],
+        editEntry: entry.editEntry,
+        deleteEntry: entry.deleteEntry,
+        likesEnabled: entry.likesEnabled,
+        bookmarksEnabled: entry.bookmarksEnabled,
+        commentsEnabled: entry.commentsEnabled
+      };
+
+      $.extend(true, newObject, entry.data);
+
+      loopData.push(newObject);
+    });
+    
+    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
+    _this.addFilters(loopData);
+    return;
+  }
+
+  // Uses sumamry view settings set by users
+  modifiedData.forEach(function(entry) {
+    var newObject = {
+      id: entry.id,
+      flClasses: entry.data['flClasses'],
+      flFilters: entry.data['flFilters'],
+      editEntry: entry.editEntry,
+      deleteEntry: entry.deleteEntry,
+      likesEnabled: entry.likesEnabled,
+      bookmarksEnabled: entry.bookmarksEnabled,
+      commentsEnabled: entry.commentsEnabled,
+      entryDetails: []
+    };
+    _this.data['summary-fields'].some(function(obj) {
+      var content = '';
+      if (obj.column === 'custom') {
+        content = Handlebars.compile(obj.customField)(entry.data)
+      } else {
+        var content = entry.data[obj.column];
+      }
+      newObject[obj.location] = content;
+    });
+    loopData.push(newObject);
+  });
+
+  
+  // Define detail view data based on user's settings
+  var detailData = [];
+
+  _this.data.detailViewOptions.forEach(function(obj) {
+    modifiedData.some(function(entryData) {
+      var label = '';
+      var labelEnabled = true;
+      var content = '';
+
+      // Define label
+      if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
+        label = obj.column;
+      }
+      if (obj.fieldLabel === 'custom-label') {
+        label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      }
+      if (obj.fieldLabel === 'no-label') {
+        labelEnabled = false;
+      }
+      // Define content
+      if (obj.customFieldEnabled) {
+        content = Handlebars.compile(obj.customField)(entryData.data);
+      } else {
+        content = entryData.data[obj.column];
+      }
+      // Define data object
+      var newObject = {
+        id: entryData.id,
+        content: content,
+        label: label,
+        labelEnabled: labelEnabled,
+        type: obj.type
+      }
+
+      var matchingEntry = _.find(loopData, function(entry) {
+        return entry.id === newObject.id;
+      });
+      matchingEntry.entryDetails.push(newObject);
+      savedColumns.push(obj.column);
+    });
+  });
+
+  if (_this.data.detailViewAutoUpdate) {
+    loopData.forEach(function(entry, index) {
+      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+      if (extraColumns && extraColumns.length) {
+
+        var entryData = _.find(modifiedData, function(modEntry) {
+          return modEntry.id = entry.id;
+        });
+
+        extraColumns.forEach(function(column) {
+          var newColumnData = {
+            id: entryData.id,
+            content: entryData.data[column],
+            label: column,
+            labelEnabled: true,
+            type: 'text'
+          };
+
+          entry.entryDetails.push(newColumnData);
+        });
+      }
+    });
+  }
+
+  _this.modifiedListItems = loopData;
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
+}
+
+DynamicList.prototype.getAddPermission = function(data) {
+  var _this = this;
+
+  if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
+    if (_this.myUserData && _this.data.addPermissions === 'admins') {
+      if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+        data.showAddEntry = data.addEntry;
+      }
+    } else if (_this.data.addPermissions === 'everyone') {
+      data.showAddEntry = data.addEntry;
+    }
+  }
+
+  return data;
+}
+
+DynamicList.prototype.getPermissions = function(entries) {
+  var _this = this;
+
+  // Adds flag for Edit and Delete buttons
+  entries.forEach(function(obj, index) {
+    if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.editPermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.myUserData && _this.data.editPermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].editEntry = _this.data.editEntry;
+        }
+      } else if (_this.data.addPermissions === 'everyone') {
+        entries[index].editEntry = _this.data.editEntry;
+      }
+    }
+    if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
+      if (_this.myUserData && _this.data.deletePermissions === 'admins') {
+        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.myUserData && _this.data.deletePermissions === 'user') {
+        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
+          entries[index].deleteEntry = _this.data.deleteEntry;
+        }
+      } else if (_this.data.deletePermissions === 'everyone') {
+        entries[index].deleteEntry = _this.data.deleteEntry;
+      }
+    }
+  });
+
+  return entries;
 }
 
 DynamicList.prototype.addFilters = function(data) {
@@ -833,7 +1121,7 @@ DynamicList.prototype.addFilters = function(data) {
   };
 
   data.forEach(function(row) {
-    row.data.filters.forEach(function(filter) {
+    row['flFilters'].forEach(function(filter) {
       filters.push(filter);
     });
   });
@@ -872,13 +1160,45 @@ DynamicList.prototype.addFilters = function(data) {
   _this.$container.find('.filter-holder').html(template(filtersData));
 }
 
+DynamicList.prototype.filterList = function() {
+  var _this = this;
+  _this.filterClasses = [];
+
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.mixer.destroy();
+  }
+
+  if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
+    var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+    _this.renderLoopHTML(listData);
+    _this.onReady();
+    return;
+  }
+  
+  $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
+    _this.filterClasses.push($(element).data('toggle'));
+  });
+
+  var filteredData = _.filter(_this.listItems, function(row) {
+    var filters = [];
+    row.data['flFilters'].forEach(function(obj) {
+      filters.push(obj.data.class);
+    });
+
+    return _this.filterClasses.some(v => filters.indexOf(v) >= 0);
+  });
+
+  _this.renderLoopHTML(filteredData || _this.listItems);
+  _this.onReady();
+}
+
 DynamicList.prototype.convertCategories = function(data) {
   // Function that get and converts the categories for the filters to work
   var _this = this;
 
   data.forEach(function(element) {
-    element.data['classes'] = '';
-    element.data['filters'] = [];
+    element.data['flClasses'] = '';
+    element.data['flFilters'] = [];
     var lowerCaseTags = [];
     _this.data.filterFields.forEach(function(filter) {
       var arrayOfTags = [];
@@ -896,15 +1216,15 @@ DynamicList.prototype.convertCategories = function(data) {
           type: filter,
           data: {
             name: item,
-            class: '.' + classConverted
+            class: classConverted
           }
         }
         lowerCaseTags.push(classConverted);
-        element.data['filters'].push(newObj);
+        element.data['flFilters'].push(newObj);
       });
       
     });
-    element.data['classes'] = lowerCaseTags.join(' ');
+    element.data['flClasses'] = lowerCaseTags.join(' ');
   });
   return data;
 }
@@ -938,16 +1258,22 @@ DynamicList.prototype.onReady = function() {
       _this.setCardHeight();
     });
 
-  if (_this.data.filtersEnabled) {
-    _this.initializeMixer();
-  }
-
   if (_this.data.social && _this.data.social.likes) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-like';
       var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
       _this.setupLikeButton(cardId, likeIndentifier, title);
+    });
+  }
+
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.initializeMixer();
+    _this.$container.find('.news-feed-list-item').each(function(index, element) {
+      var cardId = $(element).data('entry-id');
+      var likeIndentifier = cardId + '-bookmark';
+      var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
+      _this.setupBookmarkButton(cardId, likeIndentifier, title);
     });
   }
 
@@ -993,6 +1319,27 @@ DynamicList.prototype.onReady = function() {
 
   // Ready
   _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+
+  // Wait for bookmark to appear on the page
+  var checkTimer = 0;
+  var checkInterval = setInterval(function() {
+    // Check for 10 seconds
+    if (checkTimer > 10) {
+      clearInterval(checkInterval);
+      return;
+    }
+    _this.checkBookmarked();
+    checkTimer++;
+  }, 1000);
+}
+
+// Function to add class to card marking it as bookmarked - for filtering
+DynamicList.prototype.checkBookmarked = function() {
+  var _this = this;
+
+  _this.$container.find('.btn-bookmarked').each(function(idx, element) {
+    $(element).parents('.news-feed-list-item').addClass('bookmarked');
+  });
 }
 
 DynamicList.prototype.calculateFiltersHeight = function(element) {
@@ -1008,8 +1355,6 @@ DynamicList.prototype.searchData = function(value) {
 
   // Removes cards
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
-  // Remove filters
-  _this.$container.find('.filter-holder').html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
   
@@ -1044,12 +1389,14 @@ DynamicList.prototype.searchData = function(value) {
       return;
     }
 
-    if (_this.data.filtersEnabled) {
+    if (_this.data.social && _this.data.social.bookmark) {
       _this.mixer.destroy();
     }
-    // Remove duplicates
+
     searchedData = _.uniq(searchedData);
+    _this.searchedListItems = searchedData;
     _this.renderLoopHTML(searchedData);
+    _this.addFilters(_this.modifiedListItems);
     _this.onReady();
   }, 0);
 }
@@ -1073,7 +1420,7 @@ DynamicList.prototype.clearSearch = function() {
   var _this = this;
 
   // Removes value from search box
-  _this.$container.find('.search-holder').find('input').val('').blur();
+  _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
 
@@ -1083,11 +1430,14 @@ DynamicList.prototype.clearSearch = function() {
     _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
   }
 
-  // Resets list
-  if (_this.data.filtersEnabled) {
+  if (_this.data.social && _this.data.social.bookmark) {
     _this.mixer.destroy();
   }
+
+  // Resets list
+  _this.searchedListItems = undefined;
   _this.renderLoopHTML(_this.listItems);
+  _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
 
@@ -1100,9 +1450,6 @@ DynamicList.prototype.initializeMixer = function() {
     selectors: {
       control: '[data-mixitup-control="' + _this.data.id + '"]',
       target: '.news-feed-list-item'
-    },
-    multifilter: {
-      enable: true // enable the multifilter extension for the _this.mixer
     },
     load: {
       filter: 'all'
@@ -1121,7 +1468,7 @@ DynamicList.prototype.initializeMixer = function() {
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'filter',
-          label: this.innerText
+          label: 'bookmarks'
         });
       }
     }
@@ -1161,14 +1508,55 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
         pageId: Fliplet.Env.get('pageId')
       },
       name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<i class="fa fa-heart-o fa-lg"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
-      likedLabel: '<i class="fa fa-heart fa-lg animated bounceIn"></i> <span class="count">{{#if count}}{{count}}{{/if}}</span>',
+      likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+      likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
       likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
       likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
       addType: 'html'
     }),
     id: id
   });
+}
+
+DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.bookmarkButtons.push({
+    btn: LikeButton({
+      target: '.news-feed-bookmark-holder-' + id,
+      dataSourceId: _this.data.bookmarkDataSourceId,
+      content: { 
+        entryId: identifier
+      },
+      name: Fliplet.Env.get('pageTitle') + '/' + title,
+      likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+      likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+      likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
+      likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
+      addType: 'html'
+    }),
+    id: id
+  });
+}
+
+DynamicList.prototype.openLinkAction = function(entryId) {
+  var _this = this;
+  var entry = _.find(_this.listItems, function(entry) {
+    return entry.id === entryId;
+  });
+
+  if (!entry) {
+    return;
+  }
+
+  var value = entry.data[_this.data.summaryLinkAction.column];
+  
+  if (_this.data.summaryLinkAction.type === 'url') {
+    Fliplet.Navigate.url(value);
+  } else {
+    Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
+  }
 }
 
 DynamicList.prototype.expandElement = function(elementToExpand) {
@@ -1432,9 +1820,12 @@ DynamicList.prototype.showComments = function(id) {
       entryComments.entries[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments.entries[index].text = entry.data.settings.text || '';
 
-      var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
+      var myEmail = '';
+      if (_this.myUserData) {
+        myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
+      }
+      
       var dataSourceEmail = '';
-
       if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
         dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
       }
@@ -1446,7 +1837,7 @@ DynamicList.prototype.showComments = function(id) {
         var dataSourceEmailParts = dataSourceEmail.match(/[^\@]+[^\.]+/);
         var toComparePart2 = dataSourceEmailParts && dataSourceEmailParts.length ? dataSourceEmailParts[0] : '';
 
-        if (toComparePart === toComparePart2) {
+        if (toComparePart.toLowerCase() === toComparePart2.toLowerCase()) {
           entryComments.entries[index].currentUser = true;
         }
       } else if (dataSourceEmail === myEmail) {
@@ -1475,7 +1866,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] || !_this.myUserData['email']))) {
+  if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
     return Fliplet.Navigate.popup({
       title: 'Invalid login',
       message: 'You must be logged in to use this feature.'
@@ -1487,8 +1878,15 @@ DynamicList.prototype.sendComment = function(id, value) {
     var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
     var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
 
-    return toCompareDataEmailPart === toCompareEmailPart;
+    return toCompareDataEmailPart.toLowerCase() === toCompareEmailPart.toLowerCase();
   });
+
+  if (!userFromDataSource) {
+    return Fliplet.Navigate.popup({
+      title: 'Invalid user',
+      message: 'We couldn\'t find your user details.'
+    });
+  }
 
   _this.appendTempComment(id, value, guid, userFromDataSource);
 
@@ -1685,7 +2083,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
       var toComparePart2 = commentEmailParts[0];
 
-      if (toComparePart === toComparePart2) {
+      if (toComparePart.toLowerCase() === toComparePart2.toLowerCase()) {
         commentInfo.currentUser = true;
       }
     } else {

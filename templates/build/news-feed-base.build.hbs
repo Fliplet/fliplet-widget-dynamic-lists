@@ -26,15 +26,22 @@
   <!-- End of Filter Overlay -->
 
   <!-- Top bar with profile and search icons -->
-  \{{#ifCond searchEnabled '||' filtersEnabled}}
   <div class="section-top-wrapper">
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
       <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
+      <div class="btn btn-default search-btn">Search</div>
     </div>
     \{{/if}}
+    \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
+      \{{#if bookmarksEnabled}}
+      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
+        <span class="fa fa-bookmark-o"></span>
+        <span class="fa fa-bookmark"></span>
+      </div>
+      \{{/if}}
       \{{#ifCond filtersInOverlay '!==' true}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
       \{{/ifCond}}
@@ -42,8 +49,8 @@
       <i class="fa fa-sliders"></i>
       \{{/if}}
     </div>
+    \{{/ifCond}}
   </div>
-  \{{/ifCond}}
   <!-- End of Top bar -->
 
   <!-- Inline Search and Filters -->
@@ -80,7 +87,7 @@
   </div>
 </div>
 
-\{{#if addEntry}}
+\{{#if showAddEntry}}
 <div class="dynamic-list-add-item">
   <i class="fa fa-plus"></i>
 </div>

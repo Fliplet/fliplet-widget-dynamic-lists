@@ -7,15 +7,19 @@
           <div class="container-fluid slide-over session-container">
             <div class="agenda-item-inner-content clearfix">
               <div class="agenda-item-info-holder">
-                <div class="agenda-item-time">\{{data.[Start Time]}}</div>
+                <div class="agenda-item-time">\{{[Start Time]}}</div>
                 <div class="agenda-item-time line">|</div>
-                <div class="agenda-item-time">\{{data.[End Time]}}</div>
+                <div class="agenda-item-time">\{{[End Time]}}</div>
               </div>
               <div class="agenda-item-content-holder">
-                <h2 class="agenda-item-title">\{{data.[Title]}}</h2>
+                \{{#if [Title]}}
+                <h2 class="agenda-item-title">\{{[Title]}}</h2>
+                \{{/if}}
                 <div class="agenda-item-session-location">
-                  <p class="agenda-item-location">\{{{data.[Location]}}}</p>
-                  <p class="agenda-item-start-date-time">\{{data.[Start Time]}} - \{{data.[End Time]}} / \{{data.[Date]}}</p>
+                  \{{#if [Location]}}
+                  <p class="agenda-item-location">\{{{[Location]}}}</p>
+                  \{{/if}}
+                  <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Date]}} / \{{/if}}\{{[Date]}}</p>
                 </div>
                 
                 <div class="agenda-item-bookmark">
@@ -26,15 +30,105 @@
                 </div>
                 
                 <div class="agenda-item-description">
-                  \{{{data.[Content]}}}
+                  \{{#each entryDetails}}
+                    <!-- Image template -->
+                    \{{#ifCond type '==' 'image'}}
+                      \{{#if content}}
+                        \{{#if labelEnabled}}
+                        <div class="agenda-item-detail-label">\{{label}}</div>
+                        \{{/if}}
+
+                        <div class="agenda-item-detail-body-text">
+                          <img src="\{{validateImage content}}">
+                        </div>
+                      \{{/if}}
+                    \{{/ifCond}}
+
+                    <!-- Plain text template -->
+                    \{{#ifCond type '==' 'text'}}
+                      \{{#if content}}
+                        \{{#if labelEnabled}}
+                        <div class="agenda-item-detail-label">\{{label}}</div>
+                        \{{/if}}
+
+                        <div class="agenda-item-detail-body-text">\{{content}}</div>
+                      \{{/if}}
+                    \{{/ifCond}}
+
+                    <!-- HTML template -->
+                    \{{#ifCond type '==' 'html'}}
+                      \{{#if content}}
+                        \{{#if labelEnabled}}
+                        <div class="agenda-item-detail-label">\{{label}}</div>
+                        \{{/if}}
+
+                        <div class="agenda-item-detail-body-text">\{{{content}}}</div>
+                      \{{/if}}
+                    \{{/ifCond}}
+
+                    <!-- URL template -->
+                    \{{#ifCond type '==' 'url'}}
+                      \{{#if content}}
+                        \{{#if labelEnabled}}
+                        <div class="agenda-item-detail-label">\{{label}}</div>
+                        \{{/if}}
+
+                        <div class="agenda-item-detail-body-text">
+                          <a href="\{{content}}" target="_blank">Tap to open</a>
+                        </div>
+                      \{{/if}}
+                    \{{/ifCond}}
+
+                    <!-- Telephone template -->
+                    \{{#ifCond type '==' 'tel'}}
+                      \{{#if content}}
+                        \{{#if labelEnabled}}
+                        <div class="simple-list-detail-label">\{{label}}</div>
+                        \{{/if}}
+
+                        <div class="simple-list-detail-value">
+                          <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
+                        </div>
+                      \{{/if}}
+                    \{{/ifCond}}
+
+                    <!-- Email template -->
+                    \{{#ifCond type '==' 'mail'}}
+                      \{{#if content}}
+                        \{{#if labelEnabled}}
+                        <div class="simple-list-detail-label">\{{label}}</div>
+                        \{{/if}}
+
+                        <div class="simple-list-detail-value">
+                          <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
+                        </div>
+                      \{{/if}}
+                    \{{/ifCond}}
+
+                    <!-- Date template -->
+                    \{{#ifCond type '==' 'date'}}
+                      \{{#if content}}
+                        \{{#if labelEnabled}}
+                        <div class="agenda-item-detail-label">\{{label}}</div>
+                        \{{/if}}
+
+                        <div class="agenda-item-detail-body-text">"\{{formatDate content}}</div>
+                      \{{/if}}
+                    \{{/ifCond}}
+                  \{{/each}}
+
+                  <!-- BACKWARDS COMPATABILITY -->
+                  \{{#unless entryDetails}}
+                    \{{{auth [Content]}}}
+                  \{{/unless}}
                 </div>
 
-                \{{#ifCond ../editEntry '||' ../deleteEntry}}
+                \{{#ifCond editEntry '||' deleteEntry}}
                 <div class="dynamic-list-controls">
-                  \{{#if ../editEntry}}
+                  \{{#if editEntry}}
                   <div class="btn btn-default dynamic-list-edit-item">Edit</div>
                   \{{/if}}
-                  \{{#if ../deleteEntry}}
+                  \{{#if deleteEntry}}
                   <div class="btn btn-danger dynamic-list-delete-item">Delete</div>
                   \{{/if}}
                 </div>

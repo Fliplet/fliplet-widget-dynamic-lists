@@ -178,7 +178,7 @@
   top: 0;
   left: 0;
   height: 0;
-  width: 100vw;
+  width: 100%;
   z-index: 12;
   overflow: auto;
   transition: all 0.2s ease-out;
@@ -301,13 +301,21 @@
   display: block;
 }
 
+.small-h-card-list-detail-wrapper .small-card-details-holder {
+  display: none;
+}
+
+.small-h-card-list-detail-wrapper.open .small-card-details-holder {
+  display: block;
+}
+
 @media screen and (min-width: 640px) {
   .new-small-h-card-list-container .small-h-card-list-image {
     width: 180px;
     height: 216px;
   }
   
-  .new-small-h-card-list-container .small-h-card-list-detail-wrapper {
+  .new-small-h-card-list-container .small-h-card-list-detail-wrapper.open {
     background-color: rgba(0, 0, 0, 0.8);
   }
 
