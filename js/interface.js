@@ -639,7 +639,7 @@ var DynamicLists = (function() {
             _.forEach(_this.config['summary-fields'], function(item) {
               item.columns = dataSourceColumns;
               _this.addSummaryItem(item);
-              $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none');
+              $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
             });
@@ -682,12 +682,13 @@ var DynamicLists = (function() {
               });
             }
 
-            _.forEach(_this.config.detailViewOptions, function(item) {              
+            _.forEach(_this.config.detailViewOptions, function(item) {  
+              item.columns = dataSourceColumns;
               _this.addDetailItem(item);
 
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
             });
