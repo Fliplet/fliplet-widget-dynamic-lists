@@ -671,6 +671,27 @@ var DynamicLists = (function() {
               });
             }
 
+            if (_this.config.detailViewAutoUpdate) {
+              _.forEach(dataSourceColumns, function(column, index) {
+                var foundColumn = _.find(_this.config.detailViewOptions, function(item) {
+                  return column === item.column
+                });
+
+                if (!foundColumn) {
+                  var item = {
+                    id: _this.config.detailViewOptions.length + 1,
+                    columns: dataSourceColumns,
+                    column: column,
+                    type: 'text',
+                    fieldLabel: 'column-name',
+                    editable: true
+                  }
+
+                  _this.config.detailViewOptions.push(item);
+                }
+              });
+            }
+
             // Remove duplicates from Detail view unless it's Simple List
             if (_this.config.layout !== 'simple-list') {
               _.forEach(_this.config['summary-fields'], function(field) {
