@@ -559,14 +559,14 @@ DynamicList.prototype.initialize = function() {
 
       // Render user profile
       if (_this.myProfileData && _this.myProfileData.length) {
-        _this.myProfileData[0].data.profileHTML = _this.profileHTML(_this.myProfileData[0]);
+        var profileData = _this.renderLoopHTML(_this.myProfileData, true);
         var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-        _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.myProfileData[0]));
+        _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(profileData[0]));
 
         var profileIconTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['profile-icon']];
         var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-        _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.myProfileData[0]));
+        _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(profileData[0]));
 
         _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
       }
@@ -641,7 +641,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
+DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
   // Function that renders the List template
   var _this = this;
 
@@ -680,9 +680,12 @@ DynamicList.prototype.renderLoopHTML = function(records) {
       loopData[index].profileHTML = _this.profileHTML(loopData[index]);
     });
 
-    _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
-    _this.addFilters(loopData);
-    return;
+    if (!isForProfile) {
+      _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
+      _this.addFilters(loopData);
+    }
+    
+    return loopData;
   }
 
   // Uses sumamry view settings set by users
@@ -789,8 +792,11 @@ DynamicList.prototype.renderLoopHTML = function(records) {
     obj.profileHTML = _this.profileHTML(obj);
   });
 
-  _this.modifiedListItems = loopData;
+  if (isForProfile) {
+    return loopData;
+  }
 
+  _this.modifiedListItems = loopData;
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
 }
 
@@ -1082,6 +1088,9 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
   //check to see if element is already expanded
   if (!elementToExpand.hasClass('open')) {
+    // freeze the current scroll position of the background content
+    $('body').addClass('lock');
+
     var currentPosition = elementToExpand.offset();
     var elementScrollTop = $(window).scrollTop();
     var netOffset = currentPosition.top - elementScrollTop;
@@ -1094,9 +1103,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
     var directoryDetailImageWrapper = elementToExpand.find('.small-card-list-detail-image-wrapper');
     var directoryDetailImage = elementToExpand.find('.small-card-list-detail-image');
-
-    // freeze the current scroll position of the background content
-    $('body').addClass('lock');
 
     // convert the expand-item to fixed position with a high z-index without moving it 
     elementToExpand.css({

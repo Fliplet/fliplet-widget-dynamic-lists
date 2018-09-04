@@ -732,6 +732,9 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
   //check to see if element is already expanded
   if (!elementToExpand.hasClass('open')) {
+    // freeze the current scroll position of the background content
+    $('body').addClass('lock');
+    
     var currentPosition = elementToExpand.offset();
     var elementScrollTop = $(window).scrollTop();
     var netOffset = currentPosition.top - elementScrollTop;
@@ -744,9 +747,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
     var directoryDetailImageWrapper = elementToExpand.find('.small-h-card-list-detail-image-wrapper');
     var directoryDetailImage = elementToExpand.find('.small-h-card-list-detail-image');
-
-    // freeze the current scroll position of the background content
-    $('body').addClass('lock');
 
     // convert the expand-item to fixed position with a high z-index without moving it 
     elementToExpand.css({
