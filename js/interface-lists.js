@@ -151,7 +151,7 @@ function attahObservers() {
             field: '#select_user_email_data'
           });
 
-          if (widgetData.userNameFields && widgetData.userNameFields.length) {
+          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
           
@@ -194,7 +194,7 @@ function attahObservers() {
             field: '#select_user_email'
           });
           
-          if (widgetData.userNameFields && widgetData.userNameFields.length) {
+          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
           
