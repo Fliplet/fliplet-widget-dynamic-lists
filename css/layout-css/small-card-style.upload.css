@@ -354,12 +354,14 @@
 .search-holder .search-feed:focus ~ .btn.search-btn:active,
 .search-holder .search-feed:focus ~ .btn.search-btn:active:hover {
   border: none;
+  background-color: #eeeeee;
 }
 
 .search-holder .btn.search-btn:hover,
 .search-holder .btn.search-btn:active,
 .search-holder .btn.search-btn:active:hover {
   border: none;
+  background-color: #eeeeee;
 }
 
 .new-small-card-list-container .search-holder .form-control {
