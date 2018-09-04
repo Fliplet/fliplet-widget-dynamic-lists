@@ -277,12 +277,13 @@
   opacity: 0;
   pointer-events: none;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 1px;
+  right: 1px;
   z-index: 1;
   border-radius: 40px;
-  background-color: transparent;
-  border: 1px solid rgba(51,51,51,0.8);
+  background-color: #eeeeee;
+  color: #333333;
+  border: none;
   padding: 8px 12px;
   transition: opacity 0.2s ease-out;
 }
@@ -296,14 +297,13 @@
 .search-holder .search-feed:focus ~ .btn.search-btn:hover,
 .search-holder .search-feed:focus ~ .btn.search-btn:active,
 .search-holder .search-feed:focus ~ .btn.search-btn:active:hover {
-  border: 1px solid #337ab7;
+  border: none;
 }
 
 .search-holder .btn.search-btn:hover,
 .search-holder .btn.search-btn:active,
 .search-holder .btn.search-btn:active:hover {
-  background-color: transparent;
-  border: 1px solid rgba(51,51,51,0.8);
+  border: none;
 }
 
 .new-news-feed-list-container .search-holder .form-control {
