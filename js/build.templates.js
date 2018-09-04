@@ -75,7 +75,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-profile-icon"
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-user-profile"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div class=\"small-card-list-detail-wrapper\" data-entry-id=\"{{id}}\">\n  <div class=\"small-card-list-detail-image-wrapper\">\n    <div class=\"small-card-list-detail-image\">\n      <img src=\"{{auth [Image]}}\">\n    </div>\n  </div>\n\n  <!-- Don't delete this -->\n  <!-- This is where the detail view will be added -->\n  {{{ [profileHTML] }}}\n</div>";
+    return "<div class=\"small-card-list-detail-wrapper\" data-entry-id=\"{{id}}\">\n  {{#if [Image]}}\n  <div class=\"small-card-list-detail-image-wrapper\">\n    <div class=\"small-card-list-detail-image\" style=\"background-image: url('{{auth [Image]}}')\"></div>\n    <i class=\"fa fa-user\"></i>\n  </div>\n  {{/if}}\n\n  <!-- Don't delete this -->\n  <!-- This is where the detail view will be added -->\n  {{{ [profileHTML] }}}\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.build.small-h-card-base"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
