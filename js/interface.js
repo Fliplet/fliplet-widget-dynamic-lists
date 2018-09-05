@@ -949,13 +949,17 @@ var DynamicLists = (function() {
         var oldValue = $(obj).val();
         var options = [];
         $(obj).html('');
-        $(obj).append('<option value="none">-- Select a data field</option>');
-        $(obj).append('<option disabled>------</option>');
-        $(obj).append('<option value="empty">None</option>');
-        $(obj).append('<option value="custom">Custom</option>');
-        $(obj).append('<option disabled>------</option>');
-        
-        dataSourceColumns.forEach(function(value, index) {
+        var defaultOptions = [
+          '<option value="none">-- Select a data field</option>',
+          '<option disabled>------</option>',
+          '<option value="empty">None</option>',
+          '<option value="custom">Custom</option>',
+          '<option disabled>------</option>'
+        ];
+        defaultOptions.forEach(function(option) {
+          options.push(option);
+        });
+        dataSourceColumns.forEach(function(value) {
           options.push('<option value="'+ value +'">'+ value +'</option>');
         });
         $(obj).append(options.join(''));
@@ -969,10 +973,15 @@ var DynamicLists = (function() {
         var oldValue = $(obj).val();
         var options = [];
         $(obj).html('');
-        $(obj).append('<option value="none">-- Select a data field</option>');
-        $(obj).append('<option disabled>------</option>');
-        $(obj).append('<option value="custom">Custom</option>');
-        $(obj).append('<option disabled>------</option>');
+        var defaultOptions = [
+          '<option value="none">-- Select a data field</option>',
+          '<option disabled>------</option>',
+          '<option value="custom">Custom</option>',
+          '<option disabled>------</option>'
+        ];
+        defaultOptions.forEach(function(option) {
+          options.push(option);
+        });
         
         dataSourceColumns.forEach(function(value, index) {
           options.push('<option value="'+ value +'">'+ value +'</option>');
