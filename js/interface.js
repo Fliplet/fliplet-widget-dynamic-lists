@@ -951,6 +951,7 @@ var DynamicLists = (function() {
         $(obj).html('');
         $(obj).append('<option value="none">-- Select a data field</option>');
         $(obj).append('<option disabled>------</option>');
+        $(obj).append('<option value="empty">None</option>');
         $(obj).append('<option value="custom">Custom</option>');
         $(obj).append('<option disabled>------</option>');
         
