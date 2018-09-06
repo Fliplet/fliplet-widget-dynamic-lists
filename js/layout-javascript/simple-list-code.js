@@ -807,7 +807,7 @@ DynamicList.prototype.initializeClusterize = function() {
   $('body').addClass('clusterize-scroll');
 
   _this.clusterizer = new Clusterize({
-    scrollElem: document.getElementsByTagName('body')[0],
+    scrollElem: document.body,
     contentId: 'simple-list-wrapper-' + _this.data.id,
     rows_in_block: 20,
     blocks_in_cluster: 2

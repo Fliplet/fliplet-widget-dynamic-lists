@@ -1044,18 +1044,17 @@ DynamicList.prototype.initializeClusterize = function() {
   // Function that initializes MixItUP
   // Plugin used for filtering
   var _this = this;
-  var agendaDayHolders = document.getElementsByClassName('agenda-list-day-holder');
 
-  for (var i = 0; i < agendaDayHolders.length; i++) {
+  $('.agenda-list-day-holder').each(function(index) {
     var newCluster = new Clusterize({
-      scrollId: 'agenda-list-day-holder-' + i,
-      contentId: 'contentArea-' + i,
+      scrollId: 'agenda-list-day-holder-' + index,
+      contentId: 'contentArea-' + index,
       rows_in_block: 20,
       blocks_in_cluster: 2
     });
 
     _this.clusterizer.push(newCluster);
-  }
+  });
 }
 
 DynamicList.prototype.initializeMixer = function() {
