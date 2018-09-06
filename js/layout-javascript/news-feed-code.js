@@ -34,6 +34,7 @@ var DynamicList = function(id, data, container) {
   // Global variables
   this.allowClick = true;
   this.mixer;
+  this.clusterizer;
   this.autosizeInit = false;
 
   this.listItems;
@@ -1170,6 +1171,7 @@ DynamicList.prototype.filterList = function() {
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
     var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+    _this.clusterizer.destroy();
     _this.renderLoopHTML(listData);
     _this.onReady();
     return;
@@ -1188,6 +1190,7 @@ DynamicList.prototype.filterList = function() {
     return _this.filterClasses.some(v => filters.indexOf(v) >= 0);
   });
 
+  _this.clusterizer.destroy();
   _this.renderLoopHTML(filteredData || _this.listItems);
   _this.onReady();
 }
@@ -1256,81 +1259,84 @@ DynamicList.prototype.onReady = function() {
   Promise.all(imagePromises)
     .then(function() {
       _this.setCardHeight();
-    });
-
-  if (_this.data.social && _this.data.social.likes) {
-    _this.$container.find('.news-feed-list-item').each(function(index, element) {
-      var cardId = $(element).data('entry-id');
-      var likeIndentifier = cardId + '-like';
-      var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
-      _this.setupLikeButton(cardId, likeIndentifier, title);
-    });
-  }
-
-  if (_this.data.social && _this.data.social.bookmark) {
-    _this.initializeMixer();
-    _this.$container.find('.news-feed-list-item').each(function(index, element) {
-      var cardId = $(element).data('entry-id');
-      var likeIndentifier = cardId + '-bookmark';
-      var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
-      _this.setupBookmarkButton(cardId, likeIndentifier, title);
-    });
-  }
-
-  if (_this.data.social && _this.data.social.comments) {
-    _this.$container.find('.news-feed-list-item').each(function(index, element) {
-      _this.getCommentsCount(element);
-    });
-
-    // Get users info
-    _this.connectToUsersDataSource().then(function(users) {
-      _this.allUsers = users;
-      var usersInfoToMention = [];
-      _this.allUsers.forEach(function(user) {
-        var userName = '';
-        var userNickname = '';
-        var counter = 1;
-
-        if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-          _this.data.userNameFields.forEach(function(name, i) {
-            userName += user.data[name] + ' ';
-            userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
-          });
-          userName = userName.trim();
-          userNickname = userNickname.trim();
-
-          counter++;
-        } else {
-          userName = user.data[_this.data.userNameFields[0]];
-          userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
-        }
-
-        var userInfo = {
-          id: user.id,
-          username: userNickname,
-          name: userName,
-          image: user.data[_this.data.userPhotoColumn] || ''
-        }
-        usersInfoToMention.push(userInfo);
-      });
-      _this.usersToMention = usersInfoToMention;
-    });
-  }
-
-  // Ready
-  _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
-
-  // Wait for bookmark to appear on the page
-  var checkTimer = 0;
-  var checkInterval = setInterval(function() {
-    // Check for 10 seconds
-    if (checkTimer > 10) {
-      clearInterval(checkInterval);
+      _this.initializeClusterize();
       return;
-    }
-    _this.checkBookmarked();
-    checkTimer++;
-  }, 1000);
+    })
+    .then(function() {
+      if (_this.data.social && _this.data.social.likes) {
+        _this.$container.find('.news-feed-list-item').each(function(index, element) {
+          var cardId = $(element).data('entry-id');
+          var likeIndentifier = cardId + '-like';
+          var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
+          _this.setupLikeButton(cardId, likeIndentifier, title);
+        });
+      }
+
+      if (_this.data.social && _this.data.social.bookmark) {
+        _this.initializeMixer();
+        _this.$container.find('.news-feed-list-item').each(function(index, element) {
+          var cardId = $(element).data('entry-id');
+          var likeIndentifier = cardId + '-bookmark';
+          var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
+          _this.setupBookmarkButton(cardId, likeIndentifier, title);
+        });
+      }
+
+      if (_this.data.social && _this.data.social.comments) {
+        _this.$container.find('.news-feed-list-item').each(function(index, element) {
+          _this.getCommentsCount(element);
+        });
+
+        // Get users info
+        _this.connectToUsersDataSource().then(function(users) {
+          _this.allUsers = users;
+          var usersInfoToMention = [];
+          _this.allUsers.forEach(function(user) {
+            var userName = '';
+            var userNickname = '';
+            var counter = 1;
+
+            if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+              _this.data.userNameFields.forEach(function(name, i) {
+                userName += user.data[name] + ' ';
+                userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+              });
+              userName = userName.trim();
+              userNickname = userNickname.trim();
+
+              counter++;
+            } else {
+              userName = user.data[_this.data.userNameFields[0]];
+              userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+            }
+
+            var userInfo = {
+              id: user.id,
+              username: userNickname,
+              name: userName,
+              image: user.data[_this.data.userPhotoColumn] || ''
+            }
+            usersInfoToMention.push(userInfo);
+          });
+          _this.usersToMention = usersInfoToMention;
+        });
+      }
+
+      // Ready
+      _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+
+      // Wait for bookmark to appear on the page
+      var checkTimer = 0;
+      var checkInterval = setInterval(function() {
+        // Check for 10 seconds
+        if (checkTimer > 10) {
+          clearInterval(checkInterval);
+          return;
+        }
+        _this.checkBookmarked();
+        checkTimer++;
+      }, 1000);
+    });
 }
 
 // Function to add class to card marking it as bookmarked - for filtering
@@ -1393,6 +1399,7 @@ DynamicList.prototype.searchData = function(value) {
       _this.mixer.destroy();
     }
 
+    _this.clusterizer.destroy();
     searchedData = _.uniq(searchedData);
     _this.searchedListItems = searchedData;
     _this.renderLoopHTML(searchedData);
@@ -1435,6 +1442,7 @@ DynamicList.prototype.clearSearch = function() {
   }
 
   // Resets list
+  _this.clusterizer.destroy();
   _this.searchedListItems = undefined;
   _this.renderLoopHTML(_this.listItems);
   _this.addFilters(_this.modifiedListItems);
@@ -1472,6 +1480,20 @@ DynamicList.prototype.initializeMixer = function() {
         });
       }
     }
+  });
+}
+
+DynamicList.prototype.initializeClusterize = function() {
+  // Function that initializes MixItUP
+  // Plugin used for filtering
+  var _this = this;
+  $('body').addClass('clusterize-scroll');
+
+  _this.clusterizer = new Clusterize({
+    scrollElem: document.getElementsByTagName('body')[0],
+    contentId: 'news-feed-list-wrapper-' + _this.data.id,
+    rows_in_block: 20,
+    blocks_in_cluster: 2
   });
 }
 

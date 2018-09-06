@@ -1,3 +1,7 @@
+html {
+  overflow: hidden;
+}
+
 .btn.disabled {
   pointer-events: none;
 }

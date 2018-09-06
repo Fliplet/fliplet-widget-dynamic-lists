@@ -70,6 +70,8 @@
       "vendor/mixitup.min.js",
       "vendor/mixitup-multifilter.min.js",
       "vendor/autosize.js",
+      "vendor/clusterize.css",
+      "vendor/clusterize.js",
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",

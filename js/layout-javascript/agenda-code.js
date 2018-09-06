@@ -30,8 +30,9 @@ var DynamicList = function(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
+  this.clusterizer = [];
   this.hammer;
-  this.mixer= [];
+  this.mixer = [];
   this.bookmarkButtons = [];
   this.animatingForward = false;
   this.animatingBack = false;
@@ -873,6 +874,7 @@ DynamicList.prototype.setupCards = function() {
 
   _this.initializeMixer();
   _this.setCardHeight();
+  _this.initializeClusterize();
   _this.bindChatTouchEvents();
 
   // Sets up the like and bookmark buttons
@@ -1036,6 +1038,24 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
     _this.isPanning = false;
     _this.animatingBack = false;
   });
+}
+
+DynamicList.prototype.initializeClusterize = function() {
+  // Function that initializes MixItUP
+  // Plugin used for filtering
+  var _this = this;
+  var agendaDayHolders = document.getElementsByClassName('agenda-list-day-holder');
+
+  for (var i = 0; i < agendaDayHolders.length; i++) {
+    var newCluster = new Clusterize({
+      scrollId: 'agenda-list-day-holder-' + i,
+      contentId: 'contentArea-' + i,
+      rows_in_block: 20,
+      blocks_in_cluster: 2
+    });
+
+    _this.clusterizer.push(newCluster);
+  }
 }
 
 DynamicList.prototype.initializeMixer = function() {

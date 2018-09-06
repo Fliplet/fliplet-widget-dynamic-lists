@@ -33,6 +33,7 @@ var DynamicList = function(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
+  this.clusterizer;
 
   this.emailField = 'Email';
   this.myProfileData;
@@ -906,6 +907,7 @@ DynamicList.prototype.filterList = function() {
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
     var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+    _this.clusterizer.destroy();
     _this.renderLoopHTML(listData);
     _this.onReady();
     return;
@@ -927,6 +929,7 @@ DynamicList.prototype.filterList = function() {
   if (!filteredData || !filteredData.length) {
     return;
   }
+  _this.clusterizer.destroy();
   _this.renderLoopHTML(filteredData);
   _this.onReady();
 }
@@ -1016,6 +1019,7 @@ DynamicList.prototype.searchData = function(value) {
     }
 
     // Remove duplicates
+    _this.clusterizer.destroy();
     searchedData = _.uniq(searchedData);
     _this.searchedListItems = searchedData;
     _this.renderLoopHTML(searchedData);
@@ -1044,16 +1048,32 @@ DynamicList.prototype.clearSearch = function() {
   _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
 
   // Resets list
+  _this.clusterizer.destroy();
   _this.searchedListItems = undefined;
   _this.renderLoopHTML(_this.listItems);
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
 
+DynamicList.prototype.initializeClusterize = function() {
+  // Function that initializes MixItUP
+  // Plugin used for filtering
+  var _this = this;
+  $('body').addClass('clusterize-scroll');
+
+  _this.clusterizer = new Clusterize({
+    scrollElem: document.getElementsByTagName('body')[0],
+    contentId: 'small-card-list-wrapper-' + _this.data.id,
+    rows_in_block: 20,
+    blocks_in_cluster: 2
+  });
+}
+
 DynamicList.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
 
+  _this.initializeClusterize();
   // Ready
   _this.$container.find('.new-small-card-list-container').addClass('ready');
 }
