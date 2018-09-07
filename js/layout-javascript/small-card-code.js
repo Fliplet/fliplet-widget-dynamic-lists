@@ -1060,7 +1060,7 @@ DynamicList.prototype.initializeClusterize = function() {
   // Plugin used for filtering
   var _this = this;
   $('body').addClass('clusterize-scroll');
-  debugger;
+
   _this.clusterizer = new Clusterize({
     scrollElem: document.body,
     contentId: 'small-card-list-wrapper-' + _this.data.id,
