@@ -3,7 +3,7 @@
  */
 .clusterize-scroll{
   max-height: initial;
-  overflow: auto;
+  overflow: auto !important;
 }
 
 /**
