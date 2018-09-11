@@ -411,6 +411,10 @@ DynamicList.prototype.initialize = function() {
               var newDate = new Date(value).getTime();
               return newDate;
             }
+
+            if (field.type === "time") {
+              return value;
+            }
           });
         });
 
