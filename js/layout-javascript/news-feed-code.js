@@ -1185,7 +1185,9 @@ DynamicList.prototype.filterList = function() {
       filters.push(obj.data.class);
     });
 
-    return _this.filterClasses.some(v => filters.indexOf(v) >= 0);
+    return _.some(_this.filterClasses, function(v) {
+      return filters.indexOf(v) >= 0
+    });
   });
 
   _this.renderLoopHTML(filteredData || _this.listItems);
