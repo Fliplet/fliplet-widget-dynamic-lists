@@ -444,6 +444,10 @@ DynamicList.prototype.initialize = function() {
               var newDate = new Date(value).getTime();
               return newDate;
             }
+
+            if (field.type === "time") {
+              return value;
+            }
           });
         });
 
@@ -921,7 +925,9 @@ DynamicList.prototype.filterList = function() {
       filters.push(obj.data.class);
     });
 
-    return _this.filterClasses.some(v => filters.indexOf(v) >= 0);
+    return _.some(_this.filterClasses, function(v) {
+      return filters.indexOf(v) >= 0
+    });
   });
 
   if (!filteredData || !filteredData.length) {
