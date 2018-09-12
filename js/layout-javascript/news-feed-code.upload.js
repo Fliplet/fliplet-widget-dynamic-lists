@@ -1,4 +1,4 @@
-Fliplet.Registry.set('dynamic-list:1.2.0:news-feed', (function () {
+Fliplet.Registry.set('dynamic-list:1.3.0:news-feed', (function () {
   var newsFeedLayoutMapping = {
     'news-feed': {
       'base': 'templates.build.news-feed-base',
@@ -28,7 +28,7 @@ Fliplet.Registry.set('dynamic-list:1.2.0:news-feed', (function () {
     // Makes data and the component container available to Public functions
     this.data = data;
     this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
-    this.$container = $('[data-dynamic-lists-1-2-0-id="' + id + '"]');
+    this.$container = $('[data-dynamic-lists-1-3-0-id="' + id + '"]');
     this.queryOptions = {};
 
     // Other variables
@@ -926,7 +926,7 @@ Fliplet.Registry.set('dynamic-list:1.2.0:news-feed', (function () {
     ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
     : Handlebars.compile(baseHTML());
 
-    $('[data-dynamic-lists-1-2-0-id="' + _this.data.id + '"]').html(template(data));
+    $('[data-dynamic-lists-1-3-0-id="' + _this.data.id + '"]').html(template(data));
   }
 
   DynamicList.prototype.renderLoopHTML = function(records) {

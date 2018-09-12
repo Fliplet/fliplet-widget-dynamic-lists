@@ -8,7 +8,7 @@
   {{{advancedSettings.cssCode}}}
   </style>
   {{/if}}
-  <div data-dynamic-lists-1-2-0-id="{{ id }}" data-dynamic-lists-layout="{{ layout }}" data-dynamic-lists-uuid="{{uuid}}"></div>
+  <div data-dynamic-lists-1-3-0-id="{{ id }}" data-dynamic-lists-layout="{{ layout }}" data-dynamic-lists-uuid="{{uuid}}"></div>
   {{#if advancedSettings.jsEnabled}}
   <script type="text/javascript">
     Fliplet().then(function () {
@@ -20,7 +20,7 @@
       } catch (e) {
         console.log('Error with custom JS code', e);
       }
-      var DynamicList = Fliplet.Registry.get('dynamic-list:1.2.0:{{ layout }}:{{ id }}');
+      var DynamicList = Fliplet.Registry.get('dynamic-list:1.3.0:{{ layout }}:{{ id }}');
       if (typeof DynamicList === 'function') {
         DynamicListFuncs[id] = DynamicList;
         DynamicList = null;
