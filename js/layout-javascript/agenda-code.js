@@ -876,8 +876,7 @@ DynamicList.prototype.setupCards = function() {
   var _this = this;
 
   _this.initializeMixer();
-  _this.setCardHeight();
-  _this.bindChatTouchEvents();
+  _this.bindTouchEvents();
 
   // Sets up the like and bookmark buttons
   if (_this.data.social && _this.data.social.bookmark) {
@@ -893,6 +892,7 @@ DynamicList.prototype.onReady = function() {
 
   // Ready
   _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+  _this.setCardHeight();
   // Wait for bookmark to appear on the page
   var checkTimer = 0;
   var checkInterval = setInterval(function() {
@@ -1150,7 +1150,7 @@ DynamicList.prototype.checkBookmarked = function() {
   });
 }
 
-DynamicList.prototype.bindChatTouchEvents = function() {
+DynamicList.prototype.bindTouchEvents = function() {
   var _this = this;
   var handle = document.getElementById('agenda-cards-wrapper-' +_this.data.id);
   _this.hammer = _this.hammer || new Hammer(handle);
@@ -1243,7 +1243,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
   // Prevents 'body' scroll
   _this.$container.find('.agenda-list-day-holder').addClass('lock');
-  $('body').addClass('lock');
+  $('html, body').addClass('lock');
   
   // freeze the current scroll position of the background page expand-wrapper
   var elementOffset = _this.$container.find('.new-agenda-list-container').offset();
