@@ -20,7 +20,7 @@ Fliplet.Registry.set('dynamic-list:1.2.0:news-feed', (function () {
   };
 
   // Constructor
-  var DynamicList = function(id, data, container) {
+  var DynamicList = function(id, data) {
     var _this = this;
 
     this.flListLayoutConfig = window.flListLayoutConfig;

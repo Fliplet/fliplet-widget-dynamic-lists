@@ -1,6 +1,6 @@
 <script type="text/javascript">
-  var DynamicListFuncs = {};
-  var dynamicLists = {};
+  var DynamicListFuncs = DynamicListFuncs || {};
+  var dynamicLists = dynamicLists || {};
 </script>
 {{#if layout}}
   {{#if advancedSettings.cssEnabled}}
@@ -14,11 +14,13 @@
     Fliplet().then(function () {
       var id = {{ id }};
       var data = Fliplet.Widget.getData(id);
+
       try {
         {{{ advancedSettings.jsCode }}}
       } catch (e) {
         console.log('Error with custom JS code', e);
       }
+      var DynamicList = Fliplet.Registry.get('dynamic-list:1.2.0:{{ layout }}:{{ id }}');
       if (typeof DynamicList === 'function') {
         DynamicListFuncs[id] = DynamicList;
         DynamicList = null;
