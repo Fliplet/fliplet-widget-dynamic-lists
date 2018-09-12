@@ -1579,7 +1579,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   elementToExpand.parents('.news-feed-list-item').addClass('open');
 
   // Prevents 'body' scroll
-  $('body').addClass('lock');
+  $('html, body').addClass('lock');
 
   // freeze the current scroll position of the background page expand-wrapper
   var elementOffset = elementToExpand.offset();
@@ -1589,7 +1589,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   var expandTop = expandPosition.top;
   var expandLeft = expandPosition.left;
   var expandWidth = $('body').outerWidth();
-  var expandHeight = $('body').outerHeight();
+  var expandHeight = $('html').outerHeight();
 
   // convert the expand-item to fixed position without moving it
   elementToExpand.css({
