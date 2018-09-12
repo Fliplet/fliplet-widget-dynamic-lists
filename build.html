@@ -8,7 +8,7 @@
   {{{advancedSettings.cssCode}}}
   </style>
   {{/if}}
-  <div data-dynamic-lists-id="{{ id }}" data-dynamic-lists-layout="{{ layout }}" data-dynamic-lists-uuid="{{uuid}}"></div>
+  <div data-dynamic-lists-1-2-0-id="{{ id }}" data-dynamic-lists-layout="{{ layout }}" data-dynamic-lists-uuid="{{uuid}}"></div>
   {{#if advancedSettings.jsEnabled}}
   <script type="text/javascript">
     Fliplet().then(function () {
@@ -26,36 +26,6 @@
       }
     });
   </script>
-  {{else}}
-    <script type="text/javascript">
-      var assetUrl = {
-        'small-card': '{{{ asset "js/layout-javascript/small-card-code.js" }}}',
-        'news-feed': '{{{ asset "js/layout-javascript/news-feed-code.js" }}}',
-        'agenda': '{{{ asset "js/layout-javascript/agenda-code.js" }}}',
-        'small-h-card': '{{{ asset "js/layout-javascript/small-h-card-code.js" }}}',
-        'simple-list': '{{{ asset "js/layout-javascript/simple-list-code.js" }}}'
-      };
-    </script>
-    <div data-script-insert="{{ id }}" class="hidden"></div>
-    <script type="text/javascript">
-      var script = document.createElement('script');
-      script.onload = function() {
-        if (typeof DynamicList !== 'function') {
-          console.warn('DynamicList() is not defined for widget for widget ID {{ id }}');
-          return;
-        }
-
-        var id = {{ id }};
-        DynamicListFuncs[id] = DynamicList;
-        DynamicList = null;
-        Fliplet().then(function () {
-          var data = Fliplet.Widget.getData(id);
-          dynamicLists[id] = new DynamicListFuncs[id](id, data);
-        })
-      };
-      script.src = assetUrl['{{ layout }}'];
-      document.querySelector('[data-script-insert="{{ id }}"]').appendChild(script);
-    </script>
   {{/if}}
 {{else}}
 <div class="dynamic-list-placeholder">
