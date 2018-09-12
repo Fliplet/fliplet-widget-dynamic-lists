@@ -8,22 +8,25 @@
   {{{advancedSettings.cssCode}}}
   </style>
   {{/if}}
-  <div data-dynamic-lists-id="{{ id }}" data-dynamic-lists-layout="{{ layout }}" data-dynamic-lists-uuid="{{uuid}}"></div>
+  <div data-dynamic-lists-1-2-0-id="{{ id }}" data-dynamic-lists-layout="{{ layout }}" data-dynamic-lists-uuid="{{uuid}}"></div>
   {{#if advancedSettings.jsEnabled}}
   <script type="text/javascript">
     Fliplet().then(function () {
-      var id = {{ id }};
-      var data = Fliplet.Widget.getData(id);
       try {
         {{{ advancedSettings.jsCode }}}
       } catch (e) {
         console.log('Error with custom JS code', e);
       }
-      if (typeof DynamicList === 'function') {
-        DynamicListFuncs[id] = DynamicList;
-        DynamicList = null;
-        dynamicLists[id] = new DynamicListFuncs[id](id, data);
-      }
+
+      var dynamicLists = new Fliplet.Registry.get('dynamic-lists:1.2.0');
+      // This function will run for each instance found in the page
+      Fliplet.Widget.instance('dynamic-lists-1-2-0', function (data) {
+        // The HTML element for each instance. You can use $(element) to use jQuery functions on it
+        var container = this;
+
+        var dynamicList = new dynamicLists(container, data);
+        dynamicList.start();
+      });
     });
   </script>
   {{else}}
@@ -40,18 +43,18 @@
     <script type="text/javascript">
       var script = document.createElement('script');
       script.onload = function() {
-        if (typeof DynamicList !== 'function') {
-          console.warn('DynamicList() is not defined for widget for widget ID {{ id }}');
-          return;
-        }
-
-        var id = {{ id }};
-        DynamicListFuncs[id] = DynamicList;
-        DynamicList = null;
         Fliplet().then(function () {
-          var data = Fliplet.Widget.getData(id);
-          dynamicLists[id] = new DynamicListFuncs[id](id, data);
-        })
+          var dynamicLists = new Fliplet.Registry.get('dynamic-lists:1.2.0');
+
+          // This function will run for each instance found in the page
+          Fliplet.Widget.instance('dynamic-lists-1-2-0', function (data) {
+            // The HTML element for each instance. You can use $(element) to use jQuery functions on it
+            var container = this;
+
+            var dynamicList = new dynamicLists(container, data);
+            dynamicList.start();
+          });
+        });
       };
       script.src = assetUrl['{{ layout }}'];
       document.querySelector('[data-script-insert="{{ id }}"]').appendChild(script);
