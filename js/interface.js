@@ -1589,7 +1589,7 @@ var DynamicLists = (function() {
         var jsUrl = $('[data-' + layoutMapping[selectedLayout].js + '-js-url]').data(layoutMapping[selectedLayout].js + '-js-url');
         var jsPromise = Fliplet.API.request('v1/communicate/proxy/' + jsUrl )
           .then(function(response) {
-            jsCode = response.replace(/'dynamic-list:[0-9.:A-z-]+/gm, function (x) { return x + ':' + _this.widgetId });
+            jsCode = response.replace(/'dynamic-list:[0-9.:A-z-]+/gm, function (x) { return x + ':' + Fliplet.Widget.getUUID() });
           });
       }
 

@@ -20,7 +20,7 @@
       } catch (e) {
         console.log('Error with custom JS code', e);
       }
-      var DynamicList = Fliplet.Registry.get('dynamic-list:1.3.0:{{ layout }}:{{ id }}');
+      var DynamicList = Fliplet.Registry.get('dynamic-list:1.3.0:{{ layout }}:{{ uuid }}');
       if (typeof DynamicList === 'function') {
         DynamicListFuncs[id] = DynamicList;
         DynamicList = null;
