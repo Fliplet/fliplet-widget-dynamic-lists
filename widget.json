@@ -87,6 +87,8 @@
     "likesDataSourceId:dataSource",
     "bookmarkDataSourceId:dataSource",
     "commentsDataSourceId:dataSource",
-    "userDataSourceId:dataSource"
+    "userDataSourceId:dataSource",
+    "addEntryLinkAction.page:page",
+    "editEntryLinkAction.page:page"
   ]
 }
