@@ -444,7 +444,7 @@ Fliplet.Registry.set('dynamic-list:1.3.0:simple-list', (function () {
             filter.value = filter.value.toLowerCase();
           }
           if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-            record.data[filter.column] = record.data[filter.column].toLowerCase();
+            record.data[filter.column] = record.data[filter.column].toString().toLowerCase();
           }
 
           if (condition === 'contains') {
