@@ -366,7 +366,6 @@ Fliplet.Registry.set('dynamic-list:1.3.0:agenda', (function () {
 
   DynamicList.prototype.prepareData = function(records) {
     var _this = this;
-    var sorted;
     var ordered;
     var filtered;
 
@@ -389,8 +388,7 @@ Fliplet.Registry.set('dynamic-list:1.3.0:agenda', (function () {
         }
       });
 
-      // Sort data
-      sorted = _.sortBy(records, function (obj) {
+      ordered = _.orderBy(sorted, function(obj) {
         fields.forEach(function(field) {
           obj.data[field.column] = obj.data[field.column] || '';
           var value = obj.data[field.column].toString().toUpperCase();
@@ -416,19 +414,8 @@ Fliplet.Registry.set('dynamic-list:1.3.0:agenda', (function () {
             return value;
           }
         });
-      });
-
-      ordered = _.orderBy(sorted, function(record) {
-        var values = [];
-
-        fields.forEach(function(field) {
-          if (record.data[field.column] !== '' && record.data[field.column] !== null && typeof record.data[field.column] !== 'undefined') {
-            values.push(record.data[field.column].toString());
-          }
-        });
-
-        return values;
       }, sortOrder);
+
       records = ordered;
     }
 
