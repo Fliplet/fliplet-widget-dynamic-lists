@@ -390,6 +390,134 @@ Fliplet.Registry.set('dynamic-list:1.3.0:small-card', (function () {
       });
   }
 
+  DynamicList.prototype.prepareData = function(records) {
+    var _this = this;
+    var sorted;
+    var ordered;
+    var filtered;
+
+    // Prepare sorting
+    if (_this.data.sortOptions.length) {
+      var fields = [];
+      var sortOrder = [];
+
+      _this.data.sortOptions.forEach(function(option) {
+        fields.push({
+          column: option.column,
+          type: option.sortBy
+        });
+
+        if (option.orderBy === 'ascending') {
+          sortOrder.push('asc');
+        }
+        if (option.orderBy === 'descending') {
+          sortOrder.push('desc');
+        }
+      });
+
+      // Sort data
+      sorted = _.sortBy(records, function (obj) {
+        fields.forEach(function(field) {
+          obj.data[field.column] = obj.data[field.column] || '';
+          var value = obj.data[field.column].toString().toUpperCase();
+
+          if (field.type === "alphabetical") {
+            return value.match(/[A-Za-z]/)
+            ? value
+            : '{' + value;
+          }
+
+          if (field.type === "numerical") {
+            return value.match(/[0-9]/)
+            ? parseInt(value, 10)
+            : '{' + value;
+          }
+
+          if (field.type === "date") {
+            var newDate = new Date(value).getTime();
+            return newDate;
+          }
+
+          if (field.type === "time") {
+            return value;
+          }
+        });
+      });
+
+      ordered = _.orderBy(sorted, function(record) {
+        var values = [];
+
+        fields.forEach(function(field) {
+          if (record.data[field.column] !== '' && record.data[field.column] !== null && typeof record.data[field.column] !== 'undefined') {
+            values.push(record.data[field.column].toString());
+          }
+        });
+
+        return values;
+      }, sortOrder);
+      records = ordered;
+    }
+
+    // Prepare filtering
+    if (_this.data.filterOptions.length) {
+      var filters = [];
+
+      _this.data.filterOptions.forEach(function(option) {
+        var filter = {
+          column: option.column,
+          condition: option.logic,
+          value: option.value
+        }
+        filters.push(filter);
+      });
+
+      // Filter data
+      filtered = _.filter(records, function(record) {
+        var matched = 0;
+        
+        filters.some(function(filter) {
+          var condition = filter.condition;
+          // Case insensitive
+          if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+            filter.value = filter.value.toLowerCase();
+          }
+          if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+            record.data[filter.column] = record.data[filter.column].toLowerCase();
+          }
+          
+          if (condition === 'contains') {
+            if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined' && record.data[filter.column].indexOf(filter.value) > -1) {
+              matched++;
+            }
+            return;
+          }
+          if (condition === 'notcontain') {
+            if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined' && record.data[filter.column].indexOf(filter.value) === -1) {
+              matched++;
+            }
+            return;
+          }
+          if (condition === 'regex') {
+            var pattern = new RegExp(filter.value);
+            if (patt.test(record.data[filter.column])){
+              matched++;
+            }
+            return;
+          }
+          if (operators[condition](record.data[filter.column], filter.value)) {
+            matched++;
+            return;
+          }
+        });
+
+        return matched >= filters.length ? true : false;
+      });
+      records = filtered;
+    }
+
+    return records;
+  }
+
   DynamicList.prototype.initialize = function() {
     var _this = this;
     // Render Base HTML template
@@ -398,134 +526,8 @@ Fliplet.Registry.set('dynamic-list:1.3.0:small-card', (function () {
     // Connect to data source to get rows
     _this.connectToDataSource()
       .then(function (records) {
-        // Received the rows
-
-        var sorted;
-        var ordered;
-        var filtered;
-
-        // Prepare sorting
-        if (_this.data.sortOptions.length) {
-          var fields = [];
-          var sortOrder = [];
-
-          _this.data.sortOptions.forEach(function(option) {
-            fields.push({
-              column: option.column,
-              type: option.sortBy
-            });
-
-            if (option.orderBy === 'ascending') {
-              sortOrder.push('asc');
-            }
-            if (option.orderBy === 'descending') {
-              sortOrder.push('desc');
-            }
-          });
-
-          // Sort data
-          sorted = _.sortBy(records, function (obj) {
-            fields.forEach(function(field) {
-              obj.data[field.column] = obj.data[field.column] || '';
-              var value = obj.data[field.column].toString().toUpperCase();
-
-              if (field.type === "alphabetical") {
-                return value.match(/[A-Za-z]/)
-                ? value
-                : '{' + value;
-              }
-
-              if (field.type === "numerical") {
-                return value.match(/[0-9]/)
-                ? parseInt(value, 10)
-                : '{' + value;
-              }
-
-              if (field.type === "date") {
-                var newDate = new Date(value).getTime();
-                return newDate;
-              }
-
-              if (field.type === "time") {
-                return value;
-              }
-            });
-          });
-
-          ordered = _.orderBy(sorted, function(record) {
-            var values = [];
-
-            fields.forEach(function(field) {
-              if (record.data[field.column] !== '' && record.data[field.column] !== null && typeof record.data[field.column] !== 'undefined') {
-                values.push(record.data[field.column].toString());
-              }
-            });
-
-            return values;
-          }, sortOrder);
-          records = ordered;
-        }
-
-        // Prepare filtering
-        if (_this.data.filterOptions.length) {
-          var filters = [];
-
-          _this.data.filterOptions.forEach(function(option) {
-            var filter = {
-              column: option.column,
-              condition: option.logic,
-              value: option.value
-            }
-            filters.push(filter);
-          });
-
-          // Filter data
-          filtered = _.filter(records, function(record) {
-            var matched = 0;
-            
-            filters.some(function(filter) {
-              var condition = filter.condition;
-              // Case insensitive
-              if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-                filter.value = filter.value.toLowerCase();
-              }
-              if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-                record.data[filter.column] = record.data[filter.column].toLowerCase();
-              }
-              
-              if (condition === 'contains') {
-                if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined' && record.data[filter.column].indexOf(filter.value) > -1) {
-                  matched++;
-                }
-                return;
-              }
-              if (condition === 'notcontain') {
-                if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined' && record.data[filter.column].indexOf(filter.value) === -1) {
-                  matched++;
-                }
-                return;
-              }
-              if (condition === 'regex') {
-                var pattern = new RegExp(filter.value);
-                if (patt.test(record.data[filter.column])){
-                  matched++;
-                }
-                return;
-              }
-              if (operators[condition](record.data[filter.column], filter.value)) {
-                matched++;
-                return;
-              }
-            });
-
-            return matched >= filters.length ? true : false;
-          });
-          records = filtered;
-        }
-
-        // Make rows available Globally
-        records = _this.getPermissions(records);
-        _this.listItems = records;
+        records = _this.prepareData(records);
+        _this.listItems = _this.getPermissions(records);
 
         // Get user profile
         if (_this.myUserData) {
