@@ -271,7 +271,7 @@ DynamicList.prototype.attachObservers = function() {
       };
 
       if (_this.data.editEntryLinkAction) {
-        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=';
+        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
 
         if (typeof _this.data.editEntryLinkAction.page !== 'undefined' && _this.data.editEntryLinkAction.page !== '') {
           Fliplet.Navigate.to(_this.data.editEntryLinkAction)
