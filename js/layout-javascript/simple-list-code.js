@@ -460,13 +460,13 @@ DynamicList.prototype.initialize = function() {
             }
 
             if (condition === 'contains') {
-              if (record.data[filter.column].indexOf(filter.value) > -1) {
+              if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined' && record.data[filter.column].indexOf(filter.value) > -1) {
                 matched++;
               }
               return;
             }
             if (condition === 'notcontain') {
-              if (record.data[filter.column].indexOf(filter.value) === -1) {
+              if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined' && record.data[filter.column].indexOf(filter.value) === -1) {
                 matched++;
               }
               return;
