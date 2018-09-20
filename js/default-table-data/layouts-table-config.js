@@ -1,6 +1,9 @@
 window.flListLayoutTableColumnConfig = {
-  'small-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize'],
-  'news-feed': ['Title', 'Date', 'Categories', 'Image', 'Content']
+  'small-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Linkedin', 'Bio', 'Sectors', 'Expertise'],
+  'news-feed': ['Title', 'Date', 'Categories', 'Image', 'Content'],
+  'agenda': ['Title', 'Full Date', 'Start Time', 'End Time', 'Location', 'Content'],
+  'small-h-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertise'],
+  'simple-list': ['Title', 'Image', 'Category', 'Description']
 };
 window.flListLayoutTableConfig = {
   'small-card': [
@@ -15,7 +18,7 @@ window.flListLayoutTableConfig = {
       'Linkedin': 'https://www.linkedin.com/in/user/',
       'Bio': 'Candy crush marketer, wearable tech captain, tech whisperer. Deeper dives start here.',
       'Sectors': 'Software, IT, Marketing, Design',
-      'Expertize': 'SEO'
+      'Expertise': 'SEO'
     },
     {
       'First Name': 'John',
@@ -28,7 +31,7 @@ window.flListLayoutTableConfig = {
       'Linkedin': 'https://www.linkedin.com/in/user/',
       'Bio': 'MySpace ambassador, bitcoin virtuoso, android soothsayer. Beanie baby collector.',
       'Sectors': 'Software, IT, Programming, Design, Development, Management',
-      'Expertize': 'Design'
+      'Expertise': 'Design'
     },
     {
       'First Name': 'Mary',
@@ -41,7 +44,7 @@ window.flListLayoutTableConfig = {
       'Linkedin': 'https://www.linkedin.com/in/user/',
       'Bio': 'Content czar, BuzzFeed egghead-in-chief, interwebz sherpa. Burning the candle at both ends.',
       'Sectors': 'Management, Finance, Business',
-      'Expertize': 'Business Management'
+      'Expertise': 'Business Management'
     }
   ],
   'news-feed': [
@@ -70,7 +73,7 @@ window.flListLayoutTableConfig = {
   'agenda': [
     {
       'Title': 'Registration and coffee',
-      'Date': '2018-04-14',
+      'Full Date': '2018-04-14 09:00',
       'Start Time': '09:00',
       'End Time': '09:45',
       'Location': 'Hotel\'s Restaurant',
@@ -78,7 +81,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'What does the future hold',
-      'Date': '2018-04-14',
+      'Full Date': '2018-04-14 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',
       'Location': 'Room 123',
@@ -86,7 +89,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Team work',
-      'Date': '2018-04-14',
+      'Full Date': '2018-04-14 14:00',
       'Start Time': '14:00',
       'End Time': '15:00',
       'Location': 'Room 156',
@@ -94,7 +97,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Morning coffee',
-      'Date': '2018-04-15',
+      'Full Date': '2018-04-14 09:00',
       'Start Time': '09:00',
       'End Time': '09:45',
       'Location': 'Hotel\'s Restaurant',
@@ -102,7 +105,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Defining success in our industry',
-      'Date': '2018-04-15',
+      'Full Date': '2018-04-14 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',
       'Location': 'Room 144',
@@ -110,7 +113,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Day 2 round up',
-      'Date': '2018-04-15',
+      'Full Date': '2018-04-14 17:00',
       'Start Time': '17:00',
       'End Time': '18:00',
       'Location': 'Room 101',
@@ -129,7 +132,7 @@ window.flListLayoutTableConfig = {
       'Linkedin': 'https://www.linkedin.com/in/user/',
       'Bio': 'Candy crush marketer, wearable tech captain, tech whisperer. Deeper dives start here.',
       'Sectors': 'Software, IT, Marketing, Design',
-      'Expertize': 'SEO'
+      'Expertise': 'SEO'
     },
     {
       'First Name': 'John',
@@ -142,7 +145,7 @@ window.flListLayoutTableConfig = {
       'Linkedin': 'https://www.linkedin.com/in/user/',
       'Bio': 'MySpace ambassador, bitcoin virtuoso, android soothsayer. Beanie baby collector.',
       'Sectors': 'Software, IT, Programming, Design, Development, Management',
-      'Expertize': 'Design'
+      'Expertise': 'Design'
     },
     {
       'First Name': 'Mary',
@@ -155,7 +158,7 @@ window.flListLayoutTableConfig = {
       'Linkedin': 'https://www.linkedin.com/in/user/',
       'Bio': 'Content czar, BuzzFeed egghead-in-chief, interwebz sherpa. Burning the candle at both ends.',
       'Sectors': 'Management, Finance, Business',
-      'Expertize': 'Business Management'
+      'Expertise': 'Business Management'
     }
   ],
   'simple-list': [

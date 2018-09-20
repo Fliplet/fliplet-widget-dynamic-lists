@@ -92,7 +92,7 @@ var DynamicLists = (function() {
 
           $('.state.present').addClass('is-loading');
           // Create data source
-          _this.createDataSourceFromLayout()
+          _this.loadDataFromLayout()
             .then(function() {
               return _this.loadData();
             })
@@ -110,6 +110,7 @@ var DynamicLists = (function() {
           var context = $(this).data('back-settings');
           _this.goToSettings(context);
         })
+        .on('click', '[data-create-datasource]', _this.createDataSourceData)
         .on('click', '#manage-data, [data-edit-datasource]', _this.manageAppData)
         .on('click', '[data-reset-default]', function() {
           var buttonId = $(this).data('id');
@@ -528,16 +529,27 @@ var DynamicLists = (function() {
           _this.config.addEntry = false;
         }
 
-        // Load data source
-        return _this.getDataSourceById(_this.config.dataSourceId)
-          .then(function(datasource) {
-            return _this.changeCreateDsButton(datasource)
-          })
+        // Load
+        var loadingPromise;
+        if (!_this.config.dataSourceId) {
+          loadingPromise = new Promise(function(resolve, reject) {
+            _this.updateFieldsWithColumns(_this.config.defaultColumns);
+            $('.form-group').removeClass('disabled');
+            resolve();
+          });
+        } else {
+          loadingPromise = _this.getDataSourceById(_this.config.dataSourceId)
+            .then(function(datasource) {
+              return _this.changeCreateDsButton(datasource)
+            });
+        }
+        return loadingPromise
           .then(function() {
             // Load sort options
+            var dataSourceColumns = dataSourceColumns || _this.config.defaultColumns;
             _.forEach(_this.config.sortOptions, function(item) {
               item.fromLoading = true; // Flag to close accordions
-              item.columns = dataSourceColumns;
+              item.columns = dataSourceColumns
               _this.addSortItem(item);
               $('#sort-accordion #select-data-field-' + item.id).val(item.column);
               $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
@@ -625,6 +637,8 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
+            var dataSourceColumns = dataSourceColumns || _this.config.defaultColumns;
+
             // Sets up the data view settings
             if (typeof _this.config['summary-fields'] === 'undefined') {
               _this.config['summary-fields'] = defaultSettings[listLayout]['summary-fields'];
@@ -637,7 +651,7 @@ var DynamicLists = (function() {
             $('#select_type_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.type || 'url');
 
             _.forEach(_this.config['summary-fields'], function(item) {
-              item.columns = dataSourceColumns;
+              item.columns = dataSourceColumns || _this.config.defaultColumns;
               _this.addSummaryItem(item);
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
@@ -740,6 +754,7 @@ var DynamicLists = (function() {
             return;
           })
           .catch(function(error) {
+            debugger;
             if (error) {
               // Load Search/Filter fields
               $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
@@ -841,7 +856,7 @@ var DynamicLists = (function() {
       }));
       $('#search-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
-          source: dataSourceColumns,
+          source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
         showAutocompleteOnFocus: true
@@ -852,7 +867,7 @@ var DynamicLists = (function() {
       }));
       $('#filter-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
-          source: dataSourceColumns,
+          source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
         showAutocompleteOnFocus: true
@@ -1205,22 +1220,55 @@ var DynamicLists = (function() {
         });
       });   
     },
-    createDataSourceFromLayout: function() {
-      var name = appName + ' - List - ' + layoutMapping[listLayout].name;
-
-      return Fliplet.DataSources.create({
-        name: name,
-        organizationId: organizationId,
-        entries: defaultEntries[listLayout],
-        columns: defaultColumns[listLayout],
-        definition: {'bundleImages': true}
-      }).then(function(ds) {
-        allDataSources.push(ds);
+    loadDataFromLayout: function() {
+      return Fliplet.DataSources.get({
+        roles: 'publisher,editor',
+        type: null
+      }, {
+        cache: false
+      }).then(function(dataSources) {
         _this.config.layout = listLayout;
-        _this.config.dataSourceId = ds.id;
+        _this.config.dataSourceId = undefined;
+        _this.config.defaultEntries = [];
+        defaultEntries[listLayout].forEach(function(entry, index) {
+          _this.config.defaultEntries.push({
+            id: index,
+            data: entry
+          });
+        });
+        _this.config.defaultColumns = defaultColumns[listLayout];
         _this.config = $.extend(true, _this.config, defaultSettings[listLayout]);
 
-        return ds;
+        return;
+      });
+    },
+    createDataSourceData: function() {
+      var name = appName + ' - List - ' + layoutMapping[listLayout].name;
+      Fliplet.Modal.prompt({
+        title: 'Please type a name for your data source:',
+        value: name
+      }).then(function (name) {
+        if (name === null || name === '') {
+          return Promise.reject();
+        }
+
+        return name;
+      }).then(function(name) {
+        return Fliplet.DataSources.create({
+          name: name,
+          organizationId: organizationId,
+          entries: defaultEntries[listLayout],
+          columns: defaultColumns[listLayout],
+          definition: {'bundleImages': true}
+        });
+      }).then(function(ds) {
+        allDataSources.push(ds);
+        _this.config.dataSourceId = ds.id;
+      }).then(function() {
+        return _this.loadData();
+      })
+      .then(function() {
+        _this.saveLists(true);
       });
     },
     changeCreateDsButton: function(dataSource) {
@@ -1805,7 +1853,8 @@ var DynamicLists = (function() {
       data.advancedSettings = {};
 
       data.layout = listLayout;
-      data.dataSourceId = newDataSource.id;
+      data.dataSourceId = !toReload ? newDataSource.id : undefined;
+      data.defaultData = toReload && !data.dataSourceId ? true : false;
 
       // Get sorting options
       _.forEach(_this.config.sortOptions, function(item) {

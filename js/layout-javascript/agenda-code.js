@@ -495,6 +495,23 @@ DynamicList.prototype.initialize = function() {
   // Render Base HTML template
   _this.renderBaseHTML();
 
+  // Render list with default data
+  if (_this.data.defaultData) {
+    var records = _this.prepareData(_this.data.defaultEntries);
+    _this.listItems = JSON.parse(JSON.stringify(records));
+    // Render dates HTML
+    _this.renderDatesHTML(_this.listItems);
+    _this.dataSourceColumns = _this.data.defaultColumns;
+    // Render Loop HTML
+    _this.renderLoopHTML(_this.listItems);
+    // Listeners and Ready
+    _this.setupCards();
+    _this.attachObservers();
+    _this.scrollEvent();
+    _this.onReady();
+    return;
+  }
+
   // Connect to data source to get rows
   _this.connectToDataSource()
     .then(function (records) {
@@ -767,12 +784,16 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var lastDate;
   var numberOfPlacholderDays = 3;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
-
+  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Date'});
+  var dateField = 'Date';
+  if (foundDateField) {
+    dateField = foundDateField.column;
+  }
   // set first date in agenda
-  firstDate = new Date(clonedRecords[0].data['Date']).toUTCString();
+  firstDate = new Date(clonedRecords[0].data[dateField]).toUTCString();
 
   // set last date in agenda
-  lastDate = new Date(clonedRecords[clonedRecords.length - 1].data['Date']).toUTCString();
+  lastDate = new Date(clonedRecords[clonedRecords.length - 1].data[dateField]).toUTCString();
 
   // Adds 5 days before the first date
   // Save them in an array
@@ -788,13 +809,13 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
   // Get only the unique dates
   var uniqueDates = _.uniqBy(clonedRecords, function(obj) {
-    return obj.data['Date'];
+    return obj.data[dateField];
   });
 
   // Get the event dates
   // Save in an array
   uniqueDates.forEach(function(obj) {
-    var newDate = new Date(obj.data['Date']).toUTCString();
+    var newDate = new Date(obj.data[dateField]).toUTCString();
     var newDateObject = {
       week: moment(newDate).utc().format("ddd"),
       day: moment(newDate).utc().format("DD"),

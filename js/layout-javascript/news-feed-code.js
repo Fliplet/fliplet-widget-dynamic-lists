@@ -840,6 +840,19 @@ DynamicList.prototype.initialize = function() {
   // Render Base HTML template
   _this.renderBaseHTML();
 
+  // Render list with default data
+  if (_this.data.defaultData) {
+    _this.listItems = _this.prepareData(_this.data.defaultEntries);
+    _this.dataSourceColumns = _this.data.defaultColumns;
+    // Render Loop HTML
+    _this.renderLoopHTML(_this.listItems);
+    _this.addFilters(_this.modifiedListItems);
+    // Listeners and Ready
+    _this.attachObservers();
+    _this.onReady();
+    return;
+  }
+
   // Connect to data source to get rows
   _this.connectToDataSource()
     .then(function (records) {

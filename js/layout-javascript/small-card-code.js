@@ -521,6 +521,46 @@ DynamicList.prototype.initialize = function() {
   // Render Base HTML template
   _this.renderBaseHTML();
 
+  // Render list with default data
+  if (_this.data.defaultData) {
+    var records = _this.prepareData(_this.data.defaultEntries);
+    _this.listItems = _this.getPermissions(records);
+    // Get user profile
+    if (_this.myUserData) {
+      // Create flag for current user
+      _this.listItems.forEach(function(el, idx) {
+        if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
+          _this.listItems[idx].isCurrentUser = true;
+        }
+      });
+
+      _this.myProfileData = _.filter(_this.listItems, function(row) {
+        return row.isCurrentUser;
+      });
+    }
+    _this.dataSourceColumns = _this.data.defaultColumns;
+    // Render Loop HTML
+    _this.renderLoopHTML(_this.listItems);
+    _this.addFilters(_this.modifiedListItems);
+    // Render user profile
+    if (_this.myProfileData && _this.myProfileData.length) {
+      var profileData = _this.renderLoopHTML(_this.myProfileData, true);
+      var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
+      var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+      _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(profileData[0]));
+
+      var profileIconTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['profile-icon']];
+      var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+      _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(profileData[0]));
+
+      _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
+    }
+    // Listeners and Ready
+    _this.attachObservers();
+    _this.onReady();
+    return;
+  }
+
   // Connect to data source to get rows
   _this.connectToDataSource()
     .then(function (records) {
@@ -541,13 +581,6 @@ DynamicList.prototype.initialize = function() {
         _this.myProfileData = _.filter(records, function(row) {
           return row.isCurrentUser;
         });
-
-        // Remove current user from list on entries
-        /*
-        _.remove(records, function(row) {
-          return row.isCurrentUser;
-        });
-        */
       }
       
       return;
