@@ -765,7 +765,7 @@ DynamicList.prototype.convertCategories = function(data) {
     _this.data.filterFields.forEach(function(filter) {
       var arrayOfTags = [];
       if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
-        var arrayOfTags = element.data[filter].split(',').map(function(item) {
+        var arrayOfTags = element.data[filter].toString().split(',').map(function(item) {
           return item.trim();
         });
       }
