@@ -390,6 +390,10 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     fields.forEach(function(field) {
+      if (field.type === 'date') {
+        columns.push('data.flListDate');
+        return;
+      }
       columns.push('data[' + field.column + ']');
     });
 
@@ -412,7 +416,7 @@ DynamicList.prototype.prepareData = function(records) {
         }
 
         if (field.type === "date") {
-          record.data[field.column] = new Date(record.data[field.column]).getTime();
+          record.data['flListDate'] = new Date(record.data[field.column]).getTime();
         }
 
         if (field.type === "time") {
@@ -618,6 +622,11 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   clonedRecords = _this.getPermissions(clonedRecords);
 
   var loopData = [];
+  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Date'});
+  var dateField = 'Full Date';
+  if (foundDateField) {
+    dateField = foundDateField.column;
+  }
   var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
   });
@@ -649,12 +658,12 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
     
     // Converts date format
     loopData.forEach(function(obj, index) {
-      var newDate = new Date(obj['Date']).toUTCString();
-      loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
+      var newDate = new Date(obj[dateField]).toUTCString();
+      loopData[index][dateField] = moment(newDate).utc().format("ddd Do MMM");
     });
 
     var newRecords = _.values(_.groupBy(loopData, function(row) {
-      return row['Date'];
+      return row[dateField];
     }));
 
     _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
@@ -737,10 +746,6 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
     });
   });
 
-  clonedRecords.forEach(function(entry, index) {
-    
-  });
-
   // Converts date format
   loopData.forEach(function(obj, index) {
     if (_this.data.detailViewAutoUpdate) {
@@ -765,12 +770,12 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
       }
     }
 
-    var newDate = new Date(obj['Date']).toUTCString();
-    loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
+    var newDate = new Date(obj[dateField]).toUTCString();
+    loopData[index][dateField] = moment(newDate).utc().format("ddd Do MMM");
   });
 
   var newRecords = _.values(_.groupBy(loopData, function(row) {
-    return row['Date'];
+    return row[dateField];
   }));
 
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
@@ -785,7 +790,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var numberOfPlacholderDays = 3;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
   var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Date'});
-  var dateField = 'Date';
+  var dateField = 'Full Date';
   if (foundDateField) {
     dateField = foundDateField.column;
   }
@@ -809,7 +814,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
   // Get only the unique dates
   var uniqueDates = _.uniqBy(clonedRecords, function(obj) {
-    return obj.data[dateField];
+    return moment(obj.data[dateField]).format('YYYY-MM-DD');
   });
 
   // Get the event dates

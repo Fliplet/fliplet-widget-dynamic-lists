@@ -19,7 +19,7 @@
                   \{{#if [Location]}}
                   <p class="agenda-item-location">\{{{[Location]}}}</p>
                   \{{/if}}
-                  <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Date]}} / \{{/if}}\{{[Date]}}</p>
+                  <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{formatDate [Full Date]}}</p>
                 </div>
                 
                 <div class="agenda-item-bookmark">
