@@ -439,7 +439,7 @@ Fliplet.Registry.set('dynamic-list:1.3.0:small-card', (function () {
           }
 
           if (field.type === "date") {
-            record.data[field.column] = new Date(value).getTime();
+            record.data[field.column] = new Date(record.data[field.column]).getTime();
           }
 
           if (field.type === "time") {
