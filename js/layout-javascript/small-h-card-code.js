@@ -261,6 +261,7 @@ DynamicList.prototype.attachObservers = function() {
 
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
+  var sorted;
   var ordered;
   var filtered;
 
@@ -283,7 +284,8 @@ DynamicList.prototype.prepareData = function(records) {
       }
     });
 
-    ordered = _.orderBy(records, function(obj) {
+    // Sort data
+    sorted = _.sortBy(records, function (obj) {
       fields.forEach(function(field) {
         obj.data[field.column] = obj.data[field.column] || '';
         var value = obj.data[field.column].toString().toUpperCase();
@@ -309,6 +311,47 @@ DynamicList.prototype.prepareData = function(records) {
           return value;
         }
       });
+    });
+
+    ordered = _.orderBy(sorted, function(obj) {
+      var values = [];
+       fields.forEach(function(field) {
+        obj.data[field.column] = obj.data[field.column] || '';
+        
+        if (obj.data[field.column] !== '' && obj.data[field.column] !== null && typeof obj.data[field.column] !== 'undefined') {
+          var value = obj.data[field.column].toString().toUpperCase();
+          
+          if (field.type === "alphabetical") {
+            var updatedValue = value.match(/[A-Za-z]/)
+            ? value
+            : '{' + value;
+
+            values.push(updatedValue);
+            return;
+          }
+
+          if (field.type === "numerical") {
+            var updatedValue = value.match(/[0-9]/)
+            ? parseInt(value, 10)
+            : '{' + value;
+
+            values.push(updatedValue);
+            return;
+          }
+
+          if (field.type === "date") {
+            var newDate = new Date(value).getTime();
+            values.push(newDate);
+            return;
+          }
+
+          if (field.type === "time") {
+            values.push(value);
+            return;
+          }
+        }
+      });
+       return values;
     }, sortOrder);
     
     records = ordered;
