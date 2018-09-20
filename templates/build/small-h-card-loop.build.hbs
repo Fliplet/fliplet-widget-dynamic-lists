@@ -4,7 +4,7 @@
       <div class="small-h-card-list-detail-wrapper" data-entry-id="\{{id}}">
         <div class="small-h-card-list-detail-image-wrapper">
           <div class="small-h-card-list-detail-image" style="background-image: url('\{{auth [Image]}}')"></div>
-          <i class="fa fa-user"></i>
+          \{{#unless [Image]}}<i class="fa fa-user"></i>\{{/unless}}
         </div>
 
         <!-- Don't delete this -->
