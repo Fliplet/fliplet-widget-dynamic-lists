@@ -400,6 +400,7 @@ Fliplet.Registry.set('dynamic-list:1.3.0:small-card', (function () {
     if (_this.data.sortOptions.length) {
       var fields = [];
       var sortOrder = [];
+      var columns = [];
 
       _this.data.sortOptions.forEach(function(option) {
         fields.push({
@@ -415,75 +416,43 @@ Fliplet.Registry.set('dynamic-list:1.3.0:small-card', (function () {
         }
       });
 
-      // Sort data
-      sorted = _.sortBy(records, function (obj) {
+      fields.forEach(function(field) {
+        columns.push('data[' + field.column + ']');
+      });
+
+      var mappedRecords = _.clone(records);
+      mappedRecords = mappedRecords.map((record) => {
         fields.forEach(function(field) {
-          obj.data[field.column] = obj.data[field.column] || '';
-          var value = obj.data[field.column].toString().toUpperCase();
+          record.data[field.column] = record.data[field.column] || '';
+          record.data[field.column].toString().toUpperCase();
 
           if (field.type === "alphabetical") {
-            return value.match(/[A-Za-z]/)
-            ? value
-            : '{' + value;
+            record.data[field.column] = record.data[field.column].match(/[A-Za-z]/)
+            ? record.data[field.column]
+            : '{' + record.data[field.column];
           }
 
           if (field.type === "numerical") {
-            return value.match(/[0-9]/)
-            ? parseInt(value, 10)
-            : '{' + value;
+            record.data[field.column] = record.data[field.column].match(/[0-9]/)
+            ? parseInt(record.data[field.column], 10)
+            : '{' + record.data[field.column];
           }
 
           if (field.type === "date") {
-            var newDate = new Date(value).getTime();
-            return newDate;
+            record.data[field.column] = new Date(value).getTime();
           }
 
           if (field.type === "time") {
-            return value;
+            record.data[field.column] = record.data[field.column];
           }
         });
+
+        return record;
       });
 
-      ordered = _.orderBy(sorted, function(obj) {
-        var values = [];
-         fields.forEach(function(field) {
-          obj.data[field.column] = obj.data[field.column] || '';
-          
-          if (obj.data[field.column] !== '' && obj.data[field.column] !== null && typeof obj.data[field.column] !== 'undefined') {
-            var value = obj.data[field.column].toString().toUpperCase();
-            
-            if (field.type === "alphabetical") {
-              var updatedValue = value.match(/[A-Za-z]/)
-              ? value
-              : '{' + value;
-
-              values.push(updatedValue);
-              return;
-            }
-
-            if (field.type === "numerical") {
-              var updatedValue = value.match(/[0-9]/)
-              ? parseInt(value, 10)
-              : '{' + value;
-
-              values.push(updatedValue);
-              return;
-            }
-
-            if (field.type === "date") {
-              var newDate = new Date(value).getTime();
-              values.push(newDate);
-              return;
-            }
-
-            if (field.type === "time") {
-              values.push(value);
-              return;
-            }
-          }
-        });
-         return values;
-      }, sortOrder);
+      // Sort data
+      sorted = _.sortBy(mappedRecords, columns);
+      ordered = _.orderBy(sorted, columns, sortOrder);
 
       records = ordered;
     }
@@ -981,7 +950,7 @@ Fliplet.Registry.set('dynamic-list:1.3.0:small-card', (function () {
       _this.data.filterFields.forEach(function(filter) {
         var arrayOfTags = [];
         if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
-          var arrayOfTags = element.data[filter].split(',').map(function(item) {
+          var arrayOfTags = element.data[filter].toString().split(',').map(function(item) {
             return item.trim();
           });
         }
