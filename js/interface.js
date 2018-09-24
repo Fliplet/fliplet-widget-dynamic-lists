@@ -1132,13 +1132,14 @@ var DynamicLists = (function() {
       }
 
       // Do not display the item if there is no 'text' property
-      if (typeof data.text === 'undefined' || typeof data.name === 'undefined') {
+      if (typeof data.text === 'undefined' || typeof data.name === 'undefined' || typeof data.id === 'undefined') {
         return null;
       }
 
       var name = data.name.toLowerCase();
+      var id = data.id.toString();
       var term = params.term.toLowerCase();
-      if (name.indexOf(term) > -1) {
+      if (name.indexOf(term) > -1 || id.indexOf(term) > -1) {
         var modifiedData = $.extend({}, data, true);
 
         // You can return modified objects from here
