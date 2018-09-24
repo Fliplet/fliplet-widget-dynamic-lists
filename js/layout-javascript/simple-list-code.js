@@ -775,6 +775,26 @@ DynamicList.prototype.filterList = function() {
   _this.onReady();
 }
 
+DynamicList.prototype.splitByCommas = function(str) {
+  if (Array.isArray(str)) {
+    return str;
+  }
+
+  if (typeof str !== 'string') {
+    return [str];
+  }
+
+  // Split a string by commas but ignore commas within double-quotes using Javascript
+  // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
+  var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
+  var arr = [];
+  var res;
+  while ((res = regexp.exec(str)) !== null) {
+    arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
+  }
+  return arr;
+}
+
 DynamicList.prototype.convertCategories = function(data) {
   // Function that get and converts the categories for the filters to work
   var _this = this;
@@ -786,7 +806,7 @@ DynamicList.prototype.convertCategories = function(data) {
     _this.data.filterFields.forEach(function(filter) {
       var arrayOfTags = [];
       if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
-        var arrayOfTags = element.data[filter].toString().split(',').map(function(item) {
+        var arrayOfTags = _this.splitByCommas(element.data[filter]).map(function(item) {
           return item.trim();
         });
       }
