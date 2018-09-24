@@ -45,6 +45,10 @@ var DynamicList = function(id, data, container) {
   this.dataSourceColumns;
   this.filterClasses = [];
 
+  this.openEntry = false;
+  this.pvQuery;
+  this.skipObservers = false;
+
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
   // Get the current session data
@@ -164,8 +168,19 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.showDetails(entryId);
     })
-    .on('click', '.simple-list-detail-overlay-close', function(event) {
+    .on('click', '.simple-list-detail-overlay-close', function() {
+      if ($(this).hasClass('go-previous-screen')) {
+        Fliplet.Navigate.back();
+        return;
+      }
+
       _this.closeDetails();
+      if (_this.openEntry) {
+        _this.openEntry = false;
+        _this.pvQuery = undefined;
+        _this.skipObservers = true;
+        _this.initialize();
+      }
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -504,11 +519,10 @@ DynamicList.prototype.prepareData = function(records) {
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
-  // Render Base HTML template
-  _this.renderBaseHTML();
-
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
     // Render Loop HTML
@@ -519,10 +533,24 @@ DynamicList.prototype.initialize = function() {
     _this.onReady();
     return;
   }
-
+  _this.parseQueryVars();
   _this.connectToDataSource()
     .then(function (records) {
+      if (!Array.isArray(records)) {
+        records = [records];
+      }
       _this.listItems = _this.prepareData(records);
+      return;
+    })
+    .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
+
+      // Open specifc entry
+      if (_this.openEntry) {
+        _this.data.pvQueryData = undefined;
+        _this.showDetails(_this.listItems[0].id);
+      }
       return;
     })
     .then(function() {
@@ -540,8 +568,55 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       // Listeners and Ready
-      _this.attachObservers();
+      if (!_this.skipObservers) {
+        _this.attachObservers();
+      }
       _this.onReady();
+    });
+}
+
+DynamicList.prototype.parseQueryVars = function() {
+  var _this = this;
+
+  Fliplet.App.Storage.get('flDynamicListQuery')
+    .then(function(value) {
+      console.log(value);
+
+      if (typeof value === 'undefined') {
+        return;
+      }
+
+      if (_.hasIn(value, ['open', 'id'])) {
+        _this.openEntry = true;
+        _this.pvQuery = value;
+        _this.data.pvQueryData = function() {
+          return Fliplet.DataSources.connect(_this.data.dataSourceId)
+            .then(function(connection) {
+              return connection.findById(value.open.id);
+          });
+        };
+        return;
+      }
+
+      if (_.hasIn(value, ['open', 'column']) && _.hasIn(value, ['open', 'value'])) {
+        _this.openEntry = true;
+        _this.pvQuery = value;
+        _this.data.pvQueryData = function() {
+          return Fliplet.DataSources.connect(_this.data.dataSourceId)
+            .then(function(connection) {
+              var query = {};
+              query[value.open.column] = value.open.value;
+
+              return connection.find({
+                where: query
+              });
+            });
+        };
+        return;
+      }
+    })
+    .then(function() {
+      Fliplet.App.Storage.remove('flDynamicListQuery');
     });
 }
 
@@ -571,6 +646,10 @@ DynamicList.prototype.connectToDataSource = function() {
       }
     }
 
+    if (_this.data.pvQueryData) {
+      getData = _this.data.pvQueryData;
+    }
+
     return getData(cache);
   }).catch(function (error) {
     Fliplet.UI.Toast({
@@ -595,6 +674,10 @@ DynamicList.prototype.renderBaseHTML = function() {
   var baseHTML = '';
 
   var data = _this.getAddPermission(_this.data);
+
+  if (_this.openEntry && _this.pvQuery && _this.pvQuery.open.previousScreen) {
+    data.previousScreen = _this.pvQuery.open.previousScreen;
+  }
 
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['base']];

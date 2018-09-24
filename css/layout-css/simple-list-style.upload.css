@@ -568,6 +568,10 @@
   background-color: #ffffff;
 }
 
+.simple-list-detail-overlay-panel .simple-list-detail-overlay-heading.to-previous-screen {
+  justify-content: flex-start;
+}
+
 .simple-list-detail-overlay-heading .simple-list-detail-overlay-close {
   width: 40px;
   height: 40px;
@@ -575,6 +579,10 @@
   line-height: 40px;
   font-size: 1.5em;
   cursor: pointer;
+}
+
+.simple-list-detail-overlay-heading .simple-list-detail-overlay-close.go-previous-screen {
+  font-size: 2em;
 }
 
 .simple-list-detail-overlay-panel .simple-list-detail-overlay-content {

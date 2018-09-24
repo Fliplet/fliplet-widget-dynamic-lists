@@ -85,9 +85,13 @@
   <div class="simple-list-detail-overlay-screen"></div>
   <div class="simple-list-detail-overlay-wrapper">
     <div class="simple-list-detail-overlay-panel">
-      <div class="simple-list-detail-overlay-heading">
-        <div class="simple-list-detail-overlay-close">
+      <div class="simple-list-detail-overlay-heading \{{#if previousScreen}}to-previous-screen\{{/if}}">
+        <div class="simple-list-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
+          \{{#if previousScreen}}
+          <i class="fa fa-angle-left"></i>
+          \{{else}}
           <i class="fa fa-times"></i>
+          \{{/if}}
         </div>
       </div>
       <div class="simple-list-detail-overlay-content">
