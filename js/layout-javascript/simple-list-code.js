@@ -45,9 +45,12 @@ var DynamicList = function(id, data, container) {
   this.dataSourceColumns;
   this.filterClasses = [];
 
-  this.openEntry = false;
-  this.pvQuery;
-  this.skipObservers = false;
+  this.querySearch = false;
+  this.queryFilter = false;
+  this.pvPreviousScreen;
+  this.pvSearchQuery;
+  this.pvFilterQuery;
+  this.pvPreFilterQuery;
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -175,12 +178,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       _this.closeDetails();
-      if (_this.openEntry) {
-        _this.openEntry = false;
-        _this.pvQuery = undefined;
-        _this.skipObservers = true;
-        _this.initialize();
-      }
+
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -225,12 +223,10 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('keydown', '.search-holder input', function(e) {
       var $inputField = $(this);
-      var $parentElement = $inputField.parents('.simple-list-container');
       var value = $inputField.val();
 
       if (value.length) {
         $inputField.addClass('not-empty');
-        value = value.toLowerCase();
       } else {
         $inputField.removeClass('not-empty');
       }
@@ -247,22 +243,12 @@ DynamicList.prototype.attachObservers = function() {
           label: value
         });
 
-        if ($inputField.hasClass('from-overlay')) {
-          $inputField.parents('.simple-list-search-filter-overlay').removeClass('display');
-        }
-        $inputField.blur();
-        $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
         _this.searchData(value);
       }
     })
     .on('click', '.search-holder .search-btn', function(e) {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
-      var $parentElement = $inputField.parents('.simple-list-container');
       var value = $inputField.val();
-
-      if (value.length) {
-        value = value.toLowerCase();
-      }
 
       if (value === '') {
         _this.clearSearch();
@@ -275,22 +261,19 @@ DynamicList.prototype.attachObservers = function() {
         label: value
       });
 
-      if ($inputField.hasClass('from-overlay')) {
-        $inputField.parents('.simple-list-search-filter-overlay').removeClass('display');
-      }
-      $inputField.blur();
-      $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
       _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
       _this.clearSearch();
     })
     .on('click', '.search-query span', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.simple-list-container');
-
       _this.backToSearch();
-      $parentElement.find('.search-holder input').focus();
+
+      if (_this.data.filtersInOverlay) {
+        $('.simple-list-overlay-close').click();
+      }
+
+      _this.$container.find('.search-holder input').focus();
     })
     .on('show.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
@@ -533,24 +516,21 @@ DynamicList.prototype.initialize = function() {
     _this.onReady();
     return;
   }
-  _this.parsePVQueryVars();
   _this.connectToDataSource()
     .then(function (records) {
-      if (!Array.isArray(records)) {
+      if (records && !Array.isArray(records)) {
         records = [records];
       }
       _this.listItems = _this.prepareData(records);
       return;
     })
     .then(function() {
+      // Check if there is a PV for search/filter queries
+      return _this.parsePVQueryVars();
+    })
+    .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
-
-      // Open specifc entry
-      if (_this.openEntry) {
-        _this.data.pvQueryData = undefined;
-        _this.showDetails(_this.listItems[0].id);
-      }
       return;
     })
     .then(function() {
@@ -564,59 +544,89 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.renderLoopHTML(_this.listItems);
       _this.addFilters(_this.modifiedListItems);
+      _this.prepareToSearch();
+      _this.prepareToFilter();
       return
     })
     .then(function() {
       // Listeners and Ready
-      if (!_this.skipObservers) {
-        _this.attachObservers();
-      }
+      _this.attachObservers();
       _this.onReady();
     });
 }
 
-DynamicList.prototype.parsePVQueryVars = function() {
+DynamicList.prototype.prepareToSearch = function() {
   var _this = this;
 
-  Fliplet.App.Storage.get('flDynamicListQuery')
+  if ( !_.hasIn(_this.pvSearchQuery, 'value') ) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+    _this.overrideSearchData(_this.pvSearchQuery.value);
+    return;
+  }
+  
+  _this.searchData(_this.pvSearchQuery.value);
+}
+
+DynamicList.prototype.prepareToFilter = function() {
+  var _this = this;
+
+  if ( !_this.pvFilterQuery || !_.hasIn(_this.pvFilterQuery, 'value') ) {
+    return;
+  }
+
+  if (Array.isArray(_this.pvFilterQuery.value)) {
+    _this.pvFilterQuery.value.forEach(function(value) {
+      value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+      $('.hidden-filter-controls-filter[data-toggle="' + value + '"]').addClass('mixitup-control-active');
+    });
+  } else {
+    _this.pvFilterQuery.value = _this.pvFilterQuery.value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+    $('.hidden-filter-controls-filter[data-toggle="' + _this.pvFilterQuery.value + '"]').addClass('mixitup-control-active');
+  }
+
+  _this.filterList();
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  $('.list-search-icon .fa-sliders').addClass('active');
+  _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
+}
+
+DynamicList.prototype.parsePVQueryVars = function() {
+  var _this = this;
+  var value;
+
+  return Fliplet.App.Storage.get('flDynamicListQuery')
     .then(function(value) {
+      value = value;
       console.log(value);
 
       if (typeof value === 'undefined') {
+        Fliplet.App.Storage.remove('flDynamicListQuery');
         return;
       }
 
-      if (_.hasIn(value, ['open', 'id'])) {
-        _this.openEntry = true;
-        _this.pvQuery = value;
-        _this.data.pvQueryData = function() {
-          return Fliplet.DataSources.connect(_this.data.dataSourceId)
-            .then(function(connection) {
-              return connection.findById(value.open.id);
-          });
-        };
-        return;
+      _this.pvPreviousScreen = value.previousScreen;
+
+      if (_.hasIn(value, 'search')) {
+        _this.querySearch = true;
+        _this.pvSearchQuery = value.search;
+        _this.data.searchEnabled = true;
       }
 
-      if (_.hasIn(value, ['open', 'column']) && _.hasIn(value, ['open', 'value'])) {
-        _this.openEntry = true;
-        _this.pvQuery = value;
-        _this.data.pvQueryData = function() {
-          return Fliplet.DataSources.connect(_this.data.dataSourceId)
-            .then(function(connection) {
-              var query = {};
-              query[value.open.column] = value.open.value;
-
-              return connection.find({
-                where: query
-              });
-            });
-        };
+      if (_.hasIn(value, 'filter')) {
+        _this.queryFilter = true;
+        _this.pvFilterQuery = value.filter;
+        _this.data.filtersEnabled = true;
         return;
       }
     })
     .then(function() {
-      Fliplet.App.Storage.remove('flDynamicListQuery');
+      if (value && !value.persist) {
+        Fliplet.App.Storage.remove('flDynamicListQuery');
+      }
     });
 }
 
@@ -672,12 +682,10 @@ DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
   var _this = this;
   var baseHTML = '';
-
   var data = _this.getAddPermission(_this.data);
 
-  if (_this.openEntry && _this.pvQuery && _this.pvQuery.open.previousScreen) {
-    data.previousScreen = _this.pvQuery.open.previousScreen;
-  }
+  // go to previous screen on close detail view - TRUE/FALSE
+  data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['base']];
@@ -930,9 +938,91 @@ DynamicList.prototype.calculateFiltersHeight = function(element) {
   }, 200);
 }
 
+DynamicList.prototype.overrideSearchData = function(value) {
+  var _this = this;
+  var $inputField = _this.$container.find('.search-holder input');
+  var copyOfValue = value;
+  value = value.toLowerCase();
+
+  $inputField.val(copyOfValue);
+  $inputField.blur();
+  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
+
+  // Removes cards
+  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
+  // Adds search query to HTML
+  _this.$container.find('.current-query').html(value);
+  
+  // Search
+  var searchedData = [];
+  var filteredData;
+  var fields = _this.pvSearchQuery.column; // Can be Array or String
+
+  if (Array.isArray(_this.pvSearchQuery.column)) {
+    fields.forEach(function(field) {    
+      filteredData = _.filter(_this.listItems, function(obj) {
+        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
+          return obj.data[field].toLowerCase().indexOf(value) > -1;
+        }
+      });
+
+      if (filteredData.length) {
+        filteredData.forEach(function(item) {
+          searchedData.push(item);
+        });
+      }
+    });
+  } else {
+    searchedData = _.filter(_this.listItems, function(obj) {
+      if (obj.data[fields] !== null && obj.data[fields] !== '' && typeof obj.data[fields] !== 'undefined') {
+        return obj.data[fields].toLowerCase().indexOf(value) > -1;
+      }
+    });
+
+    if (!searchedData || !searchedData.length) {
+      searchedData = [];
+    }
+  }
+
+
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  if (!_this.data.filtersInOverlay) {
+    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
+  }
+
+  if (!searchedData.length) {
+    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+  }
+
+  // Remove duplicates
+  searchedData = _.uniq(searchedData);
+  _this.searchedListItems = searchedData;
+
+  if (_this.searchedListItems.length === 1) {
+    _this.showDetails(_this.searchedListItems[0].id)
+  }
+
+  _this.renderLoopHTML(searchedData);
+  _this.addFilters(_this.modifiedListItems);
+  _this.onReady();
+}
+
 DynamicList.prototype.searchData = function(value) {
   // Function called when user executes a search
   var _this = this;
+  var $inputField = _this.$container.find('.search-holder input');
+  var copyOfValue = value;
+  value = value.toLowerCase();
+
+  $inputField.val(copyOfValue);
+  $inputField.blur();
+  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
 
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
@@ -959,24 +1049,27 @@ DynamicList.prototype.searchData = function(value) {
     });
   }
   
-  // Simulate that search is taking half a second
-  // OPTIONAL - setTimeout can be removed
-  setTimeout(function() {
-    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  if (!_this.data.filtersInOverlay) {
     _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
+  }
 
-    if (!searchedData.length) {
-      _this.$container.find('.hidden-filter-controls').addClass('no-results');
-      return;
-    }
+  if (!searchedData.length) {
+    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+    return;
+  }
 
-    // Remove duplicates
-    searchedData = _.uniq(searchedData);
-    _this.searchedListItems = searchedData;
-    _this.renderLoopHTML(searchedData);
-    _this.addFilters(_this.modifiedListItems);
-    _this.onReady();
-  }, 0);
+  // Remove duplicates
+  searchedData = _.uniq(searchedData);
+  _this.searchedListItems = searchedData;
+
+  if (_this.querySearch && _this.searchedListItems.length === 1) {
+    _this.showDetails(_this.searchedListItems[0].id)
+  }
+
+  _this.renderLoopHTML(searchedData);
+  _this.addFilters(_this.modifiedListItems);
+  _this.onReady();
 }
 
 DynamicList.prototype.backToSearch = function() {

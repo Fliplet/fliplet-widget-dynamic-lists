@@ -13,6 +13,15 @@
       <div class="simple-list-overlay-content">
         <div class="hidden-filter-controls">
           <div class="hidden-filter-controls-content">
+            \{{#if searchEnabled}}
+            <div class="hidden-filter-controls-search">
+              <div class="search-query-holder">
+                <div class="search-query">
+                Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+                </div>
+              </div>
+            </div>
+            \{{/if}}
             <div class="filters-header">Filter by</div>
             <div class="filter-holder">
               <!-- Filters here -->
