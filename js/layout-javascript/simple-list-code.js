@@ -533,7 +533,7 @@ DynamicList.prototype.initialize = function() {
     _this.onReady();
     return;
   }
-  _this.parseQueryVars();
+  _this.parsePVQueryVars();
   _this.connectToDataSource()
     .then(function (records) {
       if (!Array.isArray(records)) {
@@ -575,7 +575,7 @@ DynamicList.prototype.initialize = function() {
     });
 }
 
-DynamicList.prototype.parseQueryVars = function() {
+DynamicList.prototype.parsePVQueryVars = function() {
   var _this = this;
 
   Fliplet.App.Storage.get('flDynamicListQuery')

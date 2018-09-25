@@ -568,10 +568,6 @@
   background-color: #ffffff;
 }
 
-.simple-list-detail-overlay-panel .simple-list-detail-overlay-heading.to-previous-screen {
-  justify-content: flex-start;
-}
-
 .simple-list-detail-overlay-heading .simple-list-detail-overlay-close {
   width: 40px;
   height: 40px;
