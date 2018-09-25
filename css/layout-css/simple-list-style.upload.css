@@ -17,11 +17,13 @@
   z-index: 11;
   background-color: transparent;
   opacity: 0;
+  visibility: hidden;
   transition: all 0.2s ease-out;
 }
 
 .simple-list-search-filter-overlay.display {
   opacity: 1;
+  visibility: visible;
 }
 
 .simple-list-search-filter-overlay .simple-list-overlay-screen {
