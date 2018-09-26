@@ -390,6 +390,10 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     fields.forEach(function(field) {
+      if (field.type === 'date') {
+        columns.push('data.flListDate');
+        return;
+      }
       columns.push('data[' + field.column + ']');
     });
 
@@ -412,7 +416,7 @@ DynamicList.prototype.prepareData = function(records) {
         }
 
         if (field.type === "date") {
-          record.data[field.column] = new Date(record.data[field.column]).getTime();
+          record.data['flListDate'] = new Date(record.data[field.column]).getTime();
         }
 
         if (field.type === "time") {
@@ -495,6 +499,23 @@ DynamicList.prototype.initialize = function() {
   var _this = this;
   // Render Base HTML template
   _this.renderBaseHTML();
+
+  // Render list with default data
+  if (_this.data.defaultData) {
+    var records = _this.prepareData(_this.data.defaultEntries);
+    _this.listItems = JSON.parse(JSON.stringify(records));
+    // Render dates HTML
+    _this.renderDatesHTML(_this.listItems);
+    _this.dataSourceColumns = _this.data.defaultColumns;
+    // Render Loop HTML
+    _this.renderLoopHTML(_this.listItems);
+    // Listeners and Ready
+    _this.setupCards();
+    _this.attachObservers();
+    _this.scrollEvent();
+    _this.onReady();
+    return;
+  }
 
   // Connect to data source to get rows
   _this.connectToDataSource()
@@ -602,6 +623,11 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   clonedRecords = _this.getPermissions(clonedRecords);
 
   var loopData = [];
+  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Date'});
+  var dateField = 'Full Date';
+  if (foundDateField) {
+    dateField = foundDateField.column;
+  }
   var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
   });
@@ -633,12 +659,12 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
     
     // Converts date format
     loopData.forEach(function(obj, index) {
-      var newDate = new Date(obj['Date']).toUTCString();
-      loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
+      var newDate = new Date(obj[dateField]).toUTCString();
+      loopData[index][dateField] = moment(newDate).utc().format("ddd Do MMM");
     });
 
     var newRecords = _.values(_.groupBy(loopData, function(row) {
-      return row['Date'];
+      return row[dateField];
     }));
 
     _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
@@ -721,10 +747,6 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
     });
   });
 
-  clonedRecords.forEach(function(entry, index) {
-    
-  });
-
   // Converts date format
   loopData.forEach(function(obj, index) {
     if (_this.data.detailViewAutoUpdate) {
@@ -749,12 +771,12 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
       }
     }
 
-    var newDate = new Date(obj['Date']).toUTCString();
-    loopData[index]['Date'] = moment(newDate).utc().format("ddd Do MMM");
+    var newDate = new Date(obj[dateField]).toUTCString();
+    loopData[index][dateField] = moment(newDate).utc().format("ddd Do MMM");
   });
 
   var newRecords = _.values(_.groupBy(loopData, function(row) {
-    return row['Date'];
+    return row[dateField];
   }));
 
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
@@ -768,12 +790,16 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var lastDate;
   var numberOfPlacholderDays = 3;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
-
+  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Date'});
+  var dateField = 'Full Date';
+  if (foundDateField) {
+    dateField = foundDateField.column;
+  }
   // set first date in agenda
-  firstDate = new Date(clonedRecords[0].data['Date']).toUTCString();
+  firstDate = new Date(clonedRecords[0].data[dateField]).toUTCString();
 
   // set last date in agenda
-  lastDate = new Date(clonedRecords[clonedRecords.length - 1].data['Date']).toUTCString();
+  lastDate = new Date(clonedRecords[clonedRecords.length - 1].data[dateField]).toUTCString();
 
   // Adds 5 days before the first date
   // Save them in an array
@@ -789,13 +815,13 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
   // Get only the unique dates
   var uniqueDates = _.uniqBy(clonedRecords, function(obj) {
-    return obj.data['Date'];
+    return moment(obj.data[dateField]).format('YYYY-MM-DD');
   });
 
   // Get the event dates
   // Save in an array
   uniqueDates.forEach(function(obj) {
-    var newDate = new Date(obj.data['Date']).toUTCString();
+    var newDate = new Date(obj.data[dateField]).toUTCString();
     var newDateObject = {
       week: moment(newDate).utc().format("ddd"),
       day: moment(newDate).utc().format("DD"),

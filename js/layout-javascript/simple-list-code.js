@@ -483,11 +483,6 @@ DynamicList.prototype.prepareData = function(records) {
 
   // Convert date and add flag for likes
   records.forEach(function(obj, i) {
-    // Convert date
-    if (typeof obj.data['Date'] !== 'undefined' && obj.data['Date'] !== null && obj.data['Date'] !== '') {
-      records[i].data['Date'] = moment(obj.data['Date']).utc().format("MMM DD YYYY");
-    }
-
     // Add likes flag
     if (_this.data.social && _this.data.social.likes) {
       records[i].likesEnabled = true;
@@ -511,6 +506,19 @@ DynamicList.prototype.initialize = function() {
 
   // Render Base HTML template
   _this.renderBaseHTML();
+
+  // Render list with default data
+  if (_this.data.defaultData) {
+    _this.listItems = _this.prepareData(_this.data.defaultEntries);
+    _this.dataSourceColumns = _this.data.defaultColumns;
+    // Render Loop HTML
+    _this.renderLoopHTML(_this.listItems);
+    _this.addFilters(_this.modifiedListItems);
+    // Listeners and Ready
+    _this.attachObservers();
+    _this.onReady();
+    return;
+  }
 
   _this.connectToDataSource()
     .then(function (records) {
