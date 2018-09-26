@@ -47,6 +47,7 @@ var DynamicList = function(id, data, container) {
 
   this.querySearch = false;
   this.queryFilter = false;
+  this.queryPreFilter = false;
   this.pvPreviousScreen;
   this.pvSearchQuery;
   this.pvFilterQuery;
@@ -173,12 +174,15 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.simple-list-detail-overlay-close', function() {
       if ($(this).hasClass('go-previous-screen')) {
+        if (typeof _this.pvPreviousScreen === 'function') {
+          _this.pvPreviousScreen();
+        }
+
         Fliplet.Navigate.back();
         return;
       }
 
       _this.closeDetails();
-
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -354,6 +358,50 @@ DynamicList.prototype.attachObservers = function() {
     });
 }
 
+DynamicList.prototype.filterRecords = function(records, filters) {
+  return _.filter(records, function(record) {
+    var matched = 0;
+
+    filters.some(function(filter) {
+      var condition = filter.condition;
+      var rowData;
+      // Case insensitive
+      if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+        filter.value = filter.value.toLowerCase();
+      }
+      if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+        rowData = record.data[filter.column].toString().toLowerCase();
+      }
+
+      if (condition === 'contains') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'notcontain') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'regex') {
+        var pattern = new RegExp(filter.value);
+        if (patt.test(rowData)){
+          matched++;
+        }
+        return;
+      }
+      if (operators[condition](rowData, filter.value)) {
+        matched++;
+        return;
+      }
+    });
+
+    return matched >= filters.length ? true : false;
+  });
+}
+
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
   var sorted;
@@ -435,48 +483,25 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    filtered = _.filter(records, function(record) {
-      var matched = 0;
-
-      filters.some(function(filter) {
-        var condition = filter.condition;
-        var rowData;
-        // Case insensitive
-        if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-          filter.value = filter.value.toLowerCase();
-        }
-        if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-          rowData = record.data[filter.column].toString().toLowerCase();
-        }
-
-        if (condition === 'contains') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'notcontain') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'regex') {
-          var pattern = new RegExp(filter.value);
-          if (patt.test(rowData)){
-            matched++;
-          }
-          return;
-        }
-        if (operators[condition](rowData, filter.value)) {
-          matched++;
-          return;
-        }
-      });
-
-      return matched >= filters.length ? true : false;
-    });
+    filtered = _this.filterRecords(records, filters);
     records = filtered;
+  }
+
+  var prefiltered;
+  var prefilters = [];
+  if (_this.queryPreFilter) {
+    _this.pvPreFilterQuery.forEach(function(option) {
+      var filter = {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      }
+      prefilters.push(filter);
+    });
+
+    // Filter data
+    prefiltered = _this.filterRecords(records, prefilters);
+    records = prefiltered;
   }
 
   // Convert date and add flag for likes
@@ -516,17 +541,18 @@ DynamicList.prototype.initialize = function() {
     _this.onReady();
     return;
   }
-  _this.connectToDataSource()
+
+  // Check if there is a PV for search/filter queries
+  _this.parsePVQueryVars()
+    .then(function() {
+      return _this.connectToDataSource();
+    })
     .then(function (records) {
       if (records && !Array.isArray(records)) {
         records = [records];
       }
       _this.listItems = _this.prepareData(records);
       return;
-    })
-    .then(function() {
-      // Check if there is a PV for search/filter queries
-      return _this.parsePVQueryVars();
     })
     .then(function() {
       // Render Base HTML template
@@ -596,15 +622,15 @@ DynamicList.prototype.prepareToFilter = function() {
 
 DynamicList.prototype.parsePVQueryVars = function() {
   var _this = this;
-  var value;
+  var pvValue;
 
-  return Fliplet.App.Storage.get('flDynamicListQuery')
+  return Fliplet.App.Storage.get('flDynamicListQuery:' + _this.data.layout)
     .then(function(value) {
-      value = value;
-      console.log(value);
+      pvValue = value;
+      console.log(pvValue);
 
       if (typeof value === 'undefined') {
-        Fliplet.App.Storage.remove('flDynamicListQuery');
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
         return;
       }
 
@@ -620,13 +646,21 @@ DynamicList.prototype.parsePVQueryVars = function() {
         _this.queryFilter = true;
         _this.pvFilterQuery = value.filter;
         _this.data.filtersEnabled = true;
-        return;
       }
+
+      if (_.hasIn(value, 'prefilter')) {
+        _this.queryPreFilter = true;
+        _this.pvPreFilterQuery = value.prefilter;
+      }
+
+      return;
     })
     .then(function() {
-      if (value && !value.persist) {
-        Fliplet.App.Storage.remove('flDynamicListQuery');
+      if (pvValue && !pvValue.persist) {
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
       }
+
+      return;
     });
 }
 
