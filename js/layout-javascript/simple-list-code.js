@@ -1,31 +1,26 @@
-// Fliplet.Analytics.trackEvent({
-//   category: 'list_dynamic_' + _this.data.layout,
-//   action: 'comment_save_edit'
-// });
-
-var simpleListLayoutMapping = {
-  'simple-list': {
-    'base': 'templates.build.simple-list-base',
-    'loop': 'templates.build.simple-list-loop',
-    'detail': 'templates.build.simple-list-detail',
-    'filter': 'templates.build.simple-list-filters'
-  }
-};
-
-var operators = {
-  '==': function(a, b) { return a == b },
-  '!=': function(a, b) { return a != b },
-  '>': function(a, b) { return a > b },
-  '>=': function(a, b) { return a >= b },
-  '<': function(a, b) { return a < b },
-  '<=': function(a, b) { return a <= b }
-};
-
 // Constructor
 var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
+
+  this.simpleListLayoutMapping = {
+    'simple-list': {
+      'base': 'templates.build.simple-list-base',
+      'loop': 'templates.build.simple-list-loop',
+      'detail': 'templates.build.simple-list-detail',
+      'filter': 'templates.build.simple-list-filters'
+    }
+  };
+
+  this.operators = {
+    '==': function(a, b) { return a == b },
+    '!=': function(a, b) { return a != b },
+    '>': function(a, b) { return a > b },
+    '>=': function(a, b) { return a >= b },
+    '<': function(a, b) { return a < b },
+    '<=': function(a, b) { return a <= b }
+  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -392,7 +387,7 @@ DynamicList.prototype.filterRecords = function(records, filters) {
         }
         return;
       }
-      if (operators[condition](rowData, filter.value)) {
+      if (_this.operators[condition](rowData, filter.value)) {
         matched++;
         return;
       }
@@ -722,7 +717,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -762,7 +757,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['loop']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(loopData));
 }
@@ -859,7 +854,7 @@ DynamicList.prototype.addFilters = function(data) {
 
   filtersData.filters = allFilters
 
-  filtersTemplate = Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['filter']];
+  filtersTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
   ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
   : Handlebars.compile(filtersTemplate());
@@ -1237,7 +1232,7 @@ DynamicList.prototype.showDetails = function(id) {
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.detailHTML
   ? Handlebars.compile(_this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[simpleListLayoutMapping[_this.data.layout]['detail']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['detail']]());
 
   var wrapperTemplate = Handlebars.compile(wrapper);
 
