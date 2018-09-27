@@ -1,25 +1,24 @@
-var smallHorizontalLayoutMapping = {
-  'small-h-card': {
-    'base': 'templates.build.small-h-card-base',
-    'loop': 'templates.build.small-h-card-loop',
-    'detail': 'templates.build.small-h-card-detail',
-  }
-};
-
-var operators = {
-  '==': function(a, b) { return a == b },
-  '!=': function(a, b) { return a != b },
-  '>': function(a, b) { return a > b },
-  '>=': function(a, b) { return a >= b },
-  '<': function(a, b) { return a < b },
-  '<=': function(a, b) { return a <= b }
-};
-
 // Constructor
 var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
+  this.smallHorizontalLayoutMapping = {
+    'small-h-card': {
+      'base': 'templates.build.small-h-card-base',
+      'loop': 'templates.build.small-h-card-loop',
+      'detail': 'templates.build.small-h-card-detail',
+    }
+  };
+
+  this.operators = {
+    '==': function(a, b) { return a == b },
+    '!=': function(a, b) { return a != b },
+    '>': function(a, b) { return a > b },
+    '>=': function(a, b) { return a >= b },
+    '<': function(a, b) { return a < b },
+    '<=': function(a, b) { return a <= b }
+  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -33,15 +32,22 @@ var DynamicList = function(id, data, container) {
 
   this.emailField = 'Email';
   this.myProfileData;
+  this.modifiedProfileData;
   this.myUserData;
 
   this.listItems;
+  this.modifiedListItems
   this.dataSourceColumns;
+  this.directoryDetailWrapper;
+
+  this.queryPreFilter = false;
+  this.pvPreFilterQuery;
+
 
   // Register handlebars helpers
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[smallHorizontalLayoutMapping[this.data.layout]['detail']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[this.data.layout]['detail']]());
 
   this.registerHandlebarsHelpers();
   // Get the current session data
@@ -151,15 +157,6 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click', '.my-profile-container', function() {
-      var directoryDetailWrapper = $(this).find('.small-h-card-list-detail-wrapper');
-      _this.expandElement(directoryDetailWrapper);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'profile_open'
-      });
-    })
     .on('click', '.small-h-card-list-item', function(event) {
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-h-card-list-item-text').text();
@@ -174,16 +171,22 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
       // find the element to expand and expand it
-      if (_this.allowClick) {
-        var directoryDetailWrapper = $(this).find('.small-h-card-list-detail-wrapper');
-        _this.expandElement(directoryDetailWrapper);
+      if (_this.allowClick && $(window).width() < 640) {
+        _this.directoryDetailWrapper = $(this).find('.small-h-card-list-detail-wrapper');
+        _this.expandElement(_this.directoryDetailWrapper, entryId);
+      } else if ($(window).width() >= 640) {
+        _this.showDetails(entryId);
       }
     })
-    .on('click', '.small-h-card-list-detail-close-btn', function(event) {
+    .on('click', '.small-h-card-detail-overlay-close', function(event) {
       event.stopPropagation();
-      // find the element to collpase and collpase it
-      var directoryDetailWrapper = $(this).parents('.small-h-card-list-detail-wrapper');
-      _this.collapseElement(directoryDetailWrapper);
+
+      if ($(window).width() < 640) {
+        _this.collapseElement(_this.directoryDetailWrapper);
+        _this.directoryDetailWrapper = undefined;
+      } else {
+        _this.closeDetails();
+      }
     })
     .on('click', '.dynamic-list-add-item', function() {
       var options = {
@@ -257,6 +260,50 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.UI.Actions(options);
     });
+}
+
+DynamicList.prototype.filterRecords = function(records, filters) {
+  return _.filter(records, function(record) {
+    var matched = 0;
+
+    filters.some(function(filter) {
+      var condition = filter.condition;
+      var rowData;
+      // Case insensitive
+      if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+        filter.value = filter.value.toLowerCase();
+      }
+      if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+        rowData = record.data[filter.column].toString().toLowerCase();
+      }
+
+      if (condition === 'contains') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'notcontain') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'regex') {
+        var pattern = new RegExp(filter.value);
+        if (patt.test(rowData)){
+          matched++;
+        }
+        return;
+      }
+      if (_this.operators[condition](rowData, filter.value)) {
+        matched++;
+        return;
+      }
+    });
+
+    return matched >= filters.length ? true : false;
+  });
 }
 
 DynamicList.prototype.prepareData = function(records) {
@@ -340,48 +387,25 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    filtered = _.filter(records, function(record) {
-      var matched = 0;
-
-      filters.some(function(filter) {
-        var condition = filter.condition;
-        var rowData;
-        // Case insensitive
-        if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-          filter.value = filter.value.toLowerCase();
-        }
-        if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-          rowData = record.data[filter.column].toString().toLowerCase();
-        }
-
-        if (condition === 'contains') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'notcontain') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'regex') {
-          var pattern = new RegExp(filter.value);
-          if (patt.test(rowData)){
-            matched++;
-          }
-          return;
-        }
-        if (operators[condition](rowData, filter.value)) {
-          matched++;
-          return;
-        }
-      });
-
-      return matched >= filters.length ? true : false;
-    });
+    filtered = _this.filterRecords(records, filters);
     records = filtered;
+  }
+
+  var prefiltered;
+  var prefilters = [];
+  if (_this.queryPreFilter) {
+    _this.pvPreFilterQuery.forEach(function(option) {
+      var filter = {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      }
+      prefilters.push(filter);
+    });
+
+    // Filter data
+    prefiltered = _this.filterRecords(records, prefilters);
+    records = prefiltered;
   }
 
   return records;
@@ -418,8 +442,11 @@ DynamicList.prototype.initialize = function() {
     return;
   }
 
-  // Connect to data source to get rows
-  _this.connectToDataSource()
+  // Check if there is a PV for search/filter queries
+  _this.parsePVQueryVars()
+    .then(function() {
+      return _this.connectToDataSource();
+    })
     .then(function (records) {
       records = _this.prepareData(records);
       records = _this.getPermissions(records);
@@ -458,6 +485,36 @@ DynamicList.prototype.initialize = function() {
       // Listeners and Ready
       _this.attachObservers();
       _this.onReady();
+    });
+}
+
+DynamicList.prototype.parsePVQueryVars = function() {
+  var _this = this;
+  var pvValue;
+
+  return Fliplet.App.Storage.get('flDynamicListQuery:' + _this.data.layout)
+    .then(function(value) {
+      pvValue = value;
+      console.log(pvValue);
+
+      if (typeof value === 'undefined') {
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+        return;
+      }
+
+      if (_.hasIn(value, 'prefilter')) {
+        _this.queryPreFilter = true;
+        _this.pvPreFilterQuery = value.prefilter;
+      }
+
+      return;
+    })
+    .then(function() {
+      if (pvValue && !pvValue.persist) {
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+      }
+
+      return;
     });
 }
 
@@ -513,7 +570,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   var data = _this.getAddPermission(_this.data);
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -538,7 +595,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   });
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
 
   // IF STATEMENT FOR BACKWARDS COMPATABILITY
   if (!_this.data.detailViewOptions) {
@@ -665,6 +722,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
     obj.profileHTML = _this.profileHTML(obj);
   });
 
+  _this.modifiedListItems = loopData;
   _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).html(template(loopData));
 }
 
@@ -747,7 +805,49 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.expandElement = function(elementToExpand) {
+DynamicList.prototype.showDetails = function(id) {
+  // Function that loads the selected entry data into an overlay for more details
+  var _this = this;
+
+  var entryData = _.find(_this.modifiedListItems, function(entry) {
+    return entry.id === id;
+  });
+  // Process template with data
+  var entryId = {
+    id: id
+  };
+  var wrapper = '<div class="small-h-card-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var $overlay = _this.$container.find('#small-h-card-detail-overlay-' + _this.data.id);
+  var wrapperTemplate = Handlebars.compile(wrapper);
+
+  // Adds content to overlay
+  $overlay.find('.small-h-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+  $overlay.find('.small-h-card-detail-wrapper').append(_this.profileHTML(entryData));
+
+  // Trigger animations
+  _this.$container.find('.new-small-h-card-list-container').addClass('overlay-open');
+  $overlay.addClass('open');
+  setTimeout(function() {
+    $overlay.addClass('ready');
+  }, 0);
+}
+
+DynamicList.prototype.closeDetails = function() {
+  // Function that closes the overlay
+  var _this = this;
+
+  var $overlay = _this.$container.find('#small-h-card-detail-overlay-' + _this.data.id);
+  $overlay.removeClass('open');
+  _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
+
+  setTimeout(function() {
+    $overlay.removeClass('ready');
+    // Clears overlay
+    $overlay.find('.small-h-card-detail-overlay-content-holder').html('');
+  }, 300);
+}
+
+DynamicList.prototype.expandElement = function(elementToExpand, id) {
   // Function called when a list item is tapped to expand
   var _this = this;
 
@@ -791,10 +891,12 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       'height': expandHeight,
       'width': expandWidth,
       'max-width': expandWidth
-    }, 200, 'swing');
+    }, 200, 'linear', function() {
+      _this.showDetails(id);
+    });
 
     elementToExpand.addClass('open');
-    elementToExpand.find('.small-h-card-list-detail-close-btn').addClass('open');
+    elementToExpand.parents('.small-h-card-list-item').addClass('open');
     elementToExpand.find('.small-h-card-list-detail-content-scroll-wrapper').addClass('open');
 
     directoryDetailImageWrapper.css({
@@ -806,7 +908,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       height: '100vw'
     },
     200,
-    'swing'
+    'linear'
     );
 
     directoryDetailImage.css({
@@ -816,7 +918,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
     directoryDetailImage.animate({
       height: '100vw'
-    }, 200, 'swing');
+    }, 200, 'linear');
   }
 }
 
@@ -863,6 +965,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   }, 200, 'linear',
   function() {
     elementToCollapse.css({ height: '100%', });
+    _this.closeDetails();
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     // Only happens when the closing animation finishes
@@ -872,6 +975,6 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   });
 
   elementToCollapse.removeClass('open');
-  elementToCollapse.find('.small-h-card-list-detail-close-btn').removeClass('open');
+  elementToCollapse.parents('.small-h-card-list-item').removeClass('open');
   elementToCollapse.find('.small-h-card-list-detail-content-scroll-wrapper').removeClass('open');
 }
