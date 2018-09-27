@@ -1,28 +1,26 @@
-var layoutMapping = {
-  'small-card': {
-    'base': 'templates.build.small-card-base',
-    'loop': 'templates.build.small-card-loop',
-    'detail': 'templates.build.small-card-detail',
-    'filter': 'templates.build.small-card-filters',
-    'profile-icon': 'templates.build.small-card-profile-icon',
-    'user-profile': 'templates.build.small-card-user-profile'
-  }
-};
-
-var operators = {
-  '==': function(a, b) { return a == b },
-  '!=': function(a, b) { return a != b },
-  '>': function(a, b) { return a > b },
-  '>=': function(a, b) { return a >= b },
-  '<': function(a, b) { return a < b },
-  '<=': function(a, b) { return a <= b }
-};
-
 // Constructor
 var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
+  this.layoutMapping = {
+    'small-card': {
+      'base': 'templates.build.small-card-base',
+      'loop': 'templates.build.small-card-loop',
+      'detail': 'templates.build.small-card-detail',
+      'filter': 'templates.build.small-card-filters',
+      'profile-icon': 'templates.build.small-card-profile-icon',
+      'user-profile': 'templates.build.small-card-user-profile'
+    }
+  };
+  this.operators = {
+    '==': function(a, b) { return a == b },
+    '!=': function(a, b) { return a != b },
+    '>': function(a, b) { return a > b },
+    '>=': function(a, b) { return a >= b },
+    '<': function(a, b) { return a < b },
+    '<=': function(a, b) { return a <= b }
+  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -36,17 +34,19 @@ var DynamicList = function(id, data, container) {
 
   this.emailField = 'Email';
   this.myProfileData;
+  this.modifiedProfileData;
   this.myUserData;
 
   this.listItems;
   this.modifiedListItems;
   this.searchedListItems;
   this.dataSourceColumns;
+  this.directoryDetailWrapper;
 
   // Register handlebars helpers
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[layoutMapping[this.data.layout]['detail']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]());
 
   this.registerHandlebarsHelpers();
   // Get the current session data
@@ -167,8 +167,12 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.my-profile-container', function() {
-      var directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
-      _this.expandElement(directoryDetailWrapper);
+      if ($(window).width() < 640) {
+        _this.directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
+        _this.expandElement(_this.directoryDetailWrapper, _this.modifiedProfileData[0].id);
+      } else {
+        _this.showDetails(_this.modifiedProfileData[0].id);
+      }
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -189,16 +193,22 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
       // find the element to expand and expand it
-      if (_this.allowClick) {
-        var directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
-        _this.expandElement(directoryDetailWrapper);
+      if (_this.allowClick && $(window).width() < 640) {
+        _this.directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
+        _this.expandElement(_this.directoryDetailWrapper, entryId);
+      } else if ($(window).width() >= 640) {
+        _this.showDetails(entryId);
       }
     })
-    .on('click', '.small-card-list-detail-close-btn', function(event) {
+    .on('click', '.small-card-detail-overlay-close', function(event) {
       event.stopPropagation();
-      // find the element to collpase and collpase it
-      var directoryDetailWrapper = $(this).parents('.small-card-list-detail-wrapper');
-      _this.collapseElement(directoryDetailWrapper);
+
+      if ($(window).width() < 640) {
+        _this.collapseElement(_this.directoryDetailWrapper);
+        _this.directoryDetailWrapper = undefined;
+      } else {
+        _this.closeDetails();
+      }
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -503,7 +513,7 @@ DynamicList.prototype.prepareData = function(records) {
           }
           return;
         }
-        if (operators[condition](rowData, filter.value)) {
+        if (_this.operators[condition](rowData, filter.value)) {
           matched++;
           return;
         }
@@ -545,14 +555,14 @@ DynamicList.prototype.initialize = function() {
     _this.addFilters(_this.modifiedListItems);
     // Render user profile
     if (_this.myProfileData && _this.myProfileData.length) {
-      var profileData = _this.renderLoopHTML(_this.myProfileData, true);
-      var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
+      _this.modifiedProfileData = _this.renderLoopHTML(_this.myProfileData, true);
+      var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
       var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-      _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(profileData[0]));
+      _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
 
-      var profileIconTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['profile-icon']];
+      var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
       var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-      _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(profileData[0]));
+      _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
 
       _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
     }
@@ -600,14 +610,14 @@ DynamicList.prototype.initialize = function() {
 
       // Render user profile
       if (_this.myProfileData && _this.myProfileData.length) {
-        var profileData = _this.renderLoopHTML(_this.myProfileData, true);
-        var myProfileTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['user-profile']];
+        _this.modifiedProfileData = _this.renderLoopHTML(_this.myProfileData, true);
+        var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-        _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(profileData[0]));
+        _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
 
-        var profileIconTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['profile-icon']];
+        var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
         var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-        _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(profileData[0]));
+        _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
 
         _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
       }
@@ -672,7 +682,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   var data = _this.getAddPermission(_this.data);
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -698,7 +708,7 @@ DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
   });
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['loop']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
   // IF STATEMENT FOR BACKWARDS COMPATABILITY
   if (!_this.data.detailViewOptions) {
@@ -715,10 +725,6 @@ DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
       $.extend(true, newObject, entry.data);
 
       loopData.push(newObject);
-    });
-
-    loopData.forEach(function(obj, index) {
-      loopData[index].profileHTML = _this.profileHTML(loopData[index]);
     });
 
     if (!isForProfile) {
@@ -829,8 +835,6 @@ DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
         });
       }
     }
-
-    obj.profileHTML = _this.profileHTML(obj);
   });
 
   if (isForProfile) {
@@ -933,7 +937,7 @@ DynamicList.prototype.addFilters = function(data) {
 
   filtersData.filters = allFilters
 
-  filtersTemplate = Fliplet.Widget.Templates[layoutMapping[_this.data.layout]['filter']];
+  filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
   ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
   : Handlebars.compile(filtersTemplate());
@@ -1140,7 +1144,49 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.expandElement = function(elementToExpand) {
+DynamicList.prototype.showDetails = function(id) {
+  // Function that loads the selected entry data into an overlay for more details
+  var _this = this;
+
+  var entryData = _.find(_this.modifiedListItems, function(entry) {
+    return entry.id === id;
+  });
+  // Process template with data
+  var entryId = {
+    id: id
+  };
+  var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var $overlay = _this.$container.find('#small-card-detail-overlay-' + _this.data.id);
+  var wrapperTemplate = Handlebars.compile(wrapper);
+
+  // Adds content to overlay
+  $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+  $overlay.find('.small-card-detail-wrapper').append(_this.profileHTML(entryData));
+
+  // Trigger animations
+  _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
+  $overlay.addClass('open');
+  setTimeout(function() {
+    $overlay.addClass('ready');
+  }, 0);
+}
+
+DynamicList.prototype.closeDetails = function() {
+  // Function that closes the overlay
+  var _this = this;
+
+  var $overlay = _this.$container.find('#small-card-detail-overlay-' + _this.data.id);
+  $overlay.removeClass('open');
+  _this.$container.find('.new-small-card-list-container').removeClass('overlay-open');
+
+  setTimeout(function() {
+    $overlay.removeClass('ready');
+    // Clears overlay
+    $overlay.find('.small-card-detail-overlay-content-holder').html('');
+  }, 300);
+}
+
+DynamicList.prototype.expandElement = function(elementToExpand, id) {
   // Function called when a list item is tapped to expand
   var _this = this;
 
@@ -1184,11 +1230,12 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       'height': expandHeight,
       'width': expandWidth,
       'max-width': expandWidth
-    }, 200, 'swing');
+    }, 200, 'linear', function() {
+      _this.showDetails(id);
+    });
 
     elementToExpand.addClass('open');
     elementToExpand.parents('.small-card-list-item').addClass('open');
-    elementToExpand.find('.small-card-list-detail-close-btn').addClass('open');
     elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').addClass('open');
 
     directoryDetailImageWrapper.css({
@@ -1200,7 +1247,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       height: '100vw'
     },
     200,
-    'swing'
+    'linear'
     );
 
     directoryDetailImage.css({
@@ -1210,7 +1257,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
     directoryDetailImage.animate({
       height: '100vw'
-    }, 200, 'swing');
+    }, 200, 'linear');
   }
 }
 
@@ -1257,6 +1304,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   }, 200, 'linear',
   function() {
     elementToCollapse.css({ height: '100%', });
+    _this.closeDetails();
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     // Only happens when the closing animation finishes
@@ -1267,6 +1315,5 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
 
   elementToCollapse.removeClass('open');
   elementToCollapse.parents('.small-card-list-item').removeClass('open');
-  elementToCollapse.find('.small-card-list-detail-close-btn').removeClass('open');
   elementToCollapse.find('.small-card-list-detail-content-scroll-wrapper').removeClass('open');
 }

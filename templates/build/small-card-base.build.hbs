@@ -85,6 +85,26 @@
   </div>
 </div>
 
+<!-- Detail view overlay -->
+<div class="small-card-detail-overlay" id="small-card-detail-overlay-\{{id}}">
+  <div class="small-card-detail-overlay-screen"></div>
+  <div class="small-card-detail-overlay-wrapper">
+    <div class="small-card-detail-overlay-panel">
+      <div class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
+        <i class="fa fa-times"></i>
+      </div>
+      <div class="small-card-detail-overlay-content">
+        <div class="small-card-detail-overlay-content-holder">
+          <!-- Details will be added here -->
+        </div>
+      </div>
+    </div>
+    <div class="small-card-detail-overlay-close tablet">
+      <i class="fa fa-times"></i>
+    </div>
+  </div>
+</div>
+
 \{{#if showAddEntry}}
 <div class="dynamic-list-add-item">
   <i class="fa fa-plus"></i>
