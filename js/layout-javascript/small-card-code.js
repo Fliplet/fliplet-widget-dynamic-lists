@@ -43,6 +43,14 @@ var DynamicList = function(id, data, container) {
   this.dataSourceColumns;
   this.directoryDetailWrapper;
 
+  this.querySearch = false;
+  this.queryFilter = false;
+  this.queryPreFilter = false;
+  this.pvPreviousScreen;
+  this.pvSearchQuery;
+  this.pvFilterQuery;
+  this.pvPreFilterQuery;
+
   // Register handlebars helpers
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
@@ -253,12 +261,10 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('keydown', '.search-holder input', function(e) {
       var $inputField = $(this);
-      var $parentElement = $inputField.parents('.new-small-card-list-container');
       var value = $inputField.val();
 
       if (value.length) {
         $inputField.addClass('not-empty');
-        value = value.toLowerCase();
       } else {
         $inputField.removeClass('not-empty');
       }
@@ -275,22 +281,12 @@ DynamicList.prototype.attachObservers = function() {
           label: value
         });
 
-        if ($inputField.hasClass('from-overlay')) {
-          $inputField.parents('.small-card-search-filter-overlay').removeClass('display');
-        }
-        $inputField.blur();
-        $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
         _this.searchData(value);
       }
     })
     .on('click', '.search-holder .search-btn', function(e) {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
-      var $parentElement = $inputField.parents('.new-small-card-list-container');
       var value = $inputField.val();
-
-      if (value.length) {
-        value = value.toLowerCase();
-      }
 
       if (value === '') {
         _this.clearSearch();
@@ -303,11 +299,6 @@ DynamicList.prototype.attachObservers = function() {
         label: value
       });
 
-      if ($inputField.hasClass('from-overlay')) {
-        $inputField.parents('.simple-list-search-filter-overlay').removeClass('display');
-      }
-      $inputField.blur();
-      $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
       _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
@@ -399,6 +390,50 @@ DynamicList.prototype.attachObservers = function() {
     });
 }
 
+DynamicList.prototype.filterRecords = function(records, filters) {
+  return _.filter(records, function(record) {
+    var matched = 0;
+
+    filters.some(function(filter) {
+      var condition = filter.condition;
+      var rowData;
+      // Case insensitive
+      if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+        filter.value = filter.value.toLowerCase();
+      }
+      if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+        rowData = record.data[filter.column].toString().toLowerCase();
+      }
+
+      if (condition === 'contains') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'notcontain') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'regex') {
+        var pattern = new RegExp(filter.value);
+        if (patt.test(rowData)){
+          matched++;
+        }
+        return;
+      }
+      if (_this.operators[condition](rowData, filter.value)) {
+        matched++;
+        return;
+      }
+    });
+
+    return matched >= filters.length ? true : false;
+  });
+}
+
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
   var sorted;
@@ -480,48 +515,25 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    filtered = _.filter(records, function(record) {
-      var matched = 0;
-
-      filters.some(function(filter) {
-        var condition = filter.condition;
-        var rowData;
-        // Case insensitive
-        if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-          filter.value = filter.value.toLowerCase();
-        }
-        if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-          rowData = record.data[filter.column].toString().toLowerCase();
-        }
-
-        if (condition === 'contains') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'notcontain') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'regex') {
-          var pattern = new RegExp(filter.value);
-          if (patt.test(rowData)){
-            matched++;
-          }
-          return;
-        }
-        if (_this.operators[condition](rowData, filter.value)) {
-          matched++;
-          return;
-        }
-      });
-
-      return matched >= filters.length ? true : false;
-    });
+    filtered = _this.filterRecords(records, filters);
     records = filtered;
+  }
+
+  var prefiltered;
+  var prefilters = [];
+  if (_this.queryPreFilter) {
+    _this.pvPreFilterQuery.forEach(function(option) {
+      var filter = {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      }
+      prefilters.push(filter);
+    });
+
+    // Filter data
+    prefiltered = _this.filterRecords(records, prefilters);
+    records = prefiltered;
   }
 
   return records;
@@ -572,9 +584,16 @@ DynamicList.prototype.initialize = function() {
     return;
   }
 
-  // Connect to data source to get rows
-  _this.connectToDataSource()
+  // Check if there is a PV for search/filter queries
+  _this.parsePVQueryVars()
+    .then(function() {
+      return _this.connectToDataSource();
+    })
     .then(function (records) {
+      if (records && !Array.isArray(records)) {
+        records = [records];
+      }
+
       records = _this.prepareData(records);
       // Make rows available Globally
       records = _this.getPermissions(records);
@@ -607,6 +626,8 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.renderLoopHTML(_this.listItems);
       _this.addFilters(_this.modifiedListItems);
+      _this.prepareToSearch();
+      _this.prepareToFilter();
 
       // Render user profile
       if (_this.myProfileData && _this.myProfileData.length) {
@@ -627,6 +648,89 @@ DynamicList.prototype.initialize = function() {
       // Listeners and Ready
       _this.attachObservers();
       _this.onReady();
+    });
+}
+
+DynamicList.prototype.prepareToSearch = function() {
+  var _this = this;
+
+  if ( !_.hasIn(_this.pvSearchQuery, 'value') ) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+    _this.overrideSearchData(_this.pvSearchQuery.value);
+    return;
+  }
+  
+  _this.searchData(_this.pvSearchQuery.value);
+}
+
+DynamicList.prototype.prepareToFilter = function() {
+  var _this = this;
+
+  if ( !_this.pvFilterQuery || !_.hasIn(_this.pvFilterQuery, 'value') ) {
+    return;
+  }
+
+  if (Array.isArray(_this.pvFilterQuery.value)) {
+    _this.pvFilterQuery.value.forEach(function(value) {
+      value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+      $('.hidden-filter-controls-filter[data-toggle="' + value + '"]').addClass('mixitup-control-active');
+    });
+  } else {
+    _this.pvFilterQuery.value = _this.pvFilterQuery.value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+    $('.hidden-filter-controls-filter[data-toggle="' + _this.pvFilterQuery.value + '"]').addClass('mixitup-control-active');
+  }
+
+  _this.filterList();
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  $('.list-search-icon .fa-sliders').addClass('active');
+  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+}
+
+DynamicList.prototype.parsePVQueryVars = function() {
+  var _this = this;
+  var pvValue;
+
+  return Fliplet.App.Storage.get('flDynamicListQuery:' + _this.data.layout)
+    .then(function(value) {
+      pvValue = value;
+      console.log(pvValue);
+
+      if (typeof value === 'undefined') {
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+        return;
+      }
+
+      _this.pvPreviousScreen = value.previousScreen;
+
+      if (_.hasIn(value, 'search')) {
+        _this.querySearch = true;
+        _this.pvSearchQuery = value.search;
+        _this.data.searchEnabled = true;
+      }
+
+      if (_.hasIn(value, 'filter')) {
+        _this.queryFilter = true;
+        _this.pvFilterQuery = value.filter;
+        _this.data.filtersEnabled = true;
+      }
+
+      if (_.hasIn(value, 'prefilter')) {
+        _this.queryPreFilter = true;
+        _this.pvPreFilterQuery = value.prefilter;
+      }
+
+      return;
+    })
+    .then(function() {
+      if (pvValue && !pvValue.persist) {
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+      }
+
+      return;
     });
 }
 
@@ -1042,9 +1146,90 @@ DynamicList.prototype.calculateFiltersHeight = function(element) {
   }, 200);
 }
 
+DynamicList.prototype.overrideSearchData = function(value) {
+  var _this = this;
+  var $inputField = _this.$container.find('.search-holder input');
+  var copyOfValue = value;
+  value = value.toLowerCase();
+
+  $inputField.val(copyOfValue);
+  $inputField.blur();
+  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
+
+  // Removes cards
+  _this.$container.find('#small-card-wrapper-' + _this.data.id).html('');
+  // Adds search query to HTML
+  _this.$container.find('.current-query').html(value);
+  
+  // Search
+  var searchedData = [];
+  var filteredData;
+  var fields = _this.pvSearchQuery.column; // Can be Array or String
+
+  if (Array.isArray(_this.pvSearchQuery.column)) {
+    fields.forEach(function(field) {    
+      filteredData = _.filter(_this.listItems, function(obj) {
+        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
+          return obj.data[field].toLowerCase().indexOf(value) > -1;
+        }
+      });
+
+      if (filteredData.length) {
+        filteredData.forEach(function(item) {
+          searchedData.push(item);
+        });
+      }
+    });
+  } else {
+    searchedData = _.filter(_this.listItems, function(obj) {
+      if (obj.data[fields] !== null && obj.data[fields] !== '' && typeof obj.data[fields] !== 'undefined') {
+        return obj.data[fields].toLowerCase().indexOf(value) > -1;
+      }
+    });
+
+    if (!searchedData || !searchedData.length) {
+      searchedData = [];
+    }
+  }
+
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  if (!_this.data.filtersInOverlay) {
+    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+  }
+
+  if (!searchedData.length) {
+    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+  }
+
+  // Remove duplicates
+  searchedData = _.uniq(searchedData);
+  _this.searchedListItems = searchedData;
+
+  if (_this.searchedListItems.length === 1) {
+    _this.showDetails(_this.searchedListItems[0].id)
+  }
+
+  _this.renderLoopHTML(searchedData);
+  _this.addFilters(_this.modifiedListItems);
+  _this.onReady();
+}
+
 DynamicList.prototype.searchData = function(value) {
   // Function called when user executes a search
   var _this = this;
+  var $inputField = _this.$container.find('.search-holder input');
+  var copyOfValue = value;
+  value = value.toLowerCase();
+
+  $inputField.val(copyOfValue);
+  $inputField.blur();
+  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
 
   // Removes cards
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html('');
@@ -1071,24 +1256,26 @@ DynamicList.prototype.searchData = function(value) {
     });
   }
   
-  // Simulate that search is taking half a second
-  // OPTIONAL - setTimeout can be removed
-  setTimeout(function() {
-    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  if (!_this.data.filtersInOverlay) {
     _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+  }
 
-    if (!searchedData.length) {
-      _this.$container.find('.hidden-filter-controls').addClass('no-results');
-      return;
-    }
+  if (!searchedData.length) {
+    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+  }
 
-    // Remove duplicates
-    searchedData = _.uniq(searchedData);
-    _this.searchedListItems = searchedData;
-    _this.renderLoopHTML(searchedData);
-    _this.addFilters(_this.modifiedListItems);
-    _this.onReady();
-  }, 0);
+  // Remove duplicates
+  searchedData = _.uniq(searchedData);
+  _this.searchedListItems = searchedData;
+
+  if (_this.querySearch && _this.searchedListItems.length === 1) {
+    _this.showDetails(_this.searchedListItems[0].id)
+  }
+
+  _this.renderLoopHTML(searchedData);
+  _this.addFilters(_this.modifiedListItems);
+  _this.onReady();
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -1108,7 +1295,12 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
-  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+
+  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
+    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+  } else {
+    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+  }
 
   // Resets list
   _this.searchedListItems = undefined;

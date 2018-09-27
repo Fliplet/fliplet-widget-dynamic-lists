@@ -1085,7 +1085,6 @@ DynamicList.prototype.searchData = function(value) {
 
   if (!searchedData.length) {
     _this.$container.find('.hidden-filter-controls').addClass('no-results');
-    return;
   }
 
   // Remove duplicates
