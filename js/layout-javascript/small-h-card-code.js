@@ -43,7 +43,6 @@ var DynamicList = function(id, data, container) {
   this.queryPreFilter = false;
   this.pvPreFilterQuery;
 
-
   // Register handlebars helpers
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
