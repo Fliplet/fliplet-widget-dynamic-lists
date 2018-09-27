@@ -1854,8 +1854,8 @@ var DynamicLists = (function() {
       data.advancedSettings = {};
 
       data.layout = listLayout;
-      data.dataSourceId = !toReload ? newDataSource.id : undefined;
-      data.defaultData = toReload && !data.dataSourceId ? true : false;
+      data.dataSourceId = !toReload && newDataSource ? newDataSource.id : undefined;
+      data.defaultData = toReload || !data.dataSourceId ? true : false;
 
       // Get sorting options
       _.forEach(_this.config.sortOptions, function(item) {
