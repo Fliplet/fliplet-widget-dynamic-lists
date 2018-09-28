@@ -373,7 +373,12 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.news-feed-comment-holder', function(e) {
       e.stopPropagation();
-      var identifier = $(this).parents('.news-feed-list-item').data('entry-id');
+      var identifier;
+      if ($('.new-news-feed-list-container').hasClass('overlay-open')) {
+        identifier = $(this).parents('.news-feed-detail-wrapper').data('entry-id');
+      } else {
+        identifier = $(this).parents('.news-feed-list-item').data('entry-id');
+      }
       _this.entryClicked = identifier;
       _this.showComments(identifier);
       $('body').addClass('lock');
@@ -1928,6 +1933,7 @@ DynamicList.prototype.showDetails = function(id) {
   $overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
 
   _this.prepareSetupBookmarkOverlay(id);
+  _this.updateCommentCounter(id);
 
   // Trigger animations
   $('html, body').addClass('lock');
@@ -2158,7 +2164,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
     });
 }
 
-DynamicList.prototype.updateCommentCounter = function(id) {
+DynamicList.prototype.updateCommentCounter = function(id, isOverlay) {
   var _this = this;
   // Get comments for entry
   var entryComments = _.find(_this.comments, function(obj) {
@@ -2166,13 +2172,20 @@ DynamicList.prototype.updateCommentCounter = function(id) {
   });
 
   // Display comments count
-  var data = {
-    count: entryComments.count
-  };
+  var data = {};
+
+  if (entryComments) {
+    data.count = entryComments.count
+  }
+  
   var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">Comment</span>';
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var html = counterCompiled(data);
-  $('.news-feed-comemnt-holder-' + id).html(html);
+  if (isOverlay) {
+    $('.news-feed-detail-overlay .news-feed-comemnt-holder-' + id).html(html);
+  } else {
+    $('.news-feed-comemnt-holder-' + id).html(html);
+  }
 }
 
 DynamicList.prototype.showComments = function(id) {

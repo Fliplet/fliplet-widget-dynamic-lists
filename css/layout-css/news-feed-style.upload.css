@@ -725,11 +725,13 @@
   align-items: center;
 }
 
-.new-news-feed-list-container .news-feed-like-wrapper .fa-heart {
+.new-news-feed-list-container .news-feed-like-wrapper .fa-heart,
+.news-feed-detail-overlay .news-feed-like-wrapper .fa-heart {
   color: #ed4956;
 }
 
-.new-news-feed-list-container .news-feed-bookmark-wrapper .fa-bookmark {
+.new-news-feed-list-container .news-feed-bookmark-wrapper .fa-bookmark,
+.news-feed-detail-overlay .news-feed-bookmark-wrapper .fa-bookmark {
   color: #337ab7;
 }
 
