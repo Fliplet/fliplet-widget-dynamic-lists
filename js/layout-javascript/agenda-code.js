@@ -366,6 +366,50 @@ DynamicList.prototype.scrollEvent = function() {
   });
 }
 
+DynamicList.prototype.filterRecords = function(records, filters) {
+  return _.filter(records, function(record) {
+    var matched = 0;
+
+    filters.some(function(filter) {
+      var condition = filter.condition;
+      var rowData;
+      // Case insensitive
+      if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+        filter.value = filter.value.toLowerCase();
+      }
+      if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+        rowData = record.data[filter.column].toString().toLowerCase();
+      }
+
+      if (condition === 'contains') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'notcontain') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'regex') {
+        var pattern = new RegExp(filter.value);
+        if (patt.test(rowData)){
+          matched++;
+        }
+        return;
+      }
+      if (_this.operators[condition](rowData, filter.value)) {
+        matched++;
+        return;
+      }
+    });
+
+    return matched >= filters.length ? true : false;
+  });
+}
+
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
   var sorted;
