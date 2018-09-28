@@ -1,28 +1,27 @@
-var newsFeedLayoutMapping = {
-  'news-feed': {
-    'base': 'templates.build.news-feed-base',
-    'loop': 'templates.build.news-feed-loop',
-    'filter': 'templates.build.news-feed-filters',
-    'comments': 'templates.build.news-feed-comment',
-    'single-comment': 'templates.build.news-feed-single-comment',
-    'temp-comment': 'templates.build.news-feed-temp-comment'
-  }
-};
-
-var operators = {
-  '==': function(a, b) { return a == b },
-  '!=': function(a, b) { return a != b },
-  '>': function(a, b) { return a > b },
-  '>=': function(a, b) { return a >= b },
-  '<': function(a, b) { return a < b },
-  '<=': function(a, b) { return a <= b }
-};
-
 // Constructor
 var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
+  this.newsFeedLayoutMapping = {
+    'news-feed': {
+      'base': 'templates.build.news-feed-base',
+      'loop': 'templates.build.news-feed-loop',
+      'detail': 'templates.build.news-feed-detail',
+      'filter': 'templates.build.news-feed-filters',
+      'comments': 'templates.build.news-feed-comment',
+      'single-comment': 'templates.build.news-feed-single-comment',
+      'temp-comment': 'templates.build.news-feed-temp-comment'
+    }
+  };
+  this.operators = {
+    '==': function(a, b) { return a == b },
+    '!=': function(a, b) { return a != b },
+    '>': function(a, b) { return a > b },
+    '>=': function(a, b) { return a >= b },
+    '<': function(a, b) { return a < b },
+    '<=': function(a, b) { return a <= b }
+  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -42,6 +41,8 @@ var DynamicList = function(id, data, container) {
   this.dataSourceColumns;
   this.likeButtons = [];
   this.bookmarkButtons = [];
+  this.likeButtonOverlay;
+  this.bookmarkButtonOverlay;
   this.comments = [];
   this.allUsers;
   this.usersToMention = [];
@@ -60,6 +61,10 @@ var DynamicList = function(id, data, container) {
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
   this.setupCopyText();
+
+  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[this.data.layout]['detail']]());
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -238,7 +243,6 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.news-feed-list-item', function(event) {
       event.stopPropagation();
-      var elementToExpand = $(this).find('.news-feed-item-content');
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text();
       Fliplet.Analytics.trackEvent({
@@ -253,13 +257,20 @@ DynamicList.prototype.attachObservers = function() {
       }
       // find the element to expand and expand it
       if (_this.allowClick) {
-        _this.expandElement(elementToExpand);
+        _this.showDetails(entryId);
       }
     })
-    .on('click', '.news-feed-item-close-btn-wrapper', function(event) {
-      event.stopPropagation();
-      // find the element to collpase and collpase it
-      _this.collapseElement($(this));
+    .on('click', '.news-feed-detail-overlay-close', function() {
+      if ($(this).hasClass('go-previous-screen')) {
+        if (typeof _this.pvPreviousScreen === 'function') {
+          _this.pvPreviousScreen();
+        }
+
+        Fliplet.Navigate.back();
+        return;
+      }
+
+      _this.closeDetails();
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -615,8 +626,7 @@ DynamicList.prototype.attachObservers = function() {
                 });
 
                 _that.text('Delete').removeClass('disabled');
-                var $closeButton = _that.parents('.news-feed-list-item').find('.news-feed-item-close-btn-wrapper');
-                _this.collapseElement($closeButton);
+                _this.closeDetails();
                 _this.renderLoopHTML(_this.listItems);
 
                 _that.text('Delete').removeClass('disabled');
@@ -631,48 +641,117 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.UI.Actions(options);
     });
-    
-    _this.likeButtons.forEach(function(button) {
-      button.btn.on('liked', function(data){
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_like',
-          label: entryTitle
-        });
-      });
+}
 
-      button.btn.on('unliked', function(data){
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_unlike',
-          label: entryTitle
-        });
+DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
+  var _this = this;
+  var bookmarkIndentifier = id + '-bookmark';
+  var likeIndentifier = id + '-like';
+  var title = $('.news-feed-detail-overlay').find('.news-feed-item-inner-content .news-feed-item-title').text();
+
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.setupBookmarkButtonOverlay(id, bookmarkIndentifier, title);
+  }
+  if (_this.data.social && _this.data.social.likes) {
+    _this.setupLikeButtonOverlay(id, likeIndentifier, title);
+  }
+  if (_this.data.social && (_this.data.social.bookmark || _this.data.social.likes)) {
+    _this.likesObserversOverlay(id);
+  }
+}
+
+DynamicList.prototype.likesObservers = function() {
+  var _this = this;
+
+  _this.likeButtons.forEach(function(button) {
+    button.btn.on('liked', function(data){
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_like',
+        label: entryTitle
       });
     });
 
-    _this.bookmarkButtons.forEach(function(button) {
-      button.btn.on('liked', function(data){
-        this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_bookmark',
-          label: entryTitle
-        });
-      });
-
-      button.btn.on('unliked', function(data){
-        this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_unbookmark',
-          label: entryTitle
-        });
+    button.btn.on('unliked', function(data){
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unlike',
+        label: entryTitle
       });
     });
+  });
+
+  _this.bookmarkButtons.forEach(function(button) {
+    button.btn.on('liked', function(data){
+      this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_bookmark',
+        label: entryTitle
+      });
+    });
+
+    button.btn.on('unliked', function(data){
+      this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unbookmark',
+        label: entryTitle
+      });
+    });
+  });
+}
+
+DynamicList.prototype.likesObserversOverlay = function(id) {
+  var _this = this;
+
+  _this.bookmarkButtonOverlay.on('liked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    // @TODO: Replace with enhancements by Tony
+    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-bookmark-wrapper').click();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.bookmarkButtonOverlay.on('unliked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    // @TODO: Replace with enhancements by Tony
+    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-bookmark-wrapper').click();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.likeButtonOverlay.on('liked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    // @TODO: Replace with enhancements by Tony
+    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-like-wrapper').click();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.likeButtonOverlay.on('unliked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    // @TODO: Replace with enhancements by Tony
+    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-like-wrapper').click();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
+    });
+  });
 }
 
 DynamicList.prototype.filterRecords = function(records, filters) {
@@ -1032,7 +1111,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   var data = _this.getAddPermission(_this.data);
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -1054,7 +1133,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['loop']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
 
   var loopData = [];
 
@@ -1270,7 +1349,7 @@ DynamicList.prototype.addFilters = function(data) {
 
   filtersData.filters = allFilters
 
-  filtersTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['filter']];
+  filtersTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
   ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
   : Handlebars.compile(filtersTemplate());
@@ -1417,6 +1496,10 @@ DynamicList.prototype.onReady = function() {
     });
   }
 
+  if (_this.data.social && (_this.data.social.bookmark || _this.data.social.likes)) {
+    _this.likesObservers();
+  }
+
   if (_this.data.social && _this.data.social.comments) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
       _this.getCommentsCount(element);
@@ -1558,8 +1641,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.addFilters(_this.modifiedListItems);
 
   if (_this.searchedListItems.length === 1) {
-    var elementToExpand = _this.$container.find('.news-feed-list-item[data-entry-id="' + _this.searchedListItems[0].id + '"] .news-feed-item-content');
-    _this.expandElement(elementToExpand);
+    _this.showDetails(_this.searchedListItems[0].id);
   }
 
   _this.onReady();
@@ -1623,8 +1705,7 @@ DynamicList.prototype.searchData = function(value) {
   _this.addFilters(_this.modifiedListItems);
 
   if (_this.querySearch && _this.searchedListItems.length === 1) {
-    var elementToExpand = _this.$container.find('.news-feed-list-item[data-entry-id="' + _this.searchedListItems[0].id + '"] .news-feed-item-content');
-    _this.expandElement(elementToExpand);
+    _this.showDetails(_this.searchedListItems[0].id);
   }
 
   _this.onReady();
@@ -1769,6 +1850,45 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
   });
 }
 
+DynamicList.prototype.setupLikeButtonOverlay = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.likeButtonOverlay = LikeButton({
+    target: '.news-feed-detail-overlay .news-feed-like-holder-' + id,
+    dataSourceId: _this.data.likesDataSourceId,
+    content: { 
+      entryId: identifier,
+      pageId: Fliplet.Env.get('pageId')
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+    likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
+    likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
+    likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+    addType: 'html'
+  });
+}
+
+DynamicList.prototype.setupBookmarkButtonOverlay = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.bookmarkButtonOverlay = LikeButton({
+    target: '.news-feed-detail-overlay .news-feed-bookmark-holder-' + id,
+    dataSourceId: _this.data.bookmarkDataSourceId,
+    content: { 
+      entryId: identifier
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+    likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+    likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
+    likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
+    addType: 'html'
+  });
+}
+
 DynamicList.prototype.openLinkAction = function(entryId) {
   var _this = this;
   var entry = _.find(_this.listItems, function(entry) {
@@ -1786,6 +1906,52 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   } else {
     Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
   }
+}
+
+DynamicList.prototype.showDetails = function(id) {
+  // Function that loads the selected entry data into an overlay for more details
+  var _this = this;
+
+  var entryData = _.find(_this.modifiedListItems, function(entry) {
+    return entry.id === id;
+  });
+
+  var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var $overlay = _this.$container.find('#news-feed-detail-overlay-' + _this.data.id);
+  var wrapperTemplate = Handlebars.compile(wrapper);
+
+  var entryId = {
+    id: id
+  };
+  // Adds content to overlay
+  $overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+  $overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
+
+  _this.prepareSetupBookmarkOverlay(id);
+
+  // Trigger animations
+  $('html, body').addClass('lock');
+  _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+  $overlay.addClass('open');
+  setTimeout(function() {
+    $overlay.addClass('ready');
+  }, 0);
+}
+
+DynamicList.prototype.closeDetails = function() {
+  // Function that closes the overlay
+  var _this = this;
+
+  var $overlay = _this.$container.find('#news-feed-detail-overlay-' + _this.data.id);
+  $overlay.removeClass('open');
+  _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
+  $('html, body').removeClass('lock');
+
+  setTimeout(function() {
+    $overlay.removeClass('ready');
+    // Clears overlay
+    $overlay.find('.news-feed-detail-overlay-content-holder').html('');
+  }, 300);
 }
 
 DynamicList.prototype.expandElement = function(elementToExpand) {
@@ -2080,7 +2246,7 @@ DynamicList.prototype.showComments = function(id) {
       _this.autosizeInit = true;
     }
 
-    var commentsTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['comments']];
+    var commentsTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments.entries);
     // Display comments (fl-comments-list-holder)
@@ -2257,7 +2423,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
     text: value
   };
 
-  var tempCommentTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
+  var tempCommentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
   var tempCommentTemplateCompiled = Handlebars.compile(tempCommentTemplate());
   var tempCommentHTML = tempCommentTemplateCompiled(commentInfo);
 
@@ -2321,12 +2487,12 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       }
     }
 
-    var commentTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['single-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['single-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }
   if (context === 'temp') {
-    var commentTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }

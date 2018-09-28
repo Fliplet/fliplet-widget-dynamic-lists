@@ -245,8 +245,13 @@ DynamicList.prototype.attachObservers = function() {
                 });
 
                 _that.text('Delete').removeClass('disabled');
-                var $closeButton = _that.parents('.small-h-card-list-item').find('.small-h-card-list-detail-close-btn');
-                _this.collapseElement($closeButton);
+
+                if ($(window).width() < 640) {
+                  _this.collapseElement(_this.directoryDetailWrapper);
+                  _this.directoryDetailWrapper = undefined;
+                } else {
+                  _this.closeDetails();
+                }
                 _this.renderLoopHTML(_this.listItems);
 
                 _that.text('Delete').removeClass('disabled');

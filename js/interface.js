@@ -603,9 +603,11 @@ var DynamicLists = (function() {
                 break;
               case 'news-feed':
                 $('.filter-loop-item').removeClass('hidden');
+                $('.detail-view-item').removeClass('hidden');
                 break;
               case 'agenda':
                 $('.date-loop-item').removeClass('hidden');
+                $('.detail-view-item').removeClass('hidden');
                 break;
               case 'small-h-card':
                 $('.detail-view-item').removeClass('hidden');
@@ -779,9 +781,11 @@ var DynamicLists = (function() {
                   break;
                 case 'news-feed':
                   $('.filter-loop-item').removeClass('hidden');
+                  $('.detail-view-item').removeClass('hidden');
                   break;
                 case 'agenda':
                   $('.date-loop-item').removeClass('hidden');
+                  $('.detail-view-item').removeClass('hidden');
                   break;
                 case 'small-h-card':
                   $('.detail-view-item').removeClass('hidden');
@@ -1816,9 +1820,11 @@ var DynamicLists = (function() {
               break;
             case 'news-feed':
               _this.config.advancedSettings.filterHTML = undefined;
+              _this.config.advancedSettings.detailHTML = undefined;
               break;
             case 'agenda':
               _this.config.advancedSettings.otherLoopHTML = undefined;
+              _this.config.advancedSettings.detailHTML = undefined;
               break;
             case 'small-h-card':
               _this.config.advancedSettings.detailHTML = undefined;
@@ -1927,10 +1933,12 @@ var DynamicLists = (function() {
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           case 'news-feed':
+            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           case 'agenda':
             data.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
+            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             break;
           case 'small-h-card':
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();

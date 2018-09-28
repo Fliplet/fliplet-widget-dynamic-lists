@@ -51,11 +51,11 @@ var DynamicList = function(id, data, container) {
   this.pvFilterQuery;
   this.pvPreFilterQuery;
 
-  // Register handlebars helpers
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]());
 
+  // Register handlebars helpers
   this.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.Session.get().then(function(session) {
@@ -374,8 +374,13 @@ DynamicList.prototype.attachObservers = function() {
                 });
 
                 _that.text('Delete').removeClass('disabled');
-                var $closeButton = _that.parents('.small-card-list-item').find('.small-card-list-detail-close-btn');
-                _this.collapseElement($closeButton);
+
+                if ($(window).width() < 640) {
+                  _this.collapseElement(_this.directoryDetailWrapper);
+                  _this.directoryDetailWrapper = undefined;
+                } else {
+                  _this.closeDetails();
+                }
                 _this.renderLoopHTML(_this.listItems);
 
                 _that.text('Delete').removeClass('disabled');

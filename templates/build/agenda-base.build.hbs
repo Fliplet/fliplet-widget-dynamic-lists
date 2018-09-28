@@ -29,6 +29,26 @@
   </div>
 </div>
 
+<!-- Detail view overlay -->
+<div class="agenda-detail-overlay" id="agenda-detail-overlay-\{{id}}">
+  <div class="agenda-detail-overlay-screen"></div>
+  <div class="agenda-detail-overlay-wrapper">
+    <div class="agenda-detail-overlay-panel">
+      <div class="agenda-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
+        <i class="fa fa-times"></i>
+      </div>
+      <div class="agenda-detail-overlay-content">
+        <div class="agenda-detail-overlay-content-holder">
+          <!-- Details will be added here -->
+        </div>
+      </div>
+    </div>
+    <div class="agenda-detail-overlay-close tablet">
+      <i class="fa fa-times"></i>
+    </div>
+  </div>
+</div>
+
 \{{#if showAddEntry}}
 <div class="dynamic-list-add-item">
   <i class="fa fa-plus"></i>

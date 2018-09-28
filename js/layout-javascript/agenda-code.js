@@ -1,25 +1,25 @@
-var agendaLayoutMapping = {
-  'agenda': {
-    'base': 'templates.build.agenda-base',
-    'loop': 'templates.build.agenda-cards-loop',
-    'other-loop': 'templates.build.agenda-dates-loop'
-  }
-};
-
-var operators = {
-  '==': function(a, b) { return a == b },
-  '!=': function(a, b) { return a != b },
-  '>': function(a, b) { return a > b },
-  '>=': function(a, b) { return a >= b },
-  '<': function(a, b) { return a < b },
-  '<=': function(a, b) { return a <= b }
-};
-
 // Constructor
 var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
+  this.agendaLayoutMapping = {
+    'agenda': {
+      'base': 'templates.build.agenda-base',
+      'loop': 'templates.build.agenda-cards-loop',
+      'detail': 'templates.build.agenda-cards-detail',
+      'other-loop': 'templates.build.agenda-dates-loop'
+    }
+  };
+
+  this.operators = {
+    '==': function(a, b) { return a == b },
+    '!=': function(a, b) { return a != b },
+    '>': function(a, b) { return a > b },
+    '>=': function(a, b) { return a >= b },
+    '<': function(a, b) { return a < b },
+    '<=': function(a, b) { return a <= b }
+  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -33,6 +33,7 @@ var DynamicList = function(id, data, container) {
   this.hammer;
   this.mixer= [];
   this.bookmarkButtons = [];
+  this.bookmarkButtonOverlay;
   this.animatingForward = false;
   this.animatingBack = false;
   this.activeSlideIndex;
@@ -43,10 +44,15 @@ var DynamicList = function(id, data, container) {
   this.myUserData;
 
   this.listItems;
+  this.modifiedRecords;
   this.dataSourceColumns;
 
   this.queryPreFilter = false;
   this.pvPreFilterQuery;
+
+  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]());
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -174,7 +180,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
       event.stopPropagation();
-      var elementToExpand = $(this).find('.agenda-list-item-content');
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text();
       Fliplet.Analytics.trackEvent({
@@ -188,11 +193,19 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
       
-      _this.expandElement(elementToExpand);
+      _this.showDetails(entryId);
     })
-    .on('click', '.agenda-list-item .agenda-item-close-btn', function(event) {
-      event.stopPropagation();
-      _this.collapseElement($(this));
+    .on('click', '.agenda-detail-overlay-close', function() {
+      if ($(this).hasClass('go-previous-screen')) {
+        if (typeof _this.pvPreviousScreen === 'function') {
+          _this.pvPreviousScreen();
+        }
+
+        Fliplet.Navigate.back();
+        return;
+      }
+
+      _this.closeDetails();
     })
     .on('keydown', function(e) {
       if (e.keyCode === 39) {
@@ -303,8 +316,7 @@ DynamicList.prototype.attachObservers = function() {
                   return entry.id === parseInt(entryID, 10);
                 });
 
-                var $closeButton = _that.parents('.agenda-list-item').find('.agenda-list-item .agenda-item-close-btn');
-                _this.collapseElement($closeButton);
+                _this.closeDetails();
 
                 var selectedIndex = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
                 _this.renderDatesHTML(_this.listItems, selectedIndex);
@@ -320,7 +332,11 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.UI.Actions(options);
     });
+}
 
+DynamicList.prototype.likesObservers = function() {
+  var _this = this;
+  
   _this.bookmarkButtons.forEach(function(button) {
     button.btn.on('liked', function(data){
       this.$btn.parents('.agenda-list-item').addClass('bookmarked');
@@ -340,6 +356,32 @@ DynamicList.prototype.attachObservers = function() {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+  });
+}
+
+DynamicList.prototype.likesObserversOverlay = function(id) {
+  var _this = this;
+
+  _this.bookmarkButtonOverlay.on('liked', function(data){
+    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+    // @TODO: Replace with enhancements by Tony
+    $('.agenda-list-item[data-entry-id="'+ id +'"]').find('.bookmark-wrapper').click();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.bookmarkButtonOverlay.on('unliked', function(data){
+    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+    // @TODO: Replace with enhancements by Tony
+    $('.agenda-list-item[data-entry-id="'+ id +'"]').find('.bookmark-wrapper').click();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
     });
   });
 }
@@ -660,7 +702,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   var data = _this.getAddPermission(_this.data);
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -693,7 +735,7 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   });
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['loop']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
 
   // IF STATEMENT FOR BACKWARDS COMPATABILITY
   if (!_this.data.detailViewOptions) {
@@ -836,6 +878,8 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
     return row[dateField];
   }));
 
+  _this.modifiedRecords = newRecords;
+
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
 }
 
@@ -902,7 +946,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.otherLoopHTML
   ? Handlebars.compile(_this.data.advancedSettings.otherLoopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[agendaLayoutMapping[_this.data.layout]['other-loop']]());
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['other-loop']]());
 
   _this.$container.find('.agenda-date-selector ul').html(template(calendarDates));
   // Selects the first date
@@ -1222,6 +1266,35 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
   });
 }
 
+DynamicList.prototype.setupBookmarkButtonOverlay = function(id, identifier, title) {
+  var _this = this;
+
+  _this.bookmarkButtonOverlay = LikeButton({
+    target: '.agenda-detail-overlay .agenda-item-bookmark-holder-' + id,
+    dataSourceId: _this.data.bookmarkDataSourceId,
+    content: {
+      entryId: identifier,
+      pageId: Fliplet.Env.get('pageId')
+    },
+    allowAnonymous: true,
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<span class="fa fa-bookmark-o"></span>', 
+    likedLabel: '<span class="fa fa-bookmark"></span>',
+    likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
+    likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
+    addType: 'prepend'
+  });
+}
+
+DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
+  var _this = this;
+  var bookmarkIndentifier = id + '-bookmark';
+  var title = $('.agenda-detail-overlay').find('.agenda-item-inner-content .agenda-item-title').text();
+
+  _this.setupBookmarkButtonOverlay(id, bookmarkIndentifier, title);
+  _this.likesObserversOverlay(id);
+}
+
 DynamicList.prototype.prepareSetupBookmark = function(element) {
   var _this = this;
   var cardId = $(element).data('entry-id');
@@ -1229,6 +1302,7 @@ DynamicList.prototype.prepareSetupBookmark = function(element) {
   var title = $(element).find('.agenda-item-inner-content .agenda-item-title').text();
 
   _this.setupBookmarkButton(cardId, bookmarkIndentifier, title);
+  _this.likesObservers();
 }
 
 // Function to add class to card marking it as bookmarked - for filtering
@@ -1319,147 +1393,63 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.expandElement = function(elementToExpand) {
-  // Function called when a list item is tapped to expand
+DynamicList.prototype.showDetails = function(id) {
+  // Function that loads the selected entry data into an overlay for more details
   var _this = this;
 
-  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').length) {
-    elementToExpand.parents('.panel-group').addClass('remove-transform');
+  var entryData = _(_this.modifiedRecords)
+    .chain()
+    .thru(function(coll) {
+      return _.union(coll, _.map(coll, 'children'));
+    })
+    .flatten()
+    .find({
+      id: id
+    })
+    .value();
+
+  var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var $overlay = _this.$container.find('#agenda-detail-overlay-' + _this.data.id);
+  var wrapperTemplate = Handlebars.compile(wrapper);
+
+  var entryId = {
+    id: id
+  };
+  // Adds content to overlay
+  $overlay.find('.agenda-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+  $overlay.find('.agenda-detail-wrapper').append(_this.detailHTML(entryData));
+
+  // Sets up the like and bookmark buttons
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.prepareSetupBookmarkOverlay(id);
   }
 
-  // Adds class 'open' to help with styling
-  elementToExpand.parents('.agenda-list-item').addClass('open');
-
-  // Prevents 'body' scroll
-  _this.$container.find('.agenda-list-day-holder').addClass('lock');
+  // Trigger animations
   $('html, body').addClass('lock');
-  
-  // freeze the current scroll position of the background page expand-wrapper
-  var elementOffset = _this.$container.find('.new-agenda-list-container').offset();
-  var elementScrollTop = $('body').scrollTop();
-  var netOffset = elementOffset.top - elementScrollTop;
-  var expandPosition = _this.$container.find('.new-agenda-list-container').offset();
-  var expandTop = expandPosition.top;
-  var expandLeft = expandPosition.left;
-  var expandWidth = _this.$container.find('.new-agenda-list-container').outerWidth();
-  var expandHeight = _this.$container.find('.new-agenda-list-container').outerHeight();
-
-  _this.$container.find('.new-agenda-list-container').css({
-    'top': netOffset,
-    'position': 'fixed',
-    'z-index': '13'
-  });
-
-  _this.$container.find('.agenda-cards-wrapper').css({
-    'z-index': '13'
-  });
-
-  // convert the expand-item to fixed position without moving it
-  elementToExpand.css({
-    'top' : elementToExpand.offset().top - $('body').scrollTop(),
-    'left' : elementToExpand.offset().left,
-    'height' : elementToExpand.height(),
-    'width' : elementToExpand.width(),
-    'max-width': expandWidth,
-    'position' : 'fixed'
-  });
-
-  // start expand-item animation to the expand wrapper
-  // expand the element with class .about-tile-bg-image
-  elementToExpand.animate(
-    {
-      'left': expandLeft,
-      'top': expandTop,
-      'height': expandHeight,
-      'width': expandWidth,
-      'max-width': expandWidth
-    },
-    200, // animation timing in millisecs
-    'swing',  //animation easing
-    function() {
-      elementToExpand.css({
-        'right': 0,
-        'bottom': 0,
-        'width': 'auto',
-        'height': 'auto'
-      });
-
-      elementToExpand.find('.slide-under').css({
-        position: 'fixed'
-      });
-    }
-  );
+  _this.$container.find('.agenda-feed-list-container').addClass('overlay-open');
+  $overlay.addClass('open');
+  setTimeout(function() {
+    $overlay.addClass('ready');
+  }, 0);
 }
 
-DynamicList.prototype.collapseElement = function(collapseButton) {
-  // Function called when a list item is tapped to close
+DynamicList.prototype.closeDetails = function() {
+  // Function that closes the overlay
   var _this = this;
 
-  // find the element to collapse 
-  var elementToCollapseParent = collapseButton.parents('.agenda-list-item');
-  var elementToCollapse = elementToCollapseParent.find('.agenda-list-item-content');
-  // find the location of the placeholder
-  var elementToCollapsePlaceholder = elementToCollapse.parents('.agenda-list-item');
-  var elementToCollapsePlaceholderTop = elementToCollapsePlaceholder.offset().top - $('body').scrollTop();
-  var elementToCollapsePlaceholderLeft = elementToCollapsePlaceholder.offset().left;
-  var elementToCollapsePlaceholderHeight = elementToCollapsePlaceholder.outerHeight();
-  var elementToCollapsePlaceholderWidth = elementToCollapsePlaceholder.outerWidth();
+  var $overlay = _this.$container.find('#agenda-detail-overlay-' + _this.data.id);
+  $overlay.removeClass('open');
+  _this.$container.find('.agenda-feed-list-container').removeClass('overlay-open');
+  $('html, body').removeClass('lock');
 
-  elementToCollapse.find('.slide-under').css({
-    position: 'absolute'
-  });
+  // Sets up the like and bookmark buttons
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.bookmarkButtonOverlay = undefined;
+  }
 
-  // convert the width and height to numeric values
-  elementToCollapse.css({
-    'right': 'auto',
-    'bottom': 'auto',
-    'width': elementToCollapse.outerWidth(),
-    'height': elementToCollapse.outerHeight(),
-  });
-
-  _this.$container.find('.new-agenda-list-container').css({
-    'top': 0,
-    'top': 'env(safe-area-inset-top)',
-    'position': 'fixed',
-    'z-index': '1'
-  });
-
-  _this.$container.find('.agenda-cards-wrapper').css({
-    'z-index': '1'
-  });
-     
-  elementToCollapse.animate(
-    {
-      'left': elementToCollapsePlaceholderLeft,
-      'top': elementToCollapsePlaceholderTop,
-      'height': elementToCollapsePlaceholderHeight,
-      'width': elementToCollapsePlaceholderWidth
-    },
-    200, // animation timing in millisecs
-    'linear',  //animation easing
-    function() {
-      // Removes class 'open'
-      elementToCollapseParent.removeClass('open');
-
-      elementToCollapse.css({
-        'position': 'relative',
-        'top': 'auto',
-        'left': 'auto',
-        'width': '100%',
-        'height': '100%'
-      });
-
-      // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-      // Only happens when the closing animation finishes
-      if (elementToCollapse.parents('.panel-group').length) {
-        elementToCollapse.parents('.panel-group').removeClass('remove-transform');
-      }
-    }
-  );
-
-  _this.$container.find('.agenda-list-item').removeClass('open');
-  // Stops preventing 'body' scroll
-  _this.$container.find('.agenda-list-day-holder').removeClass('lock');
-  $('body').removeClass('lock');
+  setTimeout(function() {
+    $overlay.removeClass('ready');
+    // Clears overlay
+    $overlay.find('.agenda-detail-overlay-content-holder').html('');
+  }, 300);
 }
