@@ -1938,8 +1938,10 @@ DynamicList.prototype.showDetails = function(id) {
   // Trigger animations
   $('html, body').addClass('lock');
   _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
-  var expandedPosition = $overlay.find('.news-feed-list-detail-image-wrapper img').outerHeight();
-  $overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+  if ($(window).width() < 640) {
+    var expandedPosition = $overlay.find('.news-feed-list-detail-image-wrapper img').outerHeight();
+    $overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+  }
   $overlay.addClass('open');
 }
 

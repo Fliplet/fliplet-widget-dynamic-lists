@@ -1298,6 +1298,7 @@
 }
 
 .news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-item-inner-content {
+  top: 0;
   border-radius: 0;
   padding: 20px 15px;
 }
@@ -1328,6 +1329,7 @@
   .news-feed-detail-wrapper .news-feed-list-detail-image-wrapper {
     position: relative;
     width: auto;
+    height: auto;
   }
 
   .news-feed-detail-overlay-panel .news-feed-detail-overlay-content,
