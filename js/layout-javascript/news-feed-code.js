@@ -2054,32 +2054,31 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   });
 
   elementToCollapse.animate({
-      'left': elementToCollapsePlaceholderLeft,
-      'top': elementToCollapsePlaceholderTop,
-      'height': elementToCollapsePlaceholderHeight,
-      'width': elementToCollapsePlaceholderWidth
-    },
-    200, // animation timing in millisecs
-    'linear', //animation easing
-    function() {
-      // Removes class 'open'
-      elementToCollapseParent.removeClass('open');
+    'left': elementToCollapsePlaceholderLeft,
+    'top': elementToCollapsePlaceholderTop,
+    'height': elementToCollapsePlaceholderHeight,
+    'width': elementToCollapsePlaceholderWidth
+  },
+  200, // animation timing in millisecs
+  'linear', //animation easing
+  function() {
+    // Removes class 'open'
+    elementToCollapseParent.removeClass('open');
 
-      elementToCollapse.css({
-        'position': 'relative',
-        'top': 'auto',
-        'left': 'auto',
-        'width': '100%',
-        'height': '100%'
-      });
+    elementToCollapse.css({
+      'position': 'relative',
+      'top': 'auto',
+      'left': 'auto',
+      'width': '100%',
+      'height': '100%'
+    });
 
-      // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-      // Only happens when the closing animation finishes
-      if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
-        elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
-      }
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    // Only happens when the closing animation finishes
+    if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
+      elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
-  );
+  });
 
   // Stops preventing 'body' scroll
   $('html, body').removeClass('lock');
