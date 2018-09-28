@@ -1933,7 +1933,7 @@ DynamicList.prototype.showDetails = function(id) {
   $overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
 
   _this.prepareSetupBookmarkOverlay(id);
-  _this.updateCommentCounter(id);
+  _this.updateCommentCounter(id, true);
 
   // Trigger animations
   $('html, body').addClass('lock');
@@ -2177,7 +2177,7 @@ DynamicList.prototype.updateCommentCounter = function(id, isOverlay) {
   if (entryComments) {
     data.count = entryComments.count
   }
-  
+
   var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">Comment</span>';
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var html = counterCompiled(data);
