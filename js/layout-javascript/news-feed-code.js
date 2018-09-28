@@ -1938,10 +1938,9 @@ DynamicList.prototype.showDetails = function(id) {
   // Trigger animations
   $('html, body').addClass('lock');
   _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+  var expandedPosition = $overlay.find('.news-feed-list-detail-image-wrapper img').outerHeight();
+  $overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
   $overlay.addClass('open');
-  setTimeout(function() {
-    $overlay.addClass('ready');
-  }, 0);
 }
 
 DynamicList.prototype.closeDetails = function() {
@@ -1954,7 +1953,6 @@ DynamicList.prototype.closeDetails = function() {
   $('html, body').removeClass('lock');
 
   setTimeout(function() {
-    $overlay.removeClass('ready');
     // Clears overlay
     $overlay.find('.news-feed-detail-overlay-content-holder').html('');
   }, 300);
