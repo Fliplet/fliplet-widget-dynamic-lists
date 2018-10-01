@@ -716,8 +716,14 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
 
   _this.bookmarkButtonOverlay.on('liked', function(data){
     var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-    // @TODO: Replace with enhancements by Tony
-    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-bookmark-wrapper').click();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.like();
+    }
+
     Fliplet.Analytics.trackEvent({
       category: 'list_dynamic_' + _this.data.layout,
       action: 'entry_bookmark',
@@ -727,8 +733,14 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
 
   _this.bookmarkButtonOverlay.on('unliked', function(data){
     var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-    // @TODO: Replace with enhancements by Tony
-    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-bookmark-wrapper').click();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.unlike();
+    }
+
     Fliplet.Analytics.trackEvent({
       category: 'list_dynamic_' + _this.data.layout,
       action: 'entry_unbookmark',
@@ -738,8 +750,14 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
 
   _this.likeButtonOverlay.on('liked', function(data){
     var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-    // @TODO: Replace with enhancements by Tony
-    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-like-wrapper').click();
+    var button = _.find(_this.likeButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.like();
+    }
+
     Fliplet.Analytics.trackEvent({
       category: 'list_dynamic_' + _this.data.layout,
       action: 'entry_bookmark',
@@ -749,8 +767,14 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
 
   _this.likeButtonOverlay.on('unliked', function(data){
     var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-    // @TODO: Replace with enhancements by Tony
-    $('.news-feed-list-item[data-entry-id="'+ id +'"]').find('.news-feed-like-wrapper').click();
+    var button = _.find(_this.likeButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.unlike();
+    }
+
     Fliplet.Analytics.trackEvent({
       category: 'list_dynamic_' + _this.data.layout,
       action: 'entry_unbookmark',

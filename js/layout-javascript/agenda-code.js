@@ -365,8 +365,14 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
 
   _this.bookmarkButtonOverlay.on('liked', function(data){
     var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-    // @TODO: Replace with enhancements by Tony
-    $('.agenda-list-item[data-entry-id="'+ id +'"]').find('.bookmark-wrapper').click();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.like();
+    }
+
     Fliplet.Analytics.trackEvent({
       category: 'list_dynamic_' + _this.data.layout,
       action: 'entry_bookmark',
@@ -376,8 +382,14 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
 
   _this.bookmarkButtonOverlay.on('unliked', function(data){
     var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-    // @TODO: Replace with enhancements by Tony
-    $('.agenda-list-item[data-entry-id="'+ id +'"]').find('.bookmark-wrapper').click();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.unlike();
+    }
+
     Fliplet.Analytics.trackEvent({
       category: 'list_dynamic_' + _this.data.layout,
       action: 'entry_unbookmark',
