@@ -381,7 +381,8 @@ DynamicList.prototype.attachObservers = function() {
                 } else {
                   _this.closeDetails();
                 }
-                _this.renderLoopHTML(_this.listItems);
+                _this.prepareToRenderLoop(_this.listItems);
+                _this.renderLoopHTML();
 
                 _that.text('Delete').removeClass('disabled');
               });
@@ -568,11 +569,12 @@ DynamicList.prototype.initialize = function() {
     }
     _this.dataSourceColumns = _this.data.defaultColumns;
     // Render Loop HTML
-    _this.renderLoopHTML(_this.listItems);
+    _this.prepareToRenderLoop(_this.listItems);
+    _this.renderLoopHTML();
     _this.addFilters(_this.modifiedListItems);
     // Render user profile
     if (_this.myProfileData && _this.myProfileData.length) {
-      _this.modifiedProfileData = _this.renderLoopHTML(_this.myProfileData, true);
+      _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData);
       var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
       var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
       _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
@@ -629,14 +631,15 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       // Render Loop HTML
-      _this.renderLoopHTML(_this.listItems);
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.renderLoopHTML();
       _this.addFilters(_this.modifiedListItems);
       _this.prepareToSearch();
       _this.prepareToFilter();
 
       // Render user profile
       if (_this.myProfileData && _this.myProfileData.length) {
-        _this.modifiedProfileData = _this.renderLoopHTML(_this.myProfileData, true);
+        _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData);
         var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
         _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
@@ -801,12 +804,10 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
-DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
-  // Function that renders the List template
+DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
 
   var savedColumns = [];
-
   var modifiedData = _this.convertCategories(records);
   var loopData = [];
   var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
@@ -815,9 +816,6 @@ DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
   var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return option.editable;
   });
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
   // IF STATEMENT FOR BACKWARDS COMPATABILITY
   if (!_this.data.detailViewOptions) {
@@ -836,12 +834,8 @@ DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
       loopData.push(newObject);
     });
 
-    if (!isForProfile) {
-      _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
-      _this.addFilters(loopData);
-    }
-    
-    return loopData;
+    _this.modifiedListItems = loopData;
+    return _this.modifiedListItems;
   }
 
   // Uses sumamry view settings set by users
@@ -946,12 +940,26 @@ DynamicList.prototype.renderLoopHTML = function(records, isForProfile) {
     }
   });
 
-  if (isForProfile) {
-    return loopData;
+  _this.modifiedListItems = loopData;
+  return _this.modifiedListItems;
+}
+
+DynamicList.prototype.renderLoopHTML = function(records) {
+  // Function that renders the List template
+  var _this = this;
+
+  
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
+
+  // IF STATEMENT FOR BACKWARDS COMPATABILITY
+  if (!_this.data.detailViewOptions) {
+    _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
+    return;
   }
 
-  _this.modifiedListItems = loopData;
-  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(loopData));
+  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1060,7 +1068,8 @@ DynamicList.prototype.filterList = function() {
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
     var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-    _this.renderLoopHTML(listData);
+    _this.prepareToRenderLoop(listData);
+    _this.renderLoopHTML();
     _this.onReady();
     return;
   }
@@ -1083,7 +1092,9 @@ DynamicList.prototype.filterList = function() {
   if (!filteredData || !filteredData.length) {
     return;
   }
-  _this.renderLoopHTML(filteredData);
+
+  _this.prepareToRenderLoop(filteredData);
+  _this.renderLoopHTML();
   _this.onReady();
 }
 
@@ -1214,9 +1225,10 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.searchedListItems = searchedData;
 
   if (_this.searchedListItems.length === 1) {
-    _this.showDetails(_this.searchedListItems[0].id)
+    _this.showDetails(_this.searchedListItems[0].id);
   }
 
+  _this.prepareToRenderLoop(searchedData);
   _this.renderLoopHTML(searchedData);
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
@@ -1278,7 +1290,8 @@ DynamicList.prototype.searchData = function(value) {
     _this.showDetails(_this.searchedListItems[0].id)
   }
 
-  _this.renderLoopHTML(searchedData);
+  _this.prepareToRenderLoop(searchedData);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
@@ -1309,7 +1322,8 @@ DynamicList.prototype.clearSearch = function() {
 
   // Resets list
   _this.searchedListItems = undefined;
-  _this.renderLoopHTML(_this.listItems);
+  _this.prepareToRenderLoop(_this.listItems);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
