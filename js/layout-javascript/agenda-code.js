@@ -47,8 +47,10 @@ var DynamicList = function(id, data, container) {
   this.modifiedRecords;
   this.dataSourceColumns;
 
+  this.queryOpen = false;
   this.queryPreFilter = false;
   this.pvPreFilterQuery;
+  this.pvOpenQuery;
 
   this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
@@ -320,7 +322,8 @@ DynamicList.prototype.attachObservers = function() {
 
                 var selectedIndex = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
                 _this.renderDatesHTML(_this.listItems, selectedIndex);
-                _this.renderLoopHTML(_this.listItems);
+                _this.prepareToRenderLoop(_this.listItems);
+                _this.renderLoopHTML();
 
                 _that.text('Delete').removeClass('disabled');
               });
@@ -586,7 +589,8 @@ DynamicList.prototype.initialize = function() {
     _this.renderDatesHTML(_this.listItems);
     _this.dataSourceColumns = _this.data.defaultColumns;
     // Render Loop HTML
-    _this.renderLoopHTML(_this.listItems);
+    _this.prepareToRenderLoop(_this.listItems);
+    _this.renderLoopHTML();
     // Listeners and Ready
     _this.setupCards();
     _this.attachObservers();
@@ -620,7 +624,9 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       // Render Loop HTML
-      _this.renderLoopHTML(_this.listItems);
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.checkIsToOpen();
+      _this.renderLoopHTML();
       return
     })
     .then(function() {
@@ -630,6 +636,47 @@ DynamicList.prototype.initialize = function() {
       _this.scrollEvent();
       _this.onReady();
     });
+}
+
+DynamicList.prototype.checkIsToOpen = function() {
+  // List of entries saved in: _this.modifiedListItems
+  var _this = this;
+  var entry;
+
+  if (!_this.queryOpen) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = _(_this.modifiedRecords)
+      .chain()
+      .thru(function(day) {
+        return _.union(day, _.map(day, 'children'));
+      })
+      .flatten()
+      .find({ id: _this.pvOpenQuery.id })
+      .value();
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    var queryObject = {};
+    queryObject[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
+
+    entry = _(_this.modifiedRecords)
+      .chain()
+      .thru(function(day) {
+        return _.union(day, _.map(day, 'children'));
+      })
+      .flatten()
+      .find(queryObject)
+      .value();
+  }
+
+  if (!entry) {
+    return;
+  }
+
+  _this.showDetails(entry.id);
 }
 
 DynamicList.prototype.parsePVQueryVars = function() {
@@ -649,6 +696,11 @@ DynamicList.prototype.parsePVQueryVars = function() {
       if (_.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
+      }
+
+      if (_.hasIn(value, 'open')) {
+        _this.queryOpen = true;
+        _this.pvOpenQuery = value.open;
       }
 
       return;
@@ -724,12 +776,9 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
-DynamicList.prototype.renderLoopHTML = function(rows) {
-  // Function that renders the List template
+DynamicList.prototype.prepareToRenderLoop = function(rows) {
   var _this = this;
-
   var savedColumns = [];
-
   var clonedRecords = JSON.parse(JSON.stringify(rows));
   clonedRecords = _this.getPermissions(clonedRecords);
 
@@ -745,9 +794,6 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return option.editable;
   });
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
 
   // IF STATEMENT FOR BACKWARDS COMPATABILITY
   if (!_this.data.detailViewOptions) {
@@ -778,7 +824,7 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
       return row[dateField];
     }));
 
-    _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
+    _this.modifiedRecords = newRecords;
     return;
   }
 
@@ -891,8 +937,21 @@ DynamicList.prototype.renderLoopHTML = function(rows) {
   }));
 
   _this.modifiedRecords = newRecords;
+}
 
-  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(newRecords));
+DynamicList.prototype.renderLoopHTML = function() {
+  // Function that renders the List template
+  var _this = this;
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
+
+  if (!_this.data.detailViewOptions) {
+    _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(_this.modifiedRecords));
+    return;
+  }
+
+  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(_this.modifiedRecords));
 }
 
 DynamicList.prototype.renderDatesHTML = function(rows, index) {
@@ -1260,7 +1319,7 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
 
   _this.bookmarkButtons.push({
     btn: LikeButton({
-      target: '.agenda-item-bookmark-holder-' + id,
+      target: '.new-agenda-list-container .agenda-item-bookmark-holder-' + id,
       dataSourceId: _this.data.bookmarkDataSourceId,
       content: {
         entryId: identifier,

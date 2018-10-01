@@ -1218,9 +1218,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
 
       loopData.push(newObject);
     });
-    
-    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
-    _this.addFilters(loopData);
+    _this.modifiedListItems = loopData;
     return;
   }
 
@@ -1324,6 +1322,11 @@ DynamicList.prototype.renderLoopHTML = function() {
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
+
+  if (!_this.data.detailViewOptions) {
+    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
+    return;
+  }
 
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
 }
