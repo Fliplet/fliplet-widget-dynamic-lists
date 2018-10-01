@@ -43,6 +43,7 @@ var DynamicList = function(id, data, container) {
   this.dataSourceColumns;
   this.directoryDetailWrapper;
 
+  this.queryOpen = false;
   this.querySearch = false;
   this.queryFilter = false;
   this.queryPreFilter = false;
@@ -50,6 +51,7 @@ var DynamicList = function(id, data, container) {
   this.pvSearchQuery;
   this.pvFilterQuery;
   this.pvPreFilterQuery;
+  this.pvOpenQuery;
 
   this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
   ? Handlebars.compile(this.data.advancedSettings.detailHTML)
@@ -632,6 +634,7 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
+      _this.checkIsToOpen();
       _this.renderLoopHTML();
       _this.addFilters(_this.modifiedListItems);
       _this.prepareToSearch();
@@ -657,6 +660,34 @@ DynamicList.prototype.initialize = function() {
       _this.attachObservers();
       _this.onReady();
     });
+}
+
+DynamicList.prototype.checkIsToOpen = function() {
+  // List of entries saved in: _this.modifiedListItems
+  var _this = this;
+  var entry;
+
+  if (!_this.queryOpen) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row.id === _this.pvOpenQuery.id;
+    });
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    });
+  }
+
+  if (!entry) {
+    return;
+  }
+
+  _this.showDetails(entry.id);
 }
 
 DynamicList.prototype.prepareToSearch = function() {
@@ -714,6 +745,16 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       _this.pvPreviousScreen = value.previousScreen;
 
+      if (_.hasIn(value, 'prefilter')) {
+        _this.queryPreFilter = true;
+        _this.pvPreFilterQuery = value.prefilter;
+      }
+
+      if (_.hasIn(value, 'open')) {
+        _this.queryOpen = true;
+        _this.pvOpenQuery = value.open;
+      }
+
       if (_.hasIn(value, 'search')) {
         _this.querySearch = true;
         _this.pvSearchQuery = value.search;
@@ -724,11 +765,6 @@ DynamicList.prototype.parsePVQueryVars = function() {
         _this.queryFilter = true;
         _this.pvFilterQuery = value.filter;
         _this.data.filtersEnabled = true;
-      }
-
-      if (_.hasIn(value, 'prefilter')) {
-        _this.queryPreFilter = true;
-        _this.pvPreFilterQuery = value.prefilter;
       }
 
       return;
