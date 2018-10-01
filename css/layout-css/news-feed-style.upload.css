@@ -496,12 +496,12 @@
   max-width: 600px;
 }
 
-.new-news-feed-list-container .news-feed-list-item.open .container-fluid > .news-feed-item-inner-content {
-  padding-top: 68px;
+.news-feed-detail-wrapper .news-feed-list-detail-image-wrapper ~ .news-feed-list-detail-content-scroll-wrapper > .news-feed-item-inner-content {
+  padding-top: 20px;
 }
 
-.new-news-feed-list-container .news-feed-list-item.open .slide-under ~ .container-fluid > .news-feed-item-inner-content {
-  padding-top: 20px;
+.new-news-feed-list-container > .news-feed-list-detail-content-scroll-wrapper > .news-feed-item-inner-content {
+  padding-top: 68px;
 }
 
 /* CLOSE BUTTON */

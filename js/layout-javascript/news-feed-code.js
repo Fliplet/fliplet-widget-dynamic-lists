@@ -27,6 +27,7 @@ var DynamicList = function(id, data, container) {
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
+  this.$overlay;
   this.queryOptions = {};
 
   // Other variables
@@ -50,6 +51,7 @@ var DynamicList = function(id, data, container) {
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
 
+  this.queryOpen = false;
   this.querySearch = false;
   this.queryFilter = false;
   this.queryPreFilter = false;
@@ -57,6 +59,7 @@ var DynamicList = function(id, data, container) {
   this.pvSearchQuery;
   this.pvFilterQuery;
   this.pvPreFilterQuery;
+  this.pvOpenQuery;
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
@@ -632,7 +635,8 @@ DynamicList.prototype.attachObservers = function() {
 
                 _that.text('Delete').removeClass('disabled');
                 _this.closeDetails();
-                _this.renderLoopHTML(_this.listItems);
+                _this.prepareToRenderLoop(_this.listItems);
+                _this.renderLoopHTML();
 
                 _that.text('Delete').removeClass('disabled');
               });
@@ -966,7 +970,8 @@ DynamicList.prototype.initialize = function() {
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
     // Render Loop HTML
-    _this.renderLoopHTML(_this.listItems);
+    _this.prepareToRenderLoop(_this.listItems);
+    _this.renderLoopHTML();
     _this.addFilters(_this.modifiedListItems);
     // Listeners and Ready
     _this.attachObservers();
@@ -992,7 +997,9 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       // Render Loop HTML
-      _this.renderLoopHTML(_this.listItems);
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.checkIsToOpen();
+      _this.renderLoopHTML();
       _this.addFilters(_this.modifiedListItems);
       _this.prepareToSearch();
       _this.prepareToFilter();
@@ -1003,6 +1010,34 @@ DynamicList.prototype.initialize = function() {
       _this.attachObservers();
       _this.onReady();
     });
+}
+
+DynamicList.prototype.checkIsToOpen = function() {
+  // List of entries saved in: _this.modifiedListItems
+  var _this = this;
+  var entry;
+
+  if (!_this.queryOpen) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row.id === _this.pvOpenQuery.id;
+    });
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    });
+  }
+
+  if (!entry) {
+    return;
+  }
+
+  _this.showDetails(entry.id);
 }
 
 DynamicList.prototype.prepareToSearch = function() {
@@ -1060,6 +1095,16 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       _this.pvPreviousScreen = value.previousScreen;
 
+      if (_.hasIn(value, 'prefilter')) {
+        _this.queryPreFilter = true;
+        _this.pvPreFilterQuery = value.prefilter;
+      }
+
+      if (_.hasIn(value, 'open')) {
+        _this.queryOpen = true;
+        _this.pvOpenQuery = value.open;
+      }
+
       if (_.hasIn(value, 'search')) {
         _this.querySearch = true;
         _this.pvSearchQuery = value.search;
@@ -1070,11 +1115,6 @@ DynamicList.prototype.parsePVQueryVars = function() {
         _this.queryFilter = true;
         _this.pvFilterQuery = value.filter;
         _this.data.filtersEnabled = true;
-      }
-
-      if (_.hasIn(value, 'prefilter')) {
-        _this.queryPreFilter = true;
-        _this.pvPreFilterQuery = value.prefilter;
       }
 
       return;
@@ -1148,21 +1188,15 @@ DynamicList.prototype.renderBaseHTML = function() {
   : Handlebars.compile(baseHTML());
 
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
+  _this.$overlay = _this.$container.find('#news-feed-detail-overlay-' + _this.data.id);
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
-  // Function that renders the List template
+DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
-
   var savedColumns = [];
-
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
   modifiedData = _this.getPermissions(modifiedData);
-
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
 
   var loopData = [];
 
@@ -1281,9 +1315,17 @@ DynamicList.prototype.renderLoopHTML = function(records) {
       }
     });
   }
-
   _this.modifiedListItems = loopData;
-  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
+}
+
+DynamicList.prototype.renderLoopHTML = function() {
+  // Function that renders the List template
+  var _this = this;
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
+
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1396,7 +1438,8 @@ DynamicList.prototype.filterList = function() {
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
     var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-    _this.renderLoopHTML(listData);
+    _this.prepareToRenderLoop(listData);
+    _this.renderLoopHTML();
     _this.onReady();
     return;
   }
@@ -1416,7 +1459,8 @@ DynamicList.prototype.filterList = function() {
     });
   });
 
-  _this.renderLoopHTML(filteredData || _this.listItems);
+  _this.prepareToRenderLoop(filteredData || _this.listItems);
+  _this.renderLoopHTML();
   _this.onReady();
 }
 
@@ -1666,7 +1710,8 @@ DynamicList.prototype.overrideSearchData = function(value) {
   // Remove duplicates
   searchedData = _.uniq(searchedData);
   _this.searchedListItems = searchedData;
-  _this.renderLoopHTML(searchedData);
+  _this.prepareToRenderLoop(searchedData);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
 
   if (_this.searchedListItems.length === 1) {
@@ -1730,7 +1775,8 @@ DynamicList.prototype.searchData = function(value) {
 
   searchedData = _.uniq(searchedData);
   _this.searchedListItems = searchedData;
-  _this.renderLoopHTML(searchedData);
+  _this.prepareToRenderLoop(searchedData);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
 
   if (_this.querySearch && _this.searchedListItems.length === 1) {
@@ -1775,7 +1821,8 @@ DynamicList.prototype.clearSearch = function() {
 
   // Resets list
   _this.searchedListItems = undefined;
-  _this.renderLoopHTML(_this.listItems);
+  _this.prepareToRenderLoop(_this.listItems);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
@@ -1946,15 +1993,14 @@ DynamicList.prototype.showDetails = function(id) {
   });
 
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var $overlay = _this.$container.find('#news-feed-detail-overlay-' + _this.data.id);
   var wrapperTemplate = Handlebars.compile(wrapper);
 
   var entryId = {
     id: id
   };
   // Adds content to overlay
-  $overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  $overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
+  _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+  _this.$overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
 
   _this.prepareSetupBookmarkOverlay(id);
   _this.updateCommentCounter(id, true);
@@ -1962,25 +2008,33 @@ DynamicList.prototype.showDetails = function(id) {
   // Trigger animations
   $('html, body').addClass('lock');
   _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+
+  // Calculate top position when image finishes loading
   if ($(window).width() < 640) {
-    var expandedPosition = $overlay.find('.news-feed-list-detail-image-wrapper img').outerHeight();
-    $overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+    $('.news-feed-list-detail-image-wrapper img').one('load', function() {
+      var expandedPosition = $(this).outerHeight();
+      _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+    }).each(function() {
+      if (this.complete) {
+        $(this).trigger('load');
+      }
+    });
   }
-  $overlay.addClass('open');
+
+  _this.$overlay.addClass('open');
 }
 
 DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  var $overlay = _this.$container.find('#news-feed-detail-overlay-' + _this.data.id);
-  $overlay.removeClass('open');
+  _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
   $('html, body').removeClass('lock');
 
   setTimeout(function() {
     // Clears overlay
-    $overlay.find('.news-feed-detail-overlay-content-holder').html('');
+    _this.$overlay.find('.news-feed-detail-overlay-content-holder').html('');
   }, 300);
 }
 
