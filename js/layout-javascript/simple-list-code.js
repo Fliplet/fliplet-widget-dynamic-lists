@@ -40,6 +40,7 @@ var DynamicList = function(id, data, container) {
   this.dataSourceColumns;
   this.filterClasses = [];
 
+  this.queryOpen = false;
   this.querySearch = false;
   this.queryFilter = false;
   this.queryPreFilter = false;
@@ -47,6 +48,7 @@ var DynamicList = function(id, data, container) {
   this.pvSearchQuery;
   this.pvFilterQuery;
   this.pvPreFilterQuery;
+  this.pvOpenQuery;
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -337,7 +339,8 @@ DynamicList.prototype.attachObservers = function() {
                 });
                 _that.text('Delete').removeClass('disabled');
                 _this.closeDetails();
-                _this.renderLoopHTML(_this.listItems);
+                _this.prepareToRenderLoop(_this.listItems);
+                _this.renderLoopHTML();
 
                 _that.text('Delete').removeClass('disabled');
               });
@@ -529,7 +532,8 @@ DynamicList.prototype.initialize = function() {
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
     // Render Loop HTML
-    _this.renderLoopHTML(_this.listItems);
+    _this.prepareToRenderLoop(_this.listItems);
+    _this.renderLoopHTML();
     _this.addFilters(_this.modifiedListItems);
     // Listeners and Ready
     _this.attachObservers();
@@ -563,7 +567,9 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       // Render Loop HTML
-      _this.renderLoopHTML(_this.listItems);
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.checkIsToOpen();
+      _this.renderLoopHTML();
       _this.addFilters(_this.modifiedListItems);
       _this.prepareToSearch();
       _this.prepareToFilter();
@@ -574,6 +580,34 @@ DynamicList.prototype.initialize = function() {
       _this.attachObservers();
       _this.onReady();
     });
+}
+
+DynamicList.prototype.checkIsToOpen = function() {
+  // List of entries saved in: _this.modifiedListItems
+  var _this = this;
+  var entry;
+
+  if (!_this.queryOpen) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row.id === _this.pvOpenQuery.id;
+    });
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    });
+  }
+
+  if (!entry) {
+    return;
+  }
+
+  _this.showDetails(entry.id);
 }
 
 DynamicList.prototype.prepareToSearch = function() {
@@ -631,6 +665,16 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       _this.pvPreviousScreen = value.previousScreen;
 
+      if (_.hasIn(value, 'prefilter')) {
+        _this.queryPreFilter = true;
+        _this.pvPreFilterQuery = value.prefilter;
+      }
+      
+      if (_.hasIn(value, 'open')) {
+        _this.queryOpen = true;
+        _this.pvOpenQuery = value.open;
+      }
+
       if (_.hasIn(value, 'search')) {
         _this.querySearch = true;
         _this.pvSearchQuery = value.search;
@@ -641,11 +685,6 @@ DynamicList.prototype.parsePVQueryVars = function() {
         _this.queryFilter = true;
         _this.pvFilterQuery = value.filter;
         _this.data.filtersEnabled = true;
-      }
-
-      if (_.hasIn(value, 'prefilter')) {
-        _this.queryPreFilter = true;
-        _this.pvPreFilterQuery = value.prefilter;
       }
 
       return;
@@ -727,9 +766,9 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
-  // Function that renders the List template
+DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
+
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
   var loopData = [];
@@ -754,12 +793,17 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   });
 
   _this.modifiedListItems = loopData;
+}
+
+DynamicList.prototype.renderLoopHTML = function(records) {
+  // Function that renders the List template
+  var _this = this;
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(loopData));
+  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -868,7 +912,8 @@ DynamicList.prototype.filterList = function() {
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
     var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-    _this.renderLoopHTML(listData);
+    _this.prepareToRenderLoop(listData);
+    _this.renderLoopHTML();
     _this.onReady();
     return;
   }
@@ -891,7 +936,8 @@ DynamicList.prototype.filterList = function() {
   if (!filteredData || !filteredData.length) {
     return;
   }
-  _this.renderLoopHTML(filteredData);
+  _this.prepareToRenderLoop(filteredData);
+  _this.renderLoopHTML();
   _this.onReady();
 }
 
@@ -1034,7 +1080,8 @@ DynamicList.prototype.overrideSearchData = function(value) {
     _this.showDetails(_this.searchedListItems[0].id)
   }
 
-  _this.renderLoopHTML(searchedData);
+  _this.prepareToRenderLoop(searchedData);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
@@ -1095,7 +1142,8 @@ DynamicList.prototype.searchData = function(value) {
     _this.showDetails(_this.searchedListItems[0].id)
   }
 
-  _this.renderLoopHTML(searchedData);
+  _this.prepareToRenderLoop(searchedData);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
@@ -1131,7 +1179,8 @@ DynamicList.prototype.clearSearch = function() {
 
   // Resets list
   _this.searchedListItems = undefined;
-  _this.renderLoopHTML(_this.listItems);
+  _this.prepareToRenderLoop(_this.listItems);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
