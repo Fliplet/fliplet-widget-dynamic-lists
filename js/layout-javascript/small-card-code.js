@@ -1323,7 +1323,7 @@ DynamicList.prototype.searchData = function(value) {
   _this.searchedListItems = searchedData;
 
   if (_this.querySearch && _this.searchedListItems.length === 1) {
-    _this.showDetails(_this.searchedListItems[0].id)
+    _this.showDetails(_this.searchedListItems[0].id);
   }
 
   _this.prepareToRenderLoop(searchedData);
@@ -1415,6 +1415,10 @@ DynamicList.prototype.showDetails = function(id) {
   $overlay.addClass('open');
   setTimeout(function() {
     $overlay.addClass('ready');
+
+    if (typeof _this.directoryDetailWrapper === 'undefined') {
+      _this.directoryDetailWrapper = $('.small-card-list-item[data-entry-id="' + id + '"]').find('.small-card-list-detail-wrapper');
+    }
   }, 0);
 }
 
