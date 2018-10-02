@@ -274,7 +274,7 @@ var DynamicLists = (function() {
             if (!result) {
               return;
             }
-            $('.edit-holder').addClass('hidden');
+            $('.create-holder, .edit-holder').addClass('hidden');
             $('.select-datasource-holder').removeClass('hidden');
           });
         })
@@ -428,11 +428,13 @@ var DynamicLists = (function() {
           return;
         }
         if (selectedDataSourceId === 'new') {
+          $('.create-holder').addClass('hidden');
           $('.edit-holder').removeClass('hidden');
           $('.select-datasource-holder').addClass('hidden');
           _this.createDataSource();
           return;
         }
+        $('.create-holder').addClass('hidden');
         $('.edit-holder').removeClass('hidden');
         $('.select-datasource-holder').addClass('hidden');
         _this.getColumns(selectedDataSourceId);
