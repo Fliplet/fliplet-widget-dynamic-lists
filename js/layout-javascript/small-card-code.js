@@ -1193,8 +1193,15 @@ DynamicList.prototype.convertCategories = function(data) {
 
 DynamicList.prototype.calculateFiltersHeight = function(element) {
   var targetHeight = element.find('.hidden-filter-controls-content').height();
+  var filterHolder = element.find('.filter-holder').height();
+  var totalHeight = targetHeight;
+
+  if (isFromSearch && filterHolder) {
+    totalHeight = targetHeight - filterHolder;
+  }
+  
   element.find('.hidden-filter-controls').animate({
-    height: targetHeight,
+    height: totalHeight,
   }, 200);
 }
 

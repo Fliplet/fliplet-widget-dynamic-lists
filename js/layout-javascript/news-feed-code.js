@@ -1641,10 +1641,17 @@ DynamicList.prototype.checkBookmarked = function() {
   });
 }
 
-DynamicList.prototype.calculateFiltersHeight = function(element) {
+DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch) {
   var targetHeight = element.find('.hidden-filter-controls-content').height();
+  var filterHolder = element.find('.filter-holder').height();
+  var totalHeight = targetHeight;
+
+  if (isFromSearch && filterHolder) {
+    totalHeight = targetHeight - filterHolder;
+  }
+
   element.find('.hidden-filter-controls').animate({
-    height: targetHeight,
+    height: totalHeight,
   }, 200);
 }
 
@@ -1699,7 +1706,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
   if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
   }
 
   if (!searchedData.length) {
@@ -1765,7 +1772,7 @@ DynamicList.prototype.searchData = function(value) {
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
   if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
   }
 
   if (!searchedData.length) {
