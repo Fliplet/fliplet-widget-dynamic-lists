@@ -186,6 +186,8 @@
 
 .new-small-h-card-list-container .small-h-card-list-detail-content-scroll-wrapper.open {
   height: 100%;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
 }
 
 .new-small-h-card-list-container .small-h-card-list-detail-content-wrapper {
