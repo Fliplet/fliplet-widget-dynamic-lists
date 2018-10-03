@@ -821,6 +821,14 @@
     padding-top: 40px !important;
   }
 
+  .news-feed-detail-wrapper .news-feed-list-detail-image-wrapper ~ .news-feed-list-detail-content-scroll-wrapper > .news-feed-item-inner-content {
+    padding: 0px;
+  }
+
+  .new-news-feed-list-container > .news-feed-list-detail-content-scroll-wrapper > .news-feed-item-inner-content {
+    padding: 0px;
+  }
+
   .new-news-feed-list-container .news-feed-list-item.open .container-fluid > .news-feed-item-inner-content {
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
