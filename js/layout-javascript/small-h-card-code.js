@@ -145,7 +145,9 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('touchstart', '.small-h-card-list-item', function(event) {
       event.stopPropagation();
-      $(this).addClass('hover');
+      if (!$(this).hasClass('open')) {
+        $(this).addClass('hover');
+      }
     })
     .on('touchmove', '.small-h-card-list-item', function() {
       _this.allowClick = false;

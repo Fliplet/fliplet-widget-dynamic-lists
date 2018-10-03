@@ -142,6 +142,8 @@
   height: 100%;
   width: 100%;
   background-color: #ffffff;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
 }
 
 .new-small-h-card-list-container .small-h-card-list-detail-image,
@@ -199,6 +201,8 @@
   z-index: 12;
   overflow: auto;
   transition: all 0.2s ease-out;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
 }
 
 .new-small-h-card-list-container .small-h-card-list-detail-content-scroll-wrapper.open,
