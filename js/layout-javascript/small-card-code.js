@@ -1163,9 +1163,9 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
     setTimeout(function() {
       elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').css({
-        opacity: 0
+        transform: 'translate3d(-1px,-1px,-1px)'
       }).css({
-        opacity: 1
+        transform: 'translate3d(0px,0px,0px)'
       })
     }, 201);
   }
