@@ -804,10 +804,6 @@ header .btn,
   margin-left: 10px;
 }
 
-.select-user-datasource-holder {
-  margin-top: 15px;
-}
-
 .select-user-firstname-holder,
 .select-user-lastname-holder,
 .select-user-email-holder,
@@ -979,4 +975,8 @@ header .btn,
 .has-error .select2-selection,
 .has-error .token-input {
   border-color: #a94442;
+}
+
+.select-user-email-list-holder {
+  margin-top: 25px;
 }

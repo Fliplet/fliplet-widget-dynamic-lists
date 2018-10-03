@@ -294,6 +294,14 @@
                           </div>
                         </div>
                       </div>
+                      <div class="select-user-email-list-holder hidden">
+                        <label>Select field where the post author's email is stored <small>(Required)</small></label>
+                        <p><small>This is used so we can offer the right edit options to the right person.</small></p>
+                        <select name="select_user_email_data" id="select_user_email_data" class="form-control">
+                          <option value="none">-- Select the email data field</option>
+                          <option disabled>------</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -302,19 +310,11 @@
           </div>
         </div>
 
-        <div class="col-xs-12 form-group clearfix select-user-email-list-holder hidden">
-          <label>Email data field for who posted list item <small>(Required)</small></label>
-          <p><small>Select the data field where the email of the user that posted a list item is stored.</small></p>
-          <select name="select_user_email_data" id="select_user_email_data" class="form-control">
-            <option value="none">-- Select the email data field</option>
-            <option disabled>------</option>
-          </select>
-        </div>
-
         <div class="user-datasource-options hidden">
           <div class="form-group clearfix">
             <div class="col-xs-12 select-user-datasource-holder">
-              <label>Select the users data source <small>(Required)</small></label>
+              <label>Select the datasource where app users are listed <small>(Required)</small></label>
+              <p><small>To enable features that are specific to a user we need to know how to identify different users. Please select the location where the users emails are listed.</small></p>
               <select name="select_user_datasource" id="select_user_datasource" class="form-control">
                 <option value="none">-- Select a data source</option>
                 <option disabled>------</option>
