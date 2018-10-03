@@ -142,7 +142,6 @@ DynamicList.prototype.attachObservers = function() {
   var _this = this;
   // Attach your event listeners here
   $(window).resize(function() {
-    _this.setCardHeight();
     _this.centerDate();
   });
 
@@ -1097,7 +1096,7 @@ DynamicList.prototype.onReady = function() {
 
   // Ready
   _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-  _this.setCardHeight();
+
   // Wait for bookmark to appear on the page
   var checkTimer = 0;
   var checkInterval = setInterval(function() {
@@ -1285,19 +1284,6 @@ DynamicList.prototype.initializeMixer = function() {
 
     _this.mixer.push(newMixer);
   }
-}
-
-// Function to set the height of cards
-DynamicList.prototype.setCardHeight = function() {
-  var _this = this;
-
-  _this.$container.find('.agenda-list-item').each(function(index, element) {
-    var containerHeight = $(element).find('.agenda-item-inner-content').outerHeight();
-
-    $(element).css({
-      height: containerHeight
-    });
-  });
 }
 
 // Function to center date

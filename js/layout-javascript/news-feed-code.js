@@ -214,10 +214,6 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
   // Attach your event listeners here
-  $(window).resize(function() {
-    _this.setCardHeight();
-  });
-
   _this.$container
     .on('click', '.hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
@@ -1532,31 +1528,6 @@ DynamicList.prototype.convertCategories = function(data) {
 DynamicList.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
-  var imagePromises = [];
-
-  // Wait for image to load
-  _this.$container.find('.news-feed-list-item').each(function(index, element) {
-    var promise = new Promise(function(resolve, reject) {
-      var image = $(element).find('.image-banner img')[0];
-
-      if (image) {
-        if (image.complete) {
-          resolve();
-        } else {
-          image.addEventListener('load', resolve);
-        }
-      } else {
-        resolve();
-      }
-    });
-
-    imagePromises.push(promise);
-  });
-
-  Promise.all(imagePromises)
-    .then(function() {
-      _this.setCardHeight();
-    });
 
   if (_this.data.social && _this.data.social.likes) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
@@ -1873,26 +1844,6 @@ DynamicList.prototype.initializeMixer = function() {
         });
       }
     }
-  });
-}
-
-DynamicList.prototype.setCardHeight = function() {
-  var _this = this;
-
-  _this.$container.find('.news-feed-list-item').each(function(index, element) {
-    var slideHeight = $(element).find('.slide-under').outerHeight();
-    var containerHeight = $(element).find('.news-feed-item-inner-content').outerHeight();
-    var contentHeight;
-
-    if (slideHeight) {
-      contentHeight = slideHeight + containerHeight
-    } else {
-      contentHeight = containerHeight
-    }
-
-    $(element).css({
-      height: contentHeight
-    });
   });
 }
 
