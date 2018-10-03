@@ -1120,9 +1120,11 @@ DynamicList.prototype.filterList = function() {
       filters.push(obj.data.class);
     });
 
-    return _.some(_this.filterClasses, function(v) {
-      return filters.indexOf(v) >= 0
-    });
+    // Normalise array for comparisson
+    _this.filterClasses = _.sortBy(_this.filterClasses);
+    filters = _.sortBy(filters);
+
+    return _.isEqual(_this.filterClasses, filters);
   });
 
   if (!filteredData || !filteredData.length) {
