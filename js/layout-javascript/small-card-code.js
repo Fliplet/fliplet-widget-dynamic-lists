@@ -1164,9 +1164,12 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     }, 200, 'swing');
 
     setTimeout(function() {
-      elementToExpand.find('> div').css({
+      elementToExpand.css({
         transform: 'translate3d(-1px,-1px,-1px)'
-      }).css({
+      });
+    }, 200);
+    setTimeout(function() {
+      elementToExpand.css({
         transform: 'translate3d(0px,0px,0px)'
       });
     }, 201);
