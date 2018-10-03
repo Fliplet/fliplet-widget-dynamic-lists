@@ -1164,7 +1164,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     }, 200, 'swing');
 
     setTimeout(function() {
-      elementToExpand.css({
+      elementToExpand.find('> div').css({
         transform: 'translate3d(-1px,-1px,-1px)'
       }).css({
         transform: 'translate3d(0px,0px,0px)'
