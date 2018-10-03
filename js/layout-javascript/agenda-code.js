@@ -1378,5 +1378,5 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   _this.$container.find('.agenda-list-item').removeClass('open');
   // Stops preventing 'body' scroll
   _this.$container.find('.agenda-list-day-holder').removeClass('lock');
-  $('body').removeClass('lock');
+  $('html, body').removeClass('lock');
 }
