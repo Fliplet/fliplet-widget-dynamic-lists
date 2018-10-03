@@ -1200,7 +1200,7 @@ DynamicList.prototype.filterList = function() {
     return !_.includes(matched, false);
   });
 
-  _this.renderLoopHTML(filteredData || _this.listItems);
+  _this.renderLoopHTML(filteredData);
   _this.onReady();
 }
 
