@@ -7,7 +7,7 @@
 }
 
 *.lock {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 /* AGENDA CONTROLS - MY AGENDA */
