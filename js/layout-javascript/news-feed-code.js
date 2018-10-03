@@ -1190,11 +1190,14 @@ DynamicList.prototype.filterList = function() {
       filters.push(obj.data.class);
     });
 
-    // Normalise array for comparisson
-    _this.filterClasses = _.sortBy(_this.filterClasses);
-    filters = _.sortBy(filters);
-
-    return _.isEqual(_this.filterClasses, filters);
+    var matched = [];
+    _this.filterClasses.forEach(function(filter) {
+      matched.push(filters.indexOf(filter) >= 0);
+    });
+    
+    // If "_.includes" returns TRUE
+    // we actually want to return FALSE to _.filter 
+    return !_.includes(matched, false);
   });
 
   _this.renderLoopHTML(filteredData || _this.listItems);
