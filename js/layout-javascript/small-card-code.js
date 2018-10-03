@@ -1169,11 +1169,6 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       }).css({
         transform: 'translate3d(0px,0px,0px)'
       });
-      elementToExpand.find('> div').css({
-        transform: 'translate3d(-1px,-1px,-1px)'
-      }).css({
-        transform: 'translate3d(0px,0px,0px)'
-      });
     }, 201);
   }
 }
