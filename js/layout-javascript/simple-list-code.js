@@ -1008,7 +1008,7 @@ DynamicList.prototype.onReady = function() {
   _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
 }
 
-DynamicList.prototype.calculateFiltersHeight = function(element) {
+DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch) {
   var targetHeight = element.find('.hidden-filter-controls-content').height();
   var filterHolder = element.find('.filter-holder').height();
   var totalHeight = targetHeight;
@@ -1074,7 +1074,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
   if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
   }
 
   if (!searchedData.length) {
@@ -1136,7 +1136,7 @@ DynamicList.prototype.searchData = function(value) {
   
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
   if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
   }
 
   if (!searchedData.length) {
