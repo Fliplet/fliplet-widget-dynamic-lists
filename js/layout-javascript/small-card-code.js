@@ -1162,6 +1162,14 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
     directoryDetailImage.animate({
       height: '100vw'
     }, 200, 'swing');
+
+    setTimeout(function() {
+      elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').css({
+        transform: 'translate3d(-1px,-1px,-1px)'
+      }).css({
+        transform: 'translate3d(0px,0px,0px)'
+      })
+    }, 201);
   }
 }
 
