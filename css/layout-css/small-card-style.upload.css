@@ -607,6 +607,8 @@
   cursor: default;
   pointer-events: all;
   background-color: #ffffff;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
 }
 
 .new-small-card-list-container .small-card-list-detail-image {
@@ -658,12 +660,12 @@
   z-index: 12;
   overflow: auto;
   transition: all 0.2s ease-out;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
 }
 
 .new-small-card-list-container .small-card-list-detail-content-scroll-wrapper.open {
   height: 100%;
-  -webkit-transform: translate3d(0,0,0);
-  transform: translate3d(0,0,0);
 }
 
 .new-small-card-list-container .small-card-list-detail-content-wrapper {
