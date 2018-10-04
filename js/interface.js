@@ -63,11 +63,7 @@ var DynamicLists = (function() {
       sortOptions: [],
       filterOptions: [],
       detailViewOptions: [],
-      social: {
-        likes: false,
-        bookmark: false,
-        comments: false
-      },
+      social: {},
       advancedSettings: {}
     }, configuration);
     _this.widgetId = configuration.id;
@@ -306,15 +302,21 @@ var DynamicLists = (function() {
           });
 
           $('.select-user-admin-holder')[
-            addRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+            addRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            || deleteRadioValues.indexOf('admins') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            addRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('user') !== -1 ||
-            deleteRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
+            addRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('user') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            || deleteRadioValues.indexOf('admins') !== -1
+            || deleteRadioValues.indexOf('user') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="edit-permissions"]', function() {
           editRadioValues = [];
@@ -323,19 +325,29 @@ var DynamicLists = (function() {
             editRadioValues.push($(this).val());
           });
 
-          $('.select-user-email-list-holder')[editRadioValues.indexOf('user') !== -1 ||
-            deleteRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
+          $('.select-user-email-list-holder')[
+            editRadioValues.indexOf('user') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            || deleteRadioValues.indexOf('user') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
-            editRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('admins') !== -1 ||
-            addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+            editRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            || deleteRadioValues.indexOf('admins') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            || addRadioValues.indexOf('admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            editRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('user') !== -1 ||
-            deleteRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('user') !== -1 ||
-            addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+            editRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('user') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            || deleteRadioValues.indexOf('admins') !== -1
+            || deleteRadioValues.indexOf('user') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            || addRadioValues.indexOf('admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="delete-permissions"]', function() {
           deleteRadioValues = [];
@@ -344,19 +356,29 @@ var DynamicLists = (function() {
             deleteRadioValues.push($(this).val());
           });
 
-          $('.select-user-email-list-holder')[deleteRadioValues.indexOf('user') !== -1 ||
-            editRadioValues.indexOf('user') !== -1 ? 'removeClass' : 'addClass']('hidden');
+          $('.select-user-email-list-holder')[
+            deleteRadioValues.indexOf('user') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            || editRadioValues.indexOf('user') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
-            editRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('admins') !== -1 ||
-            addRadioValues.indexOf('admins') !== -1 ? 'removeClass' : 'addClass']('hidden');
+            editRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            || deleteRadioValues.indexOf('admins') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            || addRadioValues.indexOf('admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            editRadioValues.indexOf('admins') !== -1 ||
-            editRadioValues.indexOf('user') !== -1 ||
-            deleteRadioValues.indexOf('admins') !== -1 ||
-            deleteRadioValues.indexOf('user') !== -1 ||
-            addRadioValues.indexOf('admins') !== -1  ? 'removeClass' : 'addClass']('hidden');
+            editRadioValues.indexOf('admins') !== -1
+            || editRadioValues.indexOf('user') !== -1
+            || editRadioValues.indexOf('users-admins') !== -1
+            || deleteRadioValues.indexOf('admins') !== -1
+            || deleteRadioValues.indexOf('user') !== -1
+            || deleteRadioValues.indexOf('users-admins') !== -1
+            || addRadioValues.indexOf('admins') !== -1
+            ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="detail-view-action"]', function() {
           var value = $('[name="detail-view-action"]:checked').val();
@@ -507,10 +529,28 @@ var DynamicLists = (function() {
           });
 
           // backwards compatible
-          if (_this.config.layout === 'news-feed' && typeof _this.config.social.bookmark === 'undefined') {
+          if (_this.config.layout === 'news-feed' && (typeof _this.config.social === 'undefined' || typeof _this.config.social.bookmark === 'undefined')) {
             _this.config.social.bookmark = true;
             $('.list-bookmark').removeClass('hidden');
             $('#social-accordion').removeClass('hidden');
+          }
+
+          if (_this.config.layout === 'simple-list' && _this.config['style-specific'].indexOf('list-likes') === -1) {
+            // Because initial component didn't have this option
+            // This makes it backwards compatible
+            _this.config['style-specific'] = ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments'];
+            _this.config.social = {};
+            _this.config.social.bookmark = true;
+            _this.config.social.likes = true;
+            _this.config.social.comments = false;
+
+            _.forEach(_this.config['style-specific'], function(item) {
+              $('.' + item).removeClass('hidden');
+
+              if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
+                $('#social-accordion').removeClass('hidden');
+              }
+            });
           }
         } else if (_this.config.layout === 'small-card') {
           // Because initial component didn't have this option
@@ -655,6 +695,14 @@ var DynamicLists = (function() {
             $('#select_type_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.type || 'url');
 
             _.forEach(_this.config['summary-fields'], function(item) {
+              // Backwards compatability
+              if (typeof item.interfaceName === 'undefined') {
+                var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
+                  return defaultItem.location === item.location;
+                });
+                item.interfaceName = defaultInterfaceName.interfaceName;
+              }
+
               item.columns = dataSourceColumns || _this.config.defaultColumns;
               _this.addSummaryItem(item);
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
@@ -1091,7 +1139,11 @@ var DynamicLists = (function() {
         $('.select-user-photo-holder').removeClass('hidden');
       }
       
-      if (_this.config.addPermissions === 'admins' || _this.config.editPermissions === 'admins' || _this.config.detelePermissions === 'admins') {
+      if (_this.config.addPermissions === 'admins'
+        || _this.config.editPermissions === 'admins'
+        || _this.config.editPermissions === 'users-admins'
+        || _this.config.detelePermissions === 'admins'
+        || _this.config.detelePermissions === 'users-admins') {
         $('.select-user-admin-holder').removeClass('hidden');
       }
 

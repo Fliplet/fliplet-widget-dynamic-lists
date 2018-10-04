@@ -19,30 +19,35 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text 1',
         location: 'First Name',
         type: 'text',
         column: 'First Name'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Primary text 2',
         location: 'Last Name',
         type: 'text',
         column: 'Last Name'
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Secondary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'qWerTymn',
+        interfaceName: 'Tertiary text',
         location: 'Location',
         type: 'text',
         column: 'Location'
       },
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
@@ -124,30 +129,35 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Secondary text',
         location: 'Content',
         type: 'html',
         column: 'Content'
       },
       {
-        id: 'ajdmJrlT',
-        location: 'Categories',
-        type: 'text',
-        column: 'Categories'
-      },
-      {
         id: 'gHlJkerT',
+        interfaceName: 'Tertiary text 1',
         location: 'Date',
         type: 'date',
         column: 'Date'
       },
       {
+        id: 'ajdmJrlT',
+        interfaceName: 'Tertiary text 2',
+        location: 'Categories',
+        type: 'text',
+        column: 'Categories'
+      },
+      {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
@@ -190,12 +200,14 @@ window.flListLayoutConfig = {
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Secondary text',
         location: 'Location',
         type: 'text',
         column: 'Location'
@@ -230,30 +242,35 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text 1',
         location: 'First Name',
         type: 'text',
         column: 'First Name'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Primary text 2',
         location: 'Last Name',
         type: 'text',
         column: 'Last Name'
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Secondary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'qWerTymn',
+        interfaceName: 'Tertiary text',
         location: 'Location',
         type: 'text',
         column: 'Location'
       },
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
@@ -316,29 +333,38 @@ window.flListLayoutConfig = {
     'filtersInOverlay': false,
     'searchEnabled': true,
     'searchFields': ['Title', 'Category'],
-    'style-specific': ['list-filter', 'list-search'],
+    'social': {
+      'likes': true,
+      'bookmark': true,
+      'comments': false
+    },
+    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments'],
     'summary-fields-enabled': true,
     'summary-fields': [
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
       },
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Secondary text',
         location: 'Description',
         type: 'text',
         column: 'Description'
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Tertiary text',
         location: 'Category',
         type: 'text',
         column: 'Category'

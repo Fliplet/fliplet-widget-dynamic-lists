@@ -929,7 +929,7 @@ DynamicList.prototype.prepareData = function(records) {
     records = prefiltered;
   }
 
-  // Convert date and add flag for likes
+  // Add flag for likes
   records.forEach(function(obj, i) {
     // Add likes flag
     if (_this.data.social && _this.data.social.likes) {
@@ -1331,7 +1331,7 @@ DynamicList.prototype.getAddPermission = function(data) {
   var _this = this;
 
   if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
-    if (_this.myUserData && _this.data.addPermissions === 'admins') {
+    if (_this.myUserData && (_this.data.addPermissions === 'admins' || _this.data.addPermissions === 'users-admins')) {
       if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
         data.showAddEntry = data.addEntry;
       }
@@ -1349,11 +1349,11 @@ DynamicList.prototype.getPermissions = function(entries) {
   // Adds flag for Edit and Delete buttons
   entries.forEach(function(obj, index) {
     if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
-      if (_this.myUserData && _this.data.editPermissions === 'admins') {
+      if (_this.myUserData && (_this.data.editPermissions === 'admins' || _this.data.editPermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
           entries[index].editEntry = _this.data.editEntry;
         }
-      } else if (_this.myUserData && _this.data.editPermissions === 'user') {
+      } else if (_this.myUserData && (_this.data.editPermissions === 'user' || _this.data.editPermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
           entries[index].editEntry = _this.data.editEntry;
         }
@@ -1362,11 +1362,11 @@ DynamicList.prototype.getPermissions = function(entries) {
       }
     }
     if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
-      if (_this.myUserData && _this.data.deletePermissions === 'admins') {
+      if (_this.myUserData && (_this.data.deletePermissions === 'admins' || _this.data.deletePermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
           entries[index].deleteEntry = _this.data.deleteEntry;
         }
-      } else if (_this.myUserData && _this.data.deletePermissions === 'user') {
+      } else if (_this.myUserData && (_this.data.deletePermissions === 'user' || _this.data.deletePermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
           entries[index].deleteEntry = _this.data.deleteEntry;
         }
