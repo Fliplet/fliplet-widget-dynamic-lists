@@ -87,10 +87,6 @@
   box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
 }
 
-.new-small-h-card-list-container .small-h-card-list-image .small-h-card-list-detail-image {
-  border-radius: 15px 0 0 15px;
-}
-
 .new-small-h-card-list-container .small-h-card-list-image .small-h-card-list-detail-wrapper.open .small-h-card-list-detail-image {
   border-radius: 0;
 }
