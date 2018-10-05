@@ -266,6 +266,7 @@ DynamicList.prototype.prepareData = function(records) {
   var sorted;
   var ordered;
   var filtered;
+  var dateColumns = [];
 
   // Prepare sorting
   if (_this.data.sortOptions.length) {
@@ -287,35 +288,33 @@ DynamicList.prototype.prepareData = function(records) {
       }
     });
 
-    fields.forEach(function(field) {
-      columns.push('data[' + field.column + ']');
-    });
-
     var mappedRecords = _.clone(records);
     mappedRecords = mappedRecords.map((record) => {
       fields.forEach(function(field) {
-        record.data[field.column] = record.data[field.column] || '';
-        record.data[field.column].toString().toUpperCase();
+        record.data['modified_' + field.column] = record.data[field.column] || '';
+        record.data['modified_' + field.column].toString().toUpperCase();
 
         if (field.type === "alphabetical") {
-          record.data[field.column] = record.data[field.column].match(/[A-Za-z]/)
+          record.data['modified_' + field.column] = record.data[field.column].match(/[A-Za-z]/)
           ? record.data[field.column]
           : '{' + record.data[field.column];
         }
 
         if (field.type === "numerical") {
-          record.data[field.column] = record.data[field.column].match(/[0-9]/)
+          record.data['modified_' + field.column] = record.data[field.column].match(/[0-9]/)
           ? parseInt(record.data[field.column], 10)
           : '{' + record.data[field.column];
         }
 
         if (field.type === "date") {
-          record.data[field.column] = new Date(record.data[field.column]).getTime();
+          record.data['modified_' + field.column] = new Date(record.data[field.column]).getTime();
         }
 
         if (field.type === "time") {
-          record.data[field.column] = record.data[field.column];
+          record.data['modified_' + field.column] = record.data[field.column];
         }
+
+        columns.push('data[modified_' + field.column + ']');
       });
 
       return record;
