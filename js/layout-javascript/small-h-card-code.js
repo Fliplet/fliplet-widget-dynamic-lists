@@ -186,8 +186,8 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
 
       if ($(this).hasClass('go-previous-screen')) {
-        if (typeof _this.pvPreviousScreen === 'function') {
-          _this.pvPreviousScreen();
+        if (typeof _this.pvPreviousScreen === 'string') {
+          eval('(function () {' + _this.pvPreviousScreen + '})()');
         }
 
         Fliplet.Navigate.back();

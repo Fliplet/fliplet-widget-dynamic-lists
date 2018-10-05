@@ -213,8 +213,8 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.simple-list-detail-overlay-close', function() {
       if ($(this).hasClass('go-previous-screen')) {
-        if (typeof _this.pvPreviousScreen === 'function') {
-          _this.pvPreviousScreen();
+        if (typeof _this.pvPreviousScreen === 'string') {
+          eval('(function () {' + _this.pvPreviousScreen + '})()');
         }
 
         Fliplet.Navigate.back();
