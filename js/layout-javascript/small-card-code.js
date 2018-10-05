@@ -215,6 +215,15 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.small-card-detail-overlay-close', function(event) {
       event.stopPropagation();
 
+      if ($(this).hasClass('go-previous-screen')) {
+        if (typeof _this.pvPreviousScreen === 'function') {
+          _this.pvPreviousScreen();
+        }
+
+        Fliplet.Navigate.back();
+        return;
+      }
+
       if ($(window).width() < 640) {
         _this.collapseElement(_this.directoryDetailWrapper);
         _this.directoryDetailWrapper = undefined;
@@ -830,6 +839,9 @@ DynamicList.prototype.renderBaseHTML = function() {
   var baseHTML = '';
 
   var data = _this.getAddPermission(_this.data);
+
+  // go to previous screen on close detail view - TRUE/FALSE
+  data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['base']];

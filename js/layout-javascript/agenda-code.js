@@ -49,6 +49,7 @@ var DynamicList = function(id, data, container) {
 
   this.queryOpen = false;
   this.queryPreFilter = false;
+  this.pvPreviousScreen;
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
@@ -692,6 +693,8 @@ DynamicList.prototype.parsePVQueryVars = function() {
         return;
       }
 
+      _this.pvPreviousScreen = value.previousScreen;
+
       if (_.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
@@ -763,6 +766,9 @@ DynamicList.prototype.renderBaseHTML = function() {
   var baseHTML = '';
 
   var data = _this.getAddPermission(_this.data);
+
+  // go to previous screen on close detail view - TRUE/FALSE
+  data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['base']];

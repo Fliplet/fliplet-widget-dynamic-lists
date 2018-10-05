@@ -1175,6 +1175,9 @@ DynamicList.prototype.renderBaseHTML = function() {
 
   var data = _this.getAddPermission(_this.data);
 
+  // go to previous screen on close detail view - TRUE/FALSE
+  data.previousScreen = _this.pvPreviousScreen;
+
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['base']];
   }

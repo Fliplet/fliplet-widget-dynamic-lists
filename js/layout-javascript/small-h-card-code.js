@@ -42,6 +42,7 @@ var DynamicList = function(id, data, container) {
 
   this.queryOpen = false;
   this.queryPreFilter = false;
+  this.pvPreviousScreen;
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
@@ -183,6 +184,15 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.small-h-card-detail-overlay-close', function(event) {
       event.stopPropagation();
+
+      if ($(this).hasClass('go-previous-screen')) {
+        if (typeof _this.pvPreviousScreen === 'function') {
+          _this.pvPreviousScreen();
+        }
+
+        Fliplet.Navigate.back();
+        return;
+      }
 
       if ($(window).width() < 640) {
         _this.collapseElement(_this.directoryDetailWrapper);
@@ -542,6 +552,8 @@ DynamicList.prototype.parsePVQueryVars = function() {
         return;
       }
 
+      _this.pvPreviousScreen = value.previousScreen;
+
       if (_.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
@@ -613,6 +625,9 @@ DynamicList.prototype.renderBaseHTML = function() {
   var baseHTML = '';
 
   var data = _this.getAddPermission(_this.data);
+
+  // go to previous screen on close detail view - TRUE/FALSE
+  data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['base']];
