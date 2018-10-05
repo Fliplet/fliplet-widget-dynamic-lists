@@ -336,7 +336,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.showComments(identifier);
       $('html, body').addClass('lock');
       $('.simple-list-detail-overlay-content-holder').addClass('lock');
-      $('.simple-list-feed-comment-panel').addClass('open');
+      $('.simple-list-comment-panel').addClass('open');
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -344,7 +344,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.simple-list-comment-close-panel', function() {
-      $('.simple-list-feed-comment-panel').removeClass('open');
+      $('.simple-list-comment-panel').removeClass('open');
       $('.simple-list-detail-overlay-content-holder').removeClass('lock');
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         $('html, body').removeClass('lock');
@@ -372,7 +372,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (Modernizr.ios) {
         setTimeout(function() {
-          _that.parents('.simple-list-feed-comment-panel').addClass('typing');
+          _that.parents('.simple-list-comment-panel').addClass('typing');
 
           // Adds binding
           $(document).on('touchstart', '[data-comment-body]', function() {
@@ -391,7 +391,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (Modernizr.ios) {
         setTimeout(function() {
-          _that.parents('.simple-list-feed-comment-panel').removeClass('typing');
+          _that.parents('.simple-list-comment-panel').removeClass('typing');
 
           // Removes binding
           $(document).off('touchstart', '[data-comment-body]');
@@ -1984,7 +1984,7 @@ DynamicList.prototype.showComments = function(id) {
       _this.autosizeInit = true;
     }
 
-    var commentsTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['comments']];
+    var commentsTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments.entries);
     // Display comments (fl-comments-list-holder)
@@ -2161,7 +2161,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
     text: value
   };
 
-  var tempCommentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
+  var tempCommentTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['temp-comment']];
   var tempCommentTemplateCompiled = Handlebars.compile(tempCommentTemplate());
   var tempCommentHTML = tempCommentTemplateCompiled(commentInfo);
 
@@ -2225,12 +2225,12 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       }
     }
 
-    var commentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['single-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['single-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }
   if (context === 'temp') {
-    var commentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['temp-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }
