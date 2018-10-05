@@ -374,7 +374,7 @@ DynamicList.prototype.attachObservers = function() {
       e.stopPropagation();
       var identifier;
       if ($('.new-news-feed-list-container').hasClass('overlay-open')) {
-        identifier = $(this).parents('.news-feed-detail-wrapper').data('entry-id');
+        identifier = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       } else {
         identifier = $(this).parents('.news-feed-list-item').data('entry-id');
       }

@@ -918,6 +918,100 @@
   color: #ffffff;
 }
 
+.simple-list-container .simple-list-social-holder .simple-list-like-wrapper,
+.simple-list-detail-overlay .simple-list-overlay-social-holder .simple-list-like-wrapper,
+.simple-list-container .simple-list-social-holder .simple-list-bookmark-holder,
+.simple-list-detail-overlay .simple-list-overlay-social-holder .simple-list-bookmark-holder,
+.simple-list-container .simple-list-social-holder .simple-list-comment-holder,
+.simple-list-detail-overlay .simple-list-overlay-social-holder .simple-list-comment-holder {
+  position: relative;
+  cursor: pointer;
+}
+
+.simple-list-container .simple-list-bookmark-holder,
+.simple-list-detail-overlay .simple-list-bookmark-holder {
+  margin-left: 15px;
+}
+
+.simple-list-container .simple-list-comment-holder,
+.simple-list-detail-overlay .simple-list-comment-holder {
+  margin-left: 10px;
+}
+
+.simple-list-container .simple-list-comment-holder .count:empty ~ i,
+.simple-list-detail-overlay .simple-list-comment-holder .count:empty ~ i {
+  margin-left: 5px;
+}
+
+.simple-list-container .simple-list-like-holder .fa,
+.simple-list-container .simple-list-like-wrapper .fa,
+.simple-list-container .simple-list-bookmark-holder .fa,
+.simple-list-container .simple-list-bookmark-wrapper .fa,
+.simple-list-container .simple-list-comment-holder .fa,
+.simple-list-container .simple-list-comment-holder span,
+.simple-list-detail-overlay .simple-list-like-holder .fa,
+.simple-list-detail-overlay .simple-list-like-wrapper .fa,
+.simple-list-detail-overlay .simple-list-bookmark-holder .fa,
+.simple-list-detail-overlay .simple-list-bookmark-wrapper .fa,
+.simple-list-detail-overlay .simple-list-comment-holder .fa,
+.simple-list-detail-overlay .simple-list-comment-holder span {
+  opacity: 0.3;
+}
+
+.simple-list-container .simple-list-comment-holder .fa-comment-o,
+.simple-list-detail-overlay .simple-list-comment-holder .fa-comment-o {
+  line-height: 0;
+}
+
+.simple-list-container .simple-list-social-holder .simple-list-comment-holder .comment-label {
+  display: none;
+}
+
+.simple-list-container .simple-list-item .simple-list-social-holder,
+.simple-list-detail-overlay .simple-list-overlay-social-holder {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.simple-list-container .simple-list-item .simple-list-social-holder {
+  margin-top: 10px;
+}
+
+.simple-list-detail-overlay .simple-list-overlay-inner-holder.has-edit-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.simple-list-container .simple-list-like-wrapper .fa-heart,
+.simple-list-detail-overlay .simple-list-like-wrapper .fa-heart {
+  color: #ed4956;
+}
+
+.simple-list-container .simple-list-bookmark-wrapper .fa-bookmark,
+.simple-list-detail-overlay .simple-list-bookmark-wrapper .fa-bookmark {
+  color: #337ab7;
+}
+
+.simple-list-container .simple-list-like-wrapper span,
+.simple-list-container .simple-list-comment-holder span.count,
+.simple-list-detail-overlay .simple-list-like-wrapper span,
+.simple-list-detail-overlay .simple-list-comment-holder span.count {
+  opacity: 0.3;
+  font-size: 12px;
+  line-height: 24px;
+  margin-right: 4px;
+}
+
+.simple-list-container .simple-list-comment-holder span.count {
+  margin-right: 0;
+}
+
+.simple-list-comment-holder i.comment-placeholder {
+  margin-left: 5px;
+}
+
 @media screen and (min-width: 640px) {
   .simple-list-detail-overlay .simple-list-detail-overlay-wrapper {
     position: absolute;

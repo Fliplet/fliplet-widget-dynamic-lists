@@ -328,7 +328,7 @@ DynamicList.prototype.attachObservers = function() {
       e.stopPropagation();
       var identifier;
       if (_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
-        identifier = $(this).parents('.simple-list-detail-overlay').data('entry-id');
+        identifier = $(this).parents('.simple-list-details-holder').data('entry-id');
       } else {
         identifier = $(this).parents('.simple-list-item').data('entry-id');
       }
@@ -1627,6 +1627,61 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
   });
 }
 
+DynamicList.prototype.setupLikeButtonOverlay = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.likeButtonOverlay = LikeButton({
+    target: '.simple-list-detail-overlay .simple-list-like-holder-' + id,
+    dataSourceId: _this.data.likesDataSourceId,
+    content: { 
+      entryId: identifier
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+    likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
+    likeWrapper: '<div class="simple-list-like-wrapper btn-like"></div>',
+    likedWrapper: '<div class="simple-list-like-wrapper btn-liked"></div>',
+    addType: 'html'
+  });
+}
+
+DynamicList.prototype.setupBookmarkButtonOverlay = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.bookmarkButtonOverlay = LikeButton({
+    target: '.simple-list-detail-overlay .simple-list-bookmark-holder-' + id,
+    dataSourceId: _this.data.bookmarkDataSourceId,
+    content: { 
+      entryId: identifier
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+    likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+    likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
+    likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
+    addType: 'html'
+  });
+}
+
+DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
+  var _this = this;
+  var bookmarkIndentifier = id + '-bookmark';
+  var likeIndentifier = id + '-like';
+  var title = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.setupBookmarkButtonOverlay(id, bookmarkIndentifier, title);
+  }
+  if (_this.data.social && _this.data.social.likes) {
+    _this.setupLikeButtonOverlay(id, likeIndentifier, title);
+  }
+  if (_this.data.social && (_this.data.social.bookmark || _this.data.social.likes)) {
+    _this.likesObserversOverlay(id);
+  }
+}
+
 DynamicList.prototype.likesObservers = function() {
   var _this = this;
 
@@ -1669,6 +1724,78 @@ DynamicList.prototype.likesObservers = function() {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+  });
+}
+
+DynamicList.prototype.likesObserversOverlay = function(id) {
+  var _this = this;
+
+  _this.bookmarkButtonOverlay.on('liked', function(data){
+    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.like();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.bookmarkButtonOverlay.on('unliked', function(data){
+    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.unlike();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.likeButtonOverlay.on('liked', function(data){
+    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+    var button = _.find(_this.likeButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.like();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.likeButtonOverlay.on('unliked', function(data){
+    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+    var button = _.find(_this.likeButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.unlike();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
     });
   });
 }
@@ -1783,6 +1910,9 @@ DynamicList.prototype.showDetails = function(id) {
   // Adds content to overlay
   $overlay.find('.simple-list-detail-overlay-content-holder').html(wrapperTemplate(entryId));
   $overlay.find('.simple-list-detail-wrapper').append(template(newData));
+
+  _this.prepareSetupBookmarkOverlay(id);
+  _this.updateCommentCounter(id, true);
 
   // Trigger animations
   $('html, body').addClass('lock');
