@@ -1275,7 +1275,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
   _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML(searchedData);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }

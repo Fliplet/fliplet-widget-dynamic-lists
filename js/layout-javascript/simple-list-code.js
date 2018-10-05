@@ -1165,12 +1165,13 @@ DynamicList.prototype.filterList = function() {
   var _this = this;
   _this.filterClasses = [];
 
+  var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+
   if (_this.data.social && _this.data.social.bookmark) {
     _this.mixer.destroy();
   }
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
-    var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
     _this.prepareToRenderLoop(listData);
     _this.renderLoopHTML();
     _this.onReady();
@@ -1181,7 +1182,7 @@ DynamicList.prototype.filterList = function() {
     _this.filterClasses.push($(element).data('toggle'));
   });
 
-  var filteredData = _.filter(_this.listItems, function(row) {
+  var filteredData = _.filter(listData, function(row) {
     var filters = [];
     row.data['flFilters'].forEach(function(obj) {
       filters.push(obj.data.class);
