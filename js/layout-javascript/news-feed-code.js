@@ -958,11 +958,12 @@ DynamicList.prototype.prepareData = function(records) {
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
-  // Render Base HTML template
-  _this.renderBaseHTML();
 
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
     // Render Loop HTML
@@ -978,6 +979,9 @@ DynamicList.prototype.initialize = function() {
   // Check if there is a PV for search/filter queries
   _this.parsePVQueryVars()
     .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
+
       return _this.connectToDataSource();
     })
     .then(function (records) {

@@ -432,11 +432,12 @@ DynamicList.prototype.prepareData = function(records) {
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
-  // Render Base HTML template
-  _this.renderBaseHTML();
 
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
     var records = _this.prepareData(_this.data.defaultEntries);
     _this.listItems = _this.getPermissions(records);
     // Get user profile
@@ -465,6 +466,9 @@ DynamicList.prototype.initialize = function() {
   // Check if there is a PV for search/filter queries
   _this.parsePVQueryVars()
     .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
+      
       return _this.connectToDataSource();
     })
     .then(function (records) {
