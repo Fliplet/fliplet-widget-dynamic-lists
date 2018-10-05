@@ -895,7 +895,9 @@ DynamicList.prototype.prepareToFilter = function() {
   _this.filterList();
   _this.$container.find('.hidden-filter-controls').addClass('active');
   _this.$container.find('.list-search-cancel').addClass('active');
-  $('.list-search-icon .fa-sliders').addClass('active');
+  if (!_this.data.filtersInOverlay) {
+    _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
+  }
   _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
 }
 
@@ -1165,7 +1167,7 @@ DynamicList.prototype.filterList = function() {
 
   var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
 
-  if (_this.data.social && _this.data.social.bookmark) {
+  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
   }
 
@@ -1376,7 +1378,6 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.$container.find('.hidden-filter-controls').addClass('active');
   _this.$container.find('.list-search-cancel').addClass('active');
   _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
-
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
@@ -1536,7 +1537,7 @@ DynamicList.prototype.clearSearch = function() {
     _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
   }
 
-  if (_this.data.social && _this.data.social.bookmark) {
+  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
   }
 

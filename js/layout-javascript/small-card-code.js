@@ -739,7 +739,9 @@ DynamicList.prototype.prepareToFilter = function() {
   _this.filterList();
   _this.$container.find('.hidden-filter-controls').addClass('active');
   _this.$container.find('.list-search-cancel').addClass('active');
-  $('.list-search-icon .fa-sliders').addClass('active');
+  if (!_this.data.filtersInOverlay) {
+    _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
+  }
   _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
 }
 
@@ -1234,8 +1236,10 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-filter-controls').addClass('active');
   _this.$container.find('.list-search-cancel').addClass('active');
-  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
-
+  if (_this.data.filtersInOverlay) {
+    _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
+  }
+  
   // Removes cards
   _this.$container.find('#small-card-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
