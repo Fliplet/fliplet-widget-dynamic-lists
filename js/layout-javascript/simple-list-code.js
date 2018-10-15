@@ -387,26 +387,27 @@ DynamicList.prototype.prepareData = function(records) {
     mappedRecords = mappedRecords.map((record) => {
       fields.forEach(function(field) {
         record.data['modified_' + field.column] = record.data[field.column] || '';
-        record.data['modified_' + field.column].toString().toUpperCase();
+        record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
 
         if (field.type === "alphabetical") {
-          record.data['modified_' + field.column] = record.data[field.column].match(/[A-Za-z]/)
-          ? record.data[field.column]
-          : '{' + record.data[field.column];
+          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[A-Za-z]/)
+            ? record.data['modified_' + field.column]
+            : '{' + record.data['modified_' + field.column];
         }
 
         if (field.type === "numerical") {
-          record.data['modified_' + field.column] = record.data[field.column].match(/[0-9]/)
-          ? parseInt(record.data[field.column], 10)
-          : '{' + record.data[field.column];
+          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[0-9]/)
+            ? parseInt(record.data['modified_' + field.column], 10)
+            : record.data['modified_' + field.column];
         }
 
         if (field.type === "date") {
-          record.data['modified_' + field.column] = new Date(record.data[field.column]).getTime();
+          // If an incorrect date format is used, the entry will be pushed at the end
+          record.data['modified_' + field.column] = new Date(record.data['modified_' + field.column]).getTime();
         }
 
         if (field.type === "time") {
-          record.data['modified_' + field.column] = record.data[field.column];
+          record.data['modified_' + field.column] = record.data['modified_' + field.column];
         }
 
         columns.push('data[modified_' + field.column + ']');
