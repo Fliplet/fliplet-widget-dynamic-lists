@@ -618,6 +618,7 @@
   cursor: default;
   pointer-events: all;
   background-color: #ffffff;
+  overflow: hidden;
   -webkit-transform: translate3d(0,0,0);
   transform: translate3d(0,0,0);
 }
