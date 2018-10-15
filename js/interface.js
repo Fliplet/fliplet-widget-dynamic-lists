@@ -610,6 +610,8 @@ var DynamicLists = (function() {
             });
             _this.checkFilterPanelLength();
 
+            $('#items-number').val(_this.config.limitEntries);
+
             // Load Search/Filter fields
             $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
             $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
@@ -642,10 +644,12 @@ var DynamicLists = (function() {
               case 'small-card':
                 $('.filter-loop-item').removeClass('hidden');
                 $('.detail-view-item').removeClass('hidden');
+                $('.items-number').removeClass('hidden');
                 break;
               case 'news-feed':
                 $('.filter-loop-item').removeClass('hidden');
                 $('.detail-view-item').removeClass('hidden');
+                $('.items-number').removeClass('hidden');
                 break;
               case 'agenda':
                 $('.date-loop-item').removeClass('hidden');
@@ -657,6 +661,7 @@ var DynamicLists = (function() {
               case 'simple-list':
                 $('.filter-loop-item').removeClass('hidden');
                 $('.detail-view-item').removeClass('hidden');
+                $('.items-number').removeClass('hidden');
                 break;
               default:
                 break;
@@ -1970,6 +1975,16 @@ var DynamicLists = (function() {
       data.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
         $('#filter-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.filtersInOverlay = $('#enable-filter-overlay').is(":checked");
+
+      // Number of list items
+      var limit = $('#items-number').val().trim();
+      if (limit && limit.length && /^\d+$/.test(limit)) {
+        data.enabledLimitEntries = true;
+        data.limitEntries = parseInt(limit, 10);
+      } else {
+        data.enabledLimitEntries = false;
+        data.limitEntries = undefined;
+      }
 
       // Advanced Settings
       var advancedInUse;

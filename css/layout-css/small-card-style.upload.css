@@ -464,6 +464,12 @@
   margin-right: 15px;
 }
 
+.limit-entries-text {
+  padding-top: 20px;
+  text-align: center;
+  opacity: 0.5;
+}
+
 /* List */
 .new-small-card-list-container {
   max-width: 600px;
@@ -491,7 +497,10 @@
   color: #ddd;
 }
 
-.new-small-card-list-container.ready .loading-data {
+.new-small-card-list-container.ready .loading-data,
+.loading .limit-entries-text,
+.filtering .limit-entries-text,
+.searching .limit-entries-text {
   display: none;
 }
 

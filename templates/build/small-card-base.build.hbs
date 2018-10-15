@@ -1,4 +1,4 @@
-<div class="new-small-card-list-container">
+<div class="new-small-card-list-container loading">
   <!-- Filter Overlay -->
   \{{#if filtersInOverlay}}
   <div class="small-card-search-filter-overlay">
@@ -80,6 +80,18 @@
   <div class="small-card-list-wrapper" id="small-card-list-wrapper-\{{id}}">
       <!-- List items will appear here -->
   </div>
+
+  \{{#if enabledLimitEntries}}
+  <div class="limit-entries-text">
+    \{{#ifCond limitEntries '==' 0}}
+    <p>Search or filter to see the list items</p>
+    \{{/ifCond}}
+    \{{#ifCond limitEntries '>' 0}}
+    <p>Showing the first \{{limitEntries}} list items. \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} too see more.</p>
+    \{{/ifCond}}
+  </div>
+  \{{/if}}
+
   <div class="loading-data">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
   </div>

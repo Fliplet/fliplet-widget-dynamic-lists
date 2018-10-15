@@ -44,6 +44,8 @@ var DynamicList = function(id, data, container) {
   this.usersToMention = [];
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
+  this.isFiltering;
+  this.isSearching;
 
   this.listItems;
   this.modifiedListItems;
@@ -291,6 +293,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
+          _this.$container.find('.simple-list-container').removeClass('searching');
+          _this.isSearching = false;
           _this.clearSearch();
           return;
         }
@@ -301,6 +305,8 @@ DynamicList.prototype.attachObservers = function() {
           label: value
         });
 
+        _this.$container.find('.simple-list-container').addClass('searching');
+        _this.isSearching = true;
         _this.searchData(value);
       }
     })
@@ -309,6 +315,8 @@ DynamicList.prototype.attachObservers = function() {
       var value = $inputField.val();
 
       if (value === '') {
+        _this.$container.find('.simple-list-container').removeClass('searching');
+        _this.isSearching = false;
         _this.clearSearch();
         return;
       }
@@ -319,9 +327,13 @@ DynamicList.prototype.attachObservers = function() {
         label: value
       });
 
+      _this.$container.find('.simple-list-container').addClass('searching');
+      _this.isSearching = false;
       _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
+      _this.$container.find('.simple-list-container').removeClass('searching');
+      _this.isSearching = false;
       _this.clearSearch();
     })
     .on('click', '.search-query span', function() {
@@ -797,6 +809,7 @@ DynamicList.prototype.initialize = function() {
     _this.renderBaseHTML();
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
+
     // Render Loop HTML
     _this.prepareToRenderLoop(_this.listItems);
     _this.renderLoopHTML();
@@ -886,6 +899,8 @@ DynamicList.prototype.prepareToSearch = function() {
     return;
   }
   
+  _this.$container.find('.simple-list-container').addClass('searching');
+  _this.isSearching = true;
   _this.searchData(_this.pvSearchQuery.value);
 }
 
@@ -1069,10 +1084,15 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var _this = this;
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['loop']]());
+    ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
+  var limitedList = undefined;
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+  }
+
+  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1186,6 +1206,8 @@ DynamicList.prototype.filterList = function() {
   }
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
+    _this.$container.find('.simple-list-container').removeClass('filtering');
+    _this.isFiltering = false;
     _this.prepareToRenderLoop(listData);
     _this.renderLoopHTML();
     _this.onReady();
@@ -1212,6 +1234,8 @@ DynamicList.prototype.filterList = function() {
     return !_.includes(matched, false);
   });
 
+  _this.$container.find('.simple-list-container').addClass('filtering');
+  _this.isFiltering = true;
   _this.prepareToRenderLoop(filteredData);
   _this.renderLoopHTML();
   _this.onReady();
@@ -1465,6 +1489,7 @@ DynamicList.prototype.searchData = function(value) {
 
   $inputField.val(copyOfValue);
   $inputField.blur();
+
   _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-filter-controls').addClass('active');
   _this.$container.find('.list-search-cancel').addClass('active');
