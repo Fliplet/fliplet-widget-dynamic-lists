@@ -84,6 +84,17 @@
     <!-- List items will appear here -->
   </div>
 
+  \{{#if enabledLimitEntries}}
+  <div class="limit-entries-text">
+    \{{#ifCond limitEntries '==' 0}}
+    <p>Search or filter to see the list items</p>
+    \{{/ifCond}}
+    \{{#ifCond limitEntries '>' 0}}
+    <p>Showing the first \{{limitEntries}} list items. \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.</p>
+    \{{/ifCond}}
+  </div>
+  \{{/if}}
+
   <div class="loading-holder">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
   </div>

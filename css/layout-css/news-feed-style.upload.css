@@ -418,6 +418,12 @@
   display: block;
 }
 
+.limit-entries-text {
+  padding-top: 20px;
+  text-align: center;
+  opacity: 0.5;
+}
+
 /* FEED LIST */
 
 .new-news-feed-list-container {
@@ -440,7 +446,10 @@
 
 .new-news-feed-list-container.offline .loading-holder,
 .new-news-feed-list-container .offline-holder,
-.new-news-feed-list-container.ready .loading-holder {
+.new-news-feed-list-container.ready .loading-holder,
+.loading .limit-entries-text,
+.filtering .limit-entries-text,
+.searching .limit-entries-text {
   display: none;
 }
 

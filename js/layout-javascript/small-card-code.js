@@ -31,6 +31,8 @@ var DynamicList = function(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
+  this.isFiltering;
+  this.isSearching;
 
   this.emailField = 'Email';
   this.myProfileData;
@@ -298,6 +300,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
+          _this.$container.find('.new-small-card-list-container').removeClass('searching');
+          _this.isSearching = false;
           _this.clearSearch();
           return;
         }
@@ -308,6 +312,8 @@ DynamicList.prototype.attachObservers = function() {
           label: value
         });
 
+        _this.$container.find('.new-small-card-list-container').addClass('searching');
+        _this.isSearching = true;
         _this.searchData(value);
       }
     })
@@ -316,6 +322,8 @@ DynamicList.prototype.attachObservers = function() {
       var value = $inputField.val();
 
       if (value === '') {
+        _this.$container.find('.new-small-card-list-container').removeClass('searching');
+        _this.isSearching = false;
         _this.clearSearch();
         return;
       }
@@ -326,9 +334,13 @@ DynamicList.prototype.attachObservers = function() {
         label: value
       });
 
+      _this.$container.find('.new-small-card-list-container').addClass('searching');
+      _this.isSearching = true;
       _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
+      _this.$container.find('.new-small-card-list-container').removeClass('searching');
+      _this.isSearching = false;
       _this.clearSearch();
     })
     .on('click', '.search-query span', function() {
@@ -1018,16 +1030,21 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
+    ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
+
+  var limitedList = undefined;
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+  }
 
   // IF STATEMENT FOR BACKWARDS COMPATABILITY
   if (!_this.data.detailViewOptions) {
-    _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
+    _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
     return;
   }
 
-  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
+  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1136,6 +1153,8 @@ DynamicList.prototype.filterList = function() {
 
   var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
+    _this.$container.find('.new-small-card-list-container').removeClass('filtering');
+    _this.isFiltering = false;
     _this.prepareToRenderLoop(listData);
     _this.renderLoopHTML();
     _this.onReady();
@@ -1162,6 +1181,8 @@ DynamicList.prototype.filterList = function() {
     return !_.includes(matched, false);
   });
 
+  _this.$container.find('.new-small-card-list-container').addClass('filtering');
+  _this.isFiltering = true;
   _this.prepareToRenderLoop(filteredData);
   _this.renderLoopHTML();
   _this.onReady();
@@ -1411,7 +1432,7 @@ DynamicList.prototype.onReady = function() {
   var _this = this;
 
   // Ready
-  _this.$container.find('.new-small-card-list-container').addClass('ready');
+  _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
 }
 
 DynamicList.prototype.openLinkAction = function(entryId) {

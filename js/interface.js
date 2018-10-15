@@ -610,6 +610,8 @@ var DynamicLists = (function() {
             });
             _this.checkFilterPanelLength();
 
+            $('#items-number').val(_this.config.limitEntries);
+
             // Load Search/Filter fields
             $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
             $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
@@ -640,22 +642,14 @@ var DynamicLists = (function() {
             // Load code editor tabs
             switch(listLayout) {
               case 'small-card':
-                $('.filter-loop-item').removeClass('hidden');
-                $('.detail-view-item').removeClass('hidden');
-                break;
               case 'news-feed':
-                $('.filter-loop-item').removeClass('hidden');
-                $('.detail-view-item').removeClass('hidden');
+              case 'simple-list':
+                $('.filter-loop-item, .detail-view-item, .items-number').removeClass('hidden');
                 break;
               case 'agenda':
-                $('.date-loop-item').removeClass('hidden');
-                $('.detail-view-item').removeClass('hidden');
+                $('.date-loop-item, .detail-view-item').removeClass('hidden');
                 break;
               case 'small-h-card':
-                $('.detail-view-item').removeClass('hidden');
-                break;
-              case 'simple-list':
-                $('.filter-loop-item').removeClass('hidden');
                 $('.detail-view-item').removeClass('hidden');
                 break;
               default:
@@ -1971,6 +1965,16 @@ var DynamicLists = (function() {
         $('#filter-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.filtersInOverlay = $('#enable-filter-overlay').is(":checked");
 
+      // Number of list items
+      var limit = $('#items-number').val().trim();
+      if (limit && limit.length && /^\d+$/.test(limit)) {
+        data.enabledLimitEntries = true;
+        data.limitEntries = parseInt(limit, 10);
+      } else {
+        data.enabledLimitEntries = false;
+        data.limitEntries = '';
+      }
+
       // Advanced Settings
       var advancedInUse;
       data.advancedSettings.htmlEnabled = $('input#enable-templates').is(":checked");
@@ -1983,10 +1987,8 @@ var DynamicLists = (function() {
 
         switch(listLayout) {
           case 'small-card':
-            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
-            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
-            break;
           case 'news-feed':
+          case 'simple-list':
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
@@ -1996,10 +1998,6 @@ var DynamicLists = (function() {
             break;
           case 'small-h-card':
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
-            break;
-          case 'simple-list':
-            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
-            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           default:
             break;

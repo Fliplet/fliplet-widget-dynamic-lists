@@ -50,6 +50,8 @@ var DynamicList = function(id, data, container) {
   this.myUserData;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
+  this.isFiltering;
+  this.isSearching;
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -339,6 +341,8 @@ DynamicList.prototype.attachObservers = function() {
       
       if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
+          _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+          _this.isSearching = false;
           _this.clearSearch();
           return;
         }
@@ -349,6 +353,8 @@ DynamicList.prototype.attachObservers = function() {
           label: value
         });
 
+        _this.$container.find('.new-news-feed-list-container').addClass('searching');
+        _this.isSearching = true;
         _this.searchData(value);
       }
     })
@@ -357,6 +363,8 @@ DynamicList.prototype.attachObservers = function() {
       var value = $inputField.val();
 
       if (value === '') {
+        _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+        _this.isSearching = false;
         _this.clearSearch();
         return;
       }
@@ -367,9 +375,13 @@ DynamicList.prototype.attachObservers = function() {
         label: value
       });
 
+      _this.$container.find('.new-news-feed-list-container').addClass('searching');
+      _this.isSearching = true;
       _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
+      _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+      _this.isSearching = false;
       _this.clearSearch();
     })
     .on('click', '.search-query span', function() {
@@ -1066,6 +1078,8 @@ DynamicList.prototype.prepareToSearch = function() {
     return;
   }
   
+  _this.$container.find('.new-news-feed-list-container').addClass('searching');
+  _this.isSearching = true;
   _this.searchData(_this.pvSearchQuery.value);
 }
 
@@ -1339,15 +1353,20 @@ DynamicList.prototype.renderLoopHTML = function() {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
+    ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
+
+  var limitedList = undefined;
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+  }
 
   if (!_this.data.detailViewOptions) {
-    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
+    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
     return;
   }
 
-  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
