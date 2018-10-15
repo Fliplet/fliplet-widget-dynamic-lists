@@ -185,13 +185,28 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.small-h-card-detail-overlay-close', function(event) {
       event.stopPropagation();
 
+      var result;
+
       if ($(this).hasClass('go-previous-screen')) {
-        if (typeof _this.pvPreviousScreen === 'string') {
-          eval('(function () {' + _this.pvPreviousScreen + '})()');
+        if (!_this.pvPreviousScreen) {
+          return;
         }
 
-        Fliplet.Navigate.back();
-        return;
+        try {
+          result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+        } catch (error) {
+          console.error('Your custom function contains an error: ' + error);
+        }
+
+        if (!(result instanceof Promise)) {
+          result = Promise.resolve();
+        }
+
+        return result.then(function () {
+          return Fliplet.Navigate.back();
+        }).catch(function (error) {
+          console.error(error);
+        });
       }
 
       if ($(window).width() < 640) {
