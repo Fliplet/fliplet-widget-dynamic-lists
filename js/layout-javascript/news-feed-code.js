@@ -712,7 +712,7 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     var mappedRecords = _.clone(records);
-    mappedRecords = mappedRecords.map((record) => {
+    mappedRecords = mappedRecords.map(function(record) {
       fields.forEach(function(field) {
         record.data['modified_' + field.column] = record.data[field.column] || '';
         record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
