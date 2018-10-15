@@ -38,6 +38,18 @@
   bottom: calc(15px + env(safe-area-inset-bottom));
 }
 
+[data-has-notch].platform-web .new-agenda-list-container .agenda-list-controls {
+  bottom: calc(15px + 34px); /* For Fliplet Studio */
+}
+
+[data-has-notch].platform-web .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls {
+  bottom: calc(80px + 34px); /* For Fliplet Studio */
+}
+
+[data-has-notch].platform-web .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls {
+  bottom: calc(15px + 34px); /* For Fliplet Studio */
+}
+
 .no-touchevents .new-agenda-list-container .agenda-list-controls:active,
 .no-touchevents .new-agenda-list-container .agenda-list-controls:focus,
 .no-touchevents .new-agenda-list-container .agenda-list-controls:active:focus,
@@ -378,6 +390,10 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
+}
+
+[data-has-notch].platform-web .new-agenda-list-container .agenda-list-item.open .slide-over .agenda-item-inner-content {
+  padding-bottom: calc(20px + 34px); /* For Fliplet Studio */
 }
 
 .new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-info-holder {

@@ -77,6 +77,10 @@
   overflow-x: hidden;
 }
 
+[data-has-notch].platform-web .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-content {
+  padding-bottom: calc(15px + 34px); /* For Fliplet Studio */
+}
+
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-close {
   position: absolute;
   top: 0;
@@ -672,6 +676,11 @@
   width: 100%;
   padding: 40px 15px 20px 15px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+[data-has-notch].platform-web .new-small-card-list-container .small-card-list-detail-content-wrapper,
+[data-has-notch].platform-web .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
+  padding-bottom: calc(20px + 34px); /* For Fliplet Studio */
 }
 
 .small-card-detail-wrapper .small-card-list-detail-content-wrapper {

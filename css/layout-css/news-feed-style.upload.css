@@ -77,6 +77,10 @@
   overflow-x: hidden;
 }
 
+[data-has-notch].platform-web .new-news-feed-list-container .news-feed-search-filter-overlay .news-feed-overlay-content {
+  padding-bottom: calc(15px + 34px); /* For Fliplet Studio */
+}
+
 .new-news-feed-list-container .news-feed-search-filter-overlay .news-feed-overlay-close {
   position: absolute;
   top: 0;
@@ -596,6 +600,10 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
+[data-has-notch].platform-web .new-news-feed-list-container .news-feed-list-item.open .slide-over .news-feed-item-inner-content {
+  padding-bottom: calc(20px + 34px); /* For Fliplet Studio */
+}
+
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-info-holder,
 .news-feed-detail-overlay .news-feed-info-holder {
   display: flex;
@@ -917,6 +925,10 @@
   z-index: 1;
 }
 
+[data-has-notch].platform-web .new-news-feed-comment-panel .news-feed-comment-area {
+  padding-bottom: calc(109px + 34px); /* For Fliplet Studio */
+}
+
 .new-news-feed-comment-panel.typing .news-feed-comment-area {
   padding-bottom: 109px;
 }
@@ -931,6 +943,10 @@
   background: #ffffff;
   z-index: 3;
   border-top: 1px solid rgba(51,51,51,0.1);
+}
+
+[data-has-notch].platform-web .new-news-feed-comment-panel .news-feed-comment-input-holder {
+  padding-bottom: calc(15px + 34px); /* For Fliplet Studio */
 }
 
 .new-news-feed-comment-panel.typing .news-feed-comment-input-holder{
@@ -1305,6 +1321,10 @@
   width: 100%;
   padding: 40px 15px 20px 15px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+[data-has-notch].platform-web .news-feed-detail-wrapper .news-feed-item-inner-content {
+  padding-bottom: calc(20px + 34px); /* For Fliplet Studio */
 }
 
 .news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-item-inner-content {

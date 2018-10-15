@@ -218,6 +218,11 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
+[data-has-notch].platform-web .new-small-h-card-list-container .small-h-card-list-detail-content-wrapper,
+[data-has-notch].platform-web .small-h-card-detail-wrapper .small-h-card-list-detail-content-wrapper {
+  padding-bottom: calc(20px + 34px); /* For Fliplet Studio */
+}
+
 .small-h-card-detail-wrapper .small-h-card-list-detail-content-wrapper {
   top: calc(100vw + 20px);
   transition: top 0.2s ease-out;
