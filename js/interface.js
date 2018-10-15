@@ -1972,7 +1972,7 @@ var DynamicLists = (function() {
         data.limitEntries = parseInt(limit, 10);
       } else {
         data.enabledLimitEntries = false;
-        data.limitEntries = undefined;
+        data.limitEntries = '';
       }
 
       // Advanced Settings
