@@ -642,26 +642,15 @@ var DynamicLists = (function() {
             // Load code editor tabs
             switch(listLayout) {
               case 'small-card':
-                $('.filter-loop-item').removeClass('hidden');
-                $('.detail-view-item').removeClass('hidden');
-                $('.items-number').removeClass('hidden');
-                break;
               case 'news-feed':
-                $('.filter-loop-item').removeClass('hidden');
-                $('.detail-view-item').removeClass('hidden');
-                $('.items-number').removeClass('hidden');
+              case 'simple-list':
+                $('.filter-loop-item, .detail-view-item, .items-number').removeClass('hidden');
                 break;
               case 'agenda':
-                $('.date-loop-item').removeClass('hidden');
-                $('.detail-view-item').removeClass('hidden');
+                $('.date-loop-item, .detail-view-item').removeClass('hidden');
                 break;
               case 'small-h-card':
                 $('.detail-view-item').removeClass('hidden');
-                break;
-              case 'simple-list':
-                $('.filter-loop-item').removeClass('hidden');
-                $('.detail-view-item').removeClass('hidden');
-                $('.items-number').removeClass('hidden');
                 break;
               default:
                 break;
@@ -1998,10 +1987,8 @@ var DynamicLists = (function() {
 
         switch(listLayout) {
           case 'small-card':
-            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
-            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
-            break;
           case 'news-feed':
+          case 'simple-list':
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
@@ -2011,10 +1998,6 @@ var DynamicLists = (function() {
             break;
           case 'small-h-card':
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
-            break;
-          case 'simple-list':
-            data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
-            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           default:
             break;
