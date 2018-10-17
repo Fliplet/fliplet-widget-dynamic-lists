@@ -1005,10 +1005,6 @@ DynamicList.prototype.connectToDataSource = function() {
       }
     }
 
-    if (_this.data.pvQueryData) {
-      getData = _this.data.pvQueryData;
-    }
-
     return getData(cache);
   }).catch(function (error) {
     Fliplet.UI.Toast({
