@@ -1265,11 +1265,11 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   _this.$container.find('.new-agenda-list-container').css({
     'top': netOffset,
     'position': 'fixed',
-    'z-index': '13'
+    'z-index': '1010'
   });
 
   _this.$container.find('.agenda-cards-wrapper').css({
-    'z-index': '13'
+    'z-index': '1010'
   });
 
   // convert the expand-item to fixed position without moving it

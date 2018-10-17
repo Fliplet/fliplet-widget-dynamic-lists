@@ -1126,7 +1126,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
       'width': elementToExpand.width(),
       'max-width': expandWidth,
       'position': 'fixed',
-      'z-index': 11,
+      'z-index': 1010,
     });
 
     elementToExpand.animate({
