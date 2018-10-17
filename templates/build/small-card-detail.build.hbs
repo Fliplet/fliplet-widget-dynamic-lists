@@ -1,4 +1,9 @@
-<div class="small-card-list-detail-close-btn"><i class="fa fa-times"></i></div>
+\{{#if [Image]}}
+<div class="small-card-list-detail-image-wrapper">
+  <div class="small-card-list-detail-image" style="background-image: url('\{{auth [Image]}}')"></div>
+  \{{#unless [Image]}}<i class="fa fa-user"></i>\{{/unless}}
+</div>
+\{{/if}} 
 <div class="small-card-list-detail-content-scroll-wrapper">
   <div class="small-card-list-detail-content-wrapper">
     <div class="small-card-list-detail-name">\{{[First Name]}} \{{[Last Name]}}</div>

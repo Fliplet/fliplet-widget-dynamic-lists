@@ -28,6 +28,7 @@
           <div class="col-sm-8">
             <div class="create-holder">
               <div class="btn btn-default" data-create-datasource>Create list data</div>
+              <div class="btn btn-secondary select-new-data-source">Use existing data</div>
             </div>
             <div class="edit-holder hidden">
               <div class="btn btn-default" data-edit-datasource>Edit list data</div>
@@ -79,6 +80,17 @@
           </div>
         </div>
 
+        <div class="form-group clearfix items-number hidden">
+          <div class="col-sm-4 control-label">
+            <label>Number of list items to show</label>
+            <p><small>Shows the first X amount of list items. User has to search to see more.</small></p>
+          </div>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" id="items-number">
+            <p class="text-muted field-text-info">Leave it blank to show all or enter a number.</p>
+          </div>
+        </div>
+
         <div class="form-group clearfix list-search disabled hidden">
           <div class="col-sm-4 control-label">
             <label>List search</label>
@@ -116,7 +128,7 @@
             <div class="checkbox checkbox-icon filter-in-overlay hidden">
               <input type="checkbox" id="enable-filter-overlay">
               <label for="enable-filter-overlay">
-                <span class="check"><i class="fa fa-check"></i></span> Filters in an overlay - <em>Recommended for long lists of filters</em>
+                <span class="check"><i class="fa fa-check"></i></span> Display filters as a full screen overlay - <em>This is recommended if you have a long list of filters</em>
               </label>
             </div>
           </div>
@@ -251,7 +263,13 @@
                               <div class="radio radio-icon">
                                 <input type="radio" id="edit-admins" name="edit-permissions" value="admins">
                                 <label for="edit-admins">
-                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Only admins can edit</span>
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Only admins can edit list items</span>
+                                </label>
+                              </div>
+                              <div class="radio radio-icon">
+                                <input type="radio" id="edit-users-admins" name="edit-permissions" value="users-admins">
+                                <label for="edit-users-admins">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Users and admins can edit list items</span>
                                 </label>
                               </div>
                             </div>
@@ -289,9 +307,23 @@
                                   <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Only admins can delete list items</span>
                                 </label>
                               </div>
+                              <div class="radio radio-icon">
+                                <input type="radio" id="delete-users-admins" name="delete-permissions" value="users-admins">
+                                <label for="delete-users-admins">
+                                  <span class="check"><i class="fa fa-circle"></i></span> <span class="option-title">Users and admins can delete list items</span>
+                                </label>
+                              </div>
                             </div>
                           </div>
                         </div>
+                      </div>
+                      <div class="select-user-email-list-holder hidden">
+                        <label>Select field where the post author's email is stored <small>(Required)</small></label>
+                        <p><small>This is used so we can offer the right edit options to the right person.</small></p>
+                        <select name="select_user_email_data" id="select_user_email_data" class="form-control">
+                          <option value="none">-- Select the email data field</option>
+                          <option disabled>------</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -301,19 +333,11 @@
           </div>
         </div>
 
-        <div class="col-xs-12 form-group clearfix select-user-email-list-holder hidden">
-          <label>Email data field for who posted list item <small>(Required)</small></label>
-          <p><small>Select the data field where the email of the user that posted a list item is stored.</small></p>
-          <select name="select_user_email_data" id="select_user_email_data" class="form-control">
-            <option value="none">-- Select the email data field</option>
-            <option disabled>------</option>
-          </select>
-        </div>
-
         <div class="user-datasource-options hidden">
           <div class="form-group clearfix">
             <div class="col-xs-12 select-user-datasource-holder">
-              <label>Select the users data source <small>(Required)</small></label>
+              <label>Select the datasource where app users are listed <small>(Required)</small></label>
+              <p><small>To enable features that are specific to a user we need to know how to identify different users. Please select the location where the users emails are listed.</small></p>
               <select name="select_user_datasource" id="select_user_datasource" class="form-control">
                 <option value="none">-- Select a data source</option>
                 <option disabled>------</option>

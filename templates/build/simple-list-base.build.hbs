@@ -13,6 +13,15 @@
       <div class="simple-list-overlay-content">
         <div class="hidden-filter-controls">
           <div class="hidden-filter-controls-content">
+            \{{#if searchEnabled}}
+            <div class="hidden-filter-controls-search">
+              <div class="search-query-holder">
+                <div class="search-query">
+                Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+                </div>
+              </div>
+            </div>
+            \{{/if}}
             <div class="filters-header">Filter by</div>
             <div class="filter-holder">
               <!-- Filters here -->
@@ -35,7 +44,14 @@
       <div class="btn btn-default search-btn">Search</div>
     </div>
     \{{/if}}
+    \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
+      \{{#if bookmarksEnabled}}
+      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
+        <span class="fa fa-bookmark-o"></span>
+        <span class="fa fa-bookmark"></span>
+      </div>
+      \{{/if}}
       \{{#ifCond filtersInOverlay '!==' true}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
       \{{/ifCond}}
@@ -43,6 +59,7 @@
       <i class="fa fa-sliders"></i>
       \{{/if}}
     </div>
+    \{{/ifCond}}
   </div>
   \{{/ifCond}}
   <!-- End of Top bar -->
@@ -75,32 +92,76 @@
   <div class="simple-list-wrapper" id="simple-list-wrapper-\{{id}}">
     <!-- List items will appear here -->
   </div>
+
+  \{{#if enabledLimitEntries}}
+  <div class="limit-entries-text">
+    \{{#ifCond limitEntries '==' 0}}
+      \{{#ifCond searchEnabled '||' filtersEnabled}}
+      <p>\{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see the list items</p>
+      \{{/ifCond}}
+    \{{/ifCond}}
+    \{{#ifCond limitEntries '>' 0}}
+    <p>Showing the first \{{limitEntries}} list items. \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.</p>
+    \{{/ifCond}}
+  </div>
+  \{{/if}}
   
   <div class="loading-holder">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
   </div>
 </div>
 
-<div class="simple-list-detail-overlay" id="simple-list-detail-overlay-\{{id}}">
+<!-- Detail view overlay -->
+<div class="simple-list-detail-overlay" id="simple-list-detail-overlay-\{{id}}" data-entry-id="\{{id}}">
   <div class="simple-list-detail-overlay-screen"></div>
   <div class="simple-list-detail-overlay-wrapper">
     <div class="simple-list-detail-overlay-panel">
       <div class="simple-list-detail-overlay-heading">
-        <div class="simple-list-detail-overlay-close">
+        <div class="simple-list-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
           <i class="fa fa-times"></i>
         </div>
       </div>
       <div class="simple-list-detail-overlay-content">
-        <div class="simple-list-detail-overlay-content-holder"></div>
+        <div class="simple-list-detail-overlay-content-holder">
+          <!-- Details will be added here -->
+        </div>
       </div>
     </div>
-    <div class="simple-list-detail-overlay-close tablet">
+    <div class="simple-list-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
       <i class="fa fa-times"></i>
     </div>
   </div>
 </div>
+
 \{{#if showAddEntry}}
 <div class="dynamic-list-add-item">
   <i class="fa fa-plus"></i>
 </div>
 \{{/if}}
+
+<div class="simple-list-comment-panel">
+  <div class="simple-list-comment-panel-header">
+    <div class="simple-list-comment-panel-title">Comments</div>
+    <div class="simple-list-comment-close-panel"><i class="fa fa-times"></i></div>
+  </div>
+
+  <div class="comments-offline">You are offline</div>
+
+  <div class="simple-list-comment-area">
+    <!-- Comments will be added here -->
+    <div class="loading-holder">
+      <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+    </div>
+  </div>
+
+  <div class="simple-list-comment-input-holder">
+    <div class="input-first-row">
+      <textarea class="form-control" rows="1" placeholder="Type comment" data-comment-body></textarea>
+    </div>
+    <div class="input-second-row">
+      <div class="btn btn-primary comment">Comment</div>
+      <div class="btn btn-link cancel">Cancel</div>
+      <div class="btn btn-primary save">Save</div>
+    </div>
+  </div>
+</div>

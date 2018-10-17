@@ -1,33 +1,33 @@
-var newsFeedLayoutMapping = {
-  'news-feed': {
-    'base': 'templates.build.news-feed-base',
-    'loop': 'templates.build.news-feed-loop',
-    'filter': 'templates.build.news-feed-filters',
-    'comments': 'templates.build.news-feed-comment',
-    'single-comment': 'templates.build.news-feed-single-comment',
-    'temp-comment': 'templates.build.news-feed-temp-comment'
-  }
-};
-
-var operators = {
-  '==': function(a, b) { return a == b },
-  '!=': function(a, b) { return a != b },
-  '>': function(a, b) { return a > b },
-  '>=': function(a, b) { return a >= b },
-  '<': function(a, b) { return a < b },
-  '<=': function(a, b) { return a <= b }
-};
-
 // Constructor
 var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
+  this.newsFeedLayoutMapping = {
+    'news-feed': {
+      'base': 'templates.build.news-feed-base',
+      'loop': 'templates.build.news-feed-loop',
+      'detail': 'templates.build.news-feed-detail',
+      'filter': 'templates.build.news-feed-filters',
+      'comments': 'templates.build.news-feed-comment',
+      'single-comment': 'templates.build.news-feed-single-comment',
+      'temp-comment': 'templates.build.news-feed-temp-comment'
+    }
+  };
+  this.operators = {
+    '==': function(a, b) { return a == b },
+    '!=': function(a, b) { return a != b },
+    '>': function(a, b) { return a > b },
+    '>=': function(a, b) { return a >= b },
+    '<': function(a, b) { return a < b },
+    '<=': function(a, b) { return a <= b }
+  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
+  this.$overlay;
   this.queryOptions = {};
 
   // Other variables
@@ -42,16 +42,34 @@ var DynamicList = function(id, data, container) {
   this.dataSourceColumns;
   this.likeButtons = [];
   this.bookmarkButtons = [];
+  this.likeButtonOverlay;
+  this.bookmarkButtonOverlay;
   this.comments = [];
   this.allUsers;
   this.usersToMention = [];
   this.myUserData;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
+  this.isFiltering;
+  this.isSearching;
+
+  this.queryOpen = false;
+  this.querySearch = false;
+  this.queryFilter = false;
+  this.queryPreFilter = false;
+  this.pvPreviousScreen;
+  this.pvSearchQuery;
+  this.pvFilterQuery;
+  this.pvPreFilterQuery;
+  this.pvOpenQuery;
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
   this.setupCopyText();
+
+  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
+  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[this.data.layout]['detail']]());
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -198,10 +216,6 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
   // Attach your event listeners here
-  $(window).resize(function() {
-    _this.setCardHeight();
-  });
-
   _this.$container
     .on('click', '.hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
@@ -230,7 +244,6 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.news-feed-list-item', function(event) {
       event.stopPropagation();
-      var elementToExpand = $(this).find('.news-feed-item-content');
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text();
       Fliplet.Analytics.trackEvent({
@@ -245,13 +258,35 @@ DynamicList.prototype.attachObservers = function() {
       }
       // find the element to expand and expand it
       if (_this.allowClick) {
-        _this.expandElement(elementToExpand);
+        _this.showDetails(entryId);
       }
     })
-    .on('click', '.news-feed-item-close-btn-wrapper', function(event) {
-      event.stopPropagation();
-      // find the element to collpase and collpase it
-      _this.collapseElement($(this));
+    .on('click', '.news-feed-detail-overlay-close', function() {
+      var result;
+
+      if ($(this).hasClass('go-previous-screen')) {
+        if (!_this.pvPreviousScreen) {
+          return;
+        }
+
+        try {
+          result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+        } catch (error) {
+          console.error('Your custom function contains an error: ' + error);
+        }
+
+        if (!(result instanceof Promise)) {
+          result = Promise.resolve();
+        }
+
+        return result.then(function () {
+          return Fliplet.Navigate.back();
+        }).catch(function (error) {
+          console.error(error);
+        });
+      }
+
+      _this.closeDetails();
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -296,18 +331,18 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('keydown', '.search-holder input', function(e) {
       var $inputField = $(this);
-      var $parentElement = $inputField.parents('.new-news-feed-list-container');
       var value = $inputField.val();
 
       if (value.length) {
         $inputField.addClass('not-empty');
-        value = value.toLowerCase();
       } else {
         $inputField.removeClass('not-empty');
       }
       
       if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
+          _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+          _this.isSearching = false;
           _this.clearSearch();
           return;
         }
@@ -318,24 +353,18 @@ DynamicList.prototype.attachObservers = function() {
           label: value
         });
 
-        if ($inputField.hasClass('from-overlay')) {
-          $inputField.parents('.news-feed-search-filter-overlay').removeClass('display');
-        }
-        $inputField.blur();
-        $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+        _this.$container.find('.new-news-feed-list-container').addClass('searching');
+        _this.isSearching = true;
         _this.searchData(value);
       }
     })
     .on('click', '.search-holder .search-btn', function(e) {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
-      var $parentElement = $inputField.parents('.new-news-feed-list-container');
       var value = $inputField.val();
 
-      if (value.length) {
-        value = value.toLowerCase();
-      }
-
       if (value === '') {
+        _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+        _this.isSearching = false;
         _this.clearSearch();
         return;
       }
@@ -346,14 +375,13 @@ DynamicList.prototype.attachObservers = function() {
         label: value
       });
 
-      if ($inputField.hasClass('from-overlay')) {
-        $inputField.parents('.simple-list-search-filter-overlay').removeClass('display');
-      }
-      $inputField.blur();
-      $parentElement.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+      _this.$container.find('.new-news-feed-list-container').addClass('searching');
+      _this.isSearching = true;
       _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
+      _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+      _this.isSearching = false;
       _this.clearSearch();
     })
     .on('click', '.search-query span', function() {
@@ -371,7 +399,12 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.news-feed-comment-holder', function(e) {
       e.stopPropagation();
-      var identifier = $(this).parents('.news-feed-list-item').data('entry-id');
+      var identifier;
+      if ($('.new-news-feed-list-container').hasClass('overlay-open')) {
+        identifier = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+      } else {
+        identifier = $(this).parents('.news-feed-list-item').data('entry-id');
+      }
       _this.entryClicked = identifier;
       _this.showComments(identifier);
       $('html, body').addClass('lock');
@@ -624,9 +657,9 @@ DynamicList.prototype.attachObservers = function() {
                 });
 
                 _that.text('Delete').removeClass('disabled');
-                var $closeButton = _that.parents('.news-feed-list-item').find('.news-feed-item-close-btn-wrapper');
-                _this.collapseElement($closeButton);
-                _this.renderLoopHTML(_this.listItems);
+                _this.closeDetails();
+                _this.prepareToRenderLoop(_this.listItems);
+                _this.renderLoopHTML();
 
                 _that.text('Delete').removeClass('disabled');
               });
@@ -640,48 +673,185 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.UI.Actions(options);
     });
-    
-    _this.likeButtons.forEach(function(button) {
-      button.btn.on('liked', function(data){
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_like',
-          label: entryTitle
-        });
-      });
+}
 
-      button.btn.on('unliked', function(data){
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_unlike',
-          label: entryTitle
-        });
+DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
+  var _this = this;
+  var bookmarkIndentifier = id + '-bookmark';
+  var likeIndentifier = id + '-like';
+  var title = $('.news-feed-detail-overlay').find('.news-feed-item-inner-content .news-feed-item-title').text();
+
+  if (_this.data.social && _this.data.social.bookmark) {
+    _this.setupBookmarkButtonOverlay(id, bookmarkIndentifier, title);
+  }
+  if (_this.data.social && _this.data.social.likes) {
+    _this.setupLikeButtonOverlay(id, likeIndentifier, title);
+  }
+  if (_this.data.social && (_this.data.social.bookmark || _this.data.social.likes)) {
+    _this.likesObserversOverlay(id);
+  }
+}
+
+DynamicList.prototype.likesObservers = function() {
+  var _this = this;
+
+  _this.likeButtons.forEach(function(button) {
+    button.btn.on('liked', function(data){
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_like',
+        label: entryTitle
       });
     });
 
-    _this.bookmarkButtons.forEach(function(button) {
-      button.btn.on('liked', function(data){
-        this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_bookmark',
-          label: entryTitle
-        });
-      });
-
-      button.btn.on('unliked', function(data){
-        this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
-        var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_unbookmark',
-          label: entryTitle
-        });
+    button.btn.on('unliked', function(data){
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unlike',
+        label: entryTitle
       });
     });
+  });
+
+  _this.bookmarkButtons.forEach(function(button) {
+    button.btn.on('liked', function(data){
+      this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_bookmark',
+        label: entryTitle
+      });
+    });
+
+    button.btn.on('unliked', function(data){
+      this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
+      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unbookmark',
+        label: entryTitle
+      });
+    });
+  });
+}
+
+DynamicList.prototype.likesObserversOverlay = function(id) {
+  var _this = this;
+
+  _this.bookmarkButtonOverlay.on('liked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.like();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.bookmarkButtonOverlay.on('unliked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    var button = _.find(_this.bookmarkButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.unlike();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.likeButtonOverlay.on('liked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    var button = _.find(_this.likeButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.like();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
+    });
+  });
+
+  _this.likeButtonOverlay.on('unliked', function(data){
+    var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+    var button = _.find(_this.likeButtons, function(btn) {
+      return btn.id === id;
+    });
+
+    if (button) {
+      button.btn.unlike();
+    }
+
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
+    });
+  });
+}
+
+DynamicList.prototype.filterRecords = function(records, filters) {
+  return _.filter(records, function(record) {
+    var matched = 0;
+
+    filters.some(function(filter) {
+      var condition = filter.condition;
+      var rowData;
+      // Case insensitive
+      if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+        filter.value = filter.value.toLowerCase();
+      }
+      if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+        rowData = record.data[filter.column].toString().toLowerCase();
+      }
+
+      if (condition === 'contains') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'notcontain') {
+        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
+          matched++;
+        }
+        return;
+      }
+      if (condition === 'regex') {
+        var pattern = new RegExp(filter.value);
+        if (patt.test(rowData)){
+          matched++;
+        }
+        return;
+      }
+      if (_this.operators[condition](rowData, filter.value)) {
+        matched++;
+        return;
+      }
+    });
+
+    return matched >= filters.length ? true : false;
+  });
 }
 
 DynamicList.prototype.prepareData = function(records) {
@@ -689,7 +859,6 @@ DynamicList.prototype.prepareData = function(records) {
   var sorted;
   var ordered;
   var filtered;
-  var dateColumns = [];
 
   // Prepare sorting
   if (_this.data.sortOptions.length) {
@@ -765,51 +934,28 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    filtered = _.filter(records, function(record) {
-      var matched = 0;
-
-      filters.some(function(filter) {
-        var condition = filter.condition;
-        var rowData;
-        // Case insensitive
-        if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-          filter.value = filter.value.toLowerCase();
-        }
-        if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
-          rowData = record.data[filter.column].toString().toLowerCase();
-        }
-
-        if (condition === 'contains') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'notcontain') {
-          if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
-            matched++;
-          }
-          return;
-        }
-        if (condition === 'regex') {
-          var pattern = new RegExp(filter.value);
-          if (patt.test(rowData)){
-            matched++;
-          }
-          return;
-        }
-        if (operators[condition](rowData, filter.value)) {
-          matched++;
-          return;
-        }
-      });
-
-      return matched >= filters.length ? true : false;
-    });
+    filtered = _this.filterRecords(records, filters);
     records = filtered;
   }
 
-  // Convert date and add flag for likes
+  var prefiltered;
+  var prefilters = [];
+  if (_this.queryPreFilter) {
+    _this.pvPreFilterQuery.forEach(function(option) {
+      var filter = {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      }
+      prefilters.push(filter);
+    });
+
+    // Filter data
+    prefiltered = _this.filterRecords(records, prefilters);
+    records = prefiltered;
+  }
+
+  // Add flag for likes
   records.forEach(function(obj, i) {
     // Add likes flag
     if (_this.data.social && _this.data.social.likes) {
@@ -838,11 +984,32 @@ DynamicList.prototype.prepareData = function(records) {
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
-  // Render Base HTML template
-  _this.renderBaseHTML();
 
-  // Connect to data source to get rows
-  _this.connectToDataSource()
+  // Render list with default data
+  if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
+    _this.listItems = _this.prepareData(_this.data.defaultEntries);
+    _this.dataSourceColumns = _this.data.defaultColumns;
+    // Render Loop HTML
+    _this.prepareToRenderLoop(_this.listItems);
+    _this.renderLoopHTML();
+    _this.addFilters(_this.modifiedListItems);
+    // Listeners and Ready
+    _this.attachObservers();
+    _this.onReady();
+    return;
+  }
+
+  // Check if there is a PV for search/filter queries
+  _this.parsePVQueryVars()
+    .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
+
+      return _this.connectToDataSource();
+    })
     .then(function (records) {
       _this.listItems = _this.prepareData(records);
       return;
@@ -856,14 +1023,138 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       // Render Loop HTML
-      _this.renderLoopHTML(_this.listItems);
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.checkIsToOpen();
+      _this.renderLoopHTML();
       _this.addFilters(_this.modifiedListItems);
+      _this.prepareToSearch();
+      _this.prepareToFilter();
       return
     })
     .then(function() {
       // Listeners and Ready
       _this.attachObservers();
       _this.onReady();
+    });
+}
+
+DynamicList.prototype.checkIsToOpen = function() {
+  // List of entries saved in: _this.modifiedListItems
+  var _this = this;
+  var entry;
+
+  if (!_this.queryOpen) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row.id === _this.pvOpenQuery.id;
+    });
+  }
+
+  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.modifiedListItems, function(row) {
+      return row[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    });
+  }
+
+  if (!entry) {
+    return;
+  }
+
+  _this.showDetails(entry.id);
+}
+
+DynamicList.prototype.prepareToSearch = function() {
+  var _this = this;
+
+  if ( !_.hasIn(_this.pvSearchQuery, 'value') ) {
+    return;
+  }
+
+  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+    _this.overrideSearchData(_this.pvSearchQuery.value);
+    return;
+  }
+  
+  _this.$container.find('.new-news-feed-list-container').addClass('searching');
+  _this.isSearching = true;
+  _this.searchData(_this.pvSearchQuery.value);
+}
+
+DynamicList.prototype.prepareToFilter = function() {
+  var _this = this;
+
+  if ( !_this.pvFilterQuery || !_.hasIn(_this.pvFilterQuery, 'value') ) {
+    return;
+  }
+
+  if (Array.isArray(_this.pvFilterQuery.value)) {
+    _this.pvFilterQuery.value.forEach(function(value) {
+      value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+      $('.hidden-filter-controls-filter[data-toggle="' + value + '"]').addClass('mixitup-control-active');
+    });
+  } else {
+    _this.pvFilterQuery.value = _this.pvFilterQuery.value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+    $('.hidden-filter-controls-filter[data-toggle="' + _this.pvFilterQuery.value + '"]').addClass('mixitup-control-active');
+  }
+
+  _this.filterList();
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  if (!_this.data.filtersInOverlay) {
+    _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
+  }
+  _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
+}
+
+DynamicList.prototype.parsePVQueryVars = function() {
+  var _this = this;
+  var pvValue;
+
+  return Fliplet.App.Storage.get('flDynamicListQuery:' + _this.data.layout)
+    .then(function(value) {
+      pvValue = value;
+      console.log(pvValue);
+
+      if (typeof value === 'undefined') {
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+        return;
+      }
+
+      _this.pvPreviousScreen = value.previousScreen;
+
+      if (_.hasIn(value, 'prefilter')) {
+        _this.queryPreFilter = true;
+        _this.pvPreFilterQuery = value.prefilter;
+      }
+
+      if (_.hasIn(value, 'open')) {
+        _this.queryOpen = true;
+        _this.pvOpenQuery = value.open;
+      }
+
+      if (_.hasIn(value, 'search')) {
+        _this.querySearch = true;
+        _this.pvSearchQuery = value.search;
+        _this.data.searchEnabled = true;
+      }
+
+      if (_.hasIn(value, 'filter')) {
+        _this.queryFilter = true;
+        _this.pvFilterQuery = value.filter;
+        _this.data.filtersEnabled = true;
+      }
+
+      return;
+    })
+    .then(function() {
+      if (pvValue && !pvValue.persist) {
+        Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+      }
+
+      return;
     });
 }
 
@@ -918,8 +1209,11 @@ DynamicList.prototype.renderBaseHTML = function() {
 
   var data = _this.getAddPermission(_this.data);
 
+  // go to previous screen on close detail view - TRUE/FALSE
+  data.previousScreen = _this.pvPreviousScreen;
+
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -927,21 +1221,15 @@ DynamicList.prototype.renderBaseHTML = function() {
   : Handlebars.compile(baseHTML());
 
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
+  _this.$overlay = _this.$container.find('#news-feed-detail-overlay-' + _this.data.id);
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
-  // Function that renders the List template
+DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
-
   var savedColumns = [];
-
   var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
   modifiedData = _this.getPermissions(modifiedData);
-
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['loop']]());
 
   var loopData = [];
 
@@ -963,9 +1251,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
       loopData.push(newObject);
     });
-    
-    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
-    _this.addFilters(loopData);
+    _this.modifiedListItems = loopData;
     return;
   }
 
@@ -1060,16 +1346,34 @@ DynamicList.prototype.renderLoopHTML = function(records) {
       }
     });
   }
-
   _this.modifiedListItems = loopData;
-  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(loopData));
+}
+
+DynamicList.prototype.renderLoopHTML = function() {
+  // Function that renders the List template
+  var _this = this;
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+    ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
+
+  var limitedList = undefined;
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+  }
+
+  if (!_this.data.detailViewOptions) {
+    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
+    return;
+  }
+
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
   var _this = this;
 
   if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
-    if (_this.myUserData && _this.data.addPermissions === 'admins') {
+    if (_this.myUserData && (_this.data.addPermissions === 'admins' || _this.data.addPermissions === 'users-admins')) {
       if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
         data.showAddEntry = data.addEntry;
       }
@@ -1087,11 +1391,11 @@ DynamicList.prototype.getPermissions = function(entries) {
   // Adds flag for Edit and Delete buttons
   entries.forEach(function(obj, index) {
     if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
-      if (_this.myUserData && _this.data.editPermissions === 'admins') {
+      if (_this.myUserData && (_this.data.editPermissions === 'admins' || _this.data.editPermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
           entries[index].editEntry = _this.data.editEntry;
         }
-      } else if (_this.myUserData && _this.data.editPermissions === 'user') {
+      } else if (_this.myUserData && (_this.data.editPermissions === 'user' || _this.data.editPermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
           entries[index].editEntry = _this.data.editEntry;
         }
@@ -1100,11 +1404,11 @@ DynamicList.prototype.getPermissions = function(entries) {
       }
     }
     if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
-      if (_this.myUserData && _this.data.deletePermissions === 'admins') {
+      if (_this.myUserData && (_this.data.deletePermissions === 'admins' || _this.data.deletePermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
           entries[index].deleteEntry = _this.data.deleteEntry;
         }
-      } else if (_this.myUserData && _this.data.deletePermissions === 'user') {
+      } else if (_this.myUserData && (_this.data.deletePermissions === 'user' || _this.data.deletePermissions === 'users-admins')) {
         if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
           entries[index].deleteEntry = _this.data.deleteEntry;
         }
@@ -1157,7 +1461,7 @@ DynamicList.prototype.addFilters = function(data) {
 
   filtersData.filters = allFilters
 
-  filtersTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['filter']];
+  filtersTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
   ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
   : Handlebars.compile(filtersTemplate());
@@ -1169,13 +1473,15 @@ DynamicList.prototype.filterList = function() {
   var _this = this;
   _this.filterClasses = [];
 
-  if (_this.data.social && _this.data.social.bookmark) {
+  var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+
+  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
   }
 
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
-    var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-    _this.renderLoopHTML(listData);
+    _this.prepareToRenderLoop(listData);
+    _this.renderLoopHTML();
     _this.onReady();
     return;
   }
@@ -1184,7 +1490,7 @@ DynamicList.prototype.filterList = function() {
     _this.filterClasses.push($(element).data('toggle'));
   });
 
-  var filteredData = _.filter(_this.listItems, function(row) {
+  var filteredData = _.filter(listData, function(row) {
     var filters = [];
     row.data['flFilters'].forEach(function(obj) {
       filters.push(obj.data.class);
@@ -1200,8 +1506,29 @@ DynamicList.prototype.filterList = function() {
     return !_.includes(matched, false);
   });
 
-  _this.renderLoopHTML(filteredData);
+  _this.prepareToRenderLoop(filteredData);
+  _this.renderLoopHTML();
   _this.onReady();
+}
+
+DynamicList.prototype.splitByCommas = function(str) {
+  if (Array.isArray(str)) {
+    return str;
+  }
+
+  if (typeof str !== 'string') {
+    return [str];
+  }
+
+  // Split a string by commas but ignore commas within double-quotes using Javascript
+  // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
+  var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
+  var arr = [];
+  var res;
+  while ((res = regexp.exec(str)) !== null) {
+    arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
+  }
+  return arr;
 }
 
 DynamicList.prototype.convertCategories = function(data) {
@@ -1215,7 +1542,7 @@ DynamicList.prototype.convertCategories = function(data) {
     _this.data.filterFields.forEach(function(filter) {
       var arrayOfTags = [];
       if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
-        var arrayOfTags = element.data[filter].toString().split(',').map(function(item) {
+        var arrayOfTags = _this.splitByCommas(element.data[filter]).map(function(item) {
           return item.trim();
         });
       }
@@ -1244,31 +1571,6 @@ DynamicList.prototype.convertCategories = function(data) {
 DynamicList.prototype.onReady = function() {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
-  var imagePromises = [];
-
-  // Wait for image to load
-  _this.$container.find('.news-feed-list-item').each(function(index, element) {
-    var promise = new Promise(function(resolve, reject) {
-      var image = $(element).find('.image-banner img')[0];
-
-      if (image) {
-        if (image.complete) {
-          resolve();
-        } else {
-          image.addEventListener('load', resolve);
-        }
-      } else {
-        resolve();
-      }
-    });
-
-    imagePromises.push(promise);
-  });
-
-  Promise.all(imagePromises)
-    .then(function() {
-      _this.setCardHeight();
-    });
 
   if (_this.data.social && _this.data.social.likes) {
     _this.$container.find('.news-feed-list-item').each(function(index, element) {
@@ -1287,6 +1589,10 @@ DynamicList.prototype.onReady = function() {
       var title = $(element).find('.news-feed-item-inner-content .news-feed-item-title').text();
       _this.setupBookmarkButton(cardId, likeIndentifier, title);
     });
+  }
+
+  if (_this.data.social && (_this.data.social.bookmark || _this.data.social.likes)) {
+    _this.likesObservers();
   }
 
   if (_this.data.social && _this.data.social.comments) {
@@ -1354,16 +1660,109 @@ DynamicList.prototype.checkBookmarked = function() {
   });
 }
 
-DynamicList.prototype.calculateFiltersHeight = function(element) {
+DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch) {
   var targetHeight = element.find('.hidden-filter-controls-content').height();
+  var filterHolder = element.find('.filter-holder').height();
+  var totalHeight = targetHeight;
+
+  if (isFromSearch && filterHolder) {
+    totalHeight = targetHeight - filterHolder;
+  }
+
   element.find('.hidden-filter-controls').animate({
-    height: targetHeight,
+    height: totalHeight,
   }, 200);
+}
+
+DynamicList.prototype.overrideSearchData = function(value) {
+  var _this = this;
+  var $inputField = _this.$container.find('.search-holder input');
+  var copyOfValue = value;
+  value = value.toLowerCase();
+
+  $inputField.val(copyOfValue);
+  $inputField.blur();
+  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
+
+  // Removes cards
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
+  // Adds search query to HTML
+  _this.$container.find('.current-query').html(value);
+  
+  // Search
+  var searchedData = [];
+  var filteredData;
+  var fields = _this.pvSearchQuery.column; // Can be Array or String
+
+  if (Array.isArray(_this.pvSearchQuery.column)) {
+    fields.forEach(function(field) {    
+      filteredData = _.filter(_this.listItems, function(obj) {
+        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
+          return obj.data[field].toLowerCase().indexOf(value) > -1;
+        }
+      });
+
+      if (filteredData.length) {
+        filteredData.forEach(function(item) {
+          searchedData.push(item);
+        });
+      }
+    });
+  } else {
+    searchedData = _.filter(_this.listItems, function(obj) {
+      if (obj.data[fields] !== null && obj.data[fields] !== '' && typeof obj.data[fields] !== 'undefined') {
+        return obj.data[fields].toLowerCase().indexOf(value) > -1;
+      }
+    });
+
+    if (!searchedData || !searchedData.length) {
+      searchedData = [];
+    }
+  }
+
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  if (!_this.data.filtersInOverlay) {
+    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
+  }
+
+  if (!searchedData.length) {
+    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+  }
+
+  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
+    _this.mixer.destroy();
+  }
+
+  // Remove duplicates
+  searchedData = _.uniq(searchedData);
+  _this.searchedListItems = searchedData;
+  _this.prepareToRenderLoop(searchedData);
+  _this.renderLoopHTML();
+  _this.addFilters(_this.modifiedListItems);
+
+  if (_this.searchedListItems.length === 1) {
+    _this.showDetails(_this.searchedListItems[0].id);
+  }
+
+  _this.onReady();
 }
 
 DynamicList.prototype.searchData = function(value) {
   // Function called when user executes a search
   var _this = this;
+  var $inputField = _this.$container.find('.search-holder input');
+  var copyOfValue = value;
+  value = value.toLowerCase();
+
+  $inputField.val(copyOfValue);
+  $inputField.blur();
+  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.list-search-cancel').addClass('active');
+  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
 
   // Removes cards
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
@@ -1389,28 +1788,31 @@ DynamicList.prototype.searchData = function(value) {
       }
     });
   }
-  
-  // Simulate that search is taking half a second
-  // OPTIONAL - setTimeout can be removed
-  setTimeout(function() {
-    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
-    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
 
-    if (!searchedData.length) {
-      _this.$container.find('.hidden-filter-controls').addClass('no-results');
-      return;
-    }
+  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  if (!_this.data.filtersInOverlay) {
+    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
+  }
 
-    if (_this.data.social && _this.data.social.bookmark) {
-      _this.mixer.destroy();
-    }
+  if (!searchedData.length) {
+    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+  }
 
-    searchedData = _.uniq(searchedData);
-    _this.searchedListItems = searchedData;
-    _this.renderLoopHTML(searchedData);
-    _this.addFilters(_this.modifiedListItems);
-    _this.onReady();
-  }, 0);
+  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
+    _this.mixer.destroy();
+  }
+
+  searchedData = _.uniq(searchedData);
+  _this.searchedListItems = searchedData;
+  _this.prepareToRenderLoop(searchedData);
+  _this.renderLoopHTML();
+  _this.addFilters(_this.modifiedListItems);
+
+  if (_this.querySearch && _this.searchedListItems.length === 1) {
+    _this.showDetails(_this.searchedListItems[0].id);
+  }
+
+  _this.onReady();
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -1442,13 +1844,14 @@ DynamicList.prototype.clearSearch = function() {
     _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
   }
 
-  if (_this.data.social && _this.data.social.bookmark) {
+  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
   }
 
   // Resets list
   _this.searchedListItems = undefined;
-  _this.renderLoopHTML(_this.listItems);
+  _this.prepareToRenderLoop(_this.listItems);
+  _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
   _this.onReady();
 }
@@ -1484,26 +1887,6 @@ DynamicList.prototype.initializeMixer = function() {
         });
       }
     }
-  });
-}
-
-DynamicList.prototype.setCardHeight = function() {
-  var _this = this;
-
-  _this.$container.find('.news-feed-list-item').each(function(index, element) {
-    var slideHeight = $(element).find('.slide-under').outerHeight();
-    var containerHeight = $(element).find('.news-feed-item-inner-content').outerHeight();
-    var contentHeight;
-
-    if (slideHeight) {
-      contentHeight = slideHeight + containerHeight
-    } else {
-      contentHeight = containerHeight
-    }
-
-    $(element).css({
-      height: contentHeight
-    });
   });
 }
 
@@ -1552,6 +1935,45 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
   });
 }
 
+DynamicList.prototype.setupLikeButtonOverlay = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.likeButtonOverlay = LikeButton({
+    target: '.news-feed-detail-overlay .news-feed-like-holder-' + id,
+    dataSourceId: _this.data.likesDataSourceId,
+    content: { 
+      entryId: identifier,
+      pageId: Fliplet.Env.get('pageId')
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+    likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
+    likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
+    likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+    addType: 'html'
+  });
+}
+
+DynamicList.prototype.setupBookmarkButtonOverlay = function(id, identifier, title) {
+  var _this = this;
+
+  // Sets up the like feature
+  _this.bookmarkButtonOverlay = LikeButton({
+    target: '.news-feed-detail-overlay .news-feed-bookmark-holder-' + id,
+    dataSourceId: _this.data.bookmarkDataSourceId,
+    content: { 
+      entryId: identifier
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+    likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+    likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
+    likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
+    addType: 'html'
+  });
+}
+
 DynamicList.prototype.openLinkAction = function(entryId) {
   var _this = this;
   var entry = _.find(_this.listItems, function(entry) {
@@ -1569,6 +1991,60 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   } else {
     Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
   }
+}
+
+DynamicList.prototype.showDetails = function(id) {
+  // Function that loads the selected entry data into an overlay for more details
+  var _this = this;
+
+  var entryData = _.find(_this.modifiedListItems, function(entry) {
+    return entry.id === id;
+  });
+
+  var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var wrapperTemplate = Handlebars.compile(wrapper);
+
+  var entryId = {
+    id: id
+  };
+  // Adds content to overlay
+  _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+  _this.$overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
+
+  _this.prepareSetupBookmarkOverlay(id);
+  _this.updateCommentCounter(id, true);
+
+  // Trigger animations
+  $('html, body').addClass('lock');
+  _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+
+  // Calculate top position when image finishes loading
+  if ($(window).width() < 640) {
+    $('.news-feed-list-detail-image-wrapper img').one('load', function() {
+      var expandedPosition = $(this).outerHeight();
+      _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+    }).each(function() {
+      if (this.complete) {
+        $(this).trigger('load');
+      }
+    });
+  }
+
+  _this.$overlay.addClass('open');
+}
+
+DynamicList.prototype.closeDetails = function() {
+  // Function that closes the overlay
+  var _this = this;
+
+  _this.$overlay.removeClass('open');
+  _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
+  $('html, body').removeClass('lock');
+
+  setTimeout(function() {
+    // Clears overlay
+    _this.$overlay.find('.news-feed-detail-overlay-content-holder').html('');
+  }, 300);
 }
 
 DynamicList.prototype.expandElement = function(elementToExpand) {
@@ -1665,32 +2141,31 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   });
 
   elementToCollapse.animate({
-      'left': elementToCollapsePlaceholderLeft,
-      'top': elementToCollapsePlaceholderTop,
-      'height': elementToCollapsePlaceholderHeight,
-      'width': elementToCollapsePlaceholderWidth
-    },
-    200, // animation timing in millisecs
-    'linear', //animation easing
-    function() {
-      // Removes class 'open'
-      elementToCollapseParent.removeClass('open');
+    'left': elementToCollapsePlaceholderLeft,
+    'top': elementToCollapsePlaceholderTop,
+    'height': elementToCollapsePlaceholderHeight,
+    'width': elementToCollapsePlaceholderWidth
+  },
+  200, // animation timing in millisecs
+  'linear', //animation easing
+  function() {
+    // Removes class 'open'
+    elementToCollapseParent.removeClass('open');
 
-      elementToCollapse.css({
-        'position': 'relative',
-        'top': 'auto',
-        'left': 'auto',
-        'width': '100%',
-        'height': '100%'
-      });
+    elementToCollapse.css({
+      'position': 'relative',
+      'top': 'auto',
+      'left': 'auto',
+      'width': '100%',
+      'height': '100%'
+    });
 
-      // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-      // Only happens when the closing animation finishes
-      if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
-        elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
-      }
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    // Only happens when the closing animation finishes
+    if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
+      elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
-  );
+  });
 
   // Stops preventing 'body' scroll
   $('html, body').removeClass('lock');
@@ -1775,7 +2250,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
     });
 }
 
-DynamicList.prototype.updateCommentCounter = function(id) {
+DynamicList.prototype.updateCommentCounter = function(id, isOverlay) {
   var _this = this;
   // Get comments for entry
   var entryComments = _.find(_this.comments, function(obj) {
@@ -1783,13 +2258,20 @@ DynamicList.prototype.updateCommentCounter = function(id) {
   });
 
   // Display comments count
-  var data = {
-    count: entryComments.count
-  };
+  var data = {};
+
+  if (entryComments) {
+    data.count = entryComments.count
+  }
+
   var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">Comment</span>';
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var html = counterCompiled(data);
-  $('.news-feed-comemnt-holder-' + id).html(html);
+  if (isOverlay) {
+    $('.news-feed-detail-overlay .news-feed-comemnt-holder-' + id).html(html);
+  } else {
+    $('.news-feed-comemnt-holder-' + id).html(html);
+  }
 }
 
 DynamicList.prototype.showComments = function(id) {
@@ -1863,7 +2345,7 @@ DynamicList.prototype.showComments = function(id) {
       _this.autosizeInit = true;
     }
 
-    var commentsTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['comments']];
+    var commentsTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments.entries);
     // Display comments (fl-comments-list-holder)
@@ -2040,7 +2522,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
     text: value
   };
 
-  var tempCommentTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
+  var tempCommentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
   var tempCommentTemplateCompiled = Handlebars.compile(tempCommentTemplate());
   var tempCommentHTML = tempCommentTemplateCompiled(commentInfo);
 
@@ -2104,12 +2586,12 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       }
     }
 
-    var commentTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['single-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['single-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }
   if (context === 'temp') {
-    var commentTemplate = Fliplet.Widget.Templates[newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['temp-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }

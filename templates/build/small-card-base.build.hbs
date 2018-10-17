@@ -1,4 +1,4 @@
-<div class="new-small-card-list-container">
+<div class="new-small-card-list-container loading">
   <!-- Filter Overlay -->
   \{{#if filtersInOverlay}}
   <div class="small-card-search-filter-overlay">
@@ -80,8 +80,42 @@
   <div class="small-card-list-wrapper" id="small-card-list-wrapper-\{{id}}">
       <!-- List items will appear here -->
   </div>
+
+  \{{#if enabledLimitEntries}}
+  <div class="limit-entries-text">
+    \{{#ifCond limitEntries '==' 0}}
+      \{{#ifCond searchEnabled '||' filtersEnabled}}
+      <p>\{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see the list items</p>
+      \{{/ifCond}}
+    \{{/ifCond}}
+    \{{#ifCond limitEntries '>' 0}}
+    <p>Showing the first \{{limitEntries}} list items. \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.</p>
+    \{{/ifCond}}
+  </div>
+  \{{/if}}
+
   <div class="loading-data">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+  </div>
+</div>
+
+<!-- Detail view overlay -->
+<div class="small-card-detail-overlay" id="small-card-detail-overlay-\{{id}}">
+  <div class="small-card-detail-overlay-screen"></div>
+  <div class="small-card-detail-overlay-wrapper">
+    <div class="small-card-detail-overlay-panel">
+      <div class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
+        <i class="fa fa-times"></i>
+      </div>
+      <div class="small-card-detail-overlay-content">
+        <div class="small-card-detail-overlay-content-holder">
+          <!-- Details will be added here -->
+        </div>
+      </div>
+    </div>
+    <div class="small-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
+      <i class="fa fa-times"></i>
+    </div>
   </div>
 </div>
 

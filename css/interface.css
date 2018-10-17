@@ -155,10 +155,12 @@ header .btn,
   margin-bottom: 25px;
 }
 
+.create-holder .btn ~ .btn,
 .edit-holder .btn ~ .btn {
   margin: 0 0 0 15px;
 }
 
+.create-holder .btn-secondary,
 .edit-holder .btn-secondary {
   color: #14505e;
   border-color: #14505e;
@@ -802,10 +804,6 @@ header .btn,
   margin-left: 10px;
 }
 
-.select-user-datasource-holder {
-  margin-top: 15px;
-}
-
 .select-user-firstname-holder,
 .select-user-lastname-holder,
 .select-user-email-holder,
@@ -977,4 +975,8 @@ header .btn,
 .has-error .select2-selection,
 .has-error .token-input {
   border-color: #a94442;
+}
+
+.select-user-email-list-holder {
+  margin-top: 25px;
 }

@@ -1,14 +1,14 @@
 window.flListLayoutConfig = {
   'small-card': {
     'filtersEnabled': true,
-    'filterFields': ['Location', 'Sectors', 'Expertize'],
+    'filterFields': ['Location', 'Sectors', 'Expertise'],
     'filtersInOverlay': false,
     'searchEnabled': true,
     'searchFields': ['First Name', 'Last Name', 'Title'],
     'sortOptions': [
       {
         'column': 'First Name',
-        'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize'],
+        'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Linkedin', 'Bio', 'Sectors', 'Expertise'],
         'id': 'ajdmjZrT',
         'orderBy': 'ascending',
         'sortBy': 'alphabetical',
@@ -19,30 +19,35 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text 1',
         location: 'First Name',
         type: 'text',
         column: 'First Name'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Primary text 2',
         location: 'Last Name',
         type: 'text',
         column: 'Last Name'
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Secondary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'qWerTymn',
+        interfaceName: 'Tertiary text',
         location: 'Location',
         type: 'text',
         column: 'Location'
       },
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
@@ -82,19 +87,19 @@ window.flListLayoutConfig = {
       {
         id: 'nMytReWq',
         location: 'Email',
-        type: 'text',
+        type: 'mail',
         column: 'Email'
       },
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
-        type: 'text',
+        type: 'url',
         column: 'Telephone'
       },
       {
         id: 'XLbdTD45',
         location: 'Linkedin',
-        type: 'text',
+        type: 'url',
         column: 'Linkedin'
       }
     ]
@@ -124,30 +129,35 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Secondary text',
         location: 'Content',
         type: 'html',
         column: 'Content'
       },
       {
-        id: 'ajdmJrlT',
-        location: 'Categories',
-        type: 'text',
-        column: 'Categories'
-      },
-      {
         id: 'gHlJkerT',
+        interfaceName: 'Tertiary text 1',
         location: 'Date',
         type: 'date',
         column: 'Date'
       },
       {
+        id: 'ajdmJrlT',
+        interfaceName: 'Tertiary text 2',
+        location: 'Categories',
+        type: 'text',
+        column: 'Categories'
+      },
+      {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
@@ -163,20 +173,12 @@ window.flListLayoutConfig = {
     'searchFields': [],
     'sortOptions': [
       {
-        'column': 'Date',
-        'columns': ['Title', 'Date', 'Start Time', 'End Time', 'Content'],
+        'column': 'Full Date',
+        'columns': ['Title', 'Full Date', 'Start Time', 'End Time', 'Location', 'Content'],
         'id': 'ajdmjZrT',
         'orderBy': 'ascending',
         'sortBy': 'date',
         'title': 'Date - Date - Ascending'
-      },
-      {
-        'column': 'Start Time',
-        'columns': ['Title', 'Date', 'Start Time', 'End Time', 'Content'],
-        'id': 'ajdmjZrZ',
-        'orderBy': 'ascending',
-        'sortBy': 'date',
-        'title': 'Start Time - Date - Ascending'
       }
     ],
     'social': {
@@ -198,12 +200,14 @@ window.flListLayoutConfig = {
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Secondary text',
         location: 'Location',
         type: 'text',
         column: 'Location'
@@ -211,10 +215,10 @@ window.flListLayoutConfig = {
     ],
     'detail-fields': [
       {
-        id: 'ajdmjRrT',
-        location: 'Date',
+        id: 'KjDmjrFT',
+        location: 'Full Date',
         type: 'date',
-        column: 'Date'
+        column: 'Full Date'
       }
     ]
   },
@@ -227,7 +231,7 @@ window.flListLayoutConfig = {
     'sortOptions': [
       {
         'column': 'First Name',
-        'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertize'],
+        'columns': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Linkedin', 'Bio', 'Sectors', 'Expertise'],
         'id': 'ajdmjZrT',
         'orderBy': 'ascending',
         'sortBy': 'alphabetical',
@@ -238,30 +242,35 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text 1',
         location: 'First Name',
         type: 'text',
         column: 'First Name'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Primary text 2',
         location: 'Last Name',
         type: 'text',
         column: 'Last Name'
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Secondary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'qWerTymn',
+        interfaceName: 'Tertiary text',
         location: 'Location',
         type: 'text',
         column: 'Location'
       },
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
@@ -301,19 +310,19 @@ window.flListLayoutConfig = {
       {
         id: 'nMytReWq',
         location: 'Email',
-        type: 'text',
+        type: 'mail',
         column: 'Email'
       },
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
-        type: 'text',
+        type: 'tel',
         column: 'Telephone'
       },
       {
         id: 'XLbdTD45',
         location: 'Linkedin',
-        type: 'text',
+        type: 'url',
         column: 'Linkedin'
       }
     ]
@@ -324,29 +333,38 @@ window.flListLayoutConfig = {
     'filtersInOverlay': false,
     'searchEnabled': true,
     'searchFields': ['Title', 'Category'],
-    'style-specific': ['list-filter', 'list-search'],
+    'social': {
+      'likes': true,
+      'bookmark': true,
+      'comments': false
+    },
+    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments'],
     'summary-fields-enabled': true,
     'summary-fields': [
       {
         id: 'gHlmJrlT',
+        interfaceName: 'Image',
         location: 'Image',
         type: 'image',
         column: 'Image'
       },
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
         column: 'Title'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Secondary text',
         location: 'Description',
         type: 'text',
         column: 'Description'
       },
       {
         id: 'ajdmJrlT',
+        interfaceName: 'Tertiary text',
         location: 'Category',
         type: 'text',
         column: 'Category'

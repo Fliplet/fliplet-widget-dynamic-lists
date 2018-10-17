@@ -14,6 +14,7 @@ window.flLayoutMapping = {
     'name': 'Cards with description',
     'base': 'templates.build.news-feed-base',
     'loop': 'templates.build.news-feed-loop',
+    'detail': 'templates.build.news-feed-detail',
     'filter': 'templates.build.news-feed-filters',
     'css': 'news-feed',
     'js': 'news-feed'
@@ -22,6 +23,7 @@ window.flLayoutMapping = {
     'name': 'Agenda',
     'base': 'templates.build.agenda-base',
     'loop': 'templates.build.agenda-cards-loop',
+    'detail': 'templates.build.agenda-cards-detail',
     'other-loop': 'templates.build.agenda-dates-loop',
     'css': 'agenda',
     'js': 'agenda'
