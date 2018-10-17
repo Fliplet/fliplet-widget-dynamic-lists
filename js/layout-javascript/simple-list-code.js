@@ -1766,73 +1766,77 @@ DynamicList.prototype.likesObservers = function() {
 DynamicList.prototype.likesObserversOverlay = function(id) {
   var _this = this;
 
-  _this.bookmarkButtonOverlay.on('liked', function(data){
-    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
-    var button = _.find(_this.bookmarkButtons, function(btn) {
-      return btn.id === id;
+  if (_this.bookmarkButtonOverlay) {
+    _this.bookmarkButtonOverlay.on('liked', function(data){
+      var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_bookmark',
+        label: entryTitle
+      });
     });
 
-    if (button) {
-      button.btn.like();
-    }
+    _this.bookmarkButtonOverlay.on('unliked', function(data){
+      var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
 
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_bookmark',
-      label: entryTitle
+      if (button) {
+        button.btn.unlike();
+      }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unbookmark',
+        label: entryTitle
+      });
     });
-  });
+  }
+  
+  if (_this.likeButtonOverlay) {
+    _this.likeButtonOverlay.on('liked', function(data){
+      var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+      var button = _.find(_this.likeButtons, function(btn) {
+        return btn.id === id;
+      });
 
-  _this.bookmarkButtonOverlay.on('unliked', function(data){
-    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
-    var button = _.find(_this.bookmarkButtons, function(btn) {
-      return btn.id === id;
-    });
+      if (button) {
+        button.btn.like();
+      }
 
-    if (button) {
-      button.btn.unlike();
-    }
-
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_unbookmark',
-      label: entryTitle
-    });
-  });
-
-  _this.likeButtonOverlay.on('liked', function(data){
-    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
-    var button = _.find(_this.likeButtons, function(btn) {
-      return btn.id === id;
-    });
-
-    if (button) {
-      button.btn.like();
-    }
-
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_bookmark',
-      label: entryTitle
-    });
-  });
-
-  _this.likeButtonOverlay.on('unliked', function(data){
-    var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
-    var button = _.find(_this.likeButtons, function(btn) {
-      return btn.id === id;
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_bookmark',
+        label: entryTitle
+      });
     });
 
-    if (button) {
-      button.btn.unlike();
-    }
+    _this.likeButtonOverlay.on('unliked', function(data){
+      var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
+      var button = _.find(_this.likeButtons, function(btn) {
+        return btn.id === id;
+      });
 
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_unbookmark',
-      label: entryTitle
+      if (button) {
+        button.btn.unlike();
+      }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unbookmark',
+        label: entryTitle
+      });
     });
-  });
+  }
 }
 
 DynamicList.prototype.openLinkAction = function(entryId) {

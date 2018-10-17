@@ -381,39 +381,41 @@ DynamicList.prototype.likesObservers = function() {
 DynamicList.prototype.likesObserversOverlay = function(id) {
   var _this = this;
 
-  _this.bookmarkButtonOverlay.on('liked', function(data){
-    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-    var button = _.find(_this.bookmarkButtons, function(btn) {
-      return btn.id === id;
+  if (_this.bookmarkButtonOverlay) {
+    _this.bookmarkButtonOverlay.on('liked', function(data){
+      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_bookmark',
+        label: entryTitle
+      });
     });
 
-    if (button) {
-      button.btn.like();
-    }
+    _this.bookmarkButtonOverlay.on('unliked', function(data){
+      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
 
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_bookmark',
-      label: entryTitle
+      if (button) {
+        button.btn.unlike();
+      }
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unbookmark',
+        label: entryTitle
+      });
     });
-  });
-
-  _this.bookmarkButtonOverlay.on('unliked', function(data){
-    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-    var button = _.find(_this.bookmarkButtons, function(btn) {
-      return btn.id === id;
-    });
-
-    if (button) {
-      button.btn.unlike();
-    }
-
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_unbookmark',
-      label: entryTitle
-    });
-  });
+  }
 }
 
 DynamicList.prototype.scrollEvent = function() {
