@@ -588,7 +588,7 @@ var DynamicLists = (function() {
         return loadingPromise
           .then(function() {
             // Load sort options
-            var dataSourceColumns = dataSourceColumns || _this.config.defaultColumns;
+            var dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
             _.forEach(_this.config.sortOptions, function(item) {
               item.fromLoading = true; // Flag to close accordions
               item.columns = dataSourceColumns
@@ -675,7 +675,7 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
-            var dataSourceColumns = dataSourceColumns || _this.config.defaultColumns;
+            var dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
 
             // Sets up the data view settings
             if (typeof _this.config['summary-fields'] === 'undefined') {
@@ -1909,6 +1909,7 @@ var DynamicLists = (function() {
 
       data.layout = listLayout;
       data.dataSourceId = !toReload && newDataSource ? newDataSource.id : undefined;
+      data.dataSourceColumns = dataSourceColumns;
       data.defaultData = toReload || !data.dataSourceId ? true : false;
 
       // Get sorting options
