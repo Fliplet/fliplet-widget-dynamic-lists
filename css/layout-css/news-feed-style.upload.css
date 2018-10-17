@@ -1339,6 +1339,10 @@
 .news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-item-inner-content {
   top: 0;
   border-radius: 0;
+  padding: 65px 15px 20px;
+}
+
+.news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-list-detail-image-wrapper ~ .news-feed-list-detail-content-scroll-wrapper .news-feed-item-inner-content {
   padding: 20px 15px;
 }
 
