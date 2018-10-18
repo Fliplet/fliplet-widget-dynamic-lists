@@ -752,7 +752,7 @@ DynamicList.prototype.filterList = function() {
 
     var matched = [];
     _this.filterClasses.forEach(function(filter) {
-      matched.push(filters.indexOf(filter) >= 0);
+      matched.push(filters.indexOf(filter.toString()) >= 0);
     });
     
     // If "_.includes" returns TRUE
