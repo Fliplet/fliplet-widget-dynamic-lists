@@ -1247,7 +1247,8 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
         deleteEntry: entry.deleteEntry,
         likesEnabled: entry.likesEnabled,
         bookmarksEnabled: entry.bookmarksEnabled,
-        commentsEnabled: entry.commentsEnabled
+        commentsEnabled: entry.commentsEnabled,
+        originalData: entry.data
       };
 
       $.extend(true, newObject, entry.data);
@@ -1269,7 +1270,8 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       likesEnabled: entry.likesEnabled,
       bookmarksEnabled: entry.bookmarksEnabled,
       commentsEnabled: entry.commentsEnabled,
-      entryDetails: []
+      entryDetails: [],
+      originalData: entry.data
     };
     _this.data['summary-fields'].some(function(obj) {
       var content = '';

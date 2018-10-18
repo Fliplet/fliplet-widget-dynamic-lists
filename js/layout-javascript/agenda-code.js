@@ -827,7 +827,8 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
         deleteEntry: entry.deleteEntry,
         likesEnabled: entry.likesEnabled,
         bookmarksEnabled: entry.bookmarksEnabled,
-        commentsEnabled: entry.commentsEnabled
+        commentsEnabled: entry.commentsEnabled,
+        originalData: entry.data
       };
 
       $.extend(true, newObject, entry.data);
@@ -856,7 +857,8 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       editEntry: entry.editEntry,
       deleteEntry: entry.deleteEntry,
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
-      entryDetails: []
+      entryDetails: [],
+      originalData: entry.data
     };
     _this.data['summary-fields'].some(function(obj) {
       var content = '';

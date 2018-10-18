@@ -1058,7 +1058,8 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       flFilters: entry.data['flFilters'],
       likesEnabled: entry.likesEnabled,
       bookmarksEnabled: entry.bookmarksEnabled,
-      commentsEnabled: entry.commentsEnabled
+      commentsEnabled: entry.commentsEnabled,
+      originalData: entry.data
     };
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
