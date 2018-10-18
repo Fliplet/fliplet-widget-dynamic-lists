@@ -408,7 +408,6 @@ DynamicList.prototype.attachObservers = function() {
       _this.entryClicked = identifier;
       _this.showComments(identifier);
       $('html, body').addClass('lock');
-      $('.news-feed-list-item.open .slide-over').addClass('lock');
       $('.new-news-feed-comment-panel').addClass('open');
 
       Fliplet.Analytics.trackEvent({
@@ -419,7 +418,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.news-feed-comment-close-panel', function() {
       $('.new-news-feed-comment-panel').removeClass('open');
       $('.news-feed-list-item.open .slide-over').removeClass('lock');
-      if (!$('.news-feed-list-item').hasClass('open')) {
+      if (!$('.news-feed-detail-overlay').hasClass('open')) {
         $('html, body').removeClass('lock');
       }
     })
