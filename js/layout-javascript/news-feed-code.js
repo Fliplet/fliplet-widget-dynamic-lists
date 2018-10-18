@@ -464,6 +464,7 @@ DynamicList.prototype.attachObservers = function() {
       if (Modernizr.ios) {
         setTimeout(function() {
           _that.parents('.new-news-feed-comment-panel').removeClass('typing');
+          window.scrollTo(0, 0);
 
           // Removes binding
           $(document).off('touchstart', '[data-comment-body]');

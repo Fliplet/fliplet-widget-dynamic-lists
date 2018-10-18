@@ -2,7 +2,7 @@
   pointer-events: none;
 }
 
-*.lock {
+.lock {
   overflow: hidden !important;
 }
 
