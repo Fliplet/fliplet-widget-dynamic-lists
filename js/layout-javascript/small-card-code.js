@@ -1586,6 +1586,10 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   var directoryDetailImageWrapper = elementToCollapse.find('.small-card-list-detail-image-wrapper');
   var directoryDetailImage = elementToCollapse.find('.small-card-list-detail-image');
 
+  if (!directoryDetailImageWrapper.length || !directoryDetailImage.length) {
+    _this.closeDetails();
+  }
+
   var collapseTarget = elementToCollapse.parent();
   var elementScrollTop = $(window).scrollTop();
   var targetCollpsePlaceholderTop = collapseTarget.offset().top - elementScrollTop;
