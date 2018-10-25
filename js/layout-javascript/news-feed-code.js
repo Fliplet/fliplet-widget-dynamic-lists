@@ -620,7 +620,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
-      var entryID = $(this).parents('.news-feed-list-item').data('entry-id');
+      var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       var options = {
         title: 'Link not configured',
         message: 'Form not found. Please check the component\'s configuration.',
@@ -641,7 +641,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.dynamic-list-delete-item', function() {
       var _that = $(this);
-      var entryID = $(this).parents('.news-feed-list-item').data('entry-id');
+      var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       var options = {
         title: 'Are you sure you want to delete the list entry?',
         labels: [
@@ -2051,130 +2051,6 @@ DynamicList.prototype.closeDetails = function() {
     // Clears overlay
     _this.$overlay.find('.news-feed-detail-overlay-content-holder').html('');
   }, 300);
-}
-
-DynamicList.prototype.expandElement = function(elementToExpand) {
-  // Function called when a list item is tapped to expand
-  var _this = this;
-  var windowWidth = $('body').width();
-
-  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').not('.filter-overlay').length) {
-    elementToExpand.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
-  }
-
-  // Adds class 'open' to help with styling
-  elementToExpand.parents('.news-feed-list-item').addClass('open');
-
-  // Prevents 'body' scroll
-  $('html, body').addClass('lock');
-
-  // freeze the current scroll position of the background page expand-wrapper
-  var elementOffset = elementToExpand.offset();
-  var elementScrollTop = $(window).scrollTop();
-  var netOffset = elementOffset.top - elementScrollTop;
-  var expandPosition = $('body').offset();
-  var expandTop = expandPosition.top;
-  var expandLeft = expandPosition.left;
-  var expandWidth = $('body').outerWidth();
-  var expandHeight = $('html').outerHeight();
-
-  // convert the expand-item to fixed position without moving it
-  elementToExpand.css({
-    'top': netOffset,
-    'left': elementToExpand.offset().left,
-    'height': elementToExpand.height(),
-    'width': elementToExpand.width(),
-    'position': 'fixed'
-  });
-
-  // start expand-item animation to the expand wrapper
-  // expand the element with class .about-tile-bg-image
-  elementToExpand.animate({
-      'left': expandLeft,
-      'top': expandTop,
-      'height': expandHeight,
-      'width': expandWidth
-    },
-    windowWidth < 640 ? 400 : 200, // animation timing in millisecs
-    windowWidth < 640 ? 'easeOutBack' : 'linear', //animation easing
-    function() {
-      elementToExpand.css({
-        'right': 0,
-        'bottom': 0,
-        'width': 'auto',
-        'height': 'auto'
-      });
-
-      if (windowWidth < 640) {
-        elementToExpand.find('.slide-under').css({
-          position: 'fixed'
-        });
-
-        var expandedPosition = elementToExpand.find('.slide-under').outerHeight();
-        elementToExpand.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
-      }
-    }
-  );
-}
-
-DynamicList.prototype.collapseElement = function(collapseButton) {
-  // Function called when a list item is tapped to close
-  var _this = this;
-
-  var elementToCollapseParent = collapseButton.parents('.news-feed-list-item');
-  var elementToCollapse = elementToCollapseParent.find('.news-feed-item-content');
-  
-  // find the location of the placeholder
-  var elementScrollTop = $(window).scrollTop();
-  var elementToCollapsePlaceholderTop = elementToCollapseParent.offset().top - elementScrollTop;
-  var elementToCollapsePlaceholderLeft = elementToCollapseParent.offset().left;
-  var elementToCollapsePlaceholderHeight = elementToCollapseParent.outerHeight();
-  var elementToCollapsePlaceholderWidth = elementToCollapseParent.outerWidth();
-
-  var windowWidth = $('body').width();
-  if (windowWidth < 640) {
-    elementToCollapse.find('.slide-under').css({ position: 'relative' });
-    elementToCollapse.find('.news-feed-item-inner-content').css({ top: '0px' });
-  }
-
-  // convert the width and height to numeric values
-  elementToCollapse.css({
-    'right': 'auto',
-    'bottom': 'auto',
-    'width': elementToCollapse.outerWidth(),
-    'height': elementToCollapse.outerHeight(),
-  });
-
-  elementToCollapse.animate({
-    'left': elementToCollapsePlaceholderLeft,
-    'top': elementToCollapsePlaceholderTop,
-    'height': elementToCollapsePlaceholderHeight,
-    'width': elementToCollapsePlaceholderWidth
-  },
-  200, // animation timing in millisecs
-  'linear', //animation easing
-  function() {
-    // Removes class 'open'
-    elementToCollapseParent.removeClass('open');
-
-    elementToCollapse.css({
-      'position': 'relative',
-      'top': 'auto',
-      'left': 'auto',
-      'width': '100%',
-      'height': '100%'
-    });
-
-    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-    // Only happens when the closing animation finishes
-    if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
-      elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
-    }
-  });
-
-  // Stops preventing 'body' scroll
-  $('html, body').removeClass('lock');
 }
 
 /******************/

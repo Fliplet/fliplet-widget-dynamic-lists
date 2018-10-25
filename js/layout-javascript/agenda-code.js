@@ -297,7 +297,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
-      var entryID = $(this).parents('.agenda-list-item').data('entry-id');
+      var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
       var options = {
         title: 'Link not configured',
         message: 'Form not found. Please check the component\'s configuration.',
@@ -318,7 +318,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.dynamic-list-delete-item', function() {
       var _that = $(this);
-      var entryID = $(this).parents('.agenda-list-item').data('entry-id');
+      var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
       var options = {
         title: 'Are you sure you want to delete the list entry?',
         labels: [

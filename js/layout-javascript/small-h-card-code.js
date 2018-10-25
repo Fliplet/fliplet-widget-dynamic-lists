@@ -236,7 +236,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
-      var entryID = $(this).parents('.small-h-card-list-item').data('entry-id');
+      var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
         title: 'Link not configured',
         message: 'Form not found. Please check the component\'s configuration.',
@@ -257,7 +257,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.dynamic-list-delete-item', function() {
       var _that = $(this);
-      var entryID = $(this).parents('.small-h-card-list-item').data('entry-id');
+      var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
         title: 'Are you sure you want to delete the list entry?',
         labels: [
@@ -1025,6 +1025,10 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
 
   var directoryDetailImageWrapper = elementToCollapse.find('.small-h-card-list-detail-image-wrapper');
   var directoryDetailImage = elementToCollapse.find('.small-h-card-list-detail-image');
+
+  if (!directoryDetailImageWrapper.length || !directoryDetailImage.length) {
+    _this.closeDetails();
+  }
 
   var collapseTarget = elementToCollapse.parent();
   var elementScrollTop = $(window).scrollTop();
