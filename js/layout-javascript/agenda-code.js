@@ -985,7 +985,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var lastDate;
   var numberOfPlacholderDays = 3;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
-  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Date'});
+  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Full Date'});
   var dateField = 'Full Date';
   if (foundDateField) {
     dateField = foundDateField.column;
