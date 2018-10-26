@@ -451,9 +451,7 @@
   line-height: 1.4;
   color: #333333;
   opacity: 0.6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
 }
 
 .new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-session-location .agenda-item-location {

@@ -10,7 +10,7 @@
     \{{/if}}
     <div class="container-fluid slide-over">
       <div class="news-feed-item-inner-content">
-        <div class="news-feed-info-holder">
+        <div class="news-feed-info-holder \{{#ifCond [Date] '||' [Categories]}}has-date-category\{{/ifCond}}">
           \{{#ifCond [Date] '||' [Categories]}}
           <div class="news-feed-date-category">\{{formatDate [Date]}} \{{#ifCond [Date] '&&' [Categories]}}/\{{/ifCond}} \{{[Categories]}}</div>
           \{{/ifCond}}

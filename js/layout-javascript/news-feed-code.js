@@ -205,6 +205,10 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
   });
 
   Handlebars.registerHelper('formatDate', function(date) {
+    if (!date) {
+      return;
+    }
+
     return moment(date).utc().format('MMM Do YYYY');
   });
 
