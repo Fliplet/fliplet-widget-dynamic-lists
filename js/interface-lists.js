@@ -224,10 +224,14 @@ function attahObservers() {
           }
         }
 
-        return Promise.all([
-          linkAddEntryProvider.forwardSaveRequest(),
-          linkEditEntryProvider.forwardSaveRequest()
-        ]);
+        var addEntryLinkPromise = new Promise(function(resolve, reject) {
+          resolve(linkAddEntryProvider.forwardSaveRequest());
+        });
+
+        return addEntryLinkPromise
+          .then(function() {
+            linkEditEntryProvider.forwardSaveRequest();
+          });
       });
   });
 
