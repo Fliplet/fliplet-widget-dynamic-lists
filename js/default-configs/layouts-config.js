@@ -188,12 +188,14 @@ window.flListLayoutConfig = {
     'summary-fields': [
       {
         id: 'ajdmjRrT',
+        interfaceName: 'Session starting time',
         location: 'Start Time',
         type: 'date',
         column: 'Start Time'
       },
       {
         id: 'aJdnjRrT',
+        interfaceName: 'Session ending time',
         location: 'End Time',
         type: 'date',
         column: 'End Time'

@@ -223,6 +223,11 @@
   padding-bottom: 95px;
 }
 
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder {
+  padding-top: 116px;
+  padding-bottom: 80px;
+}
+
 .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder {
   padding-bottom: 160px;
 }
