@@ -42,6 +42,7 @@ function linkProviderInit() {
   });
   linkAddEntryProvider.then(function(result) {
     addEntryLinkAction = result.data || {};
+    linkEditEntryProvider.forwardSaveRequest();
   });
   linkEditEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
     // If provided, the iframe will be appended here,
@@ -224,10 +225,7 @@ function attahObservers() {
           }
         }
 
-        return Promise.all([
-          linkAddEntryProvider.forwardSaveRequest(),
-          linkEditEntryProvider.forwardSaveRequest()
-        ]);
+        return linkAddEntryProvider.forwardSaveRequest();
       });
   });
 
