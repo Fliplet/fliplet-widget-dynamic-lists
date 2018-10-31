@@ -441,6 +441,8 @@ DynamicList.prototype.scrollEvent = function() {
 }
 
 DynamicList.prototype.filterRecords = function(records, filters) {
+  var _this = this;
+
   return _.filter(records, function(record) {
     var matched = 0;
 
