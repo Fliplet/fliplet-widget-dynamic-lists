@@ -593,7 +593,7 @@
 }
 
 .small-card-detail-wrapper .small-card-list-detail-image-wrapper {
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-card-list-container .small-card-list-detail-image-wrapper .fa,
@@ -611,7 +611,7 @@
 }
 
 .small-card-detail-wrapper .small-card-list-detail-image-wrapper .fa {
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-card-list-container .open .small-card-list-detail-image-wrapper .fa,
@@ -649,12 +649,12 @@
 }
 
 .small-card-detail-wrapper .small-card-list-detail-image {
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-card-list-container .small-card-list-detail-image.open {
   width: 100vw;
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-card-list-container .small-card-list-detail-content-scroll-wrapper,

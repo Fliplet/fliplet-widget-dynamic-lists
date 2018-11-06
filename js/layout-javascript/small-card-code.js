@@ -1562,7 +1562,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     });
 
     directoryDetailImageWrapper.animate({
-      height: '100vw'
+      height: '70vh'
     },
     200,
     'linear'
@@ -1574,7 +1574,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     });
 
     directoryDetailImage.animate({
-      height: '100vw'
+      height: '70vh'
     }, 200, 'linear');
   }
 }

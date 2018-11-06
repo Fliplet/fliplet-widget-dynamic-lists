@@ -103,7 +103,7 @@
 }
 
 .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper {
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-h-card-list-container .small-h-card-list-detail-image-wrapper .fa,
@@ -121,7 +121,7 @@
 }
 
 .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper .fa {
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-h-card-list-container .open .small-h-card-list-detail-image-wrapper .fa,
@@ -156,12 +156,12 @@
 }
 
 .small-h-card-detail-wrapper .small-h-card-list-detail-image {
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-h-card-list-container .small-h-card-list-detail-image.open {
   width: 100vw;
-  height: 100vw;
+  height: 70vh;
 }
 
 .new-small-h-card-list-container .small-h-card-list-detail-close-btn {
