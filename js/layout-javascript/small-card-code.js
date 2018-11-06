@@ -514,8 +514,8 @@ DynamicList.prototype.prepareData = function(records) {
         record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
 
         if (field.type === "alphabetical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[A-Za-z]/)
-            ? record.data['modified_' + field.column]
+          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[A-zÀ-ÖØ-öø-ÿ]/)
+            ? record.data['modified_' + field.column].normalize('NFD').replace(/[\u0300-\u036f]/g, "")
             : '{' + record.data['modified_' + field.column];
         }
 
