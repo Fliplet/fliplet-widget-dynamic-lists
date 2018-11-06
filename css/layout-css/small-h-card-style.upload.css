@@ -224,11 +224,19 @@
 }
 
 .small-h-card-detail-wrapper .small-h-card-list-detail-content-wrapper {
+  top: 20px;
+}
+
+.small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper + .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
   top: calc(100vw + 20px);
   transition: top 0.2s ease-out;
 }
 
 .small-h-card-detail-overlay.ready .small-h-card-detail-wrapper .small-h-card-list-detail-content-wrapper {
+  top: 20px;
+}
+
+.small-h-card-detail-overlay.ready .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper + .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
   top: calc(100vw - 20px);
 }
 
