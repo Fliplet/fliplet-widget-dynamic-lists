@@ -693,7 +693,8 @@
 }
 
 .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
-  top: 20px;
+  top: 0;
+  padding-top: 60px;
 }
 
 .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
@@ -702,7 +703,8 @@
 }
 
 .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
-  top: 20px;
+  top: 0;
+  padding-top: 60px;
 }
 
 .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
@@ -1010,8 +1012,11 @@
   }
 
   .small-card-detail-wrapper .small-card-list-detail-content-wrapper,
-  .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
+  .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-content-wrapper,
+  .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper,
+  .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
     top: 0;
+    padding-top: 0;
   }
 
   .small-card-detail-wrapper .small-card-list-detail-content-scroll-wrapper {
