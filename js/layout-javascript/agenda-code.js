@@ -1250,7 +1250,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
 
   // Prevents 'body' scroll
   _this.$container.find('.agenda-list-day-holder').addClass('lock');
-  $('html, body').addClass('lock');
+  $('body').addClass('lock');
   
   // freeze the current scroll position of the background page expand-wrapper
   var elementOffset = _this.$container.find('.new-agenda-list-container').offset();
@@ -1378,5 +1378,5 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   _this.$container.find('.agenda-list-item').removeClass('open');
   // Stops preventing 'body' scroll
   _this.$container.find('.agenda-list-day-holder').removeClass('lock');
-  $('html, body').removeClass('lock');
+  $('body').removeClass('lock');
 }

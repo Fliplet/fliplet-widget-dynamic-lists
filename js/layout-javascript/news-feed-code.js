@@ -374,7 +374,7 @@ DynamicList.prototype.attachObservers = function() {
       var identifier = $(this).parents('.news-feed-list-item').data('entry-id');
       _this.entryClicked = identifier;
       _this.showComments(identifier);
-      $('html, body').addClass('lock');
+      $('body').addClass('lock');
       $('.news-feed-list-item.open .slide-over').addClass('lock');
       $('.new-news-feed-comment-panel').addClass('open');
 
@@ -387,7 +387,7 @@ DynamicList.prototype.attachObservers = function() {
       $('.new-news-feed-comment-panel').removeClass('open');
       $('.news-feed-list-item.open .slide-over').removeClass('lock');
       if (!$('.news-feed-list-item').hasClass('open')) {
-        $('html, body').removeClass('lock');
+        $('body').removeClass('lock');
       }
     })
     .on('click', '.news-feed-comment-input-holder .comment', function() {
@@ -1585,7 +1585,7 @@ DynamicList.prototype.expandElement = function(elementToExpand) {
   elementToExpand.parents('.news-feed-list-item').addClass('open');
 
   // Prevents 'body' scroll
-  $('html, body').addClass('lock');
+  $('body').addClass('lock');
 
   // freeze the current scroll position of the background page expand-wrapper
   var elementOffset = elementToExpand.offset();
@@ -1693,7 +1693,7 @@ DynamicList.prototype.collapseElement = function(collapseButton) {
   );
 
   // Stops preventing 'body' scroll
-  $('html, body').removeClass('lock');
+  $('body').removeClass('lock');
 }
 
 /******************/

@@ -1010,7 +1010,7 @@ DynamicList.prototype.showDetails = function(id) {
   $overlay.find('.simple-list-detail-wrapper').append(template(newData));
 
   // Trigger animations
-  $('html, body').addClass('lock');
+  $('body').addClass('lock');
   _this.$container.find('.simple-list-container').addClass('overlay-open');
   $overlay.addClass('open');
 }
@@ -1020,7 +1020,7 @@ DynamicList.prototype.closeDetails = function() {
   var _this = this;
 
   var $overlay = _this.$container.find('#simple-list-detail-overlay-' + _this.data.id);
-  $('html, body').removeClass('lock');
+  $('body').removeClass('lock');
   $overlay.removeClass('open');
   _this.$container.find('.simple-list-container').removeClass('overlay-open');
 
