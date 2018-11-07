@@ -12,6 +12,7 @@ var DynamicLists = (function() {
   var dataSourceColumns;
   var userDataSourceColumns;
   var resetToDefaults = false;
+  var fromStart;
 
   var $filterAccordionContainer = $('#filter-accordion');
   var $sortAccordionContainer = $('#sort-accordion');
@@ -735,6 +736,7 @@ var DynamicLists = (function() {
             });
 
             if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
+              fromStart = true;
               _.forEach(dataSourceColumns, function(column, index) {
                 var item = {
                   id: index + 1,
@@ -749,15 +751,32 @@ var DynamicLists = (function() {
               });
             }
 
-            if (defaultSettings[listLayout]['detail-fields'] && defaultSettings[listLayout]['detail-fields'].length) {
+            if (fromStart && defaultSettings[listLayout]['detail-fields'] && defaultSettings[listLayout]['detail-fields'].length) {
               defaultSettings[listLayout]['detail-fields'].forEach(function(field) {
-                _this.config.detailViewOptions.some(function(option, index) {
-                  if (field.column === option.column) {
-                    _this.config.detailViewOptions[index].editable = false;
-                    _this.config.detailViewOptions[index].location = field.location;
-                    _this.config.detailViewOptions[index].type = field.type;
-                  }
-                });
+                var item = {
+                  id: field.id,
+                  columns: dataSourceColumns,
+                  column: field.column,
+                  type: field.type,
+                  fieldLabel: 'column-name',
+                  location: field.location,
+                  editable: !field.paranoid,
+                  helper: field.helper
+                }
+
+                var foundMatch = _.find(_this.config.detailViewOptions, function(detailField) {
+                  return detailField.column === item.column;
+                }); 
+
+                if (foundMatch) {
+                  foundMatch.fieldLabel = 'no-label';
+                  foundMatch.location = item.location;
+                  foundMatch.editable = item.editable;
+                  foundMatch.type = item.type;
+                  foundMatch.helper = item.helper;
+                } else {
+                  _this.config.detailViewOptions.push(item);
+                }
               });
             }
 
@@ -831,7 +850,6 @@ var DynamicLists = (function() {
             return;
           })
           .catch(function(error) {
-            debugger;
             if (error) {
               // Load Search/Filter fields
               $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');

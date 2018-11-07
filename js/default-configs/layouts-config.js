@@ -55,52 +55,28 @@ window.flListLayoutConfig = {
     ],
     'detail-fields': [
       {
-        id: 'ajdmjRrT',
-        location: 'First Name',
-        type: 'text',
-        column: 'First Name'
-      },
-      {
-        id: 'aJdnjRrT',
-        location: 'Last Name',
-        type: 'text',
-        column: 'Last Name'
-      },
-      {
-        id: 'ajdmJrlT',
-        location: 'Title',
-        type: 'text',
-        column: 'Title'
-      },
-      {
-        id: 'qWerTymn',
-        location: 'Location',
-        type: 'text',
-        column: 'Location'
-      },
-      {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
-      },
-      {
         id: 'nMytReWq',
         location: 'Email',
         type: 'mail',
-        column: 'Email'
+        column: 'Email',
+        paranoid: true,
+        helper: 'Email icon'
       },
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
         type: 'url',
-        column: 'Telephone'
+        column: 'Telephone',
+        paranoid: true,
+        helper: 'Phone icon'
       },
       {
         id: 'XLbdTD45',
         location: 'Linkedin',
         type: 'url',
-        column: 'Linkedin'
+        column: 'Linkedin',
+        paranoid: true,
+        helper: 'LinkedIn icon'
       }
     ]
   },
@@ -220,7 +196,9 @@ window.flListLayoutConfig = {
         id: 'KjDmjrFT',
         location: 'Full Date',
         type: 'date',
-        column: 'Full Date'
+        column: 'Full Date',
+        paranoid: true,
+        helper: 'Full Date'
       }
     ]
   },
@@ -280,52 +258,28 @@ window.flListLayoutConfig = {
     ],
     'detail-fields': [
       {
-        id: 'ajdmjRrT',
-        location: 'First Name',
-        type: 'text',
-        column: 'First Name'
-      },
-      {
-        id: 'aJdnjRrT',
-        location: 'Last Name',
-        type: 'text',
-        column: 'Last Name'
-      },
-      {
-        id: 'ajdmJrlT',
-        location: 'Title',
-        type: 'text',
-        column: 'Title'
-      },
-      {
-        id: 'qWerTymn',
-        location: 'Location',
-        type: 'text',
-        column: 'Location'
-      },
-      {
-        id: 'gHlmJrlT',
-        location: 'Image',
-        type: 'image',
-        column: 'Image'
-      },
-      {
         id: 'nMytReWq',
         location: 'Email',
         type: 'mail',
-        column: 'Email'
+        column: 'Email',
+        paranoid: true,
+        helper: 'Email icon'
       },
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
-        type: 'tel',
-        column: 'Telephone'
+        type: 'url',
+        column: 'Telephone',
+        paranoid: true,
+        helper: 'Phone icon'
       },
       {
         id: 'XLbdTD45',
         location: 'Linkedin',
         type: 'url',
-        column: 'Linkedin'
+        column: 'Linkedin',
+        paranoid: true,
+        helper: 'LinkedIn icon'
       }
     ]
   },
