@@ -740,6 +740,7 @@ var DynamicLists = (function() {
                 if (foundMatch) {
                   foundMatch.location = item.location;
                   foundMatch.editable = item.editable;
+                  foundMatch.editable = item.type;
                 } else {
                   _this.config.detailViewOptions.push(item);
                 }
