@@ -779,7 +779,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (extraColumns && extraColumns.length) {
 
         var entryData = _.find(records, function(modEntry) {
-          return modEntry.id = obj.id;
+          return modEntry.id === obj.id;
         });
 
         extraColumns.forEach(function(column) {

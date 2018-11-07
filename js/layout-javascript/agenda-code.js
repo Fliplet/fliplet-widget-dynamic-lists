@@ -936,7 +936,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       if (extraColumns && extraColumns.length) {
 
         var entryData = _.find(clonedRecords, function(modEntry) {
-          return modEntry.id = obj.id;
+          return modEntry.id === obj.id;
         });
 
         extraColumns.forEach(function(column) {
