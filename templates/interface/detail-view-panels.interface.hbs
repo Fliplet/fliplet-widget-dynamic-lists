@@ -1,7 +1,7 @@
 <div class="rTableRow clearfix" data-id="{{id}}">
   <div class="original-row clearfix">
     <div class="rTableCell title">
-      Data field:
+      {{#if helper}}{{helper}}:{{else}}Data field:{{/if}}
     </div>
     <div class="rTableCell select field">
       <select name="select_field" id="select_field_{{id}}" class="form-control">

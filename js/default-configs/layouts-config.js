@@ -59,21 +59,24 @@ window.flListLayoutConfig = {
         location: 'Email',
         type: 'mail',
         column: 'Email',
-        paranoid: true
+        paranoid: true,
+        helper: 'Email icon'
       },
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
         type: 'url',
         column: 'Telephone',
-        paranoid: true
+        paranoid: true,
+        helper: 'Phone icon'
       },
       {
         id: 'XLbdTD45',
         location: 'Linkedin',
         type: 'url',
         column: 'Linkedin',
-        paranoid: true
+        paranoid: true,
+        helper: 'LinkedIn icon'
       }
     ]
   },
@@ -194,7 +197,8 @@ window.flListLayoutConfig = {
         location: 'Full Date',
         type: 'date',
         column: 'Full Date',
-        paranoid: true
+        paranoid: true,
+        helper: 'Full Date'
       }
     ]
   },
@@ -258,21 +262,24 @@ window.flListLayoutConfig = {
         location: 'Email',
         type: 'mail',
         column: 'Email',
-        paranoid: true
+        paranoid: true,
+        helper: 'Email icon'
       },
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
         type: 'url',
         column: 'Telephone',
-        paranoid: true
+        paranoid: true,
+        helper: 'Phone icon'
       },
       {
         id: 'XLbdTD45',
         location: 'Linkedin',
         type: 'url',
         column: 'Linkedin',
-        paranoid: true
+        paranoid: true,
+        helper: 'LinkedIn icon'
       }
     ]
   },

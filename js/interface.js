@@ -730,7 +730,8 @@ var DynamicLists = (function() {
                   type: field.type,
                   fieldLabel: 'column-name',
                   location: field.location,
-                  editable: !field.paranoid
+                  editable: !field.paranoid,
+                  helper: field.helper
                 }
 
                 var foundMatch = _.find(_this.config.detailViewOptions, function(detailField) {
@@ -738,9 +739,11 @@ var DynamicLists = (function() {
                 }); 
 
                 if (foundMatch) {
+                  foundMatch.fieldLabel = 'no-label';
                   foundMatch.location = item.location;
                   foundMatch.editable = item.editable;
                   foundMatch.type = item.type;
+                  foundMatch.helper = item.helper;
                 } else {
                   _this.config.detailViewOptions.push(item);
                 }
