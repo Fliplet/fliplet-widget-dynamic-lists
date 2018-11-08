@@ -405,34 +405,75 @@ DynamicList.prototype.attachObservers = function() {
             label: 'Delete',
             action: function (i) {
               _that.text('Deleting...').addClass('disabled');
-              Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
-                return connection.removeById(entryID);
-              }).then(function onRemove() {
-                _.remove(_this.listItems, function(entry) {
-                  return entry.id === parseInt(entryID, 10);
+
+              // Run Hook
+              Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                entryId: entryID,
+                config: _this.data,
+                container: _this.$container
+              })
+                .then(function() {
+                  if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                    return _this.data.deleteData(entryID);
+                  }
+
+                  return _this.deleteEntry(entryID);
+                })
+                .then(function onRemove(entryId) {
+                  _.remove(_this.listItems, function(entry) {
+                    return entry.id === parseInt(entryId, 10);
+                  });
+
+                  _that.text('Delete').removeClass('disabled');
+
+                  if ($(window).width() < 640) {
+                    _this.collapseElement(_this.directoryDetailWrapper);
+                    _this.directoryDetailWrapper = undefined;
+                  } else {
+                    _this.closeDetails();
+                  }
+                  _this.prepareToRenderLoop(_this.listItems);
+                  _this.renderLoopHTML();
+                })
+                .catch(function(error) {
+                  Fliplet.UI.Toast({
+                    message: 'Error deleting entry',
+                    actions: [
+                      {
+                        label: 'Details',
+                        action: function () {
+                          Fliplet.UI.Toast({
+                            html: error.message || error
+                          });
+                        }
+                      }
+                    ]
+                  });
                 });
-
-                _that.text('Delete').removeClass('disabled');
-
-                if ($(window).width() < 640) {
-                  _this.collapseElement(_this.directoryDetailWrapper);
-                  _this.directoryDetailWrapper = undefined;
-                } else {
-                  _this.closeDetails();
-                }
-                _this.prepareToRenderLoop(_this.listItems);
-                _this.renderLoopHTML();
-
-                _that.text('Delete').removeClass('disabled');
-              });
             }
           }
         ],
         cancel: true
       }
 
-      Fliplet.UI.Actions(options);
+      Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        entryId: entryID,
+        config: _this.data,
+        container: _this.$container
+      }).then(function() {
+        Fliplet.UI.Actions(options);
+      });
     });
+}
+
+DynamicList.prototype.deleteEntry = function(entryID) {
+  var _this = this;
+
+  return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
+    return connection.removeById(entryID);
+  }).then(function () {
+    return Promise.resolve(entryID);
+  });
 }
 
 DynamicList.prototype.filterRecords = function(records, filters) {
