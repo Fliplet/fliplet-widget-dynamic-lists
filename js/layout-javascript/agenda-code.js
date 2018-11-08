@@ -292,7 +292,7 @@ DynamicList.prototype.attachObservers = function() {
               Fliplet.UI.Toast(options);
             });
         } else {
-          FFliplet.UI.Toast(options);
+          Fliplet.UI.Toast(options);
         }
       }
     })
@@ -312,7 +312,7 @@ DynamicList.prototype.attachObservers = function() {
               Fliplet.UI.Toast(options);
             });
         } else {
-          FFliplet.UI.Toast(options);
+          Fliplet.UI.Toast(options);
         }
       }
     })
