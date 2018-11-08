@@ -936,7 +936,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       if (extraColumns && extraColumns.length) {
 
         var entryData = _.find(clonedRecords, function(modEntry) {
-          return modEntry.id = obj.id;
+          return modEntry.id === obj.id;
         });
 
         extraColumns.forEach(function(column) {
@@ -1508,7 +1508,7 @@ DynamicList.prototype.showDetails = function(id) {
   }
 
   // Trigger animations
-  $('html, body').addClass('lock');
+  $('body').addClass('lock');
   _this.$container.find('.agenda-feed-list-container').addClass('overlay-open');
   $overlay.addClass('open');
   setTimeout(function() {
@@ -1523,7 +1523,7 @@ DynamicList.prototype.closeDetails = function() {
   var $overlay = _this.$container.find('#agenda-detail-overlay-' + _this.data.id);
   $overlay.removeClass('open');
   _this.$container.find('.agenda-feed-list-container').removeClass('overlay-open');
-  $('html, body').removeClass('lock');
+  $('body').removeClass('lock');
 
   // Sets up the like and bookmark buttons
   if (_this.data.social && _this.data.social.bookmark) {

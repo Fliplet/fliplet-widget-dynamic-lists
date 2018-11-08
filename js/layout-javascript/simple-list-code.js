@@ -361,7 +361,7 @@ DynamicList.prototype.attachObservers = function() {
       }
       _this.entryClicked = identifier;
       _this.showComments(identifier);
-      $('html, body').addClass('lock');
+      $('body').addClass('lock');
       $('.simple-list-detail-overlay-content-holder').addClass('lock');
       $('.simple-list-comment-panel').addClass('open');
 
@@ -374,7 +374,7 @@ DynamicList.prototype.attachObservers = function() {
       $('.simple-list-comment-panel').removeClass('open');
       $('.simple-list-detail-overlay-content-holder').removeClass('lock');
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
-        $('html, body').removeClass('lock');
+        $('body').removeClass('lock');
       }
     })
     .on('click', '.simple-list-comment-input-holder .comment', function() {
@@ -1958,7 +1958,7 @@ DynamicList.prototype.showDetails = function(id) {
   _this.updateCommentCounter(id, true);
 
   // Trigger animations
-  $('html, body').addClass('lock');
+  $('body').addClass('lock');
   _this.$container.find('.simple-list-container').addClass('overlay-open');
   $overlay.addClass('open');
 }
@@ -1968,7 +1968,7 @@ DynamicList.prototype.closeDetails = function() {
   var _this = this;
 
   var $overlay = _this.$container.find('#simple-list-detail-overlay-' + _this.data.id);
-  $('html, body').removeClass('lock');
+  $('body').removeClass('lock');
   $overlay.removeClass('open');
   _this.$container.find('.simple-list-container').removeClass('overlay-open');
 

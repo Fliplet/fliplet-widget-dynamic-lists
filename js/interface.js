@@ -12,6 +12,7 @@ var DynamicLists = (function() {
   var dataSourceColumns;
   var userDataSourceColumns;
   var resetToDefaults = false;
+  var fromStart;
 
   var $filterAccordionContainer = $('#filter-accordion');
   var $sortAccordionContainer = $('#sort-accordion');
@@ -480,6 +481,33 @@ var DynamicLists = (function() {
       Fliplet.Studio.onMessage(function(event) {
         if (event.data && event.data.event === 'overlay-close' && event.data.data && event.data.data.dataSourceId) {
           _this.reloadDataSources().then(function(dataSources) {
+            if (!_this.config.dataAlertSeen) {
+              return Fliplet.Modal.confirm({
+                title: 'Data changes',
+                message: 'If you have updated the column names of your data table, please ensure that all your settings are selecting the right fields.',
+                buttons: {
+                  confirm: {
+                    label: 'OK',
+                    className: 'btn-primary'
+                  },
+                  cancel: {
+                    label: 'Don\'t show this again',
+                    className: 'btn-secondary'
+                  }
+                }
+              }).then(function (result) {
+                if (!result) {
+                  _this.config.dataAlertSeen = true;
+                }
+                
+                allDataSources = dataSources;
+                _this.getColumns(_this.config.dataSourceId);
+                _this.initSelect2(allDataSources);
+                _this.initSecondSelect2(allDataSources);
+                Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
+              });
+            }
+
             allDataSources = dataSources;
             _this.getColumns(_this.config.dataSourceId);
             _this.initSelect2(allDataSources);
@@ -589,6 +617,7 @@ var DynamicLists = (function() {
           .then(function() {
             // Load sort options
             var dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
+            $sortAccordionContainer.empty();
             _.forEach(_this.config.sortOptions, function(item) {
               item.fromLoading = true; // Flag to close accordions
               item.columns = dataSourceColumns
@@ -600,6 +629,7 @@ var DynamicLists = (function() {
             _this.checkSortPanelLength();
 
             // Load filter options
+            $filterAccordionContainer.empty();
             _.forEach(_this.config.filterOptions, function(item) {
               item.fromLoading = true; // Flag to close accordions
               item.columns = dataSourceColumns;
@@ -688,6 +718,7 @@ var DynamicLists = (function() {
             $('#select_field_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.column || 'none');
             $('#select_type_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.type || 'url');
 
+            $summaryRowContainer.empty();
             _.forEach(_this.config['summary-fields'], function(item) {
               // Backwards compatability
               if (typeof item.interfaceName === 'undefined') {
@@ -705,6 +736,7 @@ var DynamicLists = (function() {
             });
 
             if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
+              fromStart = true;
               _.forEach(dataSourceColumns, function(column, index) {
                 var item = {
                   id: index + 1,
@@ -719,15 +751,32 @@ var DynamicLists = (function() {
               });
             }
 
-            if (defaultSettings[listLayout]['detail-fields'] && defaultSettings[listLayout]['detail-fields'].length) {
+            if (fromStart && defaultSettings[listLayout]['detail-fields'] && defaultSettings[listLayout]['detail-fields'].length) {
               defaultSettings[listLayout]['detail-fields'].forEach(function(field) {
-                _this.config.detailViewOptions.some(function(option, index) {
-                  if (field.column === option.column) {
-                    _this.config.detailViewOptions[index].editable = false;
-                    _this.config.detailViewOptions[index].location = field.location;
-                    _this.config.detailViewOptions[index].type = field.type;
-                  }
-                });
+                var item = {
+                  id: field.id,
+                  columns: dataSourceColumns,
+                  column: field.column,
+                  type: field.type,
+                  fieldLabel: 'column-name',
+                  location: field.location,
+                  editable: !field.paranoid,
+                  helper: field.helper
+                }
+
+                var foundMatch = _.find(_this.config.detailViewOptions, function(detailField) {
+                  return detailField.column === item.column;
+                }); 
+
+                if (foundMatch) {
+                  foundMatch.fieldLabel = 'no-label';
+                  foundMatch.location = item.location;
+                  foundMatch.editable = item.editable;
+                  foundMatch.type = item.type;
+                  foundMatch.helper = item.helper;
+                } else {
+                  _this.config.detailViewOptions.push(item);
+                }
               });
             }
 
@@ -763,6 +812,7 @@ var DynamicLists = (function() {
               });
             }
 
+            $detailsRowContainer.empty();
             _.forEach(_this.config.detailViewOptions, function(item) {  
               item.columns = dataSourceColumns;
               _this.addDetailItem(item);
@@ -800,7 +850,6 @@ var DynamicLists = (function() {
             return;
           })
           .catch(function(error) {
-            debugger;
             if (error) {
               // Load Search/Filter fields
               $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');

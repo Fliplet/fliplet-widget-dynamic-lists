@@ -411,7 +411,7 @@ DynamicList.prototype.attachObservers = function() {
       }
       _this.entryClicked = identifier;
       _this.showComments(identifier);
-      $('html, body').addClass('lock');
+      $('body').addClass('lock');
       $('.new-news-feed-comment-panel').addClass('open');
 
       Fliplet.Analytics.trackEvent({
@@ -423,7 +423,7 @@ DynamicList.prototype.attachObservers = function() {
       $('.new-news-feed-comment-panel').removeClass('open');
       $('.news-feed-list-item.open .slide-over').removeClass('lock');
       if (!$('.news-feed-detail-overlay').hasClass('open')) {
-        $('html, body').removeClass('lock');
+        $('body').removeClass('lock');
       }
     })
     .on('click', '.news-feed-comment-input-holder .comment', function() {
@@ -1341,7 +1341,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (extraColumns && extraColumns.length) {
 
         var entryData = _.find(modifiedData, function(modEntry) {
-          return modEntry.id = entry.id;
+          return modEntry.id === entry.id;
         });
 
         extraColumns.forEach(function(column) {
@@ -2027,7 +2027,7 @@ DynamicList.prototype.showDetails = function(id) {
   _this.updateCommentCounter(id, true);
 
   // Trigger animations
-  $('html, body').addClass('lock');
+  $('body').addClass('lock');
   _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
 
   // Calculate top position when image finishes loading
@@ -2051,7 +2051,7 @@ DynamicList.prototype.closeDetails = function() {
 
   _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
-  $('html, body').removeClass('lock');
+  $('body').removeClass('lock');
 
   setTimeout(function() {
     // Clears overlay

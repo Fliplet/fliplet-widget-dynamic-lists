@@ -1006,7 +1006,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (extraColumns && extraColumns.length) {
 
         var entryData = _.find(modifiedData, function(modEntry) {
-          return modEntry.id = obj.id;
+          return modEntry.id === obj.id;
         });
 
         extraColumns.forEach(function(column) {
@@ -1516,7 +1516,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
   //check to see if element is already expanded
   if (!elementToExpand.hasClass('open')) {
     // freeze the current scroll position of the background content
-    $('html, body').addClass('lock');
+    $('body').addClass('lock');
 
     var currentPosition = elementToExpand.offset();
     var elementScrollTop = $(window).scrollTop();
@@ -1583,7 +1583,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   // Function called when a list item is tapped to close
   var _this = this;
 
-  $('html, body').removeClass('lock');
+  $('body').removeClass('lock');
 
   var directoryDetailImageWrapper = elementToCollapse.find('.small-card-list-detail-image-wrapper');
   var directoryDetailImage = elementToCollapse.find('.small-card-list-detail-image');
