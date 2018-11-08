@@ -404,26 +404,32 @@ DynamicList.prototype.attachObservers = function() {
           {
             label: 'Delete',
             action: function (i) {
-              _that.text('Deleting...').addClass('disabled');
-              Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
-                return connection.removeById(entryID);
-              }).then(function onRemove() {
-                _.remove(_this.listItems, function(entry) {
-                  return entry.id === parseInt(entryID, 10);
+              Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                entryId: entryID,
+                config: _this.data,
+                container: _this.$container
+              }).then(function() {
+                _that.text('Deleting...').addClass('disabled');
+                return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
+                  return connection.removeById(entryID);
+                }).then(function onRemove() {
+                  _.remove(_this.listItems, function(entry) {
+                    return entry.id === parseInt(entryID, 10);
+                  });
+
+                  _that.text('Delete').removeClass('disabled');
+
+                  if ($(window).width() < 640) {
+                    _this.collapseElement(_this.directoryDetailWrapper);
+                    _this.directoryDetailWrapper = undefined;
+                  } else {
+                    _this.closeDetails();
+                  }
+                  _this.prepareToRenderLoop(_this.listItems);
+                  _this.renderLoopHTML();
+
+                  _that.text('Delete').removeClass('disabled');
                 });
-
-                _that.text('Delete').removeClass('disabled');
-
-                if ($(window).width() < 640) {
-                  _this.collapseElement(_this.directoryDetailWrapper);
-                  _this.directoryDetailWrapper = undefined;
-                } else {
-                  _this.closeDetails();
-                }
-                _this.prepareToRenderLoop(_this.listItems);
-                _this.renderLoopHTML();
-
-                _that.text('Delete').removeClass('disabled');
               });
             }
           }
@@ -431,7 +437,13 @@ DynamicList.prototype.attachObservers = function() {
         cancel: true
       }
 
-      Fliplet.UI.Actions(options);
+      Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        entryId: entryID,
+        config: _this.data,
+        container: _this.$container
+      }).then(function() {
+        Fliplet.UI.Actions(options);
+      });
     });
 }
 
