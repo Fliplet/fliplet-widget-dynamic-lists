@@ -9,8 +9,9 @@
   background-color: transparent;
 }
 
-.version-alert {
+header span {
   font-size: 12px;
+  opacity: 0.5;
 }
 
 .btn.disabled {
