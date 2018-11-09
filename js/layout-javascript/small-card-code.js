@@ -500,7 +500,7 @@ DynamicList.prototype.prepareData = function(records) {
         }
         if (condition === 'regex') {
           var pattern = new RegExp(filter.value);
-          if (patt.test(rowData)){
+          if (pattern.test(rowData)){
             matched++;
           }
           return;
