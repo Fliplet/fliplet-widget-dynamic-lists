@@ -9,6 +9,10 @@
   background-color: transparent;
 }
 
+.version-alert {
+  font-size: 12px;
+}
+
 .btn.disabled {
   pointer-events: none;
   cursor: default;
