@@ -888,7 +888,7 @@ DynamicList.prototype.filterRecords = function(records, filters) {
       }
       if (condition === 'regex') {
         var pattern = new RegExp(filter.value);
-        if (patt.test(rowData)){
+        if (pattern.test(rowData)){
           matched++;
         }
         return;
