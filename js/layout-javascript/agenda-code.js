@@ -65,6 +65,7 @@ var DynamicList = function(id, data, container) {
       _this.myUserData = session.entries.dataSource.data;
     } else if (session && session.entries && session.entries.saml2) {
       _this.myUserData = session.entries.saml2.user;
+      _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
     
