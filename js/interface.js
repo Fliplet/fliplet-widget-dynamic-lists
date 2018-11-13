@@ -805,10 +805,57 @@ var DynamicLists = (function() {
             if (_this.config.layout !== 'simple-list') {
               _.forEach(_this.config['summary-fields'], function(field) {
                 _this.config.detailViewOptions.some(function(option, index) {
-                  if (field.column === option.column) {
+                  if (field.column && field.column !== 'none' && field.column === option.column) {
                     _this.config.detailViewOptions.splice(index, 1);
                   }
                 });
+              });
+            }
+
+            // TRY TO RESTORE LOST LOCKED FIELDS
+            var fieldLocations = [];
+            var foundLockedFields = [];
+            var foundLockedFieldsIndexes = [];
+
+            // First gets the location key of all the default locked fields
+            _.forEach(defaultSettings[listLayout]['detail-fields'], function(field) {
+              fieldLocations.push(field.location);
+            });
+
+            // Tries to find each location in the saved detail fields
+            // For each found location we save the object and the index for later
+            fieldLocations.forEach(function(location) {
+              _this.config.detailViewOptions.forEach(function(option, index) {
+                if (option.location === location) {
+                  foundLockedFields.push(option);
+                  foundLockedFieldsIndexes.push(index);
+                }
+              });
+            });
+            
+            // If the found fields are less than the default fields
+            if (foundLockedFields.length < defaultSettings[listLayout]['detail-fields'].length) {
+              // Normalize default fields
+              defaultSettings[listLayout]['detail-fields'].forEach(function(field) {
+                field.columns = dataSourceColumns;
+                field.fieldLabel = 'no-label';
+                field.editable = !field.paranoid;
+              });
+
+              // We extend the found fields with the missing defaults
+              foundLockedFields = $.extend(true, defaultSettings[listLayout]['detail-fields'], foundLockedFields);
+              
+              // Reverse the order for later
+              foundLockedFields.reverse();
+
+              // We use the indexes to remove the current found fields
+              for (var i = foundLockedFieldsIndexes.length -1; i >= 0; i--) {
+                _this.config.detailViewOptions.splice(foundLockedFieldsIndexes[i],1);
+              }
+
+              // Now we prepend the found fields, including the missing one(s)
+              foundLockedFields.forEach(function(lockedField) {
+                _this.config.detailViewOptions.unshift(lockedField);
               });
             }
 

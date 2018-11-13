@@ -656,7 +656,7 @@ DynamicList.prototype.initialize = function() {
     _this.addFilters(_this.modifiedListItems);
     // Render user profile
     if (_this.myProfileData && _this.myProfileData.length) {
-      _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData);
+      _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
       var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
       var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
       _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
@@ -725,7 +725,7 @@ DynamicList.prototype.initialize = function() {
 
       // Render user profile
       if (_this.myProfileData && _this.myProfileData.length) {
-        _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData);
+        _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
         var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
         _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
@@ -928,7 +928,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
-DynamicList.prototype.prepareToRenderLoop = function(records) {
+DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
   var _this = this;
 
   var savedColumns = [];
@@ -959,6 +959,9 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       loopData.push(newObject);
     });
 
+    if (forProfile) {
+      return loopData;
+    }
     _this.modifiedListItems = loopData;
     return _this.modifiedListItems;
   }
@@ -1065,6 +1068,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       }
     }
   });
+
+  if (forProfile) {
+    return loopData;
+  }
 
   _this.modifiedListItems = loopData;
   return _this.modifiedListItems;
