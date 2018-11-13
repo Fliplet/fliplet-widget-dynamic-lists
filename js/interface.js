@@ -805,7 +805,7 @@ var DynamicLists = (function() {
             if (_this.config.layout !== 'simple-list') {
               _.forEach(_this.config['summary-fields'], function(field) {
                 _this.config.detailViewOptions.some(function(option, index) {
-                  if (field.column === option.column) {
+                  if (field.column && field.column !== 'none' && field.column === option.column) {
                     _this.config.detailViewOptions.splice(index, 1);
                   }
                 });
