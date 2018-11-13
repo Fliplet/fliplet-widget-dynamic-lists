@@ -851,7 +851,7 @@ var DynamicLists = (function() {
                 _this.config.detailViewOptions.splice(foundLockedFieldsIndexes[i],1);
               }
 
-              // Now we append the found fields, including the missing one(s)
+              // Now we prepend the found fields, including the missing one(s)
               foundLockedFields.forEach(function(lockedField) {
                 _this.config.detailViewOptions.unshift(lockedField);
               });
