@@ -841,8 +841,10 @@ var DynamicLists = (function() {
                 field.fieldLabel = 'no-label';
                 field.editable = !field.paranoid;
               });
+
               // We extend the found fields with the missing defaults
               foundLockedFields = $.extend(true, defaultSettings[listLayout]['detail-fields'], foundLockedFields);
+              
               // Reverse the order for later
               foundLockedFields.reverse();
 
