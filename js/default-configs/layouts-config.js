@@ -65,7 +65,7 @@ window.flListLayoutConfig = {
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
-        type: 'url',
+        type: 'tel',
         column: 'Telephone',
         paranoid: true,
         helper: 'Phone icon'
@@ -268,7 +268,7 @@ window.flListLayoutConfig = {
       {
         id: 'tYrEqwMn',
         location: 'Telephone',
-        type: 'url',
+        type: 'tel',
         column: 'Telephone',
         paranoid: true,
         helper: 'Phone icon'
