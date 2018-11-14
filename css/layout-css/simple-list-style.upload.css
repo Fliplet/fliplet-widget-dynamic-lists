@@ -421,6 +421,25 @@
   opacity: 0.5;
 }
 
+.back-button-holder {
+  text-align: center;
+}
+
+.simple-list-back-button {
+  display: block;
+  padding: 8px 12px 8px 12px;
+  border: 1px solid #cccccc;
+  border-radius: 20px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+@media screen and (min-width: 640px) {
+  .simple-list-back-button {
+    display: inline-block;
+  }
+}
+
 /* LIST ITEMS */
 .simple-list-wrapper {
   padding: 15px 0 0;

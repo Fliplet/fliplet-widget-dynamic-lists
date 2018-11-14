@@ -50,6 +50,7 @@ var DynamicList = function(id, data, container) {
   this.queryFilter = false;
   this.queryPreFilter = false;
   this.pvPreviousScreen;
+  this.pvGoBack;
   this.pvSearchQuery;
   this.pvFilterQuery;
   this.pvPreFilterQuery;
@@ -146,6 +147,37 @@ DynamicList.prototype.attachObservers = function() {
   var _this = this;
   // Attach your event listeners here
   _this.$container
+    .on('click', '[data-lfd-back]', function() {
+      var result;
+
+      if (!_this.pvGoBack && !_this.pvGoBack.enableButton) {
+        return;
+      }
+
+      if (!_this.pvGoBack && !_this.pvGoBack.action) {
+        try {
+          _this.pvGoBack.action = eval(_this.pvGoBack.action);
+        } catch (error) {
+          console.error('Your custom function for the back button contains a syntax error: ' + error);
+        }
+      }
+
+      try {
+        result = (typeof _this.pvGoBack.action === 'function') && _this.pvGoBack.action();
+      } catch (error) {
+        console.error('Your custom function for the back button thrown an error: ' + error);
+      }
+
+      if (!(result instanceof Promise)) {
+        result = Promise.resolve();
+      }
+
+      return result.then(function () {
+        return Fliplet.Navigate.back();
+      }).catch(function (error) {
+        console.error(error);
+      });
+    })
     .on('click', '.hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -225,9 +257,15 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         try {
+          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+        } catch (error) {
+          console.error('Your custom function contains a syntax error: ' + error);
+        }
+
+        try {
           result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
         } catch (error) {
-          console.error('Your custom function contains an error: ' + error);
+          console.error('Your custom function thrown an error: ' + error);
         }
 
         if (!(result instanceof Promise)) {
@@ -806,12 +844,55 @@ DynamicList.prototype.prepareToFilter = function() {
   }
 
   _this.filterList();
-  _this.$container.find('.hidden-filter-controls').addClass('active');
-  _this.$container.find('.list-search-cancel').addClass('active');
-  if (!_this.data.filtersInOverlay) {
-    _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
+
+  if (typeof _this.pvFilterQuery.hideControls !== 'undefined' && !_this.pvFilterQuery.hideControls) {
+    _this.$container.find('.hidden-filter-controls').addClass('active');
+    _this.$container.find('.list-search-cancel').addClass('active');
+
+    if (!_this.data.filtersInOverlay) {
+      _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
+    }
+
+    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
   }
-  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+}
+
+DynamicList.prototype.navigateBackEvent = function() {
+  var _this = this;
+  var result;
+
+  if (!_this.pvGoBack && !_this.pvGoBack.hijackBack) {
+    return;
+  }
+
+  $('[data-fl-navigate-back]').off();
+
+  if (_this.pvGoBack && _this.pvGoBack.action) {
+    try {
+      _this.pvGoBack.action = eval(_this.pvGoBack.action);
+    } catch (error) {
+      console.error('Your custom function for the back button contains a syntax error: ' + error);
+    }
+  }
+
+  $('[data-fl-navigate-back]').on('click', function (event) {
+    try {
+      result = (typeof _this.pvGoBack.action === 'function') && _this.pvGoBack.action()
+    } catch (error) {
+      console.error('Your custom function for the back button thrown an error: ' + error);
+    }
+
+    if (!(result instanceof Promise)) {
+      result = Promise.resolve();
+    }
+
+
+    return result.then(function () {
+      return Fliplet.Navigate.back();
+    }).catch(function (error) {
+      console.error(error);
+    });
+  });
 }
 
 DynamicList.prototype.parsePVQueryVars = function() {
@@ -829,6 +910,11 @@ DynamicList.prototype.parsePVQueryVars = function() {
       }
 
       _this.pvPreviousScreen = value.previousScreen;
+      _this.pvGoBack = value.goBack;
+
+      if (_this.pvGoBack && _this.pvGoBack.hijackBack) {
+        _this.navigateBackEvent();
+      }
 
       if (_.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
@@ -916,6 +1002,9 @@ DynamicList.prototype.renderBaseHTML = function() {
 
   // go to previous screen on close detail view - TRUE/FALSE
   data.previousScreen = _this.pvPreviousScreen;
+
+  // go back to previous screen on click - TRUE/FALSE
+  data.goBackButton = _this.pvGoBack && _this.pvGoBack.enableButton;
 
   if (typeof _this.data.layout !== 'undefined') {
     baseHTML = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['base']];
@@ -1298,13 +1387,17 @@ DynamicList.prototype.convertCategories = function(data) {
   return data;
 }
 
-DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch) {
+DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch, isClearSearch) {
   var targetHeight = element.find('.hidden-filter-controls-content').height();
   var filterHolder = element.find('.filter-holder').height();
   var totalHeight = targetHeight;
 
   if (isFromSearch && filterHolder) {
     totalHeight = targetHeight - filterHolder;
+  }
+
+  if (isClearSearch) {
+    totalHeight = 0;
   }
   
   element.find('.hidden-filter-controls').animate({
@@ -1454,7 +1547,7 @@ DynamicList.prototype.backToSearch = function() {
   var _this = this;
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
-  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), false, true);
 }
 
 DynamicList.prototype.clearSearch = function() {
@@ -1467,7 +1560,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
 
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'));
+    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), false, true);
   } else {
     _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
   }

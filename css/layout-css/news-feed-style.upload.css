@@ -424,6 +424,26 @@
   opacity: 0.5;
 }
 
+
+.back-button-holder {
+  text-align: center;
+}
+
+.news-feed-back-button {
+  display: block;
+  padding: 8px 12px 8px 12px;
+  border: 1px solid #cccccc;
+  border-radius: 20px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+@media screen and (min-width: 640px) {
+  .news-feed-back-button {
+    display: inline-block;
+  }
+}
+
 /* FEED LIST */
 
 .new-news-feed-list-container {
