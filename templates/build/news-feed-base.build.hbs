@@ -25,6 +25,11 @@
   \{{/if}}
   <!-- End of Filter Overlay -->
 
+  <!-- Developer back button -->
+  <div class="back-button-holder \{{#unless goBackButton}}hidden\{{/unless}}">
+    <div class="btn news-feed-back-button" data-lfd-back>Go back</div>
+  </div>
+
   <!-- Top bar with profile and search icons -->
   <div class="section-top-wrapper">
     \{{#if searchEnabled}}
