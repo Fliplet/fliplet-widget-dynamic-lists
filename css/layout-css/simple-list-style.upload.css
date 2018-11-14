@@ -648,6 +648,8 @@
   right: 0;
   bottom: 0;
   left: 0;
+  opacity: 0;
+  visibility: hidden;
   background: #ffffff;
   z-index: 1010;
   cursor: default;
@@ -659,6 +661,8 @@
 .simple-list-comment-panel.open {
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
+  opacity: 1;
+  visibility: visible;
 }
 
 .simple-list-comment-panel .simple-list-comment-panel-header {
