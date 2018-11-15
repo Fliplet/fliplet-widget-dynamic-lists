@@ -9,9 +9,24 @@
   background-color: transparent;
 }
 
+header {
+  display: block;
+}
+
+header .first-row {
+  display: flex;
+  align-items: center;
+}
+
 header span {
   font-size: 12px;
   opacity: 0.5;
+}
+
+header .uuid-holder {
+  font-size: 12px;
+  opacity: 0.5;
+  text-align: right;
 }
 
 .btn.disabled {
