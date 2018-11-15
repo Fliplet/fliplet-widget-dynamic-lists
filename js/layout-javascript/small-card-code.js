@@ -449,6 +449,8 @@ DynamicList.prototype.attachObservers = function() {
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
                 entryId: entryID,
                 config: _this.data,
+                id: _this.data.id,
+                uuid: _this.data.uuid,
                 container: _this.$container
               })
                 .then(function() {
@@ -498,6 +500,8 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
         entryId: entryID,
         config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
         container: _this.$container
       }).then(function() {
         Fliplet.UI.Actions(options);
@@ -965,6 +969,8 @@ DynamicList.prototype.connectToDataSource = function() {
 
   return Fliplet.Hooks.run('flListDataBeforeGetData', {
     config: _this.data,
+    id: _this.data.id,
+    uuid: _this.data.uuid,
     container: _this.$container
   }).then(function() {
     if (_this.data.getData) {
