@@ -8,7 +8,9 @@
             <div class="agenda-item-inner-content clearfix">
               <div class="agenda-item-info-holder">
                 <div class="agenda-item-time">\{{[Start Time]}}</div>
+                \{{#ifCond [Start Time] '&&' [End Time]}}
                 <div class="agenda-item-time line">|</div>
+                \{{/ifCond}}
                 <div class="agenda-item-time">\{{[End Time]}}</div>
               </div>
               <div class="agenda-item-content-holder">
