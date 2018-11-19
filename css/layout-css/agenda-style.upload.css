@@ -426,10 +426,8 @@
 .agenda-detail-overlay .agenda-item-inner-content h2.agenda-item-title {
   position: relative;
   margin-top: 0;
-  font-size: 20px;
   line-height: 1.2em;
   margin-bottom: 5px;
-  font-weight: 600;
 }
 
 .new-agenda-list-container .agenda-list-item.open .slide-over .agenda-item-inner-content h2.agenda-item-title:after,
@@ -446,7 +444,6 @@
 
 .new-agenda-list-container .agenda-list-item.open .slide-over .agenda-item-inner-content h2,
 .agenda-detail-overlay .agenda-item-inner-content h2.agenda-item-title {
-  font-size: 32px;
   margin-bottom: 20px;
 }
 
