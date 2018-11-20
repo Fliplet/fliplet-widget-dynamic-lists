@@ -294,9 +294,24 @@ var DynamicLists = (function() {
           $('.add-entry-checkbox').find('.hidden-settings')[values.indexOf('add-entry') !== -1 ? 'addClass' : 'removeClass']('active');
           $('.edit-entry-checkbox').find('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
           $('.delete-entry-checkbox').find('.hidden-settings')[values.indexOf('delete-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+
+          $('.user-datasource-options')[
+            (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
+            || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('user') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="add-permissions"]', function() {
           addRadioValues = [];
+          var controlsValues = [];
+
+          $('[name="list-control"]:checked').each(function(){
+            controlsValues.push($(this).val());
+          });
 
           $('[name="add-permissions"]:checked').each(function(){
             addRadioValues.push($(this).val());
@@ -310,17 +325,22 @@ var DynamicLists = (function() {
             || deleteRadioValues.indexOf('users-admins') !== -1
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            addRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('user') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('user') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
+            (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
+            || (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="edit-permissions"]', function() {
           editRadioValues = [];
+          var controlsValues = [];
+
+          $('[name="list-control"]:checked').each(function(){
+            controlsValues.push($(this).val());
+          });
 
           $('[name="edit-permissions"]:checked').each(function(){
             editRadioValues.push($(this).val());
@@ -341,17 +361,22 @@ var DynamicLists = (function() {
             || addRadioValues.indexOf('admins') !== -1
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('user') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('user') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || addRadioValues.indexOf('admins') !== -1
+            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="delete-permissions"]', function() {
           deleteRadioValues = [];
+          var controlsValues = [];
+
+          $('[name="list-control"]:checked').each(function(){
+            controlsValues.push($(this).val());
+          });
 
           $('[name="delete-permissions"]:checked').each(function(){
             deleteRadioValues.push($(this).val());
@@ -372,13 +397,13 @@ var DynamicLists = (function() {
             || addRadioValues.indexOf('admins') !== -1
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('user') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('user') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || addRadioValues.indexOf('admins') !== -1
+            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="detail-view-action"]', function() {
