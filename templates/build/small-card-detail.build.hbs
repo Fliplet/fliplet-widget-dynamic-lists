@@ -92,10 +92,10 @@
         \{{#ifCond type '==' 'tel'}}
           \{{#if content}}
             \{{#if labelEnabled}}
-            <div class="simple-list-detail-label">\{{label}}</div>
+            <div class="small-card-list-detail-label">\{{label}}</div>
             \{{/if}}
 
-            <div class="simple-list-detail-value">
+            <div class="small-card-list-detail-body-text">
               <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
             </div>
           \{{/if}}
@@ -105,10 +105,10 @@
         \{{#ifCond type '==' 'mail'}}
           \{{#if content}}
             \{{#if labelEnabled}}
-            <div class="simple-list-detail-label">\{{label}}</div>
+            <div class="small-card-list-detail-label">\{{label}}</div>
             \{{/if}}
 
-            <div class="simple-list-detail-value">
+            <div class="small-card-list-detail-body-text">
               <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
             </div>
           \{{/if}}
