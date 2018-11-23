@@ -532,7 +532,7 @@ DynamicList.prototype.filterRecords = function(records, filters) {
       if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
         filter.value = filter.value.toLowerCase();
       }
-      if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+      if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined') {
         rowData = record.data[filter.column].toString().toLowerCase();
       }
 
