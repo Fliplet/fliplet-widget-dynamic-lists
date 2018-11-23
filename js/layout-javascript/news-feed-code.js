@@ -1860,7 +1860,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
 
-  if (_this.searchedListItems.length === 1) {
+  if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
     _this.showDetails(_this.searchedListItems[0].id);
   }
 
@@ -1925,7 +1925,7 @@ DynamicList.prototype.searchData = function(value) {
   _this.renderLoopHTML();
   _this.addFilters(_this.modifiedListItems);
 
-  if (_this.querySearch && _this.searchedListItems.length === 1) {
+  if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
     _this.showDetails(_this.searchedListItems[0].id);
   }
 
