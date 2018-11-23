@@ -104,11 +104,6 @@
           \{{/if}}
         \{{/ifCond}}
       \{{/each}}
-
-      <!-- BACKWARDS COMPATABILITY -->
-      \{{#unless entryDetails}}
-        \{{{auth [Content]}}}
-      \{{/unless}}
     </div>
 
     \{{#ifCond editEntry '||' deleteEntry}}

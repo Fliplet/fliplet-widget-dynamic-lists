@@ -868,40 +868,6 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
     return option.editable;
   });
 
-  // IF STATEMENT FOR BACKWARDS COMPATABILITY
-  if (!_this.data.detailViewOptions) {
-    clonedRecords.forEach(function(entry) {
-      var newObject = {
-        id: entry.id,
-        flClasses: entry.data['flClasses'],
-        flFilters: entry.data['flFilters'],
-        editEntry: entry.editEntry,
-        deleteEntry: entry.deleteEntry,
-        likesEnabled: entry.likesEnabled,
-        bookmarksEnabled: entry.bookmarksEnabled,
-        commentsEnabled: entry.commentsEnabled,
-        originalData: entry.data
-      };
-
-      $.extend(true, newObject, entry.data);
-
-      loopData.push(newObject);
-    });
-    
-    // Converts date format
-    loopData.forEach(function(obj, index) {
-      var newDate = new Date(obj[dateField]).toUTCString();
-      loopData[index][dateField] = moment(newDate).utc().format("ddd Do MMM");
-    });
-
-    var newRecords = _.values(_.groupBy(loopData, function(row) {
-      return row[dateField];
-    }));
-
-    _this.modifiedRecords = newRecords;
-    return;
-  }
-
   // Uses sumamry view settings set by users
   clonedRecords.forEach(function(entry) {
     var newObject = {
@@ -1020,11 +986,6 @@ DynamicList.prototype.renderLoopHTML = function() {
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
-
-  if (!_this.data.detailViewOptions) {
-    _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(_this.modifiedRecords));
-    return;
-  }
 
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(_this.modifiedRecords));
 }

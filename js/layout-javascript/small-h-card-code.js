@@ -719,30 +719,6 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
     return option.editable;
   });
 
-  // IF STATEMENT FOR BACKWARDS COMPATABILITY
-  if (!_this.data.detailViewOptions) {
-    records.forEach(function(entry) {
-      var newObject = {
-        id: entry.id,
-        editEntry: entry.editEntry,
-        deleteEntry: entry.deleteEntry,
-        isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
-        originalData: entry.data
-      };
-
-      $.extend(true, newObject, entry.data);
-
-      loopData.push(newObject);
-    });
-
-    loopData.forEach(function(obj, index) {
-      loopData[index].profileHTML = _this.profileHTML(loopData[index]);
-    });
-
-    _this.modifiedListItems = loopData;
-    return;
-  }
-
   // Uses sumamry view settings set by users
   records.forEach(function(entry) {
     var newObject = {
@@ -856,12 +832,6 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
   ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
   : Handlebars.compile(Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
-
-  // IF STATEMENT FOR BACKWARDS COMPATABILITY
-  if (!_this.data.detailViewOptions) {
-    _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
-    return;
-  }
 
   _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).html(template(_this.modifiedListItems));
 }

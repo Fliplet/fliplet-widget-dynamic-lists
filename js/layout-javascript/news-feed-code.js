@@ -1372,29 +1372,6 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
 
   var loopData = [];
 
-  // IF STATEMENT FOR BACKWARDS COMPATABILITY
-  if (!_this.data.detailViewOptions) {
-    modifiedData.forEach(function(entry) {
-      var newObject = {
-        id: entry.id,
-        flClasses: entry.data['flClasses'],
-        flFilters: entry.data['flFilters'],
-        editEntry: entry.editEntry,
-        deleteEntry: entry.deleteEntry,
-        likesEnabled: entry.likesEnabled,
-        bookmarksEnabled: entry.bookmarksEnabled,
-        commentsEnabled: entry.commentsEnabled,
-        originalData: entry.data
-      };
-
-      $.extend(true, newObject, entry.data);
-
-      loopData.push(newObject);
-    });
-    _this.modifiedListItems = loopData;
-    return;
-  }
-
   // Uses sumamry view settings set by users
   modifiedData.forEach(function(entry) {
     var newObject = {
@@ -1500,11 +1477,6 @@ DynamicList.prototype.renderLoopHTML = function() {
   var limitedList = undefined;
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
-  }
-
-  if (!_this.data.detailViewOptions) {
-    _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
-    return;
   }
 
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
