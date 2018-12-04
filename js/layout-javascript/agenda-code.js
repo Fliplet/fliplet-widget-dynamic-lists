@@ -725,8 +725,10 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    var queryObject = {};
-    queryObject[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
+    var queryObject = {
+      originalData: {}
+    };
+    queryObject.originalData[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
 
     entry = _(_this.modifiedRecords)
       .chain()
