@@ -804,7 +804,7 @@ DynamicList.prototype.checkIsToOpen = function() {
 
   if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
     entry = _.find(_this.modifiedListItems, function(row) {
-      return row[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+      return row.originalData[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
     });
   }
 
