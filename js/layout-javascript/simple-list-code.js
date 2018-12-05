@@ -230,6 +230,11 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.simple-list-item', function(event) {
       event.stopPropagation();
+      
+      if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
+        return;
+      }
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text();
 

@@ -281,6 +281,11 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.news-feed-list-item', function(event) {
       event.stopPropagation();
+
+      if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
+        return;
+      }
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text();
       Fliplet.Analytics.trackEvent({
