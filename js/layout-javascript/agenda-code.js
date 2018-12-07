@@ -1598,6 +1598,7 @@ DynamicList.prototype.showDetails = function(id) {
       if (typeof _this.data.afterShowDetails === 'function') {
         _this.data.afterShowDetails({
           config: _this.data,
+          src: data.src || src,
           data: data.data || entryData
         });
       }
