@@ -2,6 +2,7 @@ var DynamicLists = (function() {
   var _this;
 
   var organizationId = Fliplet.Env.get('organizationId');
+  var appId = Fliplet.Env.get('appId');
   var appName = Fliplet.Env.get('appName');
   var pageTitle = Fliplet.Env.get('pageTitle');
   var listLayout;
@@ -55,6 +56,20 @@ var DynamicLists = (function() {
   var addRadioValues = [];
   var editRadioValues = [];
   var deleteRadioValues = [];
+
+  var otherApps = [];
+  var currentApp = {
+    id: appId,
+    type: 'app',
+    name: appName
+  };
+  var userOrganization = {
+    id: organizationId,
+    type: 'organization'
+  };
+  var appFolders;
+  var otherFolders;
+  var organizationFolders;
 
   // Constructor
   function DynamicLists(configuration) {
@@ -444,6 +459,33 @@ var DynamicLists = (function() {
             $(this).parents('.rTableRow').find('.custom-label-input').addClass('hidden');
           }
         })
+        .on('change', '[name="select_summary_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'image') {
+            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
+          }
+        })
+        .on('change', '[name="select_field_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'image') {
+            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
+          }
+        })
+        .on('change', '[name="folder_field_select"]', function() {
+          var value = $(this).val();
+
+          if (value === 'all-folders') {
+            $(this).parents('.rTableRow').find('.all-folders-select').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.all-folders-select').addClass('hidden');
+          }
+        })
         .on('click', '.rTableCell.delete', function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
@@ -560,10 +602,106 @@ var DynamicLists = (function() {
       });
     },
     init: function() {
-      _this.getDataSources();
-      _this.setupCodeEditors();
-      _this.loadData();
-      _this.initializeSortSortable();
+      _this.getDataSources()
+        .then(function() {
+          return _this.getOtherApps();
+        })
+        .then(function() {
+          return _this.getFolders();
+        })
+        .then(function() {
+          return _this.setupCodeEditors();
+        })
+        .then(function() {
+          return _this.loadData();
+        })
+        .then(function() {
+          return _this.initializeSortSortable();
+        });
+    },
+    getOrganizationInfo: function() {
+      return Fliplet.Organizations.get()
+        .then(function(organizations) {
+          // Remove V1 apps and the current app
+          organization = _.find(organizations, { id: organizationId });
+          userOrganization.name = organization.name;
+          return organization;
+        });
+    },
+    getAppsList: function() {
+      return Fliplet.Apps.get()
+        .then(function(apps) {
+          // Remove V1 apps and the current app
+          apps = _.filter(apps, function(app) {
+            return !app.legacy && app.id !== appId;
+          });
+
+          return apps;
+        });
+    },
+    getOtherApps: function() {
+      _this.getAppsList()
+        .then(function(apps) {
+          apps.forEach(function(app) {
+            otherApps.push({
+              id: app.id,
+              type: 'app',
+              name: app.name
+            })
+          });
+
+          return;
+        })
+        .then(function() {
+          return _this.getOrganizationInfo();
+        });
+    },
+    getCurrentAppFolders: function() {
+      return Fliplet.Media.Folders.get({
+          appId: currentApp.id
+        });
+    },
+    getOrganizationFolders: function() {
+      return Fliplet.Media.Folders.get({
+          organizationId: userOrganization.id
+        });
+    },
+    getOtherAppsFolders: function() {
+      var allFoldersPromises = [];
+
+      otherApps.forEach(function(app) {
+        allFoldersPromises.push(Fliplet.Media.Folders.get({
+          appId: app.id
+        }));
+      })
+      
+      return Promise.all(allFoldersPromises);
+    },
+    getFolders: function() {
+      // Get current app's folders
+      return _this.getCurrentAppFolders()
+        .then(function(data) {
+          appFolders = data.folders;
+
+          // Get organization's folders
+          return _this.getOrganizationFolders();
+        })
+        .then(function(data) {
+          organizationFolders = data.folders;
+
+          // Get all other apps' folders
+          return _this.getOtherAppsFolders();
+        })
+        .then(function(appsData) {
+          otherFolders = [];
+          appsData.forEach(function(data) {
+            data.folders.forEach(function(folders) {
+               otherFolders.push(folders);
+            });
+          });
+
+          return;
+        });
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -756,7 +894,7 @@ var DynamicLists = (function() {
               item.columns = dataSourceColumns || _this.config.defaultColumns;
               _this.addSummaryItem(item);
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
             });
 
@@ -892,7 +1030,7 @@ var DynamicLists = (function() {
               _this.addDetailItem(item);
 
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
@@ -922,6 +1060,9 @@ var DynamicLists = (function() {
             $('.state').removeClass('loading is-loading');
 
             return;
+          })
+          .then(function() {
+            return _this.updateImageFolders();
           })
           .catch(function(error) {
             if (error) {
@@ -1266,6 +1407,69 @@ var DynamicLists = (function() {
 
       _this.setUpUserTokenFields();
     },
+    updateImageFolders: function() {
+      $('[name="folder_field_select"]').each(function(index, obj) {
+        var oldValue = $(obj).val();
+        var options = [];
+        $(obj).html('');
+
+        var defaultOptions = [
+          '<option disabled>------</option>',
+          '<option value="url">URL to external image</option>',
+          '<option disabled>------</option>',
+          '<option value="all-folders">Show folders from other apps</option>'
+        ];
+
+        // Adds defaults to array
+        defaultOptions.forEach(function(option) {
+          options.push(option);
+        });
+
+        // Adds folders to array
+        appFolders.forEach(function(folder, index) {
+          options.unshift('<option value="'+ folder.id +'" data-type="folder">'+ folder.name +'</option>');
+        });
+        options.unshift('<option disabled>App folders</option>');
+
+        options.unshift('<option value="'+ currentApp.id +'" data-type="app">'+ currentApp.name +'</option>');
+        options.unshift('<option disabled>App</option>');
+
+        $(obj).append(options.join(''));
+        if (oldValue && oldValue.length) {
+          $(obj).val(oldValue);
+        }
+      });
+
+      $('[name="all_folders_field_select"]').each(function(index, obj) {
+        var oldValue = $(obj).val();
+        var options = [];
+        $(obj).html('');
+
+        // Adds folders to array
+        otherFolders.forEach(function(folder, index) {
+          options.unshift('<option value="'+ folder.id +'" data-type="folder">'+ folder.name +'</option>');
+        });
+        options.unshift('<option disabled>Other apps\' folders</option>');
+
+        otherApps.forEach(function(app, index) {
+          options.unshift('<option value="'+ app.id +'" data-type="app">'+ app.name +'</option>');
+        });
+        options.unshift('<option disabled>Other apps</option>');
+
+        organizationFolders.forEach(function(folder, index) {
+          options.unshift('<option value="'+ folder.id +'" data-type="folder">'+ folder.name +'</option>');
+        });
+        options.unshift('<option disabled>Organization folders</option>');
+
+        options.unshift('<option value="'+ userOrganization.id +'" data-type="app">'+ userOrganization.name +'</option>');
+        options.unshift('<option disabled>Organization</option>');
+
+        $(obj).append(options.join(''));
+        if (oldValue && oldValue.length) {
+          $(obj).val(oldValue);
+        }
+      });
+    },
     reloadDataSources: function(dataSourceId) {
       return Fliplet.DataSources.get({
         roles: 'publisher,editor',
@@ -1352,7 +1556,7 @@ var DynamicLists = (function() {
     },
     getDataSources: function() {
       // Load the data source
-      Fliplet.DataSources.get({
+      return Fliplet.DataSources.get({
         roles: 'publisher,editor',
         type: null
       }, {
@@ -1835,7 +2039,7 @@ var DynamicLists = (function() {
       var javascript = document.getElementById('js-code');
       var javascriptType = $(javascript).data('type');
 
-      _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
+      return _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
         var baseTemplatePromise = new Promise(function(resolve) {
           if (baseTemplateEditor) {
             baseTemplateEditor.getDoc().setValue(baseTemplateCode);
@@ -1941,7 +2145,7 @@ var DynamicLists = (function() {
           }
         });
 
-        Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
+        return Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
           .then(function() {
             _this.resizeCodeEditors();
           });

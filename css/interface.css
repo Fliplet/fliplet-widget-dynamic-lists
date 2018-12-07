@@ -909,8 +909,17 @@ header .btn,
 }
 
 .custom-field-input .rTableCell:last-child,
-.custom-label-input .rTableCell:last-child {
+.custom-label-input .rTableCell:last-child,
+.image-field-select .rTableCell:last-child {
   padding-right: 5px;
+}
+
+.image-field-select .rTableCell:nth-child(3) {
+  padding-right: 0;
+}
+
+.image-field-select .rTableCell:nth-child(4) {
+  padding-left: 10px;
 }
 
 .rTableHead.title,
@@ -972,7 +981,8 @@ header .btn,
 }
 
 .custom-field-input,
-.custom-label-input {
+.custom-label-input,
+.image-field-select {
   margin-top: 10px;
 }
 

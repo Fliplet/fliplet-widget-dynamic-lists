@@ -10,6 +10,7 @@
   "interface": {
     "dependencies": [
       "fliplet-core",
+      "fliplet-media",
       "fliplet-datasources",
       "fliplet-studio-ui",
       "jquery-ui",

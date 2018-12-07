@@ -39,4 +39,25 @@
       <p class="text-muted field-text-info">Use <code>\{{[*]}}</code> to wrap around a field name, e.g. <code>Location: \{{[city]}}, \{{[country]}}</code>.</p>
     </div>
   </div>
+  <div class="image-field-select clearfix hidden">
+    <div class="rTableCell title">
+      Image folder or URL
+    </div>
+    <div class="rTableCell select field">
+      <select class="form-control" id="folder_field_{{id}}" name="folder_field_select">
+        <option disabled>------</option>
+        <option value="url">URL to external image</option>
+        <option disabled>------</option>
+        <option value="all-folders">Show folders from other apps</option>
+      </select>
+    </div>
+    <div class="rTableCell select field all-folders-select hidden">
+      <select class="form-control" id="all_folders_field_{{id}}" name="all_folders_field_select">
+        <option value="url">None</option>
+      </select>
+    </div>
+    <div class="rTableCell select field">
+      <p class="text-muted field-text-info">Some text here</p>
+    </div>
+  </div>
 </div>
