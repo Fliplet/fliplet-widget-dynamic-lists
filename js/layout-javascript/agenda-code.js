@@ -182,21 +182,41 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
         return;
       }
-      event.stopPropagation();
+
+      if ($(event.target).hasClass('agenda-item-bookmark-holder') || $(event.target).parents('.agenda-item-bookmark-holder').length) {
+        return;
+      }
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text();
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
 
-      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-        _this.openLinkAction(entryId);
-        return;
+      var beforeOpen = Promise.resolve();
+    
+      if (typeof _this.data.beforeOpen === 'function') {
+        beforeOpen = _this.data.beforeOpen({
+          config: _this.data,
+          entry: _.find(_this.listItems, { id: entryId })
+        });
+        
+        if (!(beforeOpen instanceof Promise)) {
+          beforeOpen = Promise.resolve(beforeOpen);
+        }
       }
-      
-      _this.showDetails(entryId);
+    
+      beforeOpen.then(function () {
+        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          _this.openLinkAction(entryId);
+          return;
+        }
+        
+        _this.showDetails(entryId);
+      });
     })
     .on('click', '.agenda-detail-overlay-close', function() {
       var result;

@@ -229,8 +229,6 @@ DynamicList.prototype.attachObservers = function() {
       _this.filterList();
     })
     .on('click', '.simple-list-item', function(event) {
-      event.stopPropagation();
-      
       if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
         return;
       }
@@ -244,12 +242,27 @@ DynamicList.prototype.attachObservers = function() {
         label: entryTitle
       });
 
-      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-        _this.openLinkAction(entryId);
-        return;
+      var beforeOpen = Promise.resolve();
+    
+      if (typeof _this.data.beforeOpen === 'function') {
+        beforeOpen = _this.data.beforeOpen({
+          config: _this.data,
+          entry: _.find(_this.listItems, { id: entryId })
+        });
+        
+        if (!(beforeOpen instanceof Promise)) {
+          beforeOpen = Promise.resolve(beforeOpen);
+        }
       }
+    
+      beforeOpen.then(function () {
+        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          _this.openLinkAction(entryId);
+          return;
+        }
 
-      _this.showDetails(entryId);
+        _this.showDetails(entryId);
+      });
     })
     .on('click', '.simple-list-detail-overlay-close', function() {
       var result;

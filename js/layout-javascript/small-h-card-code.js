@@ -163,25 +163,42 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.small-h-card-list-item', function(event) {
+      var _that = $(this);
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-h-card-list-item-text').text();
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
 
-      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-        _this.openLinkAction(entryId);
-        return;
+      var beforeOpen = Promise.resolve();
+    
+      if (typeof _this.data.beforeOpen === 'function') {
+        beforeOpen = _this.data.beforeOpen({
+          config: _this.data,
+          entry: _.find(_this.listItems, { id: entryId })
+        });
+        
+        if (!(beforeOpen instanceof Promise)) {
+          beforeOpen = Promise.resolve(beforeOpen);
+        }
       }
-      // find the element to expand and expand it
-      if (_this.allowClick && $(window).width() < 640) {
-        _this.directoryDetailWrapper = $(this).find('.small-h-card-list-detail-wrapper');
-        _this.expandElement(_this.directoryDetailWrapper, entryId);
-      } else if ($(window).width() >= 640) {
-        _this.showDetails(entryId);
-      }
+    
+      beforeOpen.then(function () {
+        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          _this.openLinkAction(entryId);
+          return;
+        }
+        // find the element to expand and expand it
+        if (_this.allowClick && $(window).width() < 640) {
+          _this.directoryDetailWrapper = _that.find('.small-h-card-list-detail-wrapper');
+          _this.expandElement(_this.directoryDetailWrapper, entryId);
+        } else if (_this.allowClick && $(window).width() >= 640) {
+          _this.showDetails(entryId);
+        }
+      });
     })
     .on('click', '.small-h-card-detail-overlay-close', function(event) {
       event.stopPropagation();

@@ -280,28 +280,42 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.news-feed-list-item', function(event) {
-      event.stopPropagation();
-
       if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
         return;
       }
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text();
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
 
-      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-        _this.openLinkAction(entryId);
-        return;
+      var beforeOpen = Promise.resolve();
+    
+      if (typeof _this.data.beforeOpen === 'function') {
+        beforeOpen = _this.data.beforeOpen({
+          config: _this.data,
+          entry: _.find(_this.listItems, { id: entryId })
+        });
+        
+        if (!(beforeOpen instanceof Promise)) {
+          beforeOpen = Promise.resolve(beforeOpen);
+        }
       }
-      // find the element to expand and expand it
-      if (_this.allowClick) {
-        _this.showDetails(entryId);
-      }
+    
+      beforeOpen.then(function () {
+        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          _this.openLinkAction(entryId);
+          return;
+        }
+        // find the element to expand and expand it
+        if (_this.allowClick) {
+          _this.showDetails(entryId);
+        }
+      });
     })
     .on('click', '.news-feed-detail-overlay-close', function() {
       var result;
