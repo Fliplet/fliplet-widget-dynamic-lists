@@ -1461,7 +1461,7 @@ var DynamicLists = (function() {
         });
         options.unshift('<option disabled>Organization folders</option>');
 
-        options.unshift('<option value="'+ userOrganization.id +'" data-type="app">'+ userOrganization.name +'</option>');
+        options.unshift('<option value="'+ userOrganization.id +'" data-type="organization">'+ userOrganization.name +'</option>');
         options.unshift('<option disabled>Organization</option>');
 
         $(obj).append(options.join(''));
