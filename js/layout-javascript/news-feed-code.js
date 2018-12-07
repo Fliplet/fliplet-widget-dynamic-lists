@@ -68,9 +68,12 @@ var DynamicList = function(id, data, container) {
 
   this.setupCopyText();
 
-  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[this.data.layout]['detail']]());
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[this.data.layout]['detail']]();
+
+
+  this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -1905,50 +1908,71 @@ DynamicList.prototype.searchData = function(value) {
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
   
-  // Search
-  var searchedData = [];
-  var filteredData;
+  // Search  
+  if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
+    return;
+  }
 
-  if (_this.data.searchEnabled && _this.data.searchFields.length) {
-    _this.data.searchFields.forEach(function(field) {    
-      filteredData = _.filter(_this.listItems, function(obj) {
-        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
-          return obj.data[field].toLowerCase().indexOf(value) > -1;
+  var executeSeach;
+
+  if (typeof _this.data.searchData === 'function') {
+    executeSearch = _this.data.searchData({
+      config: _this.data,
+      query: value
+    });
+
+    if (!(executeSearch instanceof Promise)) {
+      executeSearch = Promise.resolve(executeSearch);
+    }
+  } else {
+    executeSearch = new Promise(function (resolve, reject) {
+      var searchedData = [];
+      var filteredData;
+
+      _this.data.searchFields.forEach(function(field) {    
+        filteredData = _.filter(_this.listItems, function(obj) {
+          if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
+            return obj.data[field].toLowerCase().indexOf(value) > -1;
+          }
+        });
+
+        if (filteredData.length) {
+          filteredData.forEach(function(item) {
+            searchedData.push(item);
+          });
         }
       });
 
-      if (filteredData.length) {
-        filteredData.forEach(function(item) {
-          searchedData.push(item);
-        });
-      }
+      resolve(searchedData);
     });
   }
 
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
-  if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
-  }
+  executeSearch.then(function (searchedData) {
+    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    if (!_this.data.filtersInOverlay) {
+      _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
+    }
 
-  if (!searchedData.length) {
-    _this.$container.find('.hidden-filter-controls').addClass('no-results');
-  }
+    if (!searchedData.length) {
+      _this.$container.find('.hidden-filter-controls').addClass('no-results');
+    }
 
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
-  }
+    if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
+      _this.mixer.destroy();
+    }
 
-  searchedData = _.uniq(searchedData);
-  _this.searchedListItems = searchedData;
-  _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
+    searchedData = _.uniq(searchedData);
+    _this.searchedListItems = searchedData;
+    _this.prepareToRenderLoop(searchedData);
+    _this.renderLoopHTML();
+    _this.addFilters(_this.modifiedListItems);
 
-  if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-    _this.showDetails(_this.searchedListItems[0].id);
-  }
+    if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
+      _this.showDetails(_this.searchedListItems[0].id);
+    }
 
-  _this.onReady();
+    _this.onReady();
+  });
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -2138,35 +2162,70 @@ DynamicList.prototype.showDetails = function(id) {
   });
 
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var wrapperTemplate = Handlebars.compile(wrapper);
 
   var entryId = {
     id: id
   };
-  // Adds content to overlay
-  _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  _this.$overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
 
-  _this.prepareSetupBookmarkOverlay(id);
-  _this.updateCommentCounter(id, true);
+  var src = _this.src;
+  var beforeShowDetails = Promise.resolve({
+    src: src,
+    data: entryData
+  });
 
-  // Trigger animations
-  $('body').addClass('lock');
-  _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
-
-  // Calculate top position when image finishes loading
-  if ($(window).width() < 640) {
-    $('.news-feed-list-detail-image-wrapper img').one('load', function() {
-      var expandedPosition = $(this).outerHeight();
-      _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
-    }).each(function() {
-      if (this.complete) {
-        $(this).trigger('load');
-      }
+  if (typeof _this.data.beforeShowDetails === 'function') {
+    beforeShowDetails = _this.data.beforeShowDetails({
+      config: _this.data,
+      src: src,
+      data: entryData
     });
+    
+    if (!(beforeShowDetails instanceof Promise)) {
+      beforeShowDetails = Promise.resolve(beforeShowDetails);
+    }
   }
 
-  _this.$overlay.addClass('open');
+  beforeShowDetails.then(function (data) {
+    data = data || {};
+    var template = Handlebars.compile(data.src || src);
+    var wrapperTemplate = Handlebars.compile(wrapper);
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+    }
+
+    // Adds content to overlay
+    _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+    _this.$overlay.find('.news-feed-detail-wrapper').append(template(data.data || entryData));
+
+    _this.prepareSetupBookmarkOverlay(id);
+    _this.updateCommentCounter(id, true);
+
+    // Trigger animations
+    $('body').addClass('lock');
+    _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+
+    // Calculate top position when image finishes loading
+    if ($(window).width() < 640) {
+      $('.news-feed-list-detail-image-wrapper img').one('load', function() {
+        var expandedPosition = $(this).outerHeight();
+        _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+      }).each(function() {
+        if (this.complete) {
+          $(this).trigger('load');
+        }
+      });
+    }
+
+    _this.$overlay.addClass('open');
+
+    if (typeof _this.data.afterShowDetails === 'function') {
+      _this.data.afterShowDetails({
+        config: _this.data
+      });
+    }
+  });
 }
 
 DynamicList.prototype.closeDetails = function() {
@@ -2180,6 +2239,11 @@ DynamicList.prototype.closeDetails = function() {
   setTimeout(function() {
     // Clears overlay
     _this.$overlay.find('.news-feed-detail-overlay-content-holder').html('');
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    }
   }, 300);
 }
 

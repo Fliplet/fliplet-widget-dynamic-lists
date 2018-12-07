@@ -56,11 +56,13 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
-  this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]());
-
   // Register handlebars helpers
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
+
+  this.profileHTML = Handlebars.compile(this.src);
+
   this.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.Session.get().then(function(session) {
@@ -1490,48 +1492,69 @@ DynamicList.prototype.searchData = function(value) {
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
-  
-  // Search
-  var searchedData = [];
-  var filteredData;
 
-  if (_this.data.searchEnabled && _this.data.searchFields.length) {
-    _this.data.searchFields.forEach(function(field) {    
-      filteredData = _.filter(_this.listItems, function(obj) {
-        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
-          return obj.data[field].toLowerCase().indexOf(value) > -1;
+  // Search  
+  if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
+    return;
+  }
+
+  var executeSeach;
+
+  if (typeof _this.data.searchData === 'function') {
+    executeSearch = _this.data.searchData({
+      config: _this.data,
+      query: value
+    });
+
+    if (!(executeSearch instanceof Promise)) {
+      executeSearch = Promise.resolve(executeSearch);
+    }
+  } else {
+    executeSearch = new Promise(function (resolve, reject) {
+      var searchedData = [];
+      var filteredData;
+
+      _this.data.searchFields.forEach(function(field) {    
+        filteredData = _.filter(_this.listItems, function(obj) {
+          if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
+            return obj.data[field].toLowerCase().indexOf(value) > -1;
+          }
+        });
+
+        if (filteredData.length) {
+          filteredData.forEach(function(item) {
+            searchedData.push(item);
+          });
         }
       });
 
-      if (filteredData.length) {
-        filteredData.forEach(function(item) {
-          searchedData.push(item);
-        });
-      }
+      resolve(searchedData);
     });
   }
-  
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
-  if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
-  }
 
-  if (!searchedData.length) {
-    _this.$container.find('.hidden-filter-controls').addClass('no-results');
-  }
+  executeSearch.then(function (searchedData) {
+    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    if (!_this.data.filtersInOverlay) {
+      _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
+    }
 
-  // Remove duplicates
-  searchedData = _.uniq(searchedData);
-  _this.searchedListItems = searchedData;
+    if (!searchedData.length) {
+      _this.$container.find('.hidden-filter-controls').addClass('no-results');
+    }
 
-  if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-    _this.showDetails(_this.searchedListItems[0].id);
-  }
+    // Remove duplicates
+    searchedData = _.uniq(searchedData);
+    _this.searchedListItems = searchedData;
 
-  _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
-  _this.onReady();
+    if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
+      _this.showDetails(_this.searchedListItems[0].id);
+    }
+
+    _this.prepareToRenderLoop(searchedData);
+    _this.renderLoopHTML();
+    _this.addFilters(_this.modifiedListItems);
+    _this.onReady();
+  });
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -1606,22 +1629,56 @@ DynamicList.prototype.showDetails = function(id) {
   };
   var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = _this.$container.find('#small-card-detail-overlay-' + _this.data.id);
-  var wrapperTemplate = Handlebars.compile(wrapper);
 
-  // Adds content to overlay
-  $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  $overlay.find('.small-card-detail-wrapper').append(_this.profileHTML(entryData));
+  var src = _this.src;
+  var beforeShowDetails = Promise.resolve({
+    src: src,
+    data: entryData
+  });
 
-  // Trigger animations
-  _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
-  $overlay.addClass('open');
-  setTimeout(function() {
-    $overlay.addClass('ready');
-
-    if (typeof _this.directoryDetailWrapper === 'undefined') {
-      _this.directoryDetailWrapper = $('.small-card-list-item[data-entry-id="' + id + '"]').find('.small-card-list-detail-wrapper');
+  if (typeof _this.data.beforeShowDetails === 'function') {
+    beforeShowDetails = _this.data.beforeShowDetails({
+      config: _this.data,
+      src: src,
+      data: entryData
+    });
+    
+    if (!(beforeShowDetails instanceof Promise)) {
+      beforeShowDetails = Promise.resolve(beforeShowDetails);
     }
-  }, 0);
+  }
+
+  beforeShowDetails.then(function (data) {
+    data = data || {};
+    var template = Handlebars.compile(data.src || src);
+    var wrapperTemplate = Handlebars.compile(wrapper);
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+    }
+
+    // Adds content to overlay
+    $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+    $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
+
+    // Trigger animations
+    _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
+    $overlay.addClass('open');
+    setTimeout(function() {
+      $overlay.addClass('ready');
+
+      if (typeof _this.directoryDetailWrapper === 'undefined') {
+        _this.directoryDetailWrapper = $('.small-card-list-item[data-entry-id="' + id + '"]').find('.small-card-list-detail-wrapper');
+      }
+
+      if (typeof _this.data.afterShowDetails === 'function') {
+        _this.data.afterShowDetails({
+          config: _this.data
+        });
+      }
+    }, 0);
+  });
 }
 
 DynamicList.prototype.closeDetails = function() {
@@ -1636,6 +1693,11 @@ DynamicList.prototype.closeDetails = function() {
     $overlay.removeClass('ready');
     // Clears overlay
     $overlay.find('.small-card-detail-overlay-content-holder').html('');
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    }
   }, 300);
 }
 

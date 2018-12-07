@@ -1543,29 +1543,65 @@ DynamicList.prototype.showDetails = function(id) {
     })
     .value();
 
-  var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var $overlay = _this.$container.find('#agenda-detail-overlay-' + _this.data.id);
-  var wrapperTemplate = Handlebars.compile(wrapper);
-
   var entryId = {
     id: id
   };
-  // Adds content to overlay
-  $overlay.find('.agenda-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  $overlay.find('.agenda-detail-wrapper').append(_this.detailHTML(entryData));
 
-  // Sets up the like and bookmark buttons
-  if (_this.data.social && _this.data.social.bookmark) {
-    _this.prepareSetupBookmarkOverlay(id);
+  var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var $overlay = _this.$container.find('#agenda-detail-overlay-' + _this.data.id);
+
+  var src = _this.src;
+  var beforeShowDetails = Promise.resolve({
+    src: src,
+    data: entryData
+  });
+
+  if (typeof _this.data.beforeShowDetails === 'function') {
+    beforeShowDetails = _this.data.beforeShowDetails({
+      config: _this.data,
+      src: src,
+      data: entryData
+    });
+    
+    if (!(beforeShowDetails instanceof Promise)) {
+      beforeShowDetails = Promise.resolve(beforeShowDetails);
+    }
   }
 
-  // Trigger animations
-  $('body').addClass('lock');
-  _this.$container.find('.agenda-feed-list-container').addClass('overlay-open');
-  $overlay.addClass('open');
-  setTimeout(function() {
-    $overlay.addClass('ready');
-  }, 0);
+  beforeShowDetails.then(function (data) {
+    data = data || {};
+    var template = Handlebars.compile(data.src || src);
+    var wrapperTemplate = Handlebars.compile(wrapper);
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+    }
+
+    // Adds content to overlay
+    $overlay.find('.agenda-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+    $overlay.find('.agenda-detail-wrapper').append(template(data.data || entryData));
+
+
+    // Sets up the like and bookmark buttons
+    if (_this.data.social && _this.data.social.bookmark) {
+      _this.prepareSetupBookmarkOverlay(id);
+    }
+
+    // Trigger animations
+    $('body').addClass('lock');
+    _this.$container.find('.agenda-feed-list-container').addClass('overlay-open');
+    $overlay.addClass('open');
+    setTimeout(function() {
+      $overlay.addClass('ready');
+
+      if (typeof _this.data.afterShowDetails === 'function') {
+        _this.data.afterShowDetails({
+          config: _this.data
+        });
+      }
+    }, 0);
+  });
 }
 
 DynamicList.prototype.closeDetails = function() {
@@ -1586,5 +1622,10 @@ DynamicList.prototype.closeDetails = function() {
     $overlay.removeClass('ready');
     // Clears overlay
     $overlay.find('.agenda-detail-overlay-content-holder').html('');
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    }
   }, 300);
 }

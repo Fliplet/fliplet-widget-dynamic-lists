@@ -47,9 +47,11 @@ var DynamicList = function(id, data, container) {
   this.pvOpenQuery;
 
   // Register handlebars helpers
-  this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[this.data.layout]['detail']]());
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[this.data.layout]['detail']]();
+
+  this.profileHTML = Handlebars.compile(this.src);
 
   this.registerHandlebarsHelpers();
   // Get the current session data
@@ -945,22 +947,56 @@ DynamicList.prototype.showDetails = function(id) {
   };
   var wrapper = '<div class="small-h-card-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = _this.$container.find('#small-h-card-detail-overlay-' + _this.data.id);
-  var wrapperTemplate = Handlebars.compile(wrapper);
 
-  // Adds content to overlay
-  $overlay.find('.small-h-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  $overlay.find('.small-h-card-detail-wrapper').append(_this.profileHTML(entryData));
+  var src = _this.src;
+  var beforeShowDetails = Promise.resolve({
+    src: src,
+    data: entryData
+  });
 
-  // Trigger animations
-  _this.$container.find('.new-small-h-card-list-container').addClass('overlay-open');
-  $overlay.addClass('open');
-  setTimeout(function() {
-    $overlay.addClass('ready');
-
-    if (typeof _this.directoryDetailWrapper === 'undefined') {
-      _this.directoryDetailWrapper = $('.small-h-card-list-item[data-entry-id="' + id + '"]').find('.small-h-card-list-detail-wrapper');
+  if (typeof _this.data.beforeShowDetails === 'function') {
+    beforeShowDetails = _this.data.beforeShowDetails({
+      config: _this.data,
+      src: src,
+      data: entryData
+    });
+    
+    if (!(beforeShowDetails instanceof Promise)) {
+      beforeShowDetails = Promise.resolve(beforeShowDetails);
     }
-  }, 0);
+  }
+
+  beforeShowDetails.then(function (data) {
+    data = data || {};
+    var template = Handlebars.compile(data.src || src);
+    var wrapperTemplate = Handlebars.compile(wrapper);
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+    }
+
+    // Adds content to overlay
+    $overlay.find('.small-h-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+    $overlay.find('.small-h-card-detail-wrapper').append(template(data.data || entryData));
+
+    // Trigger animations
+    _this.$container.find('.new-small-h-card-list-container').addClass('overlay-open');
+    $overlay.addClass('open');
+    setTimeout(function() {
+      $overlay.addClass('ready');
+
+      if (typeof _this.directoryDetailWrapper === 'undefined') {
+        _this.directoryDetailWrapper = $('.small-h-card-list-item[data-entry-id="' + id + '"]').find('.small-h-card-list-detail-wrapper');
+      }
+
+      if (typeof _this.data.afterShowDetails === 'function') {
+        _this.data.afterShowDetails({
+          config: _this.data
+        });
+      }
+    }, 0);
+  });
 }
 
 DynamicList.prototype.closeDetails = function() {
@@ -975,6 +1011,11 @@ DynamicList.prototype.closeDetails = function() {
     $overlay.removeClass('ready');
     // Clears overlay
     $overlay.find('.small-h-card-detail-overlay-content-holder').html('');
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    }
   }, 300);
 }
 
