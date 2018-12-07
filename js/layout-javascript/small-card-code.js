@@ -1674,7 +1674,8 @@ DynamicList.prototype.showDetails = function(id) {
 
       if (typeof _this.data.afterShowDetails === 'function') {
         _this.data.afterShowDetails({
-          config: _this.data
+          config: _this.data,
+          data: data.data || entryData
         });
       }
     }, 0);
