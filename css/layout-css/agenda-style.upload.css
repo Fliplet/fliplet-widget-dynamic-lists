@@ -411,8 +411,8 @@
 .new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-time {
   text-transform: uppercase;
   color: #333333;
-  font-size: 16px;
-  opacity: 0.2;
+  font-size: 14px;
+  opacity: 0.4;
   font-weight: 500;
   line-height: 1.4;
 }

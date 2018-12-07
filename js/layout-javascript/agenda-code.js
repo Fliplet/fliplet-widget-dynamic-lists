@@ -851,6 +851,20 @@ DynamicList.prototype.renderBaseHTML = function() {
   $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
 }
 
+DynamicList.prototype.convertTime = function(time) {
+  var hasLetters = !!time.match(/[A-Za-z]/g);
+  var format;
+  
+  if (hasLetters) {
+    format = 'hh:mm a'; 
+  } else {
+    format = 'hh:mm';
+  }
+  
+  var convertedTime = moment(time, format).format('h:mm A');
+  return convertedTime;
+} 
+
 DynamicList.prototype.prepareToRenderLoop = function(rows) {
   var _this = this;
   var savedColumns = [];
@@ -887,6 +901,11 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       } else {
         var content = entry.data[obj.column];
       }
+
+      if (obj.location === "Start Time" || obj.location === "End Time") {
+        content = _this.convertTime(content);
+      }
+
       newObject[obj.location] = content;
     });
 
