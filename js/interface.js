@@ -482,8 +482,16 @@ var DynamicLists = (function() {
 
           if (value === 'all-folders') {
             $(this).parents('.rTableRow').find('.all-folders-select').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
+          } else if (value === 'url') {
+            $(this).parents('.rTableRow').find('.all-folders-select').addClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').addClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').removeClass('hidden');
           } else {
             $(this).parents('.rTableRow').find('.all-folders-select').addClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
           }
         })
         .on('click', '.rTableCell.delete', function() {
@@ -1435,9 +1443,12 @@ var DynamicLists = (function() {
         options.unshift('<option disabled>App</option>');
 
         $(obj).append(options.join(''));
-        if (oldValue && oldValue.length) {
-          $(obj).val(oldValue);
-        }
+        $(obj).val(currentApp.id);
+
+        // @TODO: Load data when saved
+        // if (oldValue && oldValue.length) {
+        //   $(obj).val(oldValue);
+        // }
       });
 
       $('[name="all_folders_field_select"]').each(function(index, obj) {
@@ -1465,9 +1476,12 @@ var DynamicLists = (function() {
         options.unshift('<option disabled>Organization</option>');
 
         $(obj).append(options.join(''));
-        if (oldValue && oldValue.length) {
-          $(obj).val(oldValue);
-        }
+        $(obj).val(userOrganization.id);
+
+        // @TODO: Load data when saved
+        // if (oldValue && oldValue.length) {
+        //   $(obj).val(oldValue);
+        // }
       });
     },
     reloadDataSources: function(dataSourceId) {
