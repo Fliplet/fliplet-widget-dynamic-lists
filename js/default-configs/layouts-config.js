@@ -166,14 +166,14 @@ window.flListLayoutConfig = {
         id: 'ajdmjRrT',
         interfaceName: 'Session starting time',
         location: 'Start Time',
-        type: 'date',
+        type: 'time',
         column: 'Start Time'
       },
       {
         id: 'aJdnjRrT',
         interfaceName: 'Session ending time',
         location: 'End Time',
-        type: 'date',
+        type: 'time',
         column: 'End Time'
       },
       {
