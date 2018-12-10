@@ -10,7 +10,6 @@
   "interface": {
     "dependencies": [
       "fliplet-core",
-      "fliplet-media",
       "fliplet-datasources",
       "fliplet-studio-ui",
       "jquery-ui",
@@ -55,6 +54,7 @@
       "fliplet-core",
       "fliplet-session",
       "fliplet-datasources",
+      "fliplet-media",
       "font-awesome",
       "bootstrap",
       "jquery-ui",

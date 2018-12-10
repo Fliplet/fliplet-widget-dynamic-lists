@@ -689,6 +689,111 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
+DynamicList.prototype.convertFiles = function(listItems) {
+  var _this = this;
+  var dataToGetFile = [];
+  var promises = [];
+
+  listItems.forEach(function(entry, index) {
+    var data = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    _this.data['summary-fields'].forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      }
+    });
+
+    _this.data.detailViewOptions.forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      }
+    });
+  });
+
+  if (dataToGetFile.length) {
+    dataToGetFile.forEach(function(data) {
+      promises.push(Fliplet.Media.Folders.get(data.query)
+        .then(function(response) {
+          var allFiles = response.files;
+          // Test pattern for URLS
+          var urlPattern = /^https?:\/\//i;
+          // Test pattern for BASE64 images
+          var base64Pattern = /^data:image\/[^;]+;base64,/i;
+          // Test pattern for Numbers/IDs
+          var numberPattern = /^\d+$/i;
+
+          allFiles.forEach(function(file) {
+            // Add this IF statement to make the URLs to work with encrypted organizations
+            if (file.isEncrypted) {
+              file.url += '?auth_token=' + Fliplet.User.getAuthToken();
+            }
+
+            if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
+              data.entry.data[data.field.column] = file.url;
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column])) {
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (numberPattern.test(data.entry.data[data.field.column])) {
+              var imageId = parseInt(data.entry.data[data.field.column], 10);
+              if (imageId === file.id) {
+                data.entry.data[data.field.column] = file.url;
+                // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+                data.entry.data['imageUrlEdited'] = true;
+              }
+            }
+          });
+
+          if (!data.entry.data['imageUrlEdited']) {
+            data.entry.data[data.field.column] = '';
+          }
+
+          return data.entry;
+        }));
+    });
+
+    return Promise.all(promises);
+  } else {
+    return Promise.resolve(listItems);
+  }
+}
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -712,27 +817,31 @@ DynamicList.prototype.initialize = function() {
       });
     }
     _this.dataSourceColumns = _this.data.defaultColumns;
-    // Render Loop HTML
-    _this.prepareToRenderLoop(_this.listItems);
-    _this.renderLoopHTML();
-    _this.addFilters(_this.modifiedListItems);
-    // Render user profile
-    if (_this.myProfileData && _this.myProfileData.length) {
-      _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
-      var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
-      var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-      _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
 
-      var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
-      var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-      _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+    return _this.convertFiles(_this.listItems)
+      .then(function(response) {
+        _this.listItems = response;
+        // Render Loop HTML
+        _this.prepareToRenderLoop(_this.listItems);
+        _this.renderLoopHTML();
+        _this.addFilters(_this.modifiedListItems);
+        // Render user profile
+        if (_this.myProfileData && _this.myProfileData.length) {
+          _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
+          var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
+          var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+          _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
 
-      _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
-    }
-    // Listeners and Ready
-    _this.attachObservers();
-    _this.onReady();
-    return;
+          var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
+          var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+          _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+
+          _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
+        }
+        // Listeners and Ready
+        _this.attachObservers();
+        _this.onReady();
+      });
   }
 
   // Check if there is a PV for search/filter queries
@@ -777,6 +886,10 @@ DynamicList.prototype.initialize = function() {
       return
     })
     .then(function() {
+      return _this.convertFiles(_this.listItems);
+    })
+    .then(function(response) {
+      _this.listItems = response;
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
@@ -1068,13 +1181,16 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       entryDetails: [],
       originalData: entry.data
     };
+
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
+
       if (obj.column === 'custom') {
         content = Handlebars.compile(obj.customField)(entry.data)
       } else {
         var content = entry.data[obj.column];
       }
+
       newObject[obj.location] = content;
     });
 
