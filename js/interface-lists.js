@@ -6,6 +6,7 @@ var addEntryLinkAction;
 var editEntryLinkAction;
 var linkAddEntryProvider;
 var linkEditEntryProvider;
+var filePickerPromises = [];
 var withError = false;
 
 var addEntryLinkData = $.extend(true, {
@@ -66,6 +67,76 @@ function linkProviderInit() {
   });
 }
 
+function initFilePickerProvider(field) {
+  Fliplet.Widget.toggleSaveButton(field.folder && field.folder.selectFiles && field.folder.selectFiles.length > 0);
+
+  Fliplet.Studio.emit('widget-save-label-update', {
+    text: 'Select'
+  });
+
+  field.folder = $.extend(true, {
+    selectedFiles: {},
+    selectFiles: [], // To use the restore on File Picker
+    selectMultiple: false,
+    type: 'folder',
+    provId: field.id
+  }, field.folder);
+
+  var providerFilePickerInstance = Fliplet.Widget.open('com.fliplet.file-picker', {
+    data: field.folder,
+    onEvent: function(e, data) {
+      switch (e) {
+        case 'widget-rendered':
+          break;
+        case 'widget-set-info':
+          Fliplet.Widget.toggleSaveButton(!!data.length);
+          var msg = data.length ? data.length + ' files selected' : 'no selected files';
+          Fliplet.Widget.info(msg);
+          break;
+        default:
+          break;
+      }
+    }
+  });
+
+  providerFilePickerInstance.then(function(data) {
+    Fliplet.Widget.info('');
+    Fliplet.Widget.toggleCancelButton(true);
+    Fliplet.Widget.toggleSaveButton(true);
+
+    field.folder.selectFiles = data.data.length ? data.data : [];
+
+    if (field.from === 'summary') {
+      widgetData['summary-fields'].forEach(function(item, index) {
+        if (item.id === field.id) {
+          widgetData['summary-fields'][index].folder = field.folder;
+        }
+      });
+    } else if (field.from === 'details') {
+      widgetData.detailViewOptions.forEach(function(item, index) {
+        if (item.id === field.id) {
+          widgetData.detailViewOptions[index].folder = field.folder;
+        }
+      });
+    }
+
+    var itemProvider = _.find(filePickerPromises, { id: field.folder.provId });
+    itemProvider = null;
+    _.remove(filePickerPromises, { id: field.folder.provId });
+    Fliplet.Studio.emit('widget-save-label-update', {
+      text: 'Save & Close'
+    });
+    if (field.folder.selectFiles.length) {
+      $('[data-field-id="' + field.id + '"] .file-picker-btn').text('Replace folder');
+      $('[data-field-id="' + field.id + '"] .selected-folder').removeClass('hidden');
+      $('[data-field-id="' + field.id + '"] .selected-folder span').text(field.folder.selectFiles[0].name);
+    }
+  });
+
+  providerFilePickerInstance.id = field.id;
+  filePickerPromises.push(providerFilePickerInstance);
+}
+
 function initialize() {
   linkProviderInit();
   attahObservers();
@@ -81,12 +152,36 @@ function validate(value) {
 }
 
 function attahObservers() {
+  $(document)
+    .on('click', '[data-file-picker-summary]', function() {
+      var fieldId = $(this).parents('.picker-provider-button').data('field-id');
+      var field = _.find(widgetData['summary-fields'], { id: fieldId });
+
+      if (field) {
+        initFilePickerProvider(field);
+      }
+    })
+    .on('click', '[data-file-picker-details]', function() {
+      var fieldId = $(this).parents('.picker-provider-button').data('field-id');
+      var field = _.find(widgetData.detailViewOptions, { id: fieldId });
+
+      if (field) {
+        initFilePickerProvider(field);
+      }
+    });
   $('[data-toggle="tooltip"]').tooltip();
   $('form').submit(function (event) {
     event.preventDefault();
     dynamicLists.saveLists()
       .then(function() {
         widgetData = dynamicLists.config;
+
+        if (filePickerPromises.length) {
+          filePickerPromises.forEach(function(promise) {
+            promise.forwardSaveRequest();
+          });
+          return;
+        }
 
         // Validation for required fields
         if ((widgetData.addEntry && widgetData.addPermissions === 'admins')

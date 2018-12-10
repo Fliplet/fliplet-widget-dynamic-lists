@@ -22,7 +22,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.detail-view-panels"]
 },"9":function(container,depth0,helpers,partials,data) {
     return "    <div class=\"rTableCell title delete text-danger\">\n      <i class=\"fa fa-trash-o\" aria-hidden=\"true\"></i>\n    </div>\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression, alias5=container.lambda;
 
   return "<div class=\"rTableRow clearfix\" data-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
@@ -46,9 +46,17 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.detail-view-panels"]
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n      <p class=\"text-muted field-text-info\">Use <code>{{[*]}}</code> to wrap around a field name, e.g. <code>Location: {{[city]}}, {{[country]}}</code>.</p>\n    </div>\n  </div>\n  <div class=\"image-field-select clearfix hidden\">\n    <div class=\"rTableCell title\">\n      Image folder or URL\n    </div>\n    <div class=\"rTableCell select field\">\n      <select class=\"form-control\" id=\"folder_field_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" name=\"folder_field_select\">\n        <option disabled>------</option>\n        <option value=\"url\">URL to external image</option>\n        <option disabled>------</option>\n        <option value=\"all-folders\">Show folders from other apps</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select field hidden\">\n      <select class=\"form-control\" id=\"all_folders_field_"
+    + "\" name=\"folder_field_select\">\n        <option disabled>Organization</option>\n        <option value=\"organization\" data-org-option data-org-id=\""
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.userOrganization : depth0)) != null ? stack1.id : stack1), depth0))
+    + "\">"
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.userOrganization : depth0)) != null ? stack1.name : stack1), depth0))
+    + "</option>\n        <option disabled>This app</option>\n        <option value=\"app\" data-app-option data-app-id=\""
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.currentApp : depth0)) != null ? stack1.id : stack1), depth0))
+    + "\">"
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.currentApp : depth0)) != null ? stack1.name : stack1), depth0))
+    + "</option>\n        <option disabled>------</option>\n        <option value=\"all-folders\">Select other folders</option>\n        <option disabled>------</option>\n        <option value=\"url\">URL to external image</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select field picker-provider-button hidden\" data-field-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" name=\"all_folders_field_select\"></select>\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use an URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\n    </div>\n  </div>\n  <div class=\"custom-label-input clearfix hidden\">\n    <div class=\"rTableCell title\">\n      Custom label\n    </div>\n    <div class=\"rTableCell select field\">\n      <input type=\"text\" class=\"form-control\" id=\"custom_field_name_"
+    + "\">\n      <div class=\"btn btn-default file-picker-btn\" data-file-picker-details>Select a folder</div>\n      <div class=\"selected-folder hidden\">Selected folder: <span></span></div>\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use an URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\n    </div>\n  </div>\n  <div class=\"custom-label-input clearfix hidden\">\n    <div class=\"rTableCell title\">\n      Custom label\n    </div>\n    <div class=\"rTableCell select field\">\n      <input type=\"text\" class=\"form-control\" id=\"custom_field_name_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n    </div>\n  </div>\n</div>";
 },"useData":true});
@@ -214,7 +222,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.summary-view-panels"
     + alias2(alias1(depth0, depth0))
     + "</option>\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression, alias5=container.lambda;
 
   return "<div class=\"rTableRow clearfix\" data-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
@@ -230,7 +238,15 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.summary-view-panels"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n      <p class=\"text-muted field-text-info\">Use <code>{{[*]}}</code> to wrap around a field name, e.g. <code>Location: {{[city]}}, {{[country]}}</code>.</p>\n    </div>\n  </div>\n  <div class=\"image-field-select clearfix hidden\">\n    <div class=\"rTableCell title\">\n      Image folder or URL\n    </div>\n    <div class=\"rTableCell select field\">\n      <select class=\"form-control\" id=\"folder_field_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" name=\"folder_field_select\">\n        <option disabled>------</option>\n        <option value=\"url\">URL to external image</option>\n        <option disabled>------</option>\n        <option value=\"all-folders\">Show folders from other apps</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select field all-folders-select hidden\">\n      <select class=\"form-control\" id=\"all_folders_field_"
+    + "\" name=\"folder_field_select\">\n        <option disabled>Organization</option>\n        <option value=\"organization\" data-org-option data-org-id=\""
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.userOrganization : depth0)) != null ? stack1.id : stack1), depth0))
+    + "\">"
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.userOrganization : depth0)) != null ? stack1.name : stack1), depth0))
+    + "</option>\n        <option disabled>This app</option>\n        <option value=\"app\" data-app-option data-app-id=\""
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.currentApp : depth0)) != null ? stack1.id : stack1), depth0))
+    + "\">"
+    + alias4(alias5(((stack1 = (depth0 != null ? depth0.currentApp : depth0)) != null ? stack1.name : stack1), depth0))
+    + "</option>\n        <option disabled>------</option>\n        <option value=\"all-folders\">Select other folders</option>\n        <option disabled>------</option>\n        <option value=\"url\">URL to external image</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select field picker-provider-button hidden\" data-field-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" name=\"all_folders_field_select\">\n        <option value=\"url\">None</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use an URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\n    </div>\n  </div>\n</div>";
+    + "\">\n      <div class=\"btn btn-default file-picker-btn\" data-file-picker-summary>Select a folder</div>\n      <div class=\"selected-folder hidden\">Selected folder: <span></span></div>\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use an URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\n    </div>\n  </div>\n</div>";
 },"useData":true});

@@ -986,6 +986,15 @@ header .btn,
   margin-top: 10px;
 }
 
+.image-field-select .selected-folder {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.image-field-select .selected-folder span {
+  font-weight: bold;
+}
+
 .intro-form {
   margin-top: 10px;
 }

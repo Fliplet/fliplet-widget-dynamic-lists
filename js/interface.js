@@ -57,7 +57,6 @@ var DynamicLists = (function() {
   var editRadioValues = [];
   var deleteRadioValues = [];
 
-  var otherApps = [];
   var currentApp = {
     id: appId,
     type: 'app',
@@ -67,9 +66,8 @@ var DynamicLists = (function() {
     id: organizationId,
     type: 'organization'
   };
-  var appFolders;
-  var otherFolders;
-  var organizationFolders;
+
+  var filePickerPromises = [];
 
   // Constructor
   function DynamicLists(configuration) {
@@ -481,15 +479,15 @@ var DynamicLists = (function() {
           var value = $(this).val();
 
           if (value === 'all-folders') {
-            $(this).parents('.rTableRow').find('.all-folders-select').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.picker-provider-button').removeClass('hidden');
             $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
             $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
           } else if (value === 'url') {
-            $(this).parents('.rTableRow').find('.all-folders-select').addClass('hidden');
+            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
             $(this).parents('.rTableRow').find('.folders-only').addClass('hidden');
             $(this).parents('.rTableRow').find('.url-only').removeClass('hidden');
           } else {
-            $(this).parents('.rTableRow').find('.all-folders-select').addClass('hidden');
+            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
             $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
             $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
           }
@@ -515,7 +513,7 @@ var DynamicLists = (function() {
           };
 
           _this.config.detailViewOptions.push(item);
-
+          item = _this.updateWithFoldersInfo(item, 'details');
           _this.addDetailItem(item);
         });
 
@@ -612,10 +610,7 @@ var DynamicLists = (function() {
     init: function() {
       _this.getDataSources()
         .then(function() {
-          return _this.getOtherApps();
-        })
-        .then(function() {
-          return _this.getFolders();
+          return _this.getOrganizationInfo();
         })
         .then(function() {
           return _this.setupCodeEditors();
@@ -633,81 +628,6 @@ var DynamicLists = (function() {
           // Remove V1 apps and the current app
           organization = _.find(organizations, { id: organizationId });
           userOrganization.name = organization.name;
-          return organization;
-        });
-    },
-    getAppsList: function() {
-      return Fliplet.Apps.get()
-        .then(function(apps) {
-          // Remove V1 apps and the current app
-          apps = _.filter(apps, function(app) {
-            return !app.legacy && app.id !== appId;
-          });
-
-          return apps;
-        });
-    },
-    getOtherApps: function() {
-      _this.getAppsList()
-        .then(function(apps) {
-          apps.forEach(function(app) {
-            otherApps.push({
-              id: app.id,
-              type: 'app',
-              name: app.name
-            })
-          });
-
-          return;
-        })
-        .then(function() {
-          return _this.getOrganizationInfo();
-        });
-    },
-    getCurrentAppFolders: function() {
-      return Fliplet.Media.Folders.get({
-          appId: currentApp.id
-        });
-    },
-    getOrganizationFolders: function() {
-      return Fliplet.Media.Folders.get({
-          organizationId: userOrganization.id
-        });
-    },
-    getOtherAppsFolders: function() {
-      var allFoldersPromises = [];
-
-      otherApps.forEach(function(app) {
-        allFoldersPromises.push(Fliplet.Media.Folders.get({
-          appId: app.id
-        }));
-      })
-      
-      return Promise.all(allFoldersPromises);
-    },
-    getFolders: function() {
-      // Get current app's folders
-      return _this.getCurrentAppFolders()
-        .then(function(data) {
-          appFolders = data.folders;
-
-          // Get organization's folders
-          return _this.getOrganizationFolders();
-        })
-        .then(function(data) {
-          organizationFolders = data.folders;
-
-          // Get all other apps' folders
-          return _this.getOtherAppsFolders();
-        })
-        .then(function(appsData) {
-          otherFolders = [];
-          appsData.forEach(function(data) {
-            data.folders.forEach(function(folders) {
-               otherFolders.push(folders);
-            });
-          });
-
           return;
         });
     },
@@ -900,10 +820,18 @@ var DynamicLists = (function() {
               }
 
               item.columns = dataSourceColumns || _this.config.defaultColumns;
+              item = _this.updateWithFoldersInfo(item, 'summary');
               _this.addSummaryItem(item);
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
+              $('.table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+
+              if (item.imageField === 'all-folders' && item.folder) {
+                $('.table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
+                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
+                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+              }
             });
 
             if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
@@ -1035,6 +963,7 @@ var DynamicLists = (function() {
             $detailsRowContainer.empty();
             _.forEach(_this.config.detailViewOptions, function(item) {  
               item.columns = dataSourceColumns;
+              item = _this.updateWithFoldersInfo(item, 'details');
               _this.addDetailItem(item);
 
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
@@ -1042,6 +971,13 @@ var DynamicLists = (function() {
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+
+              if (item.imageField === 'all-folders' && item.folder) {
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+              }
             });
 
             $('input#enable-auto-update').prop('checked', _this.config.detailViewAutoUpdate);
@@ -1068,9 +1004,6 @@ var DynamicLists = (function() {
             $('.state').removeClass('loading is-loading');
 
             return;
-          })
-          .then(function() {
-            return _this.updateImageFolders();
           })
           .catch(function(error) {
             if (error) {
@@ -1415,74 +1348,11 @@ var DynamicLists = (function() {
 
       _this.setUpUserTokenFields();
     },
-    updateImageFolders: function() {
-      $('[name="folder_field_select"]').each(function(index, obj) {
-        var oldValue = $(obj).val();
-        var options = [];
-        $(obj).html('');
-
-        var defaultOptions = [
-          '<option disabled>------</option>',
-          '<option value="url">URL to external image</option>',
-          '<option disabled>------</option>',
-          '<option value="all-folders">Show folders from other apps</option>'
-        ];
-
-        // Adds defaults to array
-        defaultOptions.forEach(function(option) {
-          options.push(option);
-        });
-
-        // Adds folders to array
-        appFolders.forEach(function(folder, index) {
-          options.unshift('<option value="'+ folder.id +'" data-type="folder">'+ folder.name +'</option>');
-        });
-        options.unshift('<option disabled>App folders</option>');
-
-        options.unshift('<option value="'+ currentApp.id +'" data-type="app">'+ currentApp.name +'</option>');
-        options.unshift('<option disabled>App</option>');
-
-        $(obj).append(options.join(''));
-        $(obj).val(currentApp.id);
-
-        // @TODO: Load data when saved
-        // if (oldValue && oldValue.length) {
-        //   $(obj).val(oldValue);
-        // }
-      });
-
-      $('[name="all_folders_field_select"]').each(function(index, obj) {
-        var oldValue = $(obj).val();
-        var options = [];
-        $(obj).html('');
-
-        // Adds folders to array
-        otherFolders.forEach(function(folder, index) {
-          options.unshift('<option value="'+ folder.id +'" data-type="folder">'+ folder.name +'</option>');
-        });
-        options.unshift('<option disabled>Other apps\' folders</option>');
-
-        otherApps.forEach(function(app, index) {
-          options.unshift('<option value="'+ app.id +'" data-type="app">'+ app.name +'</option>');
-        });
-        options.unshift('<option disabled>Other apps</option>');
-
-        organizationFolders.forEach(function(folder, index) {
-          options.unshift('<option value="'+ folder.id +'" data-type="folder">'+ folder.name +'</option>');
-        });
-        options.unshift('<option disabled>Organization folders</option>');
-
-        options.unshift('<option value="'+ userOrganization.id +'" data-type="organization">'+ userOrganization.name +'</option>');
-        options.unshift('<option disabled>Organization</option>');
-
-        $(obj).append(options.join(''));
-        $(obj).val(userOrganization.id);
-
-        // @TODO: Load data when saved
-        // if (oldValue && oldValue.length) {
-        //   $(obj).val(oldValue);
-        // }
-      });
+    updateWithFoldersInfo: function(item, from) {
+      item.currentApp = currentApp;
+      item.userOrganization = userOrganization;
+      item.from = from;
+      return item;
     },
     reloadDataSources: function(dataSourceId) {
       return Fliplet.DataSources.get({
@@ -2282,6 +2152,13 @@ var DynamicLists = (function() {
         item.type = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';
         item.customField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_field_' + item.id).val();
+        item.imageField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+
+        if (item.imageField === 'organization') {
+          item.organizationFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+        } else if (item.imageField === 'app') {
+          item.appFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        }
       });
 
       // Get detail view options
@@ -2294,6 +2171,13 @@ var DynamicLists = (function() {
         item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
         item.customFieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_name_' + item.id).val();
         item.fieldLabelDisabled = item.fieldLabel === 'no-label';
+        item.imageField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+
+        if (item.imageField === 'organization') {
+          item.organizationFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+        } else if (item.imageField === 'app') {
+          item.appFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        }
       });
 
       data.detailViewAutoUpdate = $('input#enable-auto-update').is(":checked");
