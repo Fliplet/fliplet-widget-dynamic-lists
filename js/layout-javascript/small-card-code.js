@@ -695,6 +695,13 @@ DynamicList.prototype.convertFiles = function(listItems) {
   var promises = [];
 
   listItems.forEach(function(entry, index) {
+    // Test pattern for URLS
+    var urlPattern = /^https?:\/\//i;
+    // Test pattern for BASE64 images
+    var base64Pattern = /^data:image\/[^;]+;base64,/i;
+    // Test pattern for Numbers/IDs
+    var numberPattern = /^\d+$/i;
+
     var data = {
       query: {},
       entry: entry,
@@ -720,6 +727,10 @@ DynamicList.prototype.convertFiles = function(listItems) {
         }
 
         dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
       }
     });
 
@@ -741,6 +752,10 @@ DynamicList.prototype.convertFiles = function(listItems) {
         }
 
         dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
       }
     });
   });
@@ -750,12 +765,6 @@ DynamicList.prototype.convertFiles = function(listItems) {
       promises.push(Fliplet.Media.Folders.get(data.query)
         .then(function(response) {
           var allFiles = response.files;
-          // Test pattern for URLS
-          var urlPattern = /^https?:\/\//i;
-          // Test pattern for BASE64 images
-          var base64Pattern = /^data:image\/[^;]+;base64,/i;
-          // Test pattern for Numbers/IDs
-          var numberPattern = /^\d+$/i;
 
           allFiles.forEach(function(file) {
             // Add this IF statement to make the URLs to work with encrypted organizations
