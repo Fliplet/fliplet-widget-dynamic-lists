@@ -908,14 +908,14 @@ DynamicList.prototype.convertFiles = function(listItems) {
   var dataToGetFile = [];
   var promises = [];
 
-  listItems.forEach(function(entry, index) {
-    // Test pattern for URLS
-    var urlPattern = /^https?:\/\//i;
-    // Test pattern for BASE64 images
-    var base64Pattern = /^data:image\/[^;]+;base64,/i;
-    // Test pattern for Numbers/IDs
-    var numberPattern = /^\d+$/i;
+  // Test pattern for URLS
+  var urlPattern = /^https?:\/\//i;
+  // Test pattern for BASE64 images
+  var base64Pattern = /^data:image\/[^;]+;base64,/i;
+  // Test pattern for Numbers/IDs
+  var numberPattern = /^\d+$/i;
 
+  listItems.forEach(function(entry, index) {
     var data = {
       query: {},
       entry: entry,
