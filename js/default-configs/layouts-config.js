@@ -160,7 +160,7 @@ window.flListLayoutConfig = {
     'social': {
       'bookmark': true
     },
-    'style-specific': ['list-bookmark'],
+    'style-specific': ['list-bookmark', 'list-agenda-options'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',

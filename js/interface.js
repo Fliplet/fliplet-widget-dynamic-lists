@@ -288,6 +288,15 @@ var DynamicLists = (function() {
             $('.select-datasource-holder').removeClass('hidden');
           });
         })
+        .on('change', '#enable-poll', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
+        .on('change', '#enable-survey', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
+        .on('change', '#enable-questions', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
         .on('change', '#enable-comments', function() {
           if ( $(this).is(":checked") ) {
             $('.user-datasource-options').removeClass('hidden');
@@ -645,6 +654,10 @@ var DynamicLists = (function() {
             if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
               $('#social-accordion').removeClass('hidden');
             }
+
+            if (item === 'list-agenda-options') {
+              $('#agenda-accordion').removeClass('hidden');
+            }
           });
 
           // backwards compatible
@@ -737,6 +750,15 @@ var DynamicLists = (function() {
             $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
             $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
             $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
+
+            // Load agenda feature
+            $('#enable-poll').prop('checked', _this.config.pollEnabled).trigger('change');
+            $('#enable-survey').prop('checked', _this.config.surveyEnabled).trigger('change');
+            $('#enable-questions').prop('checked', _this.config.questionsEnabled).trigger('change');
+
+            $('#select_poll_data').val(_this.config.pollColumn || 'none');
+            $('#select_survey_data').val(_this.config.surveyColumn || 'none');
+            $('#select_questions_data').val(_this.config.questionsColumn || 'none');
 
             // Load social feature
             $('#enable-likes').prop('checked', _this.config.social.likes);
@@ -1012,6 +1034,11 @@ var DynamicLists = (function() {
               $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
               $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
 
+              // Load agenda feature
+              $('#enable-poll').prop('checked', _this.config.pollEnabled);
+              $('#enable-survey').prop('checked', _this.config.surveyEnabled);
+              $('#enable-questions').prop('checked', _this.config.questionsEnabled);
+
               // Load social feature
               $('#enable-likes').prop('checked', _this.config.social.likes);
               $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
@@ -1202,8 +1229,8 @@ var DynamicLists = (function() {
       var linkFieldValue = $('#select_field_link').val();
       var linkOptions = [];
       $('#select_field_link').html('');
-      $('#select_field_link').append('<option value="none">-- Select a data field</option>');
-      $('#select_field_link').append('<option disabled>------</option>');
+      linkOptions.push('<option value="none">-- Select a data field</option>');
+      linkOptions.push('<option disabled>------</option>');
       dataSourceColumns.forEach(function(value, index) {
         linkOptions.push('<option value="'+ value +'">'+ value +'</option>');
       });
@@ -1259,6 +1286,54 @@ var DynamicLists = (function() {
           $(obj).val(oldValue);
         }
       });
+
+      // Pool data field
+      var poolFieldValue = $('#select_poll_data').val();
+      var poolFieldOptions = [];
+      $('#select_poll_data').html('');
+      poolFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      poolFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        poolFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_poll_data').append(poolFieldOptions.join(''));
+      if (poolFieldValue && poolFieldValue.length) {
+        $('#select_poll_data').val(poolFieldValue);
+      } else {
+        $('#select_poll_data').val('none');
+      }
+
+      // Survey data field
+      var surveyFieldValue = $('#select_survey_data').val();
+      var surveyFieldOptions = [];
+      $('#select_survey_data').html('');
+      surveyFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      surveyFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        surveyFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_survey_data').append(surveyFieldOptions.join(''));
+      if (surveyFieldValue && surveyFieldValue.length) {
+        $('#select_survey_data').val(surveyFieldValue);
+      } else {
+        $('#select_survey_data').val('none');
+      }
+
+      // Questions data field
+      var questionsFieldValue = $('#select_questions_data').val();
+      var questionsFieldOptions = [];
+      $('#select_questions_data').html('');
+      questionsFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      questionsFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        questionsFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_questions_data').append(questionsFieldOptions.join(''));
+      if (questionsFieldValue && questionsFieldValue.length) {
+        $('#select_questions_data').val(questionsFieldValue);
+      } else {
+        $('#select_questions_data').val('none');
+      }
 
       _this.setUpTokenFields();
     },
@@ -2237,6 +2312,16 @@ var DynamicLists = (function() {
       if (data.advancedSettings.jsEnabled) {
         data.advancedSettings.jsCode = javascriptEditor.getValue();
       }
+
+      // Get agenda feature
+      _this.config.pollEnabled = $('#enable-poll').is(":checked");
+      _this.config.surveyEnabled = $('#enable-survey').is(":checked");
+      _this.config.questionsEnabled = $('#enable-questions').is(":checked");
+      _this.config.pollColumn = $('#select_poll_data').val();
+      _this.config.surveyColumn = $('#select_survey_data').val();
+      _this.config.questionsColumn = $('#select_questions_data').val();
+
+      _this.config.agendaButtonsEnabled = _this.config.pollEnabled || _this.config.surveyEnabled || _this.config.questionsEnabled;
 
       // Get social feature
       _this.config.social.bookmark = $('#enable-bookmarks').is(":checked");
