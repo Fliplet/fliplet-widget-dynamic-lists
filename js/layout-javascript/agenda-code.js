@@ -53,9 +53,11 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
-  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]());
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]();
+
+  this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -148,6 +150,48 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
+    .on('click', '.go-to-poll', function() {
+      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+
+      if (_this.data.pollLinkAction) {
+        Fliplet.App.Storage.set('pollSessionTitle-' + _this.data.pollLinkAction.page, entryTitle)
+          .then(function() {
+            Fliplet.Navigate.to(_this.data.pollLinkAction);
+          });
+      }
+    })
+    .on('click', '.go-to-survey', function() {
+      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+
+      if (_this.data.surveyLinkAction) {
+        Fliplet.App.Storage.set('surveySessionTitle-' + _this.data.surveyLinkAction.page, entryTitle)
+          .then(function() {
+            Fliplet.Navigate.to(_this.data.surveyLinkAction);
+          });
+      }
+    })
+    .on('click', '.go-to-questions', function() {
+      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+
+      if (_this.data.questionsLinkAction) {
+        Fliplet.App.Storage.set('questionsSessionTitle-' + _this.data.questionsLinkAction.page, entryTitle)
+          .then(function() {
+            Fliplet.Navigate.to(_this.data.questionsLinkAction);
+          });
+      }
+    })
     .on('touchstart', '.agenda-list-controls', function(event) {
       $(this).addClass('hover');
     })
@@ -1036,6 +1080,24 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       id: entry.id,
       editEntry: entry.editEntry,
       deleteEntry: entry.deleteEntry,
+      pollButton: _this.data.pollEnabled
+        && entry.data[_this.data.pollColumn]
+        && entry.data[_this.data.pollColumn] !== '',
+      surveyButton: _this.data.surveyEnabled
+        && entry.data[_this.data.surveyColumn]
+        && entry.data[_this.data.surveyColumn] !== '',
+      questionsButton: _this.data.questionsEnabled
+        && entry.data[_this.data.questionsColumn]
+        && entry.data[_this.data.questionsColumn] !== '',
+      agendaButtonsEnabled: (_this.data.pollEnabled
+        && entry.data[_this.data.pollColumn]
+        && entry.data[_this.data.pollColumn] !== '')
+        || (_this.data.surveyEnabled
+        && entry.data[_this.data.surveyColumn]
+        && entry.data[_this.data.surveyColumn] !== '')
+        || (_this.data.questionsEnabled
+        && entry.data[_this.data.questionsColumn]
+        && entry.data[_this.data.questionsColumn] !== ''),
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
       entryDetails: [],
       originalData: entry.data
