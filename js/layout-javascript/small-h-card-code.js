@@ -180,7 +180,9 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId })
+          entry: _.find(_this.listItems, { id: entryId }),
+          entryId: entryId,
+          entryTitle: entryTitle
         });
         
         if (!(beforeOpen instanceof Promise)) {
