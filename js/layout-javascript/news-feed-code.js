@@ -72,7 +72,6 @@ var DynamicList = function(id, data, container) {
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[this.data.layout]['detail']]();
 
-
   this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
