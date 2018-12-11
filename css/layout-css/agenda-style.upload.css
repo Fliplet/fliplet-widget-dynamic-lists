@@ -603,8 +603,8 @@
   display: flex;
   padding: 15px 0;
   margin: 10px 0;
-  border-top: 1px solid rgba(51, 51, 51, 0.5);
-  border-bottom: 1px solid rgba(51, 51, 51, 0.5);
+  border-top: 1px solid rgba(51, 51, 51, 0.1);
+  border-bottom: 1px solid rgba(51, 51, 51, 0.1);
 }
 
 .agenda-item-bookmark.more-buttons .bookmark-wrapper .fa-bookmark-o:after,
