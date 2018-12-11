@@ -264,7 +264,7 @@
   position: relative;
 }
 
-.new-news-feed-list-container .search-holder .fa {
+.new-news-feed-list-container .search-holder .fa.fa-search {
   position: absolute;
   top: 0;
   left: 0;
@@ -310,6 +310,20 @@
 .search-holder .btn.search-btn:active:hover {
   border: none;
   background-color: #eeeeee;
+}
+
+.new-news-feed-list-container .search-holder .search-btn.searching-btn {
+  transition: all 0.15s ease-out;
+}
+
+.new-news-feed-list-container .search-holder .search-btn.searching-btn,
+.new-news-feed-list-container.searching .search-holder .search-btn {
+  display: none;
+  transition: all 0.15s ease-out;
+}
+
+.new-news-feed-list-container.searching .search-holder .search-btn.searching-btn {
+  display: block;
 }
 
 .new-news-feed-list-container .search-holder .form-control {

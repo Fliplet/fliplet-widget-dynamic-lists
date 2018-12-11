@@ -271,7 +271,7 @@
   position: relative;
 }
 
-.search-holder .fa {
+.search-holder .fa.fa-search {
   position: absolute;
   top: 0;
   left: 0;
@@ -317,6 +317,20 @@
 .search-holder .btn.search-btn:active:hover {
   border: none;
   background-color: #eeeeee;
+}
+
+.simple-list-container .search-holder .search-btn.searching-btn {
+  transition: all 0.15s ease-out;
+}
+
+.simple-list-container .search-holder .search-btn.searching-btn,
+.simple-list-container.searching .search-holder .search-btn {
+  display: none;
+  transition: all 0.15s ease-out;
+}
+
+.simple-list-container.searching .search-holder .search-btn.searching-btn {
+  display: block;
 }
 
 .search-holder .form-control {

@@ -1736,6 +1736,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
 
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.simple-list-container').removeClass('searching');
   if (!_this.data.filtersInOverlay) {
     _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
   }
@@ -1823,6 +1824,7 @@ DynamicList.prototype.searchData = function(value) {
 
   executeSearch.then(function (searchedData) {
     _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.$container.find('.simple-list-container').removeClass('searching');
     if (!_this.data.filtersInOverlay) {
       _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
     }
