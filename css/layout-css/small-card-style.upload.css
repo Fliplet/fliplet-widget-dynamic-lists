@@ -370,6 +370,7 @@
 
 .new-small-card-list-container .search-holder .search-btn.searching-btn {
   transition: all 0.15s ease-out;
+  pointer-events: none;
 }
 
 .new-small-card-list-container .search-holder .search-btn.searching-btn,
@@ -523,7 +524,12 @@
   outline: none;
 }
 
-.new-small-card-list-container .loading-data {
+.new-small-card-list-container .no-results-holder {
+  display: none;
+}
+
+.new-small-card-list-container .loading-data,
+.new-small-card-list-container .no-results ~ .no-results-holder {
   padding-top: 25px;
   display: block;
   text-align: center;

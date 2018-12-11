@@ -314,6 +314,7 @@
 
 .new-news-feed-list-container .search-holder .search-btn.searching-btn {
   transition: all 0.15s ease-out;
+  pointer-events: none;
 }
 
 .new-news-feed-list-container .search-holder .search-btn.searching-btn,
@@ -472,10 +473,11 @@
 }
 
 .new-news-feed-list-container .offline-holder,
-.new-news-feed-list-container .loading-holder {
+.new-news-feed-list-container .loading-holder,
+.new-news-feed-list-container .no-results-holder {
   text-align: center;
   color: #ddd;
-  cursor: pointer;
+  cursor: default;
 }
 
 .new-news-feed-list-container.offline .loading-holder,
@@ -483,11 +485,13 @@
 .new-news-feed-list-container.ready .loading-holder,
 .loading .limit-entries-text,
 .filtering .limit-entries-text,
-.searching .limit-entries-text {
+.searching .limit-entries-text,
+.new-news-feed-list-container .no-results-holder {
   display: none;
 }
 
-.new-news-feed-list-container.offline .offline-holder {
+.new-news-feed-list-container.offline .offline-holder,
+.new-news-feed-list-container .no-results ~ .no-results-holder {
   display: block;
 }
 

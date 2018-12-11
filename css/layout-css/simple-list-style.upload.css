@@ -321,6 +321,7 @@
 
 .simple-list-container .search-holder .search-btn.searching-btn {
   transition: all 0.15s ease-out;
+  pointer-events: none;
 }
 
 .simple-list-container .search-holder .search-btn.searching-btn,
@@ -531,18 +532,24 @@
   text-align: right;
 }
 
-.loading-holder {
+.loading-holder,
+.no-results-holder {
   text-align: center;
   color: #dddddd;
-  cursor: pointer;
+  cursor: default;
   padding: 15px 0 0;
 }
 
 .ready .loading-holder,
 .loading .limit-entries-text,
 .filtering .limit-entries-text,
-.searching .limit-entries-text {
+.searching .limit-entries-text,
+.no-results-holder {
   display: none;
+}
+
+.simple-list-container .no-results ~ .no-results-holder {
+  display: block;
 }
 
 /** OVERLAY **/
