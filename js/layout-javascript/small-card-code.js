@@ -812,24 +812,26 @@ DynamicList.prototype.initialize = function() {
     _this.renderBaseHTML();
     var records = _this.prepareData(_this.data.defaultEntries);
     _this.listItems = _this.getPermissions(records);
-    // Get user profile
-    if (_this.myUserData) {
-      // Create flag for current user
-      _this.listItems.forEach(function(el, idx) {
-        if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
-          _this.listItems[idx].isCurrentUser = true;
-        }
-      });
-
-      _this.myProfileData = _.filter(_this.listItems, function(row) {
-        return row.isCurrentUser;
-      });
-    }
     _this.dataSourceColumns = _this.data.defaultColumns;
 
     return _this.convertFiles(_this.listItems)
       .then(function(response) {
         _this.listItems = response;
+
+        // Get user profile
+        if (_this.myUserData) {
+          // Create flag for current user
+          _this.listItems.forEach(function(el, idx) {
+            if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
+              _this.listItems[idx].isCurrentUser = true;
+            }
+          });
+
+          _this.myProfileData = _.filter(_this.listItems, function(row) {
+            return row.isCurrentUser;
+          });
+        }
+
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
         _this.renderLoopHTML();
@@ -892,7 +894,7 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(dataSource) {
       _this.dataSourceColumns = dataSource.columns;
-      return
+      return;
     })
     .then(function() {
       return _this.convertFiles(_this.listItems);
@@ -920,7 +922,7 @@ DynamicList.prototype.initialize = function() {
 
         _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
       }
-      return
+      return;
     })
     .then(function() {
       // Listeners and Ready

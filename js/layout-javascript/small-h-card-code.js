@@ -710,7 +710,7 @@ DynamicList.prototype.initialize = function() {
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
       _this.renderLoopHTML();
-      return
+      return;
     })
     .then(function() {
       // Listeners and Ready

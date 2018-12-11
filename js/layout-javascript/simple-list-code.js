@@ -903,6 +903,120 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
+DynamicList.prototype.convertFiles = function(listItems) {
+  var _this = this;
+  var dataToGetFile = [];
+  var promises = [];
+
+  listItems.forEach(function(entry, index) {
+    // Test pattern for URLS
+    var urlPattern = /^https?:\/\//i;
+    // Test pattern for BASE64 images
+    var base64Pattern = /^data:image\/[^;]+;base64,/i;
+    // Test pattern for Numbers/IDs
+    var numberPattern = /^\d+$/i;
+
+    var data = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    _this.data['summary-fields'].forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+
+    _this.data.detailViewOptions.forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+  });
+
+  if (dataToGetFile.length) {
+    dataToGetFile.forEach(function(data) {
+      promises.push(Fliplet.Media.Folders.get(data.query)
+        .then(function(response) {
+          var allFiles = response.files;
+
+          allFiles.forEach(function(file) {
+            // Add this IF statement to make the URLs to work with encrypted organizations
+            if (file.isEncrypted) {
+              file.url += '?auth_token=' + Fliplet.User.getAuthToken();
+            }
+
+            if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
+              data.entry.data[data.field.column] = file.url;
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column])) {
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (numberPattern.test(data.entry.data[data.field.column])) {
+              var imageId = parseInt(data.entry.data[data.field.column], 10);
+              if (imageId === file.id) {
+                data.entry.data[data.field.column] = file.url;
+                // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+                data.entry.data['imageUrlEdited'] = true;
+              }
+            }
+          });
+
+          if (!data.entry.data['imageUrlEdited']) {
+            data.entry.data[data.field.column] = '';
+          }
+
+          return data.entry;
+        }));
+    });
+
+    return Promise.all(promises);
+  } else {
+    return Promise.resolve(listItems);
+  }
+}
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -913,14 +1027,18 @@ DynamicList.prototype.initialize = function() {
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
 
-    // Render Loop HTML
-    _this.prepareToRenderLoop(_this.listItems);
-    _this.renderLoopHTML();
-    _this.addFilters(_this.modifiedListItems);
-    // Listeners and Ready
-    _this.attachObservers();
-    _this.onReady();
-    return;
+    return _this.convertFiles(_this.listItems)
+      .then(function(response) {
+        _this.listItems = response;
+
+        // Render Loop HTML
+        _this.prepareToRenderLoop(_this.listItems);
+        _this.renderLoopHTML();
+        _this.addFilters(_this.modifiedListItems);
+        // Listeners and Ready
+        _this.attachObservers();
+        _this.onReady();
+      });
   }
 
   // Check if there is a PV for search/filter queries
@@ -943,9 +1061,14 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(dataSource) {
       _this.dataSourceColumns = dataSource.columns;
-      return
+      return;
     })
     .then(function() {
+      return _this.convertFiles(_this.listItems);
+    })
+    .then(function(response) {
+      _this.listItems = response;
+
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
@@ -953,7 +1076,7 @@ DynamicList.prototype.initialize = function() {
       _this.addFilters(_this.modifiedListItems);
       _this.prepareToSearch();
       _this.prepareToFilter();
-      return
+      return;
     })
     .then(function() {
       // Listeners and Ready
