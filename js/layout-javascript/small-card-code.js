@@ -61,11 +61,13 @@ var DynamicList = function(id, data, container) {
    */
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
-  this.profileHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]());
-
   // Register handlebars helpers
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
+
+  this.profileHTML = Handlebars.compile(this.src);
+
   this.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.Session.get().then(function(session) {
@@ -232,25 +234,45 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.small-card-list-item', function(event) {
+      var _that = $(this);
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-card-list-name').text();
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
 
-      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-        _this.openLinkAction(entryId);
-        return;
+      var beforeOpen = Promise.resolve();
+    
+      if (typeof _this.data.beforeOpen === 'function') {
+        beforeOpen = _this.data.beforeOpen({
+          config: _this.data,
+          entry: _.find(_this.listItems, { id: entryId }),
+          entryId: entryId,
+          entryTitle: entryTitle
+        });
+        
+        if (!(beforeOpen instanceof Promise)) {
+          beforeOpen = Promise.resolve(beforeOpen);
+        }
       }
-      // find the element to expand and expand it
-      if (_this.allowClick && $(window).width() < 640) {
-        _this.directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
-        _this.expandElement(_this.directoryDetailWrapper, entryId);
-      } else if ($(window).width() >= 640) {
-        _this.showDetails(entryId);
-      }
+    
+      beforeOpen.then(function () {
+        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          _this.openLinkAction(entryId);
+          return;
+        }
+
+        // find the element to expand and expand it
+        if (_this.allowClick && $(window).width() < 640) {
+          _this.directoryDetailWrapper = _that.find('.small-card-list-detail-wrapper');
+          _this.expandElement(_this.directoryDetailWrapper, entryId);
+        } else if (_this.allowClick && $(window).width() >= 640) {
+          _this.showDetails(entryId);
+        }
+      });      
     })
     .on('click', '.small-card-detail-overlay-close', function(event) {
       event.stopPropagation();
@@ -671,6 +693,120 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
+DynamicList.prototype.convertFiles = function(listItems) {
+  var _this = this;
+  var dataToGetFile = [];
+  var promises = [];
+
+  // Test pattern for URLS
+  var urlPattern = /^https?:\/\//i;
+  // Test pattern for BASE64 images
+  var base64Pattern = /^data:image\/[^;]+;base64,/i;
+  // Test pattern for Numbers/IDs
+  var numberPattern = /^\d+$/i;
+
+  listItems.forEach(function(entry, index) {
+    var data = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    _this.data['summary-fields'].forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+
+    _this.data.detailViewOptions.forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+  });
+
+  if (dataToGetFile.length) {
+    dataToGetFile.forEach(function(data) {
+      promises.push(Fliplet.Media.Folders.get(data.query)
+        .then(function(response) {
+          var allFiles = response.files;
+
+          allFiles.forEach(function(file) {
+            // Add this IF statement to make the URLs to work with encrypted organizations
+            if (file.isEncrypted) {
+              file.url += '?auth_token=' + Fliplet.User.getAuthToken();
+            }
+
+            if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
+              data.entry.data[data.field.column] = file.url;
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column])) {
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (numberPattern.test(data.entry.data[data.field.column])) {
+              var imageId = parseInt(data.entry.data[data.field.column], 10);
+              if (imageId === file.id) {
+                data.entry.data[data.field.column] = file.url;
+                // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+                data.entry.data['imageUrlEdited'] = true;
+              }
+            }
+          });
+
+          if (!data.entry.data['imageUrlEdited']) {
+            data.entry.data[data.field.column] = '';
+          }
+
+          return data.entry;
+        }));
+    });
+
+    return Promise.all(promises);
+  } else {
+    return Promise.resolve(listItems);
+  }
+}
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -680,41 +816,47 @@ DynamicList.prototype.initialize = function() {
     _this.renderBaseHTML();
     var records = _this.prepareData(_this.data.defaultEntries);
     _this.listItems = _this.getPermissions(records);
-    // Get user profile
-    if (_this.myUserData) {
-      // Create flag for current user
-      _this.listItems.forEach(function(el, idx) {
-        if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
-          _this.listItems[idx].isCurrentUser = true;
-        }
-      });
-
-      _this.myProfileData = _.filter(_this.listItems, function(row) {
-        return row.isCurrentUser;
-      });
-    }
     _this.dataSourceColumns = _this.data.defaultColumns;
-    // Render Loop HTML
-    _this.prepareToRenderLoop(_this.listItems);
-    _this.renderLoopHTML();
-    _this.addFilters(_this.modifiedListItems);
-    // Render user profile
-    if (_this.myProfileData && _this.myProfileData.length) {
-      _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
-      var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
-      var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-      _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
 
-      var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
-      var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-      _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+    return _this.convertFiles(_this.listItems)
+      .then(function(response) {
+        _this.listItems = response;
 
-      _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
-    }
-    // Listeners and Ready
-    _this.attachObservers();
-    _this.onReady();
-    return;
+        // Get user profile
+        if (_this.myUserData) {
+          // Create flag for current user
+          _this.listItems.forEach(function(el, idx) {
+            if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
+              _this.listItems[idx].isCurrentUser = true;
+            }
+          });
+
+          _this.myProfileData = _.filter(_this.listItems, function(row) {
+            return row.isCurrentUser;
+          });
+        }
+
+        // Render Loop HTML
+        _this.prepareToRenderLoop(_this.listItems);
+        _this.renderLoopHTML();
+        _this.addFilters(_this.modifiedListItems);
+        // Render user profile
+        if (_this.myProfileData && _this.myProfileData.length) {
+          _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
+          var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
+          var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+          _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
+
+          var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
+          var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+          _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+
+          _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
+        }
+        // Listeners and Ready
+        _this.attachObservers();
+        _this.onReady();
+      });
   }
 
   // Check if there is a PV for search/filter queries
@@ -756,9 +898,13 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(dataSource) {
       _this.dataSourceColumns = dataSource.columns;
-      return
+      return;
     })
     .then(function() {
+      return _this.convertFiles(_this.listItems);
+    })
+    .then(function(response) {
+      _this.listItems = response;
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
@@ -780,7 +926,7 @@ DynamicList.prototype.initialize = function() {
 
         _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
       }
-      return
+      return;
     })
     .then(function() {
       // Listeners and Ready
@@ -1050,13 +1196,16 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       entryDetails: [],
       originalData: entry.data
     };
+
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
+
       if (obj.column === 'custom') {
         content = Handlebars.compile(obj.customField)(entry.data)
       } else {
         var content = entry.data[obj.column];
       }
+
       newObject[obj.location] = content;
     });
 
@@ -1446,6 +1595,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.new-small-card-list-container').removeClass('searching');
   if (!_this.data.filtersInOverlay) {
     _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
   }
@@ -1486,48 +1636,70 @@ DynamicList.prototype.searchData = function(value) {
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
-  
-  // Search
-  var searchedData = [];
-  var filteredData;
 
-  if (_this.data.searchEnabled && _this.data.searchFields.length) {
-    _this.data.searchFields.forEach(function(field) {    
-      filteredData = _.filter(_this.listItems, function(obj) {
-        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
-          return obj.data[field].toLowerCase().indexOf(value) > -1;
+  // Search  
+  if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
+    return;
+  }
+
+  var executeSeach;
+
+  if (typeof _this.data.searchData === 'function') {
+    executeSearch = _this.data.searchData({
+      config: _this.data,
+      query: value
+    });
+
+    if (!(executeSearch instanceof Promise)) {
+      executeSearch = Promise.resolve(executeSearch);
+    }
+  } else {
+    executeSearch = new Promise(function (resolve, reject) {
+      var searchedData = [];
+      var filteredData;
+
+      _this.data.searchFields.forEach(function(field) {    
+        filteredData = _.filter(_this.listItems, function(obj) {
+          if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
+            return obj.data[field].toLowerCase().indexOf(value) > -1;
+          }
+        });
+
+        if (filteredData.length) {
+          filteredData.forEach(function(item) {
+            searchedData.push(item);
+          });
         }
       });
 
-      if (filteredData.length) {
-        filteredData.forEach(function(item) {
-          searchedData.push(item);
-        });
-      }
+      resolve(searchedData);
     });
   }
-  
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
-  if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
-  }
 
-  if (!searchedData.length) {
-    _this.$container.find('.hidden-filter-controls').addClass('no-results');
-  }
+  executeSearch.then(function (searchedData) {
+    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.$container.find('.new-small-card-list-container').removeClass('searching');
+    if (!_this.data.filtersInOverlay) {
+      _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
+    }
 
-  // Remove duplicates
-  searchedData = _.uniq(searchedData);
-  _this.searchedListItems = searchedData;
+    if (!searchedData.length) {
+      _this.$container.find('.hidden-filter-controls').addClass('no-results');
+    }
 
-  if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-    _this.showDetails(_this.searchedListItems[0].id);
-  }
+    // Remove duplicates
+    searchedData = _.uniq(searchedData);
+    _this.searchedListItems = searchedData;
 
-  _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
-  _this.onReady();
+    if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
+      _this.showDetails(_this.searchedListItems[0].id);
+    }
+
+    _this.prepareToRenderLoop(searchedData);
+    _this.renderLoopHTML();
+    _this.addFilters(_this.modifiedListItems);
+    _this.onReady();
+  });
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -1602,22 +1774,58 @@ DynamicList.prototype.showDetails = function(id) {
   };
   var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = _this.$container.find('#small-card-detail-overlay-' + _this.data.id);
-  var wrapperTemplate = Handlebars.compile(wrapper);
 
-  // Adds content to overlay
-  $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  $overlay.find('.small-card-detail-wrapper').append(_this.profileHTML(entryData));
+  var src = _this.src;
+  var beforeShowDetails = Promise.resolve({
+    src: src,
+    data: entryData
+  });
 
-  // Trigger animations
-  _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
-  $overlay.addClass('open');
-  setTimeout(function() {
-    $overlay.addClass('ready');
-
-    if (typeof _this.directoryDetailWrapper === 'undefined') {
-      _this.directoryDetailWrapper = $('.small-card-list-item[data-entry-id="' + id + '"]').find('.small-card-list-detail-wrapper');
+  if (typeof _this.data.beforeShowDetails === 'function') {
+    beforeShowDetails = _this.data.beforeShowDetails({
+      config: _this.data,
+      src: src,
+      data: entryData
+    });
+    
+    if (!(beforeShowDetails instanceof Promise)) {
+      beforeShowDetails = Promise.resolve(beforeShowDetails);
     }
-  }, 0);
+  }
+
+  beforeShowDetails.then(function (data) {
+    data = data || {};
+    var template = Handlebars.compile(data.src || src);
+    var wrapperTemplate = Handlebars.compile(wrapper);
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+    }
+
+    // Adds content to overlay
+    $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+    $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
+
+    // Trigger animations
+    _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
+    $overlay.addClass('open');
+    setTimeout(function() {
+      $overlay.addClass('ready');
+
+      if (typeof _this.directoryDetailWrapper === 'undefined') {
+        _this.directoryDetailWrapper = $('.small-card-list-item[data-entry-id="' + id + '"]').find('.small-card-list-detail-wrapper');
+      }
+
+      if (typeof _this.data.afterShowDetails === 'function') {
+        _this.data.afterShowDetails({
+          config: _this.data,
+          src: data.src || src,
+          data: data.data || entryData
+        });
+      }
+    }, 0);
+  });
 }
 
 DynamicList.prototype.closeDetails = function() {
@@ -1632,6 +1840,11 @@ DynamicList.prototype.closeDetails = function() {
     $overlay.removeClass('ready');
     // Clears overlay
     $overlay.find('.small-card-detail-overlay-content-holder').html('');
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    }
   }, 300);
 }
 

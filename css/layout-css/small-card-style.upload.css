@@ -320,7 +320,7 @@
   position: relative;
 }
 
-.new-small-card-list-container .search-holder .fa {
+.new-small-card-list-container .search-holder .fa.fa-search {
   position: absolute;
   top: 0;
   left: 0;
@@ -366,6 +366,21 @@
 .search-holder .btn.search-btn:active:hover {
   border: none;
   background-color: #eeeeee;
+}
+
+.new-small-card-list-container .search-holder .search-btn.searching-btn {
+  transition: all 0.15s ease-out;
+  pointer-events: none;
+}
+
+.new-small-card-list-container .search-holder .search-btn.searching-btn,
+.new-small-card-list-container.searching .search-holder .search-btn {
+  display: none;
+  transition: all 0.15s ease-out;
+}
+
+.new-small-card-list-container.searching .search-holder .search-btn.searching-btn {
+  display: block;
 }
 
 .new-small-card-list-container .search-holder .form-control {
@@ -509,7 +524,12 @@
   outline: none;
 }
 
-.new-small-card-list-container .loading-data {
+.new-small-card-list-container .no-results-holder {
+  display: none;
+}
+
+.new-small-card-list-container .loading-data,
+.new-small-card-list-container .no-results ~ .no-results-holder {
   padding-top: 25px;
   display: block;
   text-align: center;

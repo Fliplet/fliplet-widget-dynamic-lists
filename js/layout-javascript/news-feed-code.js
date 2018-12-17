@@ -73,9 +73,11 @@ var DynamicList = function(id, data, container) {
 
   this.setupCopyText();
 
-  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[this.data.layout]['detail']]());
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[this.data.layout]['detail']]();
+
+  this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
@@ -285,28 +287,44 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.news-feed-list-item', function(event) {
-      event.stopPropagation();
-
       if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
         return;
       }
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text();
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_open',
         label: entryTitle
       });
 
-      if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-        _this.openLinkAction(entryId);
-        return;
+      var beforeOpen = Promise.resolve();
+    
+      if (typeof _this.data.beforeOpen === 'function') {
+        beforeOpen = _this.data.beforeOpen({
+          config: _this.data,
+          entry: _.find(_this.listItems, { id: entryId }),
+          entryId: entryId,
+          entryTitle: entryTitle
+        });
+        
+        if (!(beforeOpen instanceof Promise)) {
+          beforeOpen = Promise.resolve(beforeOpen);
+        }
       }
-      // find the element to expand and expand it
-      if (_this.allowClick) {
-        _this.showDetails(entryId);
-      }
+    
+      beforeOpen.then(function () {
+        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          _this.openLinkAction(entryId);
+          return;
+        }
+        // find the element to expand and expand it
+        if (_this.allowClick) {
+          _this.showDetails(entryId);
+        }
+      });
     })
     .on('click', '.news-feed-detail-overlay-close', function() {
       var result;
@@ -1078,6 +1096,120 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
+DynamicList.prototype.convertFiles = function(listItems) {
+  var _this = this;
+  var dataToGetFile = [];
+  var promises = [];
+
+  // Test pattern for URLS
+  var urlPattern = /^https?:\/\//i;
+  // Test pattern for BASE64 images
+  var base64Pattern = /^data:image\/[^;]+;base64,/i;
+  // Test pattern for Numbers/IDs
+  var numberPattern = /^\d+$/i;
+
+  listItems.forEach(function(entry, index) {
+    var data = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    _this.data['summary-fields'].forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+
+    _this.data.detailViewOptions.forEach(function(obj) {
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          data.query.appId = obj.appFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          data.query.organizationId = obj.organizationFolderId;
+          data.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          data.query.folderId = obj.folder.selectFiles[0].id;
+          data.field = obj;
+        }
+
+        dataToGetFile.push(data);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+  });
+
+  if (dataToGetFile.length) {
+    dataToGetFile.forEach(function(data) {
+      promises.push(Fliplet.Media.Folders.get(data.query)
+        .then(function(response) {
+          var allFiles = response.files;
+
+          allFiles.forEach(function(file) {
+            // Add this IF statement to make the URLs to work with encrypted organizations
+            if (file.isEncrypted) {
+              file.url += '?auth_token=' + Fliplet.User.getAuthToken();
+            }
+
+            if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
+              data.entry.data[data.field.column] = file.url;
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column])) {
+              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+              data.entry.data['imageUrlEdited'] = true;
+            } else if (numberPattern.test(data.entry.data[data.field.column])) {
+              var imageId = parseInt(data.entry.data[data.field.column], 10);
+              if (imageId === file.id) {
+                data.entry.data[data.field.column] = file.url;
+                // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+                data.entry.data['imageUrlEdited'] = true;
+              }
+            }
+          });
+
+          if (!data.entry.data['imageUrlEdited']) {
+            data.entry.data[data.field.column] = '';
+          }
+
+          return data.entry;
+        }));
+    });
+
+    return Promise.all(promises);
+  } else {
+    return Promise.resolve(listItems);
+  }
+}
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -1088,14 +1220,19 @@ DynamicList.prototype.initialize = function() {
 
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
-    // Render Loop HTML
-    _this.prepareToRenderLoop(_this.listItems);
-    _this.renderLoopHTML();
-    _this.addFilters(_this.modifiedListItems);
-    // Listeners and Ready
-    _this.attachObservers();
-    _this.onReady();
-    return;
+
+    return _this.convertFiles(_this.listItems)
+      .then(function(response) {
+        _this.listItems = response;
+        
+        // Render Loop HTML
+        _this.prepareToRenderLoop(_this.listItems);
+        _this.renderLoopHTML();
+        _this.addFilters(_this.modifiedListItems);
+        // Listeners and Ready
+        _this.attachObservers();
+        _this.onReady();
+      });
   }
 
   // Check if there is a PV for search/filter queries
@@ -1115,9 +1252,13 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(dataSource) {
       _this.dataSourceColumns = dataSource.columns;
-      return
+      return;
     })
     .then(function() {
+      return _this.convertFiles(_this.listItems);
+    })
+    .then(function(response) {
+      _this.listItems = response;
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
@@ -1125,7 +1266,7 @@ DynamicList.prototype.initialize = function() {
       _this.addFilters(_this.modifiedListItems);
       _this.prepareToSearch();
       _this.prepareToFilter();
-      return
+      return;
     })
     .then(function() {
       // Listeners and Ready
@@ -1864,6 +2005,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.new-news-feed-list-container').removeClass('searching');
   if (!_this.data.filtersInOverlay) {
     _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
   }
@@ -1909,50 +2051,72 @@ DynamicList.prototype.searchData = function(value) {
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
   
-  // Search
-  var searchedData = [];
-  var filteredData;
+  // Search  
+  if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
+    return;
+  }
 
-  if (_this.data.searchEnabled && _this.data.searchFields.length) {
-    _this.data.searchFields.forEach(function(field) {    
-      filteredData = _.filter(_this.listItems, function(obj) {
-        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
-          return obj.data[field].toLowerCase().indexOf(value) > -1;
+  var executeSeach;
+
+  if (typeof _this.data.searchData === 'function') {
+    executeSearch = _this.data.searchData({
+      config: _this.data,
+      query: value
+    });
+
+    if (!(executeSearch instanceof Promise)) {
+      executeSearch = Promise.resolve(executeSearch);
+    }
+  } else {
+    executeSearch = new Promise(function (resolve, reject) {
+      var searchedData = [];
+      var filteredData;
+
+      _this.data.searchFields.forEach(function(field) {    
+        filteredData = _.filter(_this.listItems, function(obj) {
+          if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
+            return obj.data[field].toLowerCase().indexOf(value) > -1;
+          }
+        });
+
+        if (filteredData.length) {
+          filteredData.forEach(function(item) {
+            searchedData.push(item);
+          });
         }
       });
 
-      if (filteredData.length) {
-        filteredData.forEach(function(item) {
-          searchedData.push(item);
-        });
-      }
+      resolve(searchedData);
     });
   }
 
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
-  if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
-  }
+  executeSearch.then(function (searchedData) {
+    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+    if (!_this.data.filtersInOverlay) {
+      _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), true);
+    }
 
-  if (!searchedData.length) {
-    _this.$container.find('.hidden-filter-controls').addClass('no-results');
-  }
+    if (!searchedData.length) {
+      _this.$container.find('.hidden-filter-controls').addClass('no-results');
+    }
 
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
-  }
+    if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
+      _this.mixer.destroy();
+    }
 
-  searchedData = _.uniq(searchedData);
-  _this.searchedListItems = searchedData;
-  _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
+    searchedData = _.uniq(searchedData);
+    _this.searchedListItems = searchedData;
+    _this.prepareToRenderLoop(searchedData);
+    _this.renderLoopHTML();
+    _this.addFilters(_this.modifiedListItems);
 
-  if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-    _this.showDetails(_this.searchedListItems[0].id);
-  }
+    if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
+      _this.showDetails(_this.searchedListItems[0].id);
+    }
 
-  _this.onReady();
+    _this.onReady();
+  });
 }
 
 DynamicList.prototype.backToSearch = function() {
@@ -2142,35 +2306,72 @@ DynamicList.prototype.showDetails = function(id) {
   });
 
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var wrapperTemplate = Handlebars.compile(wrapper);
 
   var entryId = {
     id: id
   };
-  // Adds content to overlay
-  _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-  _this.$overlay.find('.news-feed-detail-wrapper').append(_this.detailHTML(entryData));
 
-  _this.prepareSetupBookmarkOverlay(id);
-  _this.updateCommentCounter(id, true);
+  var src = _this.src;
+  var beforeShowDetails = Promise.resolve({
+    src: src,
+    data: entryData
+  });
 
-  // Trigger animations
-  $('body').addClass('lock');
-  _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
-
-  // Calculate top position when image finishes loading
-  if ($(window).width() < 640) {
-    $('.news-feed-list-detail-image-wrapper img').one('load', function() {
-      var expandedPosition = $(this).outerHeight();
-      _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
-    }).each(function() {
-      if (this.complete) {
-        $(this).trigger('load');
-      }
+  if (typeof _this.data.beforeShowDetails === 'function') {
+    beforeShowDetails = _this.data.beforeShowDetails({
+      config: _this.data,
+      src: src,
+      data: entryData
     });
+    
+    if (!(beforeShowDetails instanceof Promise)) {
+      beforeShowDetails = Promise.resolve(beforeShowDetails);
+    }
   }
 
-  _this.$overlay.addClass('open');
+  beforeShowDetails.then(function (data) {
+    data = data || {};
+    var template = Handlebars.compile(data.src || src);
+    var wrapperTemplate = Handlebars.compile(wrapper);
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+    }
+
+    // Adds content to overlay
+    _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+    _this.$overlay.find('.news-feed-detail-wrapper').append(template(data.data || entryData));
+
+    _this.prepareSetupBookmarkOverlay(id);
+    _this.updateCommentCounter(id, true);
+
+    // Trigger animations
+    $('body').addClass('lock');
+    _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+
+    // Calculate top position when image finishes loading
+    if ($(window).width() < 640) {
+      $('.news-feed-list-detail-image-wrapper img').one('load', function() {
+        var expandedPosition = $(this).outerHeight();
+        _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+      }).each(function() {
+        if (this.complete) {
+          $(this).trigger('load');
+        }
+      });
+    }
+
+    _this.$overlay.addClass('open');
+
+    if (typeof _this.data.afterShowDetails === 'function') {
+      _this.data.afterShowDetails({
+        config: _this.data,
+        src: data.src || src,
+        data: data.data || entryData
+      });
+    }
+  });
 }
 
 DynamicList.prototype.closeDetails = function() {
@@ -2184,6 +2385,11 @@ DynamicList.prototype.closeDetails = function() {
   setTimeout(function() {
     // Clears overlay
     _this.$overlay.find('.news-feed-detail-overlay-content-holder').html('');
+
+    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    }
   }, 300);
 }
 

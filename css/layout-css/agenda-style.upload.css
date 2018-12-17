@@ -411,8 +411,8 @@
 .new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-time {
   text-transform: uppercase;
   color: #333333;
-  font-size: 16px;
-  opacity: 0.2;
+  font-size: 14px;
+  opacity: 0.4;
   font-weight: 500;
   line-height: 1.4;
 }
@@ -550,15 +550,25 @@
   padding: 0;
 }
 
-.new-agenda-list-container .agenda-list-item:not(.open) .bookmark-wrapper .fa-bookmark-o:after {
+.new-agenda-list-container .agenda-list-item:not(.open) .bookmark-wrapper .fa-bookmark-o:after,
+.new-agenda-list-container .agenda-list-item:not(.open) .bookmark-wrapper .fa-bookmark:after {
   display: none;
 }
 
 .new-agenda-list-container .bookmark-wrapper .fa-bookmark-o:after,
 .agenda-detail-overlay .bookmark-wrapper .fa-bookmark-o:after {
-  content: 'Add to My Agenda?';
+  content: 'Bookmark';
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 12px;
+  color: rgba(51, 51, 51, 0.5);
+  margin-left: 5px;
+}
+
+.new-agenda-list-container .bookmark-wrapper .fa-bookmark:after,
+.agenda-detail-overlay .bookmark-wrapper .fa-bookmark:after {
+  content: 'Bookmarked';
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
   color: rgba(51, 51, 51, 0.5);
   margin-left: 5px;
 }
@@ -587,6 +597,51 @@
 .new-agenda-list-container .bookmark-wrapper .fa-bookmark,
 .agenda-detail-overlay .bookmark-wrapper .fa-bookmark {
   color: #337ab7;
+}
+
+.agenda-item-bookmark.more-buttons {
+  display: flex;
+  padding: 15px 0;
+  margin: 10px 0;
+  border-top: 1px solid rgba(51, 51, 51, 0.1);
+  border-bottom: 1px solid rgba(51, 51, 51, 0.1);
+}
+
+.agenda-item-bookmark.more-buttons .bookmark-wrapper .fa-bookmark-o:after,
+.agenda-item-bookmark.more-buttons .bookmark-wrapper .fa-bookmark-o:after {
+  margin-left: 0;
+}
+
+.agenda-item-bookmark.more-buttons .bookmark-wrapper .fa-bookmark:after,
+.agenda-item-bookmark.more-buttons .bookmark-wrapper .fa-bookmark:after {
+  margin-left: 0;
+}
+
+.agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder {
+  display: flex;
+  align-items: center;
+}
+
+.agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder .bookmark-wrapper span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agenda-item-bookmark.more-buttons .session-button {
+  font-size: 12px;
+  color: rgba(51, 51, 51, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.agenda-item-bookmark.more-buttons .session-button .fa {
+  color: rgba(51, 51, 51, 0.2);
+  font-size: 25px;
 }
 
 .dynamic-list-controls {
@@ -713,7 +768,7 @@
 .agenda-detail-overlay-panel .agenda-detail-overlay-content {
   height: 100%;
   overflow: auto;
-  padding: 40px 15px 15px 15px;
+  padding: 60px 15px 15px 15px;
 }
 
 .agenda-detail-overlay-close.tablet {

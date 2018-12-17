@@ -46,6 +46,7 @@
       <i class="fa fa-search"></i>
       <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
       <div class="btn btn-default search-btn">Search</div>
+      <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
@@ -111,6 +112,9 @@
   
   <div class="loading-holder">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+  </div>
+  <div class="no-results-holder">
+    No matches found
   </div>
 </div>
 

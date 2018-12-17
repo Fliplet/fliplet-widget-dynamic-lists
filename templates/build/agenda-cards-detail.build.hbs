@@ -10,11 +10,26 @@
       <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{[Full Date]}}</p>
     </div>
     
-    <div class="agenda-item-bookmark">
+    <div class="agenda-item-bookmark \{{#if agendaButtonsEnabled}}more-buttons\{{/if}}">
       <div class="agenda-item-bookmark-holder agenda-item-bookmark-holder-\{{id}}">
         <!-- Bookmark button will be here -->
         <div class="agenda-item-add-agenda"></div>
       </div>
+      \{{#if pollButton}}
+      <div class="go-to-poll session-button">
+        <i class="fa fa-pie-chart"></i>Poll
+      </div>
+      \{{/if}}
+      \{{#if surveyButton}}
+      <div class="go-to-survey session-button">
+        <i class="fa fa-pencil-square-o"></i>Survey
+      </div>
+      \{{/if}}
+      \{{#if questionsButton}}
+      <div class="go-to-questions session-button">
+        <i class="fa fa-question-circle-o"></i>Questions
+      </div>
+      \{{/if}}
     </div>
     
     <div class="agenda-item-description">

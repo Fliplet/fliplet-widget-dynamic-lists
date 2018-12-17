@@ -271,7 +271,7 @@
   position: relative;
 }
 
-.search-holder .fa {
+.search-holder .fa.fa-search {
   position: absolute;
   top: 0;
   left: 0;
@@ -317,6 +317,21 @@
 .search-holder .btn.search-btn:active:hover {
   border: none;
   background-color: #eeeeee;
+}
+
+.simple-list-container .search-holder .search-btn.searching-btn {
+  transition: all 0.15s ease-out;
+  pointer-events: none;
+}
+
+.simple-list-container .search-holder .search-btn.searching-btn,
+.simple-list-container.searching .search-holder .search-btn {
+  display: none;
+  transition: all 0.15s ease-out;
+}
+
+.simple-list-container.searching .search-holder .search-btn.searching-btn {
+  display: block;
 }
 
 .search-holder .form-control {
@@ -517,18 +532,24 @@
   text-align: right;
 }
 
-.loading-holder {
+.loading-holder,
+.no-results-holder {
   text-align: center;
   color: #dddddd;
-  cursor: pointer;
+  cursor: default;
   padding: 15px 0 0;
 }
 
 .ready .loading-holder,
 .loading .limit-entries-text,
 .filtering .limit-entries-text,
-.searching .limit-entries-text {
+.searching .limit-entries-text,
+.no-results-holder {
   display: none;
+}
+
+.simple-list-container .no-results ~ .no-results-holder {
+  display: block;
 }
 
 /** OVERLAY **/

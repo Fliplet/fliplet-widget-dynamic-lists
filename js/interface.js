@@ -2,6 +2,7 @@ var DynamicLists = (function() {
   var _this;
 
   var organizationId = Fliplet.Env.get('organizationId');
+  var appId = Fliplet.Env.get('appId');
   var appName = Fliplet.Env.get('appName');
   var pageTitle = Fliplet.Env.get('pageTitle');
   var listLayout;
@@ -55,6 +56,18 @@ var DynamicLists = (function() {
   var addRadioValues = [];
   var editRadioValues = [];
   var deleteRadioValues = [];
+
+  var currentApp = {
+    id: appId,
+    type: 'app',
+    name: appName
+  };
+  var userOrganization = {
+    id: organizationId,
+    type: 'organization'
+  };
+
+  var filePickerPromises = [];
 
   // Constructor
   function DynamicLists(configuration) {
@@ -275,6 +288,15 @@ var DynamicLists = (function() {
             $('.select-datasource-holder').removeClass('hidden');
           });
         })
+        .on('change', '#enable-poll', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
+        .on('change', '#enable-survey', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
+        .on('change', '#enable-questions', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
         .on('change', '#enable-comments', function() {
           if ( $(this).is(":checked") ) {
             $('.user-datasource-options').removeClass('hidden');
@@ -444,6 +466,41 @@ var DynamicLists = (function() {
             $(this).parents('.rTableRow').find('.custom-label-input').addClass('hidden');
           }
         })
+        .on('change', '[name="select_summary_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'image') {
+            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
+          }
+        })
+        .on('change', '[name="select_field_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'image') {
+            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
+          }
+        })
+        .on('change', '[name="folder_field_select"]', function() {
+          var value = $(this).val();
+
+          if (value === 'all-folders') {
+            $(this).parents('.rTableRow').find('.picker-provider-button').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
+          } else if (value === 'url') {
+            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').addClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
+          }
+        })
         .on('click', '.rTableCell.delete', function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
@@ -465,7 +522,7 @@ var DynamicLists = (function() {
           };
 
           _this.config.detailViewOptions.push(item);
-
+          item = _this.updateWithFoldersInfo(item, 'details');
           _this.addDetailItem(item);
         });
 
@@ -560,10 +617,28 @@ var DynamicLists = (function() {
       });
     },
     init: function() {
-      _this.getDataSources();
-      _this.setupCodeEditors();
-      _this.loadData();
-      _this.initializeSortSortable();
+      _this.getDataSources()
+        .then(function() {
+          return _this.getOrganizationInfo();
+        })
+        .then(function() {
+          return _this.setupCodeEditors();
+        })
+        .then(function() {
+          return _this.loadData();
+        })
+        .then(function() {
+          return _this.initializeSortSortable();
+        });
+    },
+    getOrganizationInfo: function() {
+      return Fliplet.Organizations.get()
+        .then(function(organizations) {
+          // Remove V1 apps and the current app
+          organization = _.find(organizations, { id: organizationId });
+          userOrganization.name = organization.name;
+          return;
+        });
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -578,6 +653,10 @@ var DynamicLists = (function() {
             $('.' + item).removeClass('hidden');
             if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
               $('#social-accordion').removeClass('hidden');
+            }
+
+            if (item === 'list-agenda-options') {
+              $('#agenda-accordion').removeClass('hidden');
             }
           });
 
@@ -672,6 +751,15 @@ var DynamicLists = (function() {
             $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
             $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
 
+            // Load agenda feature
+            $('#enable-poll').prop('checked', _this.config.pollEnabled).trigger('change');
+            $('#enable-survey').prop('checked', _this.config.surveyEnabled).trigger('change');
+            $('#enable-questions').prop('checked', _this.config.questionsEnabled).trigger('change');
+
+            $('#select_poll_data').val(_this.config.pollColumn || 'none');
+            $('#select_survey_data').val(_this.config.surveyColumn || 'none');
+            $('#select_questions_data').val(_this.config.questionsColumn || 'none');
+
             // Load social feature
             $('#enable-likes').prop('checked', _this.config.social.likes);
             $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
@@ -754,10 +842,18 @@ var DynamicLists = (function() {
               }
 
               item.columns = dataSourceColumns || _this.config.defaultColumns;
+              item = _this.updateWithFoldersInfo(item, 'summary');
               _this.addSummaryItem(item);
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
+              $('.table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+
+              if (item.imageField === 'all-folders' && item.folder) {
+                $('.table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
+                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
+                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+              }
             });
 
             if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
@@ -889,13 +985,21 @@ var DynamicLists = (function() {
             $detailsRowContainer.empty();
             _.forEach(_this.config.detailViewOptions, function(item) {  
               item.columns = dataSourceColumns;
+              item = _this.updateWithFoldersInfo(item, 'details');
               _this.addDetailItem(item);
 
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+
+              if (item.imageField === 'all-folders' && item.folder) {
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+              }
             });
 
             $('input#enable-auto-update').prop('checked', _this.config.detailViewAutoUpdate);
@@ -929,6 +1033,11 @@ var DynamicLists = (function() {
               $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
               $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
               $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
+
+              // Load agenda feature
+              $('#enable-poll').prop('checked', _this.config.pollEnabled);
+              $('#enable-survey').prop('checked', _this.config.surveyEnabled);
+              $('#enable-questions').prop('checked', _this.config.questionsEnabled);
 
               // Load social feature
               $('#enable-likes').prop('checked', _this.config.social.likes);
@@ -1120,8 +1229,8 @@ var DynamicLists = (function() {
       var linkFieldValue = $('#select_field_link').val();
       var linkOptions = [];
       $('#select_field_link').html('');
-      $('#select_field_link').append('<option value="none">-- Select a data field</option>');
-      $('#select_field_link').append('<option disabled>------</option>');
+      linkOptions.push('<option value="none">-- Select a data field</option>');
+      linkOptions.push('<option disabled>------</option>');
       dataSourceColumns.forEach(function(value, index) {
         linkOptions.push('<option value="'+ value +'">'+ value +'</option>');
       });
@@ -1177,6 +1286,54 @@ var DynamicLists = (function() {
           $(obj).val(oldValue);
         }
       });
+
+      // Pool data field
+      var poolFieldValue = $('#select_poll_data').val();
+      var poolFieldOptions = [];
+      $('#select_poll_data').html('');
+      poolFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      poolFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        poolFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_poll_data').append(poolFieldOptions.join(''));
+      if (poolFieldValue && poolFieldValue.length) {
+        $('#select_poll_data').val(poolFieldValue);
+      } else {
+        $('#select_poll_data').val('none');
+      }
+
+      // Survey data field
+      var surveyFieldValue = $('#select_survey_data').val();
+      var surveyFieldOptions = [];
+      $('#select_survey_data').html('');
+      surveyFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      surveyFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        surveyFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_survey_data').append(surveyFieldOptions.join(''));
+      if (surveyFieldValue && surveyFieldValue.length) {
+        $('#select_survey_data').val(surveyFieldValue);
+      } else {
+        $('#select_survey_data').val('none');
+      }
+
+      // Questions data field
+      var questionsFieldValue = $('#select_questions_data').val();
+      var questionsFieldOptions = [];
+      $('#select_questions_data').html('');
+      questionsFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      questionsFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        questionsFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_questions_data').append(questionsFieldOptions.join(''));
+      if (questionsFieldValue && questionsFieldValue.length) {
+        $('#select_questions_data').val(questionsFieldValue);
+      } else {
+        $('#select_questions_data').val('none');
+      }
 
       _this.setUpTokenFields();
     },
@@ -1266,6 +1423,12 @@ var DynamicLists = (function() {
 
       _this.setUpUserTokenFields();
     },
+    updateWithFoldersInfo: function(item, from) {
+      item.currentApp = currentApp;
+      item.userOrganization = userOrganization;
+      item.from = from;
+      return item;
+    },
     reloadDataSources: function(dataSourceId) {
       return Fliplet.DataSources.get({
         roles: 'publisher,editor',
@@ -1352,7 +1515,7 @@ var DynamicLists = (function() {
     },
     getDataSources: function() {
       // Load the data source
-      Fliplet.DataSources.get({
+      return Fliplet.DataSources.get({
         roles: 'publisher,editor',
         type: null
       }, {
@@ -1835,7 +1998,7 @@ var DynamicLists = (function() {
       var javascript = document.getElementById('js-code');
       var javascriptType = $(javascript).data('type');
 
-      _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
+      return _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
         var baseTemplatePromise = new Promise(function(resolve) {
           if (baseTemplateEditor) {
             baseTemplateEditor.getDoc().setValue(baseTemplateCode);
@@ -1941,7 +2104,7 @@ var DynamicLists = (function() {
           }
         });
 
-        Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
+        return Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
           .then(function() {
             _this.resizeCodeEditors();
           });
@@ -2064,6 +2227,13 @@ var DynamicLists = (function() {
         item.type = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';
         item.customField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_field_' + item.id).val();
+        item.imageField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+
+        if (item.imageField === 'organization') {
+          item.organizationFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+        } else if (item.imageField === 'app') {
+          item.appFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        }
       });
 
       // Get detail view options
@@ -2076,6 +2246,13 @@ var DynamicLists = (function() {
         item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
         item.customFieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_name_' + item.id).val();
         item.fieldLabelDisabled = item.fieldLabel === 'no-label';
+        item.imageField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+
+        if (item.imageField === 'organization') {
+          item.organizationFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+        } else if (item.imageField === 'app') {
+          item.appFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        }
       });
 
       data.detailViewAutoUpdate = $('input#enable-auto-update').is(":checked");
@@ -2135,6 +2312,16 @@ var DynamicLists = (function() {
       if (data.advancedSettings.jsEnabled) {
         data.advancedSettings.jsCode = javascriptEditor.getValue();
       }
+
+      // Get agenda feature
+      _this.config.pollEnabled = $('#enable-poll').is(":checked");
+      _this.config.surveyEnabled = $('#enable-survey').is(":checked");
+      _this.config.questionsEnabled = $('#enable-questions').is(":checked");
+      _this.config.pollColumn = $('#select_poll_data').val();
+      _this.config.surveyColumn = $('#select_survey_data').val();
+      _this.config.questionsColumn = $('#select_questions_data').val();
+
+      _this.config.agendaButtonsEnabled = _this.config.pollEnabled || _this.config.surveyEnabled || _this.config.questionsEnabled;
 
       // Get social feature
       _this.config.social.bookmark = $('#enable-bookmarks').is(":checked");

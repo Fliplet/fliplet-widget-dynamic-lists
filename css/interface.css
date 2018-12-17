@@ -54,10 +54,10 @@ header .uuid-holder {
   font-size: 14px;
   line-height: 1.42857143;
   color: #333;
-  background-color: #ffffff;
+  background-color: #f8f6f7;
   background-image: none;
   border-radius: 6px;
-  border: 1px solid #e4e9eb;
+  border: 1px solid rgba(51, 51, 51, 0.1);
   -webkit-box-shadow: none;
   box-shadow: none;
   -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
@@ -77,8 +77,8 @@ header .uuid-holder {
   padding: 6px 19px 6px 12px;
   height: auto;
   border: none;
-  background-color: #e4e9eb;
-  border-bottom: 2px solid #cfd3d5;
+  background-color: #dcdae0;
+  border-bottom: 2px solid #cac7d1;
 }
 
 .tokenfield .token.active {
@@ -122,7 +122,6 @@ header .uuid-holder {
   left: 0;
   padding-top: 20%;
   z-index: 1;
-  background-color: rgba(242,246,247,0.8);
 }
 
 .loading .loading-holder,
@@ -136,7 +135,7 @@ header .uuid-holder {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #f2f6f7;
+  background-color: #f8f6f7;
   padding: 15px 0 0;
   transition: all 0.2s ease-out;
 }
@@ -183,9 +182,8 @@ header .btn,
 
 .create-holder .btn-secondary,
 .edit-holder .btn-secondary {
-  color: #14505e;
-  border-color: #14505e;
-  opacity: 0.7;
+  color: rgba(51, 51, 51, 0.7);
+  border-color: #dcdae0;
 }
 
 .state-wrapper {
@@ -299,7 +297,7 @@ header .btn,
 }
 
 .layout-info .title {
-  color: #14505E;
+  color: #333;
   font-size: 14px;
   text-transform: uppercase;
   margin-bottom: 2px;
@@ -345,8 +343,8 @@ header .btn,
   left: 0;
   text-align: center;
   padding: 9px;
-  border: 1px solid #14505e;
-  color: #14505e;
+  border: 1px solid #dcdae0;
+  color: #333;
   opacity: 0.7;
   border-radius: 4px;
   background-color: transparent;
@@ -356,12 +354,12 @@ header .btn,
 
 .add-sort-panel:hover,
 .add-filter-panel:hover {
-  background-color: #d3dbde;
+  background-color: #f4f1f2;
 }
 
 .add-sort-panel:active,
 .add-filter-panel:active {
-  background-color: #d3dbde;
+  background-color: #f4f1f2;
   -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
@@ -390,7 +388,6 @@ header .btn,
 .panel {
   opacity: 1;
   -webkit-transition: opacity 100ms linear;
-  background-color: #f2f6f7;
 }
 
 .panel.focus {
@@ -404,16 +401,6 @@ header .btn,
 .panel.focus .glyphicon-remove {
   opacity: 0 !important;
   -webkit-transition: opacity 50ms linear;
-}
-
-.panel-default {
-  border-color: #d3dbde;
-}
-
-.panel-default > .panel-heading {
-  background-color: #e4e9eb;
-  border-color: #d3dbde;
-  border-radius: 0;
 }
 
 .panel-heading {
@@ -494,7 +481,7 @@ header .btn,
 
 .placeholder {
   border: 1px solid rgb(0, 171, 210);
-  background-color: #f2f6f7;
+  background-color: #f4f1f2;
   -webkit-box-shadow: rgba(0, 0, 0, 0.07) 0 1px 1px 0 inset, rgba(0, 171, 210, 0.4) 0 0 6px 0;
   -moz-box-shadow: rgba(0, 0, 0, 0.07) 0 1px 1px 0 inset, rgba(0, 171, 210, 0.4) 0 0 6px 0;
   box-shadow: rgba(0, 0, 0, 0.07) 0 1px 1px 0 inset, rgba(0, 171, 210, 0.4) 0 0 6px 0;
@@ -582,7 +569,7 @@ header .btn,
 }
 
 .advanced-tabs-level-two > li.active {
-  background-color: #d2e0e4;
+  background-color: #e6dfe3;
   border-bottom: none;
 }
 
@@ -607,23 +594,27 @@ header .btn,
 }
 
 #permissions-accordion.panel-group,
-#social-accordion.panel-group {
+#social-accordion.panel-group,
+#agenda-accordion.panel-group {
   padding: 0;
   margin-bottom: 25px;
 }
 
 #permissions-accordion .panel-heading:hover,
-#social-accordion .panel-heading:hover {
+#social-accordion .panel-heading:hover,
+#agenda-accordion .panel-heading:hover {
   cursor: pointer;
 }
 
 #permissions-accordion .panel-heading h4,
-#social-accordion .panel-heading h4 {
+#social-accordion .panel-heading h4,
+#agenda-accordion .panel-heading h4 {
   padding: 10px 40px 10px 15px;
 }
 
 #permissions-accordion .panel-title .fa,
-#social-accordion .panel-title .fa {
+#social-accordion .panel-title .fa,
+#agenda-accordion .panel-title .fa {
   position: absolute;
   top: 0;
   right: 0;
@@ -635,21 +626,25 @@ header .btn,
 }
 
 #permissions-accordion .panel-heading .fa-chevron-right,
-#social-accordion .panel-heading .fa-chevron-right {
+#social-accordion .panel-heading .fa-chevron-right,
+#agenda-accordion .panel-heading .fa-chevron-right {
   margin: 0;
 }
 
 #permissions-accordion .panel-body,
-#social-accordion .panel-body {
+#social-accordion .panel-body,
+#agenda-accordion .panel-body {
   padding-left: 0;
   padding-right: 0;
 }
 
+.agenda-collapse .form-group,
 .social-collapse .form-group,
 .permissions-collapse .form-group {
   margin-bottom: 15px;
 }
 
+.agenda-collapse .form-group:last-child,
 .social-collapse .form-group:last-child,
 .permissions-collapse .form-group:last-child {
   margin-bottom: 0;
@@ -715,7 +710,7 @@ header .btn,
 
 .CodeMirror {
   border: none;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid rgba(51, 51, 51, 0.1);
   border-radius: 0;
   background: transparent;
   font-size: 12px;
@@ -723,7 +718,7 @@ header .btn,
 
 .CodeMirror-gutters {
   border-right: none;
-  background-color: #ecf2f3;
+  background-color: #efebed;
 }
 
 .CodeMirror-activeline-background,
@@ -733,7 +728,7 @@ header .btn,
 
 .CodeMirror-focused .CodeMirror-activeline-background,
 .CodeMirror-focused .CodeMirror-activeline-gutter {
-  background: rgba(229, 237, 239, 0.6);
+  background: rgba(239, 235, 237, 0.6);
 }
 
 .CodeMirror-lint-marker-error,
@@ -847,7 +842,7 @@ header .btn,
   margin-left: 25px;
   margin-top: 5px;
   margin-bottom: 20px;
-  background-color: #e6eeef;
+  background-color: #ede8eb;
   border-radius: 6px;
 }
 
@@ -922,8 +917,17 @@ header .btn,
 }
 
 .custom-field-input .rTableCell:last-child,
-.custom-label-input .rTableCell:last-child {
+.custom-label-input .rTableCell:last-child,
+.image-field-select .rTableCell:last-child {
   padding-right: 5px;
+}
+
+.image-field-select .rTableCell:nth-child(3) {
+  padding-right: 0;
+}
+
+.image-field-select .rTableCell:nth-child(4) {
+  padding-left: 10px;
 }
 
 .rTableHead.title,
@@ -985,8 +989,18 @@ header .btn,
 }
 
 .custom-field-input,
-.custom-label-input {
+.custom-label-input,
+.image-field-select {
   margin-top: 10px;
+}
+
+.image-field-select .selected-folder {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.image-field-select .selected-folder span {
+  font-weight: bold;
 }
 
 .intro-form {
@@ -1000,4 +1014,8 @@ header .btn,
 
 .select-user-email-list-holder {
   margin-top: 25px;
+}
+
+.agenda-options-select {
+  margin-bottom: 20px;
 }

@@ -54,6 +54,7 @@
       "fliplet-core",
       "fliplet-session",
       "fliplet-datasources",
+      "fliplet-media",
       "font-awesome",
       "bootstrap",
       "jquery-ui",
