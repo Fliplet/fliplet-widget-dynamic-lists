@@ -53,6 +53,11 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
+  /*
+   * this specifies the batch size to be used when rendering in chunks
+   */
+  this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
+  
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]();
@@ -614,15 +619,13 @@ DynamicList.prototype.filterRecords = function(records, filters) {
 
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
-  var sorted;
-  var ordered;
   var filtered;
 
   // Prepare sorting
   if (_this.data.sortOptions.length) {
     var fields = [];
     var sortOrder = [];
-    var columns = [];
+    var sortColumns = [];
 
     _this.data.sortOptions.forEach(function(option) {
       fields.push({
@@ -665,17 +668,17 @@ DynamicList.prototype.prepareData = function(records) {
           record.data['modified_' + field.column] = record.data['modified_' + field.column];
         }
 
-        columns.push('data[modified_' + field.column + ']');
       });
 
       return record;
     });
 
-    // Sort data
-    sorted = _.sortBy(mappedRecords, columns);
-    ordered = _.orderBy(sorted, columns, sortOrder);
 
-    records = ordered;
+    sortColumns = fields.map(function (field) {
+      return 'data[modified_' + field.column + ']';
+    })
+    // Sort data
+    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
   }
 
   // Prepare filtering
@@ -1141,50 +1144,45 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       }
     });
 
-    loopData.push(newObject);
-  });
-
-  // Define detail view data based on user's settings
-  var detailData = [];
-
-  dynamicData.forEach(function(obj) {
-    clonedRecords.some(function(entryData) {
+    dynamicData.forEach(function(dynamicDataObj) {
       var label = '';
       var labelEnabled = true;
       var content = '';
 
       // Define label
-      if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
-        label = obj.column;
+      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
+        label = dynamicDataObj.column;
       }
-      if (obj.fieldLabel === 'custom-label') {
-        label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      if (dynamicDataObj.fieldLabel === 'custom-label') {
+        label = Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data);
       }
-      if (obj.fieldLabel === 'no-label') {
+      if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
       // Define content
-      if (obj.customFieldEnabled) {
-        content = Handlebars.compile(obj.customField)(entryData.data);
+      if (dynamicDataObj.customFieldEnabled) {
+        content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
       } else {
-        content = entryData.data[obj.column];
+        content = entry.data[dynamicDataObj.column];
       }
       // Define data object
-      var newObject = {
-        id: entryData.id,
+      var newEntryDetail = {
+        id: entry.id,
         content: content,
         label: label,
         labelEnabled: labelEnabled,
-        type: obj.type
+        type: dynamicDataObj.type
       }
-
-      var matchingEntry = _.find(loopData, function(entry) {
-        return entry.id === newObject.id;
-      });
-      matchingEntry.entryDetails.push(newObject);
-      savedColumns.push(obj.column);
-    });
+      newObject.entryDetails.push(newEntryDetail);
   });
+    loopData.push(newObject);
+  });
+
+  // Define detail view data based on user's settings
+
+  savedColumns = dynamicData.map(function(data){ 
+    return data.column;
+  })
 
   // Converts date format
   loopData.forEach(function(obj, index) {
@@ -1221,14 +1219,36 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
   _this.modifiedRecords = newRecords;
 }
 
-DynamicList.prototype.renderLoopHTML = function() {
+DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(_this.modifiedRecords));
+
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+    ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
+
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+  }
+  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').empty();
+
+  var renderLoopIndex = 0;
+  function render() {
+    // get the next batch of items to render
+    let nextBatch = _this.modifiedRecords.slice(
+      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+    );
+    if (nextBatch.length) {
+      _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append(template(nextBatch));
+      renderLoopIndex++;
+      // if the browser is ready, render
+      requestAnimationFrame(render);
+    }
+  }
+  // start the initial render
+  requestAnimationFrame(render);
 }
 
 DynamicList.prototype.renderDatesHTML = function(rows, index) {
