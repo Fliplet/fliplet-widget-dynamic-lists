@@ -63,6 +63,11 @@ var DynamicList = function(id, data, container) {
   this.pvFilterQuery;
   this.pvPreFilterQuery;
   this.pvOpenQuery;
+  
+  /**
+   * this specifies the batch size to be used when rendering in chunks
+   */
+  this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
@@ -955,7 +960,7 @@ DynamicList.prototype.prepareData = function(records) {
   if (_this.data.sortOptions.length) {
     var fields = [];
     var sortOrder = [];
-    var columns = [];
+    var sortColumns = [];
 
     _this.data.sortOptions.forEach(function(option) {
       fields.push({
@@ -998,17 +1003,17 @@ DynamicList.prototype.prepareData = function(records) {
           record.data['modified_' + field.column] = record.data['modified_' + field.column];
         }
 
-        columns.push('data[modified_' + field.column + ']');
       });
 
       return record;
     });
 
-    // Sort data
-    sorted = _.sortBy(mappedRecords, columns);
-    ordered = _.orderBy(sorted, columns, sortOrder);
 
-    records = ordered;
+    sortColumns = fields.map(function (field) {
+      return 'data[modified_' + field.column + ']';
+    })
+    // Sort data
+    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
   }
 
   // Prepare filtering
@@ -1391,7 +1396,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       entryDetails: [],
       originalData: entry.data
     };
-    _this.data['summary-fields'].some(function(obj) {
+    _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
       if (obj.column === 'custom') {
         content = Handlebars.compile(obj.customField)(entry.data)
@@ -1400,51 +1405,45 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       }
       newObject[obj.location] = content;
     });
-    loopData.push(newObject);
-  });
 
-  
-  // Define detail view data based on user's settings
-  var detailData = [];
-
-  _this.data.detailViewOptions.forEach(function(obj) {
-    modifiedData.some(function(entryData) {
+    _this.data.detailViewOptions.forEach(function(dynamicDataObj) {
       var label = '';
       var labelEnabled = true;
       var content = '';
 
       // Define label
-      if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
-        label = obj.column;
+      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
+        label = dynamicDataObj.column;
       }
-      if (obj.fieldLabel === 'custom-label') {
-        label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      if (dynamicDataObj.fieldLabel === 'custom-label') {
+        label = Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data);
       }
-      if (obj.fieldLabel === 'no-label') {
+      if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
       // Define content
-      if (obj.customFieldEnabled) {
-        content = Handlebars.compile(obj.customField)(entryData.data);
+      if (dynamicDataObj.customFieldEnabled) {
+        content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
       } else {
-        content = entryData.data[obj.column];
+        content = entry.data[dynamicDataObj.column];
       }
       // Define data object
-      var newObject = {
-        id: entryData.id,
+      var newEntryDetail = {
+        id: dynamicDataObj.id,
         content: content,
         label: label,
         labelEnabled: labelEnabled,
-        type: obj.type
+        type: dynamicDataObj.type
       }
 
-      var matchingEntry = _.find(loopData, function(entry) {
-        return entry.id === newObject.id;
-      });
-      matchingEntry.entryDetails.push(newObject);
-      savedColumns.push(obj.column);
+      newObject.entryDetails.push(newEntryDetail);
     });
+    loopData.push(newObject);
   });
+
+  savedColumns = _this.data.detailViewOptions.map(function(data){ 
+    return data.column;
+  })
 
   if (_this.data.detailViewAutoUpdate) {
     loopData.forEach(function(entry, index) {
@@ -1472,9 +1471,11 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function() {
+DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
+
+
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.newsFeedLayoutMapping[_this.data.layout]['loop']]());
@@ -1483,8 +1484,25 @@ DynamicList.prototype.renderLoopHTML = function() {
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
   }
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).empty();
 
-  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
+  var renderLoopIndex = 0;
+  var data = (limitedList || _this.modifiedListItems);
+  function render() {
+    // get the next batch of items to render
+    let nextBatch = data.slice(
+      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+    );
+    if (nextBatch.length) {
+      _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
+      renderLoopIndex++;
+      // if the browser is ready, render
+      requestAnimationFrame(render);
+    }
+  }
+  // start the initial render
+  requestAnimationFrame(render);
 }
 
 DynamicList.prototype.getAddPermission = function(data) {

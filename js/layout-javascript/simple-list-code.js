@@ -66,6 +66,11 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
+  /**
+   * this specifies the batch size to be used when rendering in chunks
+   */
+  this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
+
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
   // Register handlebars helpers
@@ -764,15 +769,13 @@ DynamicList.prototype.filterRecords = function(records, filters) {
 
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
-  var sorted;
-  var ordered;
   var filtered;
 
   // Prepare sorting
   if (_this.data.sortOptions.length) {
     var fields = [];
     var sortOrder = [];
-    var columns = [];
+    var sortColumns = [];
 
     _this.data.sortOptions.forEach(function(option) {
       fields.push({
@@ -815,17 +818,17 @@ DynamicList.prototype.prepareData = function(records) {
           record.data['modified_' + field.column] = record.data['modified_' + field.column];
         }
 
-        columns.push('data[modified_' + field.column + ']');
       });
 
       return record;
     });
 
-    // Sort data
-    sorted = _.sortBy(mappedRecords, columns);
-    ordered = _.orderBy(sorted, columns, sortOrder);
+    sortColumns = fields.map(function (field) {
+      return 'data[modified_' + field.column + ']';
+    })
 
-    records = ordered;
+    // Sort data
+    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
   }
 
   // Prepare filtering
@@ -1189,7 +1192,6 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
 
-  var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
   var loopData = [];
 
@@ -1223,6 +1225,7 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   // Function that renders the List template
   var _this = this;
 
+
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['loop']]());
@@ -1231,8 +1234,25 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
   }
+  _this.$container.find('#simple-list-wrapper-' + _this.data.id).empty();
 
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
+  var renderLoopIndex = 0;
+  var data = (limitedList || _this.modifiedListItems);
+  function render() {
+    // get the next batch of items to render
+    let nextBatch = data.slice(
+      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+    );
+    if (nextBatch.length) {
+      _this.$container.find('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
+      renderLoopIndex++;
+      // if the browser is ready, render
+      requestAnimationFrame(render);
+    }
+  }
+  // start the initial render
+  requestAnimationFrame(render);
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
