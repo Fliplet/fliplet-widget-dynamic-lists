@@ -156,9 +156,13 @@ DynamicList.prototype.attachObservers = function() {
         return entry.id === entryId;
       });
       var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+      var data = {
+        id: entryId,
+        title: entryTitle
+      }
 
       if (_this.data.pollLinkAction) {
-        Fliplet.App.Storage.set('pollSessionTitle-' + _this.data.pollLinkAction.page, entryTitle)
+        Fliplet.App.Storage.set('pollSessionTitle-' + _this.data.pollLinkAction.page, data)
           .then(function() {
             Fliplet.Navigate.to(_this.data.pollLinkAction);
           });
@@ -170,9 +174,13 @@ DynamicList.prototype.attachObservers = function() {
         return entry.id === entryId;
       });
       var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+      var data = {
+        id: entryId,
+        title: entryTitle
+      }
 
       if (_this.data.surveyLinkAction) {
-        Fliplet.App.Storage.set('surveySessionTitle-' + _this.data.surveyLinkAction.page, entryTitle)
+        Fliplet.App.Storage.set('surveySessionTitle-' + _this.data.surveyLinkAction.page, data)
           .then(function() {
             Fliplet.Navigate.to(_this.data.surveyLinkAction);
           });
@@ -184,9 +192,13 @@ DynamicList.prototype.attachObservers = function() {
         return entry.id === entryId;
       });
       var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+      var data = {
+        id: entryId,
+        title: entryTitle
+      }
 
       if (_this.data.questionsLinkAction) {
-        Fliplet.App.Storage.set('questionsSessionTitle-' + _this.data.questionsLinkAction.page, entryTitle)
+        Fliplet.App.Storage.set('questionsSessionTitle-' + _this.data.questionsLinkAction.page, data)
           .then(function() {
             Fliplet.Navigate.to(_this.data.questionsLinkAction);
           });
