@@ -64,6 +64,38 @@
   z-index: 2;
 }
 
+.small-card-overlay-header .filter-header-holder {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-header-holder .filter-header-btn-controls {
+  margin-right: 20px;
+  text-transform: none;
+}
+
+.apply-filters {
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+.clear-filters:hover,
+.apply-filters:hover,
+.clear-filters:focus,
+.apply-filters:focus,
+.clear-filters:active,
+.apply-filters:active,
+.clear-filters:active:hover,
+.apply-filters:active:hover,
+.clear-filters:active:focus,
+.apply-filters:active:focus {
+  color: #fff;
+  box-shadow: none;
+}
+
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-content {
   position: absolute;
   top: 0;

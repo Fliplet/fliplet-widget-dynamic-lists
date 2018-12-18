@@ -185,7 +185,26 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on('click', '.apply-filters', function() {
+      _this.filterList();
+
+      $(this).parents('.small-card-search-filter-overlay').removeClass('display');
+      $('body').removeClass('lock');
+    })
+    .on('click', '.clear-filters', function() {
+      $('.mixitup-control-active').removeClass('mixitup-control-active');
+      _this.filterList();
+    })
+    .on('click', '.small-card-search-filter-overlay .hidden-filter-controls-filter', function() {
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: $(this).text()
+      });
+
+      $(this).toggleClass('mixitup-control-active');
+    })
+    .on('click', '.inline-filter-holder .hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
@@ -319,6 +338,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+        $('body').addClass('lock');
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
@@ -342,6 +362,7 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.small-card-search-filter-overlay');
       $parentElement.removeClass('display');
+      $('body').addClass('lock');
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
