@@ -52,6 +52,7 @@ var DynamicList = function(id, data, container) {
   this.entryClicked = undefined;
   this.isFiltering;
   this.isSearching;
+  this.filterClasses = [];
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -418,6 +419,10 @@ DynamicList.prototype.attachObservers = function() {
         _this.filterClasses.forEach(function(filter) {
           $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
         });
+
+        $('.clear-filters').removeClass('hidden');
+      } else {
+        $('.clear-filters').addClass('hidden');
       }
     })
     .on('click', '.list-search-cancel', function() {

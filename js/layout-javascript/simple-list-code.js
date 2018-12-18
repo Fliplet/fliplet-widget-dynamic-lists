@@ -369,6 +369,10 @@ DynamicList.prototype.attachObservers = function() {
         _this.filterClasses.forEach(function(filter) {
           $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
         });
+
+        $('.clear-filters').removeClass('hidden');
+      } else {
+        $('.clear-filters').addClass('hidden');
       }
     })
     .on('click', '.list-search-cancel', function() {
