@@ -720,7 +720,7 @@ var DynamicLists = (function() {
         return loadingPromise
           .then(function() {
             // Load sort options
-            var dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
+            dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
             $sortAccordionContainer.empty();
             _.forEach(_this.config.sortOptions, function(item) {
               item.fromLoading = true; // Flag to close accordions
@@ -818,7 +818,7 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
-            var dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
+            dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
 
             // Sets up the data view settings
             if (typeof _this.config['summary-fields'] === 'undefined') {
