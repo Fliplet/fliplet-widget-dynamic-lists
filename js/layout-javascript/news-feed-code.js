@@ -1228,7 +1228,7 @@ DynamicList.prototype.initialize = function() {
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
         _this.renderLoopHTML(function(from, to){
-          _this.onPartialRender();
+          _this.onPartialRender(from, to);
         }, function(){
           _this.addFilters(_this.modifiedListItems);
           // Listeners and Ready
@@ -1639,6 +1639,9 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb, finishCb) {
     if (nextBatch.length) {
       _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
       if(iterateeCb && typeof iterateeCb === 'function'){
+        if(renderLoopIndex === 0){
+          _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+        }
         iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
       }
       renderLoopIndex++;
@@ -1646,7 +1649,8 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb, finishCb) {
       requestAnimationFrame(render);
     }
     else{      
-      if(iterateeCb && typeof finishCb === 'function'){
+      _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+      if(finishCb && typeof finishCb === 'function'){
         finishCb();
       }
     }

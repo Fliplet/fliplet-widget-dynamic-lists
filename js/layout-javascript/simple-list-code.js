@@ -1038,11 +1038,14 @@ DynamicList.prototype.initialize = function() {
 
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML();
-        _this.addFilters(_this.modifiedListItems);
-        // Listeners and Ready
-        _this.attachObservers();
-        _this.onReady();
+        _this.renderLoopHTML(function(from, to){
+          _this.onPartialRender(from, to);
+        }, function(){
+          _this.addFilters(_this.modifiedListItems);
+          _this.attachObservers();
+          _this.checkBookmarked();
+          _this.initializeMixer();
+        });
       });
   }
 
@@ -1077,17 +1080,17 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML();
-      _this.addFilters(_this.modifiedListItems);
-      _this.prepareToSearch();
-      _this.prepareToFilter();
-      return;
+      _this.renderLoopHTML(function(from, to){
+        _this.onPartialRender(from, to);
+      }, function(){
+        _this.addFilters(_this.modifiedListItems);
+        _this.prepareToSearch();
+        _this.prepareToFilter();
+        _this.attachObservers();
+        _this.checkBookmarked();
+        _this.initializeMixer();
+      });
     })
-    .then(function() {
-      // Listeners and Ready
-      _this.attachObservers();
-      _this.onReady();
-    });
 }
 
 DynamicList.prototype.checkIsToOpen = function() {
@@ -1359,7 +1362,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
+DynamicList.prototype.renderLoopHTML = function(iterateeCb, finishCb) {
   // Function that renders the List template
   var _this = this;
 
@@ -1384,9 +1387,21 @@ DynamicList.prototype.renderLoopHTML = function(records) {
     );
     if (nextBatch.length) {
       _this.$container.find('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
+      if(iterateeCb && typeof iterateeCb === 'function'){
+        if(renderLoopIndex === 0){
+          _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+        }
+        iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+      }
       renderLoopIndex++;
       // if the browser is ready, render
       requestAnimationFrame(render);
+    }
+    else{
+      _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+      if(finishCb && typeof finishCb === 'function'){
+        finishCb();
+      }
     }
   }
   // start the initial render
@@ -1507,8 +1522,9 @@ DynamicList.prototype.filterList = function() {
     _this.$container.find('.simple-list-container').removeClass('filtering');
     _this.isFiltering = false;
     _this.prepareToRenderLoop(listData);
-    _this.renderLoopHTML();
-    _this.onReady();
+    _this.renderLoopHTML(function(from, to){
+      _this.onPartialRender(from, to);
+    });
     return;
   }
   
@@ -1535,8 +1551,9 @@ DynamicList.prototype.filterList = function() {
   _this.$container.find('.simple-list-container').addClass('filtering');
   _this.isFiltering = true;
   _this.prepareToRenderLoop(filteredData);
-  _this.renderLoopHTML();
-  _this.onReady();
+  _this.renderLoopHTML(function(from, to){
+    _this.onPartialRender(from, to);
+  });
 }
 
 DynamicList.prototype.splitByCommas = function(str) {
@@ -1596,12 +1613,12 @@ DynamicList.prototype.convertCategories = function(data) {
   return data;
 }
 
-DynamicList.prototype.onReady = function() {
+DynamicList.prototype.onPartialRender = function(from, to) {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
 
   if (_this.data.social && _this.data.social.likes) {
-    _this.$container.find('.simple-list-item').each(function(index, element) {
+    _this.$container.find('.simple-list-item').slice(from, to).each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-like';
       var title = $(element).find('.list-item-body .list-item-title').text();
@@ -1610,8 +1627,7 @@ DynamicList.prototype.onReady = function() {
   }
 
   if (_this.data.social && _this.data.social.bookmark) {
-    _this.initializeMixer();
-    _this.$container.find('.simple-list-item').each(function(index, element) {
+    _this.$container.find('.simple-list-item').slice(from, to).each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-bookmark';
       var title = $(element).find('.list-item-body .list-item-title').text();
@@ -1624,7 +1640,7 @@ DynamicList.prototype.onReady = function() {
   }
 
   if (_this.data.social && _this.data.social.comments) {
-    _this.$container.find('.simple-list-item').each(function(index, element) {
+    _this.$container.find('.simple-list-item').slice(from, to).each(function(index, element) {
       _this.getCommentsCount(element);
     });
 
@@ -1662,9 +1678,11 @@ DynamicList.prototype.onReady = function() {
       _this.usersToMention = usersInfoToMention;
     });
   }
+}
 
-  // Ready
-  _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+// Function to add class to card marking it as bookmarked - for filtering
+DynamicList.prototype.checkBookmarked = function() {
+  var _this = this;
 
   // Wait for bookmark to appear on the page
   var checkTimer = 0;
@@ -1674,18 +1692,11 @@ DynamicList.prototype.onReady = function() {
       clearInterval(checkInterval);
       return;
     }
-    _this.checkBookmarked();
+    _this.$container.find('.btn-bookmarked').each(function(idx, element) {
+      $(element).parents('.simple-list-item').addClass('bookmarked');
+    });
     checkTimer++;
   }, 1000);
-}
-
-// Function to add class to card marking it as bookmarked - for filtering
-DynamicList.prototype.checkBookmarked = function() {
-  var _this = this;
-
-  _this.$container.find('.btn-bookmarked').each(function(idx, element) {
-    $(element).parents('.simple-list-item').addClass('bookmarked');
-  });
 }
 
 DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch, isClearSearch) {
@@ -1778,9 +1789,13 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
   _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
-  _this.onReady();
+  _this.renderLoopHTML(function(from, to){
+    _this.onPartialRender(from, to);
+  }, function(){
+    _this.addFilters(_this.modifiedListItems);
+    _this.checkBookmarked();
+    _this.initializeMixer();
+  });
 }
 
 DynamicList.prototype.searchData = function(value) {
@@ -1866,9 +1881,11 @@ DynamicList.prototype.searchData = function(value) {
     }
 
     _this.prepareToRenderLoop(searchedData);
-    _this.renderLoopHTML();
-    _this.addFilters(_this.modifiedListItems);
-    _this.onReady();
+    _this.renderLoopHTML(function(from, to){
+      _this.onPartialRender(from, to);
+    }, function(){
+      _this.addFilters(_this.modifiedListItems);
+    });
   });
 }
 
@@ -1908,9 +1925,13 @@ DynamicList.prototype.clearSearch = function() {
   // Resets list
   _this.searchedListItems = undefined;
   _this.prepareToRenderLoop(_this.listItems);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
-  _this.onReady();
+  _this.renderLoopHTML(function(from, to){
+    _this.onPartialRender(from, to);
+  }, function(){
+    _this.addFilters(_this.modifiedListItems);
+    _this.checkBookmarked();
+    _this.initializeMixer();
+  });
 }
 
 DynamicList.prototype.initializeMixer = function() {

@@ -660,10 +660,10 @@ DynamicList.prototype.initialize = function() {
 
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML();
-        // Listeners and Ready
-        _this.attachObservers();
-        _this.onReady();
+        _this.renderLoopHTML(null, function(){
+          // Listeners and Ready
+          _this.attachObservers();
+        });
       });
   }
 
@@ -713,14 +713,11 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML();
+      _this.renderLoopHTML(null, function(){
+        _this.attachObservers();
+      });
       return;
     })
-    .then(function() {
-      // Listeners and Ready
-      _this.attachObservers();
-      _this.onReady();
-    });
 }
 
 DynamicList.prototype.checkIsToOpen = function() {
@@ -968,7 +965,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
+DynamicList.prototype.renderLoopHTML = function(iterateeCb, finishCb) {
   // Function that renders the List template
   var _this = this;
 
@@ -993,9 +990,21 @@ DynamicList.prototype.renderLoopHTML = function(records) {
     );
     if (nextBatch.length) {
       _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
+      if(iterateeCb && typeof iterateeCb === 'function'){
+        if(renderLoopIndex === 0){
+          _this.$container.find('.new-small-h-card-list-container').addClass('ready');
+        }
+        iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+      }
       renderLoopIndex++;
       // if the browser is ready, render
       requestAnimationFrame(render);
+    }
+    else{      
+      _this.$container.find('.new-small-h-card-list-container').addClass('ready');
+      if(finishCb && typeof finishCb === 'function'){
+        finishCb();
+      }
     }
   }
   // start the initial render
@@ -1052,14 +1061,6 @@ DynamicList.prototype.getPermissions = function(entries) {
   });
 
   return entries;
-}
-
-DynamicList.prototype.onReady = function() {
-  // Function called when it's ready to show the list and remove the Loading
-  var _this = this;
-
-  // Ready
-  _this.$container.find('.new-small-h-card-list-container').addClass('ready');
 }
 
 DynamicList.prototype.openLinkAction = function(entryId) {
