@@ -16,14 +16,12 @@
   left: 0;
   z-index: 11;
   background-color: transparent;
-  opacity: 0;
-  visibility: hidden;
+  transform: translate3d(100%, 0, 0);
   transition: all 0.2s ease-out;
 }
 
 .simple-list-search-filter-overlay.display {
-  opacity: 1;
-  visibility: visible;
+  transform: translate3d(0, 0, 0);
 }
 
 .simple-list-search-filter-overlay .simple-list-overlay-screen {
@@ -55,8 +53,8 @@
   height: 44px;
   display: flex;
   align-items: center;
-  padding-left: 15px;
-  padding-right: 44px;
+  padding-right: 15px;
+  padding-left: 44px;
   font-size: 1.2em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -71,17 +69,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-left: 5px;
 }
 
 .filter-header-holder .filter-header-btn-controls {
-  margin-right: 20px;
   text-transform: none;
 }
 
 .apply-filters {
-  border: 1px solid #e5e5e5;
+  border: 1px solid #337ab7;
   border-radius: 20px;
   padding: 4px 10px;
+  background-color: #337ab7;
 }
 
 .clear-filters:hover,
@@ -118,12 +117,12 @@
 .simple-list-search-filter-overlay .simple-list-overlay-close {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;
   width: 44px;
   height: 44px;
-  font-size: 1.2em;
+  padding-left: 15px;
+  font-size: 1.8em;
   line-height: 44px;
-  text-align: center;
   z-index: 1;
   cursor: pointer;
 }
