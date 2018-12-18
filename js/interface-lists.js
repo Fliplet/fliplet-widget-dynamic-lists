@@ -245,6 +245,14 @@ function attahObservers() {
 
       if (field) {
         initFilePickerProvider(field);
+      } else {
+        field = {
+          id: fieldId,
+          folder: {},
+          from: 'summary'
+        };
+
+        initFilePickerProvider(field);
       }
     })
     .on('click', '[data-file-picker-details]', function() {
@@ -252,6 +260,14 @@ function attahObservers() {
       var field = _.find(widgetData.detailViewOptions, { id: fieldId });
 
       if (field) {
+        initFilePickerProvider(field);
+      } else {
+        field = {
+          id: fieldId,
+          folder: {},
+          from: 'details'
+        };
+
         initFilePickerProvider(field);
       }
     });
