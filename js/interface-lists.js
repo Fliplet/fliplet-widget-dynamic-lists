@@ -160,10 +160,6 @@ function initFilePickerProvider(field) {
     text: 'Select'
   });
 
-  if (field.folder) {
-
-  }
-
   field.folder = $.extend(true, {
     selectedFiles: {},
     selectFiles: [], // To use the restore on File Picker
