@@ -231,6 +231,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.clear-filters', function() {
       $('.mixitup-control-active').removeClass('mixitup-control-active');
+      $(this).addClass('hidden');
       _this.filterList();
     })
     .on('click', '.simple-list-search-filter-overlay .hidden-filter-controls-filter', function() {
@@ -241,6 +242,12 @@ DynamicList.prototype.attachObservers = function() {
       });
 
       $(this).toggleClass('mixitup-control-active');
+
+      if ($('.mixitup-control-active').length) {
+        $('.clear-filters').removeClass('hidden');
+      } else {
+        $('.clear-filters').addClass('hidden');
+      }
     })
     .on('click', '.inline-filter-holder .hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
@@ -354,6 +361,15 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.simple-list-search-filter-overlay');
       $parentElement.removeClass('display');
       $('body').removeClass('lock');
+
+      // Resets selected filters if any
+      $('.mixitup-control-active').removeClass('mixitup-control-active');
+
+      if (_this.filterClasses.length) {
+        _this.filterClasses.forEach(function(filter) {
+          $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
+        });
+      }
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
