@@ -1110,7 +1110,7 @@ DynamicList.prototype.initialize = function() {
         _this.prepareToRenderLoop(_this.listItems);
         _this.renderLoopHTML(function(from, to){
           _this.onPartialRender(from, to);
-        }, function(){
+        }).then(function(){
           _this.addFilters(_this.modifiedListItems);
           _this.attachObservers();
           _this.checkBookmarked();
@@ -1154,7 +1154,7 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       _this.renderLoopHTML(function(from, to){
         _this.onPartialRender(from, to);
-      }, function(){
+      }).then(function(){
         _this.addFilters(_this.modifiedListItems);
         _this.prepareToSearch();
         _this.prepareToFilter();
@@ -1434,7 +1434,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(iterateeCb, finishCb) {
+DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   // Function that renders the List template
   var _this = this;
 
@@ -1451,33 +1451,33 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb, finishCb) {
 
   var renderLoopIndex = 0;
   var data = (limitedList || _this.modifiedListItems);
-  function render() {
-    // get the next batch of items to render
-    let nextBatch = data.slice(
-      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
-      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
-    );
-    if (nextBatch.length) {
-      _this.$container.find('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
-      if(iterateeCb && typeof iterateeCb === 'function'){
-        if(renderLoopIndex === 0){
-          _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+  return new Promise(function(resolve){
+    function render() {
+      // get the next batch of items to render
+      let nextBatch = data.slice(
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+      );
+      if (nextBatch.length) {
+        _this.$container.find('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if(iterateeCb && typeof iterateeCb === 'function'){
+          if(renderLoopIndex === 0){
+            _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+          }
+          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
         }
-        iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+        renderLoopIndex++;
+        // if the browser is ready, render
+        requestAnimationFrame(render);
       }
-      renderLoopIndex++;
-      // if the browser is ready, render
-      requestAnimationFrame(render);
-    }
-    else{
-      _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
-      if(finishCb && typeof finishCb === 'function'){
-        finishCb();
+      else{
+        _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+        resolve();
       }
     }
-  }
-  // start the initial render
-  requestAnimationFrame(render);
+    // start the initial render
+    requestAnimationFrame(render);
+  })
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1863,7 +1863,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.prepareToRenderLoop(searchedData);
   _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
-  }, function(){
+  }).then(function(){
     _this.addFilters(_this.modifiedListItems);
     _this.checkBookmarked();
     _this.initializeMixer();
@@ -1955,7 +1955,7 @@ DynamicList.prototype.searchData = function(value) {
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML(function(from, to){
       _this.onPartialRender(from, to);
-    }, function(){
+    }).then(function(){
       _this.addFilters(_this.modifiedListItems);
     });
   });
@@ -1999,7 +1999,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.prepareToRenderLoop(_this.listItems);
   _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
-  }, function(){
+  }).then(function(){
     _this.addFilters(_this.modifiedListItems);
     _this.checkBookmarked();
     _this.initializeMixer();

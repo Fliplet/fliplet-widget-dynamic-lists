@@ -1300,7 +1300,7 @@ DynamicList.prototype.initialize = function() {
         _this.prepareToRenderLoop(_this.listItems);
         _this.renderLoopHTML(function(from, to){
           _this.onPartialRender(from, to);
-        }, function(){
+        }).then(function(){
           _this.addFilters(_this.modifiedListItems);
           // Listeners and Ready
           _this.attachObservers();
@@ -1339,7 +1339,7 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       _this.renderLoopHTML(function(from, to){
         _this.onPartialRender(from, to);
-      }, function(){
+      }).then(function(){
         // Listeners and Ready
         _this.addFilters(_this.modifiedListItems);
         _this.prepareToSearch();
@@ -1686,7 +1686,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function (iterateeCb, finishCb) {
+DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
 
@@ -1700,36 +1700,35 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb, finishCb) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
   }
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).empty();
-
-  var renderLoopIndex = 0;
-  var data = (limitedList || _this.modifiedListItems);
-  function render() {
-    // get the next batch of items to render
-    let nextBatch = data.slice(
-      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
-      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
-    );
-    if (nextBatch.length) {
-      _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
-      if(iterateeCb && typeof iterateeCb === 'function'){
-        if(renderLoopIndex === 0){
-          _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+  return new Promise(function(resolve){
+    var renderLoopIndex = 0;
+    var data = (limitedList || _this.modifiedListItems);
+    function render() {
+      // get the next batch of items to render
+      let nextBatch = data.slice(
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+      );
+      if (nextBatch.length) {
+        _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if(iterateeCb && typeof iterateeCb === 'function'){
+          if(renderLoopIndex === 0){
+            _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+          }
+          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
         }
-        iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+        renderLoopIndex++;
+        // if the browser is ready, render
+        requestAnimationFrame(render);
       }
-      renderLoopIndex++;
-      // if the browser is ready, render
-      requestAnimationFrame(render);
-    }
-    else{      
-      _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
-      if(finishCb && typeof finishCb === 'function'){
-        finishCb();
+      else{      
+        _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+        resolve();
       }
     }
-  }
-  // start the initial render
-  requestAnimationFrame(render);
+    // start the initial render
+    requestAnimationFrame(render);
+  });
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -2107,7 +2106,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.prepareToRenderLoop(searchedData);
   _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
-  }, function(){
+  }).then(function(){
     _this.addFilters(_this.modifiedListItems);
   
     if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
@@ -2194,7 +2193,7 @@ DynamicList.prototype.searchData = function(value) {
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML(function(from, to){
       _this.onPartialRender(from, to);
-    }, function(){
+    }).then(function(){
       _this.addFilters(_this.modifiedListItems);
 
       if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
