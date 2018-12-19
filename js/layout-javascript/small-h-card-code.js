@@ -689,10 +689,10 @@ DynamicList.prototype.initialize = function() {
 
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML();
-        // Listeners and Ready
-        _this.attachObservers();
-        _this.onReady();
+        _this.renderLoopHTML().then(function(){
+          // Listeners and Ready
+          _this.attachObservers();
+        });
       });
   }
 
@@ -744,14 +744,11 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML();
+      _this.renderLoopHTML().then(function(){
+        _this.attachObservers();
+      });
       return;
     })
-    .then(function() {
-      // Listeners and Ready
-      _this.attachObservers();
-      _this.onReady();
-    });
 }
 
 DynamicList.prototype.checkIsToOpen = function() {
@@ -999,7 +996,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
+DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   // Function that renders the List template
   var _this = this;
 
@@ -1016,21 +1013,33 @@ DynamicList.prototype.renderLoopHTML = function(records) {
 
   var renderLoopIndex = 0;
   var data = (limitedList || _this.modifiedListItems);
-  function render() {
-    // get the next batch of items to render
-    let nextBatch = data.slice(
-      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
-      renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
-    );
-    if (nextBatch.length) {
-      _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-      renderLoopIndex++;
-      // if the browser is ready, render
-      requestAnimationFrame(render);
+  return new Promise(function(resolve){
+    function render() {
+      // get the next batch of items to render
+      let nextBatch = data.slice(
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+      );
+      if (nextBatch.length) {
+        _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if(iterateeCb && typeof iterateeCb === 'function'){
+          if(renderLoopIndex === 0){
+            _this.$container.find('.new-small-h-card-list-container').addClass('ready');
+          }
+          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+        }
+        renderLoopIndex++;
+        // if the browser is ready, render
+        requestAnimationFrame(render);
+      }
+      else{      
+        _this.$container.find('.new-small-h-card-list-container').addClass('ready');
+        resolve();
+      }
     }
-  }
-  // start the initial render
-  requestAnimationFrame(render);
+    // start the initial render
+    requestAnimationFrame(render);
+})
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1083,14 +1092,6 @@ DynamicList.prototype.getPermissions = function(entries) {
   });
 
   return entries;
-}
-
-DynamicList.prototype.onReady = function() {
-  // Function called when it's ready to show the list and remove the Loading
-  var _this = this;
-
-  // Ready
-  _this.$container.find('.new-small-h-card-list-container').addClass('ready');
 }
 
 DynamicList.prototype.openLinkAction = function(entryId) {
