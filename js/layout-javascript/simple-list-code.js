@@ -1055,7 +1055,7 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
         dataToGetFile.push(userData);
       } else if (_this.data.userFolderOption === 'url' && _this.data.userPhotoColumn) {
         if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn])) {
-          users[index].data[_this.data.userPhotoColumn] = '';
+          listItems[index].data[_this.data.userPhotoColumn] = '';
         }
       }
     }
