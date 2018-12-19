@@ -153,6 +153,62 @@ function linkProviderInit() {
   });
 }
 
+function initUserFilePickerProvider(userFolder) {
+  Fliplet.Widget.toggleSaveButton(userFolder.folder && userFolder.folder.selectFiles && userFolder.folder.selectFiles.length > 0);
+  Fliplet.Studio.emit('widget-save-label-update', {
+    text: 'Select'
+  });
+
+  userFolder.folder = $.extend(true, {
+    selectedFiles: {},
+    selectFiles: [], // To use the restore on File Picker
+    selectMultiple: false,
+    type: 'folder',
+    provId: userFolder.id
+  }, userFolder.folder);
+
+  var providerFilePickerInstance = Fliplet.Widget.open('com.fliplet.file-picker', {
+    data: userFolder.folder,
+    onEvent: function(e, data) {
+      switch (e) {
+        case 'widget-rendered':
+          break;
+        case 'widget-set-info':
+          Fliplet.Widget.toggleSaveButton(!!data.length);
+          var msg = data.length ? data.length + ' files selected' : 'no selected files';
+          Fliplet.Widget.info(msg);
+          break;
+        default:
+          break;
+      }
+    }
+  });
+
+  providerFilePickerInstance.then(function(data) {
+    Fliplet.Widget.info('');
+    Fliplet.Widget.toggleCancelButton(true);
+    Fliplet.Widget.toggleSaveButton(true);
+
+    userFolder.folder.selectFiles = data.data.length ? data.data : [];
+    widgetData.userFolder = userFolder;
+
+    var itemProvider = _.find(filePickerPromises, { id: userFolder.folder.provId });
+    itemProvider = null;
+    _.remove(filePickerPromises, { id: userFolder.folder.provId });
+    Fliplet.Studio.emit('widget-save-label-update', {
+      text: 'Save & Close'
+    });
+    if (userFolder.folder.selectFiles.length) {
+      $('.select-photo-folder .file-picker-btn').text('Replace folder');
+      $('.select-photo-folder .selected-user-folder span').text(userFolder.folder.selectFiles[0].name);
+      $('.select-photo-folder .selected-user-folder').removeClass('hidden');
+    }
+  });
+
+  providerFilePickerInstance.id = userFolder.id;
+  filePickerPromises.push(providerFilePickerInstance);
+}
+
 function initFilePickerProvider(field) {
   Fliplet.Widget.toggleSaveButton(field.folder && field.folder.selectFiles && field.folder.selectFiles.length > 0);
 
@@ -239,6 +295,14 @@ function validate(value) {
 
 function attahObservers() {
   $(document)
+    .on('click', '[data-file-picker-user]', function() {
+      var idAttr = $('#select_user_folder_type').attr('id');
+      var userFolder = widgetData.userFolder || {
+        id: idAttr,
+        folder: {}
+      };
+      initUserFilePickerProvider(userFolder);
+    })
     .on('click', '[data-file-picker-summary]', function() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
       var field = _.find(widgetData['summary-fields'], { id: fieldId });
