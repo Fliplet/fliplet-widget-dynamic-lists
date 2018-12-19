@@ -1138,6 +1138,63 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
+DynamicList.prototype.convertFilesForComments = function(users) {
+  var _this = this;
+  var dataToGetFile = [];
+  var promises = [];
+
+  // Test pattern for URLS
+  var urlPattern = /^https?:\/\//i;
+  // Test pattern for BASE64 images
+  var base64Pattern = /^data:image\/[^;]+;base64,/i;
+
+  users.forEach(function(entry, index) {
+    var userData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: {
+        column: undefined
+      }
+    };
+
+    if (_this.data.userPhotoColumn && _this.data.userFolderOption !== 'url') {
+      if (_this.data.userFolderOption === 'app') {
+        userData.query.appId = _this.data.userAppFolder;
+        userData.field.column = _this.data.userPhotoColumn;
+      }
+
+      if (_this.data.userFolderOption === 'organization') {
+        userData.query.organizationId = _this.data.userOrgFolder;
+        userData.field.column = _this.data.userPhotoColumn;
+      }
+
+      if (_this.data.userFolderOption === 'all-folders') {
+        userData.query.folderId = _this.data.userFolder.folder.selectFiles[0].id;
+        userData.field.column = _this.data.userPhotoColumn;
+      }
+
+      dataToGetFile.push(userData);
+    } else if (_this.data.userFolderOption === 'url' && _this.data.userPhotoColumn) {
+      if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn])) {
+        users[index].data[_this.data.userPhotoColumn] = '';
+      }
+    }
+  });
+
+  if (dataToGetFile.length) {
+    dataToGetFile.forEach(function(data) {
+      promises.push(_this.connectToGetFiles(data));
+    });
+  }
+
+  if (promises.length) {
+    return Promise.all(promises);
+  }
+
+  return Promise.resolve(users);
+}
+
 DynamicList.prototype.convertFiles = function(listItems) {
   var _this = this;
   var summaryDataToGetFile = [];
@@ -1951,38 +2008,54 @@ DynamicList.prototype.onReady = function() {
     });
 
     // Get users info
-    _this.connectToUsersDataSource().then(function(users) {
-      _this.allUsers = users;
-      var usersInfoToMention = [];
-      _this.allUsers.forEach(function(user) {
-        var userName = '';
-        var userNickname = '';
-        var counter = 1;
+    _this.connectToUsersDataSource()
+      .then(function(users) {
+        return _this.convertFilesForComments(users);
+      })
+      .then(function(users) {
+        _this.allUsers = users;
 
-        if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-          _this.data.userNameFields.forEach(function(name, i) {
-            userName += user.data[name] + ' ';
-            userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+        // Update my user data
+        if (_this.myUserData) {
+          var myUser = _.find(_this.allUsers, function(user) {
+            return _this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn];
           });
-          userName = userName.trim();
-          userNickname = userNickname.trim();
 
-          counter++;
-        } else {
-          userName = user.data[_this.data.userNameFields[0]];
-          userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+          if (myUser) {
+            _this.myUserData = $.extend(true, _this.myUserData, myUser.data);
+          }
         }
 
-        var userInfo = {
-          id: user.id,
-          username: userNickname,
-          name: userName,
-          image: user.data[_this.data.userPhotoColumn] || ''
-        }
-        usersInfoToMention.push(userInfo);
+        var usersInfoToMention = [];
+        _this.allUsers.forEach(function(user) {
+          var userName = '';
+          var userNickname = '';
+          var counter = 1;
+
+          if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+            _this.data.userNameFields.forEach(function(name, i) {
+              userName += user.data[name] + ' ';
+              userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+            });
+            userName = userName.trim();
+            userNickname = userNickname.trim();
+
+            counter++;
+          } else {
+            userName = user.data[_this.data.userNameFields[0]];
+            userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+          }
+
+          var userInfo = {
+            id: user.id,
+            username: userNickname,
+            name: userName,
+            image: user.data[_this.data.userPhotoColumn] || ''
+          }
+          usersInfoToMention.push(userInfo);
+        });
+        _this.usersToMention = usersInfoToMention;
       });
-      _this.usersToMention = usersInfoToMention;
-    });
   }
 
   // Ready
