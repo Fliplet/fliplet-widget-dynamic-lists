@@ -988,6 +988,14 @@ header .btn,
   margin: 5px 0 0;
 }
 
+.original-row,
+.custom-field-input,
+.custom-label-input,
+.image-field-select {
+  display: flex;
+  align-items: center;
+}
+
 .custom-field-input,
 .custom-label-input,
 .image-field-select {

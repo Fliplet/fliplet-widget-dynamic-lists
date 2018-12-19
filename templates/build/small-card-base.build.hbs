@@ -5,9 +5,15 @@
     <div class="small-card-overlay-screen"></div>
     <div class="small-card-overlay-wrapper">
       <div class="small-card-overlay-header">
-        Filter
-        <div class="small-card-overlay-close">
-          <i class="fa fa-times"></i>
+        <div class="news-feed-overlay-close">
+          <i class="fa fa-angle-left"></i>
+        </div>
+        <div class="filter-header-holder">
+          <span>Filter</span>
+          <div class="filter-header-btn-controls">
+            <div class="btn clear-filters hidden">Clear</div>
+            <div class="btn apply-filters">Apply</div>
+          </div>
         </div>
       </div>
       <div class="small-card-overlay-content">
@@ -72,7 +78,7 @@
         </div>
         \{{/if}}
         \{{#if filtersEnabled}}
-        <div class="filter-holder">
+        <div class="filter-holder inline-filter-holder">
           <!-- Filters here -->
         </div>
         \{{/if}}

@@ -16,7 +16,7 @@
   left: 0;
   z-index: 11;
   background-color: transparent;
-  transform: translate3d(0, 100%, 0);
+  transform: translate3d(100%, 0, 0);
   transition: all 0.2s ease-out;
 }
 
@@ -53,8 +53,8 @@
   height: 44px;
   display: flex;
   align-items: center;
-  padding-left: 15px;
-  padding-right: 44px;
+  padding-right: 15px;
+  padding-left: 44px;
   font-size: 1.2em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -62,6 +62,39 @@
   text-overflow: ellipsis;
   background-color: #232b3f;
   z-index: 2;
+}
+
+.small-card-overlay-header .filter-header-holder {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.filter-header-holder .filter-header-btn-controls {
+  text-transform: none;
+}
+
+.apply-filters {
+  border: 1px solid #337ab7;
+  border-radius: 20px;
+  padding: 4px 10px;
+  background-color: #337ab7;
+}
+
+.clear-filters:hover,
+.apply-filters:hover,
+.clear-filters:focus,
+.apply-filters:focus,
+.clear-filters:active,
+.apply-filters:active,
+.clear-filters:active:hover,
+.apply-filters:active:hover,
+.clear-filters:active:focus,
+.apply-filters:active:focus {
+  color: #fff;
+  box-shadow: none;
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-content {
@@ -84,12 +117,12 @@
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-close {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;
   width: 44px;
   height: 44px;
-  font-size: 1.2em;
+  padding-left: 15px;
+  font-size: 1.8em;
   line-height: 44px;
-  text-align: center;
   z-index: 1;
   cursor: pointer;
 }

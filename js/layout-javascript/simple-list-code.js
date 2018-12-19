@@ -223,7 +223,33 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on('click', '.apply-filters', function() {
+      _this.filterList();
+
+      $(this).parents('.simple-list-search-filter-overlay').removeClass('display');
+      $('body').removeClass('lock');
+    })
+    .on('click', '.clear-filters', function() {
+      $('.mixitup-control-active').removeClass('mixitup-control-active');
+      $(this).addClass('hidden');
+      _this.filterList();
+    })
+    .on('click', '.simple-list-search-filter-overlay .hidden-filter-controls-filter', function() {
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: $(this).text()
+      });
+
+      $(this).toggleClass('mixitup-control-active');
+
+      if ($('.mixitup-control-active').length) {
+        $('.clear-filters').removeClass('hidden');
+      } else {
+        $('.clear-filters').addClass('hidden');
+      }
+    })
+    .on('click', '.inline-filter-holder .hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
@@ -310,6 +336,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
+        $('body').addClass('lock');
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
@@ -333,6 +360,20 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-search-filter-overlay');
       $parentElement.removeClass('display');
+      $('body').removeClass('lock');
+
+      // Resets selected filters if any
+      $('.mixitup-control-active').removeClass('mixitup-control-active');
+
+      if (_this.filterClasses.length) {
+        _this.filterClasses.forEach(function(filter) {
+          $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
+        });
+
+        $('.clear-filters').removeClass('hidden');
+      } else {
+        $('.clear-filters').addClass('hidden');
+      }
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
@@ -910,18 +951,24 @@ DynamicList.prototype.prepareData = function(records) {
 
 DynamicList.prototype.convertFiles = function(listItems) {
   var _this = this;
-  var dataToGetFile = [];
+  var summaryDataToGetFile = [];
+  var detailDataToGetFile = [];
   var promises = [];
 
   // Test pattern for URLS
   var urlPattern = /^https?:\/\//i;
   // Test pattern for BASE64 images
   var base64Pattern = /^data:image\/[^;]+;base64,/i;
-  // Test pattern for Numbers/IDs
-  var numberPattern = /^\d+$/i;
 
   listItems.forEach(function(entry, index) {
-    var data = {
+    var summaryData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    var detailData = {
       query: {},
       entry: entry,
       entryIndex: index,
@@ -931,21 +978,21 @@ DynamicList.prototype.convertFiles = function(listItems) {
     _this.data['summary-fields'].forEach(function(obj) {
       if (obj.type === 'image' && obj.imageField !== 'url') {
         if (obj.imageField === 'app') {
-          data.query.appId = obj.appFolderId;
-          data.field = obj;
+          summaryData.query.appId = obj.appFolderId;
+          summaryData.field = obj;
         }
 
         if (obj.imageField === 'organization') {
-          data.query.organizationId = obj.organizationFolderId;
-          data.field = obj;
+          summaryData.query.organizationId = obj.organizationFolderId;
+          summaryData.field = obj;
         }
 
         if (obj.imageField === 'all-folders') {
-          data.query.folderId = obj.folder.selectFiles[0].id;
-          data.field = obj;
+          summaryData.query.folderId = obj.folder.selectFiles[0].id;
+          summaryData.field = obj;
         }
 
-        dataToGetFile.push(data);
+        summaryDataToGetFile.push(summaryData);
       } else if (obj.type === 'image' && obj.imageField === 'url') {
         if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
           listItems[index].data[obj.column] = '';
@@ -956,21 +1003,21 @@ DynamicList.prototype.convertFiles = function(listItems) {
     _this.data.detailViewOptions.forEach(function(obj) {
       if (obj.type === 'image' && obj.imageField !== 'url') {
         if (obj.imageField === 'app') {
-          data.query.appId = obj.appFolderId;
-          data.field = obj;
+          detailData.query.appId = obj.appFolderId;
+          detailData.field = obj;
         }
 
         if (obj.imageField === 'organization') {
-          data.query.organizationId = obj.organizationFolderId;
-          data.field = obj;
+          detailData.query.organizationId = obj.organizationFolderId;
+          detailData.field = obj;
         }
 
         if (obj.imageField === 'all-folders') {
-          data.query.folderId = obj.folder.selectFiles[0].id;
-          data.field = obj;
+          detailData.query.folderId = obj.folder.selectFiles[0].id;
+          detailData.field = obj;
         }
 
-        dataToGetFile.push(data);
+        detailDataToGetFile.push(detailData);
       } else if (obj.type === 'image' && obj.imageField === 'url') {
         if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
           listItems[index].data[obj.column] = '';
@@ -979,47 +1026,68 @@ DynamicList.prototype.convertFiles = function(listItems) {
     });
   });
 
-  if (dataToGetFile.length) {
-    dataToGetFile.forEach(function(data) {
-      promises.push(Fliplet.Media.Folders.get(data.query)
-        .then(function(response) {
-          var allFiles = response.files;
-
-          allFiles.forEach(function(file) {
-            // Add this IF statement to make the URLs to work with encrypted organizations
-            if (file.isEncrypted) {
-              file.url += '?auth_token=' + Fliplet.User.getAuthToken();
-            }
-
-            if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
-              data.entry.data[data.field.column] = file.url;
-              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
-              data.entry.data['imageUrlEdited'] = true;
-            } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column])) {
-              // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
-              data.entry.data['imageUrlEdited'] = true;
-            } else if (numberPattern.test(data.entry.data[data.field.column])) {
-              var imageId = parseInt(data.entry.data[data.field.column], 10);
-              if (imageId === file.id) {
-                data.entry.data[data.field.column] = file.url;
-                // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
-                data.entry.data['imageUrlEdited'] = true;
-              }
-            }
-          });
-
-          if (!data.entry.data['imageUrlEdited']) {
-            data.entry.data[data.field.column] = '';
-          }
-
-          return data.entry;
-        }));
+  if (summaryDataToGetFile.length) {
+    summaryDataToGetFile.forEach(function(data) {
+      promises.push(_this.connectToGetFiles(data));
     });
-
-    return Promise.all(promises);
-  } else {
-    return Promise.resolve(listItems);
   }
+
+  if (detailDataToGetFile.length) {
+    detailDataToGetFile.forEach(function(data) {
+      promises.push(_this.connectToGetFiles(data));
+    });
+  }
+
+  if (promises.length) {
+    return Promise.all(promises);
+  }
+
+  return Promise.resolve(listItems);
+}
+
+DynamicList.prototype.connectToGetFiles = function(data) {
+  var _this = this;
+
+  return Fliplet.Media.Folders.get(data.query)
+    .then(function(response) {
+      var allFiles = response.files;
+
+      // Test pattern for URLS
+      var urlPattern = /^https?:\/\//i;
+      // Test pattern for BASE64 images
+      var base64Pattern = /^data:image\/[^;]+;base64,/i;
+      // Test pattern for Numbers/IDs
+      var numberPattern = /^\d+$/i;
+
+      allFiles.forEach(function(file) {
+        // Add this IF statement to make the URLs to work with encrypted organizations
+        if (file.isEncrypted) {
+          file.url += '?auth_token=' + Fliplet.User.getAuthToken();
+        }
+
+        if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
+          data.entry.data[data.field.column] = file.url;
+          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+          data.entry.data['imageUrlEdited'] = true;
+        } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column])) {
+          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+          data.entry.data['imageUrlEdited'] = true;
+        } else if (numberPattern.test(data.entry.data[data.field.column])) {
+          var imageId = parseInt(data.entry.data[data.field.column], 10);
+          if (imageId === file.id) {
+            data.entry.data[data.field.column] = file.url;
+            // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+            data.entry.data['imageUrlEdited'] = true;
+          }
+        }
+      });
+
+      if (!data.entry.data['imageUrlEdited']) {
+        data.entry.data[data.field.column] = '';
+      }
+
+      return data.entry;
+    });
 }
 
 DynamicList.prototype.initialize = function() {
@@ -1034,7 +1102,9 @@ DynamicList.prototype.initialize = function() {
 
     return _this.convertFiles(_this.listItems)
       .then(function(response) {
-        _this.listItems = response;
+        _this.listItems = _.uniqBy(response, function (item) {
+          return item.id;
+        });
 
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
@@ -1075,7 +1145,9 @@ DynamicList.prototype.initialize = function() {
       return _this.convertFiles(_this.listItems);
     })
     .then(function(response) {
-      _this.listItems = response;
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
+      });
 
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
