@@ -24,6 +24,8 @@ var DynamicLists = (function() {
   var $detailsRowContainer = $('.detail-table-panels-holder');
   var detailsRowTemplate = Fliplet.Widget.Templates['templates.interface.detail-view-panels'];
 
+  var selectFolderOptions = Fliplet.Widget.Templates['templates.interface.folder-options'];
+
   var tokenField = Fliplet.Widget.Templates['templates.interface.field-token'];
 
   // ADD NEW MAPPING FOR ALL NEW STYLES THAT ARE ADDED
@@ -306,6 +308,15 @@ var DynamicLists = (function() {
             $('.user-datasource-options').addClass('hidden');
             $('.select-user-photo-holder').addClass('hidden');
             $('.select-photo-folder-type').addClass('hidden');
+          }
+        })
+        .on('change', '[name="select_user_folder_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'all-folders') {
+            $('.select-photo-folder').removeClass('hidden');
+          } else {
+            $('.select-photo-folder').addClass('hidden');
           }
         })
         .on('change', '[name="list-control"]', function() {
@@ -642,6 +653,7 @@ var DynamicLists = (function() {
           return _this.getOrganizationInfo();
         })
         .then(function() {
+          _this.addFolderOptions();
           return _this.setupCodeEditors();
         })
         .then(function() {
@@ -659,6 +671,14 @@ var DynamicLists = (function() {
           userOrganization.name = organization.name;
           return;
         });
+    },
+    addFolderOptions: function() {
+      var data = {
+        userOrganization: userOrganization,
+        currentApp: currentApp
+      }
+      var options = selectFolderOptions(data);
+      $('#select_user_folder_type').html(options);
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -1034,6 +1054,16 @@ var DynamicLists = (function() {
               $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
               $('#select_user_admin').val(_this.config.userAdminColumn ? _this.config.userAdminColumn : 'none');
               $('#select_user_email_data').val(_this.config.userListEmailColumn ? _this.config.userListEmailColumn : 'none');
+              $('#select_user_folder_type').val(_this.config.userFolderOption ? _this.config.userFolderOption : 'url').trigger('change');
+              $('.select-photo-folder .file-picker-btn').text(_this.config.userFolder && _this.config.userFolder.folder ? 'Replace folder' : 'Select a folder');
+              $('.select-photo-folder .selected-user-folder span').text(
+                _this.config.userFolder && _this.config.userFolder.folder
+                  ? _this.config.userFolder.folder.selectFiles[0].name
+                  : '');
+              $('.select-photo-folder .selected-user-folder')[
+                _this.config.userFolder && _this.config.userFolder.folder
+                ? 'removeClass'
+                : 'addClass']('hidden');
               $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
 
               if (_this.config.social.comments) {
@@ -2356,6 +2386,9 @@ var DynamicLists = (function() {
       $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.userEmailColumn = $('#select_user_email').val();
       data.userPhotoColumn = $('#select_user_photo').val();
+      data.userFolderOption = $('#select_user_folder_type').val();
+      data.userAppFolder = data.userFolderOption === 'app' ? $('#select_user_folder_type [data-app-option]').data('app-id') : undefined;
+      data.userOrgFolder = data.userFolderOption === 'organization' ? $('#select_user_folder_type [data-org-option]').data('org-id') : undefined;
       data.userAdminColumn = $('#select_user_admin').val();
       data.userListEmailColumn = $('#select_user_email_data').val();
 

@@ -824,7 +824,9 @@ header .btn,
 .select-user-lastname-holder,
 .select-user-email-holder,
 .select-user-photo-holder,
-.select-user-admin-holder {
+.select-photo-folder-type,
+.select-user-admin-holder,
+.select-photo-folder {
   margin-top: 10px;
 }
 
@@ -832,6 +834,7 @@ header .btn,
 .select-user-lastname-holder label,
 .select-user-email-holder label,
 .select-user-photo-holder label,
+.select-photo-folder-type label,
 .select-user-admin-holder label {
   font-weight: normal;
 }
