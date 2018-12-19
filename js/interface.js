@@ -301,9 +301,11 @@ var DynamicLists = (function() {
           if ( $(this).is(":checked") ) {
             $('.user-datasource-options').removeClass('hidden');
             $('.select-user-photo-holder').removeClass('hidden');
+            $('.select-photo-folder-type').removeClass('hidden');
           } else {
             $('.user-datasource-options').addClass('hidden');
             $('.select-user-photo-holder').addClass('hidden');
+            $('.select-photo-folder-type').addClass('hidden');
           }
         })
         .on('change', '[name="list-control"]', function() {
@@ -317,6 +319,19 @@ var DynamicLists = (function() {
           $('.edit-entry-checkbox').find('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
           $('.delete-entry-checkbox').find('.hidden-settings')[values.indexOf('delete-entry') !== -1 ? 'addClass' : 'removeClass']('active');
 
+          $('.select-user-email-list-holder')[
+            (editRadioValues.indexOf('user') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            ? 'removeClass' : 'addClass']('hidden');
+          $('.select-user-admin-holder')[
+            (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
+            || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
             || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
@@ -325,6 +340,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="add-permissions"]', function() {
@@ -340,11 +356,11 @@ var DynamicLists = (function() {
           });
 
           $('.select-user-admin-holder')[
-            addRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
+            (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
+            || (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
@@ -354,6 +370,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="edit-permissions"]', function() {
@@ -369,18 +386,18 @@ var DynamicLists = (function() {
           });
 
           $('.select-user-email-list-holder')[
-            editRadioValues.indexOf('user') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('user') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
+            (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
-            editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || addRadioValues.indexOf('admins') !== -1
+            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
@@ -390,6 +407,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="delete-permissions"]', function() {
@@ -405,18 +423,18 @@ var DynamicLists = (function() {
           });
 
           $('.select-user-email-list-holder')[
-            deleteRadioValues.indexOf('user') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || editRadioValues.indexOf('user') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
+            (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
-            editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || addRadioValues.indexOf('admins') !== -1
+            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
@@ -426,6 +444,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="detail-view-action"]', function() {
@@ -553,6 +572,7 @@ var DynamicLists = (function() {
           $('.select-user-lastname-holder').addClass('hidden');
           $('.select-user-email-holder').addClass('hidden');
           $('.select-user-photo-holder').addClass('hidden');
+          $('.select-photo-folder-type').addClass('hidden');
           $('.select-user-admin-holder').addClass('hidden');
           return;
         }
@@ -1411,6 +1431,7 @@ var DynamicLists = (function() {
 
       if (_this.config.social && _this.config.social.comments) {
         $('.select-user-photo-holder').removeClass('hidden');
+        $('.select-photo-folder-type').removeClass('hidden');
       }
       
       if (_this.config.addPermissions === 'admins'
