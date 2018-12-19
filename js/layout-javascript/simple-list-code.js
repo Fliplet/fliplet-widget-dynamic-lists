@@ -949,65 +949,9 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
-DynamicList.prototype.convertFilesForComments = function(users) {
+DynamicList.prototype.convertFiles = function(listItems, forComments) {
   var _this = this;
   var dataToGetFile = [];
-  var promises = [];
-
-  // Test pattern for URLS
-  var urlPattern = /^https?:\/\//i;
-  // Test pattern for BASE64 images
-  var base64Pattern = /^data:image\/[^;]+;base64,/i;
-
-  users.forEach(function(entry, index) {
-    var userData = {
-      query: {},
-      entry: entry,
-      entryIndex: index,
-      field: {
-        column: undefined
-      }
-    };
-
-    if (_this.data.userPhotoColumn && _this.data.userFolderOption !== 'url') {
-      if (_this.data.userFolderOption === 'app') {
-        userData.query.appId = _this.data.userAppFolder;
-        userData.field.column = _this.data.userPhotoColumn;
-      }
-
-      if (_this.data.userFolderOption === 'organization') {
-        userData.query.organizationId = _this.data.userOrgFolder;
-        userData.field.column = _this.data.userPhotoColumn;
-      }
-
-      if (_this.data.userFolderOption === 'all-folders') {
-        userData.query.folderId = _this.data.userFolder.folder.selectFiles[0].id;
-        userData.field.column = _this.data.userPhotoColumn;
-      }
-
-      dataToGetFile.push(userData);
-    } else if (_this.data.userFolderOption === 'url' && _this.data.userPhotoColumn) {
-      if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn])) {
-        users[index].data[_this.data.userPhotoColumn] = '';
-      }
-    }
-  });
-
-  if (dataToGetFile.length) {
-    dataToGetFile.forEach(function(data) {
-      promises.push(_this.connectToGetFiles(data));
-    });
-  }
-
-  if (promises.length) {
-    return Promise.all(promises);
-  }
-
-  return Promise.resolve(users);
-}
-
-DynamicList.prototype.convertFiles = function(listItems) {
-  var _this = this;
   var summaryDataToGetFile = [];
   var detailDataToGetFile = [];
   var promises = [];
@@ -1032,67 +976,109 @@ DynamicList.prototype.convertFiles = function(listItems) {
       field: undefined
     };
 
-    _this.data['summary-fields'].forEach(function(obj) {
-      if (obj.type === 'image' && obj.imageField !== 'url') {
-        if (obj.imageField === 'app') {
-          summaryData.query.appId = obj.appFolderId;
-          summaryData.field = obj;
+    var userData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: {
+        column: undefined
+      }
+    };
+
+    if (!forComments) {
+      _this.data['summary-fields'].forEach(function(obj) {
+        if (obj.type === 'image' && obj.imageField !== 'url') {
+          if (obj.imageField === 'app') {
+            summaryData.query.appId = obj.appFolderId;
+            summaryData.field = obj;
+          }
+
+          if (obj.imageField === 'organization') {
+            summaryData.query.organizationId = obj.organizationFolderId;
+            summaryData.field = obj;
+          }
+
+          if (obj.imageField === 'all-folders') {
+            summaryData.query.folderId = obj.folder.selectFiles[0].id;
+            summaryData.field = obj;
+          }
+
+          summaryDataToGetFile.push(summaryData);
+        } else if (obj.type === 'image' && obj.imageField === 'url') {
+          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+            listItems[index].data[obj.column] = '';
+          }
+        }
+      });
+
+      _this.data.detailViewOptions.forEach(function(obj) {
+        if (obj.type === 'image' && obj.imageField !== 'url') {
+          if (obj.imageField === 'app') {
+            detailData.query.appId = obj.appFolderId;
+            detailData.field = obj;
+          }
+
+          if (obj.imageField === 'organization') {
+            detailData.query.organizationId = obj.organizationFolderId;
+            detailData.field = obj;
+          }
+
+          if (obj.imageField === 'all-folders') {
+            detailData.query.folderId = obj.folder.selectFiles[0].id;
+            detailData.field = obj;
+          }
+
+          detailDataToGetFile.push(detailData);
+        } else if (obj.type === 'image' && obj.imageField === 'url') {
+          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+            listItems[index].data[obj.column] = '';
+          }
+        }
+      });
+    } else {
+      if (_this.data.userPhotoColumn && _this.data.userFolderOption !== 'url') {
+        if (_this.data.userFolderOption === 'app') {
+          userData.query.appId = _this.data.userAppFolder;
+          userData.field.column = _this.data.userPhotoColumn;
         }
 
-        if (obj.imageField === 'organization') {
-          summaryData.query.organizationId = obj.organizationFolderId;
-          summaryData.field = obj;
+        if (_this.data.userFolderOption === 'organization') {
+          userData.query.organizationId = _this.data.userOrgFolder;
+          userData.field.column = _this.data.userPhotoColumn;
         }
 
-        if (obj.imageField === 'all-folders') {
-          summaryData.query.folderId = obj.folder.selectFiles[0].id;
-          summaryData.field = obj;
+        if (_this.data.userFolderOption === 'all-folders') {
+          userData.query.folderId = _this.data.userFolder.folder.selectFiles[0].id;
+          userData.field.column = _this.data.userPhotoColumn;
         }
 
-        summaryDataToGetFile.push(summaryData);
-      } else if (obj.type === 'image' && obj.imageField === 'url') {
-        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
-          listItems[index].data[obj.column] = '';
+        dataToGetFile.push(userData);
+      } else if (_this.data.userFolderOption === 'url' && _this.data.userPhotoColumn) {
+        if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn])) {
+          users[index].data[_this.data.userPhotoColumn] = '';
         }
       }
-    });
-
-    _this.data.detailViewOptions.forEach(function(obj) {
-      if (obj.type === 'image' && obj.imageField !== 'url') {
-        if (obj.imageField === 'app') {
-          detailData.query.appId = obj.appFolderId;
-          detailData.field = obj;
-        }
-
-        if (obj.imageField === 'organization') {
-          detailData.query.organizationId = obj.organizationFolderId;
-          detailData.field = obj;
-        }
-
-        if (obj.imageField === 'all-folders') {
-          detailData.query.folderId = obj.folder.selectFiles[0].id;
-          detailData.field = obj;
-        }
-
-        detailDataToGetFile.push(detailData);
-      } else if (obj.type === 'image' && obj.imageField === 'url') {
-        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
-          listItems[index].data[obj.column] = '';
-        }
-      }
-    });
+    }
   });
 
-  if (summaryDataToGetFile.length) {
-    summaryDataToGetFile.forEach(function(data) {
-      promises.push(_this.connectToGetFiles(data));
-    });
-  }
+  if (!forComments) {
+    if (summaryDataToGetFile.length) {
+      summaryDataToGetFile.forEach(function(data) {
+        promises.push(_this.connectToGetFiles(data));
+      });
+    }
 
-  if (detailDataToGetFile.length) {
-    detailDataToGetFile.forEach(function(data) {
-      promises.push(_this.connectToGetFiles(data));
-    });
+    if (detailDataToGetFile.length) {
+      detailDataToGetFile.forEach(function(data) {
+        promises.push(_this.connectToGetFiles(data));
+      });
+    }
+  } else {
+    if (dataToGetFile.length) {
+      dataToGetFile.forEach(function(data) {
+        promises.push(_this.connectToGetFiles(data));
+      });
+    }
   }
 
   if (promises.length) {
@@ -1760,7 +1746,7 @@ DynamicList.prototype.onReady = function() {
     // Get users info
     _this.connectToUsersDataSource()
       .then(function(users) {
-        return _this.convertFilesForComments(users);
+        return _this.convertFiles(users, true);
       })
       .then(function(users) {
         _this.allUsers = users;
@@ -1775,7 +1761,7 @@ DynamicList.prototype.onReady = function() {
             _this.myUserData = $.extend(true, _this.myUserData, myUser.data);
           }
         }
-        
+
         var usersInfoToMention = [];
         _this.allUsers.forEach(function(user) {
           var userName = '';
