@@ -1606,6 +1606,7 @@ var DynamicLists = (function() {
 
           var newOption = new Option(ds.name, ds.id, true, true);
           $dataSources.append(newOption).trigger('change');
+          _this.config.dataSourceId = ds.id;
           _this.getColumns(ds.id);
         });
       });   
@@ -2245,7 +2246,7 @@ var DynamicLists = (function() {
       data.advancedSettings = {};
 
       data.layout = listLayout;
-      data.dataSourceId = !toReload && newDataSource ? newDataSource.id : undefined;
+      data.dataSourceId = !toReload && newDataSource ? newDataSource.id : _this.config.dataSourceId || undefined;
       data.dataSourceColumns = dataSourceColumns;
       data.defaultData = toReload || !data.dataSourceId ? true : false;
 
