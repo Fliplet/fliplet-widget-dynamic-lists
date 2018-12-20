@@ -53,7 +53,7 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
-  this.appPages;
+  this.appPages = Fliplet.Env.get('appPages');
 
   /*
    * this specifies the batch size to be used when rendering in chunks
@@ -79,12 +79,8 @@ var DynamicList = function(id, data, container) {
         _this.myUserData.isSaml2 = true;
       }
 
-      return Fliplet.Pages.get();
-    })
-    .then(function (appPages) {
-      _this.appPages = appPages;
       // Start running the Public functions
-      _this.initialize();
+      return _this.initialize();
     });
 };
 
