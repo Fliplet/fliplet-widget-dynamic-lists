@@ -1,7 +1,7 @@
 window.flListLayoutTableColumnConfig = {
   'small-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Linkedin', 'Bio', 'Sectors', 'Expertise'],
   'news-feed': ['Title', 'Date', 'Categories', 'Image', 'Content'],
-  'agenda': ['Title', 'Full Date', 'Start Time', 'End Time', 'Location', 'Content'],
+  'agenda': ['Title', 'Poll', 'Survey', 'Questions', 'Full Date', 'Start Time', 'End Time', 'Location', 'Content'],
   'small-h-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertise'],
   'simple-list': ['Title', 'Image', 'Category', 'Description']
 };
@@ -73,6 +73,9 @@ window.flListLayoutTableConfig = {
   'agenda': [
     {
       'Title': 'Registration and coffee',
+      'Poll': '55754',
+      'Survey': '55755',
+      'Questions': '55756',
       'Full Date': '2018-04-14 09:00',
       'Start Time': '09:00',
       'End Time': '09:45',
@@ -81,6 +84,8 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'What does the future hold',
+      'Poll': '55754',
+      'Survey': '55755',
       'Full Date': '2018-04-14 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',
@@ -89,6 +94,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Team work',
+      'Questions': '55756',
       'Full Date': '2018-04-14 14:00',
       'Start Time': '14:00',
       'End Time': '15:00',
@@ -105,6 +111,8 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Defining success in our industry',
+      'Poll': '55754',
+      'Questions': '55756',
       'Full Date': '2018-04-15 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',
@@ -113,6 +121,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Day 2 round up',
+      'Poll': '55754',
       'Full Date': '2018-04-15 17:00',
       'Start Time': '17:00',
       'End Time': '18:00',
