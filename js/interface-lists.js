@@ -2,9 +2,6 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
 var dynamicLists;
 
-var pollLinkAction;
-var surveyLinkAction;
-var questionsLinkAction;
 var addEntryLinkAction;
 var editEntryLinkAction;
 var linkPollProvider;
@@ -14,31 +11,6 @@ var linkAddEntryProvider;
 var linkEditEntryProvider;
 var filePickerPromises = [];
 var withError = false;
-
-var pollLinkData = $.extend(true, {
-  action: 'screen',
-  page: '',
-  transition: 'fade',
-  options: {
-    hideAction: true
-  }
-}, widgetData.pollLinkAction);
-var surveyLinkData = $.extend(true, {
-  action: 'screen',
-  page: '',
-  transition: 'fade',
-  options: {
-    hideAction: true
-  }
-}, widgetData.surveyLinkAction);
-var questionsLinkData = $.extend(true, {
-  action: 'screen',
-  page: '',
-  transition: 'fade',
-  options: {
-    hideAction: true
-  }
-}, widgetData.questionsLinkAction);
 
 var addEntryLinkData = $.extend(true, {
   action: 'screen',
@@ -58,61 +30,6 @@ var editEntryLinkData = $.extend(true, {
 }, widgetData.editEntryLinkAction);
 
 function linkProviderInit() {
-  linkPollProvider = Fliplet.Widget.open('com.fliplet.link', {
-    // If provided, the iframe will be appended here,
-    // otherwise will be displayed as a full-size iframe overlay
-    selector: '#poll-screen-link',
-    // Also send the data I have locally, so that
-    // the interface gets repopulated with the same stuff
-    data: pollLinkData,
-    // Events fired from the provider
-    onEvent: function(event, data) {
-      if (event === 'interface-validate') {
-        Fliplet.Widget.toggleSaveButton(data.isValid === true);
-      }
-    }
-  });
-  linkPollProvider.then(function(result) {
-    pollLinkAction = result.data || {};
-    linkSurveyProvider.forwardSaveRequest();
-  });
-  linkSurveyProvider = Fliplet.Widget.open('com.fliplet.link', {
-    // If provided, the iframe will be appended here,
-    // otherwise will be displayed as a full-size iframe overlay
-    selector: '#survey-screen-link',
-    // Also send the data I have locally, so that
-    // the interface gets repopulated with the same stuff
-    data: surveyLinkData,
-    // Events fired from the provider
-    onEvent: function(event, data) {
-      if (event === 'interface-validate') {
-        Fliplet.Widget.toggleSaveButton(data.isValid === true);
-      }
-    }
-  });
-  linkSurveyProvider.then(function(result) {
-    surveyLinkAction = result.data || {};
-    linkQuestionsProvider.forwardSaveRequest();
-  });
-  linkQuestionsProvider = Fliplet.Widget.open('com.fliplet.link', {
-    // If provided, the iframe will be appended here,
-    // otherwise will be displayed as a full-size iframe overlay
-    selector: '#questions-screen-link',
-    // Also send the data I have locally, so that
-    // the interface gets repopulated with the same stuff
-    data: questionsLinkData,
-    // Events fired from the provider
-    onEvent: function(event, data) {
-      if (event === 'interface-validate') {
-        Fliplet.Widget.toggleSaveButton(data.isValid === true);
-      }
-    }
-  });
-  linkQuestionsProvider.then(function(result) {
-    questionsLinkAction = result.data || {};
-    linkAddEntryProvider.forwardSaveRequest();
-  });
-
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
     // If provided, the iframe will be appended here,
     // otherwise will be displayed as a full-size iframe overlay
@@ -486,10 +403,6 @@ function attahObservers() {
           }
         }
 
-        if (widgetData.layout === 'agenda') {
-          return linkPollProvider.forwardSaveRequest();
-        }
-
         return linkAddEntryProvider.forwardSaveRequest();
       });
   });
@@ -500,10 +413,6 @@ function attahObservers() {
 }
 
 function save(notifyComplete) {
-  widgetData.pollLinkAction = pollLinkAction;
-  widgetData.surveyLinkAction = surveyLinkAction;
-  widgetData.questionsLinkAction = questionsLinkAction;
-
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
 
