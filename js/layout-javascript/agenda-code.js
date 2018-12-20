@@ -53,6 +53,8 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
+  this.appPages;
+
   /*
    * this specifies the batch size to be used when rendering in chunks
    */
@@ -67,18 +69,23 @@ var DynamicList = function(id, data, container) {
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
   // Get the current session data
-  Fliplet.Session.get().then(function(session) {
-    if (session && session.entries && session.entries.dataSource) {
-      _this.myUserData = session.entries.dataSource.data;
-    } else if (session && session.entries && session.entries.saml2) {
-      _this.myUserData = session.entries.saml2.user;
-      _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
-      _this.myUserData.isSaml2 = true;
-    }
-    
-    // Start running the Public functions
-    _this.initialize();
-  });
+  Fliplet.Session.get()
+    .then(function(session) {
+      if (session && session.entries && session.entries.dataSource) {
+        _this.myUserData = session.entries.dataSource.data;
+      } else if (session && session.entries && session.entries.saml2) {
+        _this.myUserData = session.entries.saml2.user;
+        _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
+        _this.myUserData.isSaml2 = true;
+      }
+
+      return Fliplet.Pages.get();
+    })
+    .then(function (appPages) {
+      _this.appPages = appPages;
+      // Start running the Public functions
+      _this.initialize();
+    });
 };
 
 DynamicList.prototype.registerHandlebarsHelpers = function() {
@@ -156,56 +163,80 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('click', '.go-to-poll', function() {
+      if (!_this.data.pollEnabled || !_this.data.pollColumn) {
+        return;
+      }
+
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
-        return entry.id === entryId;
-      });
       var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
       var data = {
         id: entryId,
         title: entryTitle
       }
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var screenFromColumn = entry.data[_this.data.pollColumn];
+      var screen = _.find(_this.appPages, function(page) {
+        return page.title === screenFromColumn;
+      });
 
-      if (_this.data.pollLinkAction) {
-        Fliplet.App.Storage.set('pollSessionTitle-' + _this.data.pollLinkAction.page, data)
+      if (screen) {
+        Fliplet.App.Storage.set('pollSessionTitle-' + screen.id, data)
           .then(function() {
-            Fliplet.Navigate.to(_this.data.pollLinkAction);
+            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
           });
       }
     })
     .on('click', '.go-to-survey', function() {
+      if (!_this.data.surveyEnabled || !_this.data.surveyColumn) {
+        return;
+      }
+
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
-        return entry.id === entryId;
-      });
       var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
       var data = {
         id: entryId,
         title: entryTitle
       }
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var screenFromColumn = entry.data[_this.data.surveyColumn];
+      var screen = _.find(_this.appPages, function(page) {
+        return page.title === screenFromColumn;
+      });
 
-      if (_this.data.surveyLinkAction) {
-        Fliplet.App.Storage.set('surveySessionTitle-' + _this.data.surveyLinkAction.page, data)
+      if (screen) {
+        Fliplet.App.Storage.set('surveySessionTitle-' + screen.id, data)
           .then(function() {
-            Fliplet.Navigate.to(_this.data.surveyLinkAction);
+            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
           });
       }
     })
     .on('click', '.go-to-questions', function() {
+      if (!_this.data.questionsEnabled || !_this.data.questionsColumn) {
+        return;
+      }
+
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
-        return entry.id === entryId;
-      });
       var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
       var data = {
         id: entryId,
         title: entryTitle
       }
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var screenFromColumn = entry.data[_this.data.questionsColumn];
+      var screen = _.find(_this.appPages, function(page) {
+        return page.title === screenFromColumn;
+      });
 
-      if (_this.data.questionsLinkAction) {
-        Fliplet.App.Storage.set('questionsSessionTitle-' + _this.data.questionsLinkAction.page, data)
+      if (screen) {
+        Fliplet.App.Storage.set('questionsSessionTitle-' + screen.id, data)
           .then(function() {
-            Fliplet.Navigate.to(_this.data.questionsLinkAction);
+            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
           });
       }
     })

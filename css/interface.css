@@ -650,6 +650,10 @@ header .btn,
   margin-bottom: 0;
 }
 
+.agenda-collapse .hidden-settings {
+  padding-bottom: 10px;
+}
+
 /* CODE EDITORS */
 .CodeMirror-lint-tooltip {
   background: #fff;
