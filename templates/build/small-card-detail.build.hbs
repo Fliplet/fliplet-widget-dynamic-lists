@@ -6,6 +6,13 @@
 \{{/if}} 
 <div class="small-card-list-detail-content-scroll-wrapper" data-entry-id="\{{id}}">
   <div class="small-card-list-detail-content-wrapper">
+    \{{#if bookmarksEnabled}}
+    <div class="small-card-bookmark-holder small-card-bookmark-holder-\{{id}}">
+      <!-- Bookmark button will be here -->
+      <!-- Bookmark placeholder -->
+      <i class="fa fa-bookmark-o bookmark-placeholder"></i>
+    </div>
+    \{{/if}}
     <div class="small-card-list-detail-name">\{{[First Name]}} \{{[Last Name]}}</div>
     <div class="small-card-list-detail-role">\{{[Title]}}</div>
     <div class="small-card-list-detail-location">\{{[Location]}}</div>

@@ -1114,25 +1114,13 @@ DynamicList.prototype.prepareData = function(records) {
   // Add flag for likes
   records.forEach(function(obj, i) {
     // Add likes flag
-    if (_this.data.social && _this.data.social.likes) {
-      records[i].likesEnabled = true;
-    } else {
-      records[i].likesEnabled = false;
-    }
+    records[i].likesEnabled = _this.data.social && _this.data.social.likes;
 
     // Add bookmarks flag
-    if (_this.data.social && _this.data.social.bookmark) {
-      records[i].bookmarksEnabled = true;
-    } else {
-      records[i].bookmarksEnabled = false;
-    }
+    records[i].bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
 
     // Add comments flag
-    if (_this.data.social && _this.data.social.comments) {
-      records[i].commentsEnabled = true;
-    } else {
-      records[i].commentsEnabled = false;
-    }
+    records[i].commentsEnabled = _this.data.social && _this.data.social.comments;
   });
 
   return records;

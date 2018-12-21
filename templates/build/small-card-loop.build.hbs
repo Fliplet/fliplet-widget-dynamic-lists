@@ -14,6 +14,13 @@
       <div class="small-card-list-name">\{{[First Name]}} \{{[Last Name]}}</div>
       <div class="small-card-list-role">\{{[Title]}}</div>
       <div class="small-card-list-location">\{{[Location]}}</div>
+      \{{#if bookmarksEnabled}}
+      <div class="small-card-bookmark-holder small-card-bookmark-holder-\{{id}}">
+        <!-- Bookmark button will be here -->
+        <!-- Bookmark placeholder -->
+        <i class="fa fa-bookmark-o fa-lg bookmark-placeholder"></i>
+      </div>
+      \{{/if}}
     </div>
   </div>
   \{{/each}}
