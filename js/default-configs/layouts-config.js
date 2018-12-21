@@ -15,7 +15,7 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': ['list-filter', 'list-search'],
+    'style-specific': ['list-filter', 'list-search', 'list-bookmark'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',

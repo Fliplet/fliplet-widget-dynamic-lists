@@ -629,6 +629,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+  position: relative;
 }
 
 .new-small-card-list-container .small-card-list-name {
@@ -642,6 +643,7 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 1.4;
+  padding-right: 40px;
 }
 
 .new-small-card-list-container .small-card-list-location {
@@ -650,6 +652,33 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 1.6;
+  padding-right: 40px;
+}
+
+.new-small-card-list-container .small-card-bookmark-holder {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+  font-size: 25px;
+}
+
+.small-card-list-detail-content-wrapper .small-card-bookmark-holder {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 15px;
+  font-size: 25px;
+}
+
+.new-small-card-list-container .small-card-bookmark-holder .fa-bookmark-o,
+.small-card-list-detail-content-wrapper .small-card-bookmark-holder .fa-bookmark-o {
+  color: rgba(51,51,51,0.2);
+}
+
+.new-small-card-list-container .small-card-bookmark-holder .fa-bookmark,
+.small-card-list-detail-content-wrapper .small-card-bookmark-holder .fa-bookmark {
+  color: #337ab7;
 }
 
 .new-small-card-list-container .small-card-list-detail-image-wrapper,
