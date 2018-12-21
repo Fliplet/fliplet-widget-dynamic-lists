@@ -741,11 +741,7 @@ DynamicList.prototype.prepareData = function(records) {
   // Add flag for likes
   records.forEach(function(obj, i) {
     // Add bookmarks flag
-    if (_this.data.social && _this.data.social.bookmark) {
-      records[i].bookmarksEnabled = true;
-    } else {
-      records[i].bookmarksEnabled = false;
-    }
+    records[i].bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
   });
 
   return records;
