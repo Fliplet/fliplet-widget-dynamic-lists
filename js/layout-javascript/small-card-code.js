@@ -268,6 +268,11 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.small-card-list-item', function(event) {
       var _that = $(this);
+
+      if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
+        return;
+      }
+      
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-card-list-name').text();
 
