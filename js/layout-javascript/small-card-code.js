@@ -1668,7 +1668,7 @@ DynamicList.prototype.checkBookmarked = function() {
       return;
     }
     _this.$container.find('.btn-bookmarked').each(function(idx, element) {
-      $(element).parents('.simple-list-item').addClass('bookmarked');
+      $(element).parents('.small-card-list-item').addClass('bookmarked');
     });
     checkTimer++;
   }, 1000);
