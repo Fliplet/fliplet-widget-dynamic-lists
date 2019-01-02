@@ -1114,6 +1114,10 @@ DynamicList.prototype.renderBaseHTML = function() {
 }
 
 DynamicList.prototype.convertTime = function(time) {
+  if (!time) {
+    return time = '';
+  }
+
   var hasLetters = !!time.match(/[A-Za-z]/g);
   var format;
   
