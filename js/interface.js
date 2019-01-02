@@ -707,7 +707,8 @@ var DynamicLists = (function() {
             $('#social-accordion').removeClass('hidden');
           }
 
-          if (_this.config.layout === 'small-card' && (typeof _this.config.social === 'undefined' || typeof _this.config.social.bookmark === 'undefined')) {
+          if (_this.config.layout === 'small-card' && _this.config['style-specific'].indexOf('list-bookmark') === -1) {
+            _this.config['style-specific'] = ['list-filter', 'list-search', 'list-bookmark'];
             _this.config.social.bookmark = true;
             $('.list-bookmark').removeClass('hidden');
             $('#social-accordion').removeClass('hidden');
