@@ -707,6 +707,12 @@ var DynamicLists = (function() {
             $('#social-accordion').removeClass('hidden');
           }
 
+          if (_this.config.layout === 'small-card' && (typeof _this.config.social === 'undefined' || typeof _this.config.social.bookmark === 'undefined')) {
+            _this.config.social.bookmark = true;
+            $('.list-bookmark').removeClass('hidden');
+            $('#social-accordion').removeClass('hidden');
+          }
+
           if (_this.config.layout === 'simple-list' && _this.config['style-specific'].indexOf('list-likes') === -1) {
             // Because initial component didn't have this option
             // This makes it backwards compatible
