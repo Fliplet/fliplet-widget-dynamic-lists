@@ -541,6 +541,10 @@ DynamicList.prototype.convertFiles = function(listItems) {
     };
 
     _this.data['summary-fields'].forEach(function(obj) {
+      if (!obj.imageField) {
+        return;
+      }
+
       if (obj.type === 'image' && obj.imageField !== 'url') {
         if (obj.imageField === 'app') {
           summaryData.query.appId = obj.appFolderId;
@@ -566,6 +570,10 @@ DynamicList.prototype.convertFiles = function(listItems) {
     });
 
     _this.data.detailViewOptions.forEach(function(obj) {
+      if (!obj.imageField) {
+        return;
+      }
+
       if (obj.type === 'image' && obj.imageField !== 'url') {
         if (obj.imageField === 'app') {
           detailData.query.appId = obj.appFolderId;
@@ -623,6 +631,10 @@ DynamicList.prototype.connectToGetFiles = function(data) {
       var base64Pattern = /^data:image\/[^;]+;base64,/i;
       // Test pattern for Numbers/IDs
       var numberPattern = /^\d+$/i;
+
+      if (!data.field) {
+        return data.entry;
+      }
 
       allFiles.forEach(function(file) {
         // Add this IF statement to make the URLs to work with encrypted organizations
