@@ -73,9 +73,9 @@ window.flListLayoutTableConfig = {
   'agenda': [
     {
       'Title': 'Registration and coffee',
-      'Poll': '55754',
-      'Survey': '55755',
-      'Questions': '55756',
+      'Poll': 'Session 1 Poll',
+      'Survey': 'Session 1 Survey',
+      'Questions': 'Session 1 Questions',
       'Full Date': '2018-04-14 09:00',
       'Start Time': '09:00',
       'End Time': '09:45',
@@ -84,8 +84,8 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'What does the future hold',
-      'Poll': '55754',
-      'Survey': '55755',
+      'Poll': 'Session 2 Poll',
+      'Survey': 'Session 2 Survey',
       'Full Date': '2018-04-14 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',
@@ -94,7 +94,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Team work',
-      'Questions': '55756',
+      'Questions': 'Session 3 Questions',
       'Full Date': '2018-04-14 14:00',
       'Start Time': '14:00',
       'End Time': '15:00',
@@ -111,8 +111,8 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Defining success in our industry',
-      'Poll': '55754',
-      'Questions': '55756',
+      'Poll': 'Session 5 Poll',
+      'Questions': 'Session 5 Questions',
       'Full Date': '2018-04-15 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',
@@ -121,7 +121,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Day 2 round up',
-      'Poll': '55754',
+      'Poll': 'Session 6 Poll',
       'Full Date': '2018-04-15 17:00',
       'Start Time': '17:00',
       'End Time': '18:00',
