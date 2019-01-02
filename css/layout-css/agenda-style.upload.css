@@ -810,6 +810,10 @@
     padding: 0;
   }
 
+  .agenda-detail-overlay-panel .agenda-detail-overlay-content {
+    padding: 40px;
+  }
+
   .agenda-detail-wrapper .agenda-list-detail-content-wrapper,
   .agenda-detail-overlay.ready .agenda-detail-wrapper .agenda-list-detail-content-wrapper {
     top: 0;
