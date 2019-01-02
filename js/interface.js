@@ -709,7 +709,7 @@ var DynamicLists = (function() {
 
           if (_this.config.layout === 'small-card' && _this.config['style-specific'].indexOf('list-bookmark') === -1) {
             _this.config['style-specific'] = ['list-filter', 'list-search', 'list-bookmark'];
-            _this.config.social.bookmark = true;
+            _this.config.social.bookmark = false;
             $('.list-bookmark').removeClass('hidden');
             $('#social-accordion').removeClass('hidden');
           }
