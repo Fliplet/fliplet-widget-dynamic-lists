@@ -38,6 +38,7 @@
       "vendor/bootstrap-tokenfield.min.js",
       "vendor/select2.css",
       "vendor/select2.full.js",
+      "vendor/unorm.js",
       "js/interface.templates.js",
       "js/build.templates.js",
       "js/layout-mapping/list-layouts.js",
