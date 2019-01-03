@@ -1137,6 +1137,8 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
   var urlPattern = /^https?:\/\//i;
   // Test pattern for BASE64 images
   var base64Pattern = /^data:image\/[^;]+;base64,/i;
+  // Test pattern for DATASOURCES images
+  var datasourcesPattern = /^datasources\//i;
 
   listItems.forEach(function(entry, index) {
     var summaryData = {
@@ -1186,7 +1188,7 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
 
           summaryDataToGetFile.push(summaryData);
         } else if (obj.type === 'image' && obj.imageField === 'url') {
-          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
             listItems[index].data[obj.column] = '';
           }
         }
@@ -1215,7 +1217,7 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
 
           detailDataToGetFile.push(detailData);
         } else if (obj.type === 'image' && obj.imageField === 'url') {
-          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column])) {
+          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
             listItems[index].data[obj.column] = '';
           }
         }
@@ -1239,7 +1241,7 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
 
         dataToGetFile.push(userData);
       } else if (_this.data.userFolderOption === 'url' && _this.data.userPhotoColumn) {
-        if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn])) {
+        if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn]) && !datasourcesPattern.test(entry.data[_this.data.userPhotoColumn])) {
           listItems[index].data[_this.data.userPhotoColumn] = '';
         }
       }
@@ -1284,6 +1286,8 @@ DynamicList.prototype.connectToGetFiles = function(data) {
       var urlPattern = /^https?:\/\//i;
       // Test pattern for BASE64 images
       var base64Pattern = /^data:image\/[^;]+;base64,/i;
+      // Test pattern for DATASOURCES images
+      var datasourcesPattern = /^datasources\//i;
       // Test pattern for Numbers/IDs
       var numberPattern = /^\d+$/i;
 
@@ -1301,7 +1305,7 @@ DynamicList.prototype.connectToGetFiles = function(data) {
           data.entry.data[data.field.column] = file.url;
           // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
           data.entry.data['imageUrlEdited'] = true;
-        } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column])) {
+        } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column]) || datasourcesPattern.test(data.entry.data[data.field.column])) {
           // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
           data.entry.data['imageUrlEdited'] = true;
         } else if (numberPattern.test(data.entry.data[data.field.column])) {
