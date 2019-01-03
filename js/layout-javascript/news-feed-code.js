@@ -390,7 +390,7 @@ DynamicList.prototype.attachObservers = function() {
         $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
       }
     })
-    .on('keydown', '.search-holder input', function(e) {
+    .on('keydown change paste', '.search-holder input', function(e) {
       var $inputField = $(this);
       var value = $inputField.val();
 
