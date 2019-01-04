@@ -53,9 +53,11 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
-  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]());
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]();
+
+  this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
