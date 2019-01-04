@@ -713,7 +713,7 @@
 .agenda-detail-overlay-panel .agenda-detail-overlay-content {
   height: 100%;
   overflow: auto;
-  padding: 40px 15px 15px 15px;
+  padding: 60px 15px 15px 15px;
 }
 
 .agenda-detail-overlay-close.tablet {
@@ -751,6 +751,10 @@
   .agenda-detail-overlay-panel .agenda-detail-overlay-content,
   .agenda-detail-wrapper .agenda-list-detail-content-wrapper {
     padding: 0;
+  }
+
+  .agenda-detail-overlay-panel .agenda-detail-overlay-content {
+    padding: 40px;
   }
 
   .agenda-detail-wrapper .agenda-list-detail-content-wrapper,
