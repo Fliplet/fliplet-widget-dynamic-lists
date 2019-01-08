@@ -1903,6 +1903,7 @@ DynamicList.prototype.clearSearch = function() {
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
   _this.$container.find('.list-search-cancel').removeClass('active');
+  _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
 
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
     _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), false, true);
