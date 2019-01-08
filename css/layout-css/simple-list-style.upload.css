@@ -564,7 +564,8 @@
 }
 
 .loading-holder,
-.no-results-holder {
+.no-results-holder,
+.no-bookmarks-holder {
   text-align: center;
   color: #dddddd;
   cursor: default;
@@ -575,11 +576,13 @@
 .loading .limit-entries-text,
 .filtering .limit-entries-text,
 .searching .limit-entries-text,
-.no-results-holder {
+.no-results-holder,
+.no-bookmarks-holder {
   display: none;
 }
 
-.simple-list-container .no-results ~ .no-results-holder {
+.simple-list-container .no-results ~ .no-results-holder,
+.simple-list-container .no-bookmarks-holder.show {
   display: block;
 }
 

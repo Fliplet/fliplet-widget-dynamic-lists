@@ -2163,6 +2163,10 @@ DynamicList.prototype.overrideSearchData = function(value) {
     _this.mixer.destroy();
   }
 
+  if (_this.data.enabledLimitEntries) {
+    $('.limit-entries-text').addClass('hidden');
+  }
+
   // Remove duplicates
   searchedData = _.uniq(searchedData);
   _this.searchedListItems = searchedData;
@@ -2251,6 +2255,10 @@ DynamicList.prototype.searchData = function(value) {
       _this.mixer.destroy();
     }
 
+    if (_this.data.enabledLimitEntries) {
+      $('.limit-entries-text').addClass('hidden');
+    }
+
     searchedData = _.uniq(searchedData);
     _this.searchedListItems = searchedData;
     _this.prepareToRenderLoop(searchedData);
@@ -2288,6 +2296,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
+  _this.$container.find('.list-search-cancel').removeClass('active');
 
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
     _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'), false, true);
@@ -2297,6 +2306,10 @@ DynamicList.prototype.clearSearch = function() {
 
   if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
+  }
+
+  if (_this.data.enabledLimitEntries) {
+    $('.limit-entries-text').removeClass('hidden');
   }
 
   // Resets list
@@ -2338,6 +2351,30 @@ DynamicList.prototype.initializeMixer = function() {
           action: 'filter',
           label: 'bookmarks'
         });
+      },
+      onMixEnd: function(state, originalEvent) {
+        if (!state.totalShow) {
+          if (_this.data.enabledLimitEntries) {
+            $('.limit-entries-text').addClass('hidden');
+          }
+
+          $('.no-bookmarks-holder').addClass('show');
+          return;
+        }
+
+        if (state.totalShow && state.totalShow === state.totalTargets) {
+          if (_this.data.enabledLimitEntries) {
+            $('.limit-entries-text').removeClass('hidden');
+          }
+
+          $('.no-bookmarks-holder').removeClass('show');
+        } else if (state.totalShow && state.totalShow !== state.totalTargets) {
+          if (_this.data.enabledLimitEntries) {
+            $('.limit-entries-text').addClass('hidden');
+          }
+
+          $('.no-bookmarks-holder').removeClass('show');
+        }
       }
     }
   });

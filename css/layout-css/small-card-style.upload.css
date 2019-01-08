@@ -557,12 +557,14 @@
   outline: none;
 }
 
-.new-small-card-list-container .no-results-holder {
+.new-small-card-list-container .no-results-holder,
+.new-small-card-list-container .no-bookmarks-holder {
   display: none;
 }
 
 .new-small-card-list-container .loading-data,
-.new-small-card-list-container .no-results ~ .no-results-holder {
+.new-small-card-list-container .no-results ~ .no-results-holder,
+.new-small-card-list-container .no-bookmarks-holder.show {
   padding-top: 25px;
   display: block;
   text-align: center;

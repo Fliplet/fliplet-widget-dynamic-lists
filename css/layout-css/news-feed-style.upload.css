@@ -507,7 +507,8 @@
 
 .new-news-feed-list-container .offline-holder,
 .new-news-feed-list-container .loading-holder,
-.new-news-feed-list-container .no-results-holder {
+.new-news-feed-list-container .no-results-holder,
+.new-news-feed-list-container .no-bookmarks-holder {
   text-align: center;
   color: #ddd;
   cursor: default;
@@ -519,12 +520,14 @@
 .loading .limit-entries-text,
 .filtering .limit-entries-text,
 .searching .limit-entries-text,
-.new-news-feed-list-container .no-results-holder {
+.new-news-feed-list-container .no-results-holder,
+.new-news-feed-list-container .no-bookmarks-holder {
   display: none;
 }
 
 .new-news-feed-list-container.offline .offline-holder,
-.new-news-feed-list-container .no-results ~ .no-results-holder {
+.new-news-feed-list-container .no-results ~ .no-results-holder,
+.new-news-feed-list-container .no-bookmarks-holder.show {
   display: block;
 }
 
