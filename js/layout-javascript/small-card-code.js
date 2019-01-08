@@ -1856,6 +1856,10 @@ DynamicList.prototype.searchData = function(value) {
       _this.$container.find('.hidden-filter-controls').addClass('no-results');
     }
 
+    if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
+      _this.mixer.destroy();
+    }
+
     if (_this.data.enabledLimitEntries) {
       $('.limit-entries-text').addClass('hidden');
     }
@@ -1899,6 +1903,10 @@ DynamicList.prototype.clearSearch = function() {
     _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), false, true);
   } else {
     _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+  }
+
+  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
+    _this.mixer.destroy();
   }
 
   if (_this.data.enabledLimitEntries) {
