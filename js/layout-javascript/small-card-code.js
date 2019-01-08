@@ -1718,10 +1718,6 @@ DynamicList.prototype.overrideSearchData = function(value) {
   $inputField.blur();
   _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-filter-controls').addClass('active');
-  _this.$container.find('.list-search-cancel').addClass('active');
-  if (_this.data.filtersInOverlay) {
-    _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
-  }
   
   // Removes cards
   _this.$container.find('#small-card-wrapper-' + _this.data.id).html('');
@@ -1761,9 +1757,8 @@ DynamicList.prototype.overrideSearchData = function(value) {
 
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
   _this.$container.find('.new-small-card-list-container').removeClass('searching');
-  if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
-  }
+
+  _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
 
   if (!searchedData.length) {
     _this.$container.find('.hidden-filter-controls').addClass('no-results');
@@ -1806,8 +1801,6 @@ DynamicList.prototype.searchData = function(value) {
   $inputField.blur();
   _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-filter-controls').addClass('active');
-  _this.$container.find('.list-search-cancel').addClass('active');
-  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
 
   // Removes cards
   _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html('');
@@ -1856,9 +1849,8 @@ DynamicList.prototype.searchData = function(value) {
   executeSearch.then(function (searchedData) {
     _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
     _this.$container.find('.new-small-card-list-container').removeClass('searching');
-    if (!_this.data.filtersInOverlay) {
-      _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
-    }
+
+    _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), true);
 
     if (!searchedData.length) {
       _this.$container.find('.hidden-filter-controls').addClass('no-results');
@@ -1902,8 +1894,6 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
-  _this.$container.find('.list-search-cancel').removeClass('active');
-  _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
 
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
     _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), false, true);

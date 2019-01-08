@@ -67,7 +67,7 @@
 .small-card-overlay-header .filter-header-holder {
   flex: 1;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-left: 5px;
 }
@@ -79,8 +79,12 @@
 .apply-filters {
   border: 1px solid #337ab7;
   border-radius: 20px;
-  padding: 4px 10px;
+  padding: 6px 14px;
   background-color: #337ab7;
+}
+
+.clear-filters {
+  padding: 6px 14px;
 }
 
 .clear-filters:hover,

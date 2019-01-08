@@ -1862,8 +1862,6 @@ DynamicList.prototype.overrideSearchData = function(value) {
   $inputField.blur();
   _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-filter-controls').addClass('active');
-  _this.$container.find('.list-search-cancel').addClass('active');
-  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
@@ -1949,8 +1947,6 @@ DynamicList.prototype.searchData = function(value) {
 
   _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-filter-controls').addClass('active');
-  _this.$container.find('.list-search-cancel').addClass('active');
-  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
 
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
@@ -2054,8 +2050,6 @@ DynamicList.prototype.clearSearch = function() {
   _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
-  _this.$container.find('.list-search-cancel').removeClass('active');
-  _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
 
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
     _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), false, true);

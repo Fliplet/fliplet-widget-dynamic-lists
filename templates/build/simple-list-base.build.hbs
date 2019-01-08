@@ -9,7 +9,6 @@
           <i class="fa fa-angle-left"></i>
         </div>
         <div class="filter-header-holder">
-          <span>Filter</span>
           <div class="filter-header-btn-controls">
             <div class="btn clear-filters hidden">Clear</div>
             <div class="btn apply-filters">Apply</div>
@@ -63,9 +62,7 @@
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/if}}
-      \{{#ifCond filtersInOverlay '!==' true}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
-      \{{/ifCond}}
       \{{#if filtersEnabled}}
       <i class="fa fa-sliders"></i>
       \{{/if}}
@@ -75,27 +72,27 @@
   <!-- End of Top bar -->
 
   <!-- Inline Search and Filters -->
-  \{{#ifCond filtersInOverlay '!==' true}}
-    \{{#ifCond searchEnabled '||' filtersEnabled}}
-    <div class="hidden-filter-controls">
-      <div class="hidden-filter-controls-content">
-        \{{#if searchEnabled}}
-        <div class="hidden-filter-controls-search">
-          <div class="search-query-holder">
-            <div class="search-query">
-            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
-            </div>
+  \{{#ifCond searchEnabled '||' filtersEnabled}}
+  <div class="hidden-filter-controls">
+    <div class="hidden-filter-controls-content">
+      \{{#if searchEnabled}}
+      <div class="hidden-filter-controls-search">
+        <div class="search-query-holder">
+          <div class="search-query">
+          Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
           </div>
         </div>
-        \{{/if}}
+      </div>
+      \{{/if}}
+      \{{#ifCond filtersInOverlay '!==' true}}
         \{{#if filtersEnabled}}
         <div class="filter-holder inline-filter-holder">
           <!-- Filters here -->
         </div>
         \{{/if}}
-      </div>
+      \{{/ifCond}}
     </div>
-    \{{/ifCond}}
+  </div>
   \{{/ifCond}}
   <!-- End of Inline Search and Filters -->
 
