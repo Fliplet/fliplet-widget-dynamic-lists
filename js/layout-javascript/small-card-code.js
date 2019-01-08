@@ -1877,6 +1877,8 @@ DynamicList.prototype.searchData = function(value) {
       _this.onPartialRender(from, to);
     }).then(function(){
       _this.addFilters(_this.modifiedListItems);
+      _this.checkBookmarked();
+      _this.initializeMixer();
     });
   });
 }
