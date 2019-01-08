@@ -980,6 +980,13 @@ var DynamicLists = (function() {
               });
             }
 
+            // Remove fields from detail view that are to be ignored - Only on first load
+            if (fromStart && defaultSettings[listLayout]['detail-fields-ignore']) {
+              _.remove(_this.config.detailViewOptions, function(field) {
+                return defaultSettings[listLayout]['detail-fields-ignore'].indexOf(field.column) >= 0;
+              });
+            }
+
             // TRY TO RESTORE LOST LOCKED FIELDS
             var fieldLocations = [];
             var foundLockedFields = [];

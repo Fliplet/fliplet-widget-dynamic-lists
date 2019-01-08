@@ -74,8 +74,8 @@ window.flListLayoutTableConfig = {
     {
       'Title': 'Registration and coffee',
       'Poll': 'Session 1 Poll',
-      'Survey': 'Session 1 Survey',
-      'Questions': 'Session 1 Questions',
+      'Survey': 'Session Survey',
+      'Questions': 'Session Questions',
       'Full Date': '2018-04-14 09:00',
       'Start Time': '09:00',
       'End Time': '09:45',
@@ -85,7 +85,7 @@ window.flListLayoutTableConfig = {
     {
       'Title': 'What does the future hold',
       'Poll': 'Session 2 Poll',
-      'Survey': 'Session 2 Survey',
+      'Survey': 'Session Survey',
       'Full Date': '2018-04-14 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',
@@ -94,7 +94,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Team work',
-      'Questions': 'Session 3 Questions',
+      'Questions': 'Session Questions',
       'Full Date': '2018-04-14 14:00',
       'Start Time': '14:00',
       'End Time': '15:00',
@@ -112,7 +112,7 @@ window.flListLayoutTableConfig = {
     {
       'Title': 'Defining success in our industry',
       'Poll': 'Session 5 Poll',
-      'Questions': 'Session 5 Questions',
+      'Questions': 'Session Questions',
       'Full Date': '2018-04-15 10:00',
       'Start Time': '10:00',
       'End Time': '11:30',

@@ -200,7 +200,8 @@ window.flListLayoutConfig = {
         paranoid: true,
         helper: 'Full Date'
       }
-    ]
+    ],
+    'detail-fields-ignore': ['Poll', 'Survey', 'Questions']
   },
   'small-h-card': {
     'filtersEnabled': false,
