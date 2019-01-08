@@ -91,6 +91,13 @@
     "commentsDataSourceId:dataSource",
     "userDataSourceId:dataSource",
     "addEntryLinkAction.page:page",
-    "editEntryLinkAction.page:page"
+    "editEntryLinkAction.page:page",
+    "summaryLinkAction.page:page",
+    "summary-fields.$.folder.selectFiles.$.id:mediaFolder",
+    "detailViewOptions.$.folder.selectFiles.$.id:mediaFolder",
+    "summary-fields.$.currentApp.id:mediaFolder",
+    "detailViewOptions.$.currentApp.id:mediaFolder",
+    "summary-fields.$.userOrganization.id:mediaFolder",
+    "detailViewOptions.$.userOrganization.id:mediaFolder"
   ]
 }
