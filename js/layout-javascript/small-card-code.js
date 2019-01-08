@@ -404,7 +404,7 @@ DynamicList.prototype.attachObservers = function() {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
         $elementClicked.removeClass('active');
         $parentElement.find('.list-search-icon .fa-sliders').removeClass('active');
-        $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+        $parentElement.find('.hidden-filter-controls').animate({ height: 0 }, 200);
       }
     })
     .on('keydown change paste', '.search-holder input', function(e) {
@@ -1908,7 +1908,7 @@ DynamicList.prototype.clearSearch = function() {
   if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
     _this.calculateFiltersHeight(_this.$container.find('.new-small-card-list-container'), false, true);
   } else {
-    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+    _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
   }
 
   if (_this.data.enabledLimitEntries) {
