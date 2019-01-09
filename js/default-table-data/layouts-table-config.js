@@ -73,7 +73,7 @@ window.flListLayoutTableConfig = {
   'agenda': [
     {
       'Title': 'Registration and coffee',
-      'Full Date': '2018-04-14 09:00',
+      'Full Date': '2018-04-14',
       'Start Time': '09:00',
       'End Time': '09:45',
       'Location': 'Hotel\'s Restaurant',
@@ -81,7 +81,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'What does the future hold',
-      'Full Date': '2018-04-14 10:00',
+      'Full Date': '2018-04-14',
       'Start Time': '10:00',
       'End Time': '11:30',
       'Location': 'Room 123',
@@ -89,7 +89,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Team work',
-      'Full Date': '2018-04-14 14:00',
+      'Full Date': '2018-04-14',
       'Start Time': '14:00',
       'End Time': '15:00',
       'Location': 'Room 156',
@@ -97,7 +97,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Morning coffee',
-      'Full Date': '2018-04-15 09:00',
+      'Full Date': '2018-04-15',
       'Start Time': '09:00',
       'End Time': '09:45',
       'Location': 'Hotel\'s Restaurant',
@@ -105,7 +105,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Defining success in our industry',
-      'Full Date': '2018-04-15 10:00',
+      'Full Date': '2018-04-15',
       'Start Time': '10:00',
       'End Time': '11:30',
       'Location': 'Room 144',
@@ -113,7 +113,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Day 2 round up',
-      'Full Date': '2018-04-15 17:00',
+      'Full Date': '2018-04-15',
       'Start Time': '17:00',
       'End Time': '18:00',
       'Location': 'Room 101',
