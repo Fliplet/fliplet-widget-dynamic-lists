@@ -573,7 +573,7 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var commentId = $(this).parents('.fl-individual-comment').data('id');
       var $parentContainer = $(this).parents('.fl-individual-comment');
-      var elementToCopy = $(this);
+      var textToCopy = $(this).text().trim();
 
       if ($parentContainer.hasClass('current-user')) {
         Fliplet.UI.Actions({
@@ -581,24 +581,19 @@ DynamicList.prototype.attachObservers = function() {
           labels: [
             {
               label: 'Copy',
-              action: function (i) {
-                elementToCopy.copyText();
-
-                Fliplet.Analytics.trackEvent({
-                  category: 'list_dynamic_' + _this.data.layout,
-                  action: 'comment_copy'
-                });
+              action: {
+                type: 'copyText',
+                text: textToCopy
               }
             },
             {
               label: 'Edit',
               action: function (i) {
                 var $messageArea = $('[data-comment-body]');
-                var textToEdit = elementToCopy.text().trim();
                 _that.parents('.fl-individual-comment').addClass('editing');
                 $('.simple-list-comment-input-holder').addClass('editing');
 
-                $messageArea.val(textToEdit);
+                $messageArea.val(textToCopy);
                 autosize.update($messageArea);
                 $messageArea.focus();
 
@@ -634,6 +629,13 @@ DynamicList.prototype.attachObservers = function() {
             }
           ],
           cancel: 'Cancel'
+        }).then(function(i){
+          if (i === 0) {
+            Fliplet.Analytics.trackEvent({
+              category: 'list_dynamic_' + _this.data.layout,
+              action: 'comment_copy'
+            });
+          }
         });
       } else {
         Fliplet.UI.Actions({
@@ -641,17 +643,20 @@ DynamicList.prototype.attachObservers = function() {
           labels: [
             {
               label: 'Copy',
-              action: function (i) {
-                elementToCopy.copyText();
-
-                Fliplet.Analytics.trackEvent({
-                  category: 'list_dynamic_' + _this.data.layout,
-                  action: 'comment_copy'
-                });
+              action: {
+                type: 'copyText',
+                text: textToCopy
               }
             }
           ],
           cancel: 'Cancel'
+        }).then(function(i){
+          if (i === 0) {
+            Fliplet.Analytics.trackEvent({
+              category: 'list_dynamic_' + _this.data.layout,
+              action: 'comment_copy'
+            });
+          }
         });
       }
 
