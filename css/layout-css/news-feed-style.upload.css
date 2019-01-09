@@ -1010,11 +1010,12 @@
 }
 
 .new-news-feed-comment-panel .news-feed-comment-area {
-  height: 100%;
+  height: calc(100% - 148px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 69px 15px 109px 15px;
-  padding-bottom: calc(109px + env(safe-area-inset-bottom));
+  padding: 0 15px;
+  margin: 54px 0 109px;
+  margin-bottom: calc(109px + env(safe-area-inset-bottom));
   z-index: 1;
 }
 
@@ -1109,10 +1110,6 @@
   display: flex;
   align-items: flex-start;
   margin: 0 -15px 20px;
-}
-
-.new-news-feed-comment-panel .fl-individual-comment:last-child {
-  margin-bottom: 0;
 }
 
 .new-news-feed-comment-panel .top-comment-holder {
