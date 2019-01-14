@@ -282,7 +282,8 @@
   display: inline-block;
 }
 
-.new-news-feed-list-container .hidden-filter-controls {
+.new-news-feed-list-container .hidden-filter-controls,
+.new-news-feed-list-container .hidden-search-controls {
   height: 0;
   overflow: hidden;
   margin: 0 -15px;

@@ -131,7 +131,8 @@
   cursor: pointer;
 }
 
-.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls {
+.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls,
+.new-small-card-list-container .small-card-search-filter-overlay .hidden-search-controls {
   height: auto;
   overflow: initial;
   margin: 0;
@@ -338,7 +339,8 @@
   display: inline-block;
 }
 
-.new-small-card-list-container .hidden-filter-controls {
+.new-small-card-list-container .hidden-filter-controls,
+.new-small-card-list-container .hidden-search-controls {
   height: 0;
   overflow: hidden;
   margin: 0 -15px;

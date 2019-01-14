@@ -67,10 +67,9 @@
   <!-- End of Top bar -->
 
   <!-- Inline Search and Filters -->
-  \{{#ifCond searchEnabled '||' filtersEnabled}}
-  <div class="hidden-filter-controls">
-    <div class="hidden-filter-controls-content">
-      \{{#if searchEnabled}}
+  \{{#if searchEnabled}}
+  <div class="hidden-search-controls">
+    <div class="hidden-search-controls-content">
       <div class="hidden-filter-controls-search">
         <div class="search-query-holder">
           <div class="search-query">
@@ -78,7 +77,12 @@
           </div>
         </div>
       </div>
-      \{{/if}}
+    </div>
+  </div>
+  \{{/if}}
+  \{{#if filtersEnabled}}
+  <div class="hidden-filter-controls">
+    <div class="hidden-filter-controls-content">
       \{{#ifCond filtersInOverlay '!==' true}}
         \{{#if filtersEnabled}}
         <div class="filter-holder inline-filter-holder">
@@ -88,7 +92,7 @@
       \{{/ifCond}}
     </div>
   </div>
-  \{{/ifCond}}
+  \{{/if}}
   <!-- End of Inline Search and Filters -->
 
   <div class="small-card-list-wrapper" id="small-card-list-wrapper-\{{id}}">

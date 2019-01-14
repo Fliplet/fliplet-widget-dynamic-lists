@@ -1839,20 +1839,22 @@ DynamicList.prototype.checkBookmarked = function() {
   }, 1000);
 }
 
-DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch, isClearSearch) {
-  var targetHeight = element.find('.hidden-filter-controls-content').height();
-  var filterHolder = element.find('.filter-holder').height();
-  var totalHeight = targetHeight;
+DynamicList.prototype.calculateFiltersHeight = function(element) {
+  var totalHeight = element.find('.hidden-filter-controls-content').height();
+  
+  element.find('.hidden-filter-controls').animate({
+    height: totalHeight,
+  }, 200);
+}
 
-  if (isFromSearch && filterHolder) {
-    totalHeight = targetHeight - filterHolder;
-  }
+DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
+  var totalHeight = element.find('.hidden-search-controls-content').height();
 
   if (isClearSearch) {
     totalHeight = 0;
   }
   
-  element.find('.hidden-filter-controls').animate({
+  element.find('.hidden-search-controls').animate({
     height: totalHeight,
   }, 200);
 }
@@ -1863,10 +1865,10 @@ DynamicList.prototype.overrideSearchData = function(value) {
   var copyOfValue = value;
   value = value.toLowerCase();
 
-  $inputField.val(copyOfValue);
+  $inputField.val('');
   $inputField.blur();
-  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-search-controls').addClass('active');
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
@@ -1904,14 +1906,14 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
 
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
   _this.$container.find('.simple-list-container').removeClass('searching');
   if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
+    _this.calculateSearchHeight(_this.$container.find('.simple-list-container'));
   }
 
   if (!searchedData.length) {
-    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+    _this.$container.find('.hidden-search-controls').addClass('no-results');
   }
 
   if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
@@ -1947,11 +1949,11 @@ DynamicList.prototype.searchData = function(value) {
   var copyOfValue = value;
   value = value.toLowerCase();
 
-  $inputField.val(copyOfValue);
+  $inputField.val('');
   $inputField.blur();
 
-  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-filter-controls').addClass('active');
+  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-search-controls').addClass('active');
 
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
@@ -1998,14 +2000,14 @@ DynamicList.prototype.searchData = function(value) {
   }
 
   executeSearch.then(function (searchedData) {
-    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
     _this.$container.find('.simple-list-container').removeClass('searching');
     if (!_this.data.filtersInOverlay) {
-      _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
+      _this.calculateSearchHeight(_this.$container.find('.simple-list-container'));
     }
 
     if (!searchedData.length) {
-      _this.$container.find('.hidden-filter-controls').addClass('no-results');
+      _this.$container.find('.hidden-search-controls').addClass('no-results');
     }
 
     if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
@@ -2038,12 +2040,12 @@ DynamicList.prototype.backToSearch = function() {
   // to the search input after searching for a value first
   var _this = this;
 
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
+  _this.$container.find('.hidden-search-controls').removeClass('is-searching search-results');
   
-  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), false, true);
+  if (_this.$container.find('.hidden-search-controls').hasClass('active')) {
+    _this.calculateSearchHeight(_this.$container.find('.simple-list-container'), true);
   } else {
-    _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+    _this.$container.find('.hidden-search-controls').animate({ height: 0 }, 200);
   }
 }
 
@@ -2054,12 +2056,12 @@ DynamicList.prototype.clearSearch = function() {
   // Removes value from search box
   _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
+  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results search-results searching');
 
-  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), false, true);
+  if (_this.$container.find('.hidden-search-controls').hasClass('active')) {
+    _this.calculateSearchHeight(_this.$container.find('.simple-list-container'), true);
   } else {
-    _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+    _this.$container.find('.hidden-search-controls').animate({ height: 0 }, 200);
   }
 
   if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
