@@ -67,7 +67,7 @@
 .news-feed-overlay-header .filter-header-holder {
   flex: 1;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-left: 5px;
 }
@@ -79,8 +79,12 @@
 .apply-filters {
   border: 1px solid #337ab7;
   border-radius: 20px;
-  padding: 4px 10px;
+  padding: 6px 14px;
   background-color: #337ab7;
+}
+
+.clear-filters {
+  padding: 6px 14px;
 }
 
 .clear-filters:hover,
@@ -278,7 +282,8 @@
   display: inline-block;
 }
 
-.new-news-feed-list-container .hidden-filter-controls {
+.new-news-feed-list-container .hidden-filter-controls,
+.new-news-feed-list-container .hidden-search-controls {
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
@@ -507,7 +512,8 @@
 
 .new-news-feed-list-container .offline-holder,
 .new-news-feed-list-container .loading-holder,
-.new-news-feed-list-container .no-results-holder {
+.new-news-feed-list-container .no-results-holder,
+.new-news-feed-list-container .no-bookmarks-holder {
   text-align: center;
   color: #ddd;
   cursor: default;
@@ -519,12 +525,14 @@
 .loading .limit-entries-text,
 .filtering .limit-entries-text,
 .searching .limit-entries-text,
-.new-news-feed-list-container .no-results-holder {
+.new-news-feed-list-container .no-results-holder,
+.new-news-feed-list-container .no-bookmarks-holder {
   display: none;
 }
 
 .new-news-feed-list-container.offline .offline-holder,
-.new-news-feed-list-container .no-results ~ .no-results-holder {
+.new-news-feed-list-container .no-results ~ .no-results-holder,
+.new-news-feed-list-container .no-bookmarks-holder.show {
   display: block;
 }
 
@@ -1003,11 +1011,12 @@
 }
 
 .new-news-feed-comment-panel .news-feed-comment-area {
-  height: 100%;
+  height: calc(100% - 148px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 69px 15px 109px 15px;
-  padding-bottom: calc(109px + env(safe-area-inset-bottom));
+  padding: 0 15px;
+  margin: 54px 0 109px;
+  margin-bottom: calc(109px + env(safe-area-inset-bottom));
   z-index: 1;
 }
 
@@ -1102,10 +1111,6 @@
   display: flex;
   align-items: flex-start;
   margin: 0 -15px 20px;
-}
-
-.new-news-feed-comment-panel .fl-individual-comment:last-child {
-  margin-bottom: 0;
 }
 
 .new-news-feed-comment-panel .top-comment-holder {

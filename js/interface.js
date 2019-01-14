@@ -707,6 +707,13 @@ var DynamicLists = (function() {
             $('#social-accordion').removeClass('hidden');
           }
 
+          if (_this.config.layout === 'small-card' && _this.config['style-specific'].indexOf('list-bookmark') === -1) {
+            _this.config['style-specific'] = ['list-filter', 'list-search', 'list-bookmark'];
+            _this.config.social.bookmark = false;
+            $('.list-bookmark').removeClass('hidden');
+            $('#social-accordion').removeClass('hidden');
+          }
+
           if (_this.config.layout === 'simple-list' && _this.config['style-specific'].indexOf('list-likes') === -1) {
             // Because initial component didn't have this option
             // This makes it backwards compatible
@@ -966,10 +973,17 @@ var DynamicLists = (function() {
             if (_this.config.layout !== 'simple-list') {
               _.forEach(_this.config['summary-fields'], function(field) {
                 _this.config.detailViewOptions.some(function(option, index) {
-                  if (field.column && field.column !== 'none' && field.column === option.column) {
+                  if (field.column && field.column !== 'none' && field.column !== 'custom' && field.column === option.column) {
                     _this.config.detailViewOptions.splice(index, 1);
                   }
                 });
+              });
+            }
+
+            // Remove fields from detail view that are to be ignored - Only on first load
+            if (fromStart && defaultSettings[listLayout]['detail-fields-ignore']) {
+              _.remove(_this.config.detailViewOptions, function(field) {
+                return defaultSettings[listLayout]['detail-fields-ignore'].indexOf(field.column) >= 0;
               });
             }
 

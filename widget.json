@@ -1,7 +1,7 @@
 {
   "name": "List (from data source)",
   "package": "com.fliplet.dynamic-lists",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "icon": "img/icon.png",
   "tags": ["type:component", "category:list", "beta:true"],
   "provider_only": false,
@@ -71,6 +71,7 @@
       "vendor/mixitup.min.js",
       "vendor/mixitup-multifilter.min.js",
       "vendor/autosize.js",
+      "vendor/unorm.js",
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",
@@ -90,6 +91,13 @@
     "commentsDataSourceId:dataSource",
     "userDataSourceId:dataSource",
     "addEntryLinkAction.page:page",
-    "editEntryLinkAction.page:page"
+    "editEntryLinkAction.page:page",
+    "summaryLinkAction.page:page",
+    "summary-fields.$.folder.selectFiles.$.id:mediaFolder",
+    "detailViewOptions.$.folder.selectFiles.$.id:mediaFolder",
+    "summary-fields.$.currentApp.id:mediaFolder",
+    "detailViewOptions.$.currentApp.id:mediaFolder",
+    "summary-fields.$.userOrganization.id:mediaFolder",
+    "detailViewOptions.$.userOrganization.id:mediaFolder"
   ]
 }
