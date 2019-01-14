@@ -214,7 +214,7 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
       return;
     }
 
-    return moment(date).utc().format('MMM Do YYYY');
+    return moment(date).utc().format('DD MMMM YYYY');
   });
 
   Handlebars.registerHelper('removeSpaces', function(context) {
