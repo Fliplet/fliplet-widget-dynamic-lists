@@ -154,7 +154,15 @@ window.flListLayoutConfig = {
         'id': 'ajdmjZrT',
         'orderBy': 'ascending',
         'sortBy': 'date',
-        'title': 'Date - Date - Ascending'
+        'title': 'Full Date - Date - Ascending'
+      },
+      {
+        'column': 'Start Time',
+        'columns': ['Title', 'Full Date', 'Start Time', 'End Time', 'Location', 'Content'],
+        'id': 'bjzxjKrP',
+        'orderBy': 'ascending',
+        'sortBy': 'time',
+        'title': 'Start Time - Date - Ascending'
       }
     ],
     'social': {
