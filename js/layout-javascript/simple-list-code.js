@@ -66,6 +66,11 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
+  /**
+   * this specifies the batch size to be used when rendering in chunks
+   */
+  this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
+
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
   // Register handlebars helpers
@@ -218,7 +223,33 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on('click', '.apply-filters', function() {
+      _this.filterList();
+
+      $(this).parents('.simple-list-search-filter-overlay').removeClass('display');
+      $('body').removeClass('lock');
+    })
+    .on('click', '.clear-filters', function() {
+      $('.mixitup-control-active').removeClass('mixitup-control-active');
+      $(this).addClass('hidden');
+      _this.filterList();
+    })
+    .on('click', '.simple-list-search-filter-overlay .hidden-filter-controls-filter', function() {
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: $(this).text()
+      });
+
+      $(this).toggleClass('mixitup-control-active');
+
+      if ($('.mixitup-control-active').length) {
+        $('.clear-filters').removeClass('hidden');
+      } else {
+        $('.clear-filters').addClass('hidden');
+      }
+    })
+    .on('click', '.inline-filter-holder .hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
@@ -247,7 +278,9 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId })
+          entry: _.find(_this.listItems, { id: entryId }),
+          entryId: entryId,
+          entryTitle: entryTitle
         });
         
         if (!(beforeOpen instanceof Promise)) {
@@ -303,6 +336,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
+        $('body').addClass('lock');
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
@@ -326,6 +360,20 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-search-filter-overlay');
       $parentElement.removeClass('display');
+      $('body').removeClass('lock');
+
+      // Resets selected filters if any
+      $('.mixitup-control-active').removeClass('mixitup-control-active');
+
+      if (_this.filterClasses.length) {
+        _this.filterClasses.forEach(function(filter) {
+          $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
+        });
+
+        $('.clear-filters').removeClass('hidden');
+      } else {
+        $('.clear-filters').addClass('hidden');
+      }
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
@@ -335,10 +383,10 @@ DynamicList.prototype.attachObservers = function() {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
         $elementClicked.removeClass('active');
         $parentElement.find('.list-search-icon .fa-sliders').removeClass('active');
-        $parentElement.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+        $parentElement.find('.hidden-filter-controls').animate({ height: 0 }, 200);
       }
     })
-    .on('keydown', '.search-holder input', function(e) {
+    .on('keydown change paste', '.search-holder input', function(e) {
       var $inputField = $(this);
       var value = $inputField.val();
 
@@ -385,7 +433,7 @@ DynamicList.prototype.attachObservers = function() {
       });
 
       _this.$container.find('.simple-list-container').addClass('searching');
-      _this.isSearching = false;
+      _this.isSearching = true;
       _this.searchData(value);
     })
     .on('click', '.clear-search', function() {
@@ -525,7 +573,7 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var commentId = $(this).parents('.fl-individual-comment').data('id');
       var $parentContainer = $(this).parents('.fl-individual-comment');
-      var elementToCopy = $(this);
+      var textToCopy = $(this).text().trim();
 
       if ($parentContainer.hasClass('current-user')) {
         Fliplet.UI.Actions({
@@ -533,24 +581,19 @@ DynamicList.prototype.attachObservers = function() {
           labels: [
             {
               label: 'Copy',
-              action: function (i) {
-                elementToCopy.copyText();
-
-                Fliplet.Analytics.trackEvent({
-                  category: 'list_dynamic_' + _this.data.layout,
-                  action: 'comment_copy'
-                });
+              action: {
+                type: 'copyText',
+                text: textToCopy
               }
             },
             {
               label: 'Edit',
               action: function (i) {
                 var $messageArea = $('[data-comment-body]');
-                var textToEdit = elementToCopy.text().trim();
                 _that.parents('.fl-individual-comment').addClass('editing');
                 $('.simple-list-comment-input-holder').addClass('editing');
 
-                $messageArea.val(textToEdit);
+                $messageArea.val(textToCopy);
                 autosize.update($messageArea);
                 $messageArea.focus();
 
@@ -586,6 +629,13 @@ DynamicList.prototype.attachObservers = function() {
             }
           ],
           cancel: 'Cancel'
+        }).then(function(i){
+          if (i === 0) {
+            Fliplet.Analytics.trackEvent({
+              category: 'list_dynamic_' + _this.data.layout,
+              action: 'comment_copy'
+            });
+          }
         });
       } else {
         Fliplet.UI.Actions({
@@ -593,17 +643,20 @@ DynamicList.prototype.attachObservers = function() {
           labels: [
             {
               label: 'Copy',
-              action: function (i) {
-                elementToCopy.copyText();
-
-                Fliplet.Analytics.trackEvent({
-                  category: 'list_dynamic_' + _this.data.layout,
-                  action: 'comment_copy'
-                });
+              action: {
+                type: 'copyText',
+                text: textToCopy
               }
             }
           ],
           cancel: 'Cancel'
+        }).then(function(i){
+          if (i === 0) {
+            Fliplet.Analytics.trackEvent({
+              category: 'list_dynamic_' + _this.data.layout,
+              action: 'comment_copy'
+            });
+          }
         });
       }
 
@@ -777,15 +830,13 @@ DynamicList.prototype.filterRecords = function(records, filters) {
 
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
-  var sorted;
-  var ordered;
   var filtered;
 
   // Prepare sorting
   if (_this.data.sortOptions.length) {
     var fields = [];
     var sortOrder = [];
-    var columns = [];
+    var sortColumns = [];
 
     _this.data.sortOptions.forEach(function(option) {
       fields.push({
@@ -828,17 +879,17 @@ DynamicList.prototype.prepareData = function(records) {
           record.data['modified_' + field.column] = record.data['modified_' + field.column];
         }
 
-        columns.push('data[modified_' + field.column + ']');
       });
 
       return record;
     });
 
-    // Sort data
-    sorted = _.sortBy(mappedRecords, columns);
-    ordered = _.orderBy(sorted, columns, sortOrder);
+    sortColumns = fields.map(function (field) {
+      return 'data[modified_' + field.column + ']';
+    })
 
-    records = ordered;
+    // Sort data
+    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
   }
 
   // Prepare filtering
@@ -879,28 +930,216 @@ DynamicList.prototype.prepareData = function(records) {
   // Add flag for likes
   records.forEach(function(obj, i) {
     // Add likes flag
-    if (_this.data.social && _this.data.social.likes) {
-      records[i].likesEnabled = true;
-    } else {
-      records[i].likesEnabled = false;
-    }
+    records[i].likesEnabled = _this.data.social && _this.data.social.likes;
 
     // Add bookmarks flag
-    if (_this.data.social && _this.data.social.bookmark) {
-      records[i].bookmarksEnabled = true;
-    } else {
-      records[i].bookmarksEnabled = false;
-    }
+    records[i].bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
 
     // Add comments flag
-    if (_this.data.social && _this.data.social.comments) {
-      records[i].commentsEnabled = true;
-    } else {
-      records[i].commentsEnabled = false;
-    }
+    records[i].commentsEnabled = _this.data.social && _this.data.social.comments;
   });
 
   return records;
+}
+
+DynamicList.prototype.convertFiles = function(listItems, forComments) {
+  var _this = this;
+  var dataToGetFile = [];
+  var summaryDataToGetFile = [];
+  var detailDataToGetFile = [];
+  var promises = [];
+
+  // Test pattern for URLS
+  var urlPattern = /^https?:\/\//i;
+  // Test pattern for BASE64 images
+  var base64Pattern = /^data:image\/[^;]+;base64,/i;
+  // Test pattern for DATASOURCES images
+  var datasourcesPattern = /^datasources\//i;
+
+  listItems.forEach(function(entry, index) {
+    var summaryData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    var detailData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    var userData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: {
+        column: undefined
+      }
+    };
+
+    if (!forComments) {
+      _this.data['summary-fields'].forEach(function(obj) {
+        if (!obj.imageField) {
+          return;
+        }
+
+        if (obj.type === 'image' && obj.imageField !== 'url') {
+          if (obj.imageField === 'app') {
+            summaryData.query.appId = obj.appFolderId;
+            summaryData.field = obj;
+          }
+
+          if (obj.imageField === 'organization') {
+            summaryData.query.organizationId = obj.organizationFolderId;
+            summaryData.field = obj;
+          }
+
+          if (obj.imageField === 'all-folders') {
+            summaryData.query.folderId = obj.folder.selectFiles[0].id;
+            summaryData.field = obj;
+          }
+
+          summaryDataToGetFile.push(summaryData);
+        } else if (obj.type === 'image' && obj.imageField === 'url') {
+          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
+            listItems[index].data[obj.column] = '';
+          }
+        }
+      });
+
+      _this.data.detailViewOptions.forEach(function(obj) {
+        if (!obj.imageField) {
+          return;
+        }
+
+        if (obj.type === 'image' && obj.imageField !== 'url') {
+          if (obj.imageField === 'app') {
+            detailData.query.appId = obj.appFolderId;
+            detailData.field = obj;
+          }
+
+          if (obj.imageField === 'organization') {
+            detailData.query.organizationId = obj.organizationFolderId;
+            detailData.field = obj;
+          }
+
+          if (obj.imageField === 'all-folders') {
+            detailData.query.folderId = obj.folder.selectFiles[0].id;
+            detailData.field = obj;
+          }
+
+          detailDataToGetFile.push(detailData);
+        } else if (obj.type === 'image' && obj.imageField === 'url') {
+          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
+            listItems[index].data[obj.column] = '';
+          }
+        }
+      });
+    } else {
+      if (_this.data.userPhotoColumn && _this.data.userFolderOption !== 'url') {
+        if (_this.data.userFolderOption === 'app') {
+          userData.query.appId = _this.data.userAppFolder;
+          userData.field.column = _this.data.userPhotoColumn;
+        }
+
+        if (_this.data.userFolderOption === 'organization') {
+          userData.query.organizationId = _this.data.userOrgFolder;
+          userData.field.column = _this.data.userPhotoColumn;
+        }
+
+        if (_this.data.userFolderOption === 'all-folders') {
+          userData.query.folderId = _this.data.userFolder.folder.selectFiles[0].id;
+          userData.field.column = _this.data.userPhotoColumn;
+        }
+
+        dataToGetFile.push(userData);
+      } else if (_this.data.userFolderOption === 'url' && _this.data.userPhotoColumn) {
+        if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn]) && !datasourcesPattern.test(entry.data[_this.data.userPhotoColumn])) {
+          listItems[index].data[_this.data.userPhotoColumn] = '';
+        }
+      }
+    }
+  });
+
+  if (!forComments) {
+    if (summaryDataToGetFile.length) {
+      summaryDataToGetFile.forEach(function(data) {
+        promises.push(_this.connectToGetFiles(data));
+      });
+    }
+
+    if (detailDataToGetFile.length) {
+      detailDataToGetFile.forEach(function(data) {
+        promises.push(_this.connectToGetFiles(data));
+      });
+    }
+  } else {
+    if (dataToGetFile.length) {
+      dataToGetFile.forEach(function(data) {
+        promises.push(_this.connectToGetFiles(data));
+      });
+    }
+  }
+
+  if (promises.length) {
+    return Promise.all(promises);
+  }
+
+  return Promise.resolve(listItems);
+}
+
+DynamicList.prototype.connectToGetFiles = function(data) {
+  var _this = this;
+
+  return Fliplet.Media.Folders.get(data.query)
+    .then(function(response) {
+      var allFiles = response.files;
+
+      // Test pattern for URLS
+      var urlPattern = /^https?:\/\//i;
+      // Test pattern for BASE64 images
+      var base64Pattern = /^data:image\/[^;]+;base64,/i;
+      // Test pattern for DATASOURCES images
+      var datasourcesPattern = /^datasources\//i;
+      // Test pattern for Numbers/IDs
+      var numberPattern = /^\d+$/i;
+
+      if (!data.field) {
+        return data.entry;
+      }
+
+      allFiles.forEach(function(file) {
+        // Add this IF statement to make the URLs to work with encrypted organizations
+        if (file.isEncrypted) {
+          file.url += '?auth_token=' + Fliplet.User.getAuthToken();
+        }
+
+        if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
+          data.entry.data[data.field.column] = file.url;
+          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+          data.entry.data['imageUrlEdited'] = true;
+        } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column]) || datasourcesPattern.test(data.entry.data[data.field.column])) {
+          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+          data.entry.data['imageUrlEdited'] = true;
+        } else if (numberPattern.test(data.entry.data[data.field.column])) {
+          var imageId = parseInt(data.entry.data[data.field.column], 10);
+          if (imageId === file.id) {
+            data.entry.data[data.field.column] = file.url;
+            // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+            data.entry.data['imageUrlEdited'] = true;
+          }
+        }
+      });
+
+      if (!data.entry.data['imageUrlEdited']) {
+        data.entry.data[data.field.column] = '';
+      }
+
+      return data.entry;
+    });
 }
 
 DynamicList.prototype.initialize = function() {
@@ -913,14 +1152,23 @@ DynamicList.prototype.initialize = function() {
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
 
-    // Render Loop HTML
-    _this.prepareToRenderLoop(_this.listItems);
-    _this.renderLoopHTML();
-    _this.addFilters(_this.modifiedListItems);
-    // Listeners and Ready
-    _this.attachObservers();
-    _this.onReady();
-    return;
+    return _this.convertFiles(_this.listItems)
+      .then(function(response) {
+        _this.listItems = _.uniqBy(response, function (item) {
+          return item.id;
+        });
+
+        // Render Loop HTML
+        _this.prepareToRenderLoop(_this.listItems);
+        _this.renderLoopHTML(function(from, to){
+          _this.onPartialRender(from, to);
+        }).then(function(){
+          _this.addFilters(_this.modifiedListItems);
+          _this.attachObservers();
+          _this.checkBookmarked();
+          _this.initializeMixer();
+        });
+      });
   }
 
   // Check if there is a PV for search/filter queries
@@ -943,23 +1191,30 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(dataSource) {
       _this.dataSourceColumns = dataSource.columns;
-      return
+      return;
     })
     .then(function() {
+      return _this.convertFiles(_this.listItems);
+    })
+    .then(function(response) {
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
+      });
+
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML();
-      _this.addFilters(_this.modifiedListItems);
-      _this.prepareToSearch();
-      _this.prepareToFilter();
-      return
+      _this.renderLoopHTML(function(from, to){
+        _this.onPartialRender(from, to);
+      }).then(function(){
+        _this.addFilters(_this.modifiedListItems);
+        _this.prepareToSearch();
+        _this.prepareToFilter();
+        _this.attachObservers();
+        _this.checkBookmarked();
+        _this.initializeMixer();
+      });
     })
-    .then(function() {
-      // Listeners and Ready
-      _this.attachObservers();
-      _this.onReady();
-    });
 }
 
 DynamicList.prototype.checkIsToOpen = function() {
@@ -1202,7 +1457,6 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
 
-  var loopHTML = '';
   var modifiedData = _this.convertCategories(records);
   var loopData = [];
 
@@ -1232,9 +1486,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(records) {
+DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   // Function that renders the List template
   var _this = this;
+
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
@@ -1244,8 +1499,37 @@ DynamicList.prototype.renderLoopHTML = function(records) {
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
   }
+  _this.$container.find('#simple-list-wrapper-' + _this.data.id).empty();
 
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html(template(limitedList || _this.modifiedListItems));
+  var renderLoopIndex = 0;
+  var data = (limitedList || _this.modifiedListItems);
+  return new Promise(function(resolve){
+    function render() {
+      // get the next batch of items to render
+      let nextBatch = data.slice(
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+      );
+      if (nextBatch.length) {
+        _this.$container.find('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if(iterateeCb && typeof iterateeCb === 'function'){
+          if(renderLoopIndex === 0){
+            _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+          }
+          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+        }
+        renderLoopIndex++;
+        // if the browser is ready, render
+        requestAnimationFrame(render);
+      }
+      else{
+        _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+        resolve();
+      }
+    }
+    // start the initial render
+    requestAnimationFrame(render);
+  })
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1362,8 +1646,9 @@ DynamicList.prototype.filterList = function() {
     _this.$container.find('.simple-list-container').removeClass('filtering');
     _this.isFiltering = false;
     _this.prepareToRenderLoop(listData);
-    _this.renderLoopHTML();
-    _this.onReady();
+    _this.renderLoopHTML(function(from, to){
+      _this.onPartialRender(from, to);
+    });
     return;
   }
   
@@ -1390,8 +1675,9 @@ DynamicList.prototype.filterList = function() {
   _this.$container.find('.simple-list-container').addClass('filtering');
   _this.isFiltering = true;
   _this.prepareToRenderLoop(filteredData);
-  _this.renderLoopHTML();
-  _this.onReady();
+  _this.renderLoopHTML(function(from, to){
+    _this.onPartialRender(from, to);
+  });
 }
 
 DynamicList.prototype.splitByCommas = function(str) {
@@ -1451,12 +1737,12 @@ DynamicList.prototype.convertCategories = function(data) {
   return data;
 }
 
-DynamicList.prototype.onReady = function() {
+DynamicList.prototype.onPartialRender = function(from, to) {
   // Function called when it's ready to show the list and remove the Loading
   var _this = this;
 
   if (_this.data.social && _this.data.social.likes) {
-    _this.$container.find('.simple-list-item').each(function(index, element) {
+    _this.$container.find('.simple-list-item').slice(from, to).each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-like';
       var title = $(element).find('.list-item-body .list-item-title').text();
@@ -1465,8 +1751,7 @@ DynamicList.prototype.onReady = function() {
   }
 
   if (_this.data.social && _this.data.social.bookmark) {
-    _this.initializeMixer();
-    _this.$container.find('.simple-list-item').each(function(index, element) {
+    _this.$container.find('.simple-list-item').slice(from, to).each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-bookmark';
       var title = $(element).find('.list-item-body .list-item-title').text();
@@ -1479,47 +1764,65 @@ DynamicList.prototype.onReady = function() {
   }
 
   if (_this.data.social && _this.data.social.comments) {
-    _this.$container.find('.simple-list-item').each(function(index, element) {
+    _this.$container.find('.simple-list-item').slice(from, to).each(function(index, element) {
       _this.getCommentsCount(element);
     });
 
     // Get users info
-    _this.connectToUsersDataSource().then(function(users) {
-      _this.allUsers = users;
-      var usersInfoToMention = [];
-      _this.allUsers.forEach(function(user) {
-        var userName = '';
-        var userNickname = '';
-        var counter = 1;
+    _this.connectToUsersDataSource()
+      .then(function(users) {
+        return _this.convertFiles(users, true);
+      })
+      .then(function(users) {
+        _this.allUsers = users;
 
-        if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-          _this.data.userNameFields.forEach(function(name, i) {
-            userName += user.data[name] + ' ';
-            userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+        // Update my user data
+        if (_this.myUserData) {
+          var myUser = _.find(_this.allUsers, function(user) {
+            return _this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn];
           });
-          userName = userName.trim();
-          userNickname = userNickname.trim();
 
-          counter++;
-        } else {
-          userName = user.data[_this.data.userNameFields[0]];
-          userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+          if (myUser) {
+            _this.myUserData = $.extend(true, _this.myUserData, myUser.data);
+          }
         }
 
-        var userInfo = {
-          id: user.id,
-          username: userNickname,
-          name: userName,
-          image: user.data[_this.data.userPhotoColumn] || ''
-        }
-        usersInfoToMention.push(userInfo);
+        var usersInfoToMention = [];
+        _this.allUsers.forEach(function(user) {
+          var userName = '';
+          var userNickname = '';
+          var counter = 1;
+
+          if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
+            _this.data.userNameFields.forEach(function(name, i) {
+              userName += user.data[name] + ' ';
+              userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+            });
+            userName = userName.trim();
+            userNickname = userNickname.trim();
+
+            counter++;
+          } else {
+            userName = user.data[_this.data.userNameFields[0]];
+            userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+          }
+
+          var userInfo = {
+            id: user.id,
+            username: userNickname,
+            name: userName,
+            image: user.data[_this.data.userPhotoColumn] || ''
+          }
+          usersInfoToMention.push(userInfo);
+        });
+        _this.usersToMention = usersInfoToMention;
       });
-      _this.usersToMention = usersInfoToMention;
-    });
   }
+}
 
-  // Ready
-  _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+// Function to add class to card marking it as bookmarked - for filtering
+DynamicList.prototype.checkBookmarked = function() {
+  var _this = this;
 
   // Wait for bookmark to appear on the page
   var checkTimer = 0;
@@ -1529,34 +1832,29 @@ DynamicList.prototype.onReady = function() {
       clearInterval(checkInterval);
       return;
     }
-    _this.checkBookmarked();
+    _this.$container.find('.btn-bookmarked').each(function(idx, element) {
+      $(element).parents('.simple-list-item').addClass('bookmarked');
+    });
     checkTimer++;
   }, 1000);
 }
 
-// Function to add class to card marking it as bookmarked - for filtering
-DynamicList.prototype.checkBookmarked = function() {
-  var _this = this;
-
-  _this.$container.find('.btn-bookmarked').each(function(idx, element) {
-    $(element).parents('.simple-list-item').addClass('bookmarked');
-  });
+DynamicList.prototype.calculateFiltersHeight = function(element) {
+  var totalHeight = element.find('.hidden-filter-controls-content').height();
+  
+  element.find('.hidden-filter-controls').animate({
+    height: totalHeight,
+  }, 200);
 }
 
-DynamicList.prototype.calculateFiltersHeight = function(element, isFromSearch, isClearSearch) {
-  var targetHeight = element.find('.hidden-filter-controls-content').height();
-  var filterHolder = element.find('.filter-holder').height();
-  var totalHeight = targetHeight;
-
-  if (isFromSearch && filterHolder) {
-    totalHeight = targetHeight - filterHolder;
-  }
+DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
+  var totalHeight = element.find('.hidden-search-controls-content').height();
 
   if (isClearSearch) {
     totalHeight = 0;
   }
   
-  element.find('.hidden-filter-controls').animate({
+  element.find('.hidden-search-controls').animate({
     height: totalHeight,
   }, 200);
 }
@@ -1567,12 +1865,10 @@ DynamicList.prototype.overrideSearchData = function(value) {
   var copyOfValue = value;
   value = value.toLowerCase();
 
-  $inputField.val(copyOfValue);
+  $inputField.val('');
   $inputField.blur();
-  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-filter-controls').addClass('active');
-  _this.$container.find('.list-search-cancel').addClass('active');
-  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
+  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-search-controls').addClass('active');
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
@@ -1610,17 +1906,22 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
 
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
+  _this.$container.find('.simple-list-container').removeClass('searching');
   if (!_this.data.filtersInOverlay) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
+    _this.calculateSearchHeight(_this.$container.find('.simple-list-container'));
   }
 
   if (!searchedData.length) {
-    _this.$container.find('.hidden-filter-controls').addClass('no-results');
+    _this.$container.find('.hidden-search-controls').addClass('no-results');
   }
 
   if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
+  }
+
+  if (_this.data.enabledLimitEntries) {
+    $('.limit-entries-text').addClass('hidden');
   }
 
   // Remove duplicates
@@ -1632,9 +1933,13 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
   _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
-  _this.onReady();
+  _this.renderLoopHTML(function(from, to){
+    _this.onPartialRender(from, to);
+  }).then(function(){
+    _this.addFilters(_this.modifiedListItems);
+    _this.checkBookmarked();
+    _this.initializeMixer();
+  });
 }
 
 DynamicList.prototype.searchData = function(value) {
@@ -1644,13 +1949,11 @@ DynamicList.prototype.searchData = function(value) {
   var copyOfValue = value;
   value = value.toLowerCase();
 
-  $inputField.val(copyOfValue);
+  $inputField.val('');
   $inputField.blur();
 
-  _this.$container.find('.hidden-filter-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-filter-controls').addClass('active');
-  _this.$container.find('.list-search-cancel').addClass('active');
-  _this.$container.find('.list-search-cancel ~ .fa-sliders').addClass('active');
+  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-search-controls').addClass('active');
 
   // Removes cards
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
@@ -1697,17 +2000,22 @@ DynamicList.prototype.searchData = function(value) {
   }
 
   executeSearch.then(function (searchedData) {
-    _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
+    _this.$container.find('.simple-list-container').removeClass('searching');
     if (!_this.data.filtersInOverlay) {
-      _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), true);
+      _this.calculateSearchHeight(_this.$container.find('.simple-list-container'));
     }
 
     if (!searchedData.length) {
-      _this.$container.find('.hidden-filter-controls').addClass('no-results');
+      _this.$container.find('.hidden-search-controls').addClass('no-results');
     }
 
     if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
       _this.mixer.destroy();
+    }
+
+    if (_this.data.enabledLimitEntries) {
+      $('.limit-entries-text').addClass('hidden');
     }
 
     // Remove duplicates
@@ -1719,9 +2027,11 @@ DynamicList.prototype.searchData = function(value) {
     }
 
     _this.prepareToRenderLoop(searchedData);
-    _this.renderLoopHTML();
-    _this.addFilters(_this.modifiedListItems);
-    _this.onReady();
+    _this.renderLoopHTML(function(from, to){
+      _this.onPartialRender(from, to);
+    }).then(function(){
+      _this.addFilters(_this.modifiedListItems);
+    });
   });
 }
 
@@ -1730,12 +2040,12 @@ DynamicList.prototype.backToSearch = function() {
   // to the search input after searching for a value first
   var _this = this;
 
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching search-results');
+  _this.$container.find('.hidden-search-controls').removeClass('is-searching search-results');
   
-  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), false, true);
+  if (_this.$container.find('.hidden-search-controls').hasClass('active')) {
+    _this.calculateSearchHeight(_this.$container.find('.simple-list-container'), true);
   } else {
-    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+    _this.$container.find('.hidden-search-controls').animate({ height: 0 }, 200);
   }
 }
 
@@ -1746,24 +2056,32 @@ DynamicList.prototype.clearSearch = function() {
   // Removes value from search box
   _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
-  _this.$container.find('.hidden-filter-controls').removeClass('is-searching no-results search-results searching');
+  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results search-results searching');
 
-  if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'), false, true);
+  if (_this.$container.find('.hidden-search-controls').hasClass('active')) {
+    _this.calculateSearchHeight(_this.$container.find('.simple-list-container'), true);
   } else {
-    _this.$container.find('.hidden-filter-controls').animate({ height: 0, }, 200);
+    _this.$container.find('.hidden-search-controls').animate({ height: 0 }, 200);
   }
 
   if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
   }
 
+  if (_this.data.enabledLimitEntries) {
+    $('.limit-entries-text').removeClass('hidden');
+  }
+
   // Resets list
   _this.searchedListItems = undefined;
   _this.prepareToRenderLoop(_this.listItems);
-  _this.renderLoopHTML();
-  _this.addFilters(_this.modifiedListItems);
-  _this.onReady();
+  _this.renderLoopHTML(function(from, to){
+    _this.onPartialRender(from, to);
+  }).then(function(){
+    _this.addFilters(_this.modifiedListItems);
+    _this.checkBookmarked();
+    _this.initializeMixer();
+  });
 }
 
 DynamicList.prototype.initializeMixer = function() {
@@ -1795,6 +2113,30 @@ DynamicList.prototype.initializeMixer = function() {
           action: 'filter',
           label: 'bookmarks'
         });
+      },
+      onMixEnd: function(state, originalEvent) {
+        if (!state.totalShow) {
+          if (_this.data.enabledLimitEntries) {
+            $('.limit-entries-text').addClass('hidden');
+          }
+
+          $('.no-bookmarks-holder').addClass('show');
+          return;
+        }
+
+        if (state.totalShow && state.totalShow === state.totalTargets) {
+          if (_this.data.enabledLimitEntries) {
+            $('.limit-entries-text').removeClass('hidden');
+          }
+
+          $('.no-bookmarks-holder').removeClass('show');
+        } else if (state.totalShow && state.totalShow !== state.totalTargets) {
+          if (_this.data.enabledLimitEntries) {
+            $('.limit-entries-text').addClass('hidden');
+          }
+
+          $('.no-bookmarks-holder').removeClass('show');
+        }
       }
     }
   });

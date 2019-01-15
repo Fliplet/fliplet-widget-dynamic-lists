@@ -594,23 +594,27 @@ header .btn,
 }
 
 #permissions-accordion.panel-group,
-#social-accordion.panel-group {
+#social-accordion.panel-group,
+#agenda-accordion.panel-group {
   padding: 0;
   margin-bottom: 25px;
 }
 
 #permissions-accordion .panel-heading:hover,
-#social-accordion .panel-heading:hover {
+#social-accordion .panel-heading:hover,
+#agenda-accordion .panel-heading:hover {
   cursor: pointer;
 }
 
 #permissions-accordion .panel-heading h4,
-#social-accordion .panel-heading h4 {
+#social-accordion .panel-heading h4,
+#agenda-accordion .panel-heading h4 {
   padding: 10px 40px 10px 15px;
 }
 
 #permissions-accordion .panel-title .fa,
-#social-accordion .panel-title .fa {
+#social-accordion .panel-title .fa,
+#agenda-accordion .panel-title .fa {
   position: absolute;
   top: 0;
   right: 0;
@@ -622,24 +626,32 @@ header .btn,
 }
 
 #permissions-accordion .panel-heading .fa-chevron-right,
-#social-accordion .panel-heading .fa-chevron-right {
+#social-accordion .panel-heading .fa-chevron-right,
+#agenda-accordion .panel-heading .fa-chevron-right {
   margin: 0;
 }
 
 #permissions-accordion .panel-body,
-#social-accordion .panel-body {
+#social-accordion .panel-body,
+#agenda-accordion .panel-body {
   padding-left: 0;
   padding-right: 0;
 }
 
+.agenda-collapse .form-group,
 .social-collapse .form-group,
 .permissions-collapse .form-group {
   margin-bottom: 15px;
 }
 
+.agenda-collapse .form-group:last-child,
 .social-collapse .form-group:last-child,
 .permissions-collapse .form-group:last-child {
   margin-bottom: 0;
+}
+
+.agenda-collapse .hidden-settings {
+  padding-bottom: 10px;
 }
 
 /* CODE EDITORS */
@@ -816,7 +828,9 @@ header .btn,
 .select-user-lastname-holder,
 .select-user-email-holder,
 .select-user-photo-holder,
-.select-user-admin-holder {
+.select-photo-folder-type,
+.select-user-admin-holder,
+.select-photo-folder {
   margin-top: 10px;
 }
 
@@ -824,6 +838,7 @@ header .btn,
 .select-user-lastname-holder label,
 .select-user-email-holder label,
 .select-user-photo-holder label,
+.select-photo-folder-type label,
 .select-user-admin-holder label {
   font-weight: normal;
 }
@@ -834,7 +849,7 @@ header .btn,
   margin-left: 25px;
   margin-top: 5px;
   margin-bottom: 20px;
-  background-color: #e6eeef;
+  background-color: #ede8eb;
   border-radius: 6px;
 }
 
@@ -909,8 +924,17 @@ header .btn,
 }
 
 .custom-field-input .rTableCell:last-child,
-.custom-label-input .rTableCell:last-child {
+.custom-label-input .rTableCell:last-child,
+.image-field-select .rTableCell:last-child {
   padding-right: 5px;
+}
+
+.image-field-select .rTableCell:nth-child(3) {
+  padding-right: 0;
+}
+
+.image-field-select .rTableCell:nth-child(4) {
+  padding-left: 10px;
 }
 
 .rTableHead.title,
@@ -971,9 +995,27 @@ header .btn,
   margin: 5px 0 0;
 }
 
+.original-row,
 .custom-field-input,
-.custom-label-input {
+.custom-label-input,
+.image-field-select {
+  display: flex;
+  align-items: center;
+}
+
+.custom-field-input,
+.custom-label-input,
+.image-field-select {
   margin-top: 10px;
+}
+
+.image-field-select .selected-folder {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.image-field-select .selected-folder span {
+  font-weight: bold;
 }
 
 .intro-form {
@@ -987,4 +1029,8 @@ header .btn,
 
 .select-user-email-list-holder {
   margin-top: 25px;
+}
+
+.agenda-options-select {
+  margin-bottom: 20px;
 }

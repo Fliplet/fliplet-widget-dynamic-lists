@@ -44,7 +44,7 @@ var DynamicList = function(id, data, container) {
   this.myUserData;
 
   this.listItems;
-  this.modifiedRecords;
+  this.agendasByDay;
   this.dataSourceColumns;
 
   this.queryOpen = false;
@@ -53,25 +53,35 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
-  this.detailHTML = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-  ? Handlebars.compile(this.data.advancedSettings.detailHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]());
+  this.appPages = Fliplet.Env.get('appPages');
+
+  /*
+   * this specifies the batch size to be used when rendering in chunks
+   */
+  this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
+  
+  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]();
+
+  this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
   // Get the current session data
-  Fliplet.Session.get().then(function(session) {
-    if (session && session.entries && session.entries.dataSource) {
-      _this.myUserData = session.entries.dataSource.data;
-    } else if (session && session.entries && session.entries.saml2) {
-      _this.myUserData = session.entries.saml2.user;
-      _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
-      _this.myUserData.isSaml2 = true;
-    }
-    
-    // Start running the Public functions
-    _this.initialize();
-  });
+  Fliplet.Session.get()
+    .then(function(session) {
+      if (session && session.entries && session.entries.dataSource) {
+        _this.myUserData = session.entries.dataSource.data;
+      } else if (session && session.entries && session.entries.saml2) {
+        _this.myUserData = session.entries.saml2.user;
+        _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
+        _this.myUserData.isSaml2 = true;
+      }
+
+      // Start running the Public functions
+      return _this.initialize();
+    });
 };
 
 DynamicList.prototype.registerHandlebarsHelpers = function() {
@@ -148,6 +158,84 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
+    .on('click', '.go-to-poll', function() {
+      if (!_this.data.pollEnabled || !_this.data.pollColumn) {
+        return;
+      }
+
+      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+      var data = {
+        id: entryId,
+        title: entryTitle
+      }
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var screenFromColumn = entry.data[_this.data.pollColumn];
+      var screen = _.find(_this.appPages, function(page) {
+        return page.title === screenFromColumn;
+      });
+
+      if (screen) {
+        Fliplet.App.Storage.set('pollSessionTitle-' + screen.id, data)
+          .then(function() {
+            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
+          });
+      }
+    })
+    .on('click', '.go-to-survey', function() {
+      if (!_this.data.surveyEnabled || !_this.data.surveyColumn) {
+        return;
+      }
+
+      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+      var data = {
+        id: entryId,
+        title: entryTitle
+      }
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var screenFromColumn = entry.data[_this.data.surveyColumn];
+      var screen = _.find(_this.appPages, function(page) {
+        return page.title === screenFromColumn;
+      });
+
+      if (screen) {
+        Fliplet.App.Storage.set('surveySessionTitle-' + screen.id, data)
+          .then(function() {
+            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
+          });
+      }
+    })
+    .on('click', '.go-to-questions', function() {
+      if (!_this.data.questionsEnabled || !_this.data.questionsColumn) {
+        return;
+      }
+
+      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+      var data = {
+        id: entryId,
+        title: entryTitle
+      }
+      var entry = _.find(_this.listItems, function(entry) {
+        return entry.id === entryId;
+      });
+      var screenFromColumn = entry.data[_this.data.questionsColumn];
+      var screen = _.find(_this.appPages, function(page) {
+        return page.title === screenFromColumn;
+      });
+
+      if (screen) {
+        Fliplet.App.Storage.set('questionsSessionTitle-' + screen.id, data)
+          .then(function() {
+            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
+          });
+      }
+    })
     .on('touchstart', '.agenda-list-controls', function(event) {
       $(this).addClass('hover');
     })
@@ -201,7 +289,9 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId })
+          entry: _.find(_this.listItems, { id: entryId }),
+          entryId: entryId,
+          entryTitle: entryTitle
         });
         
         if (!(beforeOpen instanceof Promise)) {
@@ -373,9 +463,9 @@ DynamicList.prototype.attachObservers = function() {
                   var selectedIndex = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
                   _this.renderDatesHTML(_this.listItems, selectedIndex);
                   _this.prepareToRenderLoop(_this.listItems);
-                  _this.renderLoopHTML();
-
-                  _that.text('Delete').removeClass('disabled');
+                  _this.renderLoopHTML(null).then(function(){
+                    _that.text('Delete').removeClass('disabled');
+                  });
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast({
@@ -420,10 +510,8 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 }
 
-DynamicList.prototype.likesObservers = function() {
+DynamicList.prototype.likesObservers = function(button) {
   var _this = this;
-  
-  _this.bookmarkButtons.forEach(function(button) {
     button.btn.on('liked', function(data){
       this.$btn.parents('.agenda-list-item').addClass('bookmarked');
       var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
@@ -443,7 +531,6 @@ DynamicList.prototype.likesObservers = function() {
         label: entryTitle
       });
     });
-  });
 }
 
 DynamicList.prototype.likesObserversOverlay = function(id) {
@@ -556,15 +643,13 @@ DynamicList.prototype.filterRecords = function(records, filters) {
 
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
-  var sorted;
-  var ordered;
   var filtered;
 
   // Prepare sorting
   if (_this.data.sortOptions.length) {
     var fields = [];
     var sortOrder = [];
-    var columns = [];
+    var sortColumns = [];
 
     _this.data.sortOptions.forEach(function(option) {
       fields.push({
@@ -607,17 +692,17 @@ DynamicList.prototype.prepareData = function(records) {
           record.data['modified_' + field.column] = record.data['modified_' + field.column];
         }
 
-        columns.push('data[modified_' + field.column + ']');
       });
 
       return record;
     });
 
-    // Sort data
-    sorted = _.sortBy(mappedRecords, columns);
-    ordered = _.orderBy(sorted, columns, sortOrder);
 
-    records = ordered;
+    sortColumns = fields.map(function (field) {
+      return 'data[modified_' + field.column + ']';
+    })
+    // Sort data
+    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
   }
 
   // Prepare filtering
@@ -658,6 +743,163 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
+DynamicList.prototype.convertFiles = function(listItems) {
+  var _this = this;
+  var summaryDataToGetFile = [];
+  var detailDataToGetFile = [];
+  var promises = [];
+
+  // Test pattern for URLS
+  var urlPattern = /^https?:\/\//i;
+  // Test pattern for BASE64 images
+  var base64Pattern = /^data:image\/[^;]+;base64,/i;
+  // Test pattern for DATASOURCES images
+  var datasourcesPattern = /^datasources\//i;
+
+  listItems.forEach(function(entry, index) {
+    var summaryData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    var detailData = {
+      query: {},
+      entry: entry,
+      entryIndex: index,
+      field: undefined
+    };
+
+    _this.data['summary-fields'].forEach(function(obj) {
+      if (!obj.imageField) {
+        return;
+      }
+
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          summaryData.query.appId = obj.appFolderId;
+          summaryData.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          summaryData.query.organizationId = obj.organizationFolderId;
+          summaryData.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          summaryData.query.folderId = obj.folder.selectFiles[0].id;
+          summaryData.field = obj;
+        }
+
+        summaryDataToGetFile.push(summaryData);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+
+    _this.data.detailViewOptions.forEach(function(obj) {
+      if (!obj.imageField) {
+        return;
+      }
+
+      if (obj.type === 'image' && obj.imageField !== 'url') {
+        if (obj.imageField === 'app') {
+          detailData.query.appId = obj.appFolderId;
+          detailData.field = obj;
+        }
+
+        if (obj.imageField === 'organization') {
+          detailData.query.organizationId = obj.organizationFolderId;
+          detailData.field = obj;
+        }
+
+        if (obj.imageField === 'all-folders') {
+          detailData.query.folderId = obj.folder.selectFiles[0].id;
+          detailData.field = obj;
+        }
+
+        detailDataToGetFile.push(detailData);
+      } else if (obj.type === 'image' && obj.imageField === 'url') {
+        if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
+          listItems[index].data[obj.column] = '';
+        }
+      }
+    });
+  });
+
+  if (summaryDataToGetFile.length) {
+    summaryDataToGetFile.forEach(function(data) {
+      promises.push(_this.connectToGetFiles(data));
+    });
+  }
+
+  if (detailDataToGetFile.length) {
+    detailDataToGetFile.forEach(function(data) {
+      promises.push(_this.connectToGetFiles(data));
+    });
+  }
+
+  if (promises.length) {
+    return Promise.all(promises);
+  }
+
+  return Promise.resolve(listItems);
+}
+
+DynamicList.prototype.connectToGetFiles = function(data) {
+  var _this = this;
+
+  return Fliplet.Media.Folders.get(data.query)
+    .then(function(response) {
+      var allFiles = response.files;
+
+      // Test pattern for URLS
+      var urlPattern = /^https?:\/\//i;
+      // Test pattern for BASE64 images
+      var base64Pattern = /^data:image\/[^;]+;base64,/i;
+      // Test pattern for DATASOURCES images
+      var datasourcesPattern = /^datasources\//i;
+      // Test pattern for Numbers/IDs
+      var numberPattern = /^\d+$/i;
+
+      if (!data.field) {
+        return data.entry;
+      }
+
+      allFiles.forEach(function(file) {
+        // Add this IF statement to make the URLs to work with encrypted organizations
+        if (file.isEncrypted) {
+          file.url += '?auth_token=' + Fliplet.User.getAuthToken();
+        }
+
+        if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
+          data.entry.data[data.field.column] = file.url;
+          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+          data.entry.data['imageUrlEdited'] = true;
+        } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column]) || datasourcesPattern.test(data.entry.data[data.field.column])) {
+          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+          data.entry.data['imageUrlEdited'] = true;
+        } else if (numberPattern.test(data.entry.data[data.field.column])) {
+          var imageId = parseInt(data.entry.data[data.field.column], 10);
+          if (imageId === file.id) {
+            data.entry.data[data.field.column] = file.url;
+            // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
+            data.entry.data['imageUrlEdited'] = true;
+          }
+        }
+      });
+
+      if (!data.entry.data['imageUrlEdited']) {
+        data.entry.data[data.field.column] = '';
+      }
+
+      return data.entry;
+    });
+}
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -668,18 +910,29 @@ DynamicList.prototype.initialize = function() {
 
     var records = _this.prepareData(_this.data.defaultEntries);
     _this.listItems = JSON.parse(JSON.stringify(records));
-    // Render dates HTML
-    _this.renderDatesHTML(_this.listItems);
     _this.dataSourceColumns = _this.data.defaultColumns;
-    // Render Loop HTML
-    _this.prepareToRenderLoop(_this.listItems);
-    _this.renderLoopHTML();
-    // Listeners and Ready
-    _this.setupCards();
-    _this.attachObservers();
-    _this.scrollEvent();
-    _this.onReady();
-    return;
+
+    return _this.convertFiles(_this.listItems)
+      .then(function(response) {
+        _this.listItems = _.uniqBy(response, function (item) {
+          return item.id;
+        });
+
+        // Render dates HTML
+        _this.renderDatesHTML(_this.listItems);
+
+        // Render Loop HTML
+        _this.prepareToRenderLoop(_this.listItems);
+        _this.renderLoopHTML(null).then(function(){
+          // Listeners and Ready
+          _this.initializeMixer();
+          _this.bindTouchEvents();
+          _this.setupCards();
+          _this.attachObservers();
+          _this.scrollEvent();
+          _this.checkBookmarked();
+        });
+      });
   }
 
   // Check if there is a PV for search/filter queries
@@ -706,22 +959,27 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(dataSource) {
       _this.dataSourceColumns = dataSource.columns;
-      return
+      return;
     })
     .then(function() {
+      return _this.convertFiles(_this.listItems);
+    })
+    .then(function(response) {
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
+      });
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML();
-      return
+      _this.renderLoopHTML(null).then(function(){
+        _this.initializeMixer();
+        _this.bindTouchEvents();
+        _this.setupCards();
+        _this.attachObservers();
+        _this.scrollEvent();
+        _this.checkBookmarked();
+      });
     })
-    .then(function() {
-      // Listeners and Ready
-      _this.setupCards();
-      _this.attachObservers();
-      _this.scrollEvent();
-      _this.onReady();
-    });
 }
 
 DynamicList.prototype.checkIsToOpen = function() {
@@ -734,7 +992,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _(_this.modifiedRecords)
+    entry = _(_this.agendasByDay)
       .chain()
       .thru(function(day) {
         return _.union(day, _.map(day, 'children'));
@@ -750,7 +1008,7 @@ DynamicList.prototype.checkIsToOpen = function() {
     };
     queryObject.originalData[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
 
-    entry = _(_this.modifiedRecords)
+    entry = _(_this.agendasByDay)
       .chain()
       .thru(function(day) {
         return _.union(day, _.map(day, 'children'));
@@ -872,6 +1130,10 @@ DynamicList.prototype.renderBaseHTML = function() {
 }
 
 DynamicList.prototype.convertTime = function(time) {
+  if (!time) {
+    return time = '';
+  }
+
   var hasLetters = !!time.match(/[A-Za-z]/g);
   var format;
   
@@ -910,6 +1172,24 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       id: entry.id,
       editEntry: entry.editEntry,
       deleteEntry: entry.deleteEntry,
+      pollButton: _this.data.pollEnabled
+        && entry.data[_this.data.pollColumn]
+        && entry.data[_this.data.pollColumn] !== '',
+      surveyButton: _this.data.surveyEnabled
+        && entry.data[_this.data.surveyColumn]
+        && entry.data[_this.data.surveyColumn] !== '',
+      questionsButton: _this.data.questionsEnabled
+        && entry.data[_this.data.questionsColumn]
+        && entry.data[_this.data.questionsColumn] !== '',
+      agendaButtonsEnabled: (_this.data.pollEnabled
+        && entry.data[_this.data.pollColumn]
+        && entry.data[_this.data.pollColumn] !== '')
+        || (_this.data.surveyEnabled
+        && entry.data[_this.data.surveyColumn]
+        && entry.data[_this.data.surveyColumn] !== '')
+        || (_this.data.questionsEnabled
+        && entry.data[_this.data.questionsColumn]
+        && entry.data[_this.data.questionsColumn] !== ''),
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
       entryDetails: [],
       originalData: entry.data
@@ -941,50 +1221,45 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       }
     });
 
-    loopData.push(newObject);
-  });
-
-  // Define detail view data based on user's settings
-  var detailData = [];
-
-  dynamicData.forEach(function(obj) {
-    clonedRecords.some(function(entryData) {
+    dynamicData.forEach(function(dynamicDataObj) {
       var label = '';
       var labelEnabled = true;
       var content = '';
 
       // Define label
-      if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
-        label = obj.column;
+      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
+        label = dynamicDataObj.column;
       }
-      if (obj.fieldLabel === 'custom-label') {
-        label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      if (dynamicDataObj.fieldLabel === 'custom-label') {
+        label = Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data);
       }
-      if (obj.fieldLabel === 'no-label') {
+      if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
       // Define content
-      if (obj.customFieldEnabled) {
-        content = Handlebars.compile(obj.customField)(entryData.data);
+      if (dynamicDataObj.customFieldEnabled) {
+        content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
       } else {
-        content = entryData.data[obj.column];
+        content = entry.data[dynamicDataObj.column];
       }
       // Define data object
-      var newObject = {
-        id: entryData.id,
+      var newEntryDetail = {
+        id: entry.id,
         content: content,
         label: label,
         labelEnabled: labelEnabled,
-        type: obj.type
+        type: dynamicDataObj.type
       }
-
-      var matchingEntry = _.find(loopData, function(entry) {
-        return entry.id === newObject.id;
-      });
-      matchingEntry.entryDetails.push(newObject);
-      savedColumns.push(obj.column);
-    });
+      newObject.entryDetails.push(newEntryDetail);
   });
+    loopData.push(newObject);
+  });
+
+  // Define detail view data based on user's settings
+
+  savedColumns = dynamicData.map(function(data){ 
+    return data.column;
+  })
 
   // Converts date format
   loopData.forEach(function(obj, index) {
@@ -1018,17 +1293,51 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
     return row[dateField];
   }));
 
-  _this.modifiedRecords = newRecords;
+  _this.agendasByDay = newRecords;
 }
 
-DynamicList.prototype.renderLoopHTML = function() {
+DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   // Function that renders the List template
   var _this = this;
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(_this.modifiedRecords));
+
+  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+    ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
+
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+  }
+  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').empty();
+  return new Promise(function(resolve){
+    // here we need to loop through each agenda
+    var renderLoopIndex = 0;
+    function render() {
+      // get the next batch of items to render
+      var nextBatch = _this.agendasByDay.slice(
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+      );
+      if (nextBatch.length) {
+        _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append(template(nextBatch));
+        if(iterateeCb && typeof iterateeCb === 'function'){
+          if(renderLoopIndex === 0){
+            _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+          }
+          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+        }
+        renderLoopIndex++;
+        // if the browser is ready, render
+        requestAnimationFrame(render);
+      }
+      else{      
+        _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+        resolve();
+      }
+    }
+    // start the initial render
+    requestAnimationFrame(render);
+  });
 }
 
 DynamicList.prototype.renderDatesHTML = function(rows, index) {
@@ -1157,35 +1466,12 @@ DynamicList.prototype.getPermissions = function(entries) {
 DynamicList.prototype.setupCards = function() {
   var _this = this;
 
-  _this.initializeMixer();
-  _this.bindTouchEvents();
-
   // Sets up the like and bookmark buttons
   if (_this.data.social && _this.data.social.bookmark) {
     _this.$container.find('.agenda-list-item').each(function(index, element) {
       _this.prepareSetupBookmark(element);
     });
   }
-}
-
-DynamicList.prototype.onReady = function() {
-  // Function called when it's ready to show the list and remove the Loading
-  var _this = this;
-
-  // Ready
-  _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-
-  // Wait for bookmark to appear on the page
-  var checkTimer = 0;
-  var checkInterval = setInterval(function() {
-    // Check for 10 seconds
-    if (checkTimer > 10) {
-      clearInterval(checkInterval);
-      return;
-    }
-    _this.checkBookmarked();
-    checkTimer++;
-  }, 1000);
 }
 
 /* ANIMATION FOR DATES BACK AND FORWARD */
@@ -1380,8 +1666,7 @@ DynamicList.prototype.centerDate = function() {
 // Functions to setup Fliplet Like
 DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
   var _this = this;
-
-  _this.bookmarkButtons.push({
+  var button = {
     btn: LikeButton({
       target: '.new-agenda-list-container .agenda-item-bookmark-holder-' + id,
       dataSourceId: _this.data.bookmarkDataSourceId,
@@ -1398,7 +1683,9 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
       addType: 'prepend'
     }),
     id: id
-  });
+  };
+  _this.bookmarkButtons.push(button);
+  return button;
 }
 
 DynamicList.prototype.setupBookmarkButtonOverlay = function(id, identifier, title) {
@@ -1436,17 +1723,26 @@ DynamicList.prototype.prepareSetupBookmark = function(element) {
   var bookmarkIndentifier = cardId + '-bookmark';
   var title = $(element).find('.agenda-item-inner-content .agenda-item-title').text();
 
-  _this.setupBookmarkButton(cardId, bookmarkIndentifier, title);
-  _this.likesObservers();
+  var button = _this.setupBookmarkButton(cardId, bookmarkIndentifier, title);
+  _this.likesObservers(button);
 }
 
 // Function to add class to card marking it as bookmarked - for filtering
 DynamicList.prototype.checkBookmarked = function() {
   var _this = this;
-
-  _this.$container.find('.btn-bookmarked').each(function(idx, element) {
-    $(element).parents('.agenda-list-item').addClass('bookmarked');
-  });
+  // Wait for bookmark to appear on the page
+  var checkTimer = 0;
+  var checkInterval = setInterval(function() {
+    // Check for 10 seconds
+    if (checkTimer > 10) {
+      clearInterval(checkInterval);
+      return;
+    }
+    _this.$container.find('.btn-bookmarked').each(function(idx, element) {
+      $(element).parents('.agenda-list-item').addClass('bookmarked');
+    });
+    checkTimer++;
+  }, 1000);
 }
 
 DynamicList.prototype.bindTouchEvents = function() {
@@ -1532,7 +1828,7 @@ DynamicList.prototype.showDetails = function(id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
 
-  var entryData = _(_this.modifiedRecords)
+  var entryData = _(_this.agendasByDay)
     .chain()
     .thru(function(coll) {
       return _.union(coll, _.map(coll, 'children'));

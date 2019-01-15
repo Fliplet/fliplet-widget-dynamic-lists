@@ -3,7 +3,7 @@
     <header>
       <div class="first-row">
         <p>Select a layout</p>
-        <span>Version: 1.3.0 (latest)</span>
+        <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
     </header>
@@ -23,7 +23,7 @@
     <header>
       <div class="first-row">
         <p>Configure your list</p>
-        <span>Version: 1.3.0 (latest)</span>
+        <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
     </header>
@@ -138,6 +138,90 @@
               <label for="enable-filter-overlay">
                 <span class="check"><i class="fa fa-check"></i></span> Display filters as a full screen overlay - <em>This is recommended if you have a long list of filters</em>
               </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="margin-15">
+          <div class="panel-group hidden" id="agenda-accordion">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title" data-toggle="collapse" data-parent="#agenda-accordion" data-target="#collapseZero">
+                  <span class="panel-title-text">Agenda features</span>
+                  <i class="fa fa-chevron-down"></i>
+                </h4>
+              </div>
+              <div id="collapseZero" class="agenda-collapse panel-collapse collapse">
+                <div class="panel-body">
+
+                  <div class="form-group clearfix list-poll">
+                    <div class="col-sm-4 control-label">
+                      <label>Poll</label>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon">
+                        <input type="checkbox" id="enable-poll">
+                        <label for="enable-poll">
+                          <span class="check"><i class="fa fa-check"></i></span> Enable session poll
+                        </label>
+
+                        <div class="hidden-settings">
+                          <p>Select the field that marks which list items will have the button <small>(Required)</small></p>
+                          <select name="select_poll_data" id="select_poll_data" class="form-control agenda-options-select">
+                            <option value="none">-- Select the poll data field</option>
+                            <option disabled>------</option>
+                          </select>
+                          <p class="text-muted"><small>In the column, write the name of the screen that the user should go to when tapping the buttons. If a column is empty then that button won’t show for that session.</small></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group clearfix list-survey">
+                    <div class="col-sm-4 control-label">
+                      <label>Survey</label>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon">
+                        <input type="checkbox" id="enable-survey">
+                        <label for="enable-survey">
+                          <span class="check"><i class="fa fa-check"></i></span> Enable session survey
+                        </label>
+
+                        <div class="hidden-settings">
+                          <p>Select the field that marks which list items will have the button <small>(Required)</small></p>
+                          <select name="select_survey_data" id="select_survey_data" class="form-control agenda-options-select">
+                            <option value="none">-- Select the survey data field</option>
+                            <option disabled>------</option>
+                          </select>
+                          <p class="text-muted"><small>In the column, write the name of the screen that the user should go to when tapping the buttons. If a column is empty then that button won’t show for that session.</small></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group clearfix list-questions">
+                    <div class="col-sm-4 control-label">
+                      <label>Questions</label>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon">
+                        <input type="checkbox" id="enable-questions">
+                        <label for="enable-questions">
+                          <span class="check"><i class="fa fa-check"></i></span> Enable session questions
+                        </label>
+
+                        <div class="hidden-settings">
+                          <p>Select the field that marks which list items will have the button <small>(Required)</small></p>
+                          <select name="select_questions_data" id="select_questions_data" class="form-control agenda-options-select">
+                            <option value="none">-- Select the questions data field</option>
+                            <option disabled>------</option>
+                          </select>
+                          <p class="text-muted"><small>In the column, write the name of the screen that the user should go to when tapping the buttons. If a column is empty then that button won’t show for that session.</small></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -372,6 +456,14 @@
                 <option disabled>------</option>
               </select>
             </div>
+            <div class="col-xs-12 select-photo-folder-type hidden">
+              <label>User's photo folder or URL</label>
+              <select name="select_user_folder_type" id="select_user_folder_type" class="form-control"></select>
+            </div>
+            <div class="col-xs-12 select-photo-folder hidden">
+              <div class="btn btn-default file-picker-btn" data-file-picker-user>Select a folder</div>
+              <div class="selected-user-folder hidden">Selected folder: <strong><span></span></strong></div>
+            </div>
             <div class="col-xs-12 select-user-admin-holder hidden">
               <label>Field to identify Admins <small>(Required)</small> <span data-toggle="tooltip" data-placement="top" title="To identify which users have admin rights you can create a new column in your users data source, and mark admins with an 'X' and leave non-admins as blank"><i class="fa fa-info-circle"></i></span></label>
               <select name="select_user_admin" id="select_user_admin" class="form-control">
@@ -401,7 +493,7 @@
           <div class="go-back" data-back-settings="relations"><i class="fa fa-angle-left"></i> Back to settings</div>
           <p>Data view settings</p>
         </div>
-        <span>Version: 1.3.0 (latest)</span>
+        <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
     </header>
@@ -512,7 +604,7 @@
           <div class="go-back" data-back-settings="advanced"><i class="fa fa-angle-left"></i> Back to settings</div>
           <p>Developer options</p>
         </div>
-        <span>Version: 1.3.0 (latest)</span>
+        <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
     </header>

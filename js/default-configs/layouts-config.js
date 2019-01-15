@@ -15,7 +15,7 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': ['list-filter', 'list-search'],
+    'style-specific': ['list-filter', 'list-search', 'list-bookmark'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
@@ -160,7 +160,7 @@ window.flListLayoutConfig = {
     'social': {
       'bookmark': true
     },
-    'style-specific': ['list-bookmark'],
+    'style-specific': ['list-bookmark', 'list-agenda-options'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
@@ -200,7 +200,8 @@ window.flListLayoutConfig = {
         paranoid: true,
         helper: 'Full Date'
       }
-    ]
+    ],
+    'detail-fields-ignore': ['Poll', 'Survey', 'Questions']
   },
   'small-h-card': {
     'filtersEnabled': false,

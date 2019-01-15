@@ -5,9 +5,14 @@
     <div class="small-card-overlay-screen"></div>
     <div class="small-card-overlay-wrapper">
       <div class="small-card-overlay-header">
-        Filter
         <div class="small-card-overlay-close">
-          <i class="fa fa-times"></i>
+          <i class="fa fa-angle-left"></i>
+        </div>
+        <div class="filter-header-holder">
+          <div class="filter-header-btn-controls">
+            <div class="btn clear-filters hidden">Clear</div>
+            <div class="btn apply-filters">Apply</div>
+          </div>
         </div>
       </div>
       <div class="small-card-overlay-content">
@@ -43,12 +48,17 @@
       <i class="fa fa-search"></i>
       <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
       <div class="btn btn-default search-btn">Search</div>
+      <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
     <div class="list-search-icon">
-      \{{#ifCond filtersInOverlay '!==' true}}
+      \{{#if bookmarksEnabled}}
+      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
+        <span class="fa fa-bookmark-o"></span>
+        <span class="fa fa-bookmark"></span>
+      </div>
+      \{{/if}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
-      \{{/ifCond}}
       \{{#if filtersEnabled}}
       <i class="fa fa-sliders"></i>
       \{{/if}}
@@ -57,28 +67,32 @@
   <!-- End of Top bar -->
 
   <!-- Inline Search and Filters -->
-  \{{#ifCond filtersInOverlay '!==' true}}
-    \{{#ifCond searchEnabled '||' filtersEnabled}}
-    <div class="hidden-filter-controls">
-      <div class="hidden-filter-controls-content">
-        \{{#if searchEnabled}}
-        <div class="hidden-filter-controls-search">
-          <div class="search-query-holder">
-            <div class="search-query">
-            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
-            </div>
+  \{{#if searchEnabled}}
+  <div class="hidden-search-controls">
+    <div class="hidden-search-controls-content">
+      <div class="hidden-filter-controls-search">
+        <div class="search-query-holder">
+          <div class="search-query">
+          Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
           </div>
         </div>
-        \{{/if}}
+      </div>
+    </div>
+  </div>
+  \{{/if}}
+  \{{#if filtersEnabled}}
+  <div class="hidden-filter-controls">
+    <div class="hidden-filter-controls-content">
+      \{{#ifCond filtersInOverlay '!==' true}}
         \{{#if filtersEnabled}}
-        <div class="filter-holder">
+        <div class="filter-holder inline-filter-holder">
           <!-- Filters here -->
         </div>
         \{{/if}}
-      </div>
+      \{{/ifCond}}
     </div>
-    \{{/ifCond}}
-  \{{/ifCond}}
+  </div>
+  \{{/if}}
   <!-- End of Inline Search and Filters -->
 
   <div class="small-card-list-wrapper" id="small-card-list-wrapper-\{{id}}">
@@ -100,6 +114,12 @@
 
   <div class="loading-data">
     <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+  </div>
+  <div class="no-results-holder">
+    No matches found
+  </div>
+  <div class="no-bookmarks-holder">
+    Nothing bookmarked
   </div>
 </div>
 

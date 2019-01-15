@@ -16,7 +16,7 @@
   left: 0;
   z-index: 11;
   background-color: transparent;
-  transform: translate3d(0, 100%, 0);
+  transform: translate3d(100%, 0, 0);
   transition: all 0.2s ease-out;
 }
 
@@ -53,8 +53,8 @@
   height: 44px;
   display: flex;
   align-items: center;
-  padding-left: 15px;
-  padding-right: 44px;
+  padding-right: 15px;
+  padding-left: 44px;
   font-size: 1.2em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -62,6 +62,43 @@
   text-overflow: ellipsis;
   background-color: #232b3f;
   z-index: 2;
+}
+
+.small-card-overlay-header .filter-header-holder {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.filter-header-holder .filter-header-btn-controls {
+  text-transform: none;
+}
+
+.apply-filters {
+  border: 1px solid #337ab7;
+  border-radius: 20px;
+  padding: 6px 14px;
+  background-color: #337ab7;
+}
+
+.clear-filters {
+  padding: 6px 14px;
+}
+
+.clear-filters:hover,
+.apply-filters:hover,
+.clear-filters:focus,
+.apply-filters:focus,
+.clear-filters:active,
+.apply-filters:active,
+.clear-filters:active:hover,
+.apply-filters:active:hover,
+.clear-filters:active:focus,
+.apply-filters:active:focus {
+  color: #fff;
+  box-shadow: none;
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-content {
@@ -84,17 +121,18 @@
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-close {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;
   width: 44px;
   height: 44px;
-  font-size: 1.2em;
+  padding-left: 15px;
+  font-size: 1.8em;
   line-height: 44px;
-  text-align: center;
   z-index: 1;
   cursor: pointer;
 }
 
-.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls {
+.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls,
+.new-small-card-list-container .small-card-search-filter-overlay .hidden-search-controls {
   height: auto;
   overflow: initial;
   margin: 0;
@@ -301,7 +339,8 @@
   display: inline-block;
 }
 
-.new-small-card-list-container .hidden-filter-controls {
+.new-small-card-list-container .hidden-filter-controls,
+.new-small-card-list-container .hidden-search-controls {
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
@@ -320,7 +359,7 @@
   position: relative;
 }
 
-.new-small-card-list-container .search-holder .fa {
+.new-small-card-list-container .search-holder .fa.fa-search {
   position: absolute;
   top: 0;
   left: 0;
@@ -366,6 +405,21 @@
 .search-holder .btn.search-btn:active:hover {
   border: none;
   background-color: #eeeeee;
+}
+
+.new-small-card-list-container .search-holder .search-btn.searching-btn {
+  transition: all 0.15s ease-out;
+  pointer-events: none;
+}
+
+.new-small-card-list-container .search-holder .search-btn.searching-btn,
+.new-small-card-list-container.searching .search-holder .search-btn {
+  display: none;
+  transition: all 0.15s ease-out;
+}
+
+.new-small-card-list-container.searching .search-holder .search-btn.searching-btn {
+  display: block;
 }
 
 .new-small-card-list-container .search-holder .form-control {
@@ -509,7 +563,14 @@
   outline: none;
 }
 
-.new-small-card-list-container .loading-data {
+.new-small-card-list-container .no-results-holder,
+.new-small-card-list-container .no-bookmarks-holder {
+  display: none;
+}
+
+.new-small-card-list-container .loading-data,
+.new-small-card-list-container .no-results ~ .no-results-holder,
+.new-small-card-list-container .no-bookmarks-holder.show {
   padding-top: 25px;
   display: block;
   text-align: center;
@@ -576,6 +637,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+  position: relative;
 }
 
 .new-small-card-list-container .small-card-list-name {
@@ -589,6 +651,7 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 1.4;
+  padding-right: 40px;
 }
 
 .new-small-card-list-container .small-card-list-location {
@@ -597,6 +660,33 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 1.6;
+  padding-right: 40px;
+}
+
+.new-small-card-list-container .small-card-bookmark-holder {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+  font-size: 25px;
+}
+
+.small-card-list-detail-content-wrapper .small-card-bookmark-holder {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 15px;
+  font-size: 25px;
+}
+
+.new-small-card-list-container .small-card-bookmark-holder .fa-bookmark-o,
+.small-card-list-detail-content-wrapper .small-card-bookmark-holder .fa-bookmark-o {
+  color: rgba(51,51,51,0.2);
+}
+
+.new-small-card-list-container .small-card-bookmark-holder .fa-bookmark,
+.small-card-list-detail-content-wrapper .small-card-bookmark-holder .fa-bookmark {
+  color: #337ab7;
 }
 
 .new-small-card-list-container .small-card-list-detail-image-wrapper,

@@ -2,6 +2,7 @@ var DynamicLists = (function() {
   var _this;
 
   var organizationId = Fliplet.Env.get('organizationId');
+  var appId = Fliplet.Env.get('appId');
   var appName = Fliplet.Env.get('appName');
   var pageTitle = Fliplet.Env.get('pageTitle');
   var listLayout;
@@ -22,6 +23,8 @@ var DynamicLists = (function() {
   var summaryRowTemplate = Fliplet.Widget.Templates['templates.interface.summary-view-panels'];
   var $detailsRowContainer = $('.detail-table-panels-holder');
   var detailsRowTemplate = Fliplet.Widget.Templates['templates.interface.detail-view-panels'];
+
+  var selectFolderOptions = Fliplet.Widget.Templates['templates.interface.folder-options'];
 
   var tokenField = Fliplet.Widget.Templates['templates.interface.field-token'];
 
@@ -55,6 +58,18 @@ var DynamicLists = (function() {
   var addRadioValues = [];
   var editRadioValues = [];
   var deleteRadioValues = [];
+
+  var currentApp = {
+    id: appId,
+    type: 'app',
+    name: appName
+  };
+  var userOrganization = {
+    id: organizationId,
+    type: 'organization'
+  };
+
+  var filePickerPromises = [];
 
   // Constructor
   function DynamicLists(configuration) {
@@ -275,13 +290,33 @@ var DynamicLists = (function() {
             $('.select-datasource-holder').removeClass('hidden');
           });
         })
+        .on('change', '#enable-poll', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
+        .on('change', '#enable-survey', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
+        .on('change', '#enable-questions', function() {
+          $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
+        })
         .on('change', '#enable-comments', function() {
           if ( $(this).is(":checked") ) {
             $('.user-datasource-options').removeClass('hidden');
             $('.select-user-photo-holder').removeClass('hidden');
+            $('.select-photo-folder-type').removeClass('hidden');
           } else {
             $('.user-datasource-options').addClass('hidden');
             $('.select-user-photo-holder').addClass('hidden');
+            $('.select-photo-folder-type').addClass('hidden');
+          }
+        })
+        .on('change', '[name="select_user_folder_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'all-folders') {
+            $('.select-photo-folder').removeClass('hidden');
+          } else {
+            $('.select-photo-folder').addClass('hidden');
           }
         })
         .on('change', '[name="list-control"]', function() {
@@ -295,6 +330,19 @@ var DynamicLists = (function() {
           $('.edit-entry-checkbox').find('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
           $('.delete-entry-checkbox').find('.hidden-settings')[values.indexOf('delete-entry') !== -1 ? 'addClass' : 'removeClass']('active');
 
+          $('.select-user-email-list-holder')[
+            (editRadioValues.indexOf('user') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            ? 'removeClass' : 'addClass']('hidden');
+          $('.select-user-admin-holder')[
+            (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
+            || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
             || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
@@ -303,6 +351,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="add-permissions"]', function() {
@@ -318,11 +367,11 @@ var DynamicLists = (function() {
           });
 
           $('.select-user-admin-holder')[
-            addRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
+            (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
+            || (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
@@ -332,6 +381,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="edit-permissions"]', function() {
@@ -347,18 +397,18 @@ var DynamicLists = (function() {
           });
 
           $('.select-user-email-list-holder')[
-            editRadioValues.indexOf('user') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('user') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
+            (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
-            editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || addRadioValues.indexOf('admins') !== -1
+            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
@@ -368,6 +418,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="delete-permissions"]', function() {
@@ -383,18 +434,18 @@ var DynamicLists = (function() {
           });
 
           $('.select-user-email-list-holder')[
-            deleteRadioValues.indexOf('user') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || editRadioValues.indexOf('user') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
+            (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
 
           $('.select-user-admin-holder')[
-            editRadioValues.indexOf('admins') !== -1
-            || editRadioValues.indexOf('users-admins') !== -1
-            || deleteRadioValues.indexOf('admins') !== -1
-            || deleteRadioValues.indexOf('users-admins') !== -1
-            || addRadioValues.indexOf('admins') !== -1
+            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
+            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
+            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
             (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
@@ -404,6 +455,7 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
             || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
+            || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
         })
         .on('change', '[name="detail-view-action"]', function() {
@@ -444,6 +496,41 @@ var DynamicLists = (function() {
             $(this).parents('.rTableRow').find('.custom-label-input').addClass('hidden');
           }
         })
+        .on('change', '[name="select_summary_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'image') {
+            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
+          }
+        })
+        .on('change', '[name="select_field_type"]', function() {
+          var value = $(this).val();
+
+          if (value === 'image') {
+            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
+          }
+        })
+        .on('change', '[name="folder_field_select"]', function() {
+          var value = $(this).val();
+
+          if (value === 'all-folders') {
+            $(this).parents('.rTableRow').find('.picker-provider-button').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
+          } else if (value === 'url') {
+            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').addClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').removeClass('hidden');
+          } else {
+            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
+            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
+            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
+          }
+        })
         .on('click', '.rTableCell.delete', function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
@@ -465,7 +552,7 @@ var DynamicLists = (function() {
           };
 
           _this.config.detailViewOptions.push(item);
-
+          item = _this.updateWithFoldersInfo(item, 'details');
           _this.addDetailItem(item);
         });
 
@@ -496,6 +583,7 @@ var DynamicLists = (function() {
           $('.select-user-lastname-holder').addClass('hidden');
           $('.select-user-email-holder').addClass('hidden');
           $('.select-user-photo-holder').addClass('hidden');
+          $('.select-photo-folder-type').addClass('hidden');
           $('.select-user-admin-holder').addClass('hidden');
           return;
         }
@@ -560,10 +648,37 @@ var DynamicLists = (function() {
       });
     },
     init: function() {
-      _this.getDataSources();
-      _this.setupCodeEditors();
-      _this.loadData();
-      _this.initializeSortSortable();
+      _this.getDataSources()
+        .then(function() {
+          return _this.getOrganizationInfo();
+        })
+        .then(function() {
+          _this.addFolderOptions();
+          return _this.setupCodeEditors();
+        })
+        .then(function() {
+          return _this.loadData();
+        })
+        .then(function() {
+          return _this.initializeSortSortable();
+        });
+    },
+    getOrganizationInfo: function() {
+      return Fliplet.Organizations.get()
+        .then(function(organizations) {
+          // Remove V1 apps and the current app
+          organization = _.find(organizations, { id: organizationId });
+          userOrganization.name = organization.name;
+          return;
+        });
+    },
+    addFolderOptions: function() {
+      var data = {
+        userOrganization: userOrganization,
+        currentApp: currentApp
+      }
+      var options = selectFolderOptions(data);
+      $('#select_user_folder_type').html(options);
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -579,11 +694,22 @@ var DynamicLists = (function() {
             if (item === 'list-likes' || item === 'list-bookmark' || item === 'list-comments') {
               $('#social-accordion').removeClass('hidden');
             }
+
+            if (item === 'list-agenda-options') {
+              $('#agenda-accordion').removeClass('hidden');
+            }
           });
 
           // backwards compatible
           if (_this.config.layout === 'news-feed' && (typeof _this.config.social === 'undefined' || typeof _this.config.social.bookmark === 'undefined')) {
             _this.config.social.bookmark = true;
+            $('.list-bookmark').removeClass('hidden');
+            $('#social-accordion').removeClass('hidden');
+          }
+
+          if (_this.config.layout === 'small-card' && _this.config['style-specific'].indexOf('list-bookmark') === -1) {
+            _this.config['style-specific'] = ['list-filter', 'list-search', 'list-bookmark'];
+            _this.config.social.bookmark = false;
             $('.list-bookmark').removeClass('hidden');
             $('#social-accordion').removeClass('hidden');
           }
@@ -641,7 +767,7 @@ var DynamicLists = (function() {
         return loadingPromise
           .then(function() {
             // Load sort options
-            var dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
+            dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
             $sortAccordionContainer.empty();
             _.forEach(_this.config.sortOptions, function(item) {
               item.fromLoading = true; // Flag to close accordions
@@ -671,6 +797,15 @@ var DynamicLists = (function() {
             $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
             $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
             $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
+
+            // Load agenda feature
+            $('#enable-poll').prop('checked', _this.config.pollEnabled).trigger('change');
+            $('#enable-survey').prop('checked', _this.config.surveyEnabled).trigger('change');
+            $('#enable-questions').prop('checked', _this.config.questionsEnabled).trigger('change');
+
+            $('#select_poll_data').val(_this.config.pollColumn || 'none');
+            $('#select_survey_data').val(_this.config.surveyColumn || 'none');
+            $('#select_questions_data').val(_this.config.questionsColumn || 'none');
 
             // Load social feature
             $('#enable-likes').prop('checked', _this.config.social.likes);
@@ -730,7 +865,7 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
-            var dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
+            dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
 
             // Sets up the data view settings
             if (typeof _this.config['summary-fields'] === 'undefined') {
@@ -754,10 +889,18 @@ var DynamicLists = (function() {
               }
 
               item.columns = dataSourceColumns || _this.config.defaultColumns;
+              item = _this.updateWithFoldersInfo(item, 'summary');
               _this.addSummaryItem(item);
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
+              $('.table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+
+              if (item.imageField === 'all-folders' && item.folder) {
+                $('.table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
+                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
+                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+              }
             });
 
             if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
@@ -830,10 +973,17 @@ var DynamicLists = (function() {
             if (_this.config.layout !== 'simple-list') {
               _.forEach(_this.config['summary-fields'], function(field) {
                 _this.config.detailViewOptions.some(function(option, index) {
-                  if (field.column && field.column !== 'none' && field.column === option.column) {
+                  if (field.column && field.column !== 'none' && field.column !== 'custom' && field.column === option.column) {
                     _this.config.detailViewOptions.splice(index, 1);
                   }
                 });
+              });
+            }
+
+            // Remove fields from detail view that are to be ignored - Only on first load
+            if (fromStart && defaultSettings[listLayout]['detail-fields-ignore']) {
+              _.remove(_this.config.detailViewOptions, function(field) {
+                return defaultSettings[listLayout]['detail-fields-ignore'].indexOf(field.column) >= 0;
               });
             }
 
@@ -889,13 +1039,21 @@ var DynamicLists = (function() {
             $detailsRowContainer.empty();
             _.forEach(_this.config.detailViewOptions, function(item) {  
               item.columns = dataSourceColumns;
+              item = _this.updateWithFoldersInfo(item, 'details');
               _this.addDetailItem(item);
 
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+
+              if (item.imageField === 'all-folders' && item.folder) {
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
+                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+              }
             });
 
             $('input#enable-auto-update').prop('checked', _this.config.detailViewAutoUpdate);
@@ -910,6 +1068,16 @@ var DynamicLists = (function() {
               $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
               $('#select_user_admin').val(_this.config.userAdminColumn ? _this.config.userAdminColumn : 'none');
               $('#select_user_email_data').val(_this.config.userListEmailColumn ? _this.config.userListEmailColumn : 'none');
+              $('#select_user_folder_type').val(_this.config.userFolderOption ? _this.config.userFolderOption : 'url').trigger('change');
+              $('.select-photo-folder .file-picker-btn').text(_this.config.userFolder && _this.config.userFolder.folder ? 'Replace folder' : 'Select a folder');
+              $('.select-photo-folder .selected-user-folder span').text(
+                _this.config.userFolder && _this.config.userFolder.folder
+                  ? _this.config.userFolder.folder.selectFiles[0].name
+                  : '');
+              $('.select-photo-folder .selected-user-folder')[
+                _this.config.userFolder && _this.config.userFolder.folder
+                ? 'removeClass'
+                : 'addClass']('hidden');
               $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
 
               if (_this.config.social.comments) {
@@ -929,6 +1097,11 @@ var DynamicLists = (function() {
               $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
               $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
               $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
+
+              // Load agenda feature
+              $('#enable-poll').prop('checked', _this.config.pollEnabled);
+              $('#enable-survey').prop('checked', _this.config.surveyEnabled);
+              $('#enable-questions').prop('checked', _this.config.questionsEnabled);
 
               // Load social feature
               $('#enable-likes').prop('checked', _this.config.social.likes);
@@ -1120,8 +1293,8 @@ var DynamicLists = (function() {
       var linkFieldValue = $('#select_field_link').val();
       var linkOptions = [];
       $('#select_field_link').html('');
-      $('#select_field_link').append('<option value="none">-- Select a data field</option>');
-      $('#select_field_link').append('<option disabled>------</option>');
+      linkOptions.push('<option value="none">-- Select a data field</option>');
+      linkOptions.push('<option disabled>------</option>');
       dataSourceColumns.forEach(function(value, index) {
         linkOptions.push('<option value="'+ value +'">'+ value +'</option>');
       });
@@ -1177,6 +1350,54 @@ var DynamicLists = (function() {
           $(obj).val(oldValue);
         }
       });
+
+      // Pool data field
+      var poolFieldValue = $('#select_poll_data').val();
+      var poolFieldOptions = [];
+      $('#select_poll_data').html('');
+      poolFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      poolFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        poolFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_poll_data').append(poolFieldOptions.join(''));
+      if (poolFieldValue && poolFieldValue.length) {
+        $('#select_poll_data').val(poolFieldValue);
+      } else {
+        $('#select_poll_data').val('none');
+      }
+
+      // Survey data field
+      var surveyFieldValue = $('#select_survey_data').val();
+      var surveyFieldOptions = [];
+      $('#select_survey_data').html('');
+      surveyFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      surveyFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        surveyFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_survey_data').append(surveyFieldOptions.join(''));
+      if (surveyFieldValue && surveyFieldValue.length) {
+        $('#select_survey_data').val(surveyFieldValue);
+      } else {
+        $('#select_survey_data').val('none');
+      }
+
+      // Questions data field
+      var questionsFieldValue = $('#select_questions_data').val();
+      var questionsFieldOptions = [];
+      $('#select_questions_data').html('');
+      questionsFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      questionsFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value, index) {
+        questionsFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      });
+      $('#select_questions_data').append(questionsFieldOptions.join(''));
+      if (questionsFieldValue && questionsFieldValue.length) {
+        $('#select_questions_data').val(questionsFieldValue);
+      } else {
+        $('#select_questions_data').val('none');
+      }
 
       _this.setUpTokenFields();
     },
@@ -1254,6 +1475,7 @@ var DynamicLists = (function() {
 
       if (_this.config.social && _this.config.social.comments) {
         $('.select-user-photo-holder').removeClass('hidden');
+        $('.select-photo-folder-type').removeClass('hidden');
       }
       
       if (_this.config.addPermissions === 'admins'
@@ -1265,6 +1487,12 @@ var DynamicLists = (function() {
       }
 
       _this.setUpUserTokenFields();
+    },
+    updateWithFoldersInfo: function(item, from) {
+      item.currentApp = currentApp;
+      item.userOrganization = userOrganization;
+      item.from = from;
+      return item;
     },
     reloadDataSources: function(dataSourceId) {
       return Fliplet.DataSources.get({
@@ -1352,7 +1580,7 @@ var DynamicLists = (function() {
     },
     getDataSources: function() {
       // Load the data source
-      Fliplet.DataSources.get({
+      return Fliplet.DataSources.get({
         roles: 'publisher,editor',
         type: null
       }, {
@@ -1392,6 +1620,7 @@ var DynamicLists = (function() {
 
           var newOption = new Option(ds.name, ds.id, true, true);
           $dataSources.append(newOption).trigger('change');
+          _this.config.dataSourceId = ds.id;
           _this.getColumns(ds.id);
         });
       });   
@@ -1835,7 +2064,7 @@ var DynamicLists = (function() {
       var javascript = document.getElementById('js-code');
       var javascriptType = $(javascript).data('type');
 
-      _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
+      return _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
         var baseTemplatePromise = new Promise(function(resolve) {
           if (baseTemplateEditor) {
             baseTemplateEditor.getDoc().setValue(baseTemplateCode);
@@ -1941,7 +2170,7 @@ var DynamicLists = (function() {
           }
         });
 
-        Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
+        return Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
           .then(function() {
             _this.resizeCodeEditors();
           });
@@ -2031,7 +2260,7 @@ var DynamicLists = (function() {
       data.advancedSettings = {};
 
       data.layout = listLayout;
-      data.dataSourceId = !toReload && newDataSource ? newDataSource.id : undefined;
+      data.dataSourceId = !toReload && newDataSource ? newDataSource.id : _this.config.dataSourceId || undefined;
       data.dataSourceColumns = dataSourceColumns;
       data.defaultData = toReload || !data.dataSourceId ? true : false;
 
@@ -2064,6 +2293,13 @@ var DynamicLists = (function() {
         item.type = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';
         item.customField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_field_' + item.id).val();
+        item.imageField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+
+        if (item.imageField === 'organization') {
+          item.organizationFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+        } else if (item.imageField === 'app') {
+          item.appFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        }
       });
 
       // Get detail view options
@@ -2076,6 +2312,13 @@ var DynamicLists = (function() {
         item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
         item.customFieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_name_' + item.id).val();
         item.fieldLabelDisabled = item.fieldLabel === 'no-label';
+        item.imageField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+
+        if (item.imageField === 'organization') {
+          item.organizationFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+        } else if (item.imageField === 'app') {
+          item.appFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        }
       });
 
       data.detailViewAutoUpdate = $('input#enable-auto-update').is(":checked");
@@ -2136,6 +2379,16 @@ var DynamicLists = (function() {
         data.advancedSettings.jsCode = javascriptEditor.getValue();
       }
 
+      // Get agenda feature
+      _this.config.pollEnabled = $('#enable-poll').is(":checked");
+      _this.config.surveyEnabled = $('#enable-survey').is(":checked");
+      _this.config.questionsEnabled = $('#enable-questions').is(":checked");
+      _this.config.pollColumn = $('#select_poll_data').val();
+      _this.config.surveyColumn = $('#select_survey_data').val();
+      _this.config.questionsColumn = $('#select_questions_data').val();
+
+      _this.config.agendaButtonsEnabled = _this.config.pollEnabled || _this.config.surveyEnabled || _this.config.questionsEnabled;
+
       // Get social feature
       _this.config.social.bookmark = $('#enable-bookmarks').is(":checked");
       _this.config.social.comments = $('#enable-comments').is(":checked");
@@ -2148,6 +2401,9 @@ var DynamicLists = (function() {
       $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.userEmailColumn = $('#select_user_email').val();
       data.userPhotoColumn = $('#select_user_photo').val();
+      data.userFolderOption = $('#select_user_folder_type').val();
+      data.userAppFolder = data.userFolderOption === 'app' ? $('#select_user_folder_type [data-app-option]').data('app-id') : undefined;
+      data.userOrgFolder = data.userFolderOption === 'organization' ? $('#select_user_folder_type [data-org-option]').data('org-id') : undefined;
       data.userAdminColumn = $('#select_user_admin').val();
       data.userListEmailColumn = $('#select_user_email_data').val();
 

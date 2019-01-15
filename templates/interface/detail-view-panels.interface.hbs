@@ -51,6 +51,31 @@
       <p class="text-muted field-text-info">Use <code>\{{[*]}}</code> to wrap around a field name, e.g. <code>Location: \{{[city]}}, \{{[country]}}</code>.</p>
     </div>
   </div>
+  <div class="image-field-select clearfix hidden">
+    <div class="rTableCell title">
+      Image folder or URL
+    </div>
+    <div class="rTableCell select field">
+      <select class="form-control" id="folder_field_{{id}}" name="folder_field_select">
+        <option disabled>Organization</option>
+        <option value="organization" data-org-option data-org-id="{{userOrganization.id}}">{{userOrganization.name}}</option>
+        <option disabled>This app</option>
+        <option value="app" data-app-option data-app-id="{{currentApp.id}}">{{currentApp.name}}</option>
+        <option disabled>------</option>
+        <option value="all-folders">Select other folders</option>
+        <option disabled>------</option>
+        <option value="url">URL to external image</option>
+      </select>
+    </div>
+    <div class="rTableCell select field picker-provider-button hidden" data-field-id="{{id}}">
+      <div class="btn btn-default file-picker-btn" data-file-picker-details>Select a folder</div>
+      <div class="selected-folder hidden">Selected folder: <span></span></div>
+    </div>
+    <div class="rTableCell select field">
+      <p class="text-muted field-text-info folders-only">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>
+      <p class="text-muted field-text-info url-only hidden">In the list data use a URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>
+    </div>
+  </div>
   <div class="custom-label-input clearfix hidden">
     <div class="rTableCell title">
       Custom label
