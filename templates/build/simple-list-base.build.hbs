@@ -5,11 +5,10 @@
     <div class="simple-list-overlay-screen"></div>
     <div class="simple-list-overlay-wrapper">
       <div class="simple-list-overlay-header">
-        <div class="news-feed-overlay-close">
+        <div class="simple-list-overlay-close">
           <i class="fa fa-angle-left"></i>
         </div>
         <div class="filter-header-holder">
-          <span>Filter</span>
           <div class="filter-header-btn-controls">
             <div class="btn clear-filters hidden">Clear</div>
             <div class="btn apply-filters">Apply</div>
@@ -19,15 +18,6 @@
       <div class="simple-list-overlay-content">
         <div class="hidden-filter-controls">
           <div class="hidden-filter-controls-content">
-            \{{#if searchEnabled}}
-            <div class="hidden-filter-controls-search">
-              <div class="search-query-holder">
-                <div class="search-query">
-                Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
-                </div>
-              </div>
-            </div>
-            \{{/if}}
             <div class="filters-header">Filter by</div>
             <div class="filter-holder">
               <!-- Filters here -->
@@ -63,9 +53,7 @@
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/if}}
-      \{{#ifCond filtersInOverlay '!==' true}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
-      \{{/ifCond}}
       \{{#if filtersEnabled}}
       <i class="fa fa-sliders"></i>
       \{{/if}}
@@ -75,28 +63,32 @@
   <!-- End of Top bar -->
 
   <!-- Inline Search and Filters -->
-  \{{#ifCond filtersInOverlay '!==' true}}
-    \{{#ifCond searchEnabled '||' filtersEnabled}}
-    <div class="hidden-filter-controls">
-      <div class="hidden-filter-controls-content">
-        \{{#if searchEnabled}}
-        <div class="hidden-filter-controls-search">
-          <div class="search-query-holder">
-            <div class="search-query">
-            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
-            </div>
+  \{{#if searchEnabled}}
+  <div class="hidden-search-controls">
+    <div class="hidden-search-controls-content">
+      <div class="hidden-filter-controls-search">
+        <div class="search-query-holder">
+          <div class="search-query">
+          Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
           </div>
         </div>
-        \{{/if}}
+      </div>
+    </div>
+  </div>
+  \{{/if}}
+  \{{#if filtersEnabled}}
+  <div class="hidden-filter-controls">
+    <div class="hidden-filter-controls-content">
+      \{{#ifCond filtersInOverlay '!==' true}}
         \{{#if filtersEnabled}}
         <div class="filter-holder inline-filter-holder">
           <!-- Filters here -->
         </div>
         \{{/if}}
-      </div>
+      \{{/ifCond}}
     </div>
-    \{{/ifCond}}
-  \{{/ifCond}}
+  </div>
+  \{{/if}}
   <!-- End of Inline Search and Filters -->
 
   <div class="simple-list-wrapper" id="simple-list-wrapper-\{{id}}">
@@ -121,6 +113,9 @@
   </div>
   <div class="no-results-holder">
     No matches found
+  </div>
+  <div class="no-bookmarks-holder">
+    Nothing bookmarked
   </div>
 </div>
 

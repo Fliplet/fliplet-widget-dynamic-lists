@@ -67,7 +67,7 @@
 .small-card-overlay-header .filter-header-holder {
   flex: 1;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-left: 5px;
 }
@@ -79,8 +79,12 @@
 .apply-filters {
   border: 1px solid #337ab7;
   border-radius: 20px;
-  padding: 4px 10px;
+  padding: 6px 14px;
   background-color: #337ab7;
+}
+
+.clear-filters {
+  padding: 6px 14px;
 }
 
 .clear-filters:hover,
@@ -127,7 +131,8 @@
   cursor: pointer;
 }
 
-.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls {
+.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls,
+.new-small-card-list-container .small-card-search-filter-overlay .hidden-search-controls {
   height: auto;
   overflow: initial;
   margin: 0;
@@ -334,7 +339,8 @@
   display: inline-block;
 }
 
-.new-small-card-list-container .hidden-filter-controls {
+.new-small-card-list-container .hidden-filter-controls,
+.new-small-card-list-container .hidden-search-controls {
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
@@ -557,12 +563,14 @@
   outline: none;
 }
 
-.new-small-card-list-container .no-results-holder {
+.new-small-card-list-container .no-results-holder,
+.new-small-card-list-container .no-bookmarks-holder {
   display: none;
 }
 
 .new-small-card-list-container .loading-data,
-.new-small-card-list-container .no-results ~ .no-results-holder {
+.new-small-card-list-container .no-results ~ .no-results-holder,
+.new-small-card-list-container .no-bookmarks-holder.show {
   padding-top: 25px;
   display: block;
   text-align: center;

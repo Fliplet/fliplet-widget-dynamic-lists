@@ -403,6 +403,111 @@ function attahObservers() {
           }
         }
 
+        if (widgetData.pollEnabled && widgetData.pollColumn) {
+          var errors = [];
+          var values = [];
+
+          values.push({
+            value: widgetData.pollColumn,
+            field: '#select_poll_data'
+          });
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors.length) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
+          }
+        }
+
+        if (widgetData.surveyEnabled && widgetData.surveyColumn) {
+          var errors = [];
+          var values = [];
+
+          values.push({
+            value: widgetData.pollColumn,
+            field: '#select_survey_data'
+          });
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors.length) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
+          }
+        }
+
+        if (widgetData.questionsEnabled && widgetData.questionsColumn) {
+          var errors = [];
+          var values = [];
+
+          values.push({
+            value: widgetData.pollColumn,
+            field: '#select_questions_data'
+          });
+          
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors.length) {
+            $('.component-error').removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+               $(field).addClass('has-error');
+               $(field).parents('.form-group').addClass('has-error');
+            });
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          } else {
+            $('.has-error').removeClass('has-error');
+            $('.component-error').addClass('hidden');
+          }
+        }
+
         return linkAddEntryProvider.forwardSaveRequest();
       });
   });

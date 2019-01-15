@@ -198,8 +198,7 @@
   left: 0;
   height: 100%;
   width: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   white-space: nowrap;
   font-size: 0;
 }
@@ -207,36 +206,51 @@
 .new-agenda-list-container .agenda-list-day-holder {
   display: inline-block;
   font-size: 16px;
-  padding: 131px 15px 15px;
-  margin: auto;
+  padding: 0 15px;
+  margin: 131px auto 0;
   width: 100vw;
-  height: 100%;
+  height: calc(100% - 131px);
   overflow: auto;
   vertical-align: top;
 }
 
 .fl-with-top-menu .new-agenda-list-container .agenda-list-day-holder {
-  padding-top: 175px;
-}
-
-.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder {
-  padding-bottom: 95px;
+  margin-top: 160px;
+  height: calc(100% - 160px);
 }
 
 .fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder {
-  padding-top: 116px;
+  margin-top: 116px;
+  height: calc(100% - 116px);
+}
+
+.fl-with-top-menu .new-agenda-list-container .agenda-date-selector.slim + .agenda-cards-wrapper .agenda-list-day-holder {
+  margin-top: 123px;
+  height: calc(100% - 123px);
+}
+
+.fl-with-bottom-menu .new-agenda-list-container .agenda-date-selector.slim + .agenda-cards-wrapper .agenda-list-day-holder {
+  margin-top: 79px;
+  height: calc(100% - 79px);
+}
+
+.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+  padding-bottom: 95px;
+}
+
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder .agenda-list-card-holder {
   padding-bottom: 80px;
 }
 
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder {
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
   padding-bottom: 160px;
 }
 
-.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry {
+.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry .agenda-list-card-holder {
   padding-bottom: 180px;
 }
 
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry {
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry .agenda-list-card-holder {
   padding-bottom: 240px;
 }
 
@@ -620,6 +634,7 @@
 .agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder {
   display: flex;
   align-items: center;
+  min-width: 56px;
 }
 
 .agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder .bookmark-wrapper span {
@@ -629,6 +644,7 @@
 }
 
 .agenda-item-bookmark.more-buttons .session-button {
+  min-width: 56px;
   font-size: 12px;
   color: rgba(51, 51, 51, 0.5);
   display: flex;
@@ -806,6 +822,10 @@
   .agenda-detail-overlay-panel .agenda-detail-overlay-content,
   .agenda-detail-wrapper .agenda-list-detail-content-wrapper {
     padding: 0;
+  }
+
+  .agenda-detail-overlay-panel .agenda-detail-overlay-content {
+    padding: 40px;
   }
 
   .agenda-detail-wrapper .agenda-list-detail-content-wrapper,

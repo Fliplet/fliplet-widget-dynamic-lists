@@ -67,7 +67,7 @@
 .simple-list-overlay-header .filter-header-holder {
   flex: 1;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-left: 5px;
 }
@@ -79,8 +79,12 @@
 .apply-filters {
   border: 1px solid #337ab7;
   border-radius: 20px;
-  padding: 4px 10px;
+  padding: 6px 14px;
   background-color: #337ab7;
+}
+
+.clear-filters {
+  padding: 6px 14px;
 }
 
 .clear-filters:hover,
@@ -127,7 +131,8 @@
   cursor: pointer;
 }
 
-.simple-list-search-filter-overlay .hidden-filter-controls {
+.simple-list-search-filter-overlay .hidden-filter-controls,
+.simple-list-search-filter-overlay .hidden-search-controls {
   height: auto;
   overflow: initial;
   margin: 0;
@@ -283,7 +288,8 @@
   display: inline-block;
 }
 
-.hidden-filter-controls {
+.hidden-filter-controls,
+.hidden-search-controls {
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
@@ -564,7 +570,8 @@
 }
 
 .loading-holder,
-.no-results-holder {
+.no-results-holder,
+.no-bookmarks-holder {
   text-align: center;
   color: #dddddd;
   cursor: default;
@@ -575,11 +582,13 @@
 .loading .limit-entries-text,
 .filtering .limit-entries-text,
 .searching .limit-entries-text,
-.no-results-holder {
+.no-results-holder,
+.no-bookmarks-holder {
   display: none;
 }
 
-.simple-list-container .no-results ~ .no-results-holder {
+.simple-list-container .no-results ~ .no-results-holder,
+.simple-list-container .no-bookmarks-holder.show {
   display: block;
 }
 
@@ -762,11 +771,12 @@
 }
 
 .simple-list-comment-panel .simple-list-comment-area {
-  height: 100%;
+  height: calc(100% - 148px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 69px 15px 109px 15px;
-  padding-bottom: calc(109px + env(safe-area-inset-bottom));
+  padding: 0 15px;
+  margin: 54px 0 109px;
+  margin-bottom: calc(109px + env(safe-area-inset-bottom));
   z-index: 1;
 }
 
@@ -861,10 +871,6 @@
   display: flex;
   align-items: flex-start;
   margin: 0 -15px 20px;
-}
-
-.simple-list-comment-panel .fl-individual-comment:last-child {
-  margin-bottom: 0;
 }
 
 .simple-list-comment-panel .top-comment-holder {
