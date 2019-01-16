@@ -1187,10 +1187,16 @@ DynamicList.prototype.initialize = function() {
       return;
     })
     .then(function() {
-      return Fliplet.DataSources.getById(_this.data.dataSourceId);
+      return Fliplet.DataSources.getById(_this.data.dataSourceId)
+        .catch(function () {
+          return Promise.resolve(); // Resolve anyway if it fails
+        });
     })
     .then(function(dataSource) {
-      _this.dataSourceColumns = dataSource.columns;
+      if (dataSource) {
+        _this.dataSourceColumns = dataSource.columns;
+      }
+
       return;
     })
     .then(function() {
