@@ -1037,6 +1037,7 @@ DynamicList.prototype.renderLoopHTML = function() {
   : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').html(template(_this.modifiedRecords));
+  $(_this.$container.find('.agenda-list-day-holder')[0]).addClass('active');
 }
 
 DynamicList.prototype.renderDatesHTML = function(rows, index) {
