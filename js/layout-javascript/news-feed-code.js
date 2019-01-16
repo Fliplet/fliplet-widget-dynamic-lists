@@ -1340,10 +1340,16 @@ DynamicList.prototype.initialize = function() {
       return;
     })
     .then(function() {
-      return Fliplet.DataSources.getById(_this.data.dataSourceId);
+      if (_this.data.detailViewAutoUpdate && Fliplet.Navigator.isOnline()) {
+        return Fliplet.DataSources.getById(_this.data.dataSourceId);
+      }
+      return
     })
     .then(function(dataSource) {
-      _this.dataSourceColumns = dataSource.columns;
+      if (dataSource) {
+        _this.dataSourceColumns = dataSource.columns;
+      }
+
       return;
     })
     .then(function() {
