@@ -743,10 +743,10 @@ DynamicList.prototype.initialize = function() {
       return;
     })
     .then(function() {
-      if (_this.data.detailViewAutoUpdate && Fliplet.Navigator.isOnline()) {
-        return Fliplet.DataSources.getById(_this.data.dataSourceId);
-      }
-      return
+      return Fliplet.DataSources.getById(_this.data.dataSourceId)
+        .catch(function () {
+          return Promise.resolve(); // Resolve anyway if it fails
+        });
     })
     .then(function(dataSource) {
       if (dataSource) {
