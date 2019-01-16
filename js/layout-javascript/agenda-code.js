@@ -1323,6 +1323,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         if(iterateeCb && typeof iterateeCb === 'function'){
           if(renderLoopIndex === 0){
             _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+            $(_this.$container.find('.agenda-list-day-holder')[0]).addClass('active');
           }
           iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
         }
@@ -1332,6 +1333,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
       }
       else{      
         _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+        $(_this.$container.find('.agenda-list-day-holder')[0]).addClass('active');
         resolve();
       }
     }
