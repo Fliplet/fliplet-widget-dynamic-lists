@@ -791,7 +791,7 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
   return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
-    return connection.removeById(entryID);
+    return connection.removeById(entryID, { ack: true });
   }).then(function () {
     return Promise.resolve(entryID);
   });
@@ -2984,7 +2984,7 @@ DynamicList.prototype.deleteComment = function(id) {
   var entryId = $('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
   var commentHolder = $('.fl-individual-comment[data-id="' + id + '"]');
   Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function (connection) {
-    connection.removeById(id).then(function onRemove() {
+    connection.removeById(id, { ack: true }).then(function onRemove() {
       _this.comments.forEach(function(obj, i) {
         if (obj.contentDataSourceEntryId && obj.contentDataSourceEntryId === entryId) {
           _.remove(_this.comments[i].entries, function(entry) {

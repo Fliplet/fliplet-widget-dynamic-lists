@@ -361,7 +361,7 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
   return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
-    return connection.removeById(entryID);
+    return connection.removeById(entryID, { ack: true });
   }).then(function () {
     return Promise.resolve(entryID);
   });
