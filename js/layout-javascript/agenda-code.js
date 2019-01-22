@@ -1311,9 +1311,6 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
 
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
-    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
-  }
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').empty();
   return new Promise(function(resolve){
     // here we need to loop through each agenda

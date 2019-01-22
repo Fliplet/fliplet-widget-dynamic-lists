@@ -1027,14 +1027,10 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
 
-  var limitedList = undefined;
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
-    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
-  }
   _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).empty();
 
   var renderLoopIndex = 0;
-  var data = (limitedList || _this.modifiedListItems);
+  var data = _this.modifiedListItems;
   return new Promise(function(resolve){
     function render() {
       // get the next batch of items to render

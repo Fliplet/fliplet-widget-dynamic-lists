@@ -1505,6 +1505,12 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
   }
+
+  // Hides the entry limit warning if the number of entries to show is less than the limit value
+  if (_this.data.enabledLimitEntries && (_this.data.limitEntries < _this.modifiedListItems.length)) {
+    _this.$container.find('.limit-entries-text').addClass('hidden');
+  }
+
   _this.$container.find('#simple-list-wrapper-' + _this.data.id).empty();
 
   var renderLoopIndex = 0;
