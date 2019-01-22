@@ -1726,7 +1726,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   }
 
   // Hides the entry limit warning if the number of entries to show is less than the limit value
-  if (_this.data.enabledLimitEntries && (_this.data.limitEntries < _this.modifiedListItems.length)) {
+  if (_this.data.enabledLimitEntries && (_this.data.limitEntries > _this.modifiedListItems.length)) {
     _this.$container.find('.limit-entries-text').addClass('hidden');
   }
 
