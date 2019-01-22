@@ -1866,6 +1866,8 @@ DynamicList.prototype.filterList = function() {
     _this.mixer.destroy();
   }
 
+  _this.$container.find('.hidden-search-controls').removeClass('no-results');
+
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
     _this.prepareToRenderLoop(listData);
     _this.renderLoopHTML(function(from, to){
@@ -1893,6 +1895,10 @@ DynamicList.prototype.filterList = function() {
     // we actually want to return FALSE to _.filter 
     return !_.includes(matched, false);
   });
+
+  if (!filteredData.length) {
+    _this.$container.find('.hidden-search-controls').addClass('no-results');
+  }
 
   _this.prepareToRenderLoop(filteredData);
   _this.renderLoopHTML(function(from, to){

@@ -1648,6 +1648,8 @@ DynamicList.prototype.filterList = function() {
     _this.mixer.destroy();
   }
 
+  _this.$container.find('.hidden-search-controls').removeClass('no-results');
+
   if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
     _this.$container.find('.simple-list-container').removeClass('filtering');
     _this.isFiltering = false;
@@ -1677,6 +1679,10 @@ DynamicList.prototype.filterList = function() {
     // we actually want to return FALSE to _.filter 
     return !_.includes(matched, false);
   });
+
+  if (!filteredData.length) {
+    _this.$container.find('.hidden-search-controls').addClass('no-results');
+  }
 
   _this.$container.find('.simple-list-container').addClass('filtering');
   _this.isFiltering = true;
