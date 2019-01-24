@@ -269,7 +269,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.small-card-list-item', function(event) {
       var _that = $(this);
 
-      if (_that.hasClass('small-card-bookmark-holder') || _that.parents('.small-card-bookmark-holder').length) {
+      if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
         return;
       }
       
@@ -461,13 +461,6 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.new-small-card-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.clearSearch();
-    })
-    .on('click', '.search-query span', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.new-small-card-list-container');
-
-      _this.backToSearch();
-      $parentElement.find('.search-holder input').focus();
     })
     .on('show.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
@@ -1679,7 +1672,7 @@ DynamicList.prototype.onPartialRender = function(from, to) {
   var _this = this;
 
   if (_this.data.social && _this.data.social.bookmark) {
-    _this.$container.find('.small-card-list-item').slice(from, to).each(function(index, element) {
+    _this.$container.find('.small-card-list-item').not('.is-current-user').slice(from, to).each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-bookmark';
       var title = $(element).find('.small-card-list-name').text();
@@ -1901,15 +1894,6 @@ DynamicList.prototype.searchData = function(value) {
       _this.initializeMixer();
     });
   });
-}
-
-DynamicList.prototype.backToSearch = function() {
-  // Function that is called when user wants to return
-  // to the search input after searching for a value first
-  var _this = this;
-
-  _this.$container.find('.hidden-search-controls').removeClass('is-searching search-results');
-  _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'), true);
 }
 
 DynamicList.prototype.clearSearch = function() {
@@ -2189,7 +2173,10 @@ DynamicList.prototype.showDetails = function(id) {
     $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
     $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
 
-    _this.prepareSetupBookmarkOverlay(id);
+    // Doesn't setup the bookmark button for the current user profile
+    if ((data.data && !data.data.isCurrentUser) || (entryData && !entryData.isCurrentUser)) {
+      _this.prepareSetupBookmarkOverlay(id);
+    }
 
     // Trigger animations
     _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
