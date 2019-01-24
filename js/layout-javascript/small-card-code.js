@@ -462,13 +462,6 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = false;
       _this.clearSearch();
     })
-    .on('click', '.search-query span', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.new-small-card-list-container');
-
-      _this.backToSearch();
-      $parentElement.find('.search-holder input').focus();
-    })
     .on('show.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
     })
@@ -1901,15 +1894,6 @@ DynamicList.prototype.searchData = function(value) {
       _this.initializeMixer();
     });
   });
-}
-
-DynamicList.prototype.backToSearch = function() {
-  // Function that is called when user wants to return
-  // to the search input after searching for a value first
-  var _this = this;
-
-  _this.$container.find('.hidden-search-controls').removeClass('is-searching search-results');
-  _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'), true);
 }
 
 DynamicList.prototype.clearSearch = function() {

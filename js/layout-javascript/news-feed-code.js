@@ -457,13 +457,6 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = false;
       _this.clearSearch();
     })
-    .on('click', '.search-query span', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
-
-      _this.backToSearch();
-      $parentElement.find('.search-holder input').focus();
-    })
     .on('show.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
     })
@@ -2258,20 +2251,6 @@ DynamicList.prototype.searchData = function(value) {
       }
     });
   });
-}
-
-DynamicList.prototype.backToSearch = function() {
-  // Function that is called when user wants to return
-  // to the search input after searching for a value first
-  var _this = this;
-
-  _this.$container.find('.hidden-search-controls').removeClass('is-searching search-results');
-  
-  if (_this.$container.find('.hidden-search-controls').hasClass('active')) {
-    _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'), true);
-  } else {
-    _this.$container.find('.hidden-search-controls').animate({ height: 0 }, 200);
-  }
 }
 
 DynamicList.prototype.clearSearch = function() {
