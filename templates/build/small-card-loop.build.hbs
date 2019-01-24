@@ -1,5 +1,5 @@
 \{{#each this}}
-  <div class="small-card-list-item mix \{{[flClasses]}}" data-entry-id="\{{id}}">
+  <div class="small-card-list-item mix \{{[flClasses]}} \{{#if isCurrentUser}}is-current-user\{{/if}}" data-entry-id="\{{id}}">
     <div class="small-card-list-image \{{#unless [Image]}}no-image\{{/unless}}">
       <div class="small-card-list-detail-wrapper" data-entry-id="\{{id}}">
         \{{#if [Image]}}
@@ -14,6 +14,7 @@
       <div class="small-card-list-name">\{{[First Name]}} \{{[Last Name]}}</div>
       <div class="small-card-list-role">\{{[Title]}}</div>
       <div class="small-card-list-location">\{{[Location]}}</div>
+      \{{#unless isCurrentUser}}
       \{{#if bookmarksEnabled}}
       <div class="small-card-bookmark-holder small-card-bookmark-holder-\{{id}}">
         <!-- Bookmark button will be here -->
@@ -21,6 +22,7 @@
         <i class="fa fa-bookmark-o fa-lg bookmark-placeholder"></i>
       </div>
       \{{/if}}
+      \{{/unless}}
     </div>
   </div>
   \{{/each}}

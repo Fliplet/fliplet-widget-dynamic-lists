@@ -1679,7 +1679,7 @@ DynamicList.prototype.onPartialRender = function(from, to) {
   var _this = this;
 
   if (_this.data.social && _this.data.social.bookmark) {
-    _this.$container.find('.small-card-list-item').slice(from, to).each(function(index, element) {
+    _this.$container.find('.small-card-list-item').not('.is-current-user').slice(from, to).each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-bookmark';
       var title = $(element).find('.small-card-list-name').text();
@@ -2189,7 +2189,10 @@ DynamicList.prototype.showDetails = function(id) {
     $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
     $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
 
-    _this.prepareSetupBookmarkOverlay(id);
+    // Doesn't setup the bookmark button for the current user profile
+    if ((data.data && !data.data.isCurrentUser) || (entryData && !entryData.isCurrentUser)) {
+      _this.prepareSetupBookmarkOverlay(id);
+    }
 
     // Trigger animations
     _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
