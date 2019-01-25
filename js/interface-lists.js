@@ -4,9 +4,6 @@ var dynamicLists;
 
 var addEntryLinkAction;
 var editEntryLinkAction;
-var linkPollProvider;
-var linkSurveyProvider;
-var linkQuestionsProvider;
 var linkAddEntryProvider;
 var linkEditEntryProvider;
 var filePickerPromises = [];
