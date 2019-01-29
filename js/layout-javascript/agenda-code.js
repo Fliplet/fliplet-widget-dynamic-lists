@@ -513,7 +513,6 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 DynamicList.prototype.likesObservers = function(button) {
   var _this = this;
 
-  console.log(button)
   button.btn.on('liked', function(data){
     this.$btn.parents('.agenda-list-item').addClass('bookmarked');
     var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
