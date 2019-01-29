@@ -1070,6 +1070,18 @@
   opacity: 0.3;
 }
 
+.simple-list-detail-overlay .simple-list-like-wrapper,
+.simple-list-detail-overlay .simple-list-bookmark-wrapper {
+  display: none;
+}
+
+.simple-list-detail-overlay .not-liked .simple-list-like-wrapper.btn-like,
+.simple-list-detail-overlay .liked .simple-list-like-wrapper.btn-liked,
+.simple-list-detail-overlay .not-bookmarked .simple-list-bookmark-wrapper.btn-bookmark,
+.simple-list-detail-overlay .bookmarked .simple-list-bookmark-wrapper.btn-bookmarked {
+  display: block;
+}
+
 .simple-list-container .simple-list-comment-holder .fa-comment-o,
 .simple-list-detail-overlay .simple-list-comment-holder .fa-comment-o {
   line-height: 0;
