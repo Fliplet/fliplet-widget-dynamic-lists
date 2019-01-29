@@ -12,17 +12,23 @@
         \{{/ifCond}}
         \{{#if likesEnabled}}
         <div class="news-feed-like-holder news-feed-like-holder-\{{id}}">
-          <!-- Like button will be here -->
-          <!-- Like placeholder -->
-          <i class="fa fa-heart-o fa-lg like-placeholder"></i>
+          <div class="news-feed-like-wrapper btn-like">
+            <span class="count"></span><i class="fa fa-heart-o fa-lg"></i>
+          </div>
+          <div class="news-feed-like-wrapper btn-liked">
+            <span class="count"></span><i class="fa fa-heart fa-lg animated bounceIn"></i>
+          </div>
         </div>
         \{{/if}}
 
         \{{#if bookmarksEnabled}}
         <div class="news-feed-bookmark-holder news-feed-bookmark-holder-\{{id}}">
-          <!-- Bookmark button will be here -->
-          <!-- Bookmark placeholder -->
-          <i class="fa fa-bookmark-o fa-lg bookmark-placeholder"></i>
+          <div class="news-feed-bookmark-wrapper btn-bookmark">
+            <i class="fa fa-bookmark-o fa-lg"></i>
+          </div>
+          <div class="news-feed-bookmark-wrapper btn-bookmarked">
+            <i class="fa fa-bookmark fa-lg animated fadeIn"></i>
+          </div>
         </div>
         \{{/if}}
 

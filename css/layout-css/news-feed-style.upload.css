@@ -812,6 +812,18 @@
   opacity: 0.3;
 }
 
+.news-feed-detail-overlay .news-feed-like-wrapper,
+.news-feed-detail-overlay .news-feed-bookmark-wrapper {
+  display: none;
+}
+
+.news-feed-detail-overlay .not-liked .news-feed-like-wrapper.btn-like,
+.news-feed-detail-overlay .liked .news-feed-like-wrapper.btn-liked,
+.news-feed-detail-overlay .not-bookmarked .news-feed-bookmark-wrapper.btn-bookmark,
+.news-feed-detail-overlay .bookmarked .news-feed-bookmark-wrapper.btn-bookmarked {
+  display: block;
+}
+
 .new-news-feed-list-container .news-feed-comment-holder .fa-comment-o,
 .news-feed-detail-overlay .news-feed-comment-holder .fa-comment-o {
   line-height: 0;
