@@ -1691,10 +1691,10 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
   if (button && button.btn) {
     if (button.btn.isLiked()) {
       $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).addClass('bookmarked');
-      isLiked = button.btn.isLiked()
+      isLiked = button.btn.isLiked();
     } else {
       $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).addClass('not-bookmarked');
-      isLiked = button.btn.isLiked()
+      isLiked = button.btn.isLiked();
     }
   } else {
     $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder').addClass('not-bookmarked');
