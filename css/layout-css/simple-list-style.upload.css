@@ -786,7 +786,7 @@
   overflow-x: hidden;
   padding: 0 15px;
   margin: 54px 0 109px;
-  margin-bottom: calc(109px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   z-index: 1;
 }
 
@@ -795,7 +795,7 @@
 }
 
 .simple-list-comment-panel.typing .simple-list-comment-area {
-  padding-bottom: 109px;
+  padding-bottom: 0;
 }
 
 .simple-list-comment-panel .simple-list-comment-input-holder {

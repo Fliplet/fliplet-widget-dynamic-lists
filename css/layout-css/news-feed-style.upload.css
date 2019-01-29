@@ -1038,7 +1038,7 @@
   overflow-x: hidden;
   padding: 0 15px;
   margin: 54px 0 109px;
-  margin-bottom: calc(109px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   z-index: 1;
 }
 
@@ -1047,7 +1047,7 @@
 }
 
 .new-news-feed-comment-panel.typing .news-feed-comment-area {
-  padding-bottom: 109px;
+  padding-bottom: 0;
 }
 
 .new-news-feed-comment-panel .news-feed-comment-input-holder {
