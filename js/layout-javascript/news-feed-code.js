@@ -792,19 +792,47 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
   var _this = this;
-  var bookmarkIndentifier = id + '-bookmark';
-  var likeIndentifier = id + '-like';
-  var title = $('.news-feed-detail-overlay').find('.news-feed-item-inner-content .news-feed-item-title').text();
 
-  if (_this.data.social && _this.data.social.bookmark) {
-    _this.setupBookmarkButtonOverlay(id, bookmarkIndentifier, title);
+  var isBookmarked = false;
+  var isLiked = false;
+  var count;
+  var bookmarkButton = _.find(_this.bookmarkButtons, function(btn) {
+    return btn.id === id;
+  });
+  var likeButton = _.find(_this.likeButtons, function(btn) {
+    return btn.id === id;
+  });
+
+  if (bookmarkButton && bookmarkButton.btn) {
+    if (bookmarkButton.btn.isLiked()) {
+      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
+      isBookmarked = bookmarkButton.btn.isLiked();
+    } else {
+      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
+      isBookmarked = bookmarkButton.btn.isLiked();
+    }
+  } else {
+    $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder').addClass('not-bookmarked');
+    isBookmarked = false;
   }
-  if (_this.data.social && _this.data.social.likes) {
-    _this.setupLikeButtonOverlay(id, likeIndentifier, title);
+
+  if (likeButton && likeButton.btn) {
+    count = likeButton.btn.getCount() > 0 ? likeButton.btn.getCount() : '';
+    if (likeButton.btn.isLiked()) {
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id).addClass('liked');
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count);
+      isLiked = likeButton.btn.isLiked();
+    } else {
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id).addClass('not-liked');
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count);
+      isLiked = likeButton.btn.isLiked();
+    }
+  } else {
+    $('.news-feed-detail-overlay').find('.news-feed-like-holder').addClass('not-liked');
+    isLiked = false;
   }
-  if (_this.data.social && (_this.data.social.bookmark || _this.data.social.likes)) {
-    _this.likesObserversOverlay(id);
-  }
+
+  _this.likesObserversOverlay(id, bookmarkButton, isBookmarked, likeButton, isLiked);
 }
 
 DynamicList.prototype.likesObservers = function(from, to) {
@@ -813,6 +841,10 @@ DynamicList.prototype.likesObservers = function(from, to) {
   _this.likeButtons.slice(from, to).forEach(function(button) {
     button.btn.on('liked', function(data){
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
+
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_like',
@@ -820,13 +852,29 @@ DynamicList.prototype.likesObservers = function(from, to) {
       });
     });
 
+    button.btn.on('liked.fail', function(data){
+      var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id).removeClass('liked').addClass('not-liked');
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
+    });
+
     button.btn.on('unliked', function(data){
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
+      var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
+
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_unlike',
         label: entryTitle
       });
+    });
+
+    button.btn.on('unliked.fail', function(data){
+      var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id).removeClass('not-liked').addClass('liked');
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
     });
   });
 
@@ -841,6 +889,11 @@ DynamicList.prototype.likesObservers = function(from, to) {
       });
     });
 
+    button.btn.on('liked.fail', function(data){
+      this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
+      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
+    });
+
     button.btn.on('unliked', function(data){
       this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
@@ -850,83 +903,45 @@ DynamicList.prototype.likesObservers = function(from, to) {
         label: entryTitle
       });
     });
+
+    button.btn.on('unliked.fail', function(data){
+      this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
+      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
+    });
   });
 }
 
-DynamicList.prototype.likesObserversOverlay = function(id) {
+DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBookmarked, likeButton, isLiked) {
   var _this = this;
+  var count;
 
-  if (_this.bookmarkButtonOverlay) {
-    _this.bookmarkButtonOverlay.on('liked', function(data){
-      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-      var button = _.find(_this.bookmarkButtons, function(btn) {
-        return btn.id === id;
-      });
+  $('.news-feed-detail-overlay').find('.news-feed-bookmark-wrapper').on('click', function() {
+    if (isBookmarked) {
+      $(this).parents('.news-feed-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+      bookmarkButton.btn.unlike();
+      isBookmarked = !isBookmarked;
+      return;
+    }
 
-      if (button) {
-        button.btn.like();
-      }
+    $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+    bookmarkButton.btn.like();
+    isBookmarked = !isBookmarked;
+  });
 
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: entryTitle
-      });
-    });
+  $('.news-feed-detail-overlay').find('.news-feed-like-wrapper').on('click', function() {
+    if (isLiked) {
+      $(this).parents('.news-feed-like-holder').removeClass('liked').addClass('not-liked');
+      likeButton.btn.unlike();
+      $(this).find('.count').html(count);
+      isLiked = !isLiked;
+      return;
+    }
 
-    _this.bookmarkButtonOverlay.on('unliked', function(data){
-      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-      var button = _.find(_this.bookmarkButtons, function(btn) {
-        return btn.id === id;
-      });
-
-      if (button) {
-        button.btn.unlike();
-      }
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: entryTitle
-      });
-    });
-  }
-
-  if (_this.likeButtonOverlay) {
-    _this.likeButtonOverlay.on('liked', function(data){
-      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-      var button = _.find(_this.likeButtons, function(btn) {
-        return btn.id === id;
-      });
-
-      if (button) {
-        button.btn.like();
-      }
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: entryTitle
-      });
-    });
-
-    _this.likeButtonOverlay.on('unliked', function(data){
-      var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
-      var button = _.find(_this.likeButtons, function(btn) {
-        return btn.id === id;
-      });
-
-      if (button) {
-        button.btn.unlike();
-      }
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: entryTitle
-      });
-    });
-  }
+    $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
+    likeButton.btn.like();
+    $(this).find('.count').html(count);
+    isLiked = !isLiked;
+  });
 }
 
 DynamicList.prototype.filterRecords = function(records, filters) {
@@ -2386,45 +2401,6 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
       addType: 'html'
     }),
     id: id
-  });
-}
-
-DynamicList.prototype.setupLikeButtonOverlay = function(id, identifier, title) {
-  var _this = this;
-
-  // Sets up the like feature
-  _this.likeButtonOverlay = LikeButton({
-    target: '.news-feed-detail-overlay .news-feed-like-holder-' + id,
-    dataSourceId: _this.data.likesDataSourceId,
-    content: { 
-      entryId: identifier,
-      pageId: Fliplet.Env.get('pageId')
-    },
-    name: Fliplet.Env.get('pageTitle') + '/' + title,
-    likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
-    likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-    likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
-    likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
-    addType: 'html'
-  });
-}
-
-DynamicList.prototype.setupBookmarkButtonOverlay = function(id, identifier, title) {
-  var _this = this;
-
-  // Sets up the like feature
-  _this.bookmarkButtonOverlay = LikeButton({
-    target: '.news-feed-detail-overlay .news-feed-bookmark-holder-' + id,
-    dataSourceId: _this.data.bookmarkDataSourceId,
-    content: { 
-      entryId: identifier
-    },
-    name: Fliplet.Env.get('pageTitle') + '/' + title,
-    likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
-    likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-    likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
-    likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
-    addType: 'html'
   });
 }
 

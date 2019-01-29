@@ -786,7 +786,7 @@
   overflow-x: hidden;
   padding: 0 15px;
   margin: 54px 0 109px;
-  margin-bottom: calc(109px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   z-index: 1;
 }
 
@@ -795,7 +795,7 @@
 }
 
 .simple-list-comment-panel.typing .simple-list-comment-area {
-  padding-bottom: 109px;
+  padding-bottom: 0;
 }
 
 .simple-list-comment-panel .simple-list-comment-input-holder {
@@ -1068,6 +1068,18 @@
 .simple-list-detail-overlay .simple-list-comment-holder .fa,
 .simple-list-detail-overlay .simple-list-comment-holder span {
   opacity: 0.3;
+}
+
+.simple-list-detail-overlay .simple-list-like-wrapper,
+.simple-list-detail-overlay .simple-list-bookmark-wrapper {
+  display: none;
+}
+
+.simple-list-detail-overlay .not-liked .simple-list-like-wrapper.btn-like,
+.simple-list-detail-overlay .liked .simple-list-like-wrapper.btn-liked,
+.simple-list-detail-overlay .not-bookmarked .simple-list-bookmark-wrapper.btn-bookmark,
+.simple-list-detail-overlay .bookmarked .simple-list-bookmark-wrapper.btn-bookmarked {
+  display: block;
 }
 
 .simple-list-container .simple-list-comment-holder .fa-comment-o,

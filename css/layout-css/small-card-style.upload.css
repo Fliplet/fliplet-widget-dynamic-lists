@@ -699,6 +699,15 @@
   color: #337ab7;
 }
 
+.small-card-detail-overlay .small-card-bookmark-wrapper {
+  display: none;
+}
+
+.small-card-detail-overlay .not-bookmarked .small-card-bookmark-wrapper.btn-bookmark,
+.small-card-detail-overlay .bookmarked .small-card-bookmark-wrapper.btn-bookmarked {
+  display: block;
+}
+
 .new-small-card-list-container .small-card-list-detail-image-wrapper,
 .small-card-detail-wrapper .small-card-list-detail-image-wrapper {
   position: absolute;
