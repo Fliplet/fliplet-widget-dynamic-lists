@@ -512,6 +512,8 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 DynamicList.prototype.likesObservers = function(button) {
   var _this = this;
+
+  console.log(button)
   button.btn.on('liked', function(data){
     this.$btn.parents('.agenda-list-item').addClass('bookmarked');
     var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
@@ -524,6 +526,7 @@ DynamicList.prototype.likesObservers = function(button) {
 
   button.btn.on('liked.fail', function(data){
     this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
+    $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
   });
 
   button.btn.on('unliked', function(data){
@@ -536,69 +539,25 @@ DynamicList.prototype.likesObservers = function(button) {
     });
   });
 
-  button.btn.on('liked.fail', function(data){
+  button.btn.on('unliked.fail', function(data){
     this.$btn.parents('.agenda-list-item').addClass('bookmarked');
+    $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
   });
 }
 
-DynamicList.prototype.likesObserversOverlay = function(id) {
+DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
   var _this = this;
 
-  if (_this.bookmarkButtonOverlay) {
-    _this.bookmarkButtonOverlay.on('liked', function(data){
-      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-      var button = _.find(_this.bookmarkButtons, function(btn) {
-        return btn.id === id;
-      });
+  $('.agenda-detail-overlay').find('.bookmark-wrapper').on('click', function() {
+    if (isLiked) {
+      $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+      button.btn.unlike();
+      return
+    }
 
-      if (button) {
-        button.btn.like();
-      }
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: entryTitle
-      });
-    });
-
-    _this.bookmarkButtonOverlay.on('liked.fail', function(data){
-      var button = _.find(_this.bookmarkButtons, function(btn) {
-        return btn.id === id;
-      });
-
-      if (button) {
-        button.btn.unlike();
-      }
-    });
-
-    _this.bookmarkButtonOverlay.on('unliked', function(data){
-      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-      var button = _.find(_this.bookmarkButtons, function(btn) {
-        return btn.id === id;
-      });
-
-      if (button) {
-        button.btn.unlike();
-      }
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: entryTitle
-      });
-    });
-
-    _this.bookmarkButtonOverlay.on('unliked.fail', function(data){
-      var button = _.find(_this.bookmarkButtons, function(btn) {
-        return btn.id === id;
-      });
-
-      if (button) {
-        button.btn.like();
-      }
-    });
-  }
+    $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+    button.btn.like();
+  });
 }
 
 DynamicList.prototype.scrollEvent = function() {
@@ -1721,33 +1680,22 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
   return button;
 }
 
-DynamicList.prototype.setupBookmarkButtonOverlay = function(id, identifier, title) {
-  var _this = this;
-
-  _this.bookmarkButtonOverlay = LikeButton({
-    target: '.agenda-detail-overlay .agenda-item-bookmark-holder-' + id,
-    dataSourceId: _this.data.bookmarkDataSourceId,
-    content: {
-      entryId: identifier,
-      pageId: Fliplet.Env.get('pageId')
-    },
-    allowAnonymous: true,
-    name: Fliplet.Env.get('pageTitle') + '/' + title,
-    likeLabel: '<span class="fa fa-bookmark-o"></span>', 
-    likedLabel: '<span class="fa fa-bookmark"></span>',
-    likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
-    likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
-    addType: 'prepend'
-  });
-}
-
 DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
   var _this = this;
-  var bookmarkIndentifier = id + '-bookmark';
-  var title = $('.agenda-detail-overlay').find('.agenda-item-inner-content .agenda-item-title').text();
+  var isLiked = false;
+  var button = _.find(_this.bookmarkButtons, function(btn) {
+    return btn.id === id;
+  });
 
-  _this.setupBookmarkButtonOverlay(id, bookmarkIndentifier, title);
-  _this.likesObserversOverlay(id);
+  if (button && button.btn.isLiked()) {
+    $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder').addClass('bookmarked');
+    isLiked = button.btn.isLiked()
+  } else {
+    $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder').addClass('not-bookmarked');
+    isLiked = button.btn.isLiked()
+  }
+
+  _this.likesObserversOverlay(id, button, isLiked);
 }
 
 DynamicList.prototype.prepareSetupBookmark = function(element) {
@@ -1910,7 +1858,6 @@ DynamicList.prototype.showDetails = function(id) {
     // Adds content to overlay
     $overlay.find('.agenda-detail-overlay-content-holder').html(wrapperTemplate(entryId));
     $overlay.find('.agenda-detail-wrapper').append(template(data.data || entryData));
-
 
     // Sets up the like and bookmark buttons
     if (_this.data.social && _this.data.social.bookmark) {
