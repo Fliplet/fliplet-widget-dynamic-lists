@@ -2270,6 +2270,10 @@ DynamicList.prototype.likesObservers = function() {
       });
     });
 
+    button.btn.on('liked.fail', function(data){
+      this.$btn.parents('.simple-list-item').removeClass('bookmarked');
+    });
+
     button.btn.on('unliked', function(data){
       this.$btn.parents('.simple-list-item').removeClass('bookmarked');
       var entryTitle = this.$btn.parents('.list-item-body').find('.list-item-title').text();
@@ -2278,6 +2282,10 @@ DynamicList.prototype.likesObservers = function() {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    button.btn.on('unliked.fail', function(data){
+      this.$btn.parents('.simple-list-item').addClass('bookmarked');
     });
   });
 }
@@ -2303,6 +2311,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
       });
     });
 
+    _this.bookmarkButtonOverlay.on('liked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.unlike();
+      }
+    });
+
     _this.bookmarkButtonOverlay.on('unliked', function(data){
       var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
       var button = _.find(_this.bookmarkButtons, function(btn) {
@@ -2318,6 +2336,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    _this.bookmarkButtonOverlay.on('unliked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
     });
   }
   
@@ -2339,6 +2367,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
       });
     });
 
+    _this.likeButtonOverlay.on('liked.fail', function(data){
+      var button = _.find(_this.likeButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.unlike();
+      }
+    });
+
     _this.likeButtonOverlay.on('unliked', function(data){
       var entryTitle = _this.$container.find('.simple-list-item[data-entry-id="'+ id +'"] .list-item-title').text();
       var button = _.find(_this.likeButtons, function(btn) {
@@ -2354,6 +2392,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    _this.likeButtonOverlay.on('unliked.fail', function(data){
+      var button = _.find(_this.likeButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
     });
   }
 }

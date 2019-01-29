@@ -2056,6 +2056,10 @@ DynamicList.prototype.likesObservers = function() {
       });
     });
 
+    button.btn.on('liked.fail', function(data){
+      this.$btn.parents('.small-card-list-item').removeClass('bookmarked');
+    });
+
     button.btn.on('unliked', function(data){
       this.$btn.parents('.small-card-list-item').removeClass('bookmarked');
       var entryTitle = this.$btn.parents('.small-card-list-text-wrapper').find('.small-card-list-name').text();
@@ -2064,6 +2068,10 @@ DynamicList.prototype.likesObservers = function() {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    button.btn.on('unliked.fail', function(data){
+      this.$btn.parents('.small-card-list-item').addClass('bookmarked');
     });
   });
 }
@@ -2089,6 +2097,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
       });
     });
 
+    _this.bookmarkButtonOverlay.on('liked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.unlike();
+      }
+    });
+
     _this.bookmarkButtonOverlay.on('unliked', function(data){
       var entryTitle = _this.$container.find('.small-card-list-item[data-entry-id="'+ id +'"] .small-card-list-name').text();
       var button = _.find(_this.bookmarkButtons, function(btn) {
@@ -2104,6 +2122,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    _this.bookmarkButtonOverlay.on('unliked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
     });
   }
 }

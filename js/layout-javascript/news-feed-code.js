@@ -841,6 +841,10 @@ DynamicList.prototype.likesObservers = function(from, to) {
       });
     });
 
+    button.btn.on('liked.fail', function(data){
+      this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
+    });
+
     button.btn.on('unliked', function(data){
       this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
@@ -849,6 +853,10 @@ DynamicList.prototype.likesObservers = function(from, to) {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    button.btn.on('unliked.fail', function(data){
+      this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
     });
   });
 }
@@ -874,6 +882,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
       });
     });
 
+    _this.bookmarkButtonOverlay.on('liked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.unlike();
+      }
+    });
+
     _this.bookmarkButtonOverlay.on('unliked', function(data){
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
       var button = _.find(_this.bookmarkButtons, function(btn) {
@@ -889,6 +907,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    _this.bookmarkButtonOverlay.on('unliked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
     });
   }
 
@@ -910,6 +938,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
       });
     });
 
+    _this.likeButtonOverlay.on('liked.fail', function(data){
+      var button = _.find(_this.likeButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.unlike();
+      }
+    });
+
     _this.likeButtonOverlay.on('unliked', function(data){
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
       var button = _.find(_this.likeButtons, function(btn) {
@@ -925,6 +963,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    _this.likeButtonOverlay.on('unliked.fail', function(data){
+      var button = _.find(_this.likeButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
     });
   }
 }

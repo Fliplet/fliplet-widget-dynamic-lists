@@ -512,25 +512,33 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 DynamicList.prototype.likesObservers = function(button) {
   var _this = this;
-    button.btn.on('liked', function(data){
-      this.$btn.parents('.agenda-list-item').addClass('bookmarked');
-      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: entryTitle
-      });
+  button.btn.on('liked', function(data){
+    this.$btn.parents('.agenda-list-item').addClass('bookmarked');
+    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_bookmark',
+      label: entryTitle
     });
+  });
 
-    button.btn.on('unliked', function(data){
-      this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
-      var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: entryTitle
-      });
+  button.btn.on('liked.fail', function(data){
+    this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
+  });
+
+  button.btn.on('unliked', function(data){
+    this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
+    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
+    Fliplet.Analytics.trackEvent({
+      category: 'list_dynamic_' + _this.data.layout,
+      action: 'entry_unbookmark',
+      label: entryTitle
     });
+  });
+
+  button.btn.on('liked.fail', function(data){
+    this.$btn.parents('.agenda-list-item').addClass('bookmarked');
+  });
 }
 
 DynamicList.prototype.likesObserversOverlay = function(id) {
@@ -554,6 +562,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
       });
     });
 
+    _this.bookmarkButtonOverlay.on('liked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.unlike();
+      }
+    });
+
     _this.bookmarkButtonOverlay.on('unliked', function(data){
       var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
       var button = _.find(_this.bookmarkButtons, function(btn) {
@@ -569,6 +587,16 @@ DynamicList.prototype.likesObserversOverlay = function(id) {
         action: 'entry_unbookmark',
         label: entryTitle
       });
+    });
+
+    _this.bookmarkButtonOverlay.on('unliked.fail', function(data){
+      var button = _.find(_this.bookmarkButtons, function(btn) {
+        return btn.id === id;
+      });
+
+      if (button) {
+        button.btn.like();
+      }
     });
   }
 }
