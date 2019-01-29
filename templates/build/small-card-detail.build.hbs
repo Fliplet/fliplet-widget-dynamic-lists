@@ -9,9 +9,12 @@
     \{{#unless isCurrentUser}}
     \{{#if bookmarksEnabled}}
     <div class="small-card-bookmark-holder small-card-bookmark-holder-\{{id}}">
-      <!-- Bookmark button will be here -->
-      <!-- Bookmark placeholder -->
-      <i class="fa fa-bookmark-o bookmark-placeholder"></i>
+      <div class="small-card-bookmark-wrapper btn-bookmark">
+        <i class="fa fa-bookmark-o"></i>
+      </div>
+      <div class="small-card-bookmark-wrapper btn-bookmarked">
+        <i class="fa fa-bookmark animated fadeIn"></i>
+      </div>
     </div>
     \{{/if}}
     \{{/unless}}
