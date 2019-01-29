@@ -806,30 +806,30 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
   if (bookmarkButton && bookmarkButton.btn) {
     if (bookmarkButton.btn.isLiked()) {
       $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked()
+      isBookmarked = bookmarkButton.btn.isLiked();
     } else {
       $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked()
+      isBookmarked = bookmarkButton.btn.isLiked();
     }
   } else {
     $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder').addClass('not-bookmarked');
-    isBookmarked = false
+    isBookmarked = false;
   }
 
   if (likeButton && likeButton.btn) {
     count = likeButton.btn.getCount() > 0 ? likeButton.btn.getCount() : '';
     if (likeButton.btn.isLiked()) {
       $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id).addClass('liked');
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count)
-      isLiked = likeButton.btn.isLiked()
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count);
+      isLiked = likeButton.btn.isLiked();
     } else {
       $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id).addClass('not-liked');
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count)
-      isLiked = likeButton.btn.isLiked()
+      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count);
+      isLiked = likeButton.btn.isLiked();
     }
   } else {
     $('.news-feed-detail-overlay').find('.news-feed-like-holder').addClass('not-liked');
-    isLiked = false
+    isLiked = false;
   }
 
   _this.likesObserversOverlay(id, bookmarkButton, isBookmarked, likeButton, isLiked);
@@ -919,13 +919,13 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
     if (isBookmarked) {
       $(this).parents('.news-feed-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       bookmarkButton.btn.unlike();
-      isBookmarked = !isBookmarked
-      return
+      isBookmarked = !isBookmarked;
+      return;
     }
 
     $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
     bookmarkButton.btn.like();
-    isBookmarked = !isBookmarked
+    isBookmarked = !isBookmarked;
   });
 
   $('.news-feed-detail-overlay').find('.news-feed-like-wrapper').on('click', function() {
@@ -933,14 +933,14 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
       $(this).parents('.news-feed-like-holder').removeClass('liked').addClass('not-liked');
       likeButton.btn.unlike();
       $(this).find('.count').html(count);
-      isLiked = !isLiked
-      return
+      isLiked = !isLiked;
+      return;
     }
 
     $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
     likeButton.btn.like();
     $(this).find('.count').html(count);
-    isLiked = !isLiked
+    isLiked = !isLiked;
   });
 }
 

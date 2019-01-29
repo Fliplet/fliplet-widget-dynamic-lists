@@ -2021,14 +2021,14 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
   if (button && button.btn) {
     if (button.btn.isLiked()) {
       $('.small-card-detail-overlay').find('.small-card-bookmark-holder-' + button.id).addClass('bookmarked');
-      isLiked = button.btn.isLiked()
+      isLiked = button.btn.isLiked();
     } else {
       $('.small-card-detail-overlay').find('.small-card-bookmark-holder-' + button.id).addClass('not-bookmarked');
-      isLiked = button.btn.isLiked()
+      isLiked = button.btn.isLiked();
     }
   } else {
     $('.small-card-detail-overlay').find('.small-card-bookmark-holder').addClass('not-bookmarked');
-    isLiked = false
+    isLiked = false;
   }
 
   _this.likesObserversOverlay(id, button, isLiked);
@@ -2077,13 +2077,13 @@ DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
     if (isLiked) {
       $(this).parents('.small-card-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       button.btn.unlike();
-      isLiked = !isLiked
-      return
+      isLiked = !isLiked;
+      return;
     }
 
     $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
     button.btn.like();
-    isLiked = !isLiked
+    isLiked = !isLiked;
   });
 }
 

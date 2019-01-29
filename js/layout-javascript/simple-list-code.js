@@ -2197,30 +2197,30 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
   if (bookmarkButton && bookmarkButton.btn) {
     if (bookmarkButton.btn.isLiked()) {
       $('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked()
+      isBookmarked = bookmarkButton.btn.isLiked();
     } else {
       $('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked()
+      isBookmarked = bookmarkButton.btn.isLiked();
     }
   } else {
     $('.simple-list-detail-overlay').find('.simple-list-bookmark-holder').addClass('not-bookmarked');
-    isBookmarked = false
+    isBookmarked = false;
   }
 
   if (likeButton && likeButton.btn) {
     count = likeButton.btn.getCount() > 0 ? likeButton.btn.getCount() : '';
     if (likeButton.btn.isLiked()) {
       $('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id).addClass('liked');
-      $('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id + ' .count').html(count)
-      isLiked = likeButton.btn.isLiked()
+      $('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id + ' .count').html(count);
+      isLiked = likeButton.btn.isLiked();
     } else {
       $('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id).addClass('not-liked');
-      $('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id + ' .count').html(count)
-      isLiked = likeButton.btn.isLiked()
+      $('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id + ' .count').html(count);
+      isLiked = likeButton.btn.isLiked();
     }
   } else {
     $('.simple-list-detail-overlay').find('.simple-list-like-holder').addClass('not-liked');
-    isLiked = false
+    isLiked = false;
   }
 
   _this.likesObserversOverlay(id, bookmarkButton, isBookmarked, likeButton, isLiked);
@@ -2311,13 +2311,13 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
     if (isBookmarked) {
       $(this).parents('.simple-list-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       bookmarkButton.btn.unlike();
-      isBookmarked = !isBookmarked
-      return
+      isBookmarked = !isBookmarked;
+      return;
     }
 
     $(this).parents('.simple-list-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
     bookmarkButton.btn.like();
-    isBookmarked = !isBookmarked
+    isBookmarked = !isBookmarked;
   });
 
   $('.simple-list-detail-overlay').find('.simple-list-like-wrapper').on('click', function() {
@@ -2325,14 +2325,14 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
       $(this).parents('.simple-list-like-holder').removeClass('liked').addClass('not-liked');
       likeButton.btn.unlike();
       $(this).find('.count').html(count);
-      isLiked = !isLiked
-      return
+      isLiked = !isLiked;
+      return;
     }
 
     $(this).parents('.simple-list-like-holder').removeClass('not-liked').addClass('liked');
     likeButton.btn.like();
     $(this).find('.count').html(count);
-    isLiked = !isLiked
+    isLiked = !isLiked;
   });
 }
 

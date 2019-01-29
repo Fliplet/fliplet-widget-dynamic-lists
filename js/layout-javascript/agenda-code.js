@@ -551,13 +551,13 @@ DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
     if (isLiked) {
       $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       button.btn.unlike();
-      isLiked = !isLiked
-      return
+      isLiked = !isLiked;
+      return;
     }
 
     $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
     button.btn.like();
-    isLiked = !isLiked
+    isLiked = !isLiked;
   });
 }
 
@@ -1698,7 +1698,7 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
     }
   } else {
     $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder').addClass('not-bookmarked');
-    isLiked = false
+    isLiked = false;
   }
 
   _this.likesObserversOverlay(id, button, isLiked);
