@@ -2716,10 +2716,15 @@ DynamicList.prototype.sendComment = function(id, value) {
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
   var userFromDataSource = _.find(_this.allUsers, function(user) {
-    var toCompareDataEmailPart = user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/)[0];
-    var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/)[0];
-
-    return toCompareDataEmailPart.toLowerCase() === toCompareEmailPart.toLowerCase();
+    /**
+     * there could be users with null for Email
+     */
+    var toCompareDataEmailPart = user.data[_this.data.userEmailColumn] ? user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/) : null;
+    var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/);
+    /**
+     * the regexp match could return null
+     */
+    return toCompareDataEmailPart && toCompareEmailPart && toCompareDataEmailPart[0].toLowerCase() === toCompareEmailPart[0].toLowerCase();
   });
 
   if (!userFromDataSource) {
