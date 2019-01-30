@@ -587,6 +587,7 @@ DynamicList.prototype.attachObservers = function() {
                 $messageArea.val(textToCopy);
                 autosize.update($messageArea);
                 $messageArea.focus();
+                $messageArea.trigger('change');
 
                 Fliplet.Analytics.trackEvent({
                   category: 'list_dynamic_' + _this.data.layout,

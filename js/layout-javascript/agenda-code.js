@@ -1339,59 +1339,62 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var calendarDates = [];
   var firstDate;
   var lastDate;
-  var numberOfPlacholderDays = 3;
+  var numberOfPlaceholderDays = 3;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
   var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Full Date'});
   var dateField = 'Full Date';
   if (foundDateField) {
     dateField = foundDateField.column;
   }
-  // set first date in agenda
-  firstDate = new Date(clonedRecords[0].data[dateField]).toUTCString();
 
-  // set last date in agenda
-  lastDate = new Date(clonedRecords[clonedRecords.length - 1].data[dateField]).toUTCString();
+  if (clonedRecords.length) {
+    // set first date in agenda
+    firstDate = new Date(clonedRecords[0].data[dateField]).toUTCString();
 
-  // Adds 5 days before the first date
-  // Save them in an array
-  for (var i = 0; i < numberOfPlacholderDays; i++) { 
-    var newDate = {
-      week: moment(firstDate).utc().subtract(i + 1, 'days').format("ddd"),
-      day: moment(firstDate).utc().subtract(i + 1, 'days').format("DD"),
-      month: moment(firstDate).utc().subtract(i + 1, 'days').format("MMM"),
-      placeholder: true
+    // set last date in agenda
+    lastDate = new Date(clonedRecords[clonedRecords.length - 1].data[dateField]).toUTCString();
+
+    // Adds 5 days before the first date
+    // Save them in an array
+    for (var i = 0; i < numberOfPlaceholderDays; i++) { 
+      var newDate = {
+        week: moment(firstDate).utc().subtract(i + 1, 'days').format("ddd"),
+        day: moment(firstDate).utc().subtract(i + 1, 'days').format("DD"),
+        month: moment(firstDate).utc().subtract(i + 1, 'days').format("MMM"),
+        placeholder: true
+      }
+      calendarDates.unshift(newDate);
     }
-    calendarDates.unshift(newDate);
-  }
 
-  // Get only the unique dates
-  var uniqueDates = _.uniqBy(clonedRecords, function(obj) {
-    return moment(obj.data[dateField]).format('YYYY-MM-DD');
-  });
+    // Get only the unique dates
+    var uniqueDates = _.uniqBy(clonedRecords, function(obj) {
+      return moment(obj.data[dateField]).format('YYYY-MM-DD');
+    });
 
-  // Get the event dates
-  // Save in an array
-  uniqueDates.forEach(function(obj) {
-    var newDate = new Date(obj.data[dateField]).toUTCString();
-    var newDateObject = {
-      week: moment(newDate).utc().format("ddd"),
-      day: moment(newDate).utc().format("DD"),
-      month: moment(newDate).utc().format("MMM"),
-      placeholder: false
+    // Get the event dates
+    // Save in an array
+    uniqueDates.forEach(function(obj) {
+      var newDate = new Date(obj.data[dateField]).toUTCString();
+      var newDateObject = {
+        week: moment(newDate).utc().format("ddd"),
+        day: moment(newDate).utc().format("DD"),
+        month: moment(newDate).utc().format("MMM"),
+        placeholder: false
+      }
+      calendarDates.push(newDateObject);
+    });
+
+    // Adds 5 days after the last date
+    // Save them in an array
+    for (var i = 0; i < numberOfPlaceholderDays; i++) { 
+      var newDate = {
+        week: moment(lastDate).utc().add(i + 1, 'days').format("ddd"),
+        day: moment(lastDate).utc().add(i + 1, 'days').format("DD"),
+        month: moment(lastDate).utc().add(i + 1, 'days').format("MMM"),
+        placeholder: true
+      }
+      calendarDates.push(newDate);
     }
-    calendarDates.push(newDateObject);
-  });
-
-  // Adds 5 days after the last date
-  // Save them in an array
-  for (var i = 0; i < numberOfPlacholderDays; i++) { 
-    var newDate = {
-      week: moment(lastDate).utc().add(i + 1, 'days').format("ddd"),
-      day: moment(lastDate).utc().add(i + 1, 'days').format("DD"),
-      month: moment(lastDate).utc().add(i + 1, 'days').format("MMM"),
-      placeholder: true
-    }
-    calendarDates.push(newDate);
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.otherLoopHTML
@@ -1652,6 +1655,10 @@ DynamicList.prototype.centerDate = function() {
   var activePosition = _this.$container.find('.agenda-date-selector li.active').position();
   var activeWidth = _this.$container.find('.agenda-date-selector li.active').outerWidth();
   var halfWidth = activeWidth / 2;
+
+  if (!activePosition || isNaN(activePosition.left) || isNaN(halfWindowWidth) || isNaN(halfWidth)) {
+    return;
+  }
 
   _this.$container.find('.agenda-date-selector ul').scrollLeft(activePosition.left - (halfWindowWidth - halfWidth));
 }
