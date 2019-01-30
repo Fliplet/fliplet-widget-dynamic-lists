@@ -1339,7 +1339,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var calendarDates = [];
   var firstDate;
   var lastDate;
-  var numberOfPlacholderDays = 3;
+  var numberOfPlaceholderDays = 3;
   var clonedRecords = JSON.parse(JSON.stringify(rows));
   var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Full Date'});
   var dateField = 'Full Date';
@@ -1356,7 +1356,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
     // Adds 5 days before the first date
     // Save them in an array
-    for (var i = 0; i < numberOfPlacholderDays; i++) { 
+    for (var i = 0; i < numberOfPlaceholderDays; i++) { 
       var newDate = {
         week: moment(firstDate).utc().subtract(i + 1, 'days').format("ddd"),
         day: moment(firstDate).utc().subtract(i + 1, 'days').format("DD"),
@@ -1386,7 +1386,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
     // Adds 5 days after the last date
     // Save them in an array
-    for (var i = 0; i < numberOfPlacholderDays; i++) { 
+    for (var i = 0; i < numberOfPlaceholderDays; i++) { 
       var newDate = {
         week: moment(lastDate).utc().add(i + 1, 'days').format("ddd"),
         day: moment(lastDate).utc().add(i + 1, 'days').format("DD"),
