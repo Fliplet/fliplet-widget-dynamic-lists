@@ -579,7 +579,7 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var commentId = $(this).parents('.fl-individual-comment').data('id');
       var $parentContainer = $(this).parents('.fl-individual-comment');
-      var elementToCopy = $(this);
+      var textToCopy = $(this).text().trim();
 
       if ($parentContainer.hasClass('current-user')) {
         Fliplet.UI.Actions({
@@ -596,11 +596,10 @@ DynamicList.prototype.attachObservers = function() {
               label: 'Edit',
               action: function (i) {
                 var $messageArea = $('[data-comment-body]');
-                var textToEdit = elementToCopy.text().trim();
                 _that.parents('.fl-individual-comment').addClass('editing');
                 $('.news-feed-comment-input-holder').addClass('editing');
 
-                $messageArea.val(textToEdit);
+                $messageArea.val(textToCopy);
                 autosize.update($messageArea);
                 $messageArea.focus();
 
