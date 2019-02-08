@@ -5,9 +5,7 @@
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
 	// we do not execute previousScreen like in the PV case so we don't open ourselves up to an xss attack
-	this.previousScreen = Fliplet.Navigate.query['dynamicListPreviousScreen']
-		? Fliplet.Navigate.query['dynamicListPreviousScreen'] === 'true'
-		: false;
+	this.previousScreen =Fliplet.Navigate.query['dynamicListPreviousScreen'] === 'true';
 
 	// action is intentionally ommited so we don't open ourselves up to an xss attack
 	this.pvGoBack = _.pickBy({
@@ -17,8 +15,8 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 	this.queryGoBack = _(this.pvGoBack).size() > 0;
 
 	// cast to booleans
-	this.pvGoBack.enableButton = this.pvGoBack.enableButton ? this.pvGoBack.enableButton === 'true' : false;
-	this.pvGoBack.hijackBack = this.pvGoBack.hijackBack ? this.pvGoBack.hijackBack === 'true' : false;
+	this.pvGoBack.enableButton = this.pvGoBack.enableButton === 'true';
+	this.pvGoBack.hijackBack = this.pvGoBack.hijackBack === 'true';
 	this.pvGoBack = this.queryGoBack ? this.pvGoBack : null;
 
 	// example input
@@ -100,10 +98,8 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 		this.pvFilterQuery.value = filterValues && filterValues.length ? filterValues : this.pvFilterQuery.column;
 
 		// cast to boolean
-		(this.pvFilterQuery.hideControls = this.pvFilterQuery.hideControls
-			? this.pvFilterQuery.hideControls === 'true'
-			: false),
-			(this.data.filtersEnabled = this.queryFilter);
+    this.pvFilterQuery.hideControls = this.pvFilterQuery.hideControls === 'true';
+		this.data.filtersEnabled = this.queryFilter;
 	} else {
 		this.queryFilter = null;
 	}
