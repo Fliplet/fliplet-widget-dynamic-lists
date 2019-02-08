@@ -5,7 +5,7 @@
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
 	// we do not execute previousScreen like in the PV case so we don't open ourselves up to an xss attack
-	this.previousScreen =Fliplet.Navigate.query['dynamicListPreviousScreen'] === 'true';
+	this.previousScreen = Fliplet.Navigate.query['dynamicListPreviousScreen'] === 'true';
 
 	// action is intentionally ommited so we don't open ourselves up to an xss attack
 	this.pvGoBack = _.pickBy({
@@ -98,7 +98,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 		this.pvFilterQuery.value = filterValues && filterValues.length ? filterValues : this.pvFilterQuery.column;
 
 		// cast to boolean
-    this.pvFilterQuery.hideControls = this.pvFilterQuery.hideControls === 'true';
+		this.pvFilterQuery.hideControls = this.pvFilterQuery.hideControls === 'true';
 		this.data.filtersEnabled = this.queryFilter;
 	} else {
 		this.queryFilter = null;
