@@ -961,8 +961,15 @@ DynamicList.prototype.initialize = function() {
       });
   }
 
-  // Check if there is a PV for search/filter queries
-  _this.parsePVQueryVars()
+  var shouldInitFromQuery = _this.parseQueryVars();
+  // query will always have higher priority than storage
+  // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
+  if(shouldInitFromQuery){
+    Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+  };
+
+  // Check if there is a query or PV for search/filter queries
+  (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
@@ -1157,6 +1164,8 @@ DynamicList.prototype.navigateBackEvent = function() {
   });
 }
 
+DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
+
 DynamicList.prototype.parsePVQueryVars = function() {
   var _this = this;
   var pvValue;
@@ -1164,7 +1173,6 @@ DynamicList.prototype.parsePVQueryVars = function() {
   return Fliplet.App.Storage.get('flDynamicListQuery:' + _this.data.layout)
     .then(function(value) {
       pvValue = value;
-      console.log(pvValue);
 
       if (typeof value === 'undefined') {
         Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
