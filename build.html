@@ -38,23 +38,22 @@
     </script>
     <div data-script-insert="{{ id }}" class="hidden"></div>
     <script type="text/javascript">
-      var script = document.createElement('script');
-      script.onload = function() {
-        if (typeof DynamicList !== 'function') {
-          console.warn('DynamicList() is not defined for widget for widget ID {{ id }}');
-          return;
-        }
-
-        var id = {{ id }};
-        DynamicListFuncs[id] = DynamicList;
-        DynamicList = null;
-        Fliplet().then(function () {
+      Fliplet().then(function(){
+        var script = document.createElement('script');
+        script.onload = function() {
+          if (typeof DynamicList !== 'function') {
+            console.warn('DynamicList() is not defined for widget for widget ID {{ id }}');
+            return;
+          }
+          var id = {{ id }};
+          DynamicListFuncs[id] = DynamicList;
+          DynamicList = null;
           var data = Fliplet.Widget.getData(id);
           dynamicLists[id] = new DynamicListFuncs[id](id, data);
-        })
-      };
-      script.src = assetUrl['{{ layout }}'];
-      document.querySelector('[data-script-insert="{{ id }}"]').appendChild(script);
+        };
+        script.src = assetUrl['{{ layout }}'];
+        document.querySelector('[data-script-insert="{{ id }}"]').appendChild(script);
+      });
     </script>
   {{/if}}
 {{else}}
