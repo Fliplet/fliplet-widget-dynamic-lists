@@ -803,13 +803,12 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
     return btn.id === id;
   });
 
-  if (bookmarkButton && bookmarkButton.btn) {
-    if (bookmarkButton.btn.isLiked()) {
+  if (bookmarkButton && _.hasIn(bookmarkButton, 'btn.isLiked')) {
+    isBookmarked = bookmarkButton.btn.isLiked();
+    if (isBookmarked) {
       $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked();
     } else {
       $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked();
     }
   } else {
     $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder').addClass('not-bookmarked');

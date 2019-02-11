@@ -2204,13 +2204,12 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
     return btn.id === id;
   });
 
-  if (bookmarkButton && bookmarkButton.btn) {
-    if (bookmarkButton.btn.isLiked()) {
+  if (bookmarkButton && _.hasIn(bookmarkButton, 'btn.isLiked')) {
+    isBookmarked = bookmarkButton.btn.isLiked();
+    if (isBookmarked) {
       $('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked();
     } else {
       $('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
-      isBookmarked = bookmarkButton.btn.isLiked();
     }
   } else {
     $('.simple-list-detail-overlay').find('.simple-list-bookmark-holder').addClass('not-bookmarked');
