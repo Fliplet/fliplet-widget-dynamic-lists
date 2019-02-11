@@ -64,7 +64,7 @@ var DynamicList = function(id, data, container) {
   this.pvFilterQuery;
   this.pvPreFilterQuery;
   this.pvOpenQuery;
-  
+
   /**
    * this specifies the batch size to be used when rendering in chunks
    */
@@ -90,7 +90,7 @@ var DynamicList = function(id, data, container) {
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
-    
+
     // Start running the Public functions
     _this.initialize();
   });
@@ -156,15 +156,15 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
 
   Handlebars.registerHelper('validateImage', function(image) {
     var validatedImage = image;
-    
+
     if (!validatedImage) {
       return '';
     }
-    
+
     if (Array.isArray(validatedImage) && !validatedImage.length) {
       return '';
     }
-    
+
     // Validate thumbnail against URL and Base64 patterns
     var urlPattern = /^https?:\/\//i;
     var base64Pattern = /^data:image\/[^;]+;base64,/i;
@@ -294,7 +294,7 @@ DynamicList.prototype.attachObservers = function() {
       });
 
       var beforeOpen = Promise.resolve();
-    
+
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
@@ -302,12 +302,12 @@ DynamicList.prototype.attachObservers = function() {
           entryId: entryId,
           entryTitle: entryTitle
         });
-        
+
         if (!(beforeOpen instanceof Promise)) {
           beforeOpen = Promise.resolve(beforeOpen);
         }
       }
-    
+
       beforeOpen.then(function () {
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
           _this.openLinkAction(entryId);
@@ -411,7 +411,7 @@ DynamicList.prototype.attachObservers = function() {
       } else {
         $inputField.removeClass('not-empty');
       }
-      
+
       if (e.which == 13 || e.keyCode == 13) {
         if (value === '') {
           _this.$container.find('.new-news-feed-list-container').removeClass('searching');
@@ -1322,7 +1322,7 @@ DynamicList.prototype.initialize = function() {
         _this.listItems = _.uniqBy(response, function (item) {
           return item.id;
         });
-        
+
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
         _this.renderLoopHTML(function(from, to){
@@ -1428,7 +1428,7 @@ DynamicList.prototype.prepareToSearch = function() {
     _this.overrideSearchData(_this.pvSearchQuery.value);
     return;
   }
-  
+
   _this.$container.find('.new-news-feed-list-container').addClass('searching');
   _this.isSearching = true;
   _this.searchData(_this.pvSearchQuery.value);
@@ -1452,7 +1452,7 @@ DynamicList.prototype.prepareToFilter = function() {
   }
 
   _this.filterList();
-  
+
   if (typeof _this.pvFilterQuery.hideControls !== 'undefined' && !_this.pvFilterQuery.hideControls) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
     _this.$container.find('.list-search-cancel').addClass('active');
@@ -1698,7 +1698,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
     loopData.push(newObject);
   });
 
-  savedColumns = _this.data.detailViewOptions.map(function(data){ 
+  savedColumns = _this.data.detailViewOptions.map(function(data){
     return data.column;
   })
 
@@ -1769,7 +1769,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         // if the browser is ready, render
         requestAnimationFrame(render);
       }
-      else{      
+      else{
         _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
         resolve();
       }
@@ -1898,7 +1898,7 @@ DynamicList.prototype.filterList = function() {
     });
     return;
   }
-  
+
   $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
     _this.filterClasses.push($(element).data('toggle'));
   });
@@ -1913,9 +1913,9 @@ DynamicList.prototype.filterList = function() {
     _this.filterClasses.forEach(function(filter) {
       matched.push(filters.indexOf(filter.toString()) >= 0);
     });
-    
+
     // If "_.includes" returns TRUE
-    // we actually want to return FALSE to _.filter 
+    // we actually want to return FALSE to _.filter
     return !_.includes(matched, false);
   });
 
@@ -1979,7 +1979,7 @@ DynamicList.prototype.convertCategories = function(data) {
         lowerCaseTags.push(classConverted);
         element.data['flFilters'].push(newObj);
       });
-      
+
     });
     element.data['flClasses'] = lowerCaseTags.join(' ');
   });
@@ -2124,14 +2124,14 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
-  
+
   // Search
   var searchedData = [];
   var filteredData;
   var fields = _this.pvSearchQuery.column; // Can be Array or String
 
   if (Array.isArray(_this.pvSearchQuery.column)) {
-    fields.forEach(function(field) {    
+    fields.forEach(function(field) {
       filteredData = _.filter(_this.listItems, function(obj) {
         if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
           return obj.data[field].toLowerCase().indexOf(value) > -1;
@@ -2181,7 +2181,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
     _this.onPartialRender(from, to);
   }).then(function(){
     _this.addFilters(_this.modifiedListItems);
-  
+
     if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
       _this.showDetails(_this.searchedListItems[0].id);
     }
@@ -2204,8 +2204,8 @@ DynamicList.prototype.searchData = function(value) {
   _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
-  
-  // Search  
+
+  // Search
   if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
     return;
   }
@@ -2226,7 +2226,7 @@ DynamicList.prototype.searchData = function(value) {
       var searchedData = [];
       var filteredData;
 
-      _this.data.searchFields.forEach(function(field) {    
+      _this.data.searchFields.forEach(function(field) {
         filteredData = _.filter(_this.listItems, function(obj) {
           if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
             return obj.data[field].toLowerCase().indexOf(value) > -1;
@@ -2376,7 +2376,7 @@ DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
     btn: LikeButton({
       target: '.news-feed-like-holder-' + id,
       dataSourceId: _this.data.likesDataSourceId,
-      content: { 
+      content: {
         entryId: identifier,
         pageId: Fliplet.Env.get('pageId')
       },
@@ -2399,7 +2399,7 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
     btn: LikeButton({
       target: '.news-feed-bookmark-holder-' + id,
       dataSourceId: _this.data.bookmarkDataSourceId,
-      content: { 
+      content: {
         entryId: identifier
       },
       name: Fliplet.Env.get('pageTitle') + '/' + title,
@@ -2424,7 +2424,7 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 
   var value = entry.data[_this.data.summaryLinkAction.column];
-  
+
   if (_this.data.summaryLinkAction.type === 'url') {
     Fliplet.Navigate.url(value);
   } else {
@@ -2458,7 +2458,7 @@ DynamicList.prototype.showDetails = function(id) {
       src: src,
       data: entryData
     });
-    
+
     if (!(beforeShowDetails instanceof Promise)) {
       beforeShowDetails = Promise.resolve(beforeShowDetails);
     }
@@ -2675,7 +2675,7 @@ DynamicList.prototype.showComments = function(id) {
       if (_this.myUserData) {
         myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
       }
-      
+
       var dataSourceEmail = '';
       if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
         dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
@@ -2751,7 +2751,7 @@ DynamicList.prototype.sendComment = function(id, value) {
       _this.comments[idx].count++
     }
   });
-  
+
   _this.updateCommentCounter(id);
 
   if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
@@ -2816,7 +2816,7 @@ DynamicList.prototype.sendComment = function(id, value) {
       comment.mentions.push(user.id);
     });
   }
-  
+
   comment.text = value;
   comment.timestamp = timestamp;
 
@@ -2930,7 +2930,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
     photo: commentData.data.settings.user[_this.data.userPhotoColumn] || '',
     text: commentData.data.settings.text
   };
-  
+
   if (context === 'final') {
     // Check if comment is from current user
     if (_this.myUserData && _this.myUserData.isSaml2) {
@@ -2993,7 +2993,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
       return comment.id === commentId;
     });
   }
-  
+
   if (commentData) {
     commentData.data.settings.text = value;
     _this.replaceComment(commentId, commentData, 'temp');
