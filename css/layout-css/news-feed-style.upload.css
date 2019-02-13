@@ -681,7 +681,7 @@
 
 .new-news-feed-list-container .news-feed-list-item .slide-over {
   padding: 0;
-  z-index: 1;
+  z-index: -1; /* Negative z-index is used to fix a Webkit bug where transforms prevent overflows being hidden */
   height: 100%;
   background-color: transparent;
   overflow: auto;
@@ -1454,7 +1454,7 @@
   .news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-item-inner-content {
     padding: 20px 15px;
   }
-  
+
   .news-feed-detail-overlay .news-feed-detail-overlay-wrapper {
     position: absolute;
     top: 0;
