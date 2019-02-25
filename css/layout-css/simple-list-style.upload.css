@@ -1129,11 +1129,8 @@
   margin-right: 4px;
 }
 
+.simple-list-container .simple-list-comment-holder span.count,
 .simple-list-detail-overlay .simple-list-comment-holder span.count {
-  margin-right: 0;
-}
-
-.simple-list-container .simple-list-comment-holder span.count {
   margin-right: 0;
 }
 
