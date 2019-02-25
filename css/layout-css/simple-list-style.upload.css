@@ -545,7 +545,7 @@
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
@@ -1096,6 +1096,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  white-space: nowrap;
 }
 
 .simple-list-container .simple-list-item .simple-list-social-holder {
@@ -1126,6 +1127,10 @@
   font-size: 12px;
   line-height: 24px;
   margin-right: 4px;
+}
+
+.simple-list-detail-overlay .simple-list-comment-holder span.count {
+  margin-right: 0;
 }
 
 .simple-list-container .simple-list-comment-holder span.count {
