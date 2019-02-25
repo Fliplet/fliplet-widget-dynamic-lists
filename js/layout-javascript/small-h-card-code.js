@@ -46,6 +46,9 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
+  // Cache XHR requests to media folders to get files
+  this.cachedFiles = {};
+
   /**
    * this specifies the batch size to be used when rendering in chunks
    */
@@ -68,7 +71,7 @@ var DynamicList = function(id, data, container) {
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
-    
+
     // Start running the Public functions
     _this.initialize();
   });
@@ -107,15 +110,15 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
 
   Handlebars.registerHelper('validateImage', function(image) {
     var validatedImage = image;
-    
+
     if (!validatedImage) {
       return '';
     }
-    
+
     if (Array.isArray(validatedImage) && !validatedImage.length) {
       return '';
     }
-    
+
     // Validate thumbnail against URL and Base64 patterns
     var urlPattern = /^https?:\/\//i;
     var base64Pattern = /^data:image\/[^;]+;base64,/i;
@@ -181,7 +184,7 @@ DynamicList.prototype.attachObservers = function() {
       });
 
       var beforeOpen = Promise.resolve();
-    
+
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
@@ -189,12 +192,12 @@ DynamicList.prototype.attachObservers = function() {
           entryId: entryId,
           entryTitle: entryTitle
         });
-        
+
         if (!(beforeOpen instanceof Promise)) {
           beforeOpen = Promise.resolve(beforeOpen);
         }
       }
-    
+
       beforeOpen.then(function () {
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
           _this.openLinkAction(entryId);
@@ -622,8 +625,13 @@ DynamicList.prototype.convertFiles = function(listItems) {
 
 DynamicList.prototype.connectToGetFiles = function(data) {
   var _this = this;
+  var cacheKey = JSON.stringify(data.query);
 
-  return Fliplet.Media.Folders.get(data.query)
+  if (!this.cachedFiles[cacheKey]) {
+    this.cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query);
+  }
+
+  return this.cachedFiles[cacheKey]
     .then(function(response) {
       var allFiles = response.files;
 
@@ -724,7 +732,7 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
-      
+
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -746,7 +754,7 @@ DynamicList.prototype.initialize = function() {
           return row.isCurrentUser;
         });
       }
-      
+
       return;
     })
     .then(function() {
@@ -994,10 +1002,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
     loopData.push(newObject);
   });
 
-  savedColumns = dynamicData.map(function(data){ 
+  savedColumns = dynamicData.map(function(data){
     return data.column;
   })
-  
+
   loopData.forEach(function(obj, index) {
     if (_this.data.detailViewAutoUpdate) {
       var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
@@ -1059,7 +1067,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         // if the browser is ready, render
         requestAnimationFrame(render);
       }
-      else{      
+      else{
         _this.$container.find('.new-small-h-card-list-container').addClass('ready');
         resolve();
       }
@@ -1132,7 +1140,7 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 
   var value = entry.data[_this.data.summaryLinkAction.column];
-  
+
   if (_this.data.summaryLinkAction.type === 'url') {
     Fliplet.Navigate.url(value);
   } else {
@@ -1166,7 +1174,7 @@ DynamicList.prototype.showDetails = function(id) {
       src: src,
       data: entryData
     });
-    
+
     if (!(beforeShowDetails instanceof Promise)) {
       beforeShowDetails = Promise.resolve(beforeShowDetails);
     }
@@ -1240,7 +1248,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
   if (!elementToExpand.hasClass('open')) {
     // freeze the current scroll position of the background content
     $('body').addClass('lock');
-    
+
     var currentPosition = elementToExpand.offset();
     var elementScrollTop = $(window).scrollTop();
     var netOffset = currentPosition.top - elementScrollTop;
@@ -1254,7 +1262,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     var directoryDetailImageWrapper = elementToExpand.find('.small-h-card-list-detail-image-wrapper');
     var directoryDetailImage = elementToExpand.find('.small-h-card-list-detail-image');
 
-    // convert the expand-item to fixed position with a high z-index without moving it 
+    // convert the expand-item to fixed position with a high z-index without moving it
     elementToExpand.css({
       'top': netOffset,
       'left': currentPosition.left,
@@ -1330,7 +1338,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   }, 200, 'linear',
   function() {
     elementToCollapse.css({
-      // after animating convert the collpase item to position absolute with a low z-index without moving it 
+      // after animating convert the collpase item to position absolute with a low z-index without moving it
       'position': 'absolute',
       'z-index': '1',
       'top': 0,

@@ -61,6 +61,12 @@ var DynamicList = function(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
+  // Cache XHR requests to media folders to get files
+  this.cachedFiles = {};
+
+  // Cache XHR requests to media folders to get files
+  this.cachedFiles = {};
+
   /**
    * this specifies the batch size to be used when rendering in chunks
    */
@@ -85,7 +91,7 @@ var DynamicList = function(id, data, container) {
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
-    
+
     // Start running the Public functions
     _this.initialize();
   });
@@ -124,15 +130,15 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
 
   Handlebars.registerHelper('validateImage', function(image) {
     var validatedImage = image;
-    
+
     if (!validatedImage) {
       return '';
     }
-    
+
     if (Array.isArray(validatedImage) && !validatedImage.length) {
       return '';
     }
-    
+
     // Validate thumbnail against URL and Base64 patterns
     var urlPattern = /^https?:\/\//i;
     var base64Pattern = /^data:image\/[^;]+;base64,/i;
@@ -272,7 +278,7 @@ DynamicList.prototype.attachObservers = function() {
       if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
         return;
       }
-      
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-card-list-name').text();
 
@@ -283,7 +289,7 @@ DynamicList.prototype.attachObservers = function() {
       });
 
       var beforeOpen = Promise.resolve();
-    
+
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
@@ -291,12 +297,12 @@ DynamicList.prototype.attachObservers = function() {
           entryId: entryId,
           entryTitle: entryTitle
         });
-        
+
         if (!(beforeOpen instanceof Promise)) {
           beforeOpen = Promise.resolve(beforeOpen);
         }
       }
-    
+
       beforeOpen.then(function () {
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
           _this.openLinkAction(entryId);
@@ -310,7 +316,7 @@ DynamicList.prototype.attachObservers = function() {
         } else if (_this.allowClick && $(window).width() >= 640) {
           _this.showDetails(entryId);
         }
-      });      
+      });
     })
     .on('click', '.small-card-detail-overlay-close', function(event) {
       event.stopPropagation();
@@ -853,8 +859,13 @@ DynamicList.prototype.convertFiles = function(listItems) {
 
 DynamicList.prototype.connectToGetFiles = function(data) {
   var _this = this;
+  var cacheKey = JSON.stringify(data.query);
 
-  return Fliplet.Media.Folders.get(data.query)
+  if (!this.cachedFiles[cacheKey]) {
+    this.cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query);
+  }
+
+  return this.cachedFiles[cacheKey]
     .then(function(response) {
       var allFiles = response.files;
 
@@ -957,7 +968,7 @@ DynamicList.prototype.initialize = function() {
           _this.checkBookmarked();
           _this.initializeMixer();
         });
-        
+
       });
   }
 
@@ -973,7 +984,7 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
-      
+
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -999,7 +1010,7 @@ DynamicList.prototype.initialize = function() {
           return row.isCurrentUser;
         });
       }
-      
+
       return;
     })
     .then(function() {
@@ -1031,18 +1042,18 @@ DynamicList.prototype.initialize = function() {
         _this.addFilters(_this.modifiedListItems);
         _this.prepareToSearch();
         _this.prepareToFilter();
-  
+
         // Render user profile
         if (_this.myProfileData && _this.myProfileData.length) {
           _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
           var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
           var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
           _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
-  
+
           var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
           var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
           _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
-  
+
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
         }
         _this.attachObservers();
@@ -1091,7 +1102,7 @@ DynamicList.prototype.prepareToSearch = function() {
     _this.overrideSearchData(_this.pvSearchQuery.value);
     return;
   }
-  
+
   _this.searchData(_this.pvSearchQuery.value);
 }
 
@@ -1376,10 +1387,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
   });
 
 
-  savedColumns = dynamicData.map(function(data){ 
+  savedColumns = dynamicData.map(function(data){
     return data.column;
   })
-  
+
   if (_this.data.detailViewAutoUpdate) {
     loopData.forEach(function(obj, index) {
       var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
@@ -1454,7 +1465,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         // if the browser is ready, render
         requestAnimationFrame(render);
       }
-      else{      
+      else{
         _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
         resolve()
       }
@@ -1585,7 +1596,7 @@ DynamicList.prototype.filterList = function() {
     });
     return;
   }
-  
+
   $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
     _this.filterClasses.push($(element).data('toggle'));
   });
@@ -1600,9 +1611,9 @@ DynamicList.prototype.filterList = function() {
     _this.filterClasses.forEach(function(filter) {
       matched.push(filters.indexOf(filter.toString()) >= 0);
     });
-    
+
     // If "_.includes" returns TRUE
-    // we actually want to return FALSE to _.filter 
+    // we actually want to return FALSE to _.filter
     return !_.includes(matched, false);
   });
 
@@ -1668,7 +1679,7 @@ DynamicList.prototype.convertCategories = function(data) {
         lowerCaseTags.push(classConverted);
         element.data['flFilters'].push(newObj);
       });
-      
+
     });
     element.data['flClasses'] = lowerCaseTags.join(' ');
   });
@@ -1711,7 +1722,7 @@ DynamicList.prototype.checkBookmarked = function() {
 
 DynamicList.prototype.calculateFiltersHeight = function(element) {
   var totalHeight = element.find('.hidden-filter-controls-content').height();
-  
+
   element.find('.hidden-filter-controls').animate({
     height: totalHeight,
   }, 200);
@@ -1723,7 +1734,7 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   if (isClearSearch) {
     totalHeight = 0;
   }
-  
+
   element.find('.hidden-search-controls').animate({
     height: totalHeight,
   }, 200);
@@ -1739,19 +1750,19 @@ DynamicList.prototype.overrideSearchData = function(value) {
   $inputField.blur();
   _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-search-controls').addClass('active');
-  
+
   // Removes cards
   _this.$container.find('#small-card-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
-  
+
   // Search
   var searchedData = [];
   var filteredData;
   var fields = _this.pvSearchQuery.column; // Can be Array or String
 
   if (Array.isArray(_this.pvSearchQuery.column)) {
-    fields.forEach(function(field) {    
+    fields.forEach(function(field) {
       filteredData = _.filter(_this.listItems, function(obj) {
         if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
           return obj.data[field].toLowerCase().indexOf(value) > -1;
@@ -1828,7 +1839,7 @@ DynamicList.prototype.searchData = function(value) {
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
 
-  // Search  
+  // Search
   if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
     return;
   }
@@ -1849,7 +1860,7 @@ DynamicList.prototype.searchData = function(value) {
       var searchedData = [];
       var filteredData;
 
-      _this.data.searchFields.forEach(function(field) {    
+      _this.data.searchFields.forEach(function(field) {
         filteredData = _.filter(_this.listItems, function(obj) {
           if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
             return obj.data[field].toLowerCase().indexOf(value) > -1;
@@ -2005,7 +2016,7 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
     btn: LikeButton({
       target: '.small-card-bookmark-holder-' + id,
       dataSourceId: _this.data.bookmarkDataSourceId,
-      content: { 
+      content: {
         entryId: identifier
       },
       name: Fliplet.Env.get('pageTitle') + '/' + title,
@@ -2106,7 +2117,7 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 
   var value = entry.data[_this.data.summaryLinkAction.column];
-  
+
   if (_this.data.summaryLinkAction.type === 'url') {
     Fliplet.Navigate.url(value);
   } else {
@@ -2140,7 +2151,7 @@ DynamicList.prototype.showDetails = function(id) {
       src: src,
       data: entryData
     });
-    
+
     if (!(beforeShowDetails instanceof Promise)) {
       beforeShowDetails = Promise.resolve(beforeShowDetails);
     }
@@ -2233,7 +2244,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     var directoryDetailImageWrapper = elementToExpand.find('.small-card-list-detail-image-wrapper');
     var directoryDetailImage = elementToExpand.find('.small-card-list-detail-image');
 
-    // convert the expand-item to fixed position with a high z-index without moving it 
+    // convert the expand-item to fixed position with a high z-index without moving it
     elementToExpand.css({
       'top': netOffset,
       'left': currentPosition.left,
@@ -2309,7 +2320,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   }, 200, 'linear',
   function() {
     elementToCollapse.css({
-      // after animating convert the collpase item to position absolute with a low z-index without moving it 
+      // after animating convert the collpase item to position absolute with a low z-index without moving it
       'position': 'absolute',
       'z-index': '1',
       'top': 0,
