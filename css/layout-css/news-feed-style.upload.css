@@ -707,6 +707,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  white-space: no-wrap;
 }
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-info-holder.has-date-category,
@@ -870,7 +871,8 @@
   margin-right: 4px;
 }
 
-.new-news-feed-list-container .news-feed-comment-holder span.count {
+.new-news-feed-list-container .news-feed-comment-holder span.count,
+.news-feed-detail-overlay .news-feed-comment-holder span.count {
   margin-right: 0;
 }
 
