@@ -78,11 +78,18 @@
       "js/build.js",
       "vendor/style.css",
       "css/build.css",
+
       "css/layout-css/small-card-style.upload.css",
       "css/layout-css/news-feed-style.upload.css",
       "css/layout-css/agenda-style.upload.css",
       "css/layout-css/small-h-card-style.upload.css",
-      "css/layout-css/simple-list-style.upload.css"
+      "css/layout-css/simple-list-style.upload.css",
+
+      "js/layout-javascript/small-card-style.js",
+      "js/layout-javascript/news-feed-style.js",
+      "js/layout-javascript/agenda-style.js",
+      "js/layout-javascript/small-h-card-style.js",
+      "js/layout-javascript/simple-list-style.js"
     ]
   },
   "references": [
