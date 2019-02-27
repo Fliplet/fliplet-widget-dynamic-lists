@@ -1263,7 +1263,9 @@ DynamicList.prototype.connectToGetFiles = function(data) {
   var cacheKey = JSON.stringify(data.query);
 
   if (!this.cachedFiles[cacheKey]) {
-    this.cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query);
+    this.cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query).catch(function () {
+      return Promise.resolve({ files: [], folders: [] });
+    });
   }
 
   return this.cachedFiles[cacheKey]
