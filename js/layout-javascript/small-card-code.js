@@ -628,7 +628,7 @@ DynamicList.prototype.filterRecords = function(records, filters) {
         return;
       }
       if (condition === 'regex') {
-        var pattern = new RegExp(filter.value);
+        var pattern = new RegExp(filter.value, 'gi');
         if (pattern.test(rowData)){
           matched++;
         }
