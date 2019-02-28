@@ -79,7 +79,13 @@
       "css/layout-css/news-feed-style.upload.css",
       "css/layout-css/agenda-style.upload.css",
       "css/layout-css/small-h-card-style.upload.css",
-      "css/layout-css/simple-list-style.upload.css"
+      "css/layout-css/simple-list-style.upload.css",
+
+      { "compile": false, "path": "js/layout-javascript/small-card-code.js" },
+      { "compile": false, "path": "js/layout-javascript/news-feed-code.js" },
+      { "compile": false, "path": "js/layout-javascript/agenda-code.js" },
+      { "compile": false, "path": "js/layout-javascript/small-h-card-code.js" },
+      { "compile": false, "path": "js/layout-javascript/simple-list-code.js" }
     ]
   },
   "references": [
