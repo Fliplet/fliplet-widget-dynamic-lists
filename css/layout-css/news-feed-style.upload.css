@@ -307,7 +307,7 @@
   position: relative;
 }
 
-.new-news-feed-list-container .search-holder .fa.fa-search {
+.new-news-feed-list-container .search-holder .fa {
   position: absolute;
   top: 0;
   left: 0;
