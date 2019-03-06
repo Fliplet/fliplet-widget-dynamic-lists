@@ -684,19 +684,9 @@
 .small-card-list-detail-content-wrapper .small-card-bookmark-holder {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;
   padding: 15px;
   font-size: 25px;
-}
-
-.small-card-detail-wrapper > .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-bookmark-holder {
-  left: auto;
-  right: 0;
-}
-
-.small-card-detail-wrapper > .small-card-list-detail-content-scroll-wrapper .small-card-bookmark-holder {
-  left: 0;
-  right: auto;
 }
 
 .new-small-card-list-container .small-card-bookmark-holder .fa-bookmark-o,
