@@ -628,9 +628,19 @@ DynamicList.prototype.connectToGetFiles = function(data) {
   var cacheKey = JSON.stringify(data.query);
 
   if (!this.cachedFiles[cacheKey]) {
-    this.cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query).catch(function () {
-      return Promise.resolve({ files: [], folders: [] });
-    });
+    this.cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query)
+      .then(function (response) {
+        response.files.forEach(function (file) {
+          if (file.isEncrypted) {
+            file.url = Fliplet.Media.authenticate(file.url);
+          }
+        });
+
+        return response;
+      })
+      .catch(function () {
+        return Promise.resolve({ files: [], folders: [] });
+      });
   }
 
   return this.cachedFiles[cacheKey]
@@ -651,11 +661,6 @@ DynamicList.prototype.connectToGetFiles = function(data) {
       }
 
       allFiles.forEach(function(file) {
-        // Add this IF statement to make the URLs to work with encrypted organizations
-        if (file.isEncrypted) {
-          file.url += '?auth_token=' + Fliplet.User.getAuthToken();
-        }
-
         if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
           data.entry.data[data.field.column] = file.url;
           // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
