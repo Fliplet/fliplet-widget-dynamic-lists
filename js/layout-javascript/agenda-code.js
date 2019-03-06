@@ -993,8 +993,11 @@ DynamicList.prototype.initialize = function() {
     })
 }
 
-DynamicList.prototype.checkIsToOpen = function() {
+DynamicList.prototype.checkIsToOpen = function(options) {
   // List of entries saved in: _this.modifiedListItems
+
+  options = options || {};
+
   var _this = this;
   var entry;
 
@@ -1030,6 +1033,12 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (!entry) {
+    // Entry not found
+    if (options.silent) {
+      return;
+    }
+
+    Fliplet.UI.Toast('Entry not found');
     return;
   }
 
