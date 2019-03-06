@@ -513,7 +513,6 @@
   position: relative;
   max-width: 600px;
   margin: auto;
-  z-index: -1; /* Negative z-index is used to fix a Webkit bug where transforms prevent overflows being hidden */
 }
 
 .new-news-feed-list-container .news-feed-list-wrapper {
@@ -586,7 +585,6 @@
   transition: border-radius 0.15s ease;
   border-radius: 20px;
   cursor: pointer;
-  z-index: 0;
 }
 
 .new-news-feed-list-container .news-feed-list-item.open .news-feed-item-content {
@@ -683,7 +681,6 @@
 
 .new-news-feed-list-container .news-feed-list-item .slide-over {
   padding: 0;
-  z-index: -1; /* Negative z-index is used to fix a Webkit bug where transforms prevent overflows being hidden */
   height: 100%;
   background-color: transparent;
   overflow: auto;
