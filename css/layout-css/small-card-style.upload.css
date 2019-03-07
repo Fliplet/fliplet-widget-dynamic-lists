@@ -364,7 +364,7 @@
   position: relative;
 }
 
-.new-small-card-list-container .search-holder .fa.fa-search {
+.new-small-card-list-container .search-holder .fa {
   position: absolute;
   top: 0;
   left: 0;
