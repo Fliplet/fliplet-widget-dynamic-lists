@@ -700,7 +700,7 @@ DynamicList.prototype.prepareData = function(records) {
 
         if (field.type === "date") {
           // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = new Date(record.data['modified_' + field.column]).getTime();
+          record.data['modified_' + field.column] = _this.getMomentDate(record.data['modified_' + field.column]).format();
         }
 
         if (field.type === "time") {
@@ -715,7 +715,7 @@ DynamicList.prototype.prepareData = function(records) {
 
     sortColumns = fields.map(function (field) {
       return 'data[modified_' + field.column + ']';
-    })
+    });
     // Sort data
     records = _.orderBy(mappedRecords, sortColumns, sortOrder);
   }
@@ -1198,6 +1198,43 @@ DynamicList.prototype.convertTime = function(time) {
   return convertedTime;
 }
 
+DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
+  var _this = this;
+  // Group data by date field
+  var recordGroups = _.groupBy(loopData, function(row) {
+    return row[dateField];
+  });
+  var recordMerges = [];
+
+  // Prepare a merge if the date values are parsed as the same date
+  _.forEach(_.keys(recordGroups), function (key, i) {
+    var date = _this.getMomentDate(key);
+    _.forEach(_.keys(recordGroups), function (comp, j) {
+      if (j >= i) {
+        return false;
+      }
+
+      if (date.format('YYYY-MM-DD') !== _this.getMomentDate(comp).format('YYYY-MM-DD')) {
+        return;
+      }
+
+      recordMerges.push({
+        from: key,
+        to: comp
+      });
+      return false;
+    });
+  });
+
+  // Merge data
+  _.forEach(recordMerges, function (merge) {
+    recordGroups[merge.to] = _.concat(recordGroups[merge.to], recordGroups[merge.from]);
+    delete recordGroups[merge.from];
+  });
+
+  return _.values(recordGroups);
+};
+
 DynamicList.prototype.prepareToRenderLoop = function(rows) {
   var _this = this;
   var savedColumns = [];
@@ -1335,15 +1372,9 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
         });
       }
     }
-
-    _
   });
 
-  var newRecords = _.values(_.groupBy(loopData, function(row) {
-    return row[dateField];
-  }));
-
-  _this.agendasByDay = newRecords;
+  _this.agendasByDay = _this.groupLoopDataByDate(loopData, dateField);;
 }
 
 DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
@@ -1399,15 +1430,25 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var clonedRecords = JSON.parse(JSON.stringify(rows));
   var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Full Date'});
   var dateField = 'Full Date';
+  var formats = {
+    week: 'ddd',
+    day: 'DD',
+    month: 'MMM'
+  };
   if (foundDateField) {
     dateField = foundDateField.column;
   }
 
+  // Keep only records with valid dates when rendering dates selectors
+  clonedRecords = _.filter(clonedRecords, function (record) {
+    return _this.getMomentDate(record.data[dateField]).isValid();
+  });
+
   if (clonedRecords.length) {
-    // set first date in agenda
+    // Set first date in agenda
     firstDate = _this.getMomentDate(clonedRecords[0].data[dateField]);
 
-    // set last date in agenda
+    // Set last date in agenda
     lastDate = _this.getMomentDate(clonedRecords[clonedRecords.length - 1].data[dateField]);
 
     // Adds (numberOfPlaceholderDays) days before the first date
@@ -1415,9 +1456,9 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
     for (var i = 0; i < numberOfPlaceholderDays; i++) {
       firstDate.subtract(1, 'days');
       calendarDates.unshift({
-        week: firstDate.format("ddd"),
-        day: firstDate.format("DD"),
-        month: firstDate.format("MMM"),
+        week: firstDate.format(formats.week),
+        day: firstDate.format(formats.day),
+        month: firstDate.format(formats.month),
         placeholder: true
       });
     }
@@ -1431,10 +1472,11 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
     // Save in an array
     uniqueDates.forEach(function(date) {
       var d = _this.getMomentDate(date);
+
       calendarDates.push({
-        week: d.format("ddd"),
-        day: d.format("DD"),
-        month: d.format("MMM"),
+        week: d.format(formats.week),
+        day: d.format(formats.day),
+        month: d.format(formats.month),
         placeholder: false
       });
     });
@@ -1444,9 +1486,9 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
     for (var i = 0; i < numberOfPlaceholderDays; i++) {
       lastDate.add(1, 'days');
       calendarDates.push({
-        week: lastDate.format("ddd"),
-        day: lastDate.format("DD"),
-        month: lastDate.format("MMM"),
+        week: lastDate.format(formats.week),
+        day: lastDate.format(formats.day),
+        month: lastDate.format(formats.month),
         placeholder: true
       });
     }
