@@ -87,6 +87,7 @@ var DynamicList = function(id, data, container) {
     });
 };
 
+Fliplet.DynamicList = Fliplet.DynamicList || {};
 Fliplet.DynamicList.isoWarningIssued = false;
 
 DynamicList.prototype.getMomentDate = function (date) {
@@ -103,7 +104,7 @@ DynamicList.prototype.getMomentDate = function (date) {
   if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
     d = d.toUTCString();
   } else if (!Fliplet.DynamicList.isoWarningIssued) {
-    console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, i.e. ' + new Date().toISOString().substr(0, 10));
+    console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. ' + new Date().toISOString().substr(0, 10));
     Fliplet.DynamicList.isoWarningIssued = true;
   }
 
