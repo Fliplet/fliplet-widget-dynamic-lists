@@ -101,7 +101,7 @@ DynamicList.prototype.getMomentDate = function (date) {
 
   var d = new Date(date);
 
-  if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+  if (date.match(/\d{4}-\d{2}-\d{2}(T| )?(\d{2}:\d{2}:\d{2})?/)) {
     d = d.toUTCString();
   } else if (!Fliplet.DynamicList.isoWarningIssued) {
     console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. ' + new Date().toISOString().substr(0, 10));
