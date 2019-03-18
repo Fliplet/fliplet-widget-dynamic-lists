@@ -619,15 +619,20 @@
 }
 
 .new-small-card-list-container .small-card-list-image {
-  width: 60px;
+  width: 61px;
   height: 100%;
+  margin: -1px 0 -1px -1px;
   background-position: center;
   background-size: cover;
   position: relative;
+  border-radius: 15px 0 0 15px;
+  overflow: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .new-small-card-list-container .small-card-list-image.no-image {
-  width: 0;
+  display: none;
 }
 
 .new-small-card-list-container .small-card-list-image .small-card-list-detail-image {
