@@ -687,6 +687,7 @@
   top: initial;
   -webkit-transform: translate3d(0,0,0);
   transform: translate3d(0,0,0);
+  border-radius: 19px;
 }
 
 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over {
@@ -933,8 +934,6 @@
 
   .new-news-feed-list-container .news-feed-list-item .slide-over {
     height: auto;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
   }
 
   .new-news-feed-list-container .news-feed-item-inner-content {
