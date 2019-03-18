@@ -87,6 +87,30 @@ var DynamicList = function(id, data, container) {
     });
 };
 
+Fliplet.DynamicList = Fliplet.DynamicList || {};
+Fliplet.DynamicList.isoWarningIssued = false;
+
+DynamicList.prototype.getMomentDate = function (date) {
+  if (date.constructor.name === 'Date') {
+    return moment(d);
+  }
+
+  if (typeof date === 'number') {
+    return moment(d);
+  }
+
+  var d = new Date(date);
+
+  if (date.match(/\d{4}-\d{2}-\d{2}(T| )?(\d{2}:\d{2}:\d{2})?/)) {
+    d = d.toUTCString();
+  } else if (!Fliplet.DynamicList.isoWarningIssued) {
+    console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. ' + new Date().toISOString().substr(0, 10));
+    Fliplet.DynamicList.isoWarningIssued = true;
+  }
+
+  return moment(d);
+};
+
 DynamicList.prototype.registerHandlebarsHelpers = function() {
   // Register your handlebars helpers here
   var _this = this;
@@ -145,7 +169,7 @@ DynamicList.prototype.registerHandlebarsHelpers = function() {
   });
 
   Handlebars.registerHelper('formatDate', function(date) {
-    return moment(date).utc().format('DD MMMM YYYY');
+    return _this.getMomentDate(date).format('DD MMMM YYYY');
   });
 
   Handlebars.registerHelper('removeSpaces', function(context) {
@@ -676,7 +700,7 @@ DynamicList.prototype.prepareData = function(records) {
 
         if (field.type === "date") {
           // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = new Date(record.data['modified_' + field.column]).getTime();
+          record.data['modified_' + field.column] = _this.getMomentDate(record.data['modified_' + field.column]).format();
         }
 
         if (field.type === "time") {
@@ -691,7 +715,7 @@ DynamicList.prototype.prepareData = function(records) {
 
     sortColumns = fields.map(function (field) {
       return 'data[modified_' + field.column + ']';
-    })
+    });
     // Sort data
     records = _.orderBy(mappedRecords, sortColumns, sortOrder);
   }
@@ -1174,6 +1198,43 @@ DynamicList.prototype.convertTime = function(time) {
   return convertedTime;
 }
 
+DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
+  var _this = this;
+  // Group data by date field
+  var recordGroups = _.groupBy(loopData, function(row) {
+    return row[dateField];
+  });
+  var recordMerges = [];
+
+  // Prepare a merge if the date values are parsed as the same date
+  _.forEach(_.keys(recordGroups), function (key, i) {
+    var date = _this.getMomentDate(key);
+    _.forEach(_.keys(recordGroups), function (comp, j) {
+      if (j >= i) {
+        return false;
+      }
+
+      if (date.format('YYYY-MM-DD') !== _this.getMomentDate(comp).format('YYYY-MM-DD')) {
+        return;
+      }
+
+      recordMerges.push({
+        from: key,
+        to: comp
+      });
+      return false;
+    });
+  });
+
+  // Merge data
+  _.forEach(recordMerges, function (merge) {
+    recordGroups[merge.to] = _.concat(recordGroups[merge.to], recordGroups[merge.from]);
+    delete recordGroups[merge.from];
+  });
+
+  return _.values(recordGroups);
+};
+
 DynamicList.prototype.prepareToRenderLoop = function(rows) {
   var _this = this;
   var savedColumns = [];
@@ -1311,16 +1372,9 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
         });
       }
     }
-
-    var newDate = new Date(obj[dateField]).toUTCString();
-    loopData[index][dateField] = moment(newDate).utc().format("ddd Do MMM");
   });
 
-  var newRecords = _.values(_.groupBy(loopData, function(row) {
-    return row[dateField];
-  }));
-
-  _this.agendasByDay = newRecords;
+  _this.agendasByDay = _this.groupLoopDataByDate(loopData, dateField);;
 }
 
 DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
@@ -1376,63 +1430,73 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var clonedRecords = JSON.parse(JSON.stringify(rows));
   var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Full Date'});
   var dateField = 'Full Date';
+  var formats = {
+    week: 'ddd',
+    day: 'DD',
+    month: 'MMM'
+  };
   if (foundDateField) {
     dateField = foundDateField.column;
   }
 
+  // Keep only records with valid dates when rendering dates selectors
+  clonedRecords = _.filter(clonedRecords, function (record) {
+    return _this.getMomentDate(record.data[dateField]).isValid();
+  });
+
   if (clonedRecords.length) {
-    // set first date in agenda
-    firstDate = new Date(clonedRecords[0].data[dateField]).toUTCString();
+    // Set first date in agenda
+    firstDate = _this.getMomentDate(clonedRecords[0].data[dateField]);
 
-    // set last date in agenda
-    lastDate = new Date(clonedRecords[clonedRecords.length - 1].data[dateField]).toUTCString();
+    // Set last date in agenda
+    lastDate = _this.getMomentDate(clonedRecords[clonedRecords.length - 1].data[dateField]);
 
-    // Adds 5 days before the first date
+    // Adds (numberOfPlaceholderDays) days before the first date
     // Save them in an array
     for (var i = 0; i < numberOfPlaceholderDays; i++) {
-      var newDate = {
-        week: moment(firstDate).utc().subtract(i + 1, 'days').format("ddd"),
-        day: moment(firstDate).utc().subtract(i + 1, 'days').format("DD"),
-        month: moment(firstDate).utc().subtract(i + 1, 'days').format("MMM"),
+      firstDate.subtract(1, 'days');
+      calendarDates.unshift({
+        week: firstDate.format(formats.week),
+        day: firstDate.format(formats.day),
+        month: firstDate.format(formats.month),
         placeholder: true
-      }
-      calendarDates.unshift(newDate);
+      });
     }
 
     // Get only the unique dates
-    var uniqueDates = _.uniqBy(clonedRecords, function(obj) {
-      return moment(obj.data[dateField]).format('YYYY-MM-DD');
-    });
+    var uniqueDates = _.map(_.uniqBy(clonedRecords, function(obj) {
+      return _this.getMomentDate(obj.data[dateField]).format('YYYY-MM-DD');
+    }), 'data.' + dateField);
 
     // Get the event dates
     // Save in an array
-    uniqueDates.forEach(function(obj) {
-      var newDate = new Date(obj.data[dateField]).toUTCString();
-      var newDateObject = {
-        week: moment(newDate).utc().format("ddd"),
-        day: moment(newDate).utc().format("DD"),
-        month: moment(newDate).utc().format("MMM"),
+    uniqueDates.forEach(function(date) {
+      var d = _this.getMomentDate(date);
+
+      calendarDates.push({
+        week: d.format(formats.week),
+        day: d.format(formats.day),
+        month: d.format(formats.month),
         placeholder: false
-      }
-      calendarDates.push(newDateObject);
+      });
     });
 
-    // Adds 5 days after the last date
+    // Adds (numberOfPlaceholderDays) days after the last date
     // Save them in an array
     for (var i = 0; i < numberOfPlaceholderDays; i++) {
-      var newDate = {
-        week: moment(lastDate).utc().add(i + 1, 'days').format("ddd"),
-        day: moment(lastDate).utc().add(i + 1, 'days').format("DD"),
-        month: moment(lastDate).utc().add(i + 1, 'days').format("MMM"),
+      lastDate.add(1, 'days');
+      calendarDates.push({
+        week: lastDate.format(formats.week),
+        day: lastDate.format(formats.day),
+        month: lastDate.format(formats.month),
         placeholder: true
-      }
-      calendarDates.push(newDate);
+      });
     }
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.otherLoopHTML
-  ? Handlebars.compile(_this.data.advancedSettings.otherLoopHTML)
-  : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['other-loop']]());
+    ? Handlebars.compile(_this.data.advancedSettings.otherLoopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['other-loop']]());
 
   _this.$container.find('.agenda-date-selector ul').html(template(calendarDates));
   // Selects the first date
