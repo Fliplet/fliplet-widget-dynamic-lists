@@ -2250,9 +2250,6 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     var elementScrollTop = $(window).scrollTop();
     var netOffset = currentPosition.top - elementScrollTop;
 
-    var expandPosition = $('body').offset();
-    var expandTop = expandPosition.top;
-    var expandLeft = expandPosition.left;
     var expandWidth = $('body').outerWidth();
     var expandHeight = $('html').outerHeight();
 
@@ -2271,8 +2268,8 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     });
 
     elementToExpand.animate({
-      'left': expandLeft,
-      'top': expandTop,
+      'left': 0,
+      'top': 0,
       'height': expandHeight,
       'width': expandWidth,
       'max-width': expandWidth
