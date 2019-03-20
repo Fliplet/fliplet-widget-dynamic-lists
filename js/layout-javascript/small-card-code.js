@@ -2258,7 +2258,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
 
     // Get the size of the html offset
     // This get into account phones with notch
-    var computedStyles = window.getComputedStyle(document.getElementsByTagName("html")[0]);
+    var computedStyles = window.getComputedStyle(document.getElementsByTagName('html')[0]);
     var htmlMarginTop = computedStyles.getPropertyValue('margin-top');
     var toTop = parseInt(htmlMarginTop.replace('px',''), 10);
 
