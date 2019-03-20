@@ -2220,6 +2220,7 @@ DynamicList.prototype.closeDetails = function() {
 
   setTimeout(function() {
     $overlay.removeClass('ready');
+
     // Clears overlay
     $overlay.find('.small-card-detail-overlay-content-holder').html('');
 
@@ -2243,6 +2244,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
   if (!elementToExpand.hasClass('open')) {
     // freeze the current scroll position of the background content
     $('body').addClass('lock');
+    elementToExpand.parents('.small-card-list-item').addClass('opening');
 
     var currentPosition = elementToExpand.offset();
     var elementScrollTop = $(window).scrollTop();
@@ -2276,6 +2278,10 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
       'max-width': expandWidth
     }, 200, 'linear', function() {
       _this.showDetails(id);
+
+      setTimeout(function() {
+        elementToExpand.parents('.small-card-list-item').removeClass('opening');
+      }, 200); // How long it takes for the overlay to fade in
     });
 
     elementToExpand.addClass('open');
@@ -2310,6 +2316,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   var _this = this;
 
   $('body').removeClass('lock');
+  elementToCollapse.parents('.small-card-list-item').addClass('closing');
 
   var directoryDetailImageWrapper = elementToCollapse.find('.small-card-list-detail-image-wrapper');
   var directoryDetailImage = elementToCollapse.find('.small-card-list-detail-image');
@@ -2353,6 +2360,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   function() {
     elementToCollapse.css({ height: '100%', });
     _this.closeDetails();
+    elementToCollapse.parents('.small-card-list-item').removeClass('opening');
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     // Only happens when the closing animation finishes

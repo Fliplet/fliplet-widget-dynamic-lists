@@ -631,6 +631,12 @@
   transform: translate3d(0, 0, 0);
 }
 
+.new-small-card-list-container .small-card-list-item.opening .small-card-list-image {
+  overflow: initial;
+  -webkit-transform: none;
+  transform: none;
+}
+
 .new-small-card-list-container .small-card-list-image.no-image {
   display: none;
 }
