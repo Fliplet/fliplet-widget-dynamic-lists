@@ -689,6 +689,14 @@
   font-size: 25px;
 }
 
+@media screen and (min-width: 640px) {
+  .small-card-list-detail-content-wrapper .small-card-bookmark-holder {
+    top: -40px;
+    left: auto;
+    right: -30px;
+  }
+}
+
 .new-small-card-list-container .small-card-bookmark-holder .fa-bookmark-o,
 .small-card-list-detail-content-wrapper .small-card-bookmark-holder .fa-bookmark-o {
   color: rgba(51,51,51,0.2);
