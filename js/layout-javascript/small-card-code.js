@@ -2256,6 +2256,12 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     var directoryDetailImageWrapper = elementToExpand.find('.small-card-list-detail-image-wrapper');
     var directoryDetailImage = elementToExpand.find('.small-card-list-detail-image');
 
+    // Get the size of the html offset
+    // This get into account phones with notch
+    var computedStyles = window.getComputedStyle(document.getElementsByTagName('html')[0]);
+    var htmlMarginTop = computedStyles.getPropertyValue('margin-top');
+    var toTop = parseInt(htmlMarginTop, 10);
+
     // convert the expand-item to fixed position with a high z-index without moving it
     elementToExpand.css({
       'top': netOffset,
@@ -2269,7 +2275,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
 
     elementToExpand.animate({
       'left': 0,
-      'top': 0,
+      'top': !isNaN(toTop) ? toTop : 0,
       'height': expandHeight,
       'width': expandWidth,
       'max-width': expandWidth
