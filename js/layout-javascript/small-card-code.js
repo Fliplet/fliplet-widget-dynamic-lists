@@ -2260,7 +2260,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     // This get into account phones with notch
     var computedStyles = window.getComputedStyle(document.getElementsByTagName('html')[0]);
     var htmlMarginTop = computedStyles.getPropertyValue('margin-top');
-    var toTop = parseInt(htmlMarginTop.replace('px',''), 10);
+    var toTop = parseInt(htmlMarginTop, 10);
 
     // convert the expand-item to fixed position with a high z-index without moving it
     elementToExpand.css({
