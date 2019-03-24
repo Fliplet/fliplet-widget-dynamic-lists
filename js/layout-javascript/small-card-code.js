@@ -1680,10 +1680,18 @@ DynamicList.prototype.convertCategories = function(data) {
       var arrayOfTags = [];
       if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
         var arrayOfTags = _this.splitByCommas(element.data[filter]).map(function(item) {
+          if (typeof item !== 'string') {
+            return item;
+          }
+
           return item.trim();
         });
       }
       arrayOfTags.forEach(function(item, index) {
+        if (!item || typeof item !== 'string') {
+          return;
+        }
+
         var classConverted = item.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
         if (classConverted === '') {
           return;
