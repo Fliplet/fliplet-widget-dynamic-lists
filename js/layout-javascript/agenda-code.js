@@ -979,14 +979,19 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function (records) {
       // Received the rows
+      return Fliplet.Hooks.run('flListDataAfterGetData', {
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
+        records: records
+      }).then(function () {
+        records = _this.prepareData(records);
+        _this.listItems = JSON.parse(JSON.stringify(records));
 
-      records = _this.prepareData(records);
-      _this.listItems = JSON.parse(JSON.stringify(records));
-
-      // Render dates HTML
-      _this.renderDatesHTML(_this.listItems);
-
-      return;
+        // Render dates HTML
+        _this.renderDatesHTML(_this.listItems);
+      });
     })
     .then(function() {
       return Fliplet.DataSources.getById(_this.data.dataSourceId)

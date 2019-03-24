@@ -1366,8 +1366,15 @@ DynamicList.prototype.initialize = function() {
       return _this.connectToDataSource();
     })
     .then(function (records) {
-      _this.listItems = _this.prepareData(records);
-      return;
+      return Fliplet.Hooks.run('flListDataAfterGetData', {
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
+        records: records
+      }).then(function () {
+        _this.listItems = _this.prepareData(records);
+      });
     })
     .then(function() {
       return Fliplet.DataSources.getById(_this.data.dataSourceId)
