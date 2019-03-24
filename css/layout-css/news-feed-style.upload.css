@@ -558,6 +558,8 @@
   opacity: 1;
   margin-bottom: 40px;
   transition: box-shadow 0.15s ease-out;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .no-touchevents .new-news-feed-list-container .news-feed-list-item:active,
