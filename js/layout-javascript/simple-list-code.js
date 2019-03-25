@@ -1854,15 +1854,17 @@ DynamicList.prototype.onPartialRender = function(from, to) {
           if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
             _this.data.userNameFields.forEach(function(name, i) {
               userName += user.data[name] + ' ';
-              userNickname += counter === 1 ? user.data[name].toLowerCase().charAt(0) + ' ' : user.data[name].toLowerCase().replace(/\s/g, '') + ' ';
+              userNickname += counter === 1
+                ? (user.data[name] || '').toLowerCase().charAt(0) + ' '
+                : (user.data[name] || '').toLowerCase().replace(/\s/g, '') + ' ';
             });
             userName = userName.trim();
             userNickname = userNickname.trim();
 
             counter++;
           } else {
-            userName = user.data[_this.data.userNameFields[0]];
-            userNickname = user.data[_this.data.userNameFields[0]].toLowerCase().replace(/\s/g, '')
+            userName = user.data[_this.data.userNameFields[0]] || '';
+            userNickname = (user.data[_this.data.userNameFields[0]] || '').toLowerCase().replace(/\s/g, '')
           }
 
           var userInfo = {
