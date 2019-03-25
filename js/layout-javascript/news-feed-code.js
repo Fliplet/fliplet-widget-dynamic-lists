@@ -1366,8 +1366,15 @@ DynamicList.prototype.initialize = function() {
       return _this.connectToDataSource();
     })
     .then(function (records) {
-      _this.listItems = _this.prepareData(records);
-      return;
+      return Fliplet.Hooks.run('flListDataAfterGetData', {
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
+        records: records
+      }).then(function () {
+        _this.listItems = _this.prepareData(records);
+      });
     })
     .then(function() {
       return Fliplet.DataSources.getById(_this.data.dataSourceId)
@@ -1985,10 +1992,18 @@ DynamicList.prototype.convertCategories = function(data) {
       var arrayOfTags = [];
       if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
         var arrayOfTags = _this.splitByCommas(element.data[filter]).map(function(item) {
+          if (typeof item !== 'string') {
+            return item;
+          }
+
           return item.trim();
         });
       }
       arrayOfTags.forEach(function(item, index) {
+        if (!item || typeof item !== 'string') {
+          return;
+        }
+
         var classConverted = item.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
         if (classConverted === '') {
           return;

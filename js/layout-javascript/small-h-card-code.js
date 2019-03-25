@@ -743,26 +743,32 @@ DynamicList.prototype.initialize = function() {
       return _this.connectToDataSource();
     })
     .then(function (records) {
-      records = _this.prepareData(records);
-      records = _this.getPermissions(records);
-      // Make rows available Globally
-      _this.listItems = records;
+      return Fliplet.Hooks.run('flListDataAfterGetData', {
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
+        records: records
+      }).then(function () {
+        records = _this.prepareData(records);
+        records = _this.getPermissions(records);
+        // Make rows available Globally
+        _this.listItems = records;
 
-      // Get user profile
-      if (_this.myUserData) {
-        // Create flag for current user
-        records.forEach(function(el, idx) {
-          if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
-            records[idx].isCurrentUser = true;
-          }
-        });
+        // Get user profile
+        if (_this.myUserData) {
+          // Create flag for current user
+          records.forEach(function(el, idx) {
+            if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
+              records[idx].isCurrentUser = true;
+            }
+          });
 
-        _this.myProfileData = _.filter(records, function(row) {
-          return row.isCurrentUser;
-        });
-      }
-
-      return;
+          _this.myProfileData = _.filter(records, function(row) {
+            return row.isCurrentUser;
+          });
+        }
+      });
     })
     .then(function() {
       return Fliplet.DataSources.getById(_this.data.dataSourceId)
