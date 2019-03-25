@@ -1476,7 +1476,8 @@
     right: auto;
     bottom: auto;
     border-radius: 20px;
-
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
 
   .news-feed-detail-wrapper .news-feed-list-detail-image-wrapper {
