@@ -2174,9 +2174,22 @@ DynamicList.prototype.overrideSearchData = function(value) {
   if (Array.isArray(_this.pvSearchQuery.column)) {
     fields.forEach(function(field) {
       filteredData = _.filter(_this.listItems, function(obj) {
-        if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
-          return obj.data[field].toLowerCase().indexOf(value) > -1;
+        var cellData = obj.data[field];
+        if (!cellData) {
+          return false;
         }
+
+        if (_.isArray(cellData)) {
+          return _.some(cellData, function (el) {
+            return el.toLowerCase().indexOf(value) > -1;
+          });
+        }
+
+        if (typeof cellData !== 'string') {
+          cellData = '' + cellData;
+        }
+
+        return cellData.toLowerCase().indexOf(value) > -1;
       });
 
       if (filteredData.length) {
@@ -2269,9 +2282,22 @@ DynamicList.prototype.searchData = function(value) {
 
       _this.data.searchFields.forEach(function(field) {
         filteredData = _.filter(_this.listItems, function(obj) {
-          if (obj.data[field] !== null && obj.data[field] !== '' && typeof obj.data[field] !== 'undefined') {
-            return obj.data[field].toLowerCase().indexOf(value) > -1;
+          var cellData = obj.data[field];
+          if (!cellData) {
+            return false;
           }
+
+          if (_.isArray(cellData)) {
+            return _.some(cellData, function (el) {
+              return el.toLowerCase().indexOf(value) > -1;
+            });
+          }
+
+          if (typeof cellData !== 'string') {
+            cellData = '' + cellData;
+          }
+
+          return cellData.toLowerCase().indexOf(value) > -1;
         });
 
         if (filteredData.length) {
