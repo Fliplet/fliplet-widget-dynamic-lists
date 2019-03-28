@@ -847,7 +847,6 @@ DynamicList.prototype.parsePVQueryVars = function() {
   return Fliplet.App.Storage.get('flDynamicListQuery:' + _this.data.layout)
     .then(function(value) {
       pvValue = value;
-      console.log(pvValue);
 
       if (typeof value === 'undefined') {
         Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
