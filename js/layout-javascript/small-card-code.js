@@ -13,14 +13,6 @@ var DynamicList = function(id, data, container) {
       'user-profile': 'templates.build.small-card-user-profile'
     }
   };
-  this.operators = {
-    '==': function(a, b) { return a == b },
-    '!=': function(a, b) { return a != b },
-    '>': function(a, b) { return a > b },
-    '>=': function(a, b) { return a >= b },
-    '<': function(a, b) { return a < b },
-    '<=': function(a, b) { return a <= b }
-  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -597,52 +589,6 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 }
 
-DynamicList.prototype.filterRecords = function(records, filters) {
-  var _this = this;
-
-  return _.filter(records, function(record) {
-    var matched = 0;
-
-    filters.some(function(filter) {
-      var condition = filter.condition;
-      var rowData;
-      // Case insensitive
-      if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-        filter.value = filter.value.toLowerCase();
-      }
-      if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined') {
-        rowData = record.data[filter.column].toString().toLowerCase();
-      }
-
-      if (condition === 'contains') {
-        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
-          matched++;
-        }
-        return;
-      }
-      if (condition === 'notcontain') {
-        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
-          matched++;
-        }
-        return;
-      }
-      if (condition === 'regex') {
-        var pattern = new RegExp(filter.value);
-        if (pattern.test(rowData)){
-          matched++;
-        }
-        return;
-      }
-      if (_this.operators[condition](rowData, filter.value)) {
-        matched++;
-        return;
-      }
-    });
-
-    return matched >= filters.length ? true : false;
-  });
-}
-
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
   var filtered;
@@ -720,7 +666,7 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    filtered = _this.filterRecords(records, filters);
+    filtered = _this.Utils.Records.runFilters(records, filters);
     records = filtered;
   }
 
@@ -737,7 +683,7 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    prefiltered = _this.filterRecords(records, prefilters);
+    prefiltered = _this.Utils.Records.runFilters(records, prefilters);
     records = prefiltered;
   }
 
@@ -1793,7 +1739,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   if (Array.isArray(_this.pvSearchQuery.column)) {
     fields.forEach(function(field) {
       filteredData = _.filter(_this.listItems, function(obj) {
-        return _this.Utils.dataContains(obj.data[field], value);
+        return _this.Utils.Record.contains(obj.data[field], value);
       });
 
       if (filteredData.length) {
@@ -1889,7 +1835,7 @@ DynamicList.prototype.searchData = function(value) {
 
       _this.data.searchFields.forEach(function(field) {
         filteredData = _.filter(_this.listItems, function(obj) {
-          return _this.Utils.dataContains(obj.data[field], value);
+          return _this.Utils.Record.contains(obj.data[field], value);
         });
 
         if (filteredData.length) {
