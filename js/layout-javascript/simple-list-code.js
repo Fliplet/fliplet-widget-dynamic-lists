@@ -93,6 +93,8 @@ var DynamicList = function(id, data, container) {
   });
 };
 
+DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
+
 DynamicList.prototype.registerHandlebarsHelpers = function() {
   // Register your handlebars helpers here
   var _this = this;
@@ -1942,21 +1944,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
     fields.forEach(function(field) {
       filteredData = _.filter(_this.listItems, function(obj) {
         var cellData = obj.data[field];
-        if (!cellData) {
-          return false;
-        }
-
-        if (_.isArray(cellData)) {
-          return _.some(cellData, function (el) {
-            return el.toLowerCase().indexOf(value) > -1;
-          });
-        }
-
-        if (typeof cellData !== 'string') {
-          cellData = '' + cellData;
-        }
-
-        return cellData.toLowerCase().indexOf(value) > -1;
+        return _this.Utils.dataContains(cellData, value);
       });
 
       if (filteredData.length) {
@@ -2055,22 +2043,7 @@ DynamicList.prototype.searchData = function(value) {
 
       _this.data.searchFields.forEach(function(field) {
         filteredData = _.filter(_this.listItems, function(obj) {
-          var cellData = obj.data[field];
-          if (!cellData) {
-            return false;
-          }
-
-          if (_.isArray(cellData)) {
-            return _.some(cellData, function (el) {
-              return el.toLowerCase().indexOf(value) > -1;
-            });
-          }
-
-          if (typeof cellData !== 'string') {
-            cellData = '' + cellData;
-          }
-
-          return cellData.toLowerCase().indexOf(value) > -1;
+          return _this.Utils.dataContains(obj.data[field], value);
         });
 
         if (filteredData.length) {

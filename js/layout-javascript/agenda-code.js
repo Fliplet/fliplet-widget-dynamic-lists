@@ -111,6 +111,8 @@ DynamicList.prototype.getMomentDate = function (date) {
   return moment(d);
 };
 
+DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
+
 DynamicList.prototype.registerHandlebarsHelpers = function() {
   // Register your handlebars helpers here
   var _this = this;

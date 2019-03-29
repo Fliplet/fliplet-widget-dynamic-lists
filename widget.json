@@ -67,6 +67,7 @@
       "hammer.js"
     ],
     "assets": [
+      "js/utils.js",
       "js/query-parser.js",
       "js/build.templates.js",
       "vendor/mixitup.min.js",
