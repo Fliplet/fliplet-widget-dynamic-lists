@@ -6,6 +6,10 @@ Fliplet.Registry.set('dynamicListUtils', function() {
 
     if (_.isArray(data)) {
       return _.some(data, function (el) {
+        if (typeof el !== 'string') {
+          el = '' + el;
+        }
+
         return el.toLowerCase().indexOf(value) > -1;
       });
     }
