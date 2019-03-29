@@ -1291,6 +1291,7 @@ DynamicList.prototype.initialize = function() {
         _this.renderLoopHTML(function(from, to){
           _this.onPartialRender(from, to);
         }).then(function(){
+          _this.initializeMixer();
           _this.addFilters(_this.modifiedListItems);
           // Listeners and Ready
           _this.attachObservers();
@@ -1351,6 +1352,7 @@ DynamicList.prototype.initialize = function() {
         _this.onPartialRender(from, to);
       }).then(function(){
         // Listeners and Ready
+        _this.initializeMixer();
         _this.addFilters(_this.modifiedListItems);
         _this.prepareToSearch();
         _this.prepareToFilter();
@@ -1985,7 +1987,6 @@ DynamicList.prototype.onPartialRender = function(from, to) {
   }
 
   if (_this.data.social && _this.data.social.bookmark) {
-    _this.initializeMixer();
     _this.$container.find('.news-feed-list-item').slice(from, to).each(function(index, element) {
       var cardId = $(element).data('entry-id');
       var likeIndentifier = cardId + '-bookmark';
@@ -2166,6 +2167,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
   }).then(function(){
+    _this.initializeMixer();
     _this.addFilters(_this.modifiedListItems);
 
     if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
@@ -2252,6 +2254,7 @@ DynamicList.prototype.searchData = function(value) {
     _this.renderLoopHTML(function(from, to){
       _this.onPartialRender(from, to);
     }).then(function(){
+      _this.initializeMixer();
       _this.addFilters(_this.modifiedListItems);
 
       if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
@@ -2290,6 +2293,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
   }, function(){
+    _this.initializeMixer();
     _this.addFilters(_this.modifiedListItems);
   });
 }
