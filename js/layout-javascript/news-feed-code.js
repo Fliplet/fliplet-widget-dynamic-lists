@@ -2121,6 +2121,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   if (Array.isArray(_this.pvSearchQuery.column)) {
     fields.forEach(function(field) {
       filteredData = _.filter(_this.listItems, function(obj) {
+        return _this.Utils.Record.contains(obj.data[field], value);
       });
 
       if (filteredData.length) {
