@@ -61,7 +61,7 @@ var DynamicList = function(id, data, container) {
   this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
-  this.registerHandlebarsHelpers();
+  this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.Session.get()
     .then(function(session) {
@@ -78,97 +78,7 @@ var DynamicList = function(id, data, container) {
     });
 };
 
-Fliplet.DynamicList = Fliplet.DynamicList || {};
-Fliplet.DynamicList.isoWarningIssued = false;
-
-DynamicList.prototype.getMomentDate = function (date) {
-  if (date.constructor.name === 'Date') {
-    return moment(d);
-  }
-
-  if (typeof date === 'number') {
-    return moment(d);
-  }
-
-  var d = new Date(date);
-
-  if (date.match(/\d{4}-\d{2}-\d{2}(T| )?(\d{2}:\d{2}:\d{2})?/)) {
-    d = d.toUTCString();
-  } else if (!Fliplet.DynamicList.isoWarningIssued) {
-    console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. ' + new Date().toISOString().substr(0, 10));
-    Fliplet.DynamicList.isoWarningIssued = true;
-  }
-
-  return moment(d);
-};
-
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
-
-DynamicList.prototype.registerHandlebarsHelpers = function() {
-  // Register your handlebars helpers here
-  var _this = this;
-
-  Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-    switch (operator) {
-      case '==':
-        return (v1 == v2) ? options.fn(this) : options.inverse(this);
-      case '===':
-        return (v1 === v2) ? options.fn(this) : options.inverse(this);
-      case '!=':
-        return (v1 != v2) ? options.fn(this) : options.inverse(this);
-      case '!==':
-        return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-      case '<':
-        return (v1 < v2) ? options.fn(this) : options.inverse(this);
-      case '<=':
-        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-      case '>':
-        return (v1 > v2) ? options.fn(this) : options.inverse(this);
-      case '>=':
-        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-      case '&&':
-        return (v1 && v2) ? options.fn(this) : options.inverse(this);
-      case '||':
-        return (v1 || v2) ? options.fn(this) : options.inverse(this);
-      default:
-        return options.inverse(this);
-    }
-  });
-
-  Handlebars.registerHelper('validateImage', function(image) {
-    var validatedImage = image;
-
-    if (!validatedImage) {
-      return '';
-    }
-
-    if (Array.isArray(validatedImage) && !validatedImage.length) {
-      return '';
-    }
-
-    // Validate thumbnail against URL and Base64 patterns
-    var urlPattern = /^https?:\/\//i;
-    var base64Pattern = /^data:image\/[^;]+;base64,/i;
-    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
-      return '';
-    }
-
-    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
-      // attach auth token
-      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
-    }
-
-    return validatedImage;
-  });
-
-  Handlebars.registerHelper('formatDate', function(date) {
-    return _this.getMomentDate(date).format('DD MMMM YYYY');
-  });
-
-  Handlebars.registerHelper('removeSpaces', function(context) {
-    return context.replace(/\s+/g, '');
-  });
-}
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -647,7 +557,7 @@ DynamicList.prototype.prepareData = function(records) {
 
         if (field.type === "date") {
           // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = _this.getMomentDate(record.data['modified_' + field.column]).format();
+          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format();
         }
 
         if (field.type === "time") {
@@ -1159,13 +1069,13 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
 
   // Prepare a merge if the date values are parsed as the same date
   _.forEach(_.keys(recordGroups), function (key, i) {
-    var date = _this.getMomentDate(key);
+    var date = _this.Utils.Date.moment(key);
     _.forEach(_.keys(recordGroups), function (comp, j) {
       if (j >= i) {
         return false;
       }
 
-      if (date.format('YYYY-MM-DD') !== _this.getMomentDate(comp).format('YYYY-MM-DD')) {
+      if (date.format('YYYY-MM-DD') !== _this.Utils.Date.moment(comp).format('YYYY-MM-DD')) {
         return;
       }
 
@@ -1392,15 +1302,15 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
   // Keep only records with valid dates when rendering dates selectors
   clonedRecords = _.filter(clonedRecords, function (record) {
-    return _this.getMomentDate(record.data[dateField]).isValid();
+    return _this.Utils.Date.moment(record.data[dateField]).isValid();
   });
 
   if (clonedRecords.length) {
     // Set first date in agenda
-    firstDate = _this.getMomentDate(clonedRecords[0].data[dateField]);
+    firstDate = _this.Utils.Date.moment(clonedRecords[0].data[dateField]);
 
     // Set last date in agenda
-    lastDate = _this.getMomentDate(clonedRecords[clonedRecords.length - 1].data[dateField]);
+    lastDate = _this.Utils.Date.moment(clonedRecords[clonedRecords.length - 1].data[dateField]);
 
     // Adds (numberOfPlaceholderDays) days before the first date
     // Save them in an array
@@ -1416,13 +1326,13 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
     // Get only the unique dates
     var uniqueDates = _.map(_.uniqBy(clonedRecords, function(obj) {
-      return _this.getMomentDate(obj.data[dateField]).format('YYYY-MM-DD');
+      return _this.Utils.Date.moment(obj.data[dateField]).format('YYYY-MM-DD');
     }), 'data.' + dateField);
 
     // Get the event dates
     // Save in an array
     uniqueDates.forEach(function(date) {
-      var d = _this.getMomentDate(date);
+      var d = _this.Utils.Date.moment(date);
 
       calendarDates.push({
         week: d.format(formats.week),

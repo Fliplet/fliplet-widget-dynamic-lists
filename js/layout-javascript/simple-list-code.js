@@ -68,7 +68,7 @@ var DynamicList = function(id, data, container) {
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
   // Register handlebars helpers
-  this.registerHandlebarsHelpers();
+  this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.Session.get().then(function(session) {
     if (session && session.entries && session.entries.dataSource) {
@@ -85,104 +85,6 @@ var DynamicList = function(id, data, container) {
 };
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
-
-DynamicList.prototype.registerHandlebarsHelpers = function() {
-  // Register your handlebars helpers here
-  var _this = this;
-
-  Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-    switch (operator) {
-      case '==':
-        return (v1 == v2) ? options.fn(this) : options.inverse(this);
-      case '===':
-        return (v1 === v2) ? options.fn(this) : options.inverse(this);
-      case '!=':
-        return (v1 != v2) ? options.fn(this) : options.inverse(this);
-      case '!==':
-        return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-      case '<':
-        return (v1 < v2) ? options.fn(this) : options.inverse(this);
-      case '<=':
-        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-      case '>':
-        return (v1 > v2) ? options.fn(this) : options.inverse(this);
-      case '>=':
-        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-      case '&&':
-        return (v1 && v2) ? options.fn(this) : options.inverse(this);
-      case '||':
-        return (v1 || v2) ? options.fn(this) : options.inverse(this);
-      default:
-        return options.inverse(this);
-    }
-  });
-
-  Handlebars.registerHelper('formatComment', function(text) {
-    var breakRegExp = /(\r\n|\n|\r)/gm,
-      emailRegExp = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
-      numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
-      urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
-      mentionRegExp = /\B@[a-z0-9_-]+/ig;
-
-    /* capture email addresses and turn into mailto links */
-    text = text.replace(emailRegExp, '<a href="mailto:$&">$&</a>');
-
-    /* capture phone numbers and turn into tel links */
-    text = text.replace(numberRegExp, '<a href="tel:$&">$&</a>');
-
-    /* capture URLs and turn into links */
-    text = text.replace(urlRegExp, function(match, p1, p2, p3, p4, p5, offset, string) {
-      return breakRegExp.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>' :
-        ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
-    });
-
-    text = text.replace(mentionRegExp, '<strong>$&</strong>');
-
-    /* capture line break and turn into <br> */
-    text = text.replace(breakRegExp, '<br>');
-
-    return new Handlebars.SafeString(text);
-  });
-
-  Handlebars.registerHelper('validateImage', function(image) {
-    var validatedImage = image;
-
-    if (!validatedImage) {
-      return '';
-    }
-
-    if (Array.isArray(validatedImage) && !validatedImage.length) {
-      return '';
-    }
-
-    // Validate thumbnail against URL and Base64 patterns
-    var urlPattern = /^https?:\/\//i;
-    var base64Pattern = /^data:image\/[^;]+;base64,/i;
-    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
-      return '';
-    }
-
-    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
-      // attach auth token
-      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
-    }
-
-    return validatedImage;
-  });
-
-  Handlebars.registerHelper('formatDate', function(date) {
-    return moment(date).utc().format('DD MMMM YYYY');
-  });
-
-  Handlebars.registerHelper('plaintext', function(context) {
-    result = $('<div></div>').html(context).text();
-    return $('<div></div>').html(result).text();
-  });
-
-  Handlebars.registerHelper('removeSpaces', function(context) {
-    return context.replace(/\s+/g, '');
-  });
-}
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;

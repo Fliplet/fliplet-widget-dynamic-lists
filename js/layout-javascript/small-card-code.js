@@ -70,7 +70,7 @@ var DynamicList = function(id, data, container) {
 
   this.profileHTML = Handlebars.compile(this.src);
 
-  this.registerHandlebarsHelpers();
+  this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.Session.get().then(function(session) {
     if (session && session.entries && session.entries.dataSource) {
@@ -87,72 +87,6 @@ var DynamicList = function(id, data, container) {
 };
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
-
-DynamicList.prototype.registerHandlebarsHelpers = function() {
-  // Register your handlebars helpers here
-  var _this = this;
-
-  Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-    switch (operator) {
-      case '==':
-        return (v1 == v2) ? options.fn(this) : options.inverse(this);
-      case '===':
-        return (v1 === v2) ? options.fn(this) : options.inverse(this);
-      case '!=':
-        return (v1 != v2) ? options.fn(this) : options.inverse(this);
-      case '!==':
-        return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-      case '<':
-        return (v1 < v2) ? options.fn(this) : options.inverse(this);
-      case '<=':
-        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-      case '>':
-        return (v1 > v2) ? options.fn(this) : options.inverse(this);
-      case '>=':
-        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-      case '&&':
-        return (v1 && v2) ? options.fn(this) : options.inverse(this);
-      case '||':
-        return (v1 || v2) ? options.fn(this) : options.inverse(this);
-      default:
-        return options.inverse(this);
-    }
-  });
-
-  Handlebars.registerHelper('validateImage', function(image) {
-    var validatedImage = image;
-
-    if (!validatedImage) {
-      return '';
-    }
-
-    if (Array.isArray(validatedImage) && !validatedImage.length) {
-      return '';
-    }
-
-    // Validate thumbnail against URL and Base64 patterns
-    var urlPattern = /^https?:\/\//i;
-    var base64Pattern = /^data:image\/[^;]+;base64,/i;
-    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
-      return '';
-    }
-
-    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
-      // attach auth token
-      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
-    }
-
-    return validatedImage;
-  });
-
-  Handlebars.registerHelper('formatDate', function(date) {
-    return moment(date).utc().format('DD MMMM YYYY');
-  });
-
-  Handlebars.registerHelper('removeSpaces', function(context) {
-    return context.replace(/\s+/g, '');
-  });
-}
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
