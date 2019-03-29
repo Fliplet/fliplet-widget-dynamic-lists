@@ -10,6 +10,12 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       });
     }
 
+    if (_.isObject(record)) {
+      return _.some(_.values(record), function (el) {
+        return recordContains(el, value);
+      });
+    }
+
     if (typeof record !== 'string') {
       record = '' + record;
     }
