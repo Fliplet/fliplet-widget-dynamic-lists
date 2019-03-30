@@ -118,7 +118,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       isoDateWarningIssued = true;
     }
 
-    return moment(d).utc();
+    return moment(d);
   };
 
   function recordContains(record, value) {
