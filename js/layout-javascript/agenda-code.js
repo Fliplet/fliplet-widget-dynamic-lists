@@ -108,7 +108,7 @@ DynamicList.prototype.getMomentDate = function (date) {
     Fliplet.DynamicList.isoWarningIssued = true;
   }
 
-  return moment(d);
+  return moment(d).utc();
 };
 
 DynamicList.prototype.registerHandlebarsHelpers = function() {
