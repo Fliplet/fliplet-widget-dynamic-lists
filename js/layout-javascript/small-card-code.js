@@ -1684,9 +1684,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
     });
   } else {
     searchedData = _.filter(_this.listItems, function(obj) {
-      if (obj.data[fields] !== null && obj.data[fields] !== '' && typeof obj.data[fields] !== 'undefined') {
-        return obj.data[fields].toLowerCase().indexOf(value) > -1;
-      }
+      return _this.Utils.Record.contains(obj.data[field], value);
     });
 
     if (!searchedData || !searchedData.length) {
