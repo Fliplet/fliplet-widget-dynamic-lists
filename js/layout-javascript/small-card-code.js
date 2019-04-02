@@ -892,6 +892,10 @@ DynamicList.prototype.connectToGetFiles = function(data) {
       }
 
       allFiles.forEach(function(file) {
+        if (!_.compact(data.entry.data[data.field.column]).length) {
+          return;
+        }
+
         if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
           data.entry.data[data.field.column] = file.url;
           // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
