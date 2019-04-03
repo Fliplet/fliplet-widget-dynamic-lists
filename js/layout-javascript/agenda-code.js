@@ -759,6 +759,10 @@ DynamicList.prototype.connectToGetFiles = function(data) {
       }
 
       allFiles.forEach(function(file) {
+        if (!_.compact(data.entry.data[data.field.column]).length) {
+          return;
+        }
+
         if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
           data.entry.data[data.field.column] = file.url;
           // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
@@ -1580,10 +1584,7 @@ DynamicList.prototype.initializeMixer = function() {
         allowNestedTargets: false
       },
       animation: {
-        "duration": 250,
-        "nudge": true,
-        "reverseOut": false,
-        "effects": "fade scale(0.45) translateZ(-100px)"
+        enable: false
       },
       callbacks: {
         onMixEnd: function(state) {
