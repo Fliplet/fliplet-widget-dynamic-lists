@@ -1727,10 +1727,7 @@ DynamicList.prototype.initializeMixer = function() {
         allowNestedTargets: false
       },
       animation: {
-        "duration": 250,
-        "nudge": true,
-        "reverseOut": false,
-        "effects": "fade scale(0.45) translateZ(-100px)"
+        enable: false
       },
       callbacks: {
         onMixEnd: function(state) {
