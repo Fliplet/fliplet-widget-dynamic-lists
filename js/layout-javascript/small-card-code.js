@@ -1028,17 +1028,21 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function() {
+      if (!_this.data.detailViewAutoUpdate) {
+        return Promise.resolve();
+      }
+
       return Fliplet.DataSources.getById(_this.data.dataSourceId)
+        .then(function(dataSource) {
+          if (!dataSource) {
+            return Promise.resolve();
+          }
+
+          _this.dataSourceColumns = dataSource.columns;
+        })
         .catch(function () {
           return Promise.resolve(); // Resolve anyway if it fails
         });
-    })
-    .then(function(dataSource) {
-      if (dataSource) {
-        _this.dataSourceColumns = dataSource.columns;
-      }
-
-      return;
     })
     .then(function() {
       return _this.convertFiles(_this.listItems);
