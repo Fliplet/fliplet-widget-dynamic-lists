@@ -1742,27 +1742,24 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
     return data.column;
   })
 
-  if (_this.data.detailViewAutoUpdate) {
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
     loopData.forEach(function(entry, index) {
-      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-      if (extraColumns && extraColumns.length) {
+      var entryData = _.find(modifiedData, function(modEntry) {
+        return modEntry.id === entry.id;
+      });
 
-        var entryData = _.find(modifiedData, function(modEntry) {
-          return modEntry.id === entry.id;
-        });
+      extraColumns.forEach(function(column) {
+        var newColumnData = {
+          id: entryData.id,
+          content: entryData.data[column],
+          label: column,
+          labelEnabled: true,
+          type: 'text'
+        };
 
-        extraColumns.forEach(function(column) {
-          var newColumnData = {
-            id: entryData.id,
-            content: entryData.data[column],
-            label: column,
-            labelEnabled: true,
-            type: 'text'
-          };
-
-          entry.entryDetails.push(newColumnData);
-        });
-      }
+        entry.entryDetails.push(newColumnData);
+      });
     });
   }
   _this.modifiedListItems = loopData;

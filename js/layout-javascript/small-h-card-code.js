@@ -1035,27 +1035,24 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
     return data.column;
   })
 
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
   loopData.forEach(function(obj, index) {
-    if (_this.data.detailViewAutoUpdate) {
-      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-      if (extraColumns && extraColumns.length) {
+    if (_this.data.detailViewAutoUpdate && extraColumns.length) {
+      var entryData = _.find(records, function(modEntry) {
+        return modEntry.id === obj.id;
+      });
 
-        var entryData = _.find(records, function(modEntry) {
-          return modEntry.id === obj.id;
-        });
+      extraColumns.forEach(function(column) {
+        var newColumnData = {
+          id: entryData.id,
+          content: entryData.data[column],
+          label: column,
+          labelEnabled: true,
+          type: 'text'
+        };
 
-        extraColumns.forEach(function(column) {
-          var newColumnData = {
-            id: entryData.id,
-            content: entryData.data[column],
-            label: column,
-            labelEnabled: true,
-            type: 'text'
-          };
-
-          obj.entryDetails.push(newColumnData);
-        });
-      }
+        obj.entryDetails.push(newColumnData);
+      });
     }
 
     obj.profileHTML = _this.profileHTML(obj);

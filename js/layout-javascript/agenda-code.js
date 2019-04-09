@@ -1362,29 +1362,26 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
   })
 
   // Converts date format
-  loopData.forEach(function(obj, index) {
-    if (_this.data.detailViewAutoUpdate) {
-      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-      if (extraColumns && extraColumns.length) {
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
+    loopData.forEach(function(obj, index) {
+      var entryData = _.find(clonedRecords, function(modEntry) {
+        return modEntry.id === obj.id;
+      });
 
-        var entryData = _.find(clonedRecords, function(modEntry) {
-          return modEntry.id === obj.id;
-        });
+      extraColumns.forEach(function(column) {
+        var newColumnData = {
+          id: entryData.id,
+          content: entryData.data[column],
+          label: column,
+          labelEnabled: true,
+          type: 'text'
+        };
 
-        extraColumns.forEach(function(column) {
-          var newColumnData = {
-            id: entryData.id,
-            content: entryData.data[column],
-            label: column,
-            labelEnabled: true,
-            type: 'text'
-          };
-
-          obj.entryDetails.push(newColumnData);
-        });
-      }
-    }
-  });
+        obj.entryDetails.push(newColumnData);
+      });
+    });
+  }
 
   _this.agendasByDay = _this.groupLoopDataByDate(loopData, dateField);;
 }

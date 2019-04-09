@@ -1418,27 +1418,24 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
     return data.column;
   })
 
-  if (_this.data.detailViewAutoUpdate) {
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
     loopData.forEach(function(obj, index) {
-      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-      if (extraColumns && extraColumns.length) {
+      var entryData = _.find(modifiedData, function(modEntry) {
+        return modEntry.id === obj.id;
+      });
 
-        var entryData = _.find(modifiedData, function(modEntry) {
-          return modEntry.id === obj.id;
-        });
+      extraColumns.forEach(function(column) {
+        var newColumnData = {
+          id: entryData.id,
+          content: entryData.data[column],
+          label: column,
+          labelEnabled: true,
+          type: 'text'
+        };
 
-        extraColumns.forEach(function(column) {
-          var newColumnData = {
-            id: entryData.id,
-            content: entryData.data[column],
-            label: column,
-            labelEnabled: true,
-            type: 'text'
-          };
-
-          obj.entryDetails.push(newColumnData);
-        });
-      }
+        obj.entryDetails.push(newColumnData);
+      });
     });
   }
 

@@ -2491,20 +2491,18 @@ DynamicList.prototype.showDetails = function(id) {
     savedColumns.push(obj.column);
   });
 
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
   if (_this.data.detailViewAutoUpdate) {
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-    if (extraColumns && extraColumns.length) {
-      extraColumns.forEach(function(column) {
-        var newColumnData = {
-          content: entryData.data[column],
-          label: column,
-          labelEnabled: true,
-          type: 'text'
-        };
+    extraColumns.forEach(function(column) {
+      var newColumnData = {
+        content: entryData.data[column],
+        label: column,
+        labelEnabled: true,
+        type: 'text'
+      };
 
-        newData.data.push(newColumnData);
-      });
-    }
+      newData.data.push(newColumnData);
+    });
   }
 
   // Process template with data
