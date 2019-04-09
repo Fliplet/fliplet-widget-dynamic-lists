@@ -921,6 +921,20 @@ DynamicList.prototype.connectToGetFiles = function(data) {
     });
 }
 
+DynamicList.prototype.getAllColumns = function () {
+  var cachedColumns = {};
+
+  if (cachedColumns[dataSourceId]) {
+    return Promise.resolve(cachedColumns[dataSourceId]);
+  }
+
+  this.listItems.unshift({});
+  cachedColumns[dataSourceId] = _.keys(_.extend.apply({}, _.map(this.listItems, 'data')));
+  this.listItems.shift();
+
+  return Promise.resolve(cachedColumns[dataSourceId]);
+};
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -1032,17 +1046,9 @@ DynamicList.prototype.initialize = function() {
         return Promise.resolve();
       }
 
-      return Fliplet.DataSources.getById(_this.data.dataSourceId)
-        .then(function(dataSource) {
-          if (!dataSource) {
-            return Promise.resolve();
-          }
-
-          _this.dataSourceColumns = dataSource.columns;
-        })
-        .catch(function () {
-          return Promise.resolve(); // Resolve anyway if it fails
-        });
+      return _this.getAllColumns().then(function (columns) {
+        _this.dataSourceColumns = columns;
+      });
     })
     .then(function() {
       return _this.convertFiles(_this.listItems);
