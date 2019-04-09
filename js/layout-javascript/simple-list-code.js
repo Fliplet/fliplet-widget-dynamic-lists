@@ -79,7 +79,7 @@ var DynamicList = function(id, data, container) {
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
   // Get the current session data
-  Fliplet.Session.get().then(function(session) {
+  Fliplet.User.getCachedSession().then(function(session) {
     if (session && session.entries && session.entries.dataSource) {
       _this.myUserData = session.entries.dataSource.data;
     } else if (session && session.entries && session.entries.saml2) {
