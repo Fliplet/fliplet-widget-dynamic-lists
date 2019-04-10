@@ -192,7 +192,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
             }
             break;
           case 'regex':
-            var pattern = new RegExp(filter.value);
+            var pattern = new RegExp(filter.value, 'gi');
             if (pattern.test(rowData)){
               matched++;
               return true;
