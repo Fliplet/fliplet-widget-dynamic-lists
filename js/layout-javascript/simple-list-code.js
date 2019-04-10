@@ -79,7 +79,7 @@ var DynamicList = function(id, data, container) {
   // Register handlebars helpers
   this.registerHandlebarsHelpers();
   // Get the current session data
-  Fliplet.Session.get().then(function(session) {
+  Fliplet.User.getCachedSession().then(function(session) {
     if (session && session.entries && session.entries.dataSource) {
       _this.myUserData = session.entries.dataSource.data;
     } else if (session && session.entries && session.entries.saml2) {
@@ -1153,6 +1153,20 @@ DynamicList.prototype.connectToGetFiles = function(data) {
     });
 }
 
+DynamicList.prototype.getAllColumns = function () {
+  var cachedColumns = {};
+
+  if (cachedColumns[dataSourceId]) {
+    return Promise.resolve(cachedColumns[dataSourceId]);
+  }
+
+  this.listItems.unshift({});
+  cachedColumns[dataSourceId] = _.keys(_.extend.apply({}, _.map(this.listItems, 'data')));
+  this.listItems.shift();
+
+  return Promise.resolve(cachedColumns[dataSourceId]);
+};
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -1212,17 +1226,13 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function() {
-      return Fliplet.DataSources.getById(_this.data.dataSourceId)
-        .catch(function () {
-          return Promise.resolve(); // Resolve anyway if it fails
-        });
-    })
-    .then(function(dataSource) {
-      if (dataSource) {
-        _this.dataSourceColumns = dataSource.columns;
+      if (!_this.data.detailViewAutoUpdate) {
+        return Promise.resolve();
       }
 
-      return;
+      return _this.getAllColumns().then(function (columns) {
+        _this.dataSourceColumns = columns;
+      });
     })
     .then(function() {
       return _this.convertFiles(_this.listItems);
@@ -2487,20 +2497,18 @@ DynamicList.prototype.showDetails = function(id) {
     savedColumns.push(obj.column);
   });
 
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
   if (_this.data.detailViewAutoUpdate) {
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-    if (extraColumns && extraColumns.length) {
-      extraColumns.forEach(function(column) {
-        var newColumnData = {
-          content: entryData.data[column],
-          label: column,
-          labelEnabled: true,
-          type: 'text'
-        };
+    extraColumns.forEach(function(column) {
+      var newColumnData = {
+        content: entryData.data[column],
+        label: column,
+        labelEnabled: true,
+        type: 'text'
+      };
 
-        newData.data.push(newColumnData);
-      });
-    }
+      newData.data.push(newColumnData);
+    });
   }
 
   // Process template with data

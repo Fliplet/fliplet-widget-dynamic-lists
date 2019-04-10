@@ -80,7 +80,7 @@ var DynamicList = function(id, data, container) {
 
   this.registerHandlebarsHelpers();
   // Get the current session data
-  Fliplet.Session.get().then(function(session) {
+  Fliplet.User.getCachedSession().then(function(session) {
     if (session && session.entries && session.entries.dataSource) {
       _this.myUserData = session.entries.dataSource.data;
     } else if (session && session.entries && session.entries.saml2) {
@@ -921,6 +921,20 @@ DynamicList.prototype.connectToGetFiles = function(data) {
     });
 }
 
+DynamicList.prototype.getAllColumns = function () {
+  var cachedColumns = {};
+
+  if (cachedColumns[dataSourceId]) {
+    return Promise.resolve(cachedColumns[dataSourceId]);
+  }
+
+  this.listItems.unshift({});
+  cachedColumns[dataSourceId] = _.keys(_.extend.apply({}, _.map(this.listItems, 'data')));
+  this.listItems.shift();
+
+  return Promise.resolve(cachedColumns[dataSourceId]);
+};
+
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -1028,17 +1042,13 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function() {
-      return Fliplet.DataSources.getById(_this.data.dataSourceId)
-        .catch(function () {
-          return Promise.resolve(); // Resolve anyway if it fails
-        });
-    })
-    .then(function(dataSource) {
-      if (dataSource) {
-        _this.dataSourceColumns = dataSource.columns;
+      if (!_this.data.detailViewAutoUpdate) {
+        return Promise.resolve();
       }
 
-      return;
+      return _this.getAllColumns().then(function (columns) {
+        _this.dataSourceColumns = columns;
+      });
     })
     .then(function() {
       return _this.convertFiles(_this.listItems);
@@ -1414,27 +1424,24 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
     return data.column;
   })
 
-  if (_this.data.detailViewAutoUpdate) {
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
     loopData.forEach(function(obj, index) {
-      var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-      if (extraColumns && extraColumns.length) {
+      var entryData = _.find(modifiedData, function(modEntry) {
+        return modEntry.id === obj.id;
+      });
 
-        var entryData = _.find(modifiedData, function(modEntry) {
-          return modEntry.id === obj.id;
-        });
+      extraColumns.forEach(function(column) {
+        var newColumnData = {
+          id: entryData.id,
+          content: entryData.data[column],
+          label: column,
+          labelEnabled: true,
+          type: 'text'
+        };
 
-        extraColumns.forEach(function(column) {
-          var newColumnData = {
-            id: entryData.id,
-            content: entryData.data[column],
-            label: column,
-            labelEnabled: true,
-            type: 'text'
-          };
-
-          obj.entryDetails.push(newColumnData);
-        });
-      }
+        obj.entryDetails.push(newColumnData);
+      });
     });
   }
 
