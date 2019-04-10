@@ -605,6 +605,7 @@
   box-shadow: 0px 6px 20px 0px rgba(0,0,0,0.1);
   cursor: pointer;
   transition: box-shadow 0.15s ease-out;
+  position: relative;
 }
 
 .no-touchevents .new-small-card-list-container .small-card-list-item:active,
