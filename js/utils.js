@@ -101,14 +101,23 @@ Fliplet.Registry.set('dynamicListUtils', function() {
   }
 
   function getMomentDate(date) {
+    if (!date) {
+      return moment();
+    }
+
+    if (_.get(date, '_isAMomentObject') === true) {
+      return date;
+    }
+
     if (date.constructor.name === 'Date') {
-      return moment(d);
+      return moment(date);
     }
 
     if (typeof date === 'number') {
-      return moment(d);
+      return moment(date);
     }
 
+    // Date is a string
     var d = new Date(date);
 
     if (date.match(/\d{4}-\d{2}-\d{2}(T| )?(\d{2}:\d{2}:\d{2})?/)) {
@@ -118,7 +127,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       isoDateWarningIssued = true;
     }
 
-    return moment(d).hour(0).utc();
+    return moment(d);
   };
 
   function recordContains(record, value) {
