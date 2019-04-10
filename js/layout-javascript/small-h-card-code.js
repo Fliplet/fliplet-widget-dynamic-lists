@@ -505,7 +505,6 @@ DynamicList.prototype.convertFiles = function(listItems) {
 }
 
 DynamicList.prototype.connectToGetFiles = function(data) {
-  var _this = this;
   var cacheKey = JSON.stringify(data.query);
 
   if (!this.cachedFiles[cacheKey]) {
