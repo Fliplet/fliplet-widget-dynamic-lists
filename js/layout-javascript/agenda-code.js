@@ -33,6 +33,7 @@ var DynamicList = function(id, data, container) {
   this.copyOfScrollValue = _this.scrollValue;
   this.isPanning = false;
   this.myUserData;
+  this.agendaDates = [];
 
   this.listItems;
   this.agendasByDay;
@@ -393,7 +394,16 @@ DynamicList.prototype.attachObservers = function() {
                   var selectedIndex = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
                   _this.renderDatesHTML(_this.listItems, selectedIndex);
                   _this.prepareToRenderLoop(_this.listItems);
-                  _this.renderLoopHTML(null).then(function(){
+                  _this.renderLoopHTML(function (index, $batch) {
+                    if (index === 0) {
+                      _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+                      _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+                    }
+                  }).then(function(index, $full){
+                    if (index === -1) {
+                      _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+                      _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+                    }
                     _that.text('Delete').removeClass('disabled');
                   });
                 })
@@ -811,10 +821,21 @@ DynamicList.prototype.initialize = function() {
 
         // Render Loop HTML
         _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML(null).then(function(){
+        _this.renderLoopHTML(function (index, $batch) {
+          if (index === 0) {
+            _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+            _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+          }
+        }).then(function(index, $full){
+          if (index === -1) {
+            _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+            _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+          }
+
           // Listeners and Ready
           _this.initializeMixer();
           _this.bindTouchEvents();
+          _this.goToToday();
           _this.setupCards();
           _this.attachObservers();
           _this.scrollEvent();
@@ -873,9 +894,20 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML(null).then(function(){
+      _this.renderLoopHTML(function (index, $batch) {
+        if (index === 0) {
+          _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+          _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+        }
+      }).then(function(index, $full){
+        if (index === -1) {
+          _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+          _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+        }
+
         _this.initializeMixer();
         _this.bindTouchEvents();
+        _this.goToToday();
         _this.setupCards();
         _this.attachObservers();
         _this.scrollEvent();
@@ -1238,8 +1270,6 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
 DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   // Function that renders the List template
   var _this = this;
-
-
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
@@ -1248,30 +1278,32 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   return new Promise(function(resolve){
     // here we need to loop through each agenda
     var renderLoopIndex = 0;
+    var $renderFull = $([]);
+
     function render() {
       // get the next batch of items to render
       var nextBatch = _this.agendasByDay.slice(
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+        _this.INCREMENTAL_RENDERING_BATCH_SIZE * renderLoopIndex,
+        _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
       );
-      if (nextBatch.length) {
-        _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append(template(nextBatch));
-        if(iterateeCb && typeof iterateeCb === 'function'){
-          if(renderLoopIndex === 0){
-            _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-            $(_this.$container.find('.agenda-list-day-holder')[0]).addClass('active');
-          }
-          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
-        }
-        renderLoopIndex++;
-        // if the browser is ready, render
-        requestAnimationFrame(render);
+
+      if (!nextBatch.length) {
+        resolve(renderLoopIndex - 1, $renderFull);
+        return;
       }
-      else{
-        _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-        $(_this.$container.find('.agenda-list-day-holder')[0]).addClass('active');
-        resolve();
+
+      var $renderBatch = $(template(nextBatch));
+      $renderFull.add($renderBatch);
+      _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append($renderBatch);
+
+      if (iterateeCb && typeof iterateeCb === 'function') {
+        iterateeCb(renderLoopIndex, $renderBatch);
       }
+
+      renderLoopIndex++;
+
+      // if the browser is ready, render
+      requestAnimationFrame(render);
     }
     // start the initial render
     requestAnimationFrame(render);
@@ -1331,6 +1363,8 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
     uniqueDates.forEach(function(date) {
       var d = _this.Utils.Date.moment(date);
 
+      _this.agendaDates.push(d.format('YYYY-MM-DD'));
+
       calendarDates.push({
         week: d.format(formats.week),
         day: d.format(formats.day),
@@ -1338,6 +1372,8 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
         placeholder: false
       });
     });
+
+    this.agendaDates = _.orderBy(this.agendaDates);
 
     // Adds (numberOfPlaceholderDays) days after the last date
     // Save them in an array
@@ -1352,14 +1388,16 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
     }
   }
 
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.otherLoopHTML
-    ? Handlebars.compile(_this.data.advancedSettings.otherLoopHTML)
-    : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['other-loop']]());
+  var template = this.data.advancedSettings && this.data.advancedSettings.otherLoopHTML
+    ? Handlebars.compile(this.data.advancedSettings.otherLoopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[this.agendaLayoutMapping[this.data.layout]['other-loop']]());
 
-  _this.$container.find('.agenda-date-selector ul').html(template(calendarDates));
+  this.$container.find('.agenda-date-selector ul').html(template(calendarDates));
   // Selects the first date
-  $(_this.$container.find('.agenda-date-selector li').not('.placeholder')[index ? index : 0]).addClass('active');
-  _this.centerDate();
+  this.sliderCount = this.agendaDates.length;
+  this.activeSlideIndex = typeof index === 'number' ? index : 0;
+  this.$container.find('.agenda-date-selector li').not('.placeholder').eq(this.activeSlideIndex).addClass('active');
+  this.centerDate();
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
@@ -1507,8 +1545,8 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   var _this = this;
   _this.centerDate();
 
-  var nextDateElement = $(_this.$container.find('.agenda-date-selector li').not('.placeholder')[index]);
-  var nextAgendaElement = $(_this.$container.find('.agenda-list-day-holder')[index]);
+  var nextDateElement = _this.$container.find('.agenda-date-selector li').not('.placeholder').eq(index);
+  var nextAgendaElement = _this.$container.find('.agenda-list-day-holder').eq(index);
 
   if (!nextDateElement.length || !nextAgendaElement.length || _this.animatingForward) {
     return;
@@ -1536,8 +1574,8 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   var _this = this;
   _this.centerDate();
 
-  var prevDateElement = $(_this.$container.find('.agenda-date-selector li').not('.placeholder')[index])
-  var prevAgendaElement = $(_this.$container.find('.agenda-list-day-holder')[index]);
+  var prevDateElement = _this.$container.find('.agenda-date-selector li').not('.placeholder').eq(index);
+  var prevAgendaElement = _this.$container.find('.agenda-list-day-holder').eq(index);
   var positiveDifference = difference *= -1;
 
   if (!prevDateElement.length || !prevAgendaElement.length || _this.animatingBack) {
@@ -1733,6 +1771,45 @@ DynamicList.prototype.checkScrollHorizontal = function(e) {
   return distanceX < distanceY
 }
 
+DynamicList.prototype.getDateIndex = function (date) {
+  var d = this.getMomentDate(date);
+
+  if (!d.isValid()) {
+    return 0;
+  }
+
+  var formattedDate = d.format('YYYY-MM-DD');
+  var index = _.indexOf(this.agendaDates, formattedDate);
+
+  if (index !== -1) {
+    return index;
+  }
+
+  if (formattedDate > this.agendaDates[this.agendaDates.length - 1]) {
+    return this.agendaDates.length - 1;
+  }
+
+  return 0;
+};
+
+DynamicList.prototype.goToToday = function () {
+  this.goToDate(moment().format('YYYY-MM-DD'));
+};
+
+DynamicList.prototype.goToDate = function (date) {
+  if (!date) {
+    return;
+  }
+
+  var d = this.getMomentDate(date);
+
+  if (!d.isValid()) {
+    return;
+  }
+
+  this.sliderGoTo(this.getDateIndex(d));
+};
+
 DynamicList.prototype.sliderGoTo = function(number) {
   var _this = this;
   // Stop it from doing weird things like moving to slides that don’t exist
@@ -1740,13 +1817,16 @@ DynamicList.prototype.sliderGoTo = function(number) {
     _this.activeSlideIndex = 0;
   } else if ( number > _this.sliderCount - 1 ) {
     _this.activeSlideIndex = _this.sliderCount - 1
+  } else if (number === _this.activeSlideIndex) {
+    return;
   } else {
+    var diff = number - _this.activeSlideIndex;
     if (number > _this.activeSlideIndex) {
       _this.activeSlideIndex = number;
-      _this.moveForwardDate(_this.activeSlideIndex, 1);
+      _this.moveForwardDate(_this.activeSlideIndex, diff);
     } else {
       _this.activeSlideIndex = number;
-      _this.moveBackDate(_this.activeSlideIndex, -1);
+      _this.moveBackDate(_this.activeSlideIndex, diff);
     }
   }
 }
@@ -1867,8 +1947,6 @@ DynamicList.prototype.closeDetails = function() {
     $overlay.find('.agenda-detail-overlay-content-holder').html('');
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
-      _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
-    }
+    _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
   }, 300);
 }
