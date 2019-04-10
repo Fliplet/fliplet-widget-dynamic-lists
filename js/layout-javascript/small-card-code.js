@@ -13,14 +13,6 @@ var DynamicList = function(id, data, container) {
       'user-profile': 'templates.build.small-card-user-profile'
     }
   };
-  this.operators = {
-    '==': function(a, b) { return a == b },
-    '!=': function(a, b) { return a != b },
-    '>': function(a, b) { return a > b },
-    '>=': function(a, b) { return a >= b },
-    '<': function(a, b) { return a < b },
-    '<=': function(a, b) { return a <= b }
-  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -78,13 +70,13 @@ var DynamicList = function(id, data, container) {
 
   this.profileHTML = Handlebars.compile(this.src);
 
-  this.registerHandlebarsHelpers();
+  this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (session && session.entries && session.entries.dataSource) {
-      _this.myUserData = session.entries.dataSource.data;
-    } else if (session && session.entries && session.entries.saml2) {
-      _this.myUserData = session.entries.saml2.user;
+    if (_.get(session, 'entries.dataSource.data')) {
+      _this.myUserData = _.get(session, 'entries.dataSource.data');
+    } else if (_.get(session, 'entries.saml2.user')) {
+      _this.myUserData = _.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
@@ -94,71 +86,7 @@ var DynamicList = function(id, data, container) {
   });
 };
 
-DynamicList.prototype.registerHandlebarsHelpers = function() {
-  // Register your handlebars helpers here
-  var _this = this;
-
-  Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-    switch (operator) {
-      case '==':
-        return (v1 == v2) ? options.fn(this) : options.inverse(this);
-      case '===':
-        return (v1 === v2) ? options.fn(this) : options.inverse(this);
-      case '!=':
-        return (v1 != v2) ? options.fn(this) : options.inverse(this);
-      case '!==':
-        return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-      case '<':
-        return (v1 < v2) ? options.fn(this) : options.inverse(this);
-      case '<=':
-        return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-      case '>':
-        return (v1 > v2) ? options.fn(this) : options.inverse(this);
-      case '>=':
-        return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-      case '&&':
-        return (v1 && v2) ? options.fn(this) : options.inverse(this);
-      case '||':
-        return (v1 || v2) ? options.fn(this) : options.inverse(this);
-      default:
-        return options.inverse(this);
-    }
-  });
-
-  Handlebars.registerHelper('validateImage', function(image) {
-    var validatedImage = image;
-
-    if (!validatedImage) {
-      return '';
-    }
-
-    if (Array.isArray(validatedImage) && !validatedImage.length) {
-      return '';
-    }
-
-    // Validate thumbnail against URL and Base64 patterns
-    var urlPattern = /^https?:\/\//i;
-    var base64Pattern = /^data:image\/[^;]+;base64,/i;
-    if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
-      return '';
-    }
-
-    if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
-      // attach auth token
-      validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
-    }
-
-    return validatedImage;
-  });
-
-  Handlebars.registerHelper('formatDate', function(date) {
-    return moment(date).utc().format('DD MMMM YYYY');
-  });
-
-  Handlebars.registerHelper('removeSpaces', function(context) {
-    return context.replace(/\s+/g, '');
-  });
-}
+DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -595,52 +523,6 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 }
 
-DynamicList.prototype.filterRecords = function(records, filters) {
-  var _this = this;
-
-  return _.filter(records, function(record) {
-    var matched = 0;
-
-    filters.some(function(filter) {
-      var condition = filter.condition;
-      var rowData;
-      // Case insensitive
-      if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
-        filter.value = filter.value.toLowerCase();
-      }
-      if (record.data[filter.column] !== null && typeof record.data[filter.column] !== 'undefined') {
-        rowData = record.data[filter.column].toString().toLowerCase();
-      }
-
-      if (condition === 'contains') {
-        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
-          matched++;
-        }
-        return;
-      }
-      if (condition === 'notcontain') {
-        if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
-          matched++;
-        }
-        return;
-      }
-      if (condition === 'regex') {
-        var pattern = new RegExp(filter.value, 'gi');
-        if (pattern.test(rowData)){
-          matched++;
-        }
-        return;
-      }
-      if (_this.operators[condition](rowData, filter.value)) {
-        matched++;
-        return;
-      }
-    });
-
-    return matched >= filters.length ? true : false;
-  });
-}
-
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
   var filtered;
@@ -718,7 +600,7 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    filtered = _this.filterRecords(records, filters);
+    filtered = _this.Utils.Records.runFilters(records, filters);
     records = filtered;
   }
 
@@ -735,7 +617,7 @@ DynamicList.prototype.prepareData = function(records) {
     });
 
     // Filter data
-    prefiltered = _this.filterRecords(records, prefilters);
+    prefiltered = _this.Utils.Records.runFilters(records, prefilters);
     records = prefiltered;
   }
 
@@ -855,7 +737,6 @@ DynamicList.prototype.convertFiles = function(listItems) {
 }
 
 DynamicList.prototype.connectToGetFiles = function(data) {
-  var _this = this;
   var cacheKey = JSON.stringify(data.query);
 
   if (!this.cachedFiles[cacheKey]) {
@@ -920,20 +801,6 @@ DynamicList.prototype.connectToGetFiles = function(data) {
       return data.entry;
     });
 }
-
-DynamicList.prototype.getAllColumns = function () {
-  var cachedColumns = {};
-
-  if (cachedColumns[dataSourceId]) {
-    return Promise.resolve(cachedColumns[dataSourceId]);
-  }
-
-  this.listItems.unshift({});
-  cachedColumns[dataSourceId] = _.keys(_.extend.apply({}, _.map(this.listItems, 'data')));
-  this.listItems.shift();
-
-  return Promise.resolve(cachedColumns[dataSourceId]);
-};
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
@@ -1046,7 +913,7 @@ DynamicList.prototype.initialize = function() {
         return Promise.resolve();
       }
 
-      return _this.getAllColumns().then(function (columns) {
+      return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function (columns) {
         _this.dataSourceColumns = columns;
       });
     })
@@ -1802,22 +1669,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   if (Array.isArray(_this.pvSearchQuery.column)) {
     fields.forEach(function(field) {
       filteredData = _.filter(_this.listItems, function(obj) {
-        var cellData = obj.data[field];
-        if (!cellData) {
-          return false;
-        }
-
-        if (_.isArray(cellData)) {
-          return _.some(cellData, function (el) {
-            return el.toLowerCase().indexOf(value) > -1;
-          });
-        }
-
-        if (typeof cellData !== 'string') {
-          cellData = '' + cellData;
-        }
-
-        return cellData.toLowerCase().indexOf(value) > -1;
+        return _this.Utils.Record.contains(obj.data[field], value);
       });
 
       if (filteredData.length) {
@@ -1828,9 +1680,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
     });
   } else {
     searchedData = _.filter(_this.listItems, function(obj) {
-      if (obj.data[fields] !== null && obj.data[fields] !== '' && typeof obj.data[fields] !== 'undefined') {
-        return obj.data[fields].toLowerCase().indexOf(value) > -1;
-      }
+      return _this.Utils.Record.contains(obj.data[field], value);
     });
 
     if (!searchedData || !searchedData.length) {
@@ -1913,22 +1763,7 @@ DynamicList.prototype.searchData = function(value) {
 
       _this.data.searchFields.forEach(function(field) {
         filteredData = _.filter(_this.listItems, function(obj) {
-          var cellData = obj.data[field];
-          if (!cellData) {
-            return false;
-          }
-
-          if (_.isArray(cellData)) {
-            return _.some(cellData, function (el) {
-              return el.toLowerCase().indexOf(value) > -1;
-            });
-          }
-
-          if (typeof cellData !== 'string') {
-            cellData = '' + cellData;
-          }
-
-          return cellData.toLowerCase().indexOf(value) > -1;
+          return _this.Utils.Record.contains(obj.data[field], value);
         });
 
         if (filteredData.length) {
