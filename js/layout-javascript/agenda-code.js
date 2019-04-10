@@ -1772,7 +1772,7 @@ DynamicList.prototype.checkScrollHorizontal = function(e) {
 }
 
 DynamicList.prototype.getDateIndex = function (date) {
-  var d = this.getMomentDate(date);
+  var d = this.Utils.Date.moment(date);
 
   if (!d.isValid()) {
     return 0;
@@ -1801,7 +1801,7 @@ DynamicList.prototype.goToDate = function (date) {
     return;
   }
 
-  var d = this.getMomentDate(date);
+  var d = this.Utils.Date.moment(date);
 
   if (!d.isValid()) {
     return;
