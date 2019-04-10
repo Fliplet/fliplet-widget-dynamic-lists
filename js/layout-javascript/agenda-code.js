@@ -66,10 +66,10 @@ var DynamicList = function(id, data, container) {
   // Get the current session data
   Fliplet.User.getCachedSession()
     .then(function(session) {
-      if (session && session.entries && session.entries.dataSource) {
-        _this.myUserData = session.entries.dataSource.data;
-      } else if (session && session.entries && session.entries.saml2) {
-        _this.myUserData = session.entries.saml2.user;
+      if (_.get(session, 'entries.dataSource.data')) {
+        _this.myUserData = _.get(session, 'entries.dataSource.data');
+      } else if (_.get(session, 'entries.saml2.user')) {
+        _this.myUserData = _.get(session, 'entries.saml2.user');
         _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
         _this.myUserData.isSaml2 = true;
       }
