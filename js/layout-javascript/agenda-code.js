@@ -101,11 +101,11 @@ DynamicList.prototype.getMomentDate = function (date) {
   }
 
   if (date.constructor.name === 'Date') {
-    return moment(d);
+    return moment(date);
   }
 
   if (typeof date === 'number') {
-    return moment(d);
+    return moment(date);
   }
 
   var d = new Date(date);
