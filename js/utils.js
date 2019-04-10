@@ -202,6 +202,27 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     });
   }
 
+  function getRecordFields(records, key) {
+    records = records || [];
+
+    var cachedFields = {};
+    var fields;
+
+    if (key && cachedFields[key]) {
+      return Promise.resolve(cachedFields[key]);
+    }
+
+    records.unshift({});
+    fields = _.keys(_.extend.apply({}, _.map(records, 'data')));
+    records.shift();
+
+    if (key) {
+      cachedFields[key] = fields;
+    }
+
+    return Promise.resolve(fields);
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     Date: {
@@ -211,7 +232,8 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       contains: recordContains
     },
     Records: {
-      runFilters: runRecordFilters
+      runFilters: runRecordFilters,
+      getFields: getRecordFields
     }
   };
 }());
