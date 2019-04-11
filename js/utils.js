@@ -117,17 +117,14 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       return moment(date);
     }
 
-    // Date is a string
-    var d = new Date(date);
-
-    if (date.match(/\d{4}-\d{2}-\d{2}(T| )?(\d{2}:\d{2}:\d{2})?/)) {
-      d = d.toUTCString();
+    if (date.match(/^\d{4}-\d{2}-\d{2}/)) {
+      return moment(new Date(date.substr(0, 10))).utc();
     } else if (!isoDateWarningIssued) {
       console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. ' + new Date().toISOString().substr(0, 10));
       isoDateWarningIssued = true;
     }
 
-    return moment(d);
+    return moment(new Date(date));
   };
 
   function recordContains(record, value) {
