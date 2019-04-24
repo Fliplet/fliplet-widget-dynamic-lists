@@ -1920,7 +1920,8 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
       likedLabel: '<i class="fa fa-bookmark animated fadeIn"></i>',
       likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
       likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
-      addType: 'html'
+      addType: 'html',
+      getAllCounts: false
     }),
     id: id
   });

@@ -1669,7 +1669,8 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
       likedLabel: '<span class="fa fa-bookmark"></span>',
       likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
       likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
-      addType: 'prepend'
+      addType: 'prepend',
+      getAllCounts: false
     }),
     id: id
   };
