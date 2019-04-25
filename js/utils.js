@@ -173,7 +173,8 @@ Fliplet.Registry.set('dynamicListUtils', function() {
           filter.value = filter.value.toLowerCase();
         }
 
-        if (!_.isUndefined(_.get(record, 'data.' + filter.column))) {
+        if (!_.isUndefined(_.get(record, 'data.' + filter.column))
+          && !_.isNull(_.get(record, 'data.' + filter.column))) {
           rowData = record.data[filter.column].toString().toLowerCase();
         }
 
