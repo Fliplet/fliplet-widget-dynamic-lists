@@ -125,7 +125,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     }
 
     return moment(new Date(date));
-  };
+  }
 
   function recordContains(record, value) {
     if (!record) {
@@ -162,49 +162,31 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     };
 
     return _.filter(records, function(record) {
-      var matched = 0;
-
-      _.some(filters, function(filter) {
+      return _.every(filters, function(filter) {
         var condition = filter.condition;
         var rowData;
+
         // Case insensitive
-        if (filter.value !== null && filter.value !== '' && typeof filter.value !== 'undefined') {
+        if (typeof _.get(filter, 'value') === 'string') {
           filter.value = filter.value.toLowerCase();
         }
-        if (record.data[filter.column] !== null && record.data[filter.column] !== '' && typeof record.data[filter.column] !== 'undefined') {
+
+        if (!_.isUndefined(_.get(record, 'data.' + filter.column))) {
           rowData = record.data[filter.column].toString().toLowerCase();
         }
 
         switch (condition) {
           case 'contains':
-            if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1) {
-              matched++;
-              return true;
-            }
-            break;
+            return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1;
           case 'notcontain':
-            if (rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1) {
-              matched++;
-              return true;
-            }
-            break;
+            return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1;
           case 'regex':
             var pattern = new RegExp(filter.value, 'gi');
-            if (pattern.test(rowData)){
-              matched++;
-              return true;
-            }
-            break;
+            return pattern.test(rowData);
           default:
-            if (operators[condition](rowData, filter.value)) {
-              matched++;
-              return true;
-            }
-            break;
+            return operators[condition](rowData, filter.value);
         }
       });
-
-      return matched >= filters.length;
     });
   }
 
