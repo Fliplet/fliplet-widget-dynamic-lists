@@ -148,6 +148,8 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       record = '' + record;
     }
 
+    value = ('' + value).toLowerCase().trim();
+
     return record.toLowerCase().indexOf(value) > -1;
   }
 
