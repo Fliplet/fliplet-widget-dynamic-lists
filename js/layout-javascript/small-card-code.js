@@ -1233,7 +1233,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
-        var content = entry.data[obj.column];
+        content = entry.data[obj.column];
       }
 
       newObject[obj.location] = content;
@@ -1245,7 +1245,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
         if (obj.column === 'custom') {
           content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
         } else {
-          var content = entry.data[obj.column];
+          content = entry.data[obj.column];
         }
         newObject[obj.location] = content;
       }

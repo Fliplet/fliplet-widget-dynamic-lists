@@ -1540,7 +1540,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
-        var content = entry.data[obj.column];
+        content = entry.data[obj.column];
       }
       newObject[obj.location] = content;
     });
@@ -2426,7 +2426,7 @@ DynamicList.prototype.connectToCommentsDataSource = function(id) {
   var content = {
     contentDataSourceEntryId: id,
     type: 'comment'
-  }
+  };
   return Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
     .then(function(instance) {
       return instance.query({
@@ -2662,7 +2662,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var content = {
     contentDataSourceEntryId: id,
     type: 'comment'
-  }
+  };
 
   _.assignIn(comment, { contentDataSourceEntryId: id });
 
@@ -2885,7 +2885,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
   var content = {
     contentDataSourceEntryId: entryId,
     type: 'comment'
-  }
+  };
 
   Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
     .then(function(instance) {

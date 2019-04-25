@@ -1179,7 +1179,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
-        var content = entry.data[obj.column];
+        content = entry.data[obj.column];
       }
 
       if (obj.location === "Start Time" || obj.location === "End Time") {
@@ -1195,7 +1195,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
         if (obj.column === 'custom') {
           content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
         } else {
-          var content = entry.data[obj.column];
+          content = entry.data[obj.column];
         }
         newObject[obj.location] = content;
       }
