@@ -1177,7 +1177,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
       if (obj.column === 'custom') {
-        content = Handlebars.compile(obj.customField)(entry.data)
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
         var content = entry.data[obj.column];
       }
@@ -1193,7 +1193,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       if (!newObject[obj.location]) {
         var content = '';
         if (obj.column === 'custom') {
-          content = Handlebars.compile(obj.customField)(entry.data)
+          content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
         } else {
           var content = entry.data[obj.column];
         }
@@ -1211,14 +1211,14 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
         label = dynamicDataObj.column;
       }
       if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data);
+        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
       }
       if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
-        content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
+        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
       } else {
         content = entry.data[dynamicDataObj.column];
       }

@@ -1359,7 +1359,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
       if (obj.column === 'custom') {
-        content = Handlebars.compile(obj.customField)(entry.data)
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
         var content = entry.data[obj.column];
       }
@@ -2279,14 +2279,14 @@ DynamicList.prototype.showDetails = function(id) {
       label = obj.column;
     }
     if (obj.fieldLabel === 'custom-label') {
-      label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      label = new Handlebars.SafeString(Handlebars.compile(obj.customFieldLabel)(entryData.data));
     }
     if (obj.fieldLabel === 'no-label') {
       labelEnabled = false;
     }
     // Define content
     if (obj.customFieldEnabled) {
-      content = Handlebars.compile(obj.customField)(entryData.data);
+      content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entryData.data));
     } else {
       content = entryData.data[obj.column];
     }
