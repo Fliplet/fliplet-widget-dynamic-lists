@@ -660,7 +660,8 @@ var DynamicLists = (function() {
           return _this.loadData();
         })
         .then(function() {
-          return _this.initializeSortSortable();
+          _this.initializeFilterSortable();
+          _this.initializeSortSortable();
         });
     },
     getOrganizationInfo: function() {
