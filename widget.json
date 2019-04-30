@@ -77,7 +77,6 @@
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",
-      "vendor/style.css",
       "css/build.css",
 
       "css/layout-css/small-card-style.upload.css",
