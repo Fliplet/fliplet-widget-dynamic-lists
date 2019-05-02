@@ -157,11 +157,29 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     var operators = {
       '==': function(a, b) { return a == b },
       '!=': function(a, b) { return a != b },
-      '>': function(a, b) { return a > b },
-      '>=': function(a, b) { return a >= b },
-      '<': function(a, b) { return a < b },
-      '<=': function(a, b) { return a <= b }
+      '>': function(a, b) { return smartParseFloat(a) > smartParseFloat(b) },
+      '>=': function(a, b) { return smartParseFloat(a) >= smartParseFloat(b) },
+      '<': function(a, b) { return smartParseFloat(a) < smartParseFloat(b) },
+      '<=': function(a, b) { return smartParseFloat(a) <= smartParseFloat(b) }
     };
+
+    function smartParseFloat(value) {
+      // Convert strings to numbers where possible so that
+      // strings that reprepsent numbers are compared as numbers
+      if (!_.isString(value)) {
+        return value;
+      }
+
+      if (isNaN(parseFloat(value.trim()))) {
+        return value;
+      }
+
+      if (parseFloat(value.trim()).toString() !== value.trim()) {
+        return value;
+      }
+
+      return parseFloat(value);
+    }
 
     return _.filter(records, function(record) {
       return _.every(filters, function(filter) {
