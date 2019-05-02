@@ -32,7 +32,7 @@ var DynamicLists = (function() {
   var layoutsTemplate = Fliplet.Widget.Templates['templates.interface.layouts'];
   var listLayouts = window.flWidgetLayout;
   var layoutMapping = window.flLayoutMapping;
-  
+
   var baseTemplateEditor;
   var loopTemplateEditor;
   var detailTemplateEditor;
@@ -612,7 +612,7 @@ var DynamicLists = (function() {
                 if (!result) {
                   _this.config.dataAlertSeen = true;
                 }
-                
+
                 allDataSources = dataSources;
                 _this.getColumns(_this.config.dataSourceId);
                 _this.initSelect2(allDataSources);
@@ -866,13 +866,15 @@ var DynamicLists = (function() {
             return;
           })
           .then(function() {
+            var defaultDetailFields = defaultSettings[listLayout]['detail-fields'] || [];
+
             dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
 
             // Sets up the data view settings
             if (typeof _this.config['summary-fields'] === 'undefined') {
               _this.config['summary-fields'] = defaultSettings[listLayout]['summary-fields'];
             }
-            
+
             var actionValue = _this.config.summaryLinkOption || 'show';
             $('[name="detail-view-action"][value="' + actionValue + '"]').prop('checked', true).trigger('change');
 
@@ -920,8 +922,8 @@ var DynamicLists = (function() {
               });
             }
 
-            if (fromStart && defaultSettings[listLayout]['detail-fields'] && defaultSettings[listLayout]['detail-fields'].length) {
-              defaultSettings[listLayout]['detail-fields'].forEach(function(field) {
+            if (fromStart && defaultDetailFields.length) {
+              defaultDetailFields.forEach(function(field) {
                 var item = {
                   id: field.id,
                   columns: dataSourceColumns,
@@ -935,7 +937,7 @@ var DynamicLists = (function() {
 
                 var foundMatch = _.find(_this.config.detailViewOptions, function(detailField) {
                   return detailField.column === item.column;
-                }); 
+                });
 
                 if (foundMatch) {
                   foundMatch.fieldLabel = 'no-label';
@@ -972,11 +974,23 @@ var DynamicLists = (function() {
 
             // Remove duplicates from Detail view unless it's Simple List
             if (_this.config.layout !== 'simple-list') {
-              _.forEach(_this.config['summary-fields'], function(field) {
-                _this.config.detailViewOptions.some(function(option, index) {
-                  if (field.column && field.column !== 'none' && field.column !== 'custom' && field.column === option.column) {
-                    _this.config.detailViewOptions.splice(index, 1);
+              // Duplicates are removed from detail view because all summary view fields
+              // are rendered at the top of the detail view by default
+              _this.config['summary-fields'].forEach(function(field) {
+                _this.config.detailViewOptions.forEach(function(option, index) {
+                  if (option.paranoid) {
+                    return;
                   }
+
+                  if (!field.column || field.column === 'none' || field.column === 'custom') {
+                    return;
+                  }
+
+                  if (field.column !== option.column) {
+                    return;
+                  }
+
+                  _this.config.detailViewOptions.splice(index, 1);
                 });
               });
             }
@@ -989,56 +1003,51 @@ var DynamicLists = (function() {
             }
 
             // TRY TO RESTORE LOST LOCKED FIELDS
-            var fieldLocations = [];
             var foundLockedFields = [];
-            var foundLockedFieldsIndexes = [];
+            var foundLockedFieldsIndices = [];
+            var defaultLockedFields = _.filter(defaultDetailFields, { paranoid: true });
 
-            if (defaultSettings[listLayout]['detail-fields']) {
-              // First gets the location key of all the default locked fields
-              _.forEach(defaultSettings[listLayout]['detail-fields'], function(field) {
-                fieldLocations.push(field.location);
-              });
-
+            if (defaultLockedFields.length) {
               // Tries to find each location in the saved detail fields
               // For each found location we save the object and the index for later
-              fieldLocations.forEach(function(location) {
-                _this.config.detailViewOptions.forEach(function(option, index) {
-                  if (option.location === location) {
-                    foundLockedFields.push(option);
-                    foundLockedFieldsIndexes.push(index);
+              defaultLockedFields.forEach(function(field) {
+                _this.config.detailViewOptions.some(function(option, index) {
+                  if (option.location !== field.location) {
+                    return false;
                   }
+
+                  foundLockedFields.push(option);
+                  foundLockedFieldsIndices.push(index);
+                  return true;
                 });
               });
-              
+
               // If the found fields are less than the default fields
-              if (foundLockedFields.length < defaultSettings[listLayout]['detail-fields'].length) {
+              if (foundLockedFields.length < defaultLockedFields.length) {
                 // Normalize default fields
-                defaultSettings[listLayout]['detail-fields'].forEach(function(field) {
+                defaultLockedFields.forEach(function(field) {
                   field.columns = dataSourceColumns;
                   field.fieldLabel = 'no-label';
                   field.editable = !field.paranoid;
                 });
 
                 // We extend the found fields with the missing defaults
-                foundLockedFields = $.extend(true, defaultSettings[listLayout]['detail-fields'], foundLockedFields);
-                
-                // Reverse the order for later
-                foundLockedFields.reverse();
-
-                // We use the indexes to remove the current found fields
-                for (var i = foundLockedFieldsIndexes.length -1; i >= 0; i--) {
-                  _this.config.detailViewOptions.splice(foundLockedFieldsIndexes[i],1);
-                }
-
-                // Now we prepend the found fields, including the missing one(s)
-                foundLockedFields.forEach(function(lockedField) {
-                  _this.config.detailViewOptions.unshift(lockedField);
+                foundLockedFields = _.map(defaultLockedFields, function(field) {
+                  return _.merge(field, _.find(foundLockedFields, { location : field.location }));
                 });
+
+                // Prepend locked fields in the beginning
+                _this.config.detailViewOptions = _.concat(
+                  foundLockedFields,
+                  _.filter(_this.config.detailViewOptions, function (option, index) {
+                    return foundLockedFieldsIndices.indexOf(index) === -1;
+                  })
+                );
               }
             }
 
             $detailsRowContainer.empty();
-            _.forEach(_this.config.detailViewOptions, function(item) {  
+            _.forEach(_this.config.detailViewOptions, function(item) {
               item.columns = dataSourceColumns;
               item = _this.updateWithFoldersInfo(item, 'details');
               _this.addDetailItem(item);
@@ -1151,7 +1160,7 @@ var DynamicLists = (function() {
               $('.create-holder').addClass('hidden');
               $('.edit-holder').removeClass('hidden');
               $('.form-group').removeClass('disabled');
-              
+
                // Continue
               _this.setupCodeEditors(listLayout);
               _this.goToSettings('layouts');
@@ -1163,7 +1172,7 @@ var DynamicLists = (function() {
       if (_this.config.searchEnabled) {
         $('#search-column-fields-tokenfield').tokenfield('setTokens', _this.config.searchFields );
       }
-      
+
       if (_this.config.filtersEnabled) {
         $('#filter-column-fields-tokenfield').tokenfield('setTokens', _this.config.filterFields );
       }
@@ -1268,7 +1277,7 @@ var DynamicLists = (function() {
         var options = [];
         $(obj).html('');
         $(obj).append('<option value="none">-- Select a data field</option>');
-        
+
         dataSourceColumns.forEach(function(value, index) {
           options.push('<option value="'+ value +'">'+ value +'</option>');
         });
@@ -1327,7 +1336,7 @@ var DynamicLists = (function() {
           $(obj).val(oldValue);
         }
       });
-      
+
       // Detail fields
       $('[name="select_field"]').each(function(index, obj) {
         var oldValue = $(obj).val();
@@ -1342,7 +1351,7 @@ var DynamicLists = (function() {
         defaultOptions.forEach(function(option) {
           options.push(option);
         });
-        
+
         dataSourceColumns.forEach(function(value, index) {
           options.push('<option value="'+ value +'">'+ value +'</option>');
         });
@@ -1478,7 +1487,7 @@ var DynamicLists = (function() {
         $('.select-user-photo-holder').removeClass('hidden');
         $('.select-photo-folder-type').removeClass('hidden');
       }
-      
+
       if (_this.config.addPermissions === 'admins'
         || _this.config.editPermissions === 'admins'
         || _this.config.editPermissions === 'users-admins'
@@ -1624,7 +1633,7 @@ var DynamicLists = (function() {
           _this.config.dataSourceId = ds.id;
           _this.getColumns(ds.id);
         });
-      });   
+      });
     },
     loadDataFromLayout: function() {
       return Fliplet.DataSources.get({
@@ -2239,15 +2248,15 @@ var DynamicLists = (function() {
           }
 
           _this.config.advancedSettings.htmlEnabled = false;
-        } 
+        }
         if (id === 'enable-css') {
           _this.config.advancedSettings.cssCode = undefined;
           _this.config.advancedSettings.cssEnabled = false;
-        } 
+        }
         if (id === 'enable-javascript') {
           _this.config.advancedSettings.jsCode = undefined;
           _this.config.advancedSettings.jsEnabled = false;
-        } 
+        }
         // Update codeeditor
         _this.setupCodeEditors(listLayout, true);
         resetToDefaults = false;
@@ -2348,7 +2357,7 @@ var DynamicLists = (function() {
       data.advancedSettings.htmlEnabled = $('input#enable-templates').is(":checked");
       data.advancedSettings.cssEnabled = $('input#enable-css').is(":checked");
       data.advancedSettings.jsEnabled = $('input#enable-javascript').is(":checked");
-      
+
       if (data.advancedSettings.htmlEnabled) {
         data.advancedSettings.loopHTML = loopTemplateEditor.getValue();
         data.advancedSettings.baseHTML = baseTemplateEditor.getValue();
@@ -2450,7 +2459,7 @@ var DynamicLists = (function() {
       data.addEntry = profileValues.indexOf('add-entry') !== -1
       data.editEntry = profileValues.indexOf('edit-entry') !== -1
       data.deleteEntry = profileValues.indexOf('delete-entry') !== -1
-      
+
       data.addPermissions = $('[name="add-permissions"]:checked').val();
       data.editPermissions = $('[name="edit-permissions"]:checked').val();
       data.deletePermissions = $('[name="delete-permissions"]:checked').val();
