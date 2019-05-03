@@ -80,7 +80,8 @@ var DynamicLists = (function() {
     '>': 'Greater than',
     '>=': 'Greater or equal to',
     '<': 'Less than',
-    '<=': 'Less or equal to'
+    '<=': 'Less or equal to',
+    'none': '(Logic)'
   };
 
   // Constructor
@@ -145,9 +146,9 @@ var DynamicLists = (function() {
           var item = {};
           item.id = _this.makeid(8);
           item.title = 'Sort condition ' + ($('#sort-accordion .panel').length + 1);
-          item.column = 'Field';
-          item.sortBy = 'Sort';
-          item.orderBy = 'Order';
+          item.column = 'none';
+          item.sortBy = 'none';
+          item.orderBy = 'none';
           item.columns = dataSourceColumns;
           _this.config.sortOptions.push(item);
 
@@ -159,21 +160,21 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
 
           if (type === 'field') {
-            $(this).parents('.sort-panel').find('.panel-title-text .column').html(value);
+            $(this).parents('.sort-panel').find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
           }
           if (type === 'sort') {
-            $(this).parents('.sort-panel').find('.panel-title-text .sort-by').html(value);
+            $(this).parents('.sort-panel').find('.panel-title-text .sort-by').html(value === 'none' ? '(Sort)' : value);
           }
           if (type === 'order') {
-            $(this).parents('.sort-panel').find('.panel-title-text .order-by').html(value);
+            $(this).parents('.sort-panel').find('.panel-title-text .order-by').html(value === 'none' ? '(Order)' : value);
           }
         })
         .on('click', '[data-add-filter-panel]', function() {
           var item = {};
           item.id = _this.makeid(8);
-          item.column = 'Field';
-          item.logic = 'Logic';
-          item.value = 'Value';
+          item.column = 'none';
+          item.logic = 'none';
+          item.value = '';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -185,8 +186,9 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
 
           if (type === 'field') {
-            $(this).parents('.filter-panel').find('.panel-title-text .column').html(value);
+            $(this).parents('.filter-panel').find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
           }
+
           if (type === 'logic') {
             $(this).parents('.filter-panel').find('.panel-title-text .logic').html(logicMap[value]);
           }
@@ -196,7 +198,7 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
 
           if (type === 'value') {
-            $(this).parents('.filter-panel').find('.panel-title-text .value').html(value);
+            $(this).parents('.filter-panel').find('.panel-title-text .value').html(value === '' ? '(Value)' : value);
           }
         })
         .on('click', '.sort-panel .icon-delete', function() {
@@ -1721,13 +1723,29 @@ var DynamicLists = (function() {
       return text;
     },
     addSortItem: function(data) {
+      data.columnLabel = data.column === 'none'
+        ? '(Field)'
+        : data.column;
+      data.sortByLabel = data.sortBy === 'none'
+        ? '(Sort)'
+        : data.sortBy;
+      data.orderByLabel = data.orderBy === 'none'
+        ? '(Order)'
+        : data.orderBy;
+
       var $newPanel = $(sortPanelTemplate(data));
       $sortAccordionContainer.append($newPanel);
     },
     addFilterItem: function(data) {
-      data.logic = logicMap[data.logic]
+      data.columnLabel = data.column === 'none'
+        ? '(Field)'
+        : data.column;
+      data.logicLabel = logicMap[data.logic]
         ? logicMap[data.logic]
         : data.logic;
+      data.valueLabel = data.value === ''
+        ? '(Value)'
+        : data.value;
 
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
