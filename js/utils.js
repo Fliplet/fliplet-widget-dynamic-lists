@@ -128,7 +128,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
   }
 
   function removeSymbols(str) {
-    return ('' + str).replace(/[&\/\\#,+()$~%.'‘’"“”:*?<>{}]+/g, '');
+    return ('' + str).replace(/[&\/\\#,+()$~%.`'‘’"“”:*?<>{}]+/g, '');
   }
 
   function recordContains(record, value) {
