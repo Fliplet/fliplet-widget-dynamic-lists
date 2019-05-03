@@ -183,11 +183,16 @@ Fliplet.Registry.set('dynamicListUtils', function() {
 
     return _.filter(records, function(record) {
       return _.every(filters, function(filter) {
+        if (!filter.condition || !filter.value || filter.column === 'none') {
+          // Filter isn't configured correctly
+          return true;
+        }
+
         var condition = filter.condition;
         var rowData;
 
         // Case insensitive
-        if (typeof _.get(filter, 'value') === 'string') {
+        if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
         }
 
@@ -204,7 +209,9 @@ Fliplet.Registry.set('dynamicListUtils', function() {
             var pattern = new RegExp(filter.value, 'gi');
             return pattern.test(rowData);
           default:
-            return operators[condition](rowData, filter.value);
+            return _.isFunction(operators[condition])
+              ? operators[condition](rowData, filter.value)
+              : true;
         }
       });
     });
