@@ -248,6 +248,12 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         try {
+          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+        } catch (error) {
+          console.error('Your custom function contains a syntax error: ' + error);
+        }
+
+        try {
           result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
         } catch (error) {
           console.error('Your custom function contains an error: ' + error);
