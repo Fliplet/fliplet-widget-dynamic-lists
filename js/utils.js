@@ -127,6 +127,10 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return moment(new Date(date));
   }
 
+  function removeSymbols(str) {
+    return ('' + str).replace(/[&\/\\#,+()$~%.'‘’"“”:*?<>{}]+/g, '');
+  }
+
   function recordContains(record, value) {
     if (!record) {
       return false;
@@ -144,13 +148,10 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       });
     }
 
-    if (typeof record !== 'string') {
-      record = '' + record;
-    }
+    record = removeSymbols(record).toLowerCase();
+    value = removeSymbols(value).toLowerCase().trim();
 
-    value = ('' + value).toLowerCase().trim();
-
-    return record.toLowerCase().indexOf(value) > -1;
+    return record.indexOf(value) > -1;
   }
 
   function runRecordFilters(records, filters) {
