@@ -2189,7 +2189,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.prepareToRenderLoop(_this.listItems);
   _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
-  }, function(){
+  }).then(function(){
     _this.initializeMixer();
     _this.addFilters(_this.modifiedListItems);
   });
