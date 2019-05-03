@@ -71,6 +71,18 @@ var DynamicLists = (function() {
 
   var filePickerPromises = [];
 
+  var logicMap = {
+    '==': 'Equals',
+    '!=': 'Doesn\'t equal',
+    'contains': 'Contains',
+    'notcontain': 'Doesn\'t contain',
+    'regex': 'Regex',
+    '>': 'Greater than',
+    '>=': 'Greater or equal to',
+    '<': 'Less than',
+    '<=': 'Less or equal to'
+  };
+
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -171,17 +183,6 @@ var DynamicLists = (function() {
         .on('change', '.filter-panels-holder select', function() {
           var value = $(this).val();
           var type = $(this).data('field');
-          var logicMap = {
-            '==': 'Equals',
-            '!=': 'Doesn\'t equal',
-            'contains': 'Contains',
-            'notcontain': 'Doesn\'t contain',
-            'regex': 'Regex',
-            '>': 'Greater than',
-            '>=': 'Greater or equal to',
-            '<': 'Less than',
-            '<=': 'Less or equal to'
-          };
 
           if (type === 'field') {
             $(this).parents('.filter-panel').find('.panel-title-text .column').html(value);
@@ -1724,6 +1725,10 @@ var DynamicLists = (function() {
       $sortAccordionContainer.append($newPanel);
     },
     addFilterItem: function(data) {
+      data.logic = logicMap[data.logic]
+        ? logicMap[data.logic]
+        : data.logic;
+
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
     },
