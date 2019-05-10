@@ -1100,7 +1100,8 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
   var _this = this;
   // Group data by date field
   var recordGroups = _.groupBy(loopData, function(row) {
-    return row[dateField];
+    // Format date value as it could be in various formats
+    return _this.Utils.Date.moment(row[dateField]).format('YYYY-MM-DD');
   });
   var recordMerges = [];
 
