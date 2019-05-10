@@ -573,7 +573,7 @@ DynamicList.prototype.prepareData = function(records) {
 
         if (field.type === "date") {
           // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format();
+          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
         }
 
         if (field.type === "time") {
@@ -1100,7 +1100,8 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
   var _this = this;
   // Group data by date field
   var recordGroups = _.groupBy(loopData, function(row) {
-    return row[dateField];
+    // Format date value as it could be in various formats
+    return _this.Utils.Date.moment(row[dateField]).format('YYYY-MM-DD');
   });
   var recordMerges = [];
 
