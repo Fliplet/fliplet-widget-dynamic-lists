@@ -1546,7 +1546,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (obj.column === 'custom') {
         content = Handlebars.compile(obj.customField)(entry.data)
       } else {
-        var content = entry.data[obj.column];
+        content = _this.splitByCommas(entry.data[obj.column]).join(', ');
       }
       newObject[obj.location] = content;
     });
@@ -1570,7 +1570,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (dynamicDataObj.customFieldEnabled) {
         content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
       } else {
-        content = entry.data[dynamicDataObj.column];
+        content = _this.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
       }
       // Define data object
       var newEntryDetail = {
@@ -1815,6 +1815,10 @@ DynamicList.prototype.filterList = function() {
 }
 
 DynamicList.prototype.splitByCommas = function(str) {
+  if (str === undefined || str === null) {
+    return [];
+  }
+
   if (Array.isArray(str)) {
     return str;
   }
