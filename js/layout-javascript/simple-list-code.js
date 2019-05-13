@@ -1360,8 +1360,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       var content = '';
       if (obj.column === 'custom') {
         content = Handlebars.compile(obj.customField)(entry.data)
-      } else {
+      } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
         content = _this.splitByCommas(entry.data[obj.column]).join(', ');
+      } else {
+        content = entry.data[obj.column];
       }
       newObject[obj.location] = content;
     });
