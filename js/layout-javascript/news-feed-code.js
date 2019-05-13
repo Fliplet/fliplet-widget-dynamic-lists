@@ -1983,12 +1983,14 @@ DynamicList.prototype.checkBookmarked = function(from, to) {
   });
 }
 
-DynamicList.prototype.calculateFiltersHeight = function(element) {
-  var totalHeight = element.find('.hidden-filter-controls-content').height();
-
-  element.find('.hidden-filter-controls').animate({
-    height: totalHeight,
-  }, 200);
+DynamicList.prototype.calculateFiltersHeight = function($el) {
+  $el.find('.hidden-filter-controls').each(function () {
+    var $controls = $(this);
+    var totalHeight = $controls.find('.hidden-filter-controls-content').height();
+    $controls.animate({
+      height: totalHeight,
+    }, 200);
+  });
 }
 
 DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
