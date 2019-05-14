@@ -281,6 +281,16 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     });
   }
 
+  function recordMatchesFilterClasses(record, filterClasses) {
+    filterClasses = filterClasses || [];
+
+    var filters = _.map(_.get(record, 'data.flFilters'), 'data.class');
+
+    return _.every(filterClasses, function (filter) {
+      return _.includes(filters, filter);
+    });
+  }
+
   function getRecordFilterValues(records, fields) {
     // Extract a list of filter values based on a list of records and filter fields
     if (_.isUndefined(fields) || _.isNull(fields)) {
@@ -354,7 +364,8 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     },
     Record: {
       contains: recordContains,
-      matchesFilters: recordMatchesFilters
+      matchesFilters: recordMatchesFilters,
+      matchesFilterClasses: recordMatchesFilterClasses
     },
     Records: {
       runFilters: runRecordFilters,

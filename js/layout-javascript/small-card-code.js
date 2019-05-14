@@ -1467,6 +1467,10 @@ DynamicList.prototype.filterList = function() {
     });
   }
 
+  _this.filterClasses = $activeFilterControls.map(function (index, element) {
+    return $(element).data('toggle');
+  });
+
   if (_.every($activeFilterControls, function (el) {
     return el.dataset.key && el.dataset.key.length
   })) {
@@ -1486,24 +1490,8 @@ DynamicList.prototype.filterList = function() {
     });
   } else {
     // Legacy class-based filters
-    $activeFilterControls.each(function(index, element) {
-      _this.filterClasses.push($(element).data('toggle'));
-    });
-
-    filteredData = _.filter(listData, function(row) {
-      var filters = [];
-      row.data['flFilters'].forEach(function(obj) {
-        filters.push(obj.data.class);
-      });
-
-      var matched = [];
-      _this.filterClasses.forEach(function(filter) {
-        matched.push(filters.indexOf(filter.toString()) >= 0);
-      });
-
-      // If "_.includes" returns TRUE
-      // we actually want to return FALSE to _.filter
-      return !_.includes(matched, false);
+    filteredData = _.filter(listData, function(record) {
+      return _this.Utils.Record.matchesFilterClasses(record, _this.filterClasses);
     });
   }
 
