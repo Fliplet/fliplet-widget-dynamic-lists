@@ -4,7 +4,7 @@ var DynamicList = function(id, data, container) {
 
   this.flListLayoutConfig = window.flListLayoutConfig;
 
-  this.simpleListLayoutMapping = {
+  this.layoutMapping = {
     'simple-list': {
       'base': 'templates.build.simple-list-base',
       'loop': 'templates.build.simple-list-loop',
@@ -1329,7 +1329,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   data.goBackButton = _this.pvGoBack && _this.pvGoBack.enableButton;
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -1379,7 +1379,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-    : Handlebars.compile(Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['loop']]());
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
   var limitedList = undefined;
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
@@ -2239,7 +2239,7 @@ DynamicList.prototype.showDetails = function(id) {
 
   var src = _this.data.advancedSettings && _this.data.advancedSettings.detailHTML
     ? _this.data.advancedSettings.detailHTML
-    : Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['detail']]();
+    : Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['detail']]();
   var beforeShowDetails = Promise.resolve({
     src: src,
     data: newData
@@ -2483,7 +2483,7 @@ DynamicList.prototype.showComments = function(id) {
       _this.autosizeInit = true;
     }
 
-    var commentsTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['comments']];
+    var commentsTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments.entries);
     // Display comments (fl-comments-list-holder)
@@ -2665,7 +2665,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
     text: value
   };
 
-  var tempCommentTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['temp-comment']];
+  var tempCommentTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['temp-comment']];
   var tempCommentTemplateCompiled = Handlebars.compile(tempCommentTemplate());
   var tempCommentHTML = tempCommentTemplateCompiled(commentInfo);
 
@@ -2729,12 +2729,12 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       }
     }
 
-    var commentTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['single-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['single-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }
   if (context === 'temp') {
-    var commentTemplate = Fliplet.Widget.Templates[_this.simpleListLayoutMapping[_this.data.layout]['temp-comment']];
+    var commentTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['temp-comment']];
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }

@@ -3,7 +3,7 @@ var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
-  this.agendaLayoutMapping = {
+  this.layoutMapping = {
     'agenda': {
       'base': 'templates.build.agenda-base',
       'loop': 'templates.build.agenda-cards-loop',
@@ -57,7 +57,7 @@ var DynamicList = function(id, data, container) {
 
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
-    : Fliplet.Widget.Templates[_this.agendaLayoutMapping[this.data.layout]['detail']]();
+    : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
 
   this.detailHTML = Handlebars.compile(this.src);
 
@@ -1068,7 +1068,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -1278,7 +1278,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-    : Handlebars.compile(Fliplet.Widget.Templates[_this.agendaLayoutMapping[_this.data.layout]['loop']]());
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').empty();
   return new Promise(function(resolve){
@@ -1396,7 +1396,7 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
 
   var template = this.data.advancedSettings && this.data.advancedSettings.otherLoopHTML
     ? Handlebars.compile(this.data.advancedSettings.otherLoopHTML)
-    : Handlebars.compile(Fliplet.Widget.Templates[this.agendaLayoutMapping[this.data.layout]['other-loop']]());
+    : Handlebars.compile(Fliplet.Widget.Templates[this.layoutMapping[this.data.layout]['other-loop']]());
 
   this.$container.find('.agenda-date-selector ul').html(template(calendarDates));
   // Selects the first date
