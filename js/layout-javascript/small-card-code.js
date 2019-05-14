@@ -1202,9 +1202,8 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
   var _this = this;
-
   var savedColumns = [];
-  var modifiedData = _this.convertCategories(records);
+  var modifiedData = _this.Utils.Records.addFilterProperties(records, _this.data.filterFields);
   var loopData = [];
   var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
@@ -1285,7 +1284,6 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
     });
     loopData.push(newObject);
   });
-
 
   savedColumns = dynamicData.map(function(data){
     return data.column;
@@ -1427,56 +1425,26 @@ DynamicList.prototype.getPermissions = function(entries) {
 DynamicList.prototype.addFilters = function(data) {
   // Function that renders the filters
   var _this = this;
-  var filters = [];
   var filtersData = {
-    'filtersInOverlay': _this.data.filtersInOverlay
+    filtersInOverlay: _this.data.filtersInOverlay,
+    filters: _this.Utils.Records.parseFilters(data, _this.data.filterFields, _this.data.id)
   };
-
-  data.forEach(function(row) {
-    row['flFilters'].forEach(function(filter) {
-      filters.push(filter);
-    });
-  });
-
-  var uniqueCategories = _.uniqBy(filters, function(obj) {
-    return obj.data.name;
-  });
-
-  var allFilters = [];
-  _this.data.filterFields.forEach(function(filter) {
-    var arrangedFilters = {
-      id: _this.data.id,
-      name: filter,
-      data: []
-    };
-    uniqueCategories.forEach(function(item) {
-      if (item.type === filter) {
-        arrangedFilters.data.push(item.data);
-      }
-    });
-
-    arrangedFilters.data = _.orderBy(arrangedFilters.data, function(item) {
-      return item.name;
-    }, ['asc']);
-
-    allFilters.push(arrangedFilters);
-  });
-
-  filtersData.filters = allFilters
 
   filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
-  ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
-  : Handlebars.compile(filtersTemplate());
+    ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
+    : Handlebars.compile(filtersTemplate());
 
   _this.$container.find('.filter-holder').html(template(filtersData));
-}
+};
 
 DynamicList.prototype.filterList = function() {
   var _this = this;
+  var filteredData = [];
   _this.filterClasses = [];
 
   var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+  var $activeFilterControls = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
 
   if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
@@ -1484,35 +1452,54 @@ DynamicList.prototype.filterList = function() {
 
   _this.$container.find('.hidden-search-controls').removeClass('no-results');
 
-  if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
+  if (!$activeFilterControls.length) {
     _this.$container.find('.new-small-card-list-container').removeClass('filtering');
     _this.isFiltering = false;
     _this.prepareToRenderLoop(listData);
-    _this.renderLoopHTML(function(from, to){
+    return _this.renderLoopHTML(function(from, to){
       _this.onPartialRender(from, to);
     });
-    return;
   }
 
-  $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
-    _this.filterClasses.push($(element).data('toggle'));
-  });
-
-  var filteredData = _.filter(listData, function(row) {
-    var filters = [];
-    row.data['flFilters'].forEach(function(obj) {
-      filters.push(obj.data.class);
+  if (_.every($activeFilterControls, function (el) {
+    return el.dataset.key && el.dataset.key.length
+  })) {
+    // Filter UI contains data-filter, i.e. uses new field-based filters
+    var activeFilters = _.mapValues(_.groupBy($activeFilterControls.map(function () {
+      var $elem = $(this);
+      return {
+        key: $elem.data('key'),
+        value: $elem.data('value')
+      };
+    }), 'key'), function (filter) {
+      return _.map(filter, 'value');
     });
 
-    var matched = [];
-    _this.filterClasses.forEach(function(filter) {
-      matched.push(filters.indexOf(filter.toString()) >= 0);
+    filteredData = _.filter(listData, function (record) {
+      return _this.Utils.Record.matchesFilters(record, activeFilters);
+    });
+  } else {
+    // Legacy class-based filters
+    $activeFilterControls.each(function(index, element) {
+      _this.filterClasses.push($(element).data('toggle'));
     });
 
-    // If "_.includes" returns TRUE
-    // we actually want to return FALSE to _.filter
-    return !_.includes(matched, false);
-  });
+    filteredData = _.filter(listData, function(row) {
+      var filters = [];
+      row.data['flFilters'].forEach(function(obj) {
+        filters.push(obj.data.class);
+      });
+
+      var matched = [];
+      _this.filterClasses.forEach(function(filter) {
+        matched.push(filters.indexOf(filter.toString()) >= 0);
+      });
+
+      // If "_.includes" returns TRUE
+      // we actually want to return FALSE to _.filter
+      return !_.includes(matched, false);
+    });
+  }
 
   if (!filteredData.length) {
     _this.$container.find('.hidden-search-controls').addClass('no-results');
@@ -1521,7 +1508,7 @@ DynamicList.prototype.filterList = function() {
   _this.$container.find('.new-small-card-list-container').addClass('filtering');
   _this.isFiltering = true;
   _this.prepareToRenderLoop(filteredData);
-  _this.renderLoopHTML(function(from, to){
+  return _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
   });
 }
@@ -1544,51 +1531,6 @@ DynamicList.prototype.splitByCommas = function(str) {
     arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
   }
   return arr;
-}
-
-DynamicList.prototype.convertCategories = function(data) {
-  // Function that get and converts the categories for the filters to work
-  var _this = this;
-
-  data.forEach(function(element) {
-    element.data['flClasses'] = '';
-    element.data['flFilters'] = [];
-    var lowerCaseTags = [];
-    _this.data.filterFields.forEach(function(filter) {
-      var arrayOfTags = [];
-      if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
-        var arrayOfTags = _this.splitByCommas(element.data[filter]).map(function(item) {
-          if (typeof item !== 'string') {
-            return item;
-          }
-
-          return item.trim();
-        });
-      }
-      arrayOfTags.forEach(function(item, index) {
-        if (!item || typeof item !== 'string') {
-          return;
-        }
-
-        var classConverted = item.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-        if (classConverted === '') {
-          return;
-        }
-        var newObj = {
-          type: filter,
-          data: {
-            name: item,
-            class: classConverted
-          }
-        }
-        lowerCaseTags.push(classConverted);
-        element.data['flFilters'].push(newObj);
-      });
-
-    });
-    element.data['flClasses'] = lowerCaseTags.join(' ');
-  });
-  return data;
 }
 
 DynamicList.prototype.onPartialRender = function(from, to) {
