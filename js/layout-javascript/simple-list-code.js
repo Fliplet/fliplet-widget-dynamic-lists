@@ -260,18 +260,38 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.removeClass('display');
       $('body').removeClass('lock');
 
-      // Resets selected filters if any
+      // Clear all selected filters
       $('.mixitup-control-active').removeClass('mixitup-control-active');
 
-      if (_this.filterClasses.length) {
-        _this.filterClasses.forEach(function(filter) {
-          $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
-        });
+      // Select filters based on existing settings
+      if (_this.activeFilters) {
+        if (_.isEmpty(_this.activeFilters)) {
+          $('.clear-filters').addClass('hidden');
+          return;
+        }
+
+        var selectors = _.flatten(_.map(_this.activeFilters, function (values, key) {
+          return _.map(values, function (value) {
+            return '.hidden-filter-controls-filter[data-key="' + key + '"][data-value="' + value + '"]';
+          });
+        })).join(',');
+        $(selectors).addClass('mixitup-control-active');
 
         $('.clear-filters').removeClass('hidden');
-      } else {
-        $('.clear-filters').addClass('hidden');
+        return;
       }
+
+      // Legacy class-based settings
+      if (!_this.filterClasses || !_this.filterClasses.length) {
+        $('.clear-filters').addClass('hidden');
+        return;
+      }
+
+      _this.filterClasses.forEach(function(filter) {
+        $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
+      });
+
+      $('.clear-filters').removeClass('hidden');
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
@@ -1495,7 +1515,8 @@ DynamicList.prototype.addFilters = function(data) {
 DynamicList.prototype.filterList = function() {
   var _this = this;
   var filteredData = [];
-  _this.filterClasses = [];
+  _this.filterClasses = undefined;
+  _this.activeFilters = undefined;
 
   var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
   var $activeFilterControls = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
@@ -1515,15 +1536,11 @@ DynamicList.prototype.filterList = function() {
     });
   }
 
-  _this.filterClasses = $activeFilterControls.map(function (index, element) {
-    return $(element).data('toggle');
-  });
-
   if (_.every($activeFilterControls, function (el) {
     return el.dataset.key && el.dataset.key.length
   })) {
     // Filter UI contains data-filter, i.e. uses new field-based filters
-    var activeFilters = _.mapValues(_.groupBy($activeFilterControls.map(function () {
+    _this.activeFilters = _.mapValues(_.groupBy($activeFilterControls.map(function () {
       var $elem = $(this);
       return {
         key: $elem.data('key'),
@@ -1534,10 +1551,14 @@ DynamicList.prototype.filterList = function() {
     });
 
     filteredData = _.filter(listData, function (record) {
-      return _this.Utils.Record.matchesFilters(record, activeFilters);
+      return _this.Utils.Record.matchesFilters(record, _this.activeFilters);
     });
   } else {
     // Legacy class-based filters
+    _this.filterClasses = _.map($activeFilterControls, function (element) {
+      return $(element).data('toggle');
+    });
+
     filteredData = _.filter(listData, function(record) {
       return _this.Utils.Record.matchesFilterClasses(record, _this.filterClasses);
     });
