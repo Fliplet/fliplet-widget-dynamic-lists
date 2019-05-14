@@ -1780,7 +1780,7 @@ DynamicList.prototype.filterList = function() {
     });
   } else {
     // Legacy class-based filters
-    filteredData = _.filter(listData, function(row) {
+    filteredData = _.filter(listData, function(record) {
       return _this.Utils.Record.matchesFilterClasses(record, _this.filterClasses);
     });
   }
