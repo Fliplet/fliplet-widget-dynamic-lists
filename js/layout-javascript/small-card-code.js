@@ -1232,7 +1232,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       if (obj.column === 'custom') {
         content = Handlebars.compile(obj.customField)(entry.data)
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
-        content = _this.splitByCommas(entry.data[obj.column]).join(', ');
+        content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
       } else {
         content = entry.data[obj.column];
       }
@@ -1246,7 +1246,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
         if (obj.column === 'custom') {
           content = Handlebars.compile(obj.customField)(entry.data)
         } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
-          content = _this.splitByCommas(entry.data[obj.column]).join(', ');
+          content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
         } else {
           content = entry.data[obj.column];
         }
@@ -1273,7 +1273,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       if (dynamicDataObj.customFieldEnabled) {
         content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
       } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
-        content = _this.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
+        content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
       } else {
         content = entry.data[dynamicDataObj.column];
       }
@@ -1517,30 +1517,6 @@ DynamicList.prototype.filterList = function() {
   return _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
   });
-}
-
-DynamicList.prototype.splitByCommas = function(str) {
-  if (str === undefined || str === null) {
-    return [];
-  }
-
-  if (Array.isArray(str)) {
-    return str;
-  }
-
-  if (typeof str !== 'string') {
-    return [str];
-  }
-
-  // Split a string by commas but ignore commas within double-quotes using Javascript
-  // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
-  var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
-  var arr = [];
-  var res;
-  while ((res = regexp.exec(str)) !== null) {
-    arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
-  }
-  return arr;
 }
 
 DynamicList.prototype.onPartialRender = function(from, to) {
