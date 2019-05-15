@@ -274,24 +274,24 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('keydown', function(e) {
       if (e.keyCode === 39) {
-        if ($('.agenda-date-selector li.active').next().hasClass('.placeholder')) {
+        if (_this.$container.find('.agenda-date-selector li.active').next().hasClass('.placeholder')) {
           return;
         }
 
-        var indexOfActiveDate = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
-        var indexOfClickedDate = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active').next());
+        var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
+        var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').next());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
         _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
       }
       if (e.keyCode === 37) {
-        if ($('.agenda-date-selector li.active').prev().hasClass('.placeholder')) {
+        if (_this.$container.find('.agenda-date-selector li.active').prev().hasClass('.placeholder')) {
           return;
         }
 
-        var indexOfActiveDate = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
-        var indexOfClickedDate = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active').prev());
+        var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
+        var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').prev());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
         _this.moveBackDate(indexOfClickedDate, indexDifference);
@@ -305,8 +305,8 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      var indexOfActiveDate = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
-      var indexOfClickedDate = $('.agenda-date-selector li').not('.placeholder').index(this);
+      var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
+      var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(this);
       var indexDifference = indexOfClickedDate - indexOfActiveDate
 
       Fliplet.Analytics.trackEvent({
@@ -397,7 +397,7 @@ DynamicList.prototype.attachObservers = function() {
 
                   _this.closeDetails();
 
-                  var selectedIndex = $('.agenda-date-selector li').not('.placeholder').index($('.agenda-date-selector li.active'));
+                  var selectedIndex = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
                   _this.renderDatesHTML(_this.listItems, selectedIndex);
                   _this.prepareToRenderLoop(_this.listItems);
                   _this.renderLoopHTML(function (index, $batch) {
@@ -414,18 +414,8 @@ DynamicList.prototype.attachObservers = function() {
                   });
                 })
                 .catch(function(error) {
-                  Fliplet.UI.Toast({
-                    message: 'Error deleting entry',
-                    actions: [
-                      {
-                        label: 'Details',
-                        action: function () {
-                          Fliplet.UI.Toast({
-                            html: error.message || error
-                          });
-                        }
-                      }
-                    ]
+                  Fliplet.UI.Toast.error(error, {
+                    message: 'Error deleting entry'
                   });
                 });
             }
@@ -471,7 +461,7 @@ DynamicList.prototype.likesObservers = function(button) {
 
   button.btn.on('liked.fail', function(data){
     this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
-    $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
   });
 
   button.btn.on('unliked', function(data){
@@ -486,14 +476,14 @@ DynamicList.prototype.likesObservers = function(button) {
 
   button.btn.on('unliked.fail', function(data){
     this.$btn.parents('.agenda-list-item').addClass('bookmarked');
-    $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
   });
 }
 
 DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
   var _this = this;
 
-  $('.agenda-detail-overlay').find('.bookmark-wrapper').on('click', function() {
+  _this.$container.find('.agenda-detail-overlay .bookmark-wrapper').on('click', function() {
     if (isLiked) {
       $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       button.btn.unlike();
@@ -1041,18 +1031,8 @@ DynamicList.prototype.connectToDataSource = function() {
 
     return getData(cache);
   }).catch(function (error) {
-    Fliplet.UI.Toast({
-      message: 'Error loading data',
-      actions: [
-        {
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              html: error.message || error
-            });
-          }
-        }
-      ]
+    Fliplet.UI.Toast.error(error, {
+      message: 'Error loading data'
     });
   });
 }
@@ -1072,10 +1052,10 @@ DynamicList.prototype.renderBaseHTML = function() {
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
-  ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
-  : Handlebars.compile(baseHTML());
+    ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
+    : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
+  _this.$container.html(template(data));
 }
 
 DynamicList.prototype.convertTime = function(time) {
@@ -1694,14 +1674,14 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
 
   if (button && button.btn) {
     if (button.btn.isLiked()) {
-      $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).addClass('bookmarked');
+      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).addClass('bookmarked');
       isLiked = button.btn.isLiked();
     } else {
-      $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).addClass('not-bookmarked');
+      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).addClass('not-bookmarked');
       isLiked = button.btn.isLiked();
     }
   } else {
-    $('.agenda-detail-overlay').find('.agenda-item-bookmark-holder').addClass('not-bookmarked');
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder').addClass('not-bookmarked');
     isLiked = false;
   }
 
@@ -1745,7 +1725,7 @@ DynamicList.prototype.bindTouchEvents = function() {
     if (_this.checkScrollHorizontal(e)) {
       _this.isPanning = true;
       _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
-      _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index($('.agenda-list-day-holder.active'));
+      _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
       _this.$container.find('.agenda-date-selector ul').addClass('is-panning');
 
       var reverse = e.deltaX - (e.deltaX * 2);
