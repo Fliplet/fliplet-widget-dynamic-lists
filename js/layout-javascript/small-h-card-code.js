@@ -261,18 +261,8 @@ DynamicList.prototype.attachObservers = function() {
                   _this.renderLoopHTML();
                 })
                 .catch(function(error) {
-                  Fliplet.UI.Toast({
-                    message: 'Error deleting entry',
-                    actions: [
-                      {
-                        label: 'Details',
-                        action: function () {
-                          Fliplet.UI.Toast({
-                            html: error.message || error
-                          });
-                        }
-                      }
-                    ]
+                  Fliplet.UI.Toast.error(error, {
+                    message: 'Error deleting entry'
                   });
                 });
             }
@@ -792,18 +782,8 @@ DynamicList.prototype.connectToDataSource = function() {
 
     return getData(cache);
   }).catch(function (error) {
-    Fliplet.UI.Toast({
-      message: 'Error loading data',
-      actions: [
-        {
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              html: error.message || error
-            });
-          }
-        }
-      ]
+    Fliplet.UI.Toast.error(error, {
+      message: 'Error loading data'
     });
   });
 }
