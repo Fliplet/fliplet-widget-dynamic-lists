@@ -268,10 +268,44 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return Promise.resolve(fields);
   }
 
+  function convertData(data) {
+    // Converts data as jQuery.data() does when reading data attributes
+    // Source: https://github.com/jquery/jquery/blob/master/src/data.js
+    var rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/;
+
+    if (data === 'true') {
+      return true;
+    }
+
+    if (data === 'false') {
+      return false;
+    }
+
+    if (data === 'null') {
+      return null;
+    }
+
+    // Only convert to a number if it doesn't change the string
+    if (data === +data + '') {
+      return +data;
+    }
+
+    if (rbrace.test(data)) {
+      // Returned parsed object/array if it starts with { or [
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        return data;
+      }
+    }
+
+    return data;
+  }
+
   function recordMatchesFilters(record, filters) {
     // Returns true if record matches all of provided filters and values
     var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (key) {
-      return _.uniq(splitByCommas(_.get(record, 'data.' + key)));
+      return _.map(_.uniq(splitByCommas(_.get(record, 'data.' + key))), convertData);
     }));
 
     return _.every(_.keys(filters), function (key) {
