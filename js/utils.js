@@ -53,7 +53,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
         return '';
       }
 
-      if (Array.isArray(validatedImage) && !validatedImage.length) {
+      if (_.isArray(validatedImage) && !validatedImage.length) {
         return '';
       }
 
@@ -97,6 +97,35 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       text = text.replace(breakRegExp, '<br>');
 
       return new Handlebars.SafeString(text);
+    });
+  }
+
+  function splitByCommas(str) {
+    if (str === undefined || str === null) {
+      return [];
+    }
+
+    if (_.isArray(str)) {
+      return _.flatten(_.map(str, splitByCommas));
+    }
+
+    if (typeof str !== 'string') {
+      return [str];
+    }
+
+    // Split a string by commas but ignore commas within double-quotes using Javascript
+    // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
+    var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
+    var arr = [];
+    var res;
+    while ((res = regexp.exec(str)) !== null) {
+      arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
+    }
+
+    return _.filter(_.map(arr, function (s) {
+      return ('' + s).trim();
+    }), function (value) {
+      return [undefined, null, '', NaN].indexOf(value) === -1;
     });
   }
 
@@ -239,17 +268,111 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return Promise.resolve(fields);
   }
 
+  function recordMatchesFilters(record, filters) {
+    // Returns true if record matches all of provided filters and values
+    var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (key) {
+      return _.uniq(splitByCommas(_.get(record, 'data.' + key)));
+    }));
+
+    return _.every(_.keys(filters), function (key) {
+      return _.every(filters[key], function (value) {
+        return _.includes(_.get(recordFilterValues, key), value);
+      });
+    });
+  }
+
+  function recordMatchesFilterClasses(record, filterClasses) {
+    filterClasses = filterClasses || [];
+
+    var filters = _.map(_.get(record, 'data.flFilters'), 'data.class');
+
+    return _.every(filterClasses, function (filter) {
+      return _.includes(filters, filter);
+    });
+  }
+
+  function getRecordFilterValues(records, fields) {
+    // Extract a list of filter values based on a list of records and filter fields
+    if (_.isUndefined(fields) || _.isNull(fields)) {
+      return [];
+    }
+
+    if (!_.isArray(fields)) {
+      fields = [fields];
+    }
+
+    return _.zipObject(fields, _.map(fields, function (field) {
+      return _.sortBy(_.uniq(splitByCommas(_.map(records, 'data.' + field))));
+    }));
+  }
+
+  function parseRecordFilters(records, filters, id) {
+    // Parse legacy flFilters from records to generate a list of filter values
+    return _.orderBy(_.map(
+      _.groupBy(_.orderBy(_.uniqBy(_.flatten(_.map(records, 'flFilters')), function (filter) {
+        // _.uniqBy iteratee
+        return JSON.stringify(filter);
+      }), 'data.name'), 'type'),
+      function (values, key) {
+        // _.map iteratee for defining of each filter value
+        return {
+          id: id,
+          name: key,
+          data: _.map(values, 'data')
+        };
+      }), function (filter) {
+      // _.orderBy iteratee
+      return _.indexOf(filters, filter.name);
+    });
+  }
+
+  function addRecordFilterProperties(records, fields) {
+    // Function that get and converts the categories for the filters to work
+    records.forEach(function(record) {
+      var classes = [];
+      record.data['flFilters'] = [];
+      fields.forEach(function(filter) {
+        splitByCommas(record.data[filter]).forEach(function(item, index) {
+          var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+          var newObj = {
+            type: filter,
+            data: {
+              name: item,
+              class: classConverted
+            }
+          };
+
+          classes.push(classConverted);
+          record.data['flFilters'].push(newObj);
+        });
+      });
+      record.data['flClasses'] = _.uniq(classes).filter(function (el) {
+        return el !== '';
+      }).join(' ');
+    });
+
+    return records;
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
+    String: {
+      splitByCommas: splitByCommas
+    },
     Date: {
       moment: getMomentDate
     },
     Record: {
-      contains: recordContains
+      contains: recordContains,
+      matchesFilters: recordMatchesFilters,
+      matchesFilterClasses: recordMatchesFilterClasses
     },
     Records: {
       runFilters: runRecordFilters,
-      getFields: getRecordFields
+      getFields: getRecordFields,
+      getFilterValues: getRecordFilterValues,
+      parseFilters: parseRecordFilters,
+      addFilterProperties: addRecordFilterProperties
     }
   };
 }());

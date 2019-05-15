@@ -3,7 +3,7 @@ var DynamicList = function(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
-  this.smallHorizontalLayoutMapping = {
+  this.layoutMapping = {
     'small-h-card': {
       'base': 'templates.build.small-h-card-base',
       'loop': 'templates.build.small-h-card-loop',
@@ -48,7 +48,7 @@ var DynamicList = function(id, data, container) {
   // Register handlebars helpers
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
-    : Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[this.data.layout]['detail']]();
+    : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
 
   this.profileHTML = Handlebars.compile(this.src);
 
@@ -819,7 +819,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
@@ -946,7 +946,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-    : Handlebars.compile(Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
   _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).empty();
 
