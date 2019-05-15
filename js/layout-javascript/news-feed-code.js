@@ -2111,7 +2111,7 @@ DynamicList.prototype.clearSearch = function() {
   var _this = this;
 
   // Removes value from search box
-  _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
+  _this.$container.find('.search-holder input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results search-results searching');
 

@@ -471,7 +471,7 @@ DynamicList.prototype.likesObservers = function(button) {
 
   button.btn.on('liked.fail', function(data){
     this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
-    _this.$container.find('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
   });
 
   button.btn.on('unliked', function(data){
@@ -486,14 +486,14 @@ DynamicList.prototype.likesObservers = function(button) {
 
   button.btn.on('unliked.fail', function(data){
     this.$btn.parents('.agenda-list-item').addClass('bookmarked');
-    _this.$container.find('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
   });
 }
 
 DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
   var _this = this;
 
-  _this.$container.find('.agenda-detail-overlay').find('.bookmark-wrapper').on('click', function() {
+  _this.$container.find('.agenda-detail-overlay .bookmark-wrapper').on('click', function() {
     if (isLiked) {
       $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       button.btn.unlike();
@@ -1694,14 +1694,14 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
 
   if (button && button.btn) {
     if (button.btn.isLiked()) {
-      _this.$container.find('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).addClass('bookmarked');
+      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).addClass('bookmarked');
       isLiked = button.btn.isLiked();
     } else {
-      _this.$container.find('.agenda-detail-overlay').find('.agenda-item-bookmark-holder-' + button.id).addClass('not-bookmarked');
+      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).addClass('not-bookmarked');
       isLiked = button.btn.isLiked();
     }
   } else {
-    _this.$container.find('.agenda-detail-overlay').find('.agenda-item-bookmark-holder').addClass('not-bookmarked');
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder').addClass('not-bookmarked');
     isLiked = false;
   }
 

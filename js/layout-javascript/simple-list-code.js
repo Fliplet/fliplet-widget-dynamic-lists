@@ -1878,7 +1878,7 @@ DynamicList.prototype.clearSearch = function() {
   var _this = this;
 
   // Removes value from search box
-  _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
+  _this.$container.find('.search-holder input').val('').blur().removeClass('not-empty');
   // Resets all classes related to search
   _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results search-results searching');
 
@@ -2023,30 +2023,30 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
 
   if (bookmarkButton && bookmarkButton.btn) {
     if (bookmarkButton.btn.isLiked()) {
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
       isBookmarked = bookmarkButton.btn.isLiked();
     } else {
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
       isBookmarked = bookmarkButton.btn.isLiked();
     }
   } else {
-    _this.$container.find('.simple-list-detail-overlay').find('.simple-list-bookmark-holder').addClass('not-bookmarked');
+    _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder').addClass('not-bookmarked');
     isBookmarked = false;
   }
 
   if (likeButton && likeButton.btn) {
     count = likeButton.btn.getCount() > 0 ? likeButton.btn.getCount() : '';
     if (likeButton.btn.isLiked()) {
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id).addClass('liked');
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id + ' .count').html(count);
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + likeButton.id).addClass('liked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + likeButton.id + ' .count').html(count);
       isLiked = likeButton.btn.isLiked();
     } else {
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id).addClass('not-liked');
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + likeButton.id + ' .count').html(count);
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + likeButton.id).addClass('not-liked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + likeButton.id + ' .count').html(count);
       isLiked = likeButton.btn.isLiked();
     }
   } else {
-    _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder').addClass('not-liked');
+    _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder').addClass('not-liked');
     isLiked = false;
   }
 
@@ -2061,7 +2061,7 @@ DynamicList.prototype.likesObservers = function() {
       var entryTitle = this.$btn.parents('.list-item-body').find('.list-item-title').text();
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
 
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + button.id + ' .count').html(count);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -2072,15 +2072,15 @@ DynamicList.prototype.likesObservers = function() {
 
     button.btn.on('liked.fail', function(data){
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + button.id).removeClass('liked').addClass('not-liked');
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + button.id).removeClass('liked').addClass('not-liked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + button.id + ' .count').html(count);
     });
 
     button.btn.on('unliked', function(data){
       var entryTitle = this.$btn.parents('.list-item-body').find('.list-item-title').text();
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
 
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + button.id + ' .count').html(count);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -2091,8 +2091,8 @@ DynamicList.prototype.likesObservers = function() {
 
     button.btn.on('unliked.fail', function(data){
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + button.id).removeClass('not-liked').addClass('liked');
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + button.id).removeClass('not-liked').addClass('liked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + button.id + ' .count').html(count);
     });
   });
 
@@ -2109,7 +2109,7 @@ DynamicList.prototype.likesObservers = function() {
 
     button.btn.on('liked.fail', function(data){
       this.$btn.parents('.simple-list-item').removeClass('bookmarked');
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
     });
 
     button.btn.on('unliked', function(data){
@@ -2124,7 +2124,7 @@ DynamicList.prototype.likesObservers = function() {
 
     button.btn.on('unliked.fail', function(data){
       this.$btn.parents('.simple-list-item').addClass('bookmarked');
-      _this.$container.find('.simple-list-detail-overlay').find('.simple-list-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
+      _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
     });
   });
 }
@@ -2134,7 +2134,7 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
 
   var count;
 
-  _this.$container.find('.simple-list-detail-overlay').find('.simple-list-bookmark-wrapper').on('click', function() {
+  _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-wrapper').on('click', function() {
     if (isBookmarked) {
       $(this).parents('.simple-list-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       bookmarkButton.btn.unlike();
@@ -2147,7 +2147,7 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
     isBookmarked = !isBookmarked;
   });
 
-  _this.$container.find('.simple-list-detail-overlay').find('.simple-list-like-wrapper').on('click', function() {
+  _this.$container.find('.simple-list-detail-overlay .simple-list-like-wrapper').on('click', function() {
     if (isLiked) {
       $(this).parents('.simple-list-like-holder').removeClass('liked').addClass('not-liked');
       likeButton.btn.unlike();
