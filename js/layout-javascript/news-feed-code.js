@@ -135,7 +135,7 @@ DynamicList.prototype.attachObservers = function() {
       $('body').removeClass('lock');
     })
     .on('click', '.clear-filters', function() {
-      $('.mixitup-control-active').removeClass('mixitup-control-active');
+      _this.$container.find('.mixitup-control-active').removeClass('mixitup-control-active');
       $(this).addClass('hidden');
       _this.filterList();
     })
@@ -148,10 +148,10 @@ DynamicList.prototype.attachObservers = function() {
 
       $(this).toggleClass('mixitup-control-active');
 
-      if ($('.mixitup-control-active').length) {
-        $('.clear-filters').removeClass('hidden');
+      if (_this.$container.find('.mixitup-control-active').length) {
+        _this.$container.find('.clear-filters').removeClass('hidden');
       } else {
-        $('.clear-filters').addClass('hidden');
+        _this.$container.find('.clear-filters').addClass('hidden');
       }
     })
     .on('click', '.inline-filter-holder .hidden-filter-controls-filter', function() {
@@ -285,12 +285,12 @@ DynamicList.prototype.attachObservers = function() {
       $('body').removeClass('lock');
 
       // Clear all selected filters
-      $('.mixitup-control-active').removeClass('mixitup-control-active');
+      _this.$container.find('.mixitup-control-active').removeClass('mixitup-control-active');
 
       // Select filters based on existing settings
       if (_this.activeFilters) {
         if (_.isEmpty(_this.activeFilters)) {
-          $('.clear-filters').addClass('hidden');
+          _this.$container.find('.clear-filters').addClass('hidden');
           return;
         }
 
@@ -301,21 +301,21 @@ DynamicList.prototype.attachObservers = function() {
         })).join(',');
         $(selectors).addClass('mixitup-control-active');
 
-        $('.clear-filters').removeClass('hidden');
+        _this.$container.find('.clear-filters').removeClass('hidden');
         return;
       }
 
       // Legacy class-based settings
       if (!_this.filterClasses || !_this.filterClasses.length) {
-        $('.clear-filters').addClass('hidden');
+        _this.$container.find('.clear-filters').addClass('hidden');
         return;
       }
 
       _this.filterClasses.forEach(function(filter) {
-        $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
+        _this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
       });
 
-      $('.clear-filters').removeClass('hidden');
+      _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
@@ -392,7 +392,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.news-feed-comment-holder', function(e) {
       e.stopPropagation();
       var identifier;
-      if ($('.new-news-feed-list-container').hasClass('overlay-open')) {
+      if (_this.$container.find('.new-news-feed-list-container').hasClass('overlay-open')) {
         identifier = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       } else {
         identifier = $(this).parents('.news-feed-list-item').data('entry-id');
@@ -400,7 +400,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.entryClicked = identifier;
       _this.showComments(identifier);
       $('body').addClass('lock');
-      $('.new-news-feed-comment-panel').addClass('open');
+      _this.$container.find('.new-news-feed-comment-panel').addClass('open');
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -408,14 +408,14 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.news-feed-comment-close-panel', function() {
-      $('.new-news-feed-comment-panel').removeClass('open');
-      $('.news-feed-list-item.open .slide-over').removeClass('lock');
-      if (!$('.news-feed-detail-overlay').hasClass('open')) {
+      _this.$container.find('.new-news-feed-comment-panel').removeClass('open');
+      _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
+      if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
         $('body').removeClass('lock');
       }
     })
     .on('click', '.news-feed-comment-input-holder .comment', function() {
-      var entryId = $('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
+      var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val();
 
@@ -473,13 +473,13 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.news-feed-comment-input-holder .save', function() {
-      var commentId = $('.fl-individual-comment.editing').data('id');
-      var entryId = $('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
+      var commentId = _this.$container.find('.fl-individual-comment.editing').data('id');
+      var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val();
 
-      $('.fl-individual-comment').removeClass('editing');
-      $('.news-feed-comment-input-holder').removeClass('editing');
+      _this.$container.find('.fl-individual-comment').removeClass('editing');
+      _this.$container.find('.news-feed-comment-input-holder').removeClass('editing');
       $commentArea.val('').trigger('change');
       autosize.update($commentArea);
 
@@ -493,10 +493,10 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.news-feed-comment-input-holder .cancel', function() {
-      $('.fl-individual-comment').removeClass('editing');
-      $('.news-feed-comment-input-holder').removeClass('editing');
+      _this.$container.find('.fl-individual-comment').removeClass('editing');
+      _this.$container.find('.news-feed-comment-input-holder').removeClass('editing');
 
-      var $messageArea = $('[data-comment-body]');
+      var $messageArea = _this.$container.find('[data-comment-body]');
       $messageArea.val('').trigger('change');
       autosize.update($messageArea);
     })
@@ -521,9 +521,9 @@ DynamicList.prototype.attachObservers = function() {
             {
               label: 'Edit',
               action: function (i) {
-                var $messageArea = $('[data-comment-body]');
+                var $messageArea = _this.$container.find('[data-comment-body]');
                 _that.parents('.fl-individual-comment').addClass('editing');
-                $('.news-feed-comment-input-holder').addClass('editing');
+                _this.$container.find('.news-feed-comment-input-holder').addClass('editing');
 
                 $messageArea.val(textToCopy);
                 autosize.update($messageArea);
@@ -731,30 +731,30 @@ DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
 
   if (bookmarkButton && bookmarkButton.btn) {
     if (bookmarkButton.btn.isLiked()) {
-      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + bookmarkButton.id).addClass('bookmarked');
       isBookmarked = bookmarkButton.btn.isLiked();
     } else {
-      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + bookmarkButton.id).addClass('not-bookmarked');
       isBookmarked = bookmarkButton.btn.isLiked();
     }
   } else {
-    $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder').addClass('not-bookmarked');
+    _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder').addClass('not-bookmarked');
     isBookmarked = false;
   }
 
   if (likeButton && likeButton.btn) {
     count = likeButton.btn.getCount() > 0 ? likeButton.btn.getCount() : '';
     if (likeButton.btn.isLiked()) {
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id).addClass('liked');
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count);
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + likeButton.id).addClass('liked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + likeButton.id + ' .count').html(count);
       isLiked = likeButton.btn.isLiked();
     } else {
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id).addClass('not-liked');
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + likeButton.id + ' .count').html(count);
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + likeButton.id).addClass('not-liked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + likeButton.id + ' .count').html(count);
       isLiked = likeButton.btn.isLiked();
     }
   } else {
-    $('.news-feed-detail-overlay').find('.news-feed-like-holder').addClass('not-liked');
+    _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder').addClass('not-liked');
     isLiked = false;
   }
 
@@ -769,7 +769,7 @@ DynamicList.prototype.likesObservers = function(from, to) {
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
 
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + button.id + ' .count').html(count);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -780,15 +780,15 @@ DynamicList.prototype.likesObservers = function(from, to) {
 
     button.btn.on('liked.fail', function(data){
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id).removeClass('liked').addClass('not-liked');
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + button.id).removeClass('liked').addClass('not-liked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + button.id + ' .count').html(count);
     });
 
     button.btn.on('unliked', function(data){
       var entryTitle = this.$btn.parents('.news-feed-item-inner-content').find('.news-feed-item-title').text();
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
 
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + button.id + ' .count').html(count);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -799,8 +799,8 @@ DynamicList.prototype.likesObservers = function(from, to) {
 
     button.btn.on('unliked.fail', function(data){
       var count = button.btn.getCount() > 0 ? button.btn.getCount() : '';
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id).removeClass('not-liked').addClass('liked');
-      $('.news-feed-detail-overlay').find('.news-feed-like-holder-' + button.id + ' .count').html(count);
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + button.id).removeClass('not-liked').addClass('liked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + button.id + ' .count').html(count);
     });
   });
 
@@ -817,7 +817,7 @@ DynamicList.prototype.likesObservers = function(from, to) {
 
     button.btn.on('liked.fail', function(data){
       this.$btn.parents('.news-feed-list-item').removeClass('bookmarked');
-      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
     });
 
     button.btn.on('unliked', function(data){
@@ -832,7 +832,7 @@ DynamicList.prototype.likesObservers = function(from, to) {
 
     button.btn.on('unliked.fail', function(data){
       this.$btn.parents('.news-feed-list-item').addClass('bookmarked');
-      $('.news-feed-detail-overlay').find('.news-feed-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
+      _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
     });
   });
 }
@@ -841,7 +841,7 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
   var _this = this;
   var count;
 
-  $('.news-feed-detail-overlay').find('.news-feed-bookmark-wrapper').on('click', function() {
+  _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-wrapper').on('click', function() {
     if (isBookmarked) {
       $(this).parents('.news-feed-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
       bookmarkButton.btn.unlike();
@@ -854,7 +854,7 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
     isBookmarked = !isBookmarked;
   });
 
-  $('.news-feed-detail-overlay').find('.news-feed-like-wrapper').on('click', function() {
+  _this.$container.find('.news-feed-detail-overlay .news-feed-like-wrapper').on('click', function() {
     if (isLiked) {
       $(this).parents('.news-feed-like-holder').removeClass('liked').addClass('not-liked');
       likeButton.btn.unlike();
@@ -1353,11 +1353,11 @@ DynamicList.prototype.prepareToFilter = function() {
   if (Array.isArray(_this.pvFilterQuery.value)) {
     _this.pvFilterQuery.value.forEach(function(value) {
       value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-      $('.hidden-filter-controls-filter[data-toggle="' + value + '"]').addClass('mixitup-control-active');
+      _this.$container.find('.hidden-filter-controls-filter[data-toggle="' + value + '"]').addClass('mixitup-control-active');
     });
   } else {
     _this.pvFilterQuery.value = _this.pvFilterQuery.value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-    $('.hidden-filter-controls-filter[data-toggle="' + _this.pvFilterQuery.value + '"]').addClass('mixitup-control-active');
+    _this.$container.find('.hidden-filter-controls-filter[data-toggle="' + _this.pvFilterQuery.value + '"]').addClass('mixitup-control-active');
   }
 
   _this.filterList();
@@ -1531,10 +1531,10 @@ DynamicList.prototype.renderBaseHTML = function() {
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
-  ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
-  : Handlebars.compile(baseHTML());
+    ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
+    : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
+  _this.$container.html(template(data));
   _this.$overlay = _this.$container.find('#news-feed-detail-overlay-' + _this.data.id);
 }
 
@@ -1745,7 +1745,7 @@ DynamicList.prototype.addFilters = function(data) {
   var _this = this;
   var filtersData = {
     filtersInOverlay: _this.data.filtersInOverlay,
-    filters: _this.Utils.Records.parseFilters(data, _this.data.filterFields)
+    filters: _this.Utils.Records.parseFilters(data, _this.data.filterFields, _this.data.id)
   };
 
   filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
@@ -1999,7 +1999,7 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }
 
   if (_this.data.enabledLimitEntries) {
-    $('.limit-entries-text').addClass('hidden');
+    _this.$container.find('.limit-entries-text').addClass('hidden');
   }
 
   // Remove duplicates
@@ -2087,7 +2087,7 @@ DynamicList.prototype.searchData = function(value) {
     }
 
     if (_this.data.enabledLimitEntries) {
-      $('.limit-entries-text').addClass('hidden');
+      _this.$container.find('.limit-entries-text').addClass('hidden');
     }
 
     searchedData = _.uniq(searchedData);
@@ -2126,7 +2126,7 @@ DynamicList.prototype.clearSearch = function() {
   }
 
   if (_this.data.enabledLimitEntries) {
-    $('.limit-entries-text').removeClass('hidden');
+    _this.$container.find('.limit-entries-text').removeClass('hidden');
   }
 
   // Resets list
@@ -2170,25 +2170,25 @@ DynamicList.prototype.initializeMixer = function() {
       onMixEnd: function(state, originalEvent) {
         if (!state.totalShow) {
           if (_this.data.enabledLimitEntries) {
-            $('.limit-entries-text').addClass('hidden');
+            _this.$container.find('.limit-entries-text').addClass('hidden');
           }
 
-          $('.no-bookmarks-holder').addClass('show');
+          _this.$container.find('.no-bookmarks-holder').addClass('show');
           return;
         }
 
         if (state.totalShow && state.totalShow === state.totalTargets) {
           if (_this.data.enabledLimitEntries) {
-            $('.limit-entries-text').removeClass('hidden');
+            _this.$container.find('.limit-entries-text').removeClass('hidden');
           }
 
-          $('.no-bookmarks-holder').removeClass('show');
+          _this.$container.find('.no-bookmarks-holder').removeClass('show');
         } else if (state.totalShow && state.totalShow !== state.totalTargets) {
           if (_this.data.enabledLimitEntries) {
-            $('.limit-entries-text').addClass('hidden');
+            _this.$container.find('.limit-entries-text').addClass('hidden');
           }
 
-          $('.no-bookmarks-holder').removeClass('show');
+          _this.$container.find('.no-bookmarks-holder').removeClass('show');
         }
       }
     }
@@ -2315,7 +2315,7 @@ DynamicList.prototype.showDetails = function(id) {
 
     // Calculate top position when image finishes loading
     if ($(window).width() < 640) {
-      $('.news-feed-list-detail-image-wrapper img').one('load', function() {
+      _this.$container.find('.news-feed-list-detail-image-wrapper img').one('load', function() {
         var expandedPosition = $(this).outerHeight();
         _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
       }).each(function() {
@@ -2453,16 +2453,16 @@ DynamicList.prototype.updateCommentCounter = function(id, isOverlay) {
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var html = counterCompiled(data);
   if (isOverlay) {
-    $('.news-feed-detail-overlay .news-feed-comemnt-holder-' + id).html(html);
+    _this.$container.find('.news-feed-detail-overlay .news-feed-comemnt-holder-' + id).html(html);
   } else {
-    $('.news-feed-comemnt-holder-' + id).html(html);
+    _this.$container.find('.news-feed-comemnt-holder-' + id).html(html);
   }
 }
 
 DynamicList.prototype.showComments = function(id) {
   var _this = this;
 
-  $('.news-feed-comment-area').html(_this.commentsLoadingHTML);
+  _this.$container.find('.news-feed-comment-area').html(_this.commentsLoadingHTML);
   _this.connectToCommentsDataSource(id).then(function() {
     // Get comments for entry
     var entryComments = _.find(_this.comments, function(obj) {
@@ -2526,7 +2526,7 @@ DynamicList.prototype.showComments = function(id) {
     entryComments.entries = _.orderBy(entryComments.entries, ['timeInMilliseconds'], ['asc']);
 
     if (!_this.autosizeInit) {
-      autosize($('.news-feed-comment-input-holder textarea'));
+      autosize(_this.$container.find('.news-feed-comment-input-holder textarea'));
       _this.autosizeInit = true;
     }
 
@@ -2534,8 +2534,8 @@ DynamicList.prototype.showComments = function(id) {
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments.entries);
     // Display comments (fl-comments-list-holder)
-    $('.news-feed-comment-area').html(commentsHTML).stop().animate({
-      scrollTop: $('.news-feed-comment-area')[0].scrollHeight
+    _this.$container.find('.news-feed-comment-area').html(commentsHTML).stop().animate({
+      scrollTop: _this.$container.find('.news-feed-comment-area')[0].scrollHeight
     }, 250);
   });
 }
@@ -2716,9 +2716,9 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
   var tempCommentTemplateCompiled = Handlebars.compile(tempCommentTemplate());
   var tempCommentHTML = tempCommentTemplateCompiled(commentInfo);
 
-  $('.news-feed-comment-area').append(tempCommentHTML);
-  $('.news-feed-comment-area').stop().animate({
-    scrollTop: $('.news-feed-comment-area')[0].scrollHeight
+  _this.$container.find('.news-feed-comment-area').append(tempCommentHTML);
+  _this.$container.find('.news-feed-comment-area').stop().animate({
+    scrollTop: _this.$container.find('.news-feed-comment-area')[0].scrollHeight
   }, 250);
 }
 
@@ -2785,13 +2785,13 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
     var commentTemplateCompiled = Handlebars.compile(commentTemplate());
     var commentHTML = commentTemplateCompiled(commentInfo);
   }
-  $('.fl-individual-comment[data-id="' + guid + '"]').replaceWith(commentHTML);
+  _this.$container.find('.fl-individual-comment[data-id="' + guid + '"]').replaceWith(commentHTML);
 }
 
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
-  var entryId = $('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
-  var commentHolder = $('.fl-individual-comment[data-id="' + id + '"]');
+  var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
+  var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
   Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function (connection) {
     connection.removeById(id, { ack: true }).then(function onRemove() {
       _this.comments.forEach(function(obj, i) {

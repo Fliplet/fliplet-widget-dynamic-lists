@@ -823,10 +823,10 @@ DynamicList.prototype.renderBaseHTML = function() {
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
-  ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
-  : Handlebars.compile(baseHTML());
+    ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
+    : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
+  _this.$container.html(template(data));
 }
 
 DynamicList.prototype.prepareToRenderLoop = function(records) {
@@ -1105,7 +1105,7 @@ DynamicList.prototype.showDetails = function(id) {
       $overlay.addClass('ready');
 
       if (typeof _this.directoryDetailWrapper === 'undefined') {
-        _this.directoryDetailWrapper = $('.small-h-card-list-item[data-entry-id="' + id + '"]').find('.small-h-card-list-detail-wrapper');
+        _this.directoryDetailWrapper = _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"]').find('.small-h-card-list-detail-wrapper');
       }
 
       if (typeof _this.data.afterShowDetails === 'function') {

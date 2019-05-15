@@ -1,8 +1,8 @@
 \{{#if filtersInOverlay}}
-  <div class="panel-group filter-overlay" id="small-card-filters-accordion">
+  <div class="panel-group filter-overlay">
     \{{#each filters}}
       <div class="panel panel-default small-card-filters-panel">
-        <div class="panel-heading" data-toggle="collapse" data-target="#collapse-\{{@index}}">
+        <div class="panel-heading" data-toggle="collapse" data-target="#collapse-\{{id}}-\{{@index}}">
           <h4 class="panel-title">
             <span class="panel-title-text">
               \{{[name]}}
@@ -10,7 +10,7 @@
             <span class="fa fa-angle-down"></span>
           </h4>
         </div>
-        <div id="collapse-\{{@index}}" class="panel-collapse collapse">
+        <div id="collapse-\{{id}}-\{{@index}}" class="panel-collapse collapse">
           <div class="panel-body">
             <fieldset data-filter-group>
               \{{#each [data]}}
