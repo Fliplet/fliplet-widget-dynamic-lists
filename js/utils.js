@@ -2,16 +2,16 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   var isoDateWarningIssued = false;
 
   function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('plaintext', function(context) {
+    Handlebars.registerHelper('plaintext', function (context) {
       var result = $('<div></div>').html(context).text();
       return $('<div></div>').html(result).text();
     });
 
-    Handlebars.registerHelper('removeSpaces', function(context) {
+    Handlebars.registerHelper('removeSpaces', function (context) {
       return context.replace(/\s+/g, '');
     });
 
-    Handlebars.registerHelper('formatDate', function(date) {
+    Handlebars.registerHelper('formatDate', function (date) {
       if (!date) {
         return;
       }
@@ -50,7 +50,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       }
     });
 
-    Handlebars.registerHelper('validateImage', function(image) {
+    Handlebars.registerHelper('validateImage', function (image) {
       var validatedImage = image;
       var urlPattern = /^https?:\/\//i;
       var base64Pattern = /^data:image\/[^;]+;base64,/i;
@@ -77,7 +77,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return validatedImage;
     });
 
-    Handlebars.registerHelper('formatComment', function(text) {
+    Handlebars.registerHelper('formatComment', function (text) {
       var breakRegExp = /(\r\n|\n|\r)/gm,
         emailRegExp = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
         numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
@@ -92,7 +92,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       res = res.replace(numberRegExp, '<a href="tel:$&">$&</a>');
 
       /* capture URLs and turn into links */
-      res = res.replace(urlRegExp, function(match, p1, p2, p3, p4, p5, offset, string) {
+      res = res.replace(urlRegExp, function (match, p1, p2, p3, p4, p5, offset, string) {
         return breakRegExp.test(string) ? ' <a href="' + (typeof p1 !== 'undefined' ? p1 : "http://") + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '">' + (typeof p1 !== 'undefined' ? p1 : '') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '</a><br>' :
           ' <a href="' + (typeof p1 !== 'undefined' ? p1 : 'http://') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '">' + (typeof p1 !== 'undefined' ? p1 : '') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '</a>';
       });
@@ -192,12 +192,12 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
   function runRecordFilters(records, filters) {
     var operators = {
-      '==': function(a, b) { return a == b },
-      '!=': function(a, b) { return a != b },
-      '>': function(a, b) { return smartParseFloat(a) > smartParseFloat(b) },
-      '>=': function(a, b) { return smartParseFloat(a) >= smartParseFloat(b) },
-      '<': function(a, b) { return smartParseFloat(a) < smartParseFloat(b) },
-      '<=': function(a, b) { return smartParseFloat(a) <= smartParseFloat(b) }
+      '==': function (a, b) { return a == b }, // eslint-disable-line eqeqeq
+      '!=': function (a, b) { return a != b }, // eslint-disable-line eqeqeq
+      '>': function (a, b) { return smartParseFloat(a) > smartParseFloat(b) },
+      '>=': function (a, b) { return smartParseFloat(a) >= smartParseFloat(b) },
+      '<': function (a, b) { return smartParseFloat(a) < smartParseFloat(b) },
+      '<=': function (a, b) { return smartParseFloat(a) <= smartParseFloat(b) }
     };
 
     function smartParseFloat(value) {
@@ -218,8 +218,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return parseFloat(value);
     }
 
-    return _.filter(records, function(record) {
-      return _.every(filters, function(filter) {
+    return _.filter(records, function (record) {
+      return _.every(filters, function (filter) {
         if (!filter.condition === 'none' || filter.column === 'none' || !filter.value) {
           // Filter isn't configured correctly
           return true;
@@ -369,11 +369,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
   function addRecordFilterProperties(records, fields) {
     // Function that get and converts the categories for the filters to work
-    records.forEach(function(record) {
+    records.forEach(function (record) {
       var classes = [];
       record.data['flFilters'] = [];
-      fields.forEach(function(filter) {
-        splitByCommas(record.data[filter]).forEach(function(item, index) {
+      fields.forEach(function (filter) {
+        splitByCommas(record.data[filter]).forEach(function (item, index) {
           var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
           var newObj = {
             type: filter,
