@@ -1,9 +1,9 @@
-Fliplet.Registry.set('dynamicListUtils', function() {
+Fliplet.Registry.set('dynamicListUtils', (function () {
   var isoDateWarningIssued = false;
 
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('plaintext', function(context) {
-      result = $('<div></div>').html(context).text();
+      var result = $('<div></div>').html(context).text();
       return $('<div></div>').html(result).text();
     });
 
@@ -22,11 +22,15 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
       switch (operator) {
         case '==':
-          return (v1 == v2) ? options.fn(this) : options.inverse(this);
+          return (v1 == v2) // eslint-disable-line eqeqeq
+            ? options.fn(this)
+            : options.inverse(this);
         case '===':
           return (v1 === v2) ? options.fn(this) : options.inverse(this);
         case '!=':
-          return (v1 != v2) ? options.fn(this) : options.inverse(this);
+          return (v1 != v2) // eslint-disable-line eqeqeq
+            ? options.fn(this)
+            : options.inverse(this);
         case '!==':
           return (v1 !== v2) ? options.fn(this) : options.inverse(this);
         case '<':
@@ -48,6 +52,8 @@ Fliplet.Registry.set('dynamicListUtils', function() {
 
     Handlebars.registerHelper('validateImage', function(image) {
       var validatedImage = image;
+      var urlPattern = /^https?:\/\//i;
+      var base64Pattern = /^data:image\/[^;]+;base64,/i;
 
       if (!validatedImage) {
         return '';
@@ -58,9 +64,8 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       }
 
       // Validate thumbnail against URL and Base64 patterns
-      var urlPattern = /^https?:\/\//i;
-      var base64Pattern = /^data:image\/[^;]+;base64,/i;
-      if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
+      if (!urlPattern.test(validatedImage)
+        && !base64Pattern.test(validatedImage)) {
         return '';
       }
 
@@ -78,25 +83,26 @@ Fliplet.Registry.set('dynamicListUtils', function() {
         numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
         urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
         mentionRegExp = /\B@[a-z0-9_-]+/ig;
+      var res = text;
 
       /* capture email addresses and turn into mailto links */
-      text = text.replace(emailRegExp, '<a href="mailto:$&">$&</a>');
+      res = res.replace(emailRegExp, '<a href="mailto:$&">$&</a>');
 
       /* capture phone numbers and turn into tel links */
-      text = text.replace(numberRegExp, '<a href="tel:$&">$&</a>');
+      res = res.replace(numberRegExp, '<a href="tel:$&">$&</a>');
 
       /* capture URLs and turn into links */
-      text = text.replace(urlRegExp, function(match, p1, p2, p3, p4, p5, offset, string) {
-        return breakRegExp.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>' :
-          ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
+      res = res.replace(urlRegExp, function(match, p1, p2, p3, p4, p5, offset, string) {
+        return breakRegExp.test(string) ? ' <a href="' + (typeof p1 !== 'undefined' ? p1 : "http://") + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '">' + (typeof p1 !== 'undefined' ? p1 : '') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '</a><br>' :
+          ' <a href="' + (typeof p1 !== 'undefined' ? p1 : 'http://') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '">' + (typeof p1 !== 'undefined' ? p1 : '') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '</a>';
       });
 
-      text = text.replace(mentionRegExp, '<strong>$&</strong>');
+      res = res.replace(mentionRegExp, '<strong>$&</strong>');
 
       /* capture line break and turn into <br> */
-      text = text.replace(breakRegExp, '<br>');
+      res = res.replace(breakRegExp, '<br>');
 
-      return new Handlebars.SafeString(text);
+      return new Handlebars.SafeString(res);
     });
   }
 
@@ -410,4 +416,4 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       addFilterProperties: addRecordFilterProperties
     }
   };
-}());
+}()));

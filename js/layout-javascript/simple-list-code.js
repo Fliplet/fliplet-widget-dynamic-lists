@@ -1,5 +1,5 @@
 // Constructor
-var DynamicList = function(id, data, container) {
+function DynamicList(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
