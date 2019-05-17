@@ -117,9 +117,10 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
     var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
     var arr = [];
-    var res;
-    while ((res = regexp.exec(str)) !== null) {
+    var res = regexp.exec(str);
+    while (res !== null) {
       arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
+      res = regexp.exec(str);
     }
 
     return _.filter(_.map(arr, function (s) {
