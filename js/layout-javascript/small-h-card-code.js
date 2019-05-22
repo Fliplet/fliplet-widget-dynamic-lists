@@ -150,6 +150,12 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         try {
+          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+        } catch (error) {
+          console.error('Your custom function contains a syntax error: ' + error);
+        }
+
+        try {
           result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
         } catch (error) {
           console.error('Your custom function contains an error: ' + error);
@@ -341,7 +347,7 @@ DynamicList.prototype.prepareData = function(records) {
 
         if (field.type === "date") {
           // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = new Date(record.data['modified_' + field.column]).getTime();
+          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
         }
 
         if (field.type === "time") {

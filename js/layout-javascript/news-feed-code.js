@@ -228,6 +228,12 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         try {
+          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+        } catch (error) {
+          console.error('Your custom function contains a syntax error: ' + error);
+        }
+
+        try {
           result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
         } catch (error) {
           console.error('Your custom function thrown an error: ' + error);
@@ -890,7 +896,7 @@ DynamicList.prototype.prepareData = function(records) {
 
         if (field.type === "date") {
           // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = new Date(record.data['modified_' + field.column]).getTime();
+          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
         }
 
         if (field.type === "time") {
@@ -1539,6 +1545,8 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       var content = '';
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
+      } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+        content = _this.splitByCommas(entry.data[obj.column]).join(', ');
       } else {
         content = entry.data[obj.column];
       }
@@ -1563,6 +1571,8 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
         content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
+      } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
+        content = _this.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
       } else {
         content = entry.data[dynamicDataObj.column];
       }
@@ -1809,6 +1819,10 @@ DynamicList.prototype.filterList = function() {
 }
 
 DynamicList.prototype.splitByCommas = function(str) {
+  if (str === undefined || str === null) {
+    return [];
+  }
+
   if (Array.isArray(str)) {
     return str;
   }
@@ -2189,7 +2203,7 @@ DynamicList.prototype.clearSearch = function() {
   _this.prepareToRenderLoop(_this.listItems);
   _this.renderLoopHTML(function(from, to){
     _this.onPartialRender(from, to);
-  }, function(){
+  }).then(function(){
     _this.initializeMixer();
     _this.addFilters(_this.modifiedListItems);
   });

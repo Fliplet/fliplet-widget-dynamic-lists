@@ -127,6 +127,10 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return moment(new Date(date));
   }
 
+  function removeSymbols(str) {
+    return ('' + str).replace(/[&\/\\#,+()$~%.`'‘’"“”:*?<>{}]+/g, '');
+  }
+
   function recordContains(record, value) {
     if (!record) {
       return false;
@@ -144,36 +148,56 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       });
     }
 
-    if (typeof record !== 'string') {
-      record = '' + record;
-    }
+    record = removeSymbols(record).toLowerCase();
+    value = removeSymbols(value).toLowerCase().trim();
 
-    value = ('' + value).toLowerCase().trim();
-
-    return record.toLowerCase().indexOf(value) > -1;
+    return record.indexOf(value) > -1;
   }
 
   function runRecordFilters(records, filters) {
     var operators = {
       '==': function(a, b) { return a == b },
       '!=': function(a, b) { return a != b },
-      '>': function(a, b) { return a > b },
-      '>=': function(a, b) { return a >= b },
-      '<': function(a, b) { return a < b },
-      '<=': function(a, b) { return a <= b }
+      '>': function(a, b) { return smartParseFloat(a) > smartParseFloat(b) },
+      '>=': function(a, b) { return smartParseFloat(a) >= smartParseFloat(b) },
+      '<': function(a, b) { return smartParseFloat(a) < smartParseFloat(b) },
+      '<=': function(a, b) { return smartParseFloat(a) <= smartParseFloat(b) }
     };
+
+    function smartParseFloat(value) {
+      // Convert strings to numbers where possible so that
+      // strings that reprepsent numbers are compared as numbers
+      if (!_.isString(value)) {
+        return value;
+      }
+
+      if (isNaN(parseFloat(value.trim()))) {
+        return value;
+      }
+
+      if (parseFloat(value.trim()).toString() !== value.trim()) {
+        return value;
+      }
+
+      return parseFloat(value);
+    }
 
     return _.filter(records, function(record) {
       return _.every(filters, function(filter) {
+        if (!filter.condition === 'none' || filter.column === 'none' || !filter.value) {
+          // Filter isn't configured correctly
+          return true;
+        }
+
         var condition = filter.condition;
         var rowData;
 
         // Case insensitive
-        if (typeof _.get(filter, 'value') === 'string') {
+        if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
         }
 
-        if (!_.isUndefined(_.get(record, 'data.' + filter.column))) {
+        if (!_.isNull(_.get(record, 'data.' + filter.column, null))) {
           rowData = record.data[filter.column].toString().toLowerCase();
         }
 
@@ -186,7 +210,9 @@ Fliplet.Registry.set('dynamicListUtils', function() {
             var pattern = new RegExp(filter.value, 'gi');
             return pattern.test(rowData);
           default:
-            return operators[condition](rowData, filter.value);
+            return _.isFunction(operators[condition])
+              ? operators[condition](rowData, filter.value)
+              : true;
         }
       });
     });

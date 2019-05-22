@@ -716,7 +716,7 @@ DynamicList.prototype.prepareData = function(records) {
 
         if (field.type === "date") {
           // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = new Date(record.data['modified_' + field.column]).getTime();
+          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
         }
 
         if (field.type === "time") {
@@ -1360,6 +1360,8 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       var content = '';
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
+      } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+        content = _this.splitByCommas(entry.data[obj.column]).join(', ');
       } else {
         content = entry.data[obj.column];
       }
@@ -1578,6 +1580,10 @@ DynamicList.prototype.filterList = function() {
 }
 
 DynamicList.prototype.splitByCommas = function(str) {
+  if (str === undefined || str === null) {
+    return [];
+  }
+
   if (Array.isArray(str)) {
     return str;
   }
