@@ -1231,7 +1231,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       var content = '';
 
       if (obj.column === 'custom') {
-        content = Handlebars.compile(obj.customField)(entry.data)
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
         content = _this.splitByCommas(entry.data[obj.column]).join(', ');
       } else {
@@ -1245,7 +1245,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       if (!newObject[obj.location]) {
         var content = '';
         if (obj.column === 'custom') {
-          content = Handlebars.compile(obj.customField)(entry.data)
+          content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
         } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
           content = _this.splitByCommas(entry.data[obj.column]).join(', ');
         } else {
@@ -1265,14 +1265,14 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
         label = dynamicDataObj.column;
       }
       if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data);
+        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
       }
       if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
-        content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
+        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
         content = _this.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
       } else {

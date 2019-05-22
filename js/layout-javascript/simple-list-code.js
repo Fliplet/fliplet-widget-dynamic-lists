@@ -1359,7 +1359,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
       if (obj.column === 'custom') {
-        content = Handlebars.compile(obj.customField)(entry.data)
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
         content = _this.splitByCommas(entry.data[obj.column]).join(', ');
       } else {
@@ -2285,14 +2285,14 @@ DynamicList.prototype.showDetails = function(id) {
       label = obj.column;
     }
     if (obj.fieldLabel === 'custom-label') {
-      label = Handlebars.compile(obj.customFieldLabel)(entryData.data);
+      label = new Handlebars.SafeString(Handlebars.compile(obj.customFieldLabel)(entryData.data));
     }
     if (obj.fieldLabel === 'no-label') {
       labelEnabled = false;
     }
     // Define content
     if (obj.customFieldEnabled) {
-      content = Handlebars.compile(obj.customField)(entryData.data);
+      content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entryData.data));
     } else {
       content = entryData.data[obj.column];
     }
@@ -2415,7 +2415,7 @@ DynamicList.prototype.connectToCommentsDataSource = function(id) {
   var content = {
     contentDataSourceEntryId: id,
     type: 'comment'
-  }
+  };
   return Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
     .then(function(instance) {
       return instance.query({
@@ -2651,7 +2651,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var content = {
     contentDataSourceEntryId: id,
     type: 'comment'
-  }
+  };
 
   _.assignIn(comment, { contentDataSourceEntryId: id });
 
@@ -2874,7 +2874,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
   var content = {
     contentDataSourceEntryId: entryId,
     type: 'comment'
-  }
+  };
 
   Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
     .then(function(instance) {
