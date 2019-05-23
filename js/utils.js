@@ -295,6 +295,10 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     }
 
     // User is admin if adminValue matches comparison value
+    if (_.isArray(adminValue)) {
+      return adminValue.indexOf(config.userAdminValue) > -1;
+    }
+
     return adminValue === config.userAdminValue;
   }
 
