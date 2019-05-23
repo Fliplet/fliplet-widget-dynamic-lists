@@ -1751,10 +1751,13 @@ var DynamicLists = (function() {
       $filterAccordionContainer.append($newPanel);
     },
     addSummaryItem: function(data) {
+      data.date = moment().format('MMM Do YYYY');
+      data.time = moment().format('h:mm A');
       var $newPanel = $(summaryRowTemplate(data));
       $summaryRowContainer.append($newPanel);
     },
     addDetailItem: function(data) {
+      data.date = moment().format('MMM Do YYYY');
       var $newPanel = $(detailsRowTemplate(data));
       $detailsRowContainer.append($newPanel);
     },
