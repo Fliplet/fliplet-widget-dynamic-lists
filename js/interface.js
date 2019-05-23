@@ -2326,12 +2326,35 @@ var DynamicLists = (function() {
         item.type = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';
         item.customField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_field_' + item.id).val();
+
+        // Delete unnecessary attributes before saving each item
+        delete item.currentApp;
+        delete item.userOrganization;
+        delete item.organizationFolderId;
+        delete item.appFolderId;
+        delete item.imageField;
+
+        if (item.type !== 'image') {
+          delete item.folder;
+          return;
+        }
+
         item.imageField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
 
-        if (item.imageField === 'organization') {
-          item.organizationFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
-        } else if (item.imageField === 'app') {
-          item.appFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        switch (item.imageField) {
+          case 'organization':
+            delete item.folder;
+            item.organizationFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+            break;
+          case 'app':
+            delete item.folder;
+            item.appFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+            break;
+          case 'all-folders':
+            break;
+          default:
+            delete item.folder;
+            break;
         }
       });
 
@@ -2345,12 +2368,35 @@ var DynamicLists = (function() {
         item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
         item.customFieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_name_' + item.id).val();
         item.fieldLabelDisabled = item.fieldLabel === 'no-label';
+
+        // Delete unnecessary attributes before saving each item
+        delete item.currentApp;
+        delete item.userOrganization;
+        delete item.organizationFolderId;
+        delete item.appFolderId;
+        delete item.imageField;
+
+        if (item.type !== 'image') {
+          delete item.folder;
+          return;
+        }
+
         item.imageField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
 
-        if (item.imageField === 'organization') {
-          item.organizationFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
-        } else if (item.imageField === 'app') {
-          item.appFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+        switch (item.imageField) {
+          case 'organization':
+            delete item.folder;
+            item.organizationFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
+            break;
+          case 'app':
+            delete item.folder;
+            item.appFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
+            break;
+          case 'all-folders':
+            break;
+          default:
+            delete item.folder;
+            break;
         }
       });
 
