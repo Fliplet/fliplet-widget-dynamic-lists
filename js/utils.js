@@ -154,6 +154,52 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return record.indexOf(value) > -1;
   }
 
+  function recordIsEditable(record, config, userData) {
+    if (_.isNil(config.editEntry) || _.isNil(config.editPermissions)) {
+      return false;
+    }
+
+    if (!config.editEntry) {
+      return false;
+    }
+
+    switch (config.editPermissions) {
+      case 'everyone':
+        return true;
+      case 'user':
+        return recordIsCurrentUser(record, config, userData);
+      case 'users-admins':
+        return recordIsCurrentUser(record, config, userData) || userIsAdmin(config, userData);
+      case 'admins':
+        return userIsAdmin(config, userData);
+      default:
+        return false;
+    }
+  }
+
+  function recordIsDeletable(record, config, userData) {
+    if (_.isNil(config.deleteEntry) || _.isNil(config.deletePermissions)) {
+      return false;
+    }
+
+    if (!config.deleteEntry) {
+      return false;
+    }
+
+    switch (config.deletePermissions) {
+      case 'everyone':
+        return true;
+      case 'user':
+        return recordIsCurrentUser(record, config, userData);
+      case 'users-admins':
+        return recordIsCurrentUser(record, config, userData) || userIsAdmin(config, userData);
+      case 'admins':
+        return userIsAdmin(config, userData);
+      default:
+        return false;
+    }
+  }
+
   function runRecordFilters(records, filters) {
     var operators = {
       '==': function(a, b) { return a == b },
@@ -239,17 +285,65 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return Promise.resolve(fields);
   }
 
+  function userIsAdmin(config, userData) {
+    var adminValue = _.get(userData, config.userAdminColumn);
+
+    if (_.isNil(config.userAdminValue) || config.userAdminValue === '') {
+      // No valid comparison value is given
+      // User is admin if adminValue is truthy
+      return !!adminValue;
+    }
+
+    // User is admin if adminValue matches comparison value
+    if (_.isArray(adminValue)) {
+      return adminValue.indexOf(config.userAdminValue) > -1;
+    }
+
+    return adminValue === config.userAdminValue;
+  }
+
+  function recordIsCurrentUser(record, config, userData) {
+    return !_.isEmpty(userData)
+      && userData[config.userEmailColumn] === record.data[config.userListEmailColumn];
+  }
+
+  function userCanAddRecord(config, userData) {
+    if (_.isNil(config.addEntry) || _.isNil(config.addPermissions)) {
+      return false;
+    }
+
+    if (!config.addEntry) {
+      return false;
+    }
+
+    switch (config.addPermissions) {
+      case 'everyone':
+        return true;
+      case 'admins':
+        return userIsAdmin(config, userData);
+      default:
+        return false;
+    }
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     Date: {
       moment: getMomentDate
     },
     Record: {
-      contains: recordContains
+      contains: recordContains,
+      isEditable: recordIsEditable,
+      isDeletable: recordIsDeletable,
+      isCurrentUser: recordIsCurrentUser
     },
     Records: {
       runFilters: runRecordFilters,
       getFields: getRecordFields
+    },
+    User: {
+      isAdmin: userIsAdmin,
+      canAddRecord: userCanAddRecord
     }
   };
 }());
