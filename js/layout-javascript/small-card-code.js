@@ -1230,7 +1230,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       var content = '';
 
       if (obj.column === 'custom') {
-        content = Handlebars.compile(obj.customField)(entry.data)
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
         content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
       } else {
@@ -1244,7 +1244,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       if (!newObject[obj.location]) {
         var content = '';
         if (obj.column === 'custom') {
-          content = Handlebars.compile(obj.customField)(entry.data)
+          content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
         } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
           content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
         } else {
@@ -1264,14 +1264,14 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
         label = dynamicDataObj.column;
       }
       if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data);
+        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
       }
       if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
-        content = Handlebars.compile(dynamicDataObj.customField)(entry.data);
+        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
         content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
       } else {
@@ -1377,18 +1377,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
-  var _this = this;
-
-  if (typeof data.addEntry !== 'undefined' && typeof data.addPermissions !== 'undefined') {
-    if (_this.myUserData && (_this.data.addPermissions === 'admins' || _this.data.addPermissions === 'users-admins')) {
-      if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
-        data.showAddEntry = data.addEntry;
-      }
-    } else if (_this.data.addPermissions === 'everyone') {
-      data.showAddEntry = data.addEntry;
-    }
-  }
-
+  data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
   return data;
 }
 
@@ -1396,33 +1385,9 @@ DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  entries.forEach(function(obj, index) {
-    if (typeof _this.data.editEntry !== 'undefined' && typeof _this.data.editPermissions !== 'undefined') {
-      if (_this.myUserData && (_this.data.editPermissions === 'admins' || _this.data.editPermissions === 'users-admins')) {
-        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
-          entries[index].editEntry = _this.data.editEntry;
-        }
-      } else if (_this.myUserData && (_this.data.editPermissions === 'user' || _this.data.editPermissions === 'users-admins')) {
-        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
-          entries[index].editEntry = _this.data.editEntry;
-        }
-      } else if (_this.data.addPermissions === 'everyone') {
-        entries[index].editEntry = _this.data.editEntry;
-      }
-    }
-    if (typeof _this.data.deleteEntry !== 'undefined' && typeof _this.data.deletePermissions !== 'undefined') {
-      if (_this.myUserData && (_this.data.deletePermissions === 'admins' || _this.data.deletePermissions === 'users-admins')) {
-        if (_this.myUserData[_this.data.userAdminColumn] !== null && typeof _this.myUserData[_this.data.userAdminColumn] !== 'undefined' && _this.myUserData[_this.data.userAdminColumn] !== '') {
-          entries[index].deleteEntry = _this.data.deleteEntry;
-        }
-      } else if (_this.myUserData && (_this.data.deletePermissions === 'user' || _this.data.deletePermissions === 'users-admins')) {
-        if (_this.myUserData[_this.data.userEmailColumn] === obj.data[_this.data.userListEmailColumn]) {
-          entries[index].deleteEntry = _this.data.deleteEntry;
-        }
-      } else if (_this.data.deletePermissions === 'everyone') {
-        entries[index].deleteEntry = _this.data.deleteEntry;
-      }
-    }
+  _.forEach(entries, function (entry) {
+    entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
+    entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
 
   return entries;
