@@ -153,6 +153,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return moment(date);
     }
 
+    if (date.string) {
+      date = date.string;
+    }
+
     if (date.match(/^\d{4}-\d{2}-\d{2}/)) {
       return moment(new Date(date.substr(0, 10))).utc();
     } else if (!isoDateWarningIssued) {
