@@ -2483,17 +2483,9 @@ DynamicList.prototype.showComments = function(id) {
       // Convert data/time
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
-      var userName = '';
-
-      if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-        _this.data.userNameFields.forEach(function(name, i) {
-          userName += entry.data.settings.user[name] + ' ';
-        });
-
-        userName = userName.trim();
-      } else {
-        userName = entry.data.settings.user[_this.data.userNameFields[0]];
-      }
+      var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+        return _.get(entry, 'data.settings.user.' + name);
+      })).join(' ').trim();
 
       entryComments.entries[index].timeInMilliseconds = timeInMilliseconds;
       entryComments.entries[index].literalDate = moment(entry.createdAt).calendar(null, {
@@ -2591,22 +2583,11 @@ DynamicList.prototype.sendComment = function(id, value) {
 
   _this.updateCommentCounter(id);
 
-  if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-    _this.data.userNameFields.forEach(function(name, i) {
-      if (_this.myUserData.isSaml2) {
-        userName += userFromDataSource.data[name] + ' ';
-      } else {
-        userName += _this.myUserData[name] + ' ';
-      }
-    });
-    userName = userName.trim();
-  } else {
-    if (_this.myUserData.isSaml2) {
-      userName += userFromDataSource.data[_this.data.userNameFields[0]];
-    } else {
-      userName = _this.myUserData[_this.data.userNameFields[0]];
-    }
-  }
+  userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+    return _this.myUserData.isSaml2
+      ? _.get(userFromDataSource, 'data.' + name)
+      : _this.myUserData[name];
+  })).join(' ').trim();
 
   var comment = {
     fromName: userName,
@@ -2687,24 +2668,11 @@ DynamicList.prototype.sendComment = function(id, value) {
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
-  var userName = '';
-
-  if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-    _this.data.userNameFields.forEach(function(name, i) {
-      if (_this.myUserData.isSaml2) {
-        userName += userFromDataSource.data[name] + ' ';
-      } else {
-        userName += _this.myUserData[name] + ' ';
-      }
-    });
-    userName = userName.trim();
-  } else {
-    if (_this.myUserData.isSaml2) {
-      userName += userFromDataSource.data[_this.data.userNameFields[0]];
-    } else {
-      userName = _this.myUserData[_this.data.userNameFields[0]];
-    }
-  }
+  var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+    return _this.myUserData.isSaml2
+      ? _.get(userFromDataSource, 'data.' + name)
+      : _this.myUserData[name];
+  })).join(' ').trim();
 
   var commentInfo = {
     id: guid,
@@ -2733,7 +2701,9 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
-  var userName = '';
+  var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+    return _.get(commentData, 'data.settings.user.' + name);
+  })).join(' ').trim();
 
   if (!commentData.literalDate) {
     commentData.literalDate = moment(commentData.createdAt).calendar(null, {
@@ -2744,15 +2714,6 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       lastWeek: 'dddd, HH:mm',
       sameElse: 'MMM Do YY, HH:mm'
     });
-  }
-
-  if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-    _this.data.userNameFields.forEach(function(name, i) {
-      userName += commentData.data.settings.user[name] + ' ';
-    });
-    userName = userName.trim();
-  } else {
-    userName = commentData.data.settings.user[_this.data.userNameFields[0]];
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
