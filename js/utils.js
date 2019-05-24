@@ -142,18 +142,22 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     if (_.get(date, '_isAMomentObject') === true) {
+      // Moment object
       return date;
     }
 
     if (date.constructor.name === 'Date') {
+      // Date object
       return moment(date);
     }
 
     if (typeof date === 'number') {
+      // Number
       return moment(date);
     }
 
     if (date.string) {
+      // Handlebars variable
       date = date.string;
     }
 
