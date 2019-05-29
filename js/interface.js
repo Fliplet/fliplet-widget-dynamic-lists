@@ -23,9 +23,6 @@ var DynamicLists = (function() {
   var summaryRowTemplate = Fliplet.Widget.Templates['templates.interface.summary-view-panels'];
   var $detailsRowContainer = $('.detail-table-panels-holder');
   var detailsRowTemplate = Fliplet.Widget.Templates['templates.interface.detail-view-panels'];
-
-  var selectFolderOptions = Fliplet.Widget.Templates['templates.interface.folder-options'];
-
   var tokenField = Fliplet.Widget.Templates['templates.interface.field-token'];
 
   // ADD NEW MAPPING FOR ALL NEW STYLES THAT ARE ADDED
@@ -58,16 +55,6 @@ var DynamicLists = (function() {
   var addRadioValues = [];
   var editRadioValues = [];
   var deleteRadioValues = [];
-
-  var currentApp = {
-    id: appId,
-    type: 'app',
-    name: appName
-  };
-  var userOrganization = {
-    id: organizationId,
-    type: 'organization'
-  };
 
   var filePickerPromises = [];
 
@@ -313,10 +300,19 @@ var DynamicLists = (function() {
             $('.select-photo-folder-type').addClass('hidden');
           }
         })
+        .on('change', '[name="select_user_photo"]', function() {
+          var value = $(this).val();
+
+          if (value === 'none') {
+            $('#select_user_folder_type').addClass('hidden');
+          } else {
+            $('#select_user_folder_type').removeClass('hidden');
+          }
+        })
         .on('change', '[name="select_user_folder_type"]', function() {
           var value = $(this).val();
 
-          if (value === 'all-folders') {
+          if (value === 'all-folders' && $('[name="select_user_photo"]').val() !== 'none') {
             $('.select-photo-folder').removeClass('hidden');
           } else {
             $('.select-photo-folder').addClass('hidden');
@@ -653,10 +649,6 @@ var DynamicLists = (function() {
     init: function() {
       _this.getDataSources()
         .then(function() {
-          return _this.getOrganizationInfo();
-        })
-        .then(function() {
-          _this.addFolderOptions();
           return _this.setupCodeEditors();
         })
         .then(function() {
@@ -666,23 +658,6 @@ var DynamicLists = (function() {
           _this.initializeFilterSortable();
           _this.initializeSortSortable();
         });
-    },
-    getOrganizationInfo: function() {
-      return Fliplet.Organizations.get()
-        .then(function(organizations) {
-          // Remove V1 apps and the current app
-          organization = _.find(organizations, { id: organizationId });
-          userOrganization.name = organization.name;
-          return;
-        });
-    },
-    addFolderOptions: function() {
-      var data = {
-        userOrganization: userOrganization,
-        currentApp: currentApp
-      }
-      var options = selectFolderOptions(data);
-      $('#select_user_folder_type').html(options);
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -1078,7 +1053,7 @@ var DynamicLists = (function() {
               $('#select_user_fname').val(_this.config.userFirstNameColumn ? _this.config.userFirstNameColumn : 'none');
               $('#select_user_lname').val(_this.config.userLastNameColumn ? _this.config.userLastNameColumn : 'none');
               $('#select_user_email').val(_this.config.userEmailColumn ? _this.config.userEmailColumn : 'none');
-              $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none');
+              $('#select_user_photo').val(_this.config.userPhotoColumn ? _this.config.userPhotoColumn : 'none').trigger('change');
               $('#select_user_admin').val(_this.config.userAdminColumn ? _this.config.userAdminColumn : 'none');
               $('#select_user_email_data').val(_this.config.userListEmailColumn ? _this.config.userListEmailColumn : 'none');
               $('#select_user_folder_type').val(_this.config.userFolderOption ? _this.config.userFolderOption : 'url').trigger('change');
@@ -1240,7 +1215,7 @@ var DynamicLists = (function() {
 
       $('#user-name-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
-          source: userDataSourceColumns,
+          source: userDataSourceColumns || [],
           delay: 100
         },
         showAutocompleteOnFocus: true
@@ -1415,6 +1390,7 @@ var DynamicLists = (function() {
       _this.setUpTokenFields();
     },
     updateUserFieldsWithColumns: function(userDataSourceColumns) {
+      userDataSourceColumns = userDataSourceColumns || [];
       var fOptions = [];
       var lOptions = [];
       var eOptions = [];
@@ -1464,8 +1440,8 @@ var DynamicLists = (function() {
       $('.select-user-email-holder select').val(oldEmailValue);
 
       // Photo
-      $('.select-user-photo-holder select').append('<option value="none">-- Select the photo data field</option>');
-      $('.select-user-photo-holder select').append('<option disabled>------</option>');
+      $('.select-user-photo-holder select').append('<option value="none">Don\'t show user photos</option>');
+      $('.select-user-photo-holder select').append('<option disabled>-- Select user photo data field</option>');
       userDataSourceColumns.forEach(function(value, index) {
         pOptions.push('<option value="'+ value +'">'+ value +'</option>');
       });
@@ -1488,7 +1464,6 @@ var DynamicLists = (function() {
 
       if (_this.config.social && _this.config.social.comments) {
         $('.select-user-photo-holder').removeClass('hidden');
-        $('.select-photo-folder-type').removeClass('hidden');
       }
 
       if (_this.config.addPermissions === 'admins'
@@ -1502,8 +1477,6 @@ var DynamicLists = (function() {
       _this.setUpUserTokenFields();
     },
     updateWithFoldersInfo: function(item, from) {
-      item.currentApp = currentApp;
-      item.userOrganization = userOrganization;
       item.from = from;
       return item;
     },
@@ -2331,6 +2304,7 @@ var DynamicLists = (function() {
         item.customField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_field_' + item.id).val();
 
         // Delete unnecessary attributes before saving each item
+        // ...including some legacy settings that are no longer supported
         delete item.currentApp;
         delete item.userOrganization;
         delete item.organizationFolderId;
@@ -2344,20 +2318,8 @@ var DynamicLists = (function() {
 
         item.imageField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
 
-        switch (item.imageField) {
-          case 'organization':
-            delete item.folder;
-            item.organizationFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
-            break;
-          case 'app':
-            delete item.folder;
-            item.appFolderId = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
-            break;
-          case 'all-folders':
-            break;
-          default:
-            delete item.folder;
-            break;
+        if (item.imageField !== 'all-folders') {
+          delete item.folder;
         }
       });
 
@@ -2373,6 +2335,7 @@ var DynamicLists = (function() {
         item.fieldLabelDisabled = item.fieldLabel === 'no-label';
 
         // Delete unnecessary attributes before saving each item
+        // ...including some legacy settings that are no longer supported
         delete item.currentApp;
         delete item.userOrganization;
         delete item.organizationFolderId;
@@ -2386,20 +2349,8 @@ var DynamicLists = (function() {
 
         item.imageField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
 
-        switch (item.imageField) {
-          case 'organization':
-            delete item.folder;
-            item.organizationFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('org-id');
-            break;
-          case 'app':
-            delete item.folder;
-            item.appFolderId = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id + ' [data-app-option]').data('app-id');
-            break;
-          case 'all-folders':
-            break;
-          default:
-            delete item.folder;
-            break;
+        if (item.imageField !== 'all-folders') {
+          delete item.folder;
         }
       });
 

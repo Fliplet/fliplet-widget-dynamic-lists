@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="layouts-flex">
-        <!-- layouts will be added here -->      
+        <!-- layouts will be added here -->
       </div>
     </div>
   </div>
@@ -436,29 +436,32 @@
               </select>
             </div>
             <div class="col-xs-12 select-user-firstname-holder hidden">
-              <label>User's name data field(s) <small>(Required)</small></label>
+              <label>Username data field(s) <small>(Required)</small></label>
               <p><small>Select any that apply if you have two fields for the users name.</small></p>
               <div class="user-name-fields">
                 <!-- field will be added here -->
               </div>
             </div>
             <div class="col-xs-12 select-user-email-holder hidden">
-              <label>User's email data field <small>(Required)</small></label>
+              <label>User email data field <small>(Required)</small></label>
               <select name="select_user_email" id="select_user_email" class="form-control">
-                <option value="none">-- Select the email data field</option>
+                <option value="none">-- Select email data field</option>
                 <option disabled>------</option>
               </select>
             </div>
             <div class="col-xs-12 select-user-photo-holder hidden">
-              <label>User's photo data field <small>(Optional)</small></label>
+              <label>User photo data field</label>
               <select name="select_user_photo" id="select_user_photo" class="form-control">
-                <option value="none">-- Select the photo data field</option>
-                <option disabled>------</option>
+                <option value="none" selected>Don't show user photos</option>
+                <option disabled>-- Select user photo data field</option>
               </select>
             </div>
             <div class="col-xs-12 select-photo-folder-type hidden">
-              <label>User's photo folder or URL</label>
-              <select name="select_user_folder_type" id="select_user_folder_type" class="form-control"></select>
+              <label>Photo field data type</label>
+              <select name="select_user_folder_type" id="select_user_folder_type" class="form-control">
+                <option value="all-folders">Image folder</option>
+                <option value="url" selected>URL to external image</option>
+              </select>
             </div>
             <div class="col-xs-12 select-photo-folder hidden">
               <div class="btn btn-default file-picker-btn" data-file-picker-user>Select a folder</div>
@@ -467,7 +470,7 @@
             <div class="col-xs-12 select-user-admin-holder hidden">
               <label>Field to identify Admins <small>(Required)</small> <span data-toggle="tooltip" data-placement="top" title="To identify which users have admin rights you can create a new column in your users data source, and mark admins with an 'X' and leave non-admins as blank"><i class="fa fa-info-circle"></i></span></label>
               <select name="select_user_admin" id="select_user_admin" class="form-control">
-                <option value="none">-- Select the admin field</option>
+                <option value="none">-- Select admin field</option>
                 <option disabled>------</option>
               </select>
             </div>
