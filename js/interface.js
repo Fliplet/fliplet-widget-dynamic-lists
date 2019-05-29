@@ -644,6 +644,17 @@ var DynamicLists = (function() {
         }
       });
     },
+    validateImageFieldOption: function (value) {
+      if (!value) {
+        return 'url';
+      }
+
+      if (['all-folders', 'url'].indexOf(value) === -1) {
+        return 'url';
+      }
+
+      return value;
+    },
     init: function() {
       _this.getDataSources()
         .then(function() {
@@ -873,7 +884,8 @@ var DynamicLists = (function() {
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
-              $('.table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+              item.imageField = _this.validateImageFieldOption(item.imageField);
+              $('.table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField).trigger('change');
 
               if (item.imageField === 'all-folders' && item.folder) {
                 $('.table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
@@ -1033,7 +1045,8 @@ var DynamicLists = (function() {
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField || 'url').trigger('change');
+              item.imageField = _this.validateImageFieldOption(item.imageField);
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField).trigger('change');
 
               if (item.imageField === 'all-folders' && item.folder) {
                 $('.detail-table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');

@@ -1022,7 +1022,12 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
           }
 
           if (obj.imageField === 'all-folders') {
-            summaryData.query.folderId = obj.folder.selectFiles[0].id;
+            var folderId = _.get(obj, 'folder.selectFiles.0.id');
+            if (!folderId) {
+              return;
+            }
+
+            summaryData.query.folderId = folderId;
             summaryData.field = obj;
           }
 
@@ -1051,7 +1056,12 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
           }
 
           if (obj.imageField === 'all-folders') {
-            detailData.query.folderId = obj.folder.selectFiles[0].id;
+            var folderId = _.get(obj, 'folder.selectFiles.0.id');
+            if (!folderId) {
+              return;
+            }
+
+            detailData.query.folderId = folderId;
             detailData.field = obj;
           }
 
@@ -1075,7 +1085,7 @@ DynamicList.prototype.convertFiles = function(listItems, forComments) {
         }
 
         if (_this.data.userFolderOption === 'all-folders') {
-          userData.query.folderId = _this.data.userFolder.folder.selectFiles[0].id;
+          userData.query.folderId = _.get(_this.data, 'userFolder.folder.selectFiles.0.id');
           userData.field.column = _this.data.userPhotoColumn;
         }
 
