@@ -676,7 +676,12 @@ DynamicList.prototype.convertFiles = function(listItems) {
         }
 
         if (obj.imageField === 'all-folders') {
-          summaryData.query.folderId = obj.folder.selectFiles[0].id;
+          var folderId = _.get(obj, 'folder.selectFiles.0.id');
+          if (!folderId) {
+            return;
+          }
+
+          summaryData.query.folderId = folderId;
           summaryData.field = obj;
         }
 
@@ -705,7 +710,12 @@ DynamicList.prototype.convertFiles = function(listItems) {
         }
 
         if (obj.imageField === 'all-folders') {
-          detailData.query.folderId = obj.folder.selectFiles[0].id;
+          var folderId = _.get(obj, 'folder.selectFiles.0.id');
+          if (!folderId) {
+            return;
+          }
+
+          detailData.query.folderId = folderId;
           detailData.field = obj;
         }
 
