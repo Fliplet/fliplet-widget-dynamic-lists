@@ -1,7 +1,7 @@
 <div class="rTableRow clearfix" data-id="{{id}}">
   <div class="original-row clearfix">
     <div class="rTableCell title">
-      {{#if helper}}{{helper}}:{{else}}Data field:{{/if}}
+      {{#if helper}}{{helper}}{{else}}Data field{{/if}}
     </div>
     <div class="rTableCell select field">
       <select name="select_field" id="select_field_{{id}}" class="form-control">
@@ -52,18 +52,10 @@
     </div>
   </div>
   <div class="image-field-select clearfix hidden">
-    <div class="rTableCell title">
-      Image folder or URL
-    </div>
+    <div class="rTableCell title text-right"><small>Data type</small></div>
     <div class="rTableCell select field">
       <select class="form-control" id="folder_field_{{id}}" name="folder_field_select">
-        <option disabled>Organization</option>
-        <option value="organization" data-org-option data-org-id="{{userOrganization.id}}">{{userOrganization.name}}</option>
-        <option disabled>This app</option>
-        <option value="app" data-app-option data-app-id="{{currentApp.id}}">{{currentApp.name}}</option>
-        <option disabled>------</option>
-        <option value="all-folders">Select other folders</option>
-        <option disabled>------</option>
+        <option value="all-folders">Image folder</option>
         <option value="url">URL to external image</option>
       </select>
     </div>
