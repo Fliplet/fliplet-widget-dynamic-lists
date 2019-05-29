@@ -103,9 +103,9 @@
     "summaryLinkAction.page:page",
     "summary-fields.$.folder.selectFiles.$.id:mediaFolder",
     "detailViewOptions.$.folder.selectFiles.$.id:mediaFolder",
-    "summary-fields.$.appFolderId:mediaFolder",
-    "detailViewOptions.$.appFolderId:mediaFolder",
-    "summary-fields.$.organizationFolderId:mediaFolder",
-    "detailViewOptions.$.organizationFolderId:mediaFolder"
+    "summary-fields.$.appFolderId:app",
+    "detailViewOptions.$.appFolderId:app",
+    "summary-fields.$.organizationFolderId:organization",
+    "detailViewOptions.$.organizationFolderId:organization"
   ]
 }
