@@ -293,26 +293,24 @@ var DynamicLists = (function() {
           if ( $(this).is(":checked") ) {
             $('.user-datasource-options').removeClass('hidden');
             $('.select-user-photo-holder').removeClass('hidden');
-            $('.select-photo-folder-type').removeClass('hidden');
           } else {
             $('.user-datasource-options').addClass('hidden');
             $('.select-user-photo-holder').addClass('hidden');
-            $('.select-photo-folder-type').addClass('hidden');
           }
         })
         .on('change', '[name="select_user_photo"]', function() {
           var value = $(this).val();
 
           if (value === 'none') {
-            $('#select_user_folder_type').addClass('hidden');
+            $('.select-photo-folder-type').addClass('hidden');
           } else {
-            $('#select_user_folder_type').removeClass('hidden');
+            $('.select-photo-folder-type').removeClass('hidden');
           }
         })
         .on('change', '[name="select_user_folder_type"]', function() {
           var value = $(this).val();
 
-          if (value === 'all-folders' && $('[name="select_user_photo"]').val() !== 'none') {
+          if (value === 'all-folders') {
             $('.select-photo-folder').removeClass('hidden');
           } else {
             $('.select-photo-folder').addClass('hidden');
