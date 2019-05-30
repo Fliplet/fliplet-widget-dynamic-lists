@@ -1,5 +1,25 @@
 Fliplet.Registry.set('dynamicListUtils', function() {
   var isoDateWarningIssued = false;
+  var cachedFiles = {};
+  var Static = {
+    RegExp: {
+      httpUrl: /^https?:\/\//i,
+      base64Image: /^data:image\/[^;]+;base64,/i,
+      dataSourcesPath: /^datasources\//i,
+      number: /^\d+$/i,
+      linebreak: /(\r\n|\n|\r)/gm,
+      email: /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
+      phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
+      url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
+      mention: /\B@[a-z0-9_-]+/ig
+    }
+  };
+
+  function isValidImageUrl(str) {
+    return Static.RegExp.httpUrl.test(str)
+      || Static.RegExp.base64Image.test(str)
+      || Static.RegExp.dataSourcesPath.test(str);
+  }
 
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('plaintext', function(context) {
@@ -58,9 +78,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       }
 
       // Validate thumbnail against URL and Base64 patterns
-      var urlPattern = /^https?:\/\//i;
-      var base64Pattern = /^data:image\/[^;]+;base64,/i;
-      if (!urlPattern.test(validatedImage) && !base64Pattern.test(validatedImage)) {
+      if (!Static.RegExp.httpUrl.test(validatedImage) && !Static.RegExp.base64Image.test(validatedImage)) {
         return '';
       }
 
@@ -73,28 +91,22 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     });
 
     Handlebars.registerHelper('formatComment', function(text) {
-      var breakRegExp = /(\r\n|\n|\r)/gm,
-        emailRegExp = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
-        numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
-        urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
-        mentionRegExp = /\B@[a-z0-9_-]+/ig;
-
       /* capture email addresses and turn into mailto links */
-      text = text.replace(emailRegExp, '<a href="mailto:$&">$&</a>');
+      text = text.replace(Static.RegExp.email, '<a href="mailto:$&">$&</a>');
 
       /* capture phone numbers and turn into tel links */
-      text = text.replace(numberRegExp, '<a href="tel:$&">$&</a>');
+      text = text.replace(Static.RegExp.phone, '<a href="tel:$&">$&</a>');
 
       /* capture URLs and turn into links */
-      text = text.replace(urlRegExp, function(match, p1, p2, p3, p4, p5, offset, string) {
-        return breakRegExp.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>' :
+      text = text.replace(Static.RegExp.url, function(match, p1, p2, p3, p4, p5, offset, string) {
+        return Static.RegExp.linebreak.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>' :
           ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
       });
 
-      text = text.replace(mentionRegExp, '<strong>$&</strong>');
+      text = text.replace(Static.RegExp.mention, '<strong>$&</strong>');
 
       /* capture line break and turn into <br> */
-      text = text.replace(breakRegExp, '<br>');
+      text = text.replace(Static.RegExp.linebreak, '<br>');
 
       return new Handlebars.SafeString(text);
     });
@@ -285,6 +297,180 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return Promise.resolve(fields);
   }
 
+  function getFiles(data) {
+    var cacheKey = JSON.stringify(data.query);
+
+    if (!cachedFiles[cacheKey]) {
+      cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query)
+        .then(function (response) {
+          response.files.forEach(function (file) {
+            if (file.isEncrypted) {
+              file.url = Fliplet.Media.authenticate(file.url);
+            }
+          });
+
+          return response;
+        })
+        .catch(function () {
+          return Promise.resolve({ files: [], folders: [] });
+        });
+    }
+
+    return cachedFiles[cacheKey]
+      .then(function(response) {
+        if (!data.field) {
+          return data.record;
+        }
+
+        var entryData = data.record.data;
+        var column = data.field.column;
+
+        if (isValidImageUrl(entryData[column])) {
+          // Record data doesn't need updating
+          return data.record;
+        }
+
+        var urlEdited = _.some(response.files, function(file) {
+          if (!_.compact(entryData[column]).length) {
+            return;
+          }
+
+          if (entryData[column] && file.name.indexOf(entryData[column]) !== -1) {
+            // File found
+            entryData[column] = file.url;
+            return true;
+          } else if (Static.RegExp.number.test(entryData[column])
+            && parseInt(entryData[column], 10) === file.id) {
+            entryData[column] = file.url;
+            return true;
+          }
+        });
+
+        if (!urlEdited) {
+          entryData[column] = '';
+        }
+
+        return data.record;
+      });
+  }
+
+  function updateRecordFiles(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var config = options.config || {};
+    var forComments = !!options.forComments;
+
+    if (forComments && !config.userPhotoColumn) {
+      return Promise.resolve(records);
+    }
+
+    var filePromises = [];
+
+    _.forEach(records, function(record) {
+      var defaultData = {
+        query: {},
+        record: record,
+        field: undefined
+      };
+
+      if (!forComments) {
+        _.forEach([config['summary-fields'], config.detailViewOptions], function (fields) {
+          _.forEach(fields, function(field) {
+            if (field.type !== 'image') {
+              return;
+            }
+
+            switch (field.imageField) {
+              case 'app':
+                filePromises.push(getFiles(_.assign({}, defaultData, {
+                  query: {
+                    appId: field.appFolderId
+                  },
+                  field: field
+                })));
+                break;
+              case 'organization':
+                filePromises.push(getFiles(_.assign({}, defaultData, {
+                  query: {
+                    organizationId: field.organizationFolderId
+                  },
+                  field: field
+                })));
+                break;
+              case 'all-folders':
+                var folderId = _.get(field, 'folder.selectFiles.0.id');
+                if (!folderId) {
+                  return;
+                }
+
+                filePromises.push(getFiles(_.assign({}, defaultData, {
+                  query: {
+                    folderId: folderId
+                  },
+                  field: field
+                })));
+                break;
+              case 'url':
+                if (!isValidImageUrl(record.data[field.column])) {
+                  record.data[field.column] = '';
+                }
+                break;
+              default:
+                break;
+            }
+          });
+        });
+      } else {
+        switch (config.userFolderOption) {
+          case 'app':
+            filePromises.push(getFiles(_.assign({}, defaultData, {
+              query: {
+                appId: config.userAppFolder
+              },
+              field: {
+                column: config.userPhotoColumn
+              }
+            })));
+            break;
+          case 'organization':
+            filePromises.push(getFiles(_.assign({}, defaultData, {
+              query: {
+                organizationId: config.userOrgFolder
+              },
+              field: {
+                column: config.userPhotoColumn
+              }
+            })));
+            break;
+          case 'all-folders':
+            filePromises.push(getFiles(_.assign({}, defaultData, {
+              query: {
+                folderId: _.get(config, 'userFolder.folder.selectFiles.0.id')
+              },
+              field: {
+                column: config.userPhotoColumn
+              }
+            })));
+            break;
+          case 'url':
+            if (!isValidImageUrl(record.data[config.userPhotoColumn])) {
+              records[index].data[config.userPhotoColumn] = '';
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    });
+
+    if (filePromises.length) {
+      return Promise.all(filePromises);
+    }
+
+    return Promise.resolve(records);
+  }
+
   function userIsAdmin(config, userData) {
     var adminValue = _.get(userData, config.userAdminColumn);
 
@@ -339,7 +525,8 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     },
     Records: {
       runFilters: runRecordFilters,
-      getFields: getRecordFields
+      getFields: getRecordFields,
+      updateFiles: updateRecordFiles
     },
     User: {
       isAdmin: userIsAdmin,
