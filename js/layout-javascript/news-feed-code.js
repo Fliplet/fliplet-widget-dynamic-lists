@@ -57,9 +57,6 @@ function DynamicList(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
 
-  // Cache XHR requests to media folders to get files
-  this.cachedFiles = {};
-
   /**
    * this specifies the batch size to be used when rendering in chunks
    */
@@ -976,221 +973,6 @@ DynamicList.prototype.prepareData = function(records) {
   return records;
 }
 
-DynamicList.prototype.convertFiles = function(listItems, forComments) {
-  var _this = this;
-  var dataToGetFile = [];
-  var summaryDataToGetFile = [];
-  var detailDataToGetFile = [];
-  var promises = [];
-
-  // Test pattern for URLS
-  var urlPattern = /^https?:\/\//i;
-  // Test pattern for BASE64 images
-  var base64Pattern = /^data:image\/[^;]+;base64,/i;
-  // Test pattern for DATASOURCES images
-  var datasourcesPattern = /^datasources\//i;
-
-  listItems.forEach(function(entry, index) {
-    var summaryData = {
-      query: {},
-      entry: entry,
-      entryIndex: index,
-      field: undefined
-    };
-
-    var detailData = {
-      query: {},
-      entry: entry,
-      entryIndex: index,
-      field: undefined
-    };
-
-    var userData = {
-      query: {},
-      entry: entry,
-      entryIndex: index,
-      field: {
-        column: undefined
-      }
-    };
-
-    if (!forComments) {
-      _this.data['summary-fields'].forEach(function(obj) {
-        if (!obj.imageField) {
-          return;
-        }
-
-        if (obj.type === 'image' && obj.imageField !== 'url') {
-          if (obj.imageField === 'app') {
-            summaryData.query.appId = obj.appFolderId;
-            summaryData.field = obj;
-          }
-
-          if (obj.imageField === 'organization') {
-            summaryData.query.organizationId = obj.organizationFolderId;
-            summaryData.field = obj;
-          }
-
-          if (obj.imageField === 'all-folders') {
-            summaryData.query.folderId = obj.folder.selectFiles[0].id;
-            summaryData.field = obj;
-          }
-
-          summaryDataToGetFile.push(summaryData);
-        } else if (obj.type === 'image' && obj.imageField === 'url') {
-          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
-            listItems[index].data[obj.column] = '';
-          }
-        }
-      });
-
-      _this.data.detailViewOptions.forEach(function(obj) {
-        if (!obj.imageField) {
-          return;
-        }
-
-        if (obj.type === 'image' && obj.imageField !== 'url') {
-          if (obj.imageField === 'app') {
-            detailData.query.appId = obj.appFolderId;
-            detailData.field = obj;
-          }
-
-          if (obj.imageField === 'organization') {
-            detailData.query.organizationId = obj.organizationFolderId;
-            detailData.field = obj;
-          }
-
-          if (obj.imageField === 'all-folders') {
-            detailData.query.folderId = obj.folder.selectFiles[0].id;
-            detailData.field = obj;
-          }
-
-          detailDataToGetFile.push(detailData);
-        } else if (obj.type === 'image' && obj.imageField === 'url') {
-          if (!urlPattern.test(entry.data[obj.column]) && !base64Pattern.test(entry.data[obj.column]) && !datasourcesPattern.test(entry.data[obj.column])) {
-            listItems[index].data[obj.column] = '';
-          }
-        }
-      });
-    } else {
-      if (_this.data.userPhotoColumn && _this.data.userFolderOption !== 'url') {
-        if (_this.data.userFolderOption === 'app') {
-          userData.query.appId = _this.data.userAppFolder;
-          userData.field.column = _this.data.userPhotoColumn;
-        }
-
-        if (_this.data.userFolderOption === 'organization') {
-          userData.query.organizationId = _this.data.userOrgFolder;
-          userData.field.column = _this.data.userPhotoColumn;
-        }
-
-        if (_this.data.userFolderOption === 'all-folders') {
-          userData.query.folderId = _this.data.userFolder.folder.selectFiles[0].id;
-          userData.field.column = _this.data.userPhotoColumn;
-        }
-
-        dataToGetFile.push(userData);
-      } else if (_this.data.userFolderOption === 'url' && _this.data.userPhotoColumn) {
-        if (!urlPattern.test(entry.data[_this.data.userPhotoColumn]) && !base64Pattern.test(entry.data[_this.data.userPhotoColumn]) && !datasourcesPattern.test(entry.data[_this.data.userPhotoColumn])) {
-          listItems[index].data[_this.data.userPhotoColumn] = '';
-        }
-      }
-    }
-  });
-
-  if (!forComments) {
-    if (summaryDataToGetFile.length) {
-      summaryDataToGetFile.forEach(function(data) {
-        promises.push(_this.connectToGetFiles(data));
-      });
-    }
-
-    if (detailDataToGetFile.length) {
-      detailDataToGetFile.forEach(function(data) {
-        promises.push(_this.connectToGetFiles(data));
-      });
-    }
-  } else {
-    if (dataToGetFile.length) {
-      dataToGetFile.forEach(function(data) {
-        promises.push(_this.connectToGetFiles(data));
-      });
-    }
-  }
-
-  if (promises.length) {
-    return Promise.all(promises);
-  }
-
-  return Promise.resolve(listItems);
-}
-
-DynamicList.prototype.connectToGetFiles = function(data) {
-  var cacheKey = JSON.stringify(data.query);
-
-  if (!this.cachedFiles[cacheKey]) {
-    this.cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query)
-      .then(function (response) {
-        response.files.forEach(function (file) {
-          if (file.isEncrypted) {
-            file.url = Fliplet.Media.authenticate(file.url);
-          }
-        });
-
-        return response;
-      })
-      .catch(function () {
-        return Promise.resolve({ files: [], folders: [] });
-      });
-  }
-
-  return this.cachedFiles[cacheKey]
-    .then(function(response) {
-      var allFiles = response.files;
-
-      // Test pattern for URLS
-      var urlPattern = /^https?:\/\//i;
-      // Test pattern for BASE64 images
-      var base64Pattern = /^data:image\/[^;]+;base64,/i;
-      // Test pattern for DATASOURCES images
-      var datasourcesPattern = /^datasources\//i;
-      // Test pattern for Numbers/IDs
-      var numberPattern = /^\d+$/i;
-
-      if (!data.field) {
-        return data.entry;
-      }
-
-      allFiles.forEach(function(file) {
-        if (!_.compact(data.entry.data[data.field.column]).length) {
-          return;
-        }
-
-        if (data.entry.data[data.field.column] && file.name.indexOf(data.entry.data[data.field.column]) !== -1) {
-          data.entry.data[data.field.column] = file.url;
-          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
-          data.entry.data['imageUrlEdited'] = true;
-        } else if (urlPattern.test(data.entry.data[data.field.column]) || base64Pattern.test(data.entry.data[data.field.column]) || datasourcesPattern.test(data.entry.data[data.field.column])) {
-          // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
-          data.entry.data['imageUrlEdited'] = true;
-        } else if (numberPattern.test(data.entry.data[data.field.column])) {
-          var imageId = parseInt(data.entry.data[data.field.column], 10);
-          if (imageId === file.id) {
-            data.entry.data[data.field.column] = file.url;
-            // Save new temporary key to mark the URL as edited - Required (No need for a column with the same name)
-            data.entry.data['imageUrlEdited'] = true;
-          }
-        }
-      });
-
-      if (!data.entry.data['imageUrlEdited']) {
-        data.entry.data[data.field.column] = '';
-      }
-
-      return data.entry;
-    });
-}
-
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -1202,7 +984,10 @@ DynamicList.prototype.initialize = function() {
     _this.listItems = _this.prepareData(_this.data.defaultEntries);
     _this.dataSourceColumns = _this.data.defaultColumns;
 
-    return _this.convertFiles(_this.listItems)
+    return _this.Utils.Records.updateFiles({
+      records: _this.listItems,
+      config: _this.data
+    })
       .then(function(response) {
         _this.listItems = _.uniqBy(response, function (item) {
           return item.id;
@@ -1257,7 +1042,10 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function() {
-      return _this.convertFiles(_this.listItems);
+      return _this.Utils.Records.updateFiles({
+        records: _this.listItems,
+        config: _this.data
+      });
     })
     .then(function(response) {
       _this.listItems = _.uniqBy(response, function (item) {
@@ -1794,7 +1582,11 @@ DynamicList.prototype.onPartialRender = function(from, to) {
     // Get users info
     _this.connectToUsersDataSource()
       .then(function(users) {
-        return _this.convertFiles(users, true);
+        return _this.Utils.Records.updateFiles({
+          records: users,
+          config: _this.data,
+          forComments: true
+        });
       })
       .then(function(users) {
         _this.allUsers = users;
