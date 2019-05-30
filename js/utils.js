@@ -297,7 +297,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
     return Promise.resolve(fields);
   }
 
-  function connectToGetFiles(data) {
+  function getFiles(data) {
     var cacheKey = JSON.stringify(data.query);
 
     if (!cachedFiles[cacheKey]) {
@@ -326,7 +326,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
         var column = data.field.column;
 
         if (isValidImageUrl(entryData[column])) {
-          // Entry data doesn't need updating
+          // Record data doesn't need updating
           return data.record;
         }
 
@@ -383,7 +383,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
 
             switch (field.imageField) {
               case 'app':
-                filePromises.push(connectToGetFiles(_.assign({}, defaultData, {
+                filePromises.push(getFiles(_.assign({}, defaultData, {
                   query: {
                     appId: field.appFolderId
                   },
@@ -391,7 +391,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
                 })));
                 break;
               case 'organization':
-                filePromises.push(connectToGetFiles(_.assign({}, defaultData, {
+                filePromises.push(getFiles(_.assign({}, defaultData, {
                   query: {
                     organizationId: field.organizationFolderId
                   },
@@ -404,7 +404,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
                   return;
                 }
 
-                filePromises.push(connectToGetFiles(_.assign({}, defaultData, {
+                filePromises.push(getFiles(_.assign({}, defaultData, {
                   query: {
                     folderId: folderId
                   },
@@ -424,7 +424,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
       } else {
         switch (config.userFolderOption) {
           case 'app':
-            filePromises.push(connectToGetFiles(_.assign({}, defaultData, {
+            filePromises.push(getFiles(_.assign({}, defaultData, {
               query: {
                 appId: config.userAppFolder
               },
@@ -434,7 +434,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
             })));
             break;
           case 'organization':
-            filePromises.push(connectToGetFiles(_.assign({}, defaultData, {
+            filePromises.push(getFiles(_.assign({}, defaultData, {
               query: {
                 organizationId: config.userOrgFolder
               },
@@ -444,7 +444,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
             })));
             break;
           case 'organization':
-            filePromises.push(connectToGetFiles(_.assign({}, defaultData, {
+            filePromises.push(getFiles(_.assign({}, defaultData, {
               query: {
                 folderId: _.get(config, 'userFolder.folder.selectFiles.0.id')
               },
