@@ -443,7 +443,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
               }
             })));
             break;
-          case 'organization':
+          case 'all-folders':
             filePromises.push(getFiles(_.assign({}, defaultData, {
               query: {
                 folderId: _.get(config, 'userFolder.folder.selectFiles.0.id')
