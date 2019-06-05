@@ -681,7 +681,6 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 DynamicList.prototype.prepareData = function(records) {
   var _this = this;
-  var filtered;
 
   // Prepare sorting
   if (_this.data.sortOptions.length) {
@@ -745,49 +744,41 @@ DynamicList.prototype.prepareData = function(records) {
 
   // Prepare filtering
   if (_this.data.filterOptions.length) {
-    var filters = [];
-
-    _this.data.filterOptions.forEach(function(option) {
-      var filter = {
+    var filters = _.map(_this.data.filterOptions, function(option) {
+      return {
         column: option.column,
         condition: option.logic,
         value: option.value
-      }
-      filters.push(filter);
+      };
     });
 
     // Filter data
-    filtered = _this.Utils.Records.runFilters(records, filters);
-    records = filtered;
+    records = _this.Utils.Records.runFilters(records, filters);
   }
 
-  var prefiltered;
-  var prefilters = [];
   if (_this.queryPreFilter) {
-    _this.pvPreFilterQuery.forEach(function(option) {
-      var filter = {
+    var prefilters = _.map(_this.pvPreFilterQuery, function(option) {
+      return {
         column: option.column,
         condition: option.logic,
         value: option.value
-      }
-      prefilters.push(filter);
+      };
     });
 
     // Filter data
-    prefiltered = _this.Utils.Records.runFilters(records, prefilters);
-    records = prefiltered;
+    records = _this.Utils.Records.runFilters(records, prefilters);
   }
 
   // Add flag for likes
-  records.forEach(function(obj, i) {
+  records.forEach(function(record) {
     // Add likes flag
-    records[i].likesEnabled = _this.data.social && _this.data.social.likes;
+    record.likesEnabled = _this.data.social && _this.data.social.likes;
 
     // Add bookmarks flag
-    records[i].bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
+    record.bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
 
     // Add comments flag
-    records[i].commentsEnabled = _this.data.social && _this.data.social.comments;
+    record.commentsEnabled = _this.data.social && _this.data.social.comments;
   });
 
   return records;
