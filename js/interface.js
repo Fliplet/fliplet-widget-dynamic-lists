@@ -960,29 +960,6 @@ var DynamicLists = (function() {
               });
             }
 
-            // Remove duplicates from Detail view unless it's Simple List
-            if (_this.config.layout !== 'simple-list') {
-              // Duplicates are removed from detail view because all summary view fields
-              // are rendered at the top of the detail view by default
-              _this.config['summary-fields'].forEach(function(field) {
-                _this.config.detailViewOptions.forEach(function(option, index) {
-                  if (option.paranoid) {
-                    return;
-                  }
-
-                  if (!field.column || field.column === 'none' || field.column === 'custom') {
-                    return;
-                  }
-
-                  if (field.column !== option.column) {
-                    return;
-                  }
-
-                  _this.config.detailViewOptions.splice(index, 1);
-                });
-              });
-            }
-
             // Remove fields from detail view that are to be ignored - Only on first load
             if (fromStart && defaultSettings[listLayout]['detail-fields-ignore']) {
               _.remove(_this.config.detailViewOptions, function(field) {
