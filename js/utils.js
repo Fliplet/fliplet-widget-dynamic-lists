@@ -72,8 +72,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     Handlebars.registerHelper('validateImage', function (image) {
       var validatedImage = image;
-      var urlPattern = /^https?:\/\//i;
-      var base64Pattern = /^data:image\/[^;]+;base64,/i;
 
       if (!validatedImage) {
         return '';
