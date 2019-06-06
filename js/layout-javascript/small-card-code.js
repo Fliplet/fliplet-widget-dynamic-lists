@@ -530,104 +530,6 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 }
 
-DynamicList.prototype.prepareData = function(records) {
-  var _this = this;
-
-  // Prepare sorting
-  if (_this.data.sortOptions.length) {
-    var fields = [];
-    var sortOrder = [];
-    var sortColumns = [];
-
-    _this.data.sortOptions.forEach(function(option) {
-      fields.push({
-        column: option.column,
-        type: option.sortBy
-      });
-
-      if (option.orderBy === 'ascending') {
-        sortOrder.push('asc');
-      }
-      if (option.orderBy === 'descending') {
-        sortOrder.push('desc');
-      }
-    });
-
-    var mappedRecords = _.clone(records);
-    mappedRecords = mappedRecords.map(function(record) {
-      fields.forEach(function(field) {
-        record.data['modified_' + field.column] = record.data[field.column] || '';
-        record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
-
-        if (field.type === "alphabetical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].normalize('NFD').match(/[A-Za-z]/)
-            ? record.data['modified_' + field.column].normalize('NFD')
-            : '{' + record.data['modified_' + field.column];
-        }
-
-        if (field.type === "numerical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[0-9]/)
-            ? parseInt(record.data['modified_' + field.column], 10)
-            : record.data['modified_' + field.column];
-        }
-
-        if (field.type === "date") {
-          // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
-        }
-
-        if (field.type === "time") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column];
-        }
-
-      });
-
-      return record;
-    });
-
-    sortColumns = fields.map(function (field) {
-      return 'data[modified_' + field.column + ']';
-    })
-    // Sort data
-    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
-  }
-
-  // Prepare filtering
-  if (_this.data.filterOptions.length) {
-    var filters = _.map(_this.data.filterOptions, function(option) {
-      return {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      };
-    });
-
-    // Filter data
-    records = _this.Utils.Records.runFilters(records, filters);
-  }
-
-  if (_this.queryPreFilter) {
-    var prefilters = _.map(_this.pvPreFilterQuery, function(option) {
-      return {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      };
-    });
-
-    // Filter data
-    records = _this.Utils.Records.runFilters(records, prefilters);
-  }
-
-  // Add flag for likes
-  records.forEach(function(obj, i) {
-    // Add bookmarks flag
-    records[i].bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
-  });
-
-  return records;
-}
-
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -635,65 +537,69 @@ DynamicList.prototype.initialize = function() {
   if (_this.data.defaultData) {
     // Render Base HTML template
     _this.renderBaseHTML();
-    var records = _this.prepareData(_this.data.defaultEntries);
-    _this.listItems = _this.getPermissions(records);
-    _this.dataSourceColumns = _this.data.defaultColumns;
 
-    return _this.Utils.Records.updateFiles({
-      records: _this.listItems,
-      config: _this.data
-    })
-      .then(function(response) {
-        _this.listItems = _.uniqBy(response, function (item) {
-          return item.id;
-        });
+    return _this.Utils.Records.prepareData({
+      records: _this.data.defaultEntries,
+      config: _this.data,
+      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+    }).then(function (records) {
+      _this.listItems = _this.getPermissions(records);
+      _this.dataSourceColumns = _this.data.defaultColumns;
 
-        // Get user profile
-        if (_this.myUserData) {
-          // Create flag for current user
-          _this.listItems.forEach(function(el, idx) {
-            if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
-              _this.listItems[idx].isCurrentUser = true;
-            }
-          });
-
-          _this.myProfileData = _.filter(_this.listItems, function(row) {
-            return row.isCurrentUser;
-          });
-        }
-
-        // Render Loop HTML
-        _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML(function(from, to){
-          _this.onPartialRender(from, to);
-        }).then(function(){
-          _this.addFilters(_this.modifiedListItems);
-          // Render user profile
-          if (_this.myProfileData && _this.myProfileData.length) {
-            _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
-            var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
-            var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-            _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
-
-            var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
-            var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-            _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
-
-            _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
-          }
-          // Listeners and Ready
-          _this.attachObservers();
-          _this.checkBookmarked();
-          _this.initializeMixer();
-        });
-
+      return _this.Utils.Records.updateFiles({
+        records: _this.listItems,
+        config: _this.data
       });
+    }).then(function(response) {
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
+      });
+
+      // Get user profile
+      if (_this.myUserData) {
+        // Create flag for current user
+        _this.listItems.forEach(function(el, idx) {
+          if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
+            _this.listItems[idx].isCurrentUser = true;
+          }
+        });
+
+        _this.myProfileData = _.filter(_this.listItems, function(row) {
+          return row.isCurrentUser;
+        });
+      }
+
+      // Render Loop HTML
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.renderLoopHTML(function(from, to){
+        _this.onPartialRender(from, to);
+      }).then(function(){
+        _this.addFilters(_this.modifiedListItems);
+        // Render user profile
+        if (_this.myProfileData && _this.myProfileData.length) {
+          _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
+          var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
+          var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+          _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
+
+          var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
+          var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+          _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+
+          _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
+        }
+        // Listeners and Ready
+        _this.attachObservers();
+        _this.checkBookmarked();
+        _this.initializeMixer();
+      });
+    });
   }
 
   var shouldInitFromQuery = _this.parseQueryVars();
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
-  if(shouldInitFromQuery){
+  if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   };
 
@@ -717,27 +623,32 @@ DynamicList.prototype.initialize = function() {
           records = [records];
         }
 
-        records = _this.prepareData(records);
-        // Make rows available Globally
-        records = _this.getPermissions(records);
-        _this.listItems = records;
-
-        // Get user profile
-        if (_this.myUserData) {
-          // Create flag for current user
-          records.forEach(function(el, idx) {
-            if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
-              records[idx].isCurrentUser = true;
-            }
-          });
-
-          _this.myProfileData = _.filter(records, function(row) {
-            return row.isCurrentUser;
-          });
-        }
+        return _this.Utils.Records.prepareData({
+          records: records,
+          config: _this.data,
+          filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+        });
       });
     })
-    .then(function() {
+    .then(function(records) {
+      // Make rows available Globally
+      records = _this.getPermissions(records);
+      _this.listItems = records;
+
+      // Get user profile
+      if (_this.myUserData) {
+        // Create flag for current user
+        records.forEach(function(el, idx) {
+          if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
+            records[idx].isCurrentUser = true;
+          }
+        });
+
+        _this.myProfileData = _.filter(records, function(row) {
+          return row.isCurrentUser;
+        });
+      }
+
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }

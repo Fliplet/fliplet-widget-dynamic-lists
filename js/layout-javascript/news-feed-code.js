@@ -857,111 +857,6 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
   });
 }
 
-DynamicList.prototype.prepareData = function(records) {
-  var _this = this;
-
-  // Prepare sorting
-  if (_this.data.sortOptions.length) {
-    var fields = [];
-    var sortOrder = [];
-    var sortColumns = [];
-
-    _this.data.sortOptions.forEach(function(option) {
-      fields.push({
-        column: option.column,
-        type: option.sortBy
-      });
-
-      if (option.orderBy === 'ascending') {
-        sortOrder.push('asc');
-      }
-      if (option.orderBy === 'descending') {
-        sortOrder.push('desc');
-      }
-    });
-
-    var mappedRecords = _.clone(records);
-    mappedRecords = mappedRecords.map(function(record) {
-      fields.forEach(function(field) {
-        record.data['modified_' + field.column] = record.data[field.column] || '';
-        record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
-
-        if (field.type === "alphabetical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].normalize('NFD').match(/[A-Za-z]/)
-            ? record.data['modified_' + field.column].normalize('NFD')
-            : '{' + record.data['modified_' + field.column];
-        }
-
-        if (field.type === "numerical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[0-9]/)
-            ? parseInt(record.data['modified_' + field.column], 10)
-            : record.data['modified_' + field.column];
-        }
-
-        if (field.type === "date") {
-          // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
-        }
-
-        if (field.type === "time") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column];
-        }
-
-      });
-
-      return record;
-    });
-
-
-    sortColumns = fields.map(function (field) {
-      return 'data[modified_' + field.column + ']';
-    })
-    // Sort data
-    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
-  }
-
-  // Prepare filtering
-  if (_this.data.filterOptions.length) {
-    var filters = _.map(_this.data.filterOptions, function(option) {
-      return {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      };
-    });
-
-    // Filter data
-    records = _this.Utils.Records.runFilters(records, filters);
-  }
-
-  if (_this.queryPreFilter) {
-    var prefilters = _.map(_this.pvPreFilterQuery, function(option) {
-      return {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      };
-    });
-
-    // Filter data
-    records = _this.Utils.Records.runFilters(records, prefilters);
-  }
-
-  // Add flag for likes
-  records.forEach(function(record) {
-    // Add likes flag
-    record.likesEnabled = _this.data.social && _this.data.social.likes;
-
-    // Add bookmarks flag
-    record.bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
-
-    // Add comments flag
-    record.commentsEnabled = _this.data.social && _this.data.social.comments;
-  });
-
-  return records;
-}
-
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -970,35 +865,40 @@ DynamicList.prototype.initialize = function() {
     // Render Base HTML template
     _this.renderBaseHTML();
 
-    _this.listItems = _this.prepareData(_this.data.defaultEntries);
-    _this.dataSourceColumns = _this.data.defaultColumns;
+    return _this.Utils.Records.prepareData({
+      records: _this.data.defaultEntries,
+      config: _this.data,
+      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+    }).then(function (records) {
+      _this.listItems = records;
+      _this.dataSourceColumns = _this.data.defaultColumns;
 
-    return _this.Utils.Records.updateFiles({
-      records: _this.listItems,
-      config: _this.data
-    })
-      .then(function(response) {
-        _this.listItems = _.uniqBy(response, function (item) {
-          return item.id;
-        });
-
-        // Render Loop HTML
-        _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML(function(from, to){
-          _this.onPartialRender(from, to);
-        }).then(function(){
-          _this.initializeMixer();
-          _this.addFilters(_this.modifiedListItems);
-          // Listeners and Ready
-          _this.attachObservers();
-        });
+      return _this.Utils.Records.updateFiles({
+        records: _this.listItems,
+        config: _this.data
       });
+    }).then(function(response) {
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
+      });
+
+      // Render Loop HTML
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.renderLoopHTML(function(from, to){
+        _this.onPartialRender(from, to);
+      }).then(function(){
+        _this.initializeMixer();
+        _this.addFilters(_this.modifiedListItems);
+        // Listeners and Ready
+        _this.attachObservers();
+      });
+    });
   }
 
   var shouldInitFromQuery = _this.parseQueryVars();
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
-  if(shouldInitFromQuery){
+  if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   };
 
@@ -1018,10 +918,16 @@ DynamicList.prototype.initialize = function() {
         container: _this.$container,
         records: records
       }).then(function () {
-        _this.listItems = _this.prepareData(records);
+        return _this.Utils.Records.prepareData({
+          records: records,
+          config: _this.data,
+          filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+        });
       });
     })
-    .then(function() {
+    .then(function (records) {
+      _this.listItems = records;
+
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }

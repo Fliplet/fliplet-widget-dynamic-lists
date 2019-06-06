@@ -257,6 +257,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   }
 
   function runRecordFilters(records, filters) {
+    if (!filters || _.isEmpty(filters)) {
+      return records;
+    }
+
     var operators = {
       '==': function (a, b) { return a == b }, // eslint-disable-line eqeqeq
       '!=': function (a, b) { return a != b }, // eslint-disable-line eqeqeq
@@ -635,6 +639,110 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return Promise.resolve(records);
   }
 
+  function prepareRecordsData(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var config = options.config || {};
+
+    // Filter data based on filter options, filter queries and PV storage values (deprecated)
+    var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
+    records = runRecordFilters(records, _.map(filters, function(option) {
+      return {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      };
+    }));
+
+    var executeCustomPreFilter = Promise.resolve(records);
+    if (typeof config.customPreFilter === 'function') {
+      executeCustomPreFilter = config.customPreFilter({
+        config: config,
+        records: records
+      });
+
+      if (!(executeCustomPreFilter instanceof Promise)) {
+        executeCustomPreFilter = Promise.resolve(executeCustomPreFilter);
+      }
+    }
+
+    return executeCustomPreFilter.then(function (filteredRecords) {
+      records = filteredRecords;
+
+      if (config.sortOptions.length) {
+        var sortFields = _.map(config.sortOptions, function(option) {
+          return {
+            column: option.column,
+            type: option.sortBy
+          };
+        });
+
+        // Modify a clone of the records for sorting
+        var modifiedRecords = _.map(_.clone(records), function(record) {
+          sortFields.forEach(function(field) {
+            var sortField = 'modified_' + field.column;
+            record.data[sortField] = (record.data[field.column] || '').toString().toUpperCase();
+
+            // Modify field values based on sort types
+            switch (field.type) {
+              case 'alphabetical':
+                record.data[sortField] = record.data[sortField].normalize('NFD').match(/[A-Za-z]/)
+                  ? record.data[sortField].normalize('NFD')
+                  : '{' + record.data[sortField];
+                break;
+              case 'numerical':
+                record.data[sortField] = record.data[sortField].match(/[0-9]/)
+                  ? parseInt(record.data[sortField], 10)
+                  : record.data[sortField];
+                break;
+              case 'date':
+                // If an incorrect date format is used, the entry will be pushed at the end
+                record.data[sortField] = getMomentDate(record.data[sortField]).format('YYYY-MM-DD');
+                break;
+              case 'time':
+                record.data[sortField] = record.data[sortField];
+                break;
+            }
+          });
+
+          return record;
+        });
+
+        var sortColumns = _.map(sortFields, function (field) {
+          return 'data[modified_' + field.column + ']';
+        });
+
+        var sortOrders = _.map(config.sortOptions, function (option) {
+          switch (option.orderBy) {
+            case 'descending':
+              return 'desc';
+            case 'ascending':
+            default:
+              return 'asc';
+          }
+        });
+
+        // Sort data
+        records = _.orderBy(modifiedRecords, sortColumns, sortOrders);
+      }
+
+      // Add flag for social features
+      records.forEach(function(record) {
+        // Add likes flag
+        record.likesEnabled = config.social && config.social.likes;
+
+        // Add bookmarks flag
+        record.bookmarksEnabled = config.social && config.social.bookmark;
+
+        // Add comments flag
+        record.commentsEnabled = config.social && config.social.comments;
+      });
+
+      return records;
+    });
+  }
+
   function userIsAdmin(config, userData) {
     var adminValue = _.get(userData, config.userAdminColumn);
 
@@ -698,7 +806,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       getFilterValues: getRecordFilterValues,
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
-      updateFiles: updateRecordFiles
+      updateFiles: updateRecordFiles,
+      prepareData: prepareRecordsData
     },
     User: {
       isAdmin: userIsAdmin,
