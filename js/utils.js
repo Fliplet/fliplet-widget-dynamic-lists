@@ -88,12 +88,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         return '';
       }
 
-      if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
-        // attach auth token
-        validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
-      }
-
-      return validatedImage;
+      return Fliplet.Media.authenticate(validatedImage);
     });
 
     Handlebars.registerHelper('formatComment', function(text) {
