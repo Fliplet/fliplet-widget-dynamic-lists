@@ -1205,7 +1205,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
   var savedColumns = [];
   var loopHTML = '';
-  var modifiedData = _this.Utils.Records.addFilterProperties(records, _this.data.filterFields);
+  var modifiedData = _this.Utils.Records.addFilterProperties({
+    records: records,
+    fields: _this.data.filterFields
+  });
   modifiedData = _this.getPermissions(modifiedData);
 
   var loopData = [];
@@ -1251,6 +1254,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
+
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
         content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
@@ -1259,6 +1263,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       } else {
         content = entry.data[dynamicDataObj.column];
       }
+
       // Define data object
       var newEntryDetail = {
         id: dynamicDataObj.id,
@@ -1368,12 +1373,16 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 }
 
-DynamicList.prototype.addFilters = function(data) {
+DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
   var filtersData = {
     filtersInOverlay: _this.data.filtersInOverlay,
-    filters: _this.Utils.Records.parseFilters(data, _this.data.filterFields, _this.data.id)
+    filters: _this.Utils.Records.parseFilters({
+      records: records,
+      filters: _this.data.filterFields,
+      id: _this.data.id
+    })
   };
 
   filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];

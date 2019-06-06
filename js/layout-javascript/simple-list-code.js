@@ -1027,7 +1027,10 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
-  var modifiedData = _this.Utils.Records.addFilterProperties(records, _this.data.filterFields);
+  var modifiedData = _this.Utils.Records.addFilterProperties({
+    records: records,
+    fields: _this.data.filterFields
+  });
   var loopData = [];
 
   // Uses sumamry view settings set by users
@@ -1127,12 +1130,16 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 }
 
-DynamicList.prototype.addFilters = function(data) {
+DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
   var filtersData = {
     filtersInOverlay: _this.data.filtersInOverlay,
-    filters: _this.Utils.Records.parseFilters(data, _this.data.filterFields, _this.data.id)
+    filters: _this.Utils.Records.parseFilters({
+      records: records,
+      filters: _this.data.filterFields,
+      id: _this.data.id
+    })
   };
 
   filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
@@ -1855,12 +1862,14 @@ DynamicList.prototype.showDetails = function(id) {
     if (obj.fieldLabel === 'no-label') {
       labelEnabled = false;
     }
+
     // Define content
     if (obj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entryData.data));
     } else {
       content = entryData.data[obj.column];
     }
+
     // Define data object
     var newObject = {
       content: content,

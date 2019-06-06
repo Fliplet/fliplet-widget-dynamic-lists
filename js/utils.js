@@ -410,7 +410,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }));
   }
 
-  function parseRecordFilters(records, filters, id) {
+  function parseRecordFilters(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var filters = options.filters || [];
+    var id = options.id;
+
     // Parse legacy flFilters from records to generate a list of filter values
     return _.orderBy(_.map(
       _.groupBy(_.orderBy(_.uniqBy(_.flatten(_.map(records, 'flFilters')), function (filter) {
@@ -424,13 +430,19 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           name: key,
           data: _.map(values, 'data')
         };
-      }), function (filter) {
-      // _.orderBy iteratee
-      return _.indexOf(filters, filter.name);
-    });
+      }),
+      function (filter) {
+        // _.orderBy iteratee
+        return _.indexOf(filters, filter.name);
+      });
   }
 
-  function addRecordFilterProperties(records, fields) {
+  function addRecordFilterProperties(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var fields = options.fields || [];
+
     // Function that get and converts the categories for the filters to work
     records.forEach(function (record) {
       var classes = [];
