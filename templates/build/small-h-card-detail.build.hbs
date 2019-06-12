@@ -3,13 +3,12 @@
   <div class="small-h-card-list-detail-image" style="background-image: url('\{{auth [Image]}}')"></div>
   \{{#unless [Image]}}<i class="fa fa-user"></i>\{{/unless}}
 </div>
-\{{/if}} 
+\{{/if}}
 <div class="small-h-card-list-detail-content-scroll-wrapper" data-entry-id="\{{id}}">
   <div class="small-h-card-list-detail-content-wrapper">
     <div class="small-h-card-list-detail-name">\{{[First Name]}} \{{[Last Name]}}</div>
     <div class="small-h-card-list-detail-role">\{{[Title]}}</div>
     <div class="small-h-card-list-detail-location">\{{[Location]}}</div>
-    \{{#unless isCurrentUser}}
     <div class="small-h-card-list-detail-buttons-wrapper">
       \{{#if [Email]}}
       <div class="small-h-card-list-detail-button">
@@ -36,7 +35,6 @@
       </div>
       \{{/if}}
     </div>
-    \{{/unless}}
 
     <div class="small-h-card-details-holder">
       \{{#each entryDetails}}

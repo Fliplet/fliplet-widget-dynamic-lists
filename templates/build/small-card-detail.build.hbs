@@ -3,10 +3,9 @@
   <div class="small-card-list-detail-image" style="background-image: url('\{{auth [Image]}}')"></div>
   \{{#unless [Image]}}<i class="fa fa-user"></i>\{{/unless}}
 </div>
-\{{/if}} 
+\{{/if}}
 <div class="small-card-list-detail-content-scroll-wrapper" data-entry-id="\{{id}}">
   <div class="small-card-list-detail-content-wrapper">
-    \{{#unless isCurrentUser}}
     \{{#if bookmarksEnabled}}
     <div class="small-card-bookmark-holder small-card-bookmark-holder-\{{id}}">
       <div class="small-card-bookmark-wrapper btn-bookmark">
@@ -17,11 +16,9 @@
       </div>
     </div>
     \{{/if}}
-    \{{/unless}}
     <div class="small-card-list-detail-name">\{{[First Name]}} \{{[Last Name]}}</div>
     <div class="small-card-list-detail-role">\{{[Title]}}</div>
     <div class="small-card-list-detail-location">\{{[Location]}}</div>
-    \{{#unless isCurrentUser}}
     <div class="small-card-list-detail-buttons-wrapper">
       \{{#if [Email]}}
       <div class="small-card-list-detail-button">
@@ -48,7 +45,6 @@
       </div>
       \{{/if}}
     </div>
-    \{{/unless}}
 
     <div class="small-card-details-holder">
       \{{#each entryDetails}}
