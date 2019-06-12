@@ -744,6 +744,7 @@ DynamicList.prototype.initialize = function() {
         if (records && !Array.isArray(records)) {
           records = [records];
         }
+
         return _this.Utils.Records.prepareData({
           records: records,
           config: _this.data,
