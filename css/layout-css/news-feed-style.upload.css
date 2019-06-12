@@ -520,6 +520,10 @@
   outline: none;
 }
 
+.new-news-feed-list-container .news-feed-list-wrapper:empty {
+  padding: 0;
+}
+
 .new-news-feed-list-container .offline-holder,
 .new-news-feed-list-container .loading-holder,
 .new-news-feed-list-container .no-results-holder,
