@@ -929,14 +929,6 @@ header .btn,
   padding-right: 5px;
 }
 
-.image-field-select .rTableCell:nth-child(3) {
-  padding-right: 0;
-}
-
-.image-field-select .rTableCell:nth-child(4) {
-  padding-left: 10px;
-}
-
 .rTableHead.title,
 .rTableCell.title {
   width: 18%;
