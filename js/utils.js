@@ -482,7 +482,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
           return response;
         })
-        .catch(function () {
+        .catch(function (error) {
+          console.warn('Error retrieving files', error, data);
           return Promise.resolve({ files: [], folders: [] });
         });
     }
