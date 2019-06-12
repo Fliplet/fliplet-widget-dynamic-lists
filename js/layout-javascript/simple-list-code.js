@@ -19,6 +19,7 @@ function DynamicList(id, data, container) {
   // Makes data and the component container available to Public functions
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
+  this.data.customFields = this.data.customFields || [];
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.queryOptions = {};
 
@@ -1029,7 +1030,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
-    fields: _this.data.filterFields
+    config: _this.data
   });
   var loopData = [];
 
@@ -1189,7 +1190,11 @@ DynamicList.prototype.filterList = function() {
     });
 
     filteredData = _.filter(listData, function (record) {
-      return _this.Utils.Record.matchesFilters(record, _this.activeFilters);
+      return _this.Utils.Record.matchesFilters({
+        record: record,
+        filters: _this.activeFilters,
+        config: _this.data
+      });
     });
   } else {
     // Legacy class-based filters

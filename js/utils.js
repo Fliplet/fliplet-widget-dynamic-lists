@@ -12,7 +12,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
       url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
       mention: /\B@[a-z0-9_-]+/ig
-    }
+    },
+    refArraySeparator: '.$.'
   };
 
   function isValidImageUrl(str) {
@@ -372,10 +373,21 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return data;
   }
 
-  function recordMatchesFilters(record, filters) {
+  function recordMatchesFilters(options) {
+    options = options || {};
+
+    var record = options.record;
+    var filters = options.filters;
+    var config = options.config;
+
     // Returns true if record matches all of provided filters and values
-    var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (key) {
-      return _.map(_.uniq(splitByCommas(_.get(record, 'data.' + key))), convertData);
+    var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
+      return _.map(_.uniq(getRecordFieldValues({
+        record: record,
+        field: field,
+        customField: _.find(config.customFields, { name: field }),
+        useData: true
+      })), convertData);
     }));
 
     return _.every(_.keys(filters), function (key) {
@@ -437,21 +449,82 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       });
   }
 
+  function getRecordFieldValues(options) {
+    options = options || {};
+
+    var record = options.record;
+    var field = options.field;
+    var customField = options.customField;
+    var useData = options.useData;
+
+    if (!field) {
+      return [];
+    }
+
+    if (!_.isEmpty(customField)) {
+      if (typeof customField.path === 'function') {
+        // Field has a custom crawler function
+        return customField.path(record);
+      }
+
+      if (typeof customField.path === 'string' && customField.path.length) {
+        // Field has a custom path, e.g. foo.$.bar
+        return getRecordFieldValues({
+          record: record,
+          field: customField.path.split(Static.refArraySeparator),
+          useData: useData
+        });
+      }
+    }
+
+    if (_.isArray(field)) {
+      var path = field.shift();
+
+      if (field.length) {
+        var arr = _.get(record, (useData ? 'data.' : '') + path);
+        return _.flatten(_.map(arr, function (item) {
+          return getRecordFieldValues({
+            record: item,
+            field: _.clone(field),
+            useData: false
+          });
+        }));
+      }
+
+      return getRecordFieldValues({
+        record: record,
+        field: path,
+        useData: useData
+      });
+    }
+
+    if (typeof field === 'string') {
+      return splitByCommas(_.get(record, (useData ? 'data.' : '') + field));
+    }
+
+    return [];
+  }
+
   function addRecordFilterProperties(options) {
     options = options || {};
 
     var records = options.records || [];
-    var fields = options.fields || [];
+    var config = options.config || {};
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function (record) {
       var classes = [];
       record.data['flFilters'] = [];
-      fields.forEach(function (filter) {
-        splitByCommas(record.data[filter]).forEach(function (item, index) {
+      _.forEach(config.filterFields, function (field) {
+        _.forEach(getRecordFieldValues({
+          record: record,
+          field: field,
+          customField: _.find(config.customFields, { name: field }),
+          useData: true
+        }), function (item, index) {
           var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
           var newObj = {
-            type: filter,
+            type: field,
             data: {
               name: item,
               class: classConverted
