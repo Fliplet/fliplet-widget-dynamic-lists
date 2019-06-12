@@ -594,7 +594,6 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       }
     });
 
-
     dynamicData.forEach(function(dynamicDataObj) {
       var label = '';
       var labelEnabled = true;
