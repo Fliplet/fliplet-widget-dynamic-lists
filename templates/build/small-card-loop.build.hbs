@@ -7,14 +7,13 @@
           <div class="small-card-list-detail-image" style="background-image: url('\{{auth [Image]}}')"></div>
           \{{#unless [Image]}}<i class="fa fa-user"></i>\{{/unless}}
         </div>
-        \{{/if}}        
+        \{{/if}}
       </div>
     </div>
     <div class="small-card-list-text-wrapper">
       <div class="small-card-list-name">\{{[First Name]}} \{{[Last Name]}}</div>
       <div class="small-card-list-role">\{{[Title]}}</div>
       <div class="small-card-list-location">\{{[Location]}}</div>
-      \{{#unless isCurrentUser}}
       \{{#if bookmarksEnabled}}
       <div class="small-card-bookmark-holder small-card-bookmark-holder-\{{id}}">
         <!-- Bookmark button will be here -->
@@ -22,7 +21,6 @@
         <i class="fa fa-bookmark-o fa-lg bookmark-placeholder"></i>
       </div>
       \{{/if}}
-      \{{/unless}}
     </div>
   </div>
   \{{/each}}
