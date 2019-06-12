@@ -653,6 +653,7 @@
 .new-small-card-list-container .small-card-list-text-wrapper {
   height: 100%;
   padding: 0 0 0 15px;
+  border-radius: 0 15px 15px 0;
   flex: 1;
   background-color: #ffffff;
   display: flex;
