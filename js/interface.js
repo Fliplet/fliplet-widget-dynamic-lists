@@ -469,10 +469,21 @@ var DynamicLists = (function() {
         .on('change', '[name="select_summary_field"]', function() {
           var value = $(this).val();
 
-          if (value === 'custom') {
-            $(this).parents('.rTableRow').find('.custom-field-input').removeClass('hidden');
-          } else {
-            $(this).parents('.rTableRow').find('.custom-field-input').addClass('hidden');
+          switch (value) {
+            case 'custom':
+              $(this).parents('.rTableRow')
+                .find('.custom-field-input').removeClass('hidden').end()
+                .find('.image-field-select').addClass('hidden');
+              break;g
+            case 'none':
+            case 'empty':
+              $(this).parents('.rTableRow')
+                .find('.custom-field-input, .image-field-select').addClass('hidden');
+              break;
+            default:
+              $(this).parents('.rTableRow')
+                .find('.custom-field-input').addClass('hidden').end()
+                .find('.image-field-select').removeClass('hidden');
           }
         })
         .on('change', '[name="select_field"]', function() {
@@ -1280,10 +1291,8 @@ var DynamicLists = (function() {
       }
 
       // Summary fields
-      $('[name="select_summary_field"]').each(function(index, obj) {
-        var oldValue = $(obj).val();
-        var options = [];
-        $(obj).html('');
+      $('[name="select_summary_field"]').each(function() {
+        var oldValue = $(this).val();
         var defaultOptions = [
           '<option value="none">-- Select a data field</option>',
           '<option disabled>------</option>',
@@ -1291,39 +1300,32 @@ var DynamicLists = (function() {
           '<option value="custom">Custom</option>',
           '<option disabled>------</option>'
         ];
-        defaultOptions.forEach(function(option) {
-          options.push(option);
-        });
-        dataSourceColumns.forEach(function(value) {
-          options.push('<option value="'+ value +'">'+ value +'</option>');
-        });
-        $(obj).append(options.join(''));
+        var options = _.concat(defaultOptions, _.map(dataSourceColumns, function(value) {
+          return '<option value="' + value + '">' + value + '</option>';
+        }));
+
+        $(this).html(options.join(''));
         if (oldValue && oldValue.length) {
-          $(obj).val(oldValue);
+          $(this).val(oldValue);
         }
       });
 
       // Detail fields
-      $('[name="select_field"]').each(function(index, obj) {
-        var oldValue = $(obj).val();
-        var options = [];
-        $(obj).html('');
+      $('[name="select_field"]').each(function() {
+        var oldValue = $(this).val();
         var defaultOptions = [
           '<option value="none">-- Select a data field</option>',
           '<option disabled>------</option>',
           '<option value="custom">Custom</option>',
           '<option disabled>------</option>'
         ];
-        defaultOptions.forEach(function(option) {
-          options.push(option);
-        });
+        var options = _.concat(defaultOptions, _.map(dataSourceColumns, function(value) {
+          return '<option value="' + value + '">' + value + '</option>';
+        }));
 
-        dataSourceColumns.forEach(function(value, index) {
-          options.push('<option value="'+ value +'">'+ value +'</option>');
-        });
-        $(obj).append(options.join(''));
+        $(this).html(options.join(''));
         if (oldValue && oldValue.length) {
-          $(obj).val(oldValue);
+          $(this).val(oldValue);
         }
       });
 
