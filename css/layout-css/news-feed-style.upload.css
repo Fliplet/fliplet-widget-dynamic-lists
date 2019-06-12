@@ -692,6 +692,11 @@
   border-radius: 19px;
 }
 
+.new-news-feed-list-container .news-feed-list-item .slide-under + .slide-over {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over {
   overflow: hidden;
 }
