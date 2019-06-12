@@ -559,10 +559,8 @@ DynamicList.prototype.initialize = function() {
       // Get user profile
       if (_this.myUserData) {
         // Create flag for current user
-        _this.listItems.forEach(function(el, idx) {
-          if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
-            _this.listItems[idx].isCurrentUser = true;
-          }
+        _this.listItems.forEach(function(item) {
+          item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
         });
 
         _this.myProfileData = _.filter(_this.listItems, function(row) {
@@ -631,24 +629,23 @@ DynamicList.prototype.initialize = function() {
         });
       });
     })
-    .then(function(records) {
-      // Make rows available Globally
+    .then(function (records) {
       records = _this.getPermissions(records);
-      _this.listItems = records;
 
       // Get user profile
       if (_this.myUserData) {
         // Create flag for current user
-        records.forEach(function(el, idx) {
-          if (el.data[_this.emailField] === (_this.myUserData[_this.emailField] || _this.myUserData['email'])) {
-            records[idx].isCurrentUser = true;
-          }
+        records.forEach(function(record) {
+          record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
         });
 
         _this.myProfileData = _.filter(records, function(row) {
           return row.isCurrentUser;
         });
       }
+
+      // Make rows available Globally
+      _this.listItems = records;
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();

@@ -838,8 +838,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   }
 
   function recordIsCurrentUser(record, config, userData) {
-    return !_.isEmpty(userData)
-      && userData[config.userEmailColumn] === record.data[config.userListEmailColumn];
+    return config.userEmailColumn !== 'none'
+      && !_.isEmpty(_.get(userData, config.userEmailColumn))
+      && !_.isEmpty(_.get(record, ['data', config.userListEmailColumn]))
+      && _.get(userData, config.userEmailColumn) === _.get(record, ['data', config.userListEmailColumn]);
   }
 
   function userCanAddRecord(config, userData) {
