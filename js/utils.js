@@ -686,7 +686,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             break;
           case 'url':
             if (!isValidImageUrl(record.data[config.userPhotoColumn])) {
-              records[index].data[config.userPhotoColumn] = '';
+              record.data[config.userPhotoColumn] = '';
             }
             break;
           default:
