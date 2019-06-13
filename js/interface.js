@@ -504,19 +504,10 @@ var DynamicLists = (function() {
             $(this).parents('.rTableRow').find('.custom-label-input').addClass('hidden');
           }
         })
-        .on('change', '[name="select_summary_type"]', function() {
+        .on('change', '[name="select_summary_type"], [name="select_field_type"]', function() {
           var value = $(this).val();
 
-          if (value === 'image') {
-            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
-          } else {
-            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
-          }
-        })
-        .on('change', '[name="select_field_type"]', function() {
-          var value = $(this).val();
-
-          if (value === 'image') {
+          if (value === 'image' && ['none', 'custom', 'empty'].indexOf($(this).parents('.rTableRow').find('[name="select_summary_field"]').val()) === -1) {
             $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
           } else {
             $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
@@ -892,8 +883,8 @@ var DynamicLists = (function() {
               item.columns = dataSourceColumns || _this.config.defaultColumns;
               item = _this.updateWithFoldersInfo(item, 'summary');
               _this.addSummaryItem(item);
-              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
+              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
               item.imageField = _this.validateImageFieldOption(item.imageField);
               $('.table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField).trigger('change');
@@ -1028,8 +1019,8 @@ var DynamicLists = (function() {
               item = _this.updateWithFoldersInfo(item, 'details');
               _this.addDetailItem(item);
 
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
+              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
               $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
