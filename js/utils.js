@@ -383,7 +383,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Returns true if record matches all of provided filters and values
     var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
-      return _.map(_.uniq(getRecordFieldValues({
+      return _.map(_.uniq(getRecordField({
         record: record,
         field: field,
         useData: true
@@ -407,7 +407,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
-  function getRecordFilterValues(records, fields) {
+  function getRecordFieldValues(records, fields) {
     // Extract a list of filter values based on a list of records and filter fields
     if (_.isUndefined(fields) || _.isNull(fields)) {
       return [];
@@ -449,7 +449,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       });
   }
 
-  function getRecordFieldValues(options) {
+  function getRecordField(options) {
     options = options || {};
 
     var record = options.record;
@@ -470,7 +470,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       if (field.length) {
         var arr = _.get(record, (useData ? 'data.' : '') + path);
         return _.flatten(_.map(arr, function (item) {
-          return getRecordFieldValues({
+          return getRecordField({
             record: item,
             field: _.clone(field),
             useData: false
@@ -478,7 +478,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         }));
       }
 
-      return getRecordFieldValues({
+      return getRecordField({
         record: record,
         field: path,
         useData: useData
@@ -503,7 +503,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       var classes = [];
       record.data['flFilters'] = [];
       _.forEach(config.filterFields, function (field) {
-        _.forEach(getRecordFieldValues({
+        _.forEach(getRecordField({
           record: record,
           field: field,
           useData: true
@@ -804,7 +804,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         });
       }
 
-      _.set(record, ['data', Static.computedFieldsKey, field], getRecordFieldValues({
+      _.set(record, ['data', Static.computedFieldsKey, field], getRecordField({
         record: record,
         field: typeof getter === 'string' ? getter.split(Static.refArraySeparator) : getter,
         useData: true
@@ -888,7 +888,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Records: {
       runFilters: runRecordFilters,
       getFields: getRecordFields,
-      getFilterValues: getRecordFilterValues,
+      getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,

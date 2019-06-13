@@ -303,10 +303,10 @@ DynamicList.prototype.initialize = function() {
       records: _this.data.defaultEntries,
       config: _this.data,
       filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
-    })
+    });
 
     _this.listItems = _this.getPermissions(records);
-    _this.dataSourceColumns = _.uniq(_.concat(_this.data.defaultColumns, _.map(_this.data.customFields, 'name')));
+    _this.dataSourceColumns = _this.data.defaultColumns;
 
     return _this.Utils.Records.updateFiles({
       records: _this.listItems,
@@ -399,7 +399,7 @@ DynamicList.prototype.initialize = function() {
       }
 
       return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function (columns) {
-        _this.dataSourceColumns = _.uniq(_.concat(columns, _.map(_this.data.customFields, 'name')));
+        _this.dataSourceColumns = columns;
       });
     })
     .then(function() {
