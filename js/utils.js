@@ -824,7 +824,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     if (computedFieldClashes.length) {
       var clashedFields = computedFieldClashes.sort().join(', ');
-      console.warn('Computed field(s) "' + clashedFields + '" are already defined as a property for one or more records. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten');
+      console.warn('Computed field(s) "' + clashedFields + '" are already defined as a property for one or more records. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten.');
     }
   }
 
