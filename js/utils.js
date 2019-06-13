@@ -12,7 +12,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
       url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
       mention: /\B@[a-z0-9_-]+/ig
-    }
+    },
+    refArraySeparator: '.$.',
+    computedFieldsKey: '_computed'
   };
 
   function isValidImageUrl(str) {
@@ -72,8 +74,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     Handlebars.registerHelper('validateImage', function (image) {
       var validatedImage = image;
-      var urlPattern = /^https?:\/\//i;
-      var base64Pattern = /^data:image\/[^;]+;base64,/i;
 
       if (!validatedImage) {
         return '';
@@ -88,12 +88,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         return '';
       }
 
-      if (/api\.fliplet\.(com|local)/.test(validatedImage)) {
-        // attach auth token
-        validatedImage += (validatedImage.indexOf('?') === -1 ? '?' : '&') + 'auth_token=' + Fliplet.User.getAuthToken();
-      }
-
-      return validatedImage;
+      return Fliplet.Media.authenticate(validatedImage);
     });
 
     Handlebars.registerHelper('formatComment', function(text) {
@@ -257,6 +252,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   }
 
   function runRecordFilters(records, filters) {
+    if (!filters || _.isEmpty(filters)) {
+      return records;
+    }
+
     var operators = {
       '==': function (a, b) { return a == b }, // eslint-disable-line eqeqeq
       '!=': function (a, b) { return a != b }, // eslint-disable-line eqeqeq
@@ -375,10 +374,19 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return data;
   }
 
-  function recordMatchesFilters(record, filters) {
+  function recordMatchesFilters(options) {
+    options = options || {};
+
+    var record = options.record;
+    var filters = options.filters;
+    var config = options.config;
+
     // Returns true if record matches all of provided filters and values
-    var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (key) {
-      return _.map(_.uniq(splitByCommas(_.get(record, 'data.' + key))), convertData);
+    var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
+      return _.map(_.uniq(getRecordField({
+        record: record,
+        field: field
+      })), convertData);
     }));
 
     return _.every(_.keys(filters), function (key) {
@@ -398,7 +406,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
-  function getRecordFilterValues(records, fields) {
+  function getRecordFieldValues(records, fields) {
     // Extract a list of filter values based on a list of records and filter fields
     if (_.isUndefined(fields) || _.isNull(fields)) {
       return [];
@@ -413,7 +421,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }));
   }
 
-  function parseRecordFilters(records, filters, id) {
+  function parseRecordFilters(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var filters = options.filters || [];
+    var id = options.id;
+
     // Parse legacy flFilters from records to generate a list of filter values
     return _.orderBy(_.map(
       _.groupBy(_.orderBy(_.uniqBy(_.flatten(_.map(records, 'flFilters')), function (filter) {
@@ -427,22 +441,48 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           name: key,
           data: _.map(values, 'data')
         };
-      }), function (filter) {
-      // _.orderBy iteratee
-      return _.indexOf(filters, filter.name);
-    });
+      }),
+      function (filter) {
+        // _.orderBy iteratee
+        return _.indexOf(filters, filter.name);
+      });
   }
 
-  function addRecordFilterProperties(records, fields) {
+  function getRecordField(options) {
+    options = options || {};
+
+    var record = options.record;
+    var field = options.field;
+
+    if (!field) {
+      return [];
+    }
+
+    if (typeof field === 'string') {
+      return splitByCommas(_.get(record, 'data.' + field));
+    }
+
+    return [];
+  }
+
+  function addRecordFilterProperties(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var config = options.config || {};
+
     // Function that get and converts the categories for the filters to work
     records.forEach(function (record) {
       var classes = [];
       record.data['flFilters'] = [];
-      fields.forEach(function (filter) {
-        splitByCommas(record.data[filter]).forEach(function (item, index) {
+      _.forEach(config.filterFields, function (field) {
+        _.forEach(getRecordField({
+          record: record,
+          field: field
+        }), function (item, index) {
           var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
           var newObj = {
-            type: filter,
+            type: field,
             data: {
               name: item,
               class: classConverted
@@ -453,9 +493,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           record.data['flFilters'].push(newObj);
         });
       });
-      record.data['flClasses'] = _.uniq(classes).filter(function (el) {
-        return el !== '';
-      }).join(' ');
+      record.data['flClasses'] = _.compact(_.uniq(classes)).join(' ');
     });
 
     return records;
@@ -475,7 +513,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
           return response;
         })
-        .catch(function () {
+        .catch(function (error) {
+          console.warn('Error retrieving files', error, data);
           return Promise.resolve({ files: [], folders: [] });
         });
     }
@@ -635,6 +674,94 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return Promise.resolve(records);
   }
 
+  function prepareRecordsData(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var config = options.config || {};
+
+    // Filter data based on filter options, filter queries and PV storage values (deprecated)
+    var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
+    records = runRecordFilters(records, _.map(filters, function(option) {
+      return {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      };
+    }));
+
+    if (config.sortOptions.length) {
+      var sortFields = _.map(config.sortOptions, function(option) {
+        return {
+          column: option.column,
+          type: option.sortBy
+        };
+      });
+
+      // Modify a clone of the records for sorting
+      var modifiedRecords = _.map(_.clone(records), function(record) {
+        sortFields.forEach(function(field) {
+          var sortField = 'modified_' + field.column;
+          record.data[sortField] = (record.data[field.column] || '').toString().toUpperCase();
+
+          // Modify field values based on sort types
+          switch (field.type) {
+            case 'alphabetical':
+              record.data[sortField] = record.data[sortField].normalize('NFD').match(/[A-Za-z]/)
+                ? record.data[sortField].normalize('NFD')
+                : '{' + record.data[sortField];
+              break;
+            case 'numerical':
+              record.data[sortField] = record.data[sortField].match(/[0-9]/)
+                ? parseInt(record.data[sortField], 10)
+                : record.data[sortField];
+              break;
+            case 'date':
+              // If an incorrect date format is used, the entry will be pushed at the end
+              record.data[sortField] = getMomentDate(record.data[sortField]).format('YYYY-MM-DD');
+              break;
+            case 'time':
+              record.data[sortField] = record.data[sortField];
+              break;
+          }
+        });
+
+        return record;
+      });
+
+      var sortColumns = _.map(sortFields, function (field) {
+        return 'data[modified_' + field.column + ']';
+      });
+
+      var sortOrders = _.map(config.sortOptions, function (option) {
+        switch (option.orderBy) {
+          case 'descending':
+            return 'desc';
+          case 'ascending':
+          default:
+            return 'asc';
+        }
+      });
+
+      // Sort data
+      records = _.orderBy(modifiedRecords, sortColumns, sortOrders);
+    }
+
+    // Add flag for social features
+    records.forEach(function(record) {
+      // Add likes flag
+      record.likesEnabled = config.social && config.social.likes;
+
+      // Add bookmarks flag
+      record.bookmarksEnabled = config.social && config.social.bookmark;
+
+      // Add comments flag
+      record.commentsEnabled = config.social && config.social.comments;
+    });
+
+    return records;
+  }
+
   function userIsAdmin(config, userData) {
     var adminValue = _.get(userData, config.userAdminColumn);
 
@@ -697,10 +824,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Records: {
       runFilters: runRecordFilters,
       getFields: getRecordFields,
-      getFilterValues: getRecordFilterValues,
+      getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
-      updateFiles: updateRecordFiles
+      updateFiles: updateRecordFiles,
+      prepareData: prepareRecordsData
     },
     User: {
       isAdmin: userIsAdmin,

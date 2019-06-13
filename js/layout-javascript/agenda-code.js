@@ -514,108 +514,6 @@ DynamicList.prototype.scrollEvent = function() {
   });
 }
 
-DynamicList.prototype.prepareData = function(records) {
-  var _this = this;
-  var filtered;
-
-  // Prepare sorting
-  if (_this.data.sortOptions.length) {
-    var fields = [];
-    var sortOrder = [];
-    var sortColumns = [];
-
-    _this.data.sortOptions.forEach(function(option) {
-      fields.push({
-        column: option.column,
-        type: option.sortBy
-      });
-
-      if (option.orderBy === 'ascending') {
-        sortOrder.push('asc');
-      }
-      if (option.orderBy === 'descending') {
-        sortOrder.push('desc');
-      }
-    });
-
-    var mappedRecords = _.clone(records);
-    mappedRecords = mappedRecords.map(function(record) {
-      fields.forEach(function(field) {
-        record.data['modified_' + field.column] = record.data[field.column] || '';
-        record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
-
-        if (field.type === "alphabetical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].normalize('NFD').match(/[A-Za-z]/)
-            ? record.data['modified_' + field.column].normalize('NFD')
-            : '{' + record.data['modified_' + field.column];
-        }
-
-        if (field.type === "numerical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[0-9]/)
-            ? parseInt(record.data['modified_' + field.column], 10)
-            : record.data['modified_' + field.column];
-        }
-
-        if (field.type === "date") {
-          // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
-        }
-
-        if (field.type === "time") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column];
-        }
-
-      });
-
-      return record;
-    });
-
-
-    sortColumns = fields.map(function (field) {
-      return 'data[modified_' + field.column + ']';
-    });
-    // Sort data
-    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
-  }
-
-  // Prepare filtering
-  if (_this.data.filterOptions.length) {
-    var filters = [];
-
-    _this.data.filterOptions.forEach(function(option) {
-      var filter = {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      }
-      filters.push(filter);
-    });
-
-    // Filter data
-    filtered = _this.Utils.Records.runFilters(records, filters);
-    records = filtered;
-  }
-
-  var prefiltered;
-  var prefilters = [];
-  if (_this.queryPreFilter) {
-    _this.pvPreFilterQuery.forEach(function(option) {
-      var filter = {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      }
-      prefilters.push(filter);
-    });
-
-    // Filter data
-    prefiltered = _this.Utils.Records.runFilters(records, prefilters);
-    records = prefiltered;
-  }
-
-  return records;
-}
-
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -624,51 +522,55 @@ DynamicList.prototype.initialize = function() {
     // Render Base HTML template
     _this.renderBaseHTML();
 
-    var records = _this.prepareData(_this.data.defaultEntries);
-    _this.listItems = JSON.parse(JSON.stringify(records));
+    var records = _this.Utils.Records.prepareData({
+      records: _this.data.defaultEntries,
+      config: _this.data,
+      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+    });
+
+    _this.listItems = records;
     _this.dataSourceColumns = _this.data.defaultColumns;
 
     return _this.Utils.Records.updateFiles({
       records: _this.listItems,
       config: _this.data
-    })
-      .then(function(response) {
-        _this.listItems = _.uniqBy(response, function (item) {
-          return item.id;
-        });
-
-        // Render dates HTML
-        _this.renderDatesHTML(_this.listItems);
-
-        // Render Loop HTML
-        _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML(function (index, $batch) {
-          if (index === 0) {
-            _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-            _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
-          }
-        }).then(function(index, $full){
-          if (index === -1) {
-            _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-            _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
-          }
-
-          // Listeners and Ready
-          _this.initializeMixer();
-          _this.bindTouchEvents();
-          _this.goToToday();
-          _this.setupCards();
-          _this.attachObservers();
-          _this.scrollEvent();
-          _this.checkBookmarked();
-        });
+    }).then(function(response) {
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
       });
+
+      // Render dates HTML
+      _this.renderDatesHTML(_this.listItems);
+
+      // Render Loop HTML
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.renderLoopHTML(function (index, $batch) {
+        if (index === 0) {
+          _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+          _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+        }
+      }).then(function(index, $full){
+        if (index === -1) {
+          _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+          _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+        }
+
+        // Listeners and Ready
+        _this.initializeMixer();
+        _this.bindTouchEvents();
+        _this.goToToday();
+        _this.setupCards();
+        _this.attachObservers();
+        _this.scrollEvent();
+        _this.checkBookmarked();
+      });
+    });
   }
 
   var shouldInitFromQuery = _this.parseQueryVars();
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
-  if(shouldInitFromQuery){
+  if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   };
 
@@ -681,7 +583,6 @@ DynamicList.prototype.initialize = function() {
       return _this.connectToDataSource();
     })
     .then(function (records) {
-      // Received the rows
       return Fliplet.Hooks.run('flListDataAfterGetData', {
         config: _this.data,
         id: _this.data.id,
@@ -689,14 +590,23 @@ DynamicList.prototype.initialize = function() {
         container: _this.$container,
         records: records
       }).then(function () {
-        records = _this.prepareData(records);
-        _this.listItems = JSON.parse(JSON.stringify(records));
+        if (records && !Array.isArray(records)) {
+          records = [records];
+        }
 
-        // Render dates HTML
-        _this.renderDatesHTML(_this.listItems);
+        return _this.Utils.Records.prepareData({
+          records: records,
+          config: _this.data,
+          filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+        });
       });
     })
-    .then(function() {
+    .then(function(records) {
+      _this.listItems = records;
+
+      // Render dates HTML
+      _this.renderDatesHTML(_this.listItems);
+
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }
@@ -1032,12 +942,14 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
       if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
+
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
         content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
       } else {
         content = entry.data[dynamicDataObj.column];
       }
+
       // Define data object
       var newEntryDetail = {
         id: entry.id,

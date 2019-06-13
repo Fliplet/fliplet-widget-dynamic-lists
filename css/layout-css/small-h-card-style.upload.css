@@ -9,6 +9,7 @@
 /* List */
 .new-small-h-card-list-container .loading-data {
   padding-top: 25px;
+  padding-bottom: 25px;
   display: block;
   text-align: center;
   color: #333333;
@@ -356,7 +357,7 @@
     width: 180px;
     height: 216px;
   }
-  
+
   .new-small-h-card-list-container .small-h-card-list-detail-wrapper.open {
     background-color: rgba(0, 0, 0, 0.8);
   }

@@ -565,6 +565,10 @@
   display: none;
 }
 
+.new-small-card-list-container .small-card-list-wrapper:empty {
+  padding: 0;
+}
+
 .new-small-card-list-container.ready .small-card-list-wrapper {
   display: block;
 }
@@ -582,6 +586,7 @@
 .new-small-card-list-container .no-results ~ .no-results-holder,
 .new-small-card-list-container .no-bookmarks-holder.show {
   padding-top: 25px;
+  padding-bottom: 25px;
   display: block;
   text-align: center;
   color: #ddd;
