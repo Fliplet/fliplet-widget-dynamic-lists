@@ -13,7 +13,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
       mention: /\B@[a-z0-9_-]+/ig
     },
-    refArraySeparator: '.$.'
+    refArraySeparator: '.$.',
+    computedFieldsKey: '_computed'
   };
 
   function isValidImageUrl(str) {
@@ -385,7 +386,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return _.map(_.uniq(getRecordFieldValues({
         record: record,
         field: field,
-        customField: _.find(config.customFields, { name: field }),
         useData: true
       })), convertData);
     }));
@@ -454,30 +454,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var record = options.record;
     var field = options.field;
-    var customField = options.customField;
     var useData = options.useData;
 
     if (!field) {
       return [];
     }
 
-    if (!_.isEmpty(customField)) {
-      if (typeof customField.path === 'function') {
-        // Field has a custom crawler function
-        return customField.path(record);
-      }
-
-      if (typeof customField.path === 'string' && customField.path.length) {
-        // Field has a custom path, e.g. foo.$.bar
-        return getRecordFieldValues({
-          record: record,
-          field: customField.path.split(Static.refArraySeparator),
-          useData: useData
-        });
-      }
+    if (typeof field === 'function') {
+      return field(record);
     }
 
-    if (_.isArray(field)) {
+    if (Array.isArray(field)) {
       var path = field.shift();
 
       if (field.length) {
@@ -519,7 +506,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         _.forEach(getRecordFieldValues({
           record: record,
           field: field,
-          customField: _.find(config.customFields, { name: field }),
           useData: true
         }), function (item, index) {
           var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
@@ -732,91 +718,111 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       };
     }));
 
-    var executeCustomPreFilter = Promise.resolve(records);
-    if (typeof config.customPreFilter === 'function') {
-      executeCustomPreFilter = config.customPreFilter({
-        config: config,
-        records: records
+    if (config.sortOptions.length) {
+      var sortFields = _.map(config.sortOptions, function(option) {
+        return {
+          column: option.column,
+          type: option.sortBy
+        };
       });
 
-      if (!(executeCustomPreFilter instanceof Promise)) {
-        executeCustomPreFilter = Promise.resolve(executeCustomPreFilter);
-      }
-    }
+      // Modify a clone of the records for sorting
+      var modifiedRecords = _.map(_.clone(records), function(record) {
+        sortFields.forEach(function(field) {
+          var sortField = 'modified_' + field.column;
+          record.data[sortField] = (record.data[field.column] || '').toString().toUpperCase();
 
-    return executeCustomPreFilter.then(function (filteredRecords) {
-      records = filteredRecords;
-
-      if (config.sortOptions.length) {
-        var sortFields = _.map(config.sortOptions, function(option) {
-          return {
-            column: option.column,
-            type: option.sortBy
-          };
-        });
-
-        // Modify a clone of the records for sorting
-        var modifiedRecords = _.map(_.clone(records), function(record) {
-          sortFields.forEach(function(field) {
-            var sortField = 'modified_' + field.column;
-            record.data[sortField] = (record.data[field.column] || '').toString().toUpperCase();
-
-            // Modify field values based on sort types
-            switch (field.type) {
-              case 'alphabetical':
-                record.data[sortField] = record.data[sortField].normalize('NFD').match(/[A-Za-z]/)
-                  ? record.data[sortField].normalize('NFD')
-                  : '{' + record.data[sortField];
-                break;
-              case 'numerical':
-                record.data[sortField] = record.data[sortField].match(/[0-9]/)
-                  ? parseInt(record.data[sortField], 10)
-                  : record.data[sortField];
-                break;
-              case 'date':
-                // If an incorrect date format is used, the entry will be pushed at the end
-                record.data[sortField] = getMomentDate(record.data[sortField]).format('YYYY-MM-DD');
-                break;
-              case 'time':
-                record.data[sortField] = record.data[sortField];
-                break;
-            }
-          });
-
-          return record;
-        });
-
-        var sortColumns = _.map(sortFields, function (field) {
-          return 'data[modified_' + field.column + ']';
-        });
-
-        var sortOrders = _.map(config.sortOptions, function (option) {
-          switch (option.orderBy) {
-            case 'descending':
-              return 'desc';
-            case 'ascending':
-            default:
-              return 'asc';
+          // Modify field values based on sort types
+          switch (field.type) {
+            case 'alphabetical':
+              record.data[sortField] = record.data[sortField].normalize('NFD').match(/[A-Za-z]/)
+                ? record.data[sortField].normalize('NFD')
+                : '{' + record.data[sortField];
+              break;
+            case 'numerical':
+              record.data[sortField] = record.data[sortField].match(/[0-9]/)
+                ? parseInt(record.data[sortField], 10)
+                : record.data[sortField];
+              break;
+            case 'date':
+              // If an incorrect date format is used, the entry will be pushed at the end
+              record.data[sortField] = getMomentDate(record.data[sortField]).format('YYYY-MM-DD');
+              break;
+            case 'time':
+              record.data[sortField] = record.data[sortField];
+              break;
           }
         });
 
-        // Sort data
-        records = _.orderBy(modifiedRecords, sortColumns, sortOrders);
-      }
-
-      // Add flag for social features
-      records.forEach(function(record) {
-        // Add likes flag
-        record.likesEnabled = config.social && config.social.likes;
-
-        // Add bookmarks flag
-        record.bookmarksEnabled = config.social && config.social.bookmark;
-
-        // Add comments flag
-        record.commentsEnabled = config.social && config.social.comments;
+        return record;
       });
 
-      return records;
+      var sortColumns = _.map(sortFields, function (field) {
+        return 'data[modified_' + field.column + ']';
+      });
+
+      var sortOrders = _.map(config.sortOptions, function (option) {
+        switch (option.orderBy) {
+          case 'descending':
+            return 'desc';
+          case 'ascending':
+          default:
+            return 'asc';
+        }
+      });
+
+      // Sort data
+      records = _.orderBy(modifiedRecords, sortColumns, sortOrders);
+    }
+
+    // Add flag for social features
+    records.forEach(function(record) {
+      // Add likes flag
+      record.likesEnabled = config.social && config.social.likes;
+
+      // Add bookmarks flag
+      record.bookmarksEnabled = config.social && config.social.bookmark;
+
+      // Add comments flag
+      record.commentsEnabled = config.social && config.social.comments;
+    });
+
+    return records;
+  }
+
+  function addRecordComputedFields(options) {
+    options = options || {};
+
+    var record = options.record || {};
+    var computedFields = options.computedFields || {};
+
+    _.forIn(computedFields, function (getter, field) {
+      if (!_.get(record, 'data', {}).hasOwnProperty(Static.computedFieldsKey)) {
+        Object.defineProperty(_.get(record, 'data', {}), Static.computedFieldsKey, {
+          enumerable: false,
+          writable: true
+        });
+      }
+
+      _.set(record, ['data', Static.computedFieldsKey, field], getRecordFieldValues({
+        record: record,
+        field: typeof getter === 'string' ? getter.split(Static.refArraySeparator) : getter,
+        useData: true
+      }));
+    });
+  }
+
+  function addRecordsComputedFields(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var config = options.config;
+
+    _.forEach(records, function (record) {
+      addRecordComputedFields({
+        record: record,
+        computedFields: config.computedFields
+      })
     });
   }
 
@@ -886,7 +892,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
-      prepareData: prepareRecordsData
+      prepareData: prepareRecordsData,
+      addComputedFields: addRecordsComputedFields
     },
     User: {
       isAdmin: userIsAdmin,

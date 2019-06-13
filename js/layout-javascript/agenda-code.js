@@ -15,7 +15,7 @@ function DynamicList(id, data, container) {
   // Makes data and the component container available to Public functions
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
-  this.data.customFields = this.data.customFields || [];
+  this.data.computedFields = this.data.computedFields || {};
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.queryOptions = {};
 
@@ -523,18 +523,18 @@ DynamicList.prototype.initialize = function() {
     // Render Base HTML template
     _this.renderBaseHTML();
 
-    return _this.Utils.Records.prepareData({
+    var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
       filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
-    }).then(function (records) {
-      _this.listItems = records;
-      _this.dataSourceColumns = _.uniq(_.concat(_this.data.defaultColumns, _.map(_this.data.customFields, 'name')));
+    })
 
-      return _this.Utils.Records.updateFiles({
-        records: _this.listItems,
-        config: _this.data
-      });
+    _this.listItems = records;
+    _this.dataSourceColumns = _.uniq(_.concat(_this.data.defaultColumns, _.map(_this.data.customFields, 'name')));
+
+    return _this.Utils.Records.updateFiles({
+      records: _this.listItems,
+      config: _this.data
     }).then(function(response) {
       _this.listItems = _.uniqBy(response, function (item) {
         return item.id;
@@ -584,7 +584,11 @@ DynamicList.prototype.initialize = function() {
       return _this.connectToDataSource();
     })
     .then(function (records) {
-      // Received the rows
+      _this.Utils.Records.addComputedFields({
+        records: records,
+        config: _this.data
+      });
+
       return Fliplet.Hooks.run('flListDataAfterGetData', {
         config: _this.data,
         id: _this.data.id,
