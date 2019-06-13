@@ -12,9 +12,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
       url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
       mention: /\B@[a-z0-9_-]+/ig
-    },
-    refArraySeparator: '.$.',
-    computedFieldsKey: '_computed'
+    }
   };
 
   function isValidImageUrl(str) {
