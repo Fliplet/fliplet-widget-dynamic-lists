@@ -653,7 +653,8 @@
 .new-small-card-list-container .small-card-list-text-wrapper {
   height: 100%;
   padding: 0 0 0 15px;
-  border-radius: 0 15px 15px 0;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
   flex: 1;
   background-color: #ffffff;
   display: flex;
@@ -661,6 +662,11 @@
   justify-content: center;
   align-items: flex-start;
   position: relative;
+}
+
+.new-small-card-list-container .small-card-list-image.no-image + .small-card-list-text-wrapper {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
 }
 
 .new-small-card-list-container .small-card-list-name {
