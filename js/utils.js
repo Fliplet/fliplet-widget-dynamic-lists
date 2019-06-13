@@ -385,8 +385,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
       return _.map(_.uniq(getRecordField({
         record: record,
-        field: field,
-        useData: true
+        field: field
       })), convertData);
     }));
 
@@ -454,39 +453,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var record = options.record;
     var field = options.field;
-    var useData = options.useData;
 
     if (!field) {
       return [];
     }
 
-    if (typeof field === 'function') {
-      return field(record);
-    }
-
-    if (Array.isArray(field)) {
-      var path = field.shift();
-
-      if (field.length) {
-        var arr = _.get(record, (useData ? 'data.' : '') + path);
-        return _.flatten(_.map(arr, function (item) {
-          return getRecordField({
-            record: item,
-            field: _.clone(field),
-            useData: false
-          });
-        }));
-      }
-
-      return getRecordField({
-        record: record,
-        field: path,
-        useData: useData
-      });
-    }
-
     if (typeof field === 'string') {
-      return splitByCommas(_.get(record, (useData ? 'data.' : '') + field));
+      return splitByCommas(_.get(record, 'data.' + field));
     }
 
     return [];
@@ -505,8 +478,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       _.forEach(config.filterFields, function (field) {
         _.forEach(getRecordField({
           record: record,
-          field: field,
-          useData: true
+          field: field
         }), function (item, index) {
           var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
           var newObj = {
@@ -790,42 +762,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return records;
   }
 
-  function addRecordComputedFields(options) {
-    options = options || {};
-
-    var record = options.record || {};
-    var computedFields = options.computedFields || {};
-
-    _.forIn(computedFields, function (getter, field) {
-      if (!_.get(record, 'data', {}).hasOwnProperty(Static.computedFieldsKey)) {
-        Object.defineProperty(_.get(record, 'data', {}), Static.computedFieldsKey, {
-          enumerable: false,
-          writable: true
-        });
-      }
-
-      _.set(record, ['data', Static.computedFieldsKey, field], getRecordField({
-        record: record,
-        field: typeof getter === 'string' ? getter.split(Static.refArraySeparator) : getter,
-        useData: true
-      }));
-    });
-  }
-
-  function addRecordsComputedFields(options) {
-    options = options || {};
-
-    var records = options.records || [];
-    var config = options.config;
-
-    _.forEach(records, function (record) {
-      addRecordComputedFields({
-        record: record,
-        computedFields: config.computedFields
-      })
-    });
-  }
-
   function userIsAdmin(config, userData) {
     var adminValue = _.get(userData, config.userAdminColumn);
 
@@ -892,8 +828,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
-      prepareData: prepareRecordsData,
-      addComputedFields: addRecordsComputedFields
+      prepareData: prepareRecordsData
     },
     User: {
       isAdmin: userIsAdmin,

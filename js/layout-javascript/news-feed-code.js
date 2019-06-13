@@ -18,7 +18,6 @@ function DynamicList(id, data, container) {
   // Makes data and the component container available to Public functions
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
-  this.data.computedFields = this.data.computedFields || {};
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.$overlay;
   this.queryOptions = {};
@@ -912,11 +911,6 @@ DynamicList.prototype.initialize = function() {
       return _this.connectToDataSource();
     })
     .then(function (records) {
-      _this.Utils.Records.addComputedFields({
-        records: records,
-        config: _this.data
-      });
-
       return Fliplet.Hooks.run('flListDataAfterGetData', {
         config: _this.data,
         id: _this.data.id,
