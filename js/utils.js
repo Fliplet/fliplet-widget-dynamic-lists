@@ -12,8 +12,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
       url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
       mention: /\B@[a-z0-9_-]+/ig
-    }
+    },
+    refArraySeparator: '.$.'
   };
+  var computedFieldClashes = [];
 
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
@@ -383,7 +385,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
       return _.map(_.uniq(getRecordField({
         record: record,
-        field: field
+        field: field,
+        useData: true
       })), convertData);
     }));
 
@@ -451,13 +454,39 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var record = options.record;
     var field = options.field;
+    var useData = options.useData;
 
     if (!field) {
       return [];
     }
 
+    if (typeof field === 'function') {
+      return field(record);
+    }
+
+    if (Array.isArray(field)) {
+      var path = field.shift();
+
+      if (field.length) {
+        var arr = _.get(record, (useData ? 'data.' : '') + path);
+        return _.map(arr, function (item) {
+          return getRecordField({
+            record: item,
+            field: _.clone(field),
+            useData: false
+          });
+        });
+      }
+
+      return getRecordField({
+        record: record,
+        field: path,
+        useData: useData
+      });
+    }
+
     if (typeof field === 'string') {
-      return splitByCommas(_.get(record, 'data.' + field));
+      return splitByCommas(_.get(record, (useData ? 'data.' : '') + field));
     }
 
     return [];
@@ -476,7 +505,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       _.forEach(config.filterFields, function (field) {
         _.forEach(getRecordField({
           record: record,
-          field: field
+          field: field,
+          useData: true
         }), function (item, index) {
           var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
           var newObj = {
@@ -760,6 +790,44 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return records;
   }
 
+  function addRecordComputedFields(options) {
+    options = options || {};
+
+    var record = options.record || {};
+    var computedFields = options.computedFields || {};
+
+    _.forIn(computedFields, function (getter, field) {
+      if (_.has(record, ['data', field]) && computedFieldClashes.indexOf(field) === -1) {
+        computedFieldClashes.push(field);
+      }
+
+      _.set(record, ['data', field], getRecordField({
+        record: record,
+        field: typeof getter === 'string' ? getter.split(Static.refArraySeparator) : getter,
+        useData: true
+      }));
+    });
+  }
+
+  function addRecordsComputedFields(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var config = options.config;
+
+    _.forEach(records, function (record) {
+      addRecordComputedFields({
+        record: record,
+        computedFields: config.computedFields
+      })
+    });
+
+    if (computedFieldClashes.length) {
+      var clashedFields = computedFieldClashes.sort().join(', ');
+      console.warn('Computed field(s) "' + clashedFields + '" are already defined as a property. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten');
+    }
+  }
+
   function userIsAdmin(config, userData) {
     var adminValue = _.get(userData, config.userAdminColumn);
 
@@ -826,7 +894,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
-      prepareData: prepareRecordsData
+      prepareData: prepareRecordsData,
+      addComputedFields: addRecordsComputedFields
     },
     User: {
       isAdmin: userIsAdmin,
