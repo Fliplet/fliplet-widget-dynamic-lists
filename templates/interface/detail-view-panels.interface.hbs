@@ -4,7 +4,7 @@
       {{#if helper}}{{helper}}{{else}}Data field{{/if}}
     </div>
     <div class="rTableCell select field">
-      <select name="select_field" id="select_field_{{id}}" class="form-control">
+      <select name="detail_select_field" id="detail_select_field_{{id}}" class="form-control">
         <option value="none">-- Select a data field</option>
         <option disabled>------</option>
         <option value="custom">Custom</option>
@@ -15,7 +15,7 @@
       </select>
     </div>
     <div class="rTableCell select type">
-      <select name="select_field_type" id="select_type_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
+      <select name="detail_field_type" id="detail_select_type_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
         <option value="none">-- Select a type</option>
         <option disabled>------</option>
         <option value="image">Image</option>
@@ -28,7 +28,7 @@
       </select>
     </div>
     <div class="rTableCell select type">
-      <select name="select_field_label" id="select_label_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
+      <select name="select_field_label" id="detail_select_label_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
         <option value="none">-- Select an option</option>
         <option disabled>------</option>
         <option value="column-name">Column name as label</option>
@@ -47,16 +47,16 @@
       <small>Custom field</small>
     </div>
     <div class="rTableCell select field">
-      <input type="text" class="form-control" id="custom_field_{{id}}">
+      <input type="text" class="form-control" id="detail_custom_field_{{id}}">
     </div>
     <div class="rTableCell select field">
       <p class="text-muted field-text-info">Use <code>\{{[*]}}</code> to wrap around a field name, e.g. <code>\{{[city]}}, \{{[country]}}</code>.</p>
     </div>
   </div>
-  <div class="image-field-select clearfix hidden">
+  <div class="image-type-select clearfix hidden">
     <div class="rTableCell title text-right"><small>Data type</small></div>
     <div class="rTableCell select field">
-      <select class="form-control" id="folder_field_{{id}}" name="folder_field_select">
+      <select class="form-control" id="detail_image_field_type_{{id}}" name="image_type_select">
         <option value="all-folders">Image folder</option>
         <option value="url" selected>URL to external image</option>
       </select>
@@ -71,11 +71,11 @@
     </div>
   </div>
   <div class="custom-label-input clearfix hidden">
-    <div class="rTableCell title">
-      Custom label
+    <div class="rTableCell title text-right">
+      <small>Custom label</small>
     </div>
     <div class="rTableCell select field">
-      <input type="text" class="form-control" id="custom_field_name_{{id}}">
+      <input type="text" class="form-control" id="detail_custom_field_name_{{id}}">
     </div>
   </div>
 </div>
