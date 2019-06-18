@@ -19,7 +19,7 @@ var DynamicLists = (function() {
   var $sortAccordionContainer = $('#sort-accordion');
   var filterPanelTemplate = Fliplet.Widget.Templates['templates.interface.filter-panels'];
   var sortPanelTemplate = Fliplet.Widget.Templates['templates.interface.sort-panels'];
-  var $summaryRowContainer = $('.table-panels-holder');
+  var $summaryRowContainer = $('.summary-table-panels-holder');
   var summaryRowTemplate = Fliplet.Widget.Templates['templates.interface.summary-view-panels'];
   var $detailsRowContainer = $('.detail-table-panels-holder');
   var detailsRowTemplate = Fliplet.Widget.Templates['templates.interface.detail-view-panels'];
@@ -93,6 +93,20 @@ var DynamicLists = (function() {
   DynamicLists.prototype = {
     // Public functions
     constructor: DynamicLists,
+
+    toggleCustomImageFields: function($row, field, type) {
+      if (type === 'image' && ['none', 'custom', 'empty'].indexOf(field) === -1) {
+        $row.find('.image-type-select').removeClass('hidden');
+      } else {
+        $row.find('.image-type-select').addClass('hidden');
+      }
+
+      if (field === 'custom') {
+        $row.find('.custom-field-input').removeClass('hidden');
+      } else {
+        $row.find('.custom-field-input').addClass('hidden');
+      }
+    },
 
     attachListeners: function() {
       window.addEventListener('resize', _this.resizeCodeEditors);
@@ -466,34 +480,19 @@ var DynamicLists = (function() {
             $('.detail-link-action').removeClass('hidden');
           }
         })
-        .on('change', '[name="select_summary_field"]', function() {
-          var value = $(this).val();
+        .on('change', '[name="summary_select_field"], [name="detail_select_field"]', function() {
+          var field = $(this).val();
+          var $row = $(this).parents('.rTableRow');
+          var type = $row.find('[name="summary_field_type"], [name="detail_field_type"]').val();
 
-          switch (value) {
-            case 'custom':
-              $(this).parents('.rTableRow')
-                .find('.custom-field-input').removeClass('hidden').end()
-                .find('.image-field-select').addClass('hidden');
-              break;g
-            case 'none':
-            case 'empty':
-              $(this).parents('.rTableRow')
-                .find('.custom-field-input, .image-field-select').addClass('hidden');
-              break;
-            default:
-              $(this).parents('.rTableRow')
-                .find('.custom-field-input').addClass('hidden').end()
-                .find('.image-field-select').removeClass('hidden');
-          }
+          _this.toggleCustomImageFields($row, field, type);
         })
-        .on('change', '[name="select_field"]', function() {
-          var value = $(this).val();
+        .on('change', '[name="summary_field_type"], [name="detail_field_type"]', function() {
+          var type = $(this).val();
+          var $row = $(this).parents('.rTableRow');
+          var field = $row.find('[name="summary_select_field"], [name="detail_select_field"]').val();
 
-          if (value === 'custom') {
-            $(this).parents('.rTableRow').find('.custom-field-input').removeClass('hidden');
-          } else {
-            $(this).parents('.rTableRow').find('.custom-field-input').addClass('hidden');
-          }
+          _this.toggleCustomImageFields($row, field, type);
         })
         .on('change', '[name="select_field_label"]', function() {
           var value = $(this).val();
@@ -504,30 +503,24 @@ var DynamicLists = (function() {
             $(this).parents('.rTableRow').find('.custom-label-input').addClass('hidden');
           }
         })
-        .on('change', '[name="select_summary_type"], [name="select_field_type"]', function() {
-          var value = $(this).val();
+        .on('change', '[name="image_type_select"]', function() {
+          var dataType = $(this).val();
 
-          if (value === 'image' && ['none', 'custom', 'empty'].indexOf($(this).parents('.rTableRow').find('[name="select_summary_field"]').val()) === -1) {
-            $(this).parents('.rTableRow').find('.image-field-select').removeClass('hidden');
-          } else {
-            $(this).parents('.rTableRow').find('.image-field-select').addClass('hidden');
-          }
-        })
-        .on('change', '[name="folder_field_select"]', function() {
-          var value = $(this).val();
-
-          if (value === 'all-folders') {
-            $(this).parents('.rTableRow').find('.picker-provider-button').removeClass('hidden');
-            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
-            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
-          } else if (value === 'url') {
-            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
-            $(this).parents('.rTableRow').find('.folders-only').addClass('hidden');
-            $(this).parents('.rTableRow').find('.url-only').removeClass('hidden');
-          } else {
-            $(this).parents('.rTableRow').find('.picker-provider-button').addClass('hidden');
-            $(this).parents('.rTableRow').find('.folders-only').removeClass('hidden');
-            $(this).parents('.rTableRow').find('.url-only').addClass('hidden');
+          switch (dataType) {
+            case 'all-folders':
+              $(this).parents('.rTableRow')
+                .find('.picker-provider-button, .folders-only').removeClass('hidden').end()
+                .find('.url-only').addClass('hidden');
+              break;
+            case 'url':
+              $(this).parents('.rTableRow')
+                .find('.picker-provider-button, .folders-only').addClass('hidden').end()
+                .find('.url-only').removeClass('hidden');
+              break;
+            default:
+              $(this).parents('.rTableRow')
+                .find('.picker-provider-button, .url-only').addClass('hidden').end()
+                .find('.folders-only').removeClass('hidden');
           }
         })
         .on('click', '.rTableCell.delete', function() {
@@ -763,9 +756,9 @@ var DynamicLists = (function() {
               item.fromLoading = true; // Flag to close accordions
               item.columns = dataSourceColumns
               _this.addSortItem(item);
-              $('#sort-accordion #select-data-field-' + item.id).val(item.column);
-              $('#sort-accordion #sort-by-field-' + item.id).val(item.sortBy);
-              $('#sort-accordion #order-by-field-' + item.id).val(item.orderBy);
+              $('#select-data-field-' + item.id).val(item.column);
+              $('#sort-by-field-' + item.id).val(item.sortBy);
+              $('#order-by-field-' + item.id).val(item.orderBy);
             });
             _this.checkSortPanelLength();
 
@@ -775,9 +768,9 @@ var DynamicLists = (function() {
               item.fromLoading = true; // Flag to close accordions
               item.columns = dataSourceColumns;
               _this.addFilterItem(item);
-              $('#filter-accordion #select-data-field-' + item.id).val(item.column);
-              $('#filter-accordion #logic-field-' + item.id).val(item.logic);
-              $('#filter-accordion #value-field-' + item.id).val(item.value);
+              $('#select-data-field-' + item.id).val(item.column);
+              $('#logic-field-' + item.id).val(item.logic);
+              $('#value-field-' + item.id).val(item.value);
             });
             _this.checkFilterPanelLength();
 
@@ -883,16 +876,17 @@ var DynamicLists = (function() {
               item.columns = dataSourceColumns || _this.config.defaultColumns;
               item = _this.updateWithFoldersInfo(item, 'summary');
               _this.addSummaryItem(item);
-              $('.table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
-              $('.table-panels-holder [data-id="' + item.id + '"] #custom_field_field_' + item.id).val(item.customField || '');
+              $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
+              $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
+              $('#summary_custom_field_' + item.id).val(item.customField || '');
               item.imageField = _this.validateImageFieldOption(item.imageField);
-              $('.table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField).trigger('change');
+              $('#summary_image_field_type_' + item.id).val(item.imageField).trigger('change');
 
               if (item.imageField === 'all-folders' && item.folder) {
-                $('.table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
-                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
-                $('.table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+                $summaryRowContainer.find('[data-id="' + item.id + '"]')
+                  .find('.file-picker-btn').text('Replace folder').end()
+                  .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+                  .find('.selected-folder').removeClass('hidden');
               }
             });
 
@@ -1019,18 +1013,19 @@ var DynamicLists = (function() {
               item = _this.updateWithFoldersInfo(item, 'details');
               _this.addDetailItem(item);
 
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_field_' + item.id).val(item.column || 'none').trigger('change');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_type_' + item.id).val(item.type || 'text').trigger('change');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_' + item.id).val(item.customField || '');
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #custom_field_name_' + item.id).val(item.customFieldLabel || '');
+              $('#detail_select_field_' + item.id).val(item.column || 'none').trigger('change');
+              $('#detail_select_type_' + item.id).val(item.type || 'text').trigger('change');
+              $('#detail_select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
+              $('#detail_custom_field_' + item.id).val(item.customField || '');
+              $('#detail_custom_field_name_' + item.id).val(item.customFieldLabel || '');
               item.imageField = _this.validateImageFieldOption(item.imageField);
-              $('.detail-table-panels-holder [data-id="' + item.id + '"] #folder_field_' + item.id).val(item.imageField).trigger('change');
+              $('#detail_image_field_type_' + item.id).val(item.imageField).trigger('change');
 
               if (item.imageField === 'all-folders' && item.folder) {
-                $('.detail-table-panels-holder [data-id="' + item.id + '"] .file-picker-btn').text('Replace folder');
-                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder span').text(item.folder.selectFiles[0].name);
-                $('.detail-table-panels-holder [data-id="' + item.id + '"] .selected-folder').removeClass('hidden');
+                $detailsRowContainer.find('[data-id="' + item.id + '"]')
+                  .find('.file-picker-btn').text('Replace folder').end()
+                  .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+                  .find('.selected-folder').removeClass('hidden');
               }
             });
 
@@ -1282,7 +1277,7 @@ var DynamicLists = (function() {
       }
 
       // Summary fields
-      $('[name="select_summary_field"]').each(function() {
+      $('[name="summary_select_field"]').each(function() {
         var oldValue = $(this).val();
         var defaultOptions = [
           '<option value="none">-- Select a data field</option>',
@@ -1302,7 +1297,7 @@ var DynamicLists = (function() {
       });
 
       // Detail fields
-      $('[name="select_field"]').each(function() {
+      $('[name="detail_select_field"]').each(function() {
         var oldValue = $(this).val();
         var defaultOptions = [
           '<option value="none">-- Select a data field</option>',
@@ -2256,16 +2251,16 @@ var DynamicLists = (function() {
 
       // Get sorting options
       _.forEach(_this.config.sortOptions, function(item) {
-        item.column = $('#sort-accordion #select-data-field-' + item.id).val();
-        item.sortBy = $('#sort-accordion #sort-by-field-' + item.id).val();
-        item.orderBy = $('#sort-accordion #order-by-field-' + item.id).val();
+        item.column = $('#select-data-field-' + item.id).val();
+        item.sortBy = $('#sort-by-field-' + item.id).val();
+        item.orderBy = $('#order-by-field-' + item.id).val();
       });
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
-        item.column = $('#filter-accordion #select-data-field-' + item.id).val();
-        item.logic = $('#filter-accordion #logic-field-' + item.id).val();
-        item.value = $('#filter-accordion #value-field-' + item.id).val();
+        item.column = $('#select-data-field-' + item.id).val();
+        item.logic = $('#logic-field-' + item.id).val();
+        item.value = $('#value-field-' + item.id).val();
       });
 
       data.sortOptions = _this.config.sortOptions;
@@ -2279,10 +2274,10 @@ var DynamicLists = (function() {
 
       // Get summary view options
       _.forEach(_this.config['summary-fields'], function(item) {
-        item.column = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_field_' + item.id).val();
-        item.type = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
+        item.column = $('#summary_select_field_' + item.id).val();
+        item.type = $('#summary_select_type_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';
-        item.customField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_field_' + item.id).val();
+        item.customField = $('#summary_custom_field_' + item.id).val();
 
         // Delete unnecessary attributes before saving each item
         // ...including some legacy settings that are no longer supported
@@ -2297,7 +2292,7 @@ var DynamicLists = (function() {
           return;
         }
 
-        item.imageField = $('.summary-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+        item.imageField = $('#summary_image_field_type_' + item.id).val();
 
         if (item.imageField !== 'all-folders') {
           delete item.folder;
@@ -2306,13 +2301,13 @@ var DynamicLists = (function() {
 
       // Get detail view options
       _.forEach(_this.config.detailViewOptions, function(item) {
-        item.column = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_field_' + item.id).val();
-        item.type = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_type_' + item.id).val();
-        item.fieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #select_label_' + item.id).val();
-        item.customField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_' + item.id).val();
+        item.column = $('#detail_select_field_' + item.id).val();
+        item.type = $('#detail_select_type_' + item.id).val();
+        item.fieldLabel = $('#detail_select_label_' + item.id).val();
+        item.customField = $('#detail_custom_field_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';
         item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
-        item.customFieldLabel = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #custom_field_name_' + item.id).val();
+        item.customFieldLabel = $('#detail_custom_field_name_' + item.id).val();
         item.fieldLabelDisabled = item.fieldLabel === 'no-label';
 
         // Delete unnecessary attributes before saving each item
@@ -2328,7 +2323,7 @@ var DynamicLists = (function() {
           return;
         }
 
-        item.imageField = $('.detail-view-table .rTableRow[data-id="' + item.id + '"] #folder_field_' + item.id).val();
+        item.imageField = $('#detail_image_field_type_' + item.id).val();
 
         if (item.imageField !== 'all-folders') {
           delete item.folder;

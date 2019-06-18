@@ -4,7 +4,7 @@
       {{interfaceName}}
     </div>
     <div class="rTableCell select field">
-      <select name="select_summary_field" id="select_field_{{id}}" class="form-control">
+      <select name="summary_select_field" id="summary_select_field_{{id}}" class="form-control">
         <option value="none">-- Select a data field</option>
         <option disabled>------</option>
         <option value="empty">None</option>
@@ -16,7 +16,7 @@
       </select>
     </div>
     <div class="rTableCell select type">
-      <select name="select_summary_type" id="select_type_{{id}}" class="form-control disabled" disabled>
+      <select name="summary_field_type" id="summary_select_type_{{id}}" class="form-control disabled" disabled>
         <option value="none">-- Select a type</option>
         <option disabled>------</option>
         <option value="image">Image</option>
@@ -35,18 +35,18 @@
       <small>Custom field</small>
     </div>
     <div class="rTableCell select field">
-      <input type="text" class="form-control" id="custom_field_field_{{id}}">
+      <input type="text" class="form-control" id="summary_custom_field_{{id}}">
     </div>
     <div class="rTableCell select field">
       <p class="text-muted field-text-info">Use <code>\{{[*]}}</code> to wrap around a field name, e.g. <code>\{{[city]}}, \{{[country]}}</code>.</p>
     </div>
   </div>
-  <div class="image-field-select clearfix hidden">
+  <div class="image-type-select clearfix hidden">
     <div class="rTableCell title text-right">
       <small>Data type</small>
     </div>
     <div class="rTableCell select field">
-      <select class="form-control" id="folder_field_{{id}}" name="folder_field_select">
+      <select class="form-control" id="summary_image_field_type_{{id}}" name="image_type_select">
         <option value="all-folders">Image folder</option>
         <option value="url">URL to external image</option>
       </select>

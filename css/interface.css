@@ -895,7 +895,7 @@ header .btn,
   border-bottom: 1px solid #ddd;
 }
 
-.table-panels-holder .rTableRow:last-child,
+.summary-table-panels-holder .rTableRow:last-child,
 .detail-table-panels-holder .rTableRow:last-child,
 .detail-table-panels-holder ~ .rTableRow {
   border-bottom: none;
@@ -925,7 +925,7 @@ header .btn,
 
 .custom-field-input .rTableCell:last-child,
 .custom-label-input .rTableCell:last-child,
-.image-field-select .rTableCell:last-child {
+.image-type-select .rTableCell:last-child {
   padding-right: 5px;
 }
 
@@ -990,23 +990,23 @@ header .btn,
 .original-row,
 .custom-field-input,
 .custom-label-input,
-.image-field-select {
+.image-type-select {
   display: flex;
   align-items: center;
 }
 
 .custom-field-input,
 .custom-label-input,
-.image-field-select {
+.image-type-select {
   margin-top: 10px;
 }
 
-.image-field-select .selected-folder {
+.image-type-select .selected-folder {
   font-size: 12px;
   margin-top: 6px;
 }
 
-.image-field-select .selected-folder span {
+.image-type-select .selected-folder span {
   font-weight: bold;
 }
 
