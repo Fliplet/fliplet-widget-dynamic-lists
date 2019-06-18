@@ -740,7 +740,7 @@ DynamicList.prototype.checkIsToOpen = function(options) {
 DynamicList.prototype.prepareToSearch = function() {
   var _this = this;
 
-  if ( !_.hasIn(_this.pvSearchQuery, 'value') ) {
+  if (!_.get(_this.pvSearchQuery, 'value')) {
     return;
   }
 
@@ -754,21 +754,11 @@ DynamicList.prototype.prepareToSearch = function() {
 
 DynamicList.prototype.prepareToFilter = function() {
   var _this = this;
+  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: query });
 
-  if ( !_this.pvFilterQuery || !_.hasIn(_this.pvFilterQuery, 'value') ) {
-    return;
-  }
-
-  if (Array.isArray(_this.pvFilterQuery.value)) {
-    _this.pvFilterQuery.value.forEach(function(value) {
-      value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-      _this.$container.find('.hidden-filter-controls-filter[data-toggle="' + value + '"]').addClass('mixitup-control-active');
-    });
-  } else {
-    _this.pvFilterQuery.value = _this.pvFilterQuery.value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-    _this.$container.find('.hidden-filter-controls-filter[data-toggle="' + _this.pvFilterQuery.value + '"]').addClass('mixitup-control-active');
-  }
-
+  _this.$container.find(_.map(filterSelectors, function (selector) {
+    return '.hidden-filter-controls-filter' + selector;
+  }).join(',')).addClass('mixitup-control-active');
   _this.filterList();
 
   if (typeof _this.pvFilterQuery.hideControls !== 'undefined' && !_this.pvFilterQuery.hideControls) {
