@@ -7,7 +7,7 @@ function DynamicList(id, data, container) {
     'small-h-card': {
       'base': 'templates.build.small-h-card-base',
       'loop': 'templates.build.small-h-card-loop',
-      'detail': 'templates.build.small-h-card-detail',
+      'detail': 'templates.build.small-h-card-detail'
     }
   };
 

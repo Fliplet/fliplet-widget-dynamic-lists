@@ -178,6 +178,43 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return moment(new Date(date));
   }
 
+  function getFilterQuerySelectors(options) {
+    options = options || {};
+
+    var query = options.query || {};
+
+    if (!_.get(query, 'value', []).length) {
+      return [];
+    }
+
+    var selectors = [];
+
+    if (!Array.isArray(query.value)) {
+      query.value = [query.value];
+    }
+
+    if (_.get(query, 'column', []).length) {
+      // Select filters using on legacy column-specific methods
+      query.column.forEach(function (key, index) {
+        if (!Array.isArray(query.value[index])) {
+          query.value[index] = [query.value[index]];
+        }
+
+        query.value[index].forEach(function (value) {
+          selectors.push('[data-key="' + key + '"][data-value="' + value + '"]');
+        });
+      });
+    } else {
+      // Select filters using on legacy class-based methods
+      query.value.forEach(function(value) {
+        value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+        selectors.push('[data-toggle="' + value + '"]');
+      });
+    }
+
+    return selectors;
+  }
+
   function removeSymbols(str) {
     return ('' + str).replace(/[&\/\\#,+()$~%.`'‘’"“”:*?<>{}]+/g, '');
   }
@@ -878,6 +915,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     },
     Date: {
       moment: getMomentDate
+    },
+    Query: {
+      getFilterSelectors: getFilterQuerySelectors,
     },
     Record: {
       contains: recordContains,
