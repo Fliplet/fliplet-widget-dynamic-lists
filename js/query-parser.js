@@ -76,7 +76,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   this.pvSearchQuery = _.pickBy({
     column: Fliplet.Navigate.query['dynamicListSearchColumn'],
     value: Fliplet.Navigate.query['dynamicListSearchValue'],
-    openSingleEntry: Fliplet.Navigate.query['openSingleEntry']
+    openSingleEntry: Fliplet.Navigate.query['dynamicListOpenSingleEntry']
   });
   this.querySearch = _(this.pvSearchQuery).size() > 0;
   if (this.querySearch) {
