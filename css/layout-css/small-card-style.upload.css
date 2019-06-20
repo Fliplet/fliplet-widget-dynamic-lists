@@ -469,6 +469,14 @@
   line-height: 1;
 }
 
+.new-small-card-list-container .current-query {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 185px);
+  display: inline-block;
+}
+
 .new-small-card-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
