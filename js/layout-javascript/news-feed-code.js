@@ -1587,6 +1587,7 @@ DynamicList.prototype.overrideSearchData = function (value) {
   });
 
   searchedData = _.uniq(searchedData);
+
   if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && searchedData.length === 1) {
     _this.showDetails(searchedData[0].id);
     return;
@@ -1619,7 +1620,6 @@ DynamicList.prototype.overrideSearchData = function (value) {
     _this.$container.find('.limit-entries-text').addClass('hidden');
   }
 
-  // Remove duplicates
   _this.searchedListItems = searchedData;
   _this.prepareToRenderLoop(searchedData);
   _this.renderLoopHTML(function (from, to) {

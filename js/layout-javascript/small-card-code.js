@@ -1387,10 +1387,6 @@ DynamicList.prototype.searchData = function(value) {
     searchedData = _.uniq(searchedData);
     _this.searchedListItems = searchedData;
 
-    if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-      _this.showDetails(_this.searchedListItems[0].id);
-    }
-
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML(function (from, to) {
       _this.onPartialRender(from, to);
