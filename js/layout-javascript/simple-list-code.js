@@ -44,7 +44,7 @@ function DynamicList(id, data, container) {
   this.entryOverlay;
   this.myUserData;
   this.dataSourceColumns;
-  this.filterClasses = [];
+  this.activeFilters = {};
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -260,16 +260,17 @@ DynamicList.prototype.attachObservers = function() {
       // Clear all selected filters
       _this.$container.find('.mixitup-control-active').removeClass('mixitup-control-active');
 
-      // Select filters based on existing settings
-      if (_this.activeFilters) {
-        if (_.isEmpty(_this.activeFilters)) {
-          _this.$container.find('.clear-filters').addClass('hidden');
-          return;
-        }
+      // No filters selected
+      if (_.isEmpty(_this.activeFilters)) {
+        _this.$container.find('.clear-filters').addClass('hidden');
+        return;
+      }
 
-        var selectors = _.flatten(_.map(_this.activeFilters, function (values, key) {
+      if (!_.has(_this.activeFilters, 'undefined')) {
+        // Select filters based on existing settings
+        var selectors = _.flatten(_.map(_this.activeFilters, function (values, field) {
           return _.map(values, function (value) {
-            return '.hidden-filter-controls-filter[data-key="' + key + '"][data-value="' + value + '"]';
+            return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
         })).join(',');
         $(selectors).addClass('mixitup-control-active');
@@ -279,12 +280,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       // Legacy class-based settings
-      if (!_this.filterClasses || !_this.filterClasses.length) {
-        _this.$container.find('.clear-filters').addClass('hidden');
-        return;
-      }
-
-      _this.filterClasses.forEach(function(filter) {
+      _this.activeFilters['undefined'].forEach(function(filter) {
         _this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
       });
 
@@ -850,7 +846,7 @@ DynamicList.prototype.prepareToSearch = function() {
 
 DynamicList.prototype.prepareToFilter = function() {
   var _this = this;
-  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: query });
+  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
 
   _this.$container.find(_.map(filterSelectors, function (selector) {
     return '.hidden-filter-controls-filter' + selector;
@@ -1072,14 +1068,15 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   }
 
   // Hides the entry limit warning if the number of entries to show is less than the limit value
-  if (_this.data.enabledLimitEntries && (_this.data.limitEntries > _this.modifiedListItems.length)) {
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries > _this.modifiedListItems.length) {
     _this.$container.find('.limit-entries-text').addClass('hidden');
   }
 
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).empty();
+  $('#simple-list-wrapper-' + _this.data.id).empty();
 
   var renderLoopIndex = 0;
   var data = (limitedList || _this.modifiedListItems);
+
   return new Promise(function(resolve){
     function render() {
       // get the next batch of items to render
@@ -1088,9 +1085,9 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
       );
       if (nextBatch.length) {
-        _this.$container.find('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if(iterateeCb && typeof iterateeCb === 'function'){
-          if(renderLoopIndex === 0){
+        $('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if (iterateeCb && typeof iterateeCb === 'function'){
+          if (renderLoopIndex === 0){
             _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
           }
           iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
@@ -1098,8 +1095,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
-      }
-      else{
+      } else{
         _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
         resolve();
       }
@@ -1146,71 +1142,51 @@ DynamicList.prototype.addFilters = function(records) {
   _this.$container.find('.filter-holder').html(template(filtersData));
 };
 
+DynamicList.prototype.getActiveFilters = function () {
+  return _(document.querySelectorAll('.hidden-filter-controls-filter.mixitup-control-active'))
+    .map(function (el) {
+      return _.pickBy({
+        class: el.dataset.toggle,
+        field: el.dataset.field,
+        value: el.dataset.value
+      });
+    })
+    .groupBy('field')
+    .mapValues(function (filters) {
+      return _.map(filters, function (filter) {
+        return _.has(filter, 'field') && _.has(filter, 'value')
+          ? filter.value
+          : filter.class;
+      });
+    })
+    .value();
+};
+
 DynamicList.prototype.filterList = function() {
   var _this = this;
-  var filteredData = [];
-  _this.filterClasses = undefined;
-  _this.activeFilters = undefined;
-
-  var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-  var $activeFilterControls = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
 
   if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
     _this.mixer.destroy();
   }
 
-  _this.$container.find('.hidden-search-controls').removeClass('no-results');
+  _this.activeFilters = _this.getActiveFilters();
 
-  if (!$activeFilterControls.length) {
-    _this.$container.find('.simple-list-container').removeClass('filtering');
-    _this.isFiltering = false;
-    _this.prepareToRenderLoop(listData);
-    return _this.renderLoopHTML(function(from, to){
-      _this.onPartialRender(from, to);
-    });
-  }
+  var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
+  var filteredData = _this.Utils.Records.runActiveFilters({
+    records: listData,
+    filters: _this.activeFilters,
+    config: _this.data
+  });
 
-  if (_.every($activeFilterControls, function (el) {
-    return el.dataset.key && el.dataset.key.length
-  })) {
-    // Filter UI contains data-filter, i.e. uses new field-based filters
-    _this.activeFilters = _.mapValues(_.groupBy($activeFilterControls.map(function () {
-      var $elem = $(this);
-      return {
-        key: $elem.data('key'),
-        value: $elem.data('value')
-      };
-    }), 'key'), function (filter) {
-      return _.map(filter, 'value');
-    });
+  _this.$container.find('.hidden-search-controls')[filteredData.length ? 'removeClass' : 'addClass']('no-results');
+  _this.$container.find('.simple-list-container')[filteredData.length ? 'addClass' : 'removeClass']('filtering');
+  _this.isFiltering = filteredData.length;
 
-    filteredData = _.filter(listData, function (record) {
-      return _this.Utils.Record.matchesFilters({
-        record: record,
-        filters: _this.activeFilters,
-        config: _this.data
-      });
-    });
-  } else {
-    // Legacy class-based filters
-    _this.filterClasses = _.map($activeFilterControls, function (element) {
-      return $(element).data('toggle');
-    });
-
-    filteredData = _.filter(listData, function(record) {
-      return _this.Utils.Record.matchesFilterClasses(record, _this.filterClasses);
-    });
-  }
-
-  if (!filteredData.length) {
-    _this.$container.find('.hidden-search-controls').addClass('no-results');
-  }
-
-  _this.$container.find('.simple-list-container').addClass('filtering');
-  _this.isFiltering = true;
   _this.prepareToRenderLoop(filteredData);
-  return _this.renderLoopHTML(function(from, to){
+  return _this.renderLoopHTML(function (from, to) {
     _this.onPartialRender(from, to);
+  }).then(function () {
+    // @TODO Update filters
   });
 }
 
@@ -1344,49 +1320,43 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   }, 200);
 }
 
-DynamicList.prototype.overrideSearchData = function(value) {
+DynamicList.prototype.overrideSearchData = function (value) {
   var _this = this;
   var $inputField = _this.$container.find('.search-holder input');
   var copyOfValue = value;
   value = value.toLowerCase();
 
+  // Search
+  var searchedData = [];
+  var fields = _this.pvSearchQuery.column; // Can be Array or String
+
+  if (!Array.isArray(fields)) {
+    fields = _.compact([fields]);
+  }
+
+  fields.forEach(function(field) {
+    searchedData = _.concat(searchedData, _.filter(_this.listItems, function(obj) {
+      return !_.isNil(obj.data[field]) && _this.Utils.Record.contains(obj.data[field], value);
+    }));
+  });
+
+  // Remove duplicates
+  searchedData = _.uniq(searchedData);
+
+  if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && searchedData.length === 1) {
+    _this.showDetails(searchedData[0].id);
+    return;
+  }
+
   $inputField.val('');
   $inputField.blur();
   _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
   _this.$container.find('.hidden-search-controls').addClass('active');
+
   // Removes cards
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
+  $('#simple-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
-
-  // Search
-  var searchedData = [];
-  var filteredData;
-  var fields = _this.pvSearchQuery.column; // Can be Array or String
-
-  if (Array.isArray(_this.pvSearchQuery.column)) {
-    fields.forEach(function(field) {
-      filteredData = _.filter(_this.listItems, function(obj) {
-        var cellData = obj.data[field];
-        return _this.Utils.Record.contains(cellData, value);
-      });
-
-      if (filteredData.length) {
-        filteredData.forEach(function(item) {
-          searchedData.push(item);
-        });
-      }
-    });
-  } else {
-    searchedData = _.filter(_this.listItems, function(obj) {
-      return _this.Utils.Record.contains(obj.data[field], value);
-    });
-
-    if (!searchedData || !searchedData.length) {
-      searchedData = [];
-    }
-  }
-
 
   _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
   _this.$container.find('.simple-list-container').removeClass('searching');
@@ -1406,21 +1376,15 @@ DynamicList.prototype.overrideSearchData = function(value) {
     _this.$container.find('.limit-entries-text').addClass('hidden');
   }
 
-  // Remove duplicates
-  searchedData = _.uniq(searchedData);
   _this.searchedListItems = searchedData;
-
-  if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-    _this.showDetails(_this.searchedListItems[0].id)
-  }
-
   _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML(function(from, to){
+  _this.renderLoopHTML(function (from, to) {
     _this.onPartialRender(from, to);
-  }).then(function(){
-    _this.addFilters(_this.modifiedListItems);
+  }).then(function () {
     _this.checkBookmarked();
     _this.initializeMixer();
+  }).then(function () {
+    // @TODO Update filters
   });
 }
 
@@ -1438,7 +1402,7 @@ DynamicList.prototype.searchData = function(value) {
   _this.$container.find('.hidden-search-controls').addClass('active');
 
   // Removes cards
-  _this.$container.find('#simple-list-wrapper-' + _this.data.id).html('');
+  $('#simple-list-wrapper-' + _this.data.id).html('');
   // Adds search query to HTML
   _this.$container.find('.current-query').html(value);
 
@@ -1452,7 +1416,8 @@ DynamicList.prototype.searchData = function(value) {
   if (typeof _this.data.searchData === 'function') {
     executeSearch = _this.data.searchData({
       config: _this.data,
-      query: value
+      query: value,
+      activeFilters: _this.activeFilters
     });
 
     if (!(executeSearch instanceof Promise)) {
@@ -1460,22 +1425,17 @@ DynamicList.prototype.searchData = function(value) {
     }
   } else {
     executeSearch = new Promise(function (resolve, reject) {
-      var searchedData = [];
-      var filteredData;
-
-      _this.data.searchFields.forEach(function(field) {
-        filteredData = _.filter(_this.listItems, function(obj) {
-          return _this.Utils.Record.contains(obj.data[field], value);
-        });
-
-        if (filteredData.length) {
-          filteredData.forEach(function(item) {
-            searchedData.push(item);
-          });
-        }
+      var filteredData = _this.Utils.Records.runActiveFilters({
+        records: _this.listItems,
+        filters: _this.activeFilters,
+        config: _this.data
       });
 
-      resolve(searchedData);
+      resolve(_.filter(filteredData, function (record) {
+        return _.some(_this.data.searchFields, function (field) {
+          return _this.Utils.Record.contains(record.data[field], value);
+        })
+      }));
     });
   }
 
@@ -1507,10 +1467,10 @@ DynamicList.prototype.searchData = function(value) {
     }
 
     _this.prepareToRenderLoop(searchedData);
-    _this.renderLoopHTML(function(from, to){
+    _this.renderLoopHTML(function (from, to) {
       _this.onPartialRender(from, to);
     }).then(function(){
-      _this.addFilters(_this.modifiedListItems);
+      // @TODO Update filters
     });
   });
 }
@@ -1540,13 +1500,22 @@ DynamicList.prototype.clearSearch = function() {
 
   // Resets list
   _this.searchedListItems = undefined;
-  _this.prepareToRenderLoop(_this.listItems);
-  _this.renderLoopHTML(function(from, to){
+
+  // @TODO Include active filters too
+  var filteredData = _this.Utils.Records.runActiveFilters({
+    records: _this.listItems,
+    filters: _this.activeFilters,
+    config: _this.data
+  });
+
+  _this.prepareToRenderLoop(filteredData);
+  _this.renderLoopHTML(function (from, to) {
     _this.onPartialRender(from, to);
-  }).then(function(){
-    _this.addFilters(_this.modifiedListItems);
+  }).then(function () {
     _this.checkBookmarked();
     _this.initializeMixer();
+  }).then(function () {
+    // @TODO Update filters
   });
 }
 
@@ -1824,17 +1793,12 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.showDetails = function(id) {
+DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-
   var savedColumns = [];
-
   var modifiedData = _this.getPermissions(_this.listItems);
-  var entryData = _.find(modifiedData, function(entry) {
-    return entry.id === id;
-  });
-
+  var entryData = _.find(modifiedData, { id: id });
   // Define detail view data based on user's settings
   var newData = {
     id: entryData.id,
@@ -1900,7 +1864,7 @@ DynamicList.prototype.showDetails = function(id) {
     id: id
   };
   var wrapper = '<div class="simple-list-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var $overlay = _this.$container.find('#simple-list-detail-overlay-' + _this.data.id);
+  var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
 
   var src = _this.data.advancedSettings && _this.data.advancedSettings.detailHTML
     ? _this.data.advancedSettings.detailHTML
@@ -1958,7 +1922,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  var $overlay = _this.$container.find('#simple-list-detail-overlay-' + _this.data.id);
+  var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
   $('body').removeClass('lock');
   $overlay.removeClass('open');
   _this.$container.find('.simple-list-container').removeClass('overlay-open');

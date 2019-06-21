@@ -666,7 +666,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
 
@@ -675,10 +675,11 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).empty();
+  $('#small-h-card-list-wrapper-' + _this.data.id).empty();
 
   var renderLoopIndex = 0;
   var data = _this.modifiedListItems;
+
   return new Promise(function(resolve){
     function render() {
       // get the next batch of items to render
@@ -687,9 +688,9 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
       );
       if (nextBatch.length) {
-        _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if(iterateeCb && typeof iterateeCb === 'function'){
-          if(renderLoopIndex === 0){
+        $('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if (iterateeCb && typeof iterateeCb === 'function'){
+          if (renderLoopIndex === 0){
             _this.$container.find('.new-small-h-card-list-container').addClass('ready');
           }
           iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
@@ -697,8 +698,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
-      }
-      else{
+      } else{
         _this.$container.find('.new-small-h-card-list-container').addClass('ready');
         resolve();
       }
@@ -744,20 +744,14 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.showDetails = function(id) {
+DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-
-  var entryData = _.find(_this.modifiedListItems, function(entry) {
-    return entry.id === id;
-  });
+  var entryData = _.find(_this.modifiedListItems, { id: id });
   // Process template with data
-  var entryId = {
-    id: id
-  };
+  var entryId = { id: id };
   var wrapper = '<div class="small-h-card-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var $overlay = _this.$container.find('#small-h-card-detail-overlay-' + _this.data.id);
-
+  var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
   var beforeShowDetails = Promise.resolve({
     src: src,
@@ -815,7 +809,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  var $overlay = _this.$container.find('#small-h-card-detail-overlay-' + _this.data.id);
+  var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
 

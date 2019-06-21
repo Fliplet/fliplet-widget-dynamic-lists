@@ -1000,19 +1000,19 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
   _this.agendasByDay = _this.groupLoopDataByDate(loopData, dateField);;
 }
 
-DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').empty();
-  return new Promise(function(resolve){
-    // here we need to loop through each agenda
-    var renderLoopIndex = 0;
-    var $renderFull = $([]);
+  $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').empty();
 
+  var renderLoopIndex = 0;
+  var $renderFull = $([]);
+
+  return new Promise(function(resolve){
     function render() {
       // get the next batch of items to render
       var nextBatch = _this.agendasByDay.slice(
@@ -1027,7 +1027,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
 
       var $renderBatch = $(template(nextBatch));
       $renderFull.add($renderBatch);
-      _this.$container.find('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append($renderBatch);
+      $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append($renderBatch);
 
       if (iterateeCb && typeof iterateeCb === 'function') {
         iterateeCb(renderLoopIndex, $renderBatch);
@@ -1549,10 +1549,9 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.showDetails = function(id) {
+DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-
   var entryData = _(_this.agendasByDay)
     .chain()
     .thru(function(coll) {
@@ -1563,14 +1562,9 @@ DynamicList.prototype.showDetails = function(id) {
       id: id
     })
     .value();
-
-  var entryId = {
-    id: id
-  };
-
+  var entryId = { id: id };
   var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var $overlay = _this.$container.find('#agenda-detail-overlay-' + _this.data.id);
-
+  var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
   var src = _this.src;
   var beforeShowDetails = Promise.resolve({
     src: src,
@@ -1630,7 +1624,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  var $overlay = _this.$container.find('#agenda-detail-overlay-' + _this.data.id);
+  var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
   $overlay.removeClass('open');
   _this.$container.find('.agenda-feed-list-container').removeClass('overlay-open');
   $('body').removeClass('lock');
