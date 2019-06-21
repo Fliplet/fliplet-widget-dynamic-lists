@@ -1593,16 +1593,6 @@ DynamicList.prototype.overrideSearchData = function(value) {
   var copyOfValue = value;
   value = value.toLowerCase();
 
-  $inputField.val('');
-  $inputField.blur();
-  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-search-controls').addClass('active');
-
-  // Removes cards
-  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
-  // Adds search query to HTML
-  _this.$container.find('.current-query').html(value);
-
   // Search
   var searchedData = [];
   var filteredData;
@@ -1622,13 +1612,31 @@ DynamicList.prototype.overrideSearchData = function(value) {
     });
   } else {
     searchedData = _.filter(_this.listItems, function(obj) {
-      return _this.Utils.Record.contains(obj.data[field], value);
+      return _this.Utils.Record.contains(obj, value);
     });
 
     if (!searchedData || !searchedData.length) {
       searchedData = [];
     }
   }
+
+  // Remove duplicates
+  searchedData = _.uniq(searchedData);
+
+  if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && searchedData.length === 1) {
+    _this.showDetails(searchedData[0].id);
+    return;
+  }
+
+  $inputField.val('');
+  $inputField.blur();
+  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
+  _this.$container.find('.hidden-search-controls').addClass('active');
+
+  // Removes cards
+  _this.$container.find('#news-feed-list-wrapper-' + _this.data.id).html('');
+  // Adds search query to HTML
+  _this.$container.find('.current-query').html(value);
 
   _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
   _this.$container.find('.new-news-feed-list-container').removeClass('searching');
@@ -1647,8 +1655,6 @@ DynamicList.prototype.overrideSearchData = function(value) {
     _this.$container.find('.limit-entries-text').addClass('hidden');
   }
 
-  // Remove duplicates
-  searchedData = _.uniq(searchedData);
   _this.searchedListItems = searchedData;
   _this.prepareToRenderLoop(searchedData);
   _this.renderLoopHTML(function(from, to){
@@ -1656,10 +1662,6 @@ DynamicList.prototype.overrideSearchData = function(value) {
   }).then(function(){
     _this.initializeMixer();
     _this.addFilters(_this.modifiedListItems);
-
-    if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-      _this.showDetails(_this.searchedListItems[0].id);
-    }
   });
 }
 
@@ -1743,10 +1745,6 @@ DynamicList.prototype.searchData = function(value) {
     }).then(function(){
       _this.initializeMixer();
       _this.addFilters(_this.modifiedListItems);
-
-      if (_this.querySearch && _this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && _this.searchedListItems.length === 1) {
-        _this.showDetails(_this.searchedListItems[0].id);
-      }
     });
   });
 }
