@@ -304,6 +304,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .new-small-card-list-container .section-top-wrapper.profile-disabled {
@@ -425,6 +426,8 @@
 
 .new-small-card-list-container.searching .search-holder .search-btn.searching-btn {
   display: block;
+  min-width: 38px;
+  height: 100%;
 }
 
 .new-small-card-list-container .search-holder .form-control {
@@ -448,14 +451,8 @@
   align-items: center;
 }
 
-.new-small-card-list-container .search-results .hidden-filter-controls-search .search-query-holder,
-.new-small-card-list-container .is-searching .hidden-filter-controls-search .search-query-holder {
+.new-small-card-list-container .search-results .hidden-filter-controls-search .search-query-holder {
   display: block;
-}
-
-.new-small-card-list-container .search-results .hidden-filter-controls-search .search-holder,
-.new-small-card-list-container .is-searching .hidden-filter-controls-search .search-holder {
-  display: none;
 }
 
 .new-small-card-list-container .current-query-wrapper {
@@ -494,7 +491,7 @@
 .new-small-card-list-container .hidden-filter-controls-label {
   font-size: 14px;
   color: #aaaaaa;
-  padding: 0 15px 5px;
+  padding: 0 18px 5px;
 }
 
 .new-small-card-list-container .hidden-filter-controls-filter-container + .hidden-filter-controls-label {

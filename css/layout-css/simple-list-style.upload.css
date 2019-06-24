@@ -254,6 +254,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .list-search-icon {
@@ -397,14 +398,8 @@
   align-items: center;
 }
 
-.search-results .hidden-filter-controls-search .search-query-holder,
-.is-searching .hidden-filter-controls-search .search-query-holder {
+.simple-list-container .search-results .hidden-filter-controls-search .search-query-holder {
   display: block;
-}
-
-.search-results .hidden-filter-controls-search .search-holder,
-.is-searching .hidden-filter-controls-search .search-holder {
-  display: none;
 }
 
 .current-query-wrapper {
@@ -443,7 +438,7 @@
 .hidden-filter-controls-label {
   font-size: 14px;
   color: #aaaaaa;
-  padding: 0 15px 5px;
+  padding: 0 18px 5px;
 }
 
 .hidden-filter-controls-filter-container + .hidden-filter-controls-label {

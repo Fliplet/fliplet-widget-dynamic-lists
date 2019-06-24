@@ -211,22 +211,24 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       query.value = [query.value];
     }
 
+    // Select filters using on legacy class-based methods
+    query.value.forEach(function(values, index) {
+      if (!Array.isArray(values)) {
+        query.value[index] = [values];
+      }
+
+      query.value[index].forEach(function (value) {
+        var className = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+        selectors.push('[data-toggle="' + className + '"]');
+      });
+    });
+
     if (_.get(query, 'column', []).length) {
       // Select filters using on legacy column-specific methods
       query.column.forEach(function (field, index) {
-        if (!Array.isArray(query.value[index])) {
-          query.value[index] = [query.value[index]];
-        }
-
         query.value[index].forEach(function (value) {
           selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
         });
-      });
-    } else {
-      // Select filters using on legacy class-based methods
-      query.value.forEach(function(value) {
-        value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-        selectors.push('[data-toggle="' + value + '"]');
       });
     }
 
@@ -375,6 +377,46 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         filters: filters,
         config: config
       });
+    });
+  }
+
+  function runRecordSearch(options) {
+    options = options || {};
+
+    var query = options.query || '';
+    var records = options.records || [];
+    var fields = options.fields || [];
+    var config = options.config || {};
+    var activeFilters = options.activeFilters || {};
+    var executeSearch;
+
+    if (query === '') {
+      executeSearch = Promise.resolve(records);
+    } else if (typeof config.searchData === 'function') {
+      executeSearch = config.searchData({
+        config: config,
+        query: query,
+        activeFilters: activeFilters,
+        records: records
+      });
+
+      if (!(executeSearch instanceof Promise)) {
+        executeSearch = Promise.resolve(executeSearch);
+      }
+    } else if (fields.length) {
+      executeSearch = new Promise(function (resolve, reject) {
+        resolve(_.filter(records, function (record) {
+          return _.some(config.searchFields, function (field) {
+            return !_.isNil(record.data[field]) && recordContains(record.data[field], query);
+          })
+        }));
+      });
+    } else {
+      executeSearch = Promise.resolve(records);
+    }
+
+    return executeSearch.then(function (results) {
+      return _.uniq(results);
     });
   }
 
@@ -947,6 +989,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Records: {
       runFilters: runRecordFilters,
       runActiveFilters: runActiveFilters,
+      runSearch: runRecordSearch,
       getFields: getRecordFields,
       getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,

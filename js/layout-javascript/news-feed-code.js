@@ -45,6 +45,7 @@ function DynamicList(id, data, container) {
   this.entryClicked = undefined;
   this.isFiltering;
   this.isSearching;
+  this.searchValue = '';
   this.activeFilters = {};
 
   this.queryOpen = false;
@@ -127,7 +128,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.apply-filters', function() {
-      _this.filterList();
+      _this.searchData();
 
       $(this).parents('.news-feed-search-filter-overlay').removeClass('display');
       $('body').removeClass('lock');
@@ -135,7 +136,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.clear-filters', function() {
       _this.$container.find('.mixitup-control-active').removeClass('mixitup-control-active');
       $(this).addClass('hidden');
-      _this.filterList();
+      _this.searchData();
     })
     .on('click', '.news-feed-search-filter-overlay .hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
@@ -160,7 +161,7 @@ DynamicList.prototype.attachObservers = function() {
       });
 
       $(this).toggleClass('mixitup-control-active');
-      _this.filterList();
+      _this.searchData();
     })
     .on('touchstart', '.news-feed-list-item', function(event) {
       event.stopPropagation();
@@ -336,7 +337,7 @@ DynamicList.prototype.attachObservers = function() {
         if (value === '') {
           _this.$container.find('.new-news-feed-list-container').removeClass('searching');
           _this.isSearching = false;
-          _this.clearSearch();
+          _this.searchData('');
           return;
         }
 
@@ -358,7 +359,7 @@ DynamicList.prototype.attachObservers = function() {
       if (value === '') {
         _this.$container.find('.new-news-feed-list-container').removeClass('searching');
         _this.isSearching = false;
-        _this.clearSearch();
+        _this.searchData('');
         return;
       }
 
@@ -375,7 +376,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.clear-search', function() {
       _this.$container.find('.new-news-feed-list-container').removeClass('searching');
       _this.isSearching = false;
-      _this.clearSearch();
+      _this.searchData('');
     })
     .on('show.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
@@ -664,8 +665,9 @@ DynamicList.prototype.attachObservers = function() {
 
                   _that.text('Delete').removeClass('disabled');
                   _this.closeDetails();
-                  _this.prepareToRenderLoop(_this.listItems);
-                  _this.renderLoopHTML();
+                  _this.removeListItemHTML({
+                    id: entryId
+                  });
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
@@ -698,6 +700,18 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   }).then(function () {
     return Promise.resolve(entryID);
   });
+}
+
+DynamicList.prototype.removeListItemHTML = function (options) {
+  options = options || {};
+
+  var id = options.id;
+
+  if (!id) {
+    return;
+  }
+
+  this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').remove();
 }
 
 DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
@@ -881,11 +895,12 @@ DynamicList.prototype.initialize = function() {
 
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
+      _this.searchedListItems = _.clone(_this.listItems);
+      _this.addFilters(_this.modifiedListItems);
       _this.renderLoopHTML(function(from, to){
         _this.onPartialRender(from, to);
       }).then(function(){
         _this.initializeMixer();
-        _this.addFilters(_this.modifiedListItems);
         // Listeners and Ready
         _this.attachObservers();
       });
@@ -955,14 +970,12 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML(function(from, to){
-        _this.onPartialRender(from, to);
-      }).then(function(){
+      _this.searchedListItems = _.clone(_this.listItems);
+      _this.addFilters(_this.modifiedListItems);
+      _this.parseFilterQueries();
+      _this.parseSearchQueries().then(function(){
         // Listeners and Ready
         _this.initializeMixer();
-        _this.addFilters(_this.modifiedListItems);
-        _this.prepareToSearch();
-        _this.prepareToFilter();
         _this.attachObservers();
       });
     });
@@ -1005,33 +1018,51 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   _this.showDetails(entry.id);
 }
 
-DynamicList.prototype.prepareToSearch = function() {
+DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
   if (!_.get(_this.pvSearchQuery, 'value')) {
-    return;
+    // Continue to exectute query filters
+    return _this.searchData({
+      query: true
+    });
   }
 
   if (_.hasIn(_this.pvSearchQuery, 'column')) {
-    _this.overrideSearchData(_this.pvSearchQuery.value);
+    // Query search column and value provided
+    return _this.searchData({
+      value: _this.pvSearchQuery.value,
+      column: _this.pvSearchQuery.column,
+      openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+      query: true
+    });
+  }
+
+  // Query search value provided without column
+  _this.$container.find('.new-news-feed-list-container').addClass('searching');
+  _this.isSearching = true;
+
+  return _this.searchData({
+    value: _this.pvSearchQuery.value,
+    openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+    query: true
+  });
+}
+
+DynamicList.prototype.parseFilterQueries = function() {
+  var _this = this;
+
+  if (!_this.queryFilter) {
     return;
   }
 
-  _this.$container.find('.new-news-feed-list-container').addClass('searching');
-  _this.isSearching = true;
-  _this.searchData(_this.pvSearchQuery.value);
-}
-
-DynamicList.prototype.prepareToFilter = function() {
-  var _this = this;
   var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
 
   _this.$container.find(_.map(filterSelectors, function (selector) {
     return '.hidden-filter-controls-filter' + selector;
-  }).join(',')).addClass('mixitup-control-active');
-  _this.filterList();
+  }).join(',')).addClass('mixitup-control-active').parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
 
-  if (typeof _this.pvFilterQuery.hideControls !== 'undefined' && !_this.pvFilterQuery.hideControls) {
+  if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
     _this.$container.find('.list-search-cancel').addClass('active');
 
@@ -1410,32 +1441,6 @@ DynamicList.prototype.getActiveFilters = function () {
     .value();
 };
 
-DynamicList.prototype.filterList = function() {
-  var _this = this;
-
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
-  }
-
-  _this.activeFilters = _this.getActiveFilters();
-
-  var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-  var filteredData = _this.Utils.Records.runActiveFilters({
-    records: listData,
-    filters: _this.activeFilters,
-    config: _this.data
-  });
-
-  _this.$container.find('.hidden-search-controls')[filteredData.length ? 'removeClass' : 'addClass']('no-results');
-
-  _this.prepareToRenderLoop(filteredData);
-  return _this.renderLoopHTML(function (from, to) {
-    _this.onPartialRender(from, to);
-  }).then(function () {
-    // @TODO Update filters
-  });
-}
-
 DynamicList.prototype.onPartialRender = function(from, to) {
   var _this = this;
 
@@ -1566,131 +1571,70 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   }, 200);
 }
 
-DynamicList.prototype.overrideSearchData = function (value) {
+DynamicList.prototype.searchData = function(options) {
+  if (typeof options === 'string') {
+    options = {
+      value: options
+    };
+  }
+
+  options = options || {};
+
   var _this = this;
+  var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var fields = options.fields || _this.data.searchFields;
+  var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
-  var copyOfValue = value;
+
+  _this.searchValue = value;
   value = value.toLowerCase();
+  _this.activeFilters = _this.getActiveFilters();
+
+  var filteredData = _this.Utils.Records.runActiveFilters({
+    records: _this.listItems,
+    filters: _this.activeFilters,
+    config: _this.data
+  });
 
   // Search
-  var searchedData = [];
-  var fields = _this.pvSearchQuery.column; // Can be Array or String
-
   if (!Array.isArray(fields)) {
     fields = _.compact([fields]);
   }
 
-  fields.forEach(function(field) {
-    searchedData = _.concat(searchedData, _.filter(_this.listItems, function(obj) {
-      return !_.isNil(obj.data[field]) && _this.Utils.Record.contains(obj.data[field], value);
-    }));
-  });
-
-  searchedData = _.uniq(searchedData);
-
-  if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && searchedData.length === 1) {
-    _this.showDetails(searchedData[0].id);
-    return;
-  }
-
-  $inputField.val('');
-  $inputField.blur();
-  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-search-controls').addClass('active');
-
-  // Removes cards
-  $('#news-feed-list-wrapper-' + _this.data.id).html('');
-  // Adds search query to HTML
-  _this.$container.find('.current-query').html(value);
-
-  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
-  _this.$container.find('.new-news-feed-list-container').removeClass('searching');
-
-  _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'));
-
-  if (!searchedData.length) {
-    _this.$container.find('.hidden-search-controls').addClass('no-results');
-  }
-
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
-  }
-
-  if (_this.data.enabledLimitEntries) {
-    _this.$container.find('.limit-entries-text').addClass('hidden');
-  }
-
-  _this.searchedListItems = searchedData;
-  _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML(function (from, to) {
-    _this.onPartialRender(from, to);
-  }).then(function () {
-    _this.initializeMixer();
-  }).then(function () {
-    // @TODO Update filters
-  });
-}
-
-DynamicList.prototype.searchData = function(value) {
-  // Function called when user executes a search
-  var _this = this;
-  var $inputField = _this.$container.find('.search-holder input');
-  var copyOfValue = value;
-  value = value.toLowerCase();
-
-  $inputField.val('');
-  $inputField.blur();
-  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-search-controls').addClass('active');
-
-  // Removes cards
-  $('#news-feed-list-wrapper-' + _this.data.id).html('');
-  // Adds search query to HTML
-  _this.$container.find('.current-query').html(value);
-
-  // Search
-  if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
-    return;
-  }
-
-  var executeSeach;
-
-  if (typeof _this.data.searchData === 'function') {
-    // @TODO Pass filter information
-    executeSearch = _this.data.searchData({
-      config: _this.data,
-      query: value,
-      activeFilters: _this.activeFilters
-    });
-
-    if (!(executeSearch instanceof Promise)) {
-      executeSearch = Promise.resolve(executeSearch);
+  return _this.Utils.Records.runSearch({
+    query: value,
+    records: filteredData,
+    fields: fields,
+    config: _this.data,
+    activeFilters: _this.activeFilters
+  }).then(function (searchedData) {
+    if (openSingleEntry && searchedData.length === 1) {
+      _this.showDetails(searchedData[0].id);
     }
-  } else {
-    executeSearch = new Promise(function (resolve, reject) {
-      var filteredData = _this.Utils.Records.runActiveFilters({
-        records: _this.listItems,
-        filters: _this.activeFilters,
-        config: _this.data
-      });
 
-      resolve(_.filter(filteredData, function (record) {
-        return _.some(_this.data.searchFields, function (field) {
-          return _this.Utils.Record.contains(record.data[field], value);
-        })
-      }));
-    });
-  }
-
-  executeSearch.then(function (searchedData) {
-    _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
+    /**
+     * Update search UI
+     **/
+    $inputField.val('');
+    $inputField.blur();
     _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+    // Adds search query to HTML
+    _this.$container.find('.current-query').html(_this.searchValue);
+    // Search value is provided
+    _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
+    _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'), !value.length);
+    _this.$container.find('.hidden-search-controls').addClass('active');
+    _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
 
-    _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'));
-
-    if (!searchedData.length) {
-      _this.$container.find('.hidden-search-controls').addClass('no-results');
+    if (!_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      // Same results returned. Do nothing.
+      return Promise.resolve();
     }
+
+    /**
+     * Render results
+     **/
+    $('#news-feed-list-wrapper-' + _this.data.id).html('');
 
     if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
       _this.mixer.destroy();
@@ -1700,7 +1644,6 @@ DynamicList.prototype.searchData = function(value) {
       _this.$container.find('.limit-entries-text').addClass('hidden');
     }
 
-    searchedData = _.uniq(searchedData);
     _this.searchedListItems = searchedData;
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML(function (from, to) {
@@ -1710,49 +1653,6 @@ DynamicList.prototype.searchData = function(value) {
     }).then(function () {
       // @TODO Update filters
     });
-  });
-}
-
-DynamicList.prototype.clearSearch = function() {
-  // Function called when user clears the search field
-  var _this = this;
-
-  // Removes value from search box
-  _this.$container.find('.search-holder input').val('').blur().removeClass('not-empty');
-  // Resets all classes related to search
-  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results search-results searching');
-
-  if (_this.$container.find('.hidden-search-controls').hasClass('active')) {
-    _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'), true);
-  } else {
-    _this.$container.find('.hidden-search-controls').animate({ height: 0 }, 200);
-  }
-
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
-  }
-
-  if (_this.data.enabledLimitEntries) {
-    _this.$container.find('.limit-entries-text').removeClass('hidden');
-  }
-
-  // Resets list
-  _this.searchedListItems = undefined;
-
-  // @TODO Include active filters too
-  var filteredData = _this.Utils.Records.runActiveFilters({
-    records: _this.listItems,
-    filters: _this.activeFilters,
-    config: _this.data
-  });
-
-  _this.prepareToRenderLoop(filteredData);
-  _this.renderLoopHTML(function (from, to) {
-    _this.onPartialRender(from, to);
-  }).then(function () {
-    _this.initializeMixer();
-  }).then(function () {
-    // @TODO Update filters
   });
 }
 
