@@ -84,6 +84,22 @@ function DynamicList(id, data, container) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+DynamicList.prototype.toggleFilterElement = function (target, toggle) {
+  var $target = this.Utils.DOM.$(target);
+
+  if (typeof toggle === 'undefined') {
+    $target.toggleClass('mixitup-control-active');
+  } else {
+    $target[!!toggle ? 'addClass' : 'removeClass']('mixitup-control-active');
+  }
+
+  if (this.$container.find('.mixitup-control-active').length) {
+    this.$container.find('.clear-filters').removeClass('hidden');
+  } else {
+    this.$container.find('.clear-filters').addClass('hidden');
+  }
+}
+
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -126,34 +142,22 @@ DynamicList.prototype.attachObservers = function() {
       $('body').removeClass('lock');
     })
     .on('click', '.clear-filters', function() {
-      _this.$container.find('.mixitup-control-active').removeClass('mixitup-control-active');
+      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
       $(this).addClass('hidden');
       _this.searchData();
     })
-    .on('click', '.simple-list-search-filter-overlay .hidden-filter-controls-filter', function() {
+    .on('click', '.hidden-filter-controls-filter', function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
         label: $(this).text()
       });
 
-      $(this).toggleClass('mixitup-control-active');
+      _this.toggleFilterElement(this);
 
-      if (_this.$container.find('.mixitup-control-active').length) {
-        _this.$container.find('.clear-filters').removeClass('hidden');
-      } else {
-        _this.$container.find('.clear-filters').addClass('hidden');
+      if ($filter.parents('.inline-filter-holder').length) {
+        _this.searchData();
       }
-    })
-    .on('click', '.inline-filter-holder .hidden-filter-controls-filter', function() {
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter',
-        label: $(this).text()
-      });
-
-      $(this).toggleClass('mixitup-control-active');
-      _this.searchData();
     })
     .on('click', '.simple-list-item', function(event) {
       if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
@@ -259,7 +263,7 @@ DynamicList.prototype.attachObservers = function() {
       $('body').removeClass('lock');
 
       // Clear all selected filters
-      _this.$container.find('.mixitup-control-active').removeClass('mixitup-control-active');
+      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
 
       // No filters selected
       if (_.isEmpty(_this.activeFilters)) {
@@ -274,7 +278,7 @@ DynamicList.prototype.attachObservers = function() {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
         })).join(',');
-        $(selectors).addClass('mixitup-control-active');
+        _this.toggleFilterElement(selectors, true);
 
         _this.$container.find('.clear-filters').removeClass('hidden');
         return;
@@ -282,7 +286,7 @@ DynamicList.prototype.attachObservers = function() {
 
       // Legacy class-based settings
       _this.activeFilters['undefined'].forEach(function(filter) {
-        _this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
+        _this.toggleFilterElement(_this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]'), true);
       });
 
       _this.$container.find('.clear-filters').removeClass('hidden');
@@ -877,9 +881,12 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
 
-  _this.$container.find(_.map(filterSelectors, function (selector) {
+  var $filters = _this.$container.find(_.map(filterSelectors, function (selector) {
     return '.hidden-filter-controls-filter' + selector;
-  }).join(',')).addClass('mixitup-control-active').parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
+  }).join(','));
+
+  _this.toggleFilterElement($filters, true);
+  $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');

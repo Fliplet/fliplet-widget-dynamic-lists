@@ -968,8 +968,36 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function getjQueryObjects(target) {
+    if (target instanceof jQuery) {
+      return target;
+    }
+
+    var $target = $();
+
+    // target is a DOM element or a selector string
+    if (target.tagName || typeof target === 'string') {
+      $target = $(target);
+    }
+
+    // target is expected as an array of DOM elements
+    if (target instanceof NodeList || target instanceof Array) {
+      // Non-DOM elements in the array are removed
+      target = _.filter(target, function (element) {
+        return element.tagName;
+      });
+
+      $target = $(target);
+    }
+
+    return $target;
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
+    DOM: {
+      $: getjQueryObjects
+    },
     String: {
       splitByCommas: splitByCommas
     },
