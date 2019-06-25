@@ -882,11 +882,12 @@ DynamicList.prototype.likesObserversOverlay = function(id, bookmarkButton, isBoo
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
+  // Render Base HTML template
+  _this.renderBaseHTML();
+  _this.attachObservers();
+
   // Render list with default data
   if (_this.data.defaultData) {
-    // Render Base HTML template
-    _this.renderBaseHTML();
-
     var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
@@ -910,9 +911,6 @@ DynamicList.prototype.initialize = function() {
       _this.addFilters(_this.modifiedListItems);
       _this.renderLoopHTML(function(from, to){
         _this.onPartialRender(from, to);
-      }).then(function(){
-        // Listeners and Ready
-        _this.attachObservers();
       });
     });
   }
@@ -927,9 +925,6 @@ DynamicList.prototype.initialize = function() {
   // Check if there is a query or PV for search/filter queries
   (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
-      // Render Base HTML template
-      _this.renderBaseHTML();
-
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -983,10 +978,7 @@ DynamicList.prototype.initialize = function() {
       _this.searchedListItems = _.clone(_this.listItems);
       _this.addFilters(_this.modifiedListItems);
       _this.parseFilterQueries();
-      _this.parseSearchQueries().then(function(){
-        // Listeners and Ready
-        _this.attachObservers();
-      });
+      _this.parseSearchQueries();
     });
 }
 

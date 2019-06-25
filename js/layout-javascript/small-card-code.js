@@ -559,11 +559,12 @@ DynamicList.prototype.removeListItemHTML = function (options) {
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
+  // Render Base HTML template
+  _this.renderBaseHTML();
+  _this.attachObservers();
+
   // Render list with default data
   if (_this.data.defaultData) {
-    // Render Base HTML template
-    _this.renderBaseHTML();
-
     var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
@@ -614,7 +615,6 @@ DynamicList.prototype.initialize = function() {
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
         }
         // Listeners and Ready
-        _this.attachObservers();
         _this.checkBookmarked();
       });
     });
@@ -630,9 +630,6 @@ DynamicList.prototype.initialize = function() {
   // Check if there is a query or PV for search/filter queries
   (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
-      // Render Base HTML template
-      _this.renderBaseHTML();
-
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -716,7 +713,6 @@ DynamicList.prototype.initialize = function() {
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
         }
 
-        _this.attachObservers();
         _this.checkBookmarked();
       });
     })
