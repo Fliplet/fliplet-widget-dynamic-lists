@@ -110,22 +110,24 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
 
     Handlebars.registerHelper('formatComment', function(text) {
+      var res = text;
+
       /* capture email addresses and turn into mailto links */
-      text = text.replace(Static.RegExp.email, '<a href="mailto:$&">$&</a>');
+      res = res.replace(Static.RegExp.email, '<a href="mailto:$&">$&</a>');
 
       /* capture phone numbers and turn into tel links */
-      text = text.replace(Static.RegExp.phone, '<a href="tel:$&">$&</a>');
+      res = res.replace(Static.RegExp.phone, '<a href="tel:$&">$&</a>');
 
       /* capture URLs and turn into links */
-      text = text.replace(Static.RegExp.url, function(match, p1, p2, p3, p4, p5, offset, string) {
+      res = res.replace(Static.RegExp.url, function(match, p1, p2, p3, p4, p5, offset, string) {
         return Static.RegExp.linebreak.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>' :
           ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
       });
 
-      text = text.replace(Static.RegExp.mention, '<strong>$&</strong>');
+      res = res.replace(Static.RegExp.mention, '<strong>$&</strong>');
 
       /* capture line break and turn into <br> */
-      text = text.replace(Static.RegExp.linebreak, '<br>');
+      res = res.replace(Static.RegExp.linebreak, '<br>');
 
       return new Handlebars.SafeString(res);
     });
