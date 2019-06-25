@@ -240,7 +240,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   }
 
   function recordContains(record, value) {
-    if (!record) {
+    if (_.isNil(record)) {
       return false;
     }
 
@@ -363,16 +363,21 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var records = options.records || [];
     var filters = options.filters;
+    var config = options.config;
+    var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
 
     if (_.isEmpty(filters)) {
-      return records;
+      if (!showBookmarks) {
+        return records;
+      }
+
+      return _.filter(records, { bookmarked: true });
     }
 
-    var config = options.config;
     var filteredData = [];
 
     return _.filter(records, function (record) {
-      return recordMatchesFilters({
+      return (!showBookmarks || record.bookmarked) && recordMatchesFilters({
         record: record,
         filters: filters,
         config: config
@@ -383,41 +388,67 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   function runRecordSearch(options) {
     options = options || {};
 
-    var query = options.query || '';
+    var value = options.value || '';
     var records = options.records || [];
     var fields = options.fields || [];
     var config = options.config || {};
     var activeFilters = options.activeFilters || {};
-    var executeSearch;
+    var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
 
-    if (query === '') {
-      executeSearch = Promise.resolve(records);
-    } else if (typeof config.searchData === 'function') {
-      executeSearch = config.searchData({
-        config: config,
-        query: query,
-        activeFilters: activeFilters,
-        records: records
-      });
-
-      if (!(executeSearch instanceof Promise)) {
-        executeSearch = Promise.resolve(executeSearch);
-      }
-    } else if (fields.length) {
-      executeSearch = new Promise(function (resolve, reject) {
-        resolve(_.filter(records, function (record) {
-          return _.some(config.searchFields, function (field) {
-            return !_.isNil(record.data[field]) && recordContains(record.data[field], query);
-          })
-        }));
-      });
-    } else {
-      executeSearch = Promise.resolve(records);
+    if (!Array.isArray(fields)) {
+      fields = _.compact([fields]);
     }
 
-    return executeSearch.then(function (results) {
-      return _.uniq(results);
-    });
+    if (typeof config.searchData === 'function') {
+      var runSearch = config.searchData({
+        config: config,
+        query: value,
+        activeFilters: activeFilters,
+        records: records,
+        showBookmarks: showBookmarks
+      });
+
+      if (!(runSearch instanceof Promise)) {
+        runSearch = Promise.resolve(runSearch);
+      }
+
+      return runSearch;
+    }
+
+    return Promise.resolve(_.filter(records, function (record) {
+      // Check for bookmark status
+      if (showBookmarks && !record.bookmarked) {
+        return false;
+      }
+
+      // Check against filters
+      if (!recordMatchesFilters({
+        record: record,
+        filters: activeFilters,
+        config: config
+      })) {
+        return false;
+      }
+
+      // No string
+      if (value === '') {
+        return true;
+      }
+
+      // Use custom string match function
+      if (typeof config.searchMatch === 'function') {
+        return config.searchMatch({
+          record: record,
+          value: value,
+          fields: fields
+        });
+      }
+
+      // Check if record contains value in the search fields
+      return _.some(fields, function (field) {
+        return recordContains(record.data[field], value);
+      });
+    }));
   }
 
   function getRecordFields(records, key) {

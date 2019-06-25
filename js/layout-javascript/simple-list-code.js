@@ -25,7 +25,6 @@ function DynamicList(id, data, container) {
   // Other variables
   // Global variables
   this.allowClick = true;
-  this.mixer;
   this.likeButtons = [];
   this.bookmarkButtons = [];
   this.likeButtonOverlay;
@@ -147,13 +146,15 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
+      var $filter = $(this);
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
-        label: $(this).text()
+        label: $filter.text()
       });
 
-      _this.toggleFilterElement(this);
+      _this.toggleFilterElement($filter);
 
       if ($filter.parents('.inline-filter-holder').length) {
         _this.searchData();
@@ -668,6 +669,12 @@ DynamicList.prototype.attachObservers = function() {
       }).then(function() {
         Fliplet.UI.Actions(options);
       });
+    })
+    .on('click', '.toggle-bookmarks', function () {
+      var $toggle = $(this);
+
+      $toggle.toggleClass('mixitup-control-active');
+      _this.searchData();
     });
 }
 
@@ -727,7 +734,6 @@ DynamicList.prototype.initialize = function() {
         _this.addFilters(_this.modifiedListItems);
         _this.attachObservers();
         _this.checkBookmarked();
-        _this.initializeMixer();
       });
     });
   }
@@ -802,7 +808,6 @@ DynamicList.prototype.initialize = function() {
       _this.parseSearchQueries().then(function(){
         _this.attachObservers();
         _this.checkBookmarked();
-        _this.initializeMixer();
       });
     })
 }
@@ -1176,7 +1181,7 @@ DynamicList.prototype.addFilters = function(records) {
 };
 
 DynamicList.prototype.getActiveFilters = function () {
-  return _(document.querySelectorAll('.hidden-filter-controls-filter.mixitup-control-active'))
+  return _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'))
     .map(function (el) {
       return _.pickBy({
         class: el.dataset.toggle,
@@ -1339,28 +1344,19 @@ DynamicList.prototype.searchData = function(options) {
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
+  var showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   _this.searchValue = value;
   value = value.toLowerCase();
   _this.activeFilters = _this.getActiveFilters();
 
-  var filteredData = _this.Utils.Records.runActiveFilters({
-    records: _this.listItems,
-    filters: _this.activeFilters,
-    config: _this.data
-  });
-
-  // Search
-  if (!Array.isArray(fields)) {
-    fields = _.compact([fields]);
-  }
-
   return _this.Utils.Records.runSearch({
-    query: value,
-    records: filteredData,
+    value: value,
+    records: _this.listItems,
     fields: fields,
     config: _this.data,
-    activeFilters: _this.activeFilters
+    activeFilters: _this.activeFilters,
+    showBookmarks: showBookmarks
   }).then(function (searchedData) {
     if (openSingleEntry && searchedData.length === 1) {
       _this.showDetails(searchedData[0].id);
@@ -1390,122 +1386,86 @@ DynamicList.prototype.searchData = function(options) {
      **/
     $('#simple-list-wrapper-' + _this.data.id).html('');
 
-    if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-      _this.mixer.destroy();
-    }
-
     if (_this.data.enabledLimitEntries) {
-      _this.$container.find('.limit-entries-text').addClass('hidden');
+      if (!showBookmarks
+        && _.isEmpty(_this.activeFilters)
+        && value === ''
+        && _this.data.limitEntries < searchedData.length) {
+        _this.$container.find('.limit-entries-text').removeClass('hidden');
+      } else {
+        _this.$container.find('.limit-entries-text').addClass('hidden');
+      }
     }
 
     _this.searchedListItems = searchedData;
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML(function (from, to) {
       _this.onPartialRender(from, to);
-    }).then(function(){
-      _this.initializeMixer();
-    }).then(function () {
-      // @TODO Update filters
     });
-  });
-}
-
-DynamicList.prototype.initializeMixer = function() {
-  // Function that initializes MixItUP
-  // Plugin used for filtering
-  var _this = this;
-
-  _this.mixer = mixitup('#simple-list-wrapper-' + _this.data.id, {
-    selectors: {
-      control: '[data-mixitup-control="' + _this.data.id + '"]',
-      target: '.simple-list-item'
-    },
-    load: {
-      filter: 'all'
-    },
-    layout: {
-      allowNestedTargets: false
-    },
-    animation: {
-      enable: false
-    },
-    callbacks: {
-      onMixStart: function(state, originalEvent) {
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'filter',
-          label: 'bookmarks'
-        });
-      },
-      onMixEnd: function(state, originalEvent) {
-        if (!state.totalShow) {
-          if (_this.data.enabledLimitEntries) {
-            _this.$container.find('.limit-entries-text').addClass('hidden');
-          }
-
-          _this.$container.find('.no-bookmarks-holder').addClass('show');
-          return;
-        }
-
-        if (state.totalShow && state.totalShow === state.totalTargets) {
-          if (_this.data.enabledLimitEntries) {
-            _this.$container.find('.limit-entries-text').removeClass('hidden');
-          }
-
-          _this.$container.find('.no-bookmarks-holder').removeClass('show');
-        } else if (state.totalShow && state.totalShow !== state.totalTargets) {
-          if (_this.data.enabledLimitEntries) {
-            _this.$container.find('.limit-entries-text').addClass('hidden');
-          }
-
-          _this.$container.find('.no-bookmarks-holder').removeClass('show');
-        }
-      }
-    }
   });
 }
 
 DynamicList.prototype.setupLikeButton = function(id, identifier, title) {
   var _this = this;
+  var btn = LikeButton({
+    target: '.simple-list-like-holder-' + id,
+    dataSourceId: _this.data.likesDataSourceId,
+    content: {
+      entryId: identifier
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+    likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
+    likeWrapper: '<div class="simple-list-like-wrapper btn-like"></div>',
+    likedWrapper: '<div class="simple-list-like-wrapper btn-liked"></div>',
+    addType: 'html'
+  });
 
-  // Sets up the like feature
+  btn.on('like.status', function (liked) {
+    var record = _.find(_this.listItems, { id: id });
+
+    if (!record) {
+      return;
+    }
+
+    record.liked = liked;
+  });
+
   _this.likeButtons.push({
-    btn: LikeButton({
-      target: '.simple-list-like-holder-' + id,
-      dataSourceId: _this.data.likesDataSourceId,
-      content: {
-        entryId: identifier
-      },
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
-      likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-      likeWrapper: '<div class="simple-list-like-wrapper btn-like"></div>',
-      likedWrapper: '<div class="simple-list-like-wrapper btn-liked"></div>',
-      addType: 'html'
-    }),
+    btn: btn,
     id: id
   });
 }
 
 DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
   var _this = this;
+  var btn = LikeButton({
+    target: '.simple-list-bookmark-holder-' + id,
+    dataSourceId: _this.data.bookmarkDataSourceId,
+    content: {
+      entryId: identifier
+    },
+    name: Fliplet.Env.get('pageTitle') + '/' + title,
+    likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+    likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+    likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
+    likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
+    addType: 'html',
+    getAllCounts: false
+  });
 
-  // Sets up the like feature
+  btn.on('like.status', function (liked) {
+    var record = _.find(_this.listItems, { id: id });
+
+    if (!record) {
+      return;
+    }
+
+    record.bookmarked = liked;
+  });
+
   _this.bookmarkButtons.push({
-    btn: LikeButton({
-      target: '.simple-list-bookmark-holder-' + id,
-      dataSourceId: _this.data.bookmarkDataSourceId,
-      content: {
-        entryId: identifier
-      },
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
-      likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-      likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
-      likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
-      addType: 'html',
-      getAllCounts: false
-    }),
+    btn: btn,
     id: id
   });
 }
