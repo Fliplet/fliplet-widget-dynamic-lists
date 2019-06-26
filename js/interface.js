@@ -1576,7 +1576,10 @@ var DynamicLists = (function() {
           organizationId: organizationId,
           entries: defaultEntries[listLayout],
           columns: defaultColumns[listLayout],
-          definition: {'bundleImages': true}
+          bundle: true,
+          definition: {
+            bundleImages: true
+          }
         }).then(function(ds) {
           allDataSources.push(ds);
 
@@ -1626,7 +1629,10 @@ var DynamicLists = (function() {
           organizationId: organizationId,
           entries: defaultEntries[listLayout],
           columns: defaultColumns[listLayout],
-          definition: {'bundleImages': true}
+          bundle: true,
+          definition: {
+            bundleImages: true
+          }
         });
       }).then(function(ds) {
         allDataSources.push(ds);
@@ -2420,6 +2426,7 @@ var DynamicLists = (function() {
         // Create likes data source
         likesPromise = Fliplet.DataSources.create({
           name: appName + ' - Likes',
+          bundle: false,
           organizationId: organizationId // optional
         }).then(function (dataSource) {
           _this.config.likesDataSourceId = dataSource.id;
@@ -2431,6 +2438,7 @@ var DynamicLists = (function() {
         // Create likes data source
         bookmarksPromise = Fliplet.DataSources.create({
           name: appName + ' - Bookmarks',
+          bundle: true,
           organizationId: organizationId // optional
         }).then(function (dataSource) {
           _this.config.bookmarkDataSourceId = dataSource.id;
@@ -2442,6 +2450,7 @@ var DynamicLists = (function() {
         // Create likes data source
         commentsPromise = Fliplet.DataSources.create({
           name: appName + ' - Comments',
+          bundle: false,
           organizationId: organizationId // optional
         }).then(function (dataSource) {
           _this.config.commentsDataSourceId = dataSource.id;
