@@ -19,7 +19,6 @@ function DynamicList(id, data, container) {
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
-  this.queryOptions = {};
 
   // Other variables
   // Global variables
@@ -601,10 +600,10 @@ DynamicList.prototype.initialize = function() {
         // Create flag for current user
         _this.listItems.forEach(function(item) {
           item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
-        });
 
-        _this.myProfileData = _.filter(_this.listItems, function(row) {
-          return row.isCurrentUser;
+          if (item.isCurrentUser) {
+            _this.myProfileData = item;
+          }
         });
       }
 
@@ -677,10 +676,10 @@ DynamicList.prototype.initialize = function() {
         // Create flag for current user
         records.forEach(function(record) {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
-        });
 
-        _this.myProfileData = _.filter(records, function(row) {
-          return row.isCurrentUser;
+          if (record.isCurrentUser) {
+            _this.myProfileData = record;
+          }
         });
       }
 
@@ -909,7 +908,20 @@ DynamicList.prototype.connectToDataSource = function() {
       .then(function (connection) {
         // If you want to do specific queries to return your rows
         // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        return connection.find(_this.queryOptions);
+        var query = {};
+
+        if (typeof _this.data.dataQuery === 'function') {
+          query = _this.data.dataQuery({
+            config: _this.data,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container
+          });
+        } else if (typeof _this.data.dataQuery === 'object') {
+          query = _this.data.dataQuery;
+        }
+
+        return connection.find(query);
       });
   }
 
@@ -1266,7 +1278,7 @@ DynamicList.prototype.searchData = function(options) {
      _this.$container.find('.hidden-search-controls').addClass('active');
      _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
 
-     if (!_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+     if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
        // Same results returned. Do nothing.
        return Promise.resolve();
      }

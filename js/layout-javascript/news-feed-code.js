@@ -21,7 +21,6 @@ function DynamicList(id, data, container) {
   this.data.computedFields = this.data.computedFields || {};
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.$overlay;
-  this.queryOptions = {};
 
   // Other variables
   // Global variables
@@ -1187,7 +1186,20 @@ DynamicList.prototype.connectToDataSource = function() {
       .then(function (connection) {
         // If you want to do specific queries to return your rows
         // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        return connection.find(_this.queryOptions);
+        var query = {};
+
+        if (typeof _this.data.dataQuery === 'function') {
+          query = _this.data.dataQuery({
+            config: _this.data,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container
+          });
+        } else if (typeof _this.data.dataQuery === 'object') {
+          query = _this.data.dataQuery;
+        }
+
+        return connection.find(query);
       });
   }
 
@@ -1520,7 +1532,7 @@ DynamicList.prototype.searchData = function(options) {
     _this.$container.find('.hidden-search-controls').addClass('active');
     _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
 
-    if (!_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+    if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
       // Same results returned. Do nothing.
       return Promise.resolve();
     }
