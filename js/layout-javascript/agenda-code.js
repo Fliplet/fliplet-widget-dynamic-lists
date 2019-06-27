@@ -23,8 +23,6 @@ function DynamicList(id, data, container) {
   // Global variables
   this.allowClick = true;
   this.hammer;
-  this.bookmarkButtons = [];
-  this.bookmarkButtonOverlay;
   this.animatingForward = false;
   this.animatingBack = false;
   this.activeSlideIndex;
@@ -203,7 +201,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.agenda-item-title').text();
+      var entryTitle = $(this).find('.agenda-item-title').text().trim();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -308,7 +306,7 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter_date',
-        label: $(this).find('.week').text() + ' ' + $(this).find('.day').text() + ' ' + $(this).find('.month').text()
+        label: $(this).find('.week').text().trim() + ' ' + $(this).find('.day').text().trim() + ' ' + $(this).find('.month').text().trim()
       });
 
       if (indexDifference < indexOfActiveDate) {
@@ -425,6 +423,23 @@ DynamicList.prototype.attachObservers = function() {
 
       $toggle.toggleClass('mixitup-control-active');
       _this.searchData();
+    })
+    .on('click', '.agenda-detail-overlay .bookmark-wrapper', function() {
+      var id = $(this).parents('.agenda-detail-wrapper').data('entry-id');
+      var record = _.find(_this.listItems, { id: id });
+
+      if (!record || !record.bookmarkButton) {
+        return;
+      }
+
+      if (record.bookmarked) {
+        $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+        record.bookmarkButton.unlike();
+        return;
+      }
+
+      $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+      record.bookmarkButton.like();
     });
 }
 
@@ -448,57 +463,6 @@ DynamicList.prototype.removeListItemHTML = function (options) {
   }
 
   this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').remove();
-}
-
-DynamicList.prototype.likesObservers = function(button) {
-  var _this = this;
-
-  button.btn.on('liked', function(data){
-    this.$btn.parents('.agenda-list-item').addClass('bookmarked');
-    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_bookmark',
-      label: entryTitle
-    });
-  });
-
-  button.btn.on('liked.fail', function(data){
-    this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
-    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
-  });
-
-  button.btn.on('unliked', function(data){
-    this.$btn.parents('.agenda-list-item').removeClass('bookmarked');
-    var entryTitle = this.$btn.parents('.agenda-item-content-holder').find('.agenda-item-title').text();
-    Fliplet.Analytics.trackEvent({
-      category: 'list_dynamic_' + _this.data.layout,
-      action: 'entry_unbookmark',
-      label: entryTitle
-    });
-  });
-
-  button.btn.on('unliked.fail', function(data){
-    this.$btn.parents('.agenda-list-item').addClass('bookmarked');
-    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
-  });
-}
-
-DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
-  var _this = this;
-
-  _this.$container.find('.agenda-detail-overlay .bookmark-wrapper').on('click', function() {
-    if (isLiked) {
-      $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
-      button.btn.unlike();
-      isLiked = !isLiked;
-      return;
-    }
-
-    $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
-    button.btn.like();
-    isLiked = !isLiked;
-  });
 }
 
 DynamicList.prototype.scrollEvent = function() {
@@ -556,10 +520,10 @@ DynamicList.prototype.initialize = function() {
 
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
-      _this.renderLoopHTML().then(function(){
+      _this.renderLoopHTML().then(function(records){
+        _this.searchedListItems = _.clone(_this.listItems);
         // Listeners and Ready
-        _this.setupCards();
-        _this.checkBookmarked();
+        return _this.initializeSocials();
       });
     });
   }
@@ -629,8 +593,8 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.searchedListItems = _.clone(_this.listItems);
       _this.searchData({
+        render: true,
         goToToday: true
       });
     })
@@ -1135,17 +1099,21 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 }
 
-DynamicList.prototype.setupCards = function() {
+DynamicList.prototype.initializeSocials = function() {
   var _this = this;
 
-  if (!_.get(_this.data, 'social.bookmark')) {
-    return;
-  }
+  return Promise.all(_.map(_.flatten(_this.agendasByDay), function (record) {
+    var title = _this.$container.find('.agenda-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
+    var masterRecord = _.find(_this.listItems, { id: record.id });
 
-  // Sets up the like and bookmark buttons
-  _this.$container.find('.agenda-list-item').each(function(index, element) {
-    _this.prepareSetupBookmark(element);
-  });
+    return _this.setupBookmarkButton({
+      target: '.new-agenda-list-container .agenda-item-bookmark-holder-' + record.id,
+      id: record.id,
+      identifier: record.id + '-bookmark',
+      title: title,
+      record: masterRecord
+    });
+  }));
 }
 
 /* ANIMATION FOR DATES BACK AND FORWARD */
@@ -1302,97 +1270,107 @@ DynamicList.prototype.centerDate = function() {
 }
 
 // Functions to setup Fliplet Like
-DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
-  var _this = this;
-  var btn = LikeButton({
-    target: '.new-agenda-list-container .agenda-item-bookmark-holder-' + id,
-    dataSourceId: _this.data.bookmarkDataSourceId,
-    content: {
-      entryId: identifier,
-      pageId: Fliplet.Env.get('pageId')
-    },
-    allowAnonymous: true,
-    name: Fliplet.Env.get('pageTitle') + '/' + title,
-    likeLabel: '<span class="fa fa-bookmark-o"></span>',
-    likedLabel: '<span class="fa fa-bookmark"></span>',
-    likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
-    likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
-    addType: 'prepend',
-    getAllCounts: false
-  });
-  var button = { btn: btn, id: id };
-
-  btn.on('like.status', function (liked) {
-    var record = _.find(_this.listItems, { id: id });
-
-    if (!record) {
-      return;
-    }
-
-    record.bookmarked = liked;
-  });
-
-  _this.bookmarkButtons.push(button);
-
-  return button;
-}
-
-DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
-  var _this = this;
-  var isLiked = false;
-  var button = _.find(_this.bookmarkButtons, function(btn) {
-    return btn.id === id;
-  });
-
-  if (button && button.btn) {
-    if (button.btn.isLiked()) {
-      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).addClass('bookmarked');
-      isLiked = button.btn.isLiked();
-    } else {
-      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + button.id).addClass('not-bookmarked');
-      isLiked = button.btn.isLiked();
-    }
-  } else {
-    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder').addClass('not-bookmarked');
-    isLiked = false;
+DynamicList.prototype.setupBookmarkButton = function(options) {
+  if (!_.get(this.data, 'social.bookmark')) {
+    return Promise.resolve();
   }
 
-  _this.likesObserversOverlay(id, button, isLiked);
-}
+  options = options || {};
 
-DynamicList.prototype.prepareSetupBookmark = function(element) {
   var _this = this;
-  var cardId = $(element).data('entry-id');
-  var bookmarkIndentifier = cardId + '-bookmark';
-  var title = $(element).find('.agenda-item-inner-content .agenda-item-title').text();
+  var id = options.id;
+  var identifier = options.identifier;
+  var title = options.title;
+  var target = options.target;
+  var record = options.record || _.find(_this.listItems, { id: id });
 
-  var button = _this.setupBookmarkButton(cardId, bookmarkIndentifier, title);
-  _this.likesObservers(button);
-}
+  if (!record) {
+    return Promise.resolve();
+  }
 
-// Function to add class to card marking it as bookmarked - for filtering
-DynamicList.prototype.checkBookmarked = function() {
-  var _this = this;
-  // Wait for bookmark to appear on the page
-  var checkTimer = 0;
-  var checkInterval = setInterval(function() {
-    // Check for 10 seconds
-    if (checkTimer > 10) {
-      clearInterval(checkInterval);
-      return;
-    }
-    _this.$container.find('.btn-bookmarked').each(function(idx, element) {
-      $(element).parents('.agenda-list-item').addClass('bookmarked');
+  return new Promise(function (resolve) {
+    var btn = LikeButton({
+      target: '.new-agenda-list-container .agenda-item-bookmark-holder-' + id,
+      dataSourceId: _this.data.bookmarkDataSourceId,
+      content: {
+        entryId: identifier,
+        pageId: Fliplet.Env.get('pageId')
+      },
+      allowAnonymous: true,
+      name: Fliplet.Env.get('pageTitle') + '/' + title,
+      likeLabel: '<span class="fa fa-bookmark-o"></span>',
+      likedLabel: '<span class="fa fa-bookmark"></span>',
+      likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
+      likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
+      addType: 'prepend',
+      getAllCounts: false
     });
-    checkTimer++;
-  }, 1000);
+    record.bookmarkButton = btn;
+
+    btn.on('like.status', function (liked) {
+      record.bookmarked = liked;
+      resolve(btn);
+    });
+
+    btn.on('liked', function(data){
+      record.bookmarked = btn.isLiked();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_bookmark',
+        label: title
+      });
+    });
+
+    btn.on('liked.fail', function(data){
+      record.bookmarked = btn.isLiked();
+      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
+    });
+
+    btn.on('unliked', function(data){
+      record.bookmarked = btn.isLiked();
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'entry_unbookmark',
+        label: title
+      });
+    });
+
+    btn.on('unliked.fail', function(data){
+      record.bookmarked = btn.isLiked();
+      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
+    });
+  });
+}
+
+DynamicList.prototype.initializeOverlaySocials = function(id) {
+  var _this = this;
+  var record = _.find(_this.listItems, { id: id });
+
+  if (!record) {
+    return Promise.resolve();
+  }
+
+  var title = _this.$container.find('.agenda-detail-overlay .agenda-detail-wrapper[data-entry-id="' + id + '"] .agenda-item-title').text().trim();
+
+  if (record.bookmarkButton) {
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(record.bookmarkButton.isLiked() ? 'bookmarked' : 'not-bookmarked');
+    return Promise.resolve();
+  }
+
+  return _this.setupBookmarkButton({
+    id: id,
+    identifier: id + '-bookmark',
+    title: title,
+    record: record
+  }).then(function (btn) {
+    _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
+  });
 }
 
 DynamicList.prototype.searchData = function(options) {
   options = options || {};
 
   var _this = this;
-  var goToToday = options.goToToday;
   var showBookmarks = $('.toggle-agenda').hasClass('mixitup-control-active');
 
   return _this.Utils.Records.runSearch({
@@ -1405,14 +1383,31 @@ DynamicList.prototype.searchData = function(options) {
      **/
     _this.prepareToRenderLoop(searchedData);
     _this.searchedListItems = searchedData;
-    return _this.renderLoopHTML().then(function(){
-      if (goToToday) {
-        _this.goToToday();
-      }
 
-      _this.setupCards();
-      _this.checkBookmarked();
-    });
+    if (options.render) {
+      // Render the full list
+      return _this.renderLoopHTML().then(function(records){
+        if (options.goToToday) {
+          _this.goToToday();
+        } else {
+          // @TODO Stay in current date index
+          _this.sliderGoTo($('.agenda-date-selector li.active').index() - $('.agenda-date-selector li:not(.placeholder)').index());
+        }
+
+        return _this.initializeSocials();
+      });
+    }
+
+    var recordIdsToShow = _.map(_this.searchedListItems, 'id');
+    var recordIdsToHide = _.difference(_.map(_this.listItems, 'id'), recordIdsToShow);
+
+    // Hide and show content based on existing render
+    $(_.map(recordIdsToShow, function (id) {
+      return '.agenda-list-item[data-entry-id="' + id + '"]';
+    }).join(',')).show();
+    $(_.map(recordIdsToHide, function (id) {
+      return '.agenda-list-item[data-entry-id="' + id + '"]';
+    }).join(',')).hide();
   });
 }
 
@@ -1585,10 +1580,7 @@ DynamicList.prototype.showDetails = function (id) {
     $overlay.find('.agenda-detail-overlay-content-holder').html(wrapperTemplate(entryId));
     $overlay.find('.agenda-detail-wrapper').append(template(data.data || entryData));
 
-    // Sets up the like and bookmark buttons
-    if (_this.data.social && _this.data.social.bookmark) {
-      _this.prepareSetupBookmarkOverlay(id);
-    }
+    _this.initializeOverlaySocials(id);
 
     // Trigger animations
     $('body').addClass('lock');

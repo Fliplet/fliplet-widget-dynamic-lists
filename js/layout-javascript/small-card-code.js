@@ -32,9 +32,6 @@ function DynamicList(id, data, container) {
   this.modifiedProfileData;
   this.myUserData;
 
-  this.bookmarkButtons = [];
-  this.bookmarkButtonOverlay;
-
   this.listItems;
   this.modifiedListItems;
   this.searchedListItems;
@@ -209,7 +206,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.small-card-list-name').text();
+      var entryTitle = $(this).find('.small-card-list-name').text().trim();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -531,6 +528,23 @@ DynamicList.prototype.attachObservers = function() {
 
       $toggle.toggleClass('mixitup-control-active');
       _this.searchData();
+    })
+    .on('click', '.small-card-detail-overlay .small-card-bookmark-wrapper', function() {
+      var id = $(this).parents('.small-card-detail-wrapper').data('entry-id');
+      var record = _.find(_this.listItems, { id: id });
+
+      if (!record || !record.bookmarkButton) {
+        return;
+      }
+
+      if (record.bookmarked) {
+        $(this).parents('.small-card-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+        record.bookmarkButton.unlike();
+        return;
+      }
+
+      $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+      record.bookmarkButton.like();
     });
 }
 
@@ -596,11 +610,10 @@ DynamicList.prototype.initialize = function() {
 
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
-      _this.searchedListItems = _.clone(_this.listItems);
-      _this.renderLoopHTML(function(from, to){
-        _this.onPartialRender(from, to);
-      }).then(function(){
-        _this.addFilters(_this.modifiedListItems);
+      _this.addFilters(_this.modifiedListItems);
+      return _this.renderLoopHTML().then(function(records){
+        _this.searchedListItems = _.clone(_this.listItems);
+
         // Render user profile
         if (_this.myProfileData && _this.myProfileData.length) {
           _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
@@ -614,8 +627,8 @@ DynamicList.prototype.initialize = function() {
 
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
         }
-        // Listeners and Ready
-        _this.checkBookmarked();
+
+        return _this.initializeSocials(records);
       });
     });
   }
@@ -695,26 +708,9 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.searchedListItems = _.clone(_this.listItems);
       _this.addFilters(_this.modifiedListItems);
       _this.parseFilterQueries();
-      _this.parseSearchQueries().then(function(){
-        // Render user profile
-        if (_this.myProfileData && _this.myProfileData.length) {
-          _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
-          var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
-          var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-          _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
-
-          var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
-          var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-          _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
-
-          _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
-        }
-
-        _this.checkBookmarked();
-      });
+      _this.parseSearchQueries();
     })
 }
 
@@ -1119,14 +1115,15 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   return new Promise(function(resolve){
     function render() {
       // get the next batch of items to render
-      let nextBatch = data.slice(
+      var nextBatch = data.slice(
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
       );
+
       if (nextBatch.length) {
         $('#small-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if (iterateeCb && typeof iterateeCb === 'function'){
-          if (renderLoopIndex === 0){
+        if (iterateeCb && typeof iterateeCb === 'function') {
+          if (renderLoopIndex === 0) {
             _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
           }
           iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
@@ -1134,9 +1131,9 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
-      } else{
+      } else {
         _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
-        resolve()
+        resolve(data);
       }
     }
     // start the initial render
@@ -1200,40 +1197,6 @@ DynamicList.prototype.getActiveFilters = function () {
     })
     .value();
 };
-
-DynamicList.prototype.onPartialRender = function(from, to) {
-  // Function called when it's ready to show the list and remove the Loading
-  var _this = this;
-
-  if (_this.data.social && _this.data.social.bookmark) {
-    _this.$container.find('.small-card-list-item').not('.is-current-user').slice(from, to).each(function(index, element) {
-      var cardId = $(element).data('entry-id');
-      var likeIndentifier = cardId + '-bookmark';
-      var title = $(element).find('.small-card-list-name').text();
-      _this.setupBookmarkButton(cardId, likeIndentifier, title);
-    });
-
-    _this.likesObservers();
-  }
-}
-
-DynamicList.prototype.checkBookmarked = function() {
-  var _this = this;
-
-  // Wait for bookmark to appear on the page
-  var checkTimer = 0;
-  var checkInterval = setInterval(function() {
-    // Check for 10 seconds
-    if (checkTimer > 10) {
-      clearInterval(checkInterval);
-      return;
-    }
-    _this.$container.find('.btn-bookmarked').each(function(idx, element) {
-      $(element).parents('.small-card-list-item').addClass('bookmarked');
-    });
-    checkTimer++;
-  }, 1000);
-}
 
 DynamicList.prototype.calculateFiltersHeight = function($el) {
   $el.find('.hidden-filter-controls').each(function () {
@@ -1326,122 +1289,137 @@ DynamicList.prototype.searchData = function(options) {
 
     _this.searchedListItems = searchedData;
     _this.prepareToRenderLoop(searchedData);
-    _this.renderLoopHTML(function (from, to) {
-      _this.onPartialRender(from, to);
-    }).then(function () {
-      _this.checkBookmarked();
+    _this.renderLoopHTML().then(function (records) {
+      // Render user profile
+      if (_this.myProfileData && _this.myProfileData.length) {
+        var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
+        var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+        var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
+        var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+
+        _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
+        _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
+        _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+        _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
+      }
+
+      return _this.initializeSocials(records);
     });
   });
 }
 
-DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
-  var _this = this;
-  var btn = LikeButton({
-    target: '.small-card-bookmark-holder-' + id,
-    dataSourceId: _this.data.bookmarkDataSourceId,
-    content: {
-      entryId: identifier
-    },
-    name: Fliplet.Env.get('pageTitle') + '/' + title,
-    likeLabel: '<i class="fa fa-bookmark-o"></i>',
-    likedLabel: '<i class="fa fa-bookmark animated fadeIn"></i>',
-    likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
-    likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
-    addType: 'html',
-    getAllCounts: false
-  });
-
-  btn.on('like.status', function (liked) {
-    var record = _.find(_this.listItems, { id: id });
-
-    if (!record) {
-      return;
-    }
-
-    record.bookmarked = liked;
-  });
-
-  _this.bookmarkButtons.push({
-    btn: btn,
-    id: id
-  });
-}
-
-DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
-  var _this = this;
-  var isLiked = false;
-  var button = _.find(_this.bookmarkButtons, function(btn) {
-    return btn.id === id;
-  });
-
-  if (button && button.btn) {
-    if (button.btn.isLiked()) {
-      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + button.id).addClass('bookmarked');
-      isLiked = button.btn.isLiked();
-    } else {
-      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + button.id).addClass('not-bookmarked');
-      isLiked = button.btn.isLiked();
-    }
-  } else {
-    _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder').addClass('not-bookmarked');
-    isLiked = false;
+DynamicList.prototype.setupBookmarkButton = function(options) {
+  if (!_.get(this.data, 'social.bookmark')) {
+    return Promise.resolve();
   }
 
-  _this.likesObserversOverlay(id, button, isLiked);
-}
+  options = options || {};
 
-DynamicList.prototype.likesObservers = function() {
   var _this = this;
+  var id = options.id;
+  var identifier = options.identifier;
+  var title = options.title;
+  var target = options.target;
+  var record = options.record || _.find(_this.listItems, { id: id });
 
-  _this.bookmarkButtons.forEach(function(button) {
-    button.btn.on('liked', function(data){
-      this.$btn.parents('.small-card-list-item').addClass('bookmarked');
-      var entryTitle = this.$btn.parents('.small-card-list-text-wrapper').find('.small-card-list-name').text();
+  if (!record) {
+    return Promise.resolve();
+  }
+
+  return new Promise(function (resolve) {
+    var btn = LikeButton({
+      target: target,
+      dataSourceId: _this.data.bookmarkDataSourceId,
+      content: {
+        entryId: identifier
+      },
+      name: Fliplet.Env.get('pageTitle') + '/' + title,
+      likeLabel: '<i class="fa fa-bookmark-o"></i>',
+      likedLabel: '<i class="fa fa-bookmark animated fadeIn"></i>',
+      likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
+      likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
+      addType: 'html',
+      getAllCounts: false,
+      liked: record.bookmarked
+    });
+    record.bookmarkButton = btn;
+
+    btn.on('like.status', function (liked) {
+      record.bookmarked = liked;
+      resolve(btn);
+    });
+
+    btn.on('liked', function(data){
+      record.bookmarked = btn.isLiked();
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_bookmark',
-        label: entryTitle
+        label: title
       });
     });
 
-    button.btn.on('liked.fail', function(data){
-      this.$btn.parents('.small-card-list-item').removeClass('bookmarked');
-      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
+    btn.on('liked.fail', function(data){
+      record.bookmarked = btn.isLiked();
+      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
     });
 
-    button.btn.on('unliked', function(data){
-      this.$btn.parents('.small-card-list-item').removeClass('bookmarked');
-      var entryTitle = this.$btn.parents('.small-card-list-text-wrapper').find('.small-card-list-name').text();
+    btn.on('unliked', function(data){
+      record.bookmarked = btn.isLiked();
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_unbookmark',
-        label: entryTitle
+        label: title
       });
     });
 
-    button.btn.on('unliked.fail', function(data){
-      this.$btn.parents('.small-card-list-item').addClass('bookmarked');
-      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
+    btn.on('unliked.fail', function(data){
+      record.bookmarked = btn.isLiked();
+      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
     });
   });
 }
 
-DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
+DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
+  var record = _.find(_this.listItems, { id: id });
 
-  _this.$container.find('.small-card-detail-overlay .small-card-bookmark-wrapper').on('click', function() {
-    if (isLiked) {
-      $(this).parents('.small-card-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
-      button.btn.unlike();
-      isLiked = !isLiked;
-      return;
-    }
+  if (!record) {
+    return Promise.resolve();
+  }
 
-    $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
-    button.btn.like();
-    isLiked = !isLiked;
+  var title = _this.$container.find('.small-card-detail-overlay .small-card-detail-wrapper[data-entry-id="' + id + '"] .small-card-list-detail-name').text().trim();
+
+  if (record.bookmarkButton) {
+    _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(record.bookmarkButton.isLiked() ? 'bookmarked' : 'not-bookmarked');
+    return Promise.resolve();
+  }
+
+  return _this.setupBookmarkButton({
+    id: id,
+    identifier: id + '-bookmark',
+    title: title,
+    record: record
+  }).then(function (btn) {
+    _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
   });
 }
+
+DynamicList.prototype.initializeSocials = function (records) {
+  var _this = this;
+
+  return Promise.all(_.map(records, function (record) {
+    var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
+    var masterRecord = _.find(_this.listItems, { id: record.id });
+
+    return _this.setupBookmarkButton({
+      target: '.new-small-card-list-container .small-card-bookmark-holder-' + record.id,
+      id: record.id,
+      identifier: record.id + '-bookmark',
+      title: title,
+      record: masterRecord
+    });
+  }));
+};
 
 DynamicList.prototype.openLinkAction = function(entryId) {
   var _this = this;
@@ -1502,10 +1480,7 @@ DynamicList.prototype.showDetails = function (id) {
     $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
     $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
 
-    // Doesn't setup the bookmark button for the current user profile
-    if ((data.data && !data.data.isCurrentUser) || (entryData && !entryData.isCurrentUser)) {
-      _this.prepareSetupBookmarkOverlay(id);
-    }
+    _this.initializeOverlaySocials(id);
 
     // Trigger animations
     _this.$container.find('.new-small-card-list-container').addClass('overlay-open');

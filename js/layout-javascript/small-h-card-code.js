@@ -77,7 +77,7 @@ DynamicList.prototype.attachObservers = function() {
        Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'profile_buttons',
-        label: _that.find('.small-h-card-list-detail-button-text').text()
+        label: _that.find('.small-h-card-list-detail-button-text').text().trim()
       });
     })
     .on('touchstart', '.small-h-card-list-item', function(event) {
@@ -100,7 +100,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.small-h-card-list-item', function(event) {
       var _that = $(this);
       var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.small-h-card-list-item-text').text();
+      var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
