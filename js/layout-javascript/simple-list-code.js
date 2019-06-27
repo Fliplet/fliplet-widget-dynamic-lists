@@ -1573,7 +1573,7 @@ DynamicList.prototype.getCommentUsers = function () {
   var _this = this;
 
   // Get users info for comments
-  _this.connectToUsersDataSource()
+  return _this.connectToUsersDataSource()
     .then(function(users) {
       return _this.Utils.Records.updateFiles({
         records: users,
@@ -1595,37 +1595,13 @@ DynamicList.prototype.getCommentUsers = function () {
         }
       }
 
-      var usersInfoToMention = [];
-      _this.allUsers.forEach(function(user) {
-        var userName = '';
-        var userNickname = '';
-        var counter = 1;
-
-        if (_this.data.userNameFields && _this.data.userNameFields.length > 1) {
-          _this.data.userNameFields.forEach(function(name, i) {
-            userName += user.data[name] + ' ';
-            userNickname += counter === 1
-              ? (user.data[name] || '').toLowerCase().charAt(0) + ' '
-              : (user.data[name] || '').toLowerCase().replace(/\s/g, '') + ' ';
-          });
-          userName = userName.trim();
-          userNickname = userNickname.trim();
-
-          counter++;
-        } else {
-          userName = user.data[_this.data.userNameFields[0]] || '';
-          userNickname = (user.data[_this.data.userNameFields[0]] || '').toLowerCase().replace(/\s/g, '')
-        }
-
-        var userInfo = {
-          id: user.id,
-          username: userNickname,
-          name: userName,
-          image: user.data[_this.data.userPhotoColumn] || ''
-        }
-        usersInfoToMention.push(userInfo);
+      return _this.Utils.Users.getUsersToMention({
+        allUsers: _this.allUsers,
+        config: _this.data
       });
-      _this.usersToMention = usersInfoToMention;
+    })
+    .then(function (usersToMention) {
+      _this.usersToMention = usersToMention;
     });
 };
 

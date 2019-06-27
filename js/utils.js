@@ -1026,6 +1026,42 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return $target;
   }
 
+  function getUsersToMention(options) {
+    options = options || {};
+
+    var allUsers = options.allUsers;
+    var config = options.config;
+
+    return _.map(allUsers, function(user) {
+      var userName = '';
+      var userNickname = '';
+      var counter = 1;
+
+      if (config.userNameFields && config.userNameFields.length > 1) {
+        config.userNameFields.forEach(function(name, i) {
+          userName += user.data[name] + ' ';
+          userNickname += counter === 1
+            ? (user.data[name] || '').toLowerCase().charAt(0) + ' '
+            : (user.data[name] || '').toLowerCase().replace(/\s/g, '') + ' ';
+        });
+        userName = userName.trim();
+        userNickname = userNickname.trim();
+
+        counter++;
+      } else {
+        userName = user.data[config.userNameFields[0]] || '';
+        userNickname = (user.data[config.userNameFields[0]] || '').toLowerCase().replace(/\s/g, '')
+      }
+
+      return {
+        id: user.id,
+        username: userNickname,
+        name: userName,
+        image: user.data[config.userPhotoColumn] || ''
+      };
+    });
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
@@ -1062,6 +1098,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     User: {
       isAdmin: userIsAdmin,
       canAddRecord: userCanAddRecord
+    },
+    Users: {
+      getUsersToMention: getUsersToMention
     }
   };
 }()));
