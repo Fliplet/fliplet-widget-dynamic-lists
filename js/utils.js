@@ -838,6 +838,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var records = options.records || [];
     var config = options.config || {};
 
+    if (!_.isArray(config.filterOptions) && _.isObject(config.filterOptions)) {
+      config.filterOptions = [config.filterOptions];
+    }
+
     // Filter data based on filter options, filter queries and PV storage values (deprecated)
     var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
     records = runRecordFilters(records, _.map(filters, function(option) {
