@@ -329,7 +329,7 @@ DynamicList.prototype.attachObservers = function() {
             return '.hidden-filter-controls-filter[data-field="' + key + '"][data-value="' + value + '"]';
           });
         })).join(',');
-        _this.toggleFilterElement(selectors, true);
+        _this.toggleFilterElement(_this.$container.find(selectors), true);
 
         _this.$container.find('.clear-filters').removeClass('hidden');
         return;
