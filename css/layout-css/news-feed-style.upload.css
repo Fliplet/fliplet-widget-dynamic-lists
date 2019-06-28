@@ -157,7 +157,7 @@
   right: 0;
   top: 0;
   width: 34px;
-  height: 34px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,6 +248,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .new-news-feed-list-container .list-search-icon {
@@ -391,14 +392,8 @@
   align-items: center;
 }
 
-.new-news-feed-list-container .search-results .hidden-filter-controls-search .search-query-holder,
-.new-news-feed-list-container .is-searching .hidden-filter-controls-search .search-query-holder {
+.new-news-feed-list-container .search-results .hidden-filter-controls-search .search-query-holder {
   display: block;
-}
-
-.new-news-feed-list-container .search-results .hidden-filter-controls-search .search-holder,
-.new-news-feed-list-container .is-searching .hidden-filter-controls-search .search-holder {
-  display: none;
 }
 
 .new-news-feed-list-container .current-query-wrapper {
@@ -418,6 +413,7 @@
   text-overflow: ellipsis;
   max-width: calc(100% - 185px);
   display: inline-block;
+  vertical-align: text-top;
 }
 
 .new-news-feed-list-container .current-query-wrapper .clear-search {
@@ -425,7 +421,7 @@
   right: 0;
   top: 0;
   width: 34px;
-  height: 34px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -437,7 +433,7 @@
 .new-news-feed-list-container .hidden-filter-controls-label {
   font-size: 14px;
   color: #aaaaaa;
-  padding: 0 15px 5px;
+  padding: 0 18px 5px;
 }
 
 .new-news-feed-list-container .hidden-filter-controls-filter-container + .hidden-filter-controls-label {

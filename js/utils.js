@@ -23,6 +23,24 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       || Static.RegExp.dataSourcesPath.test(str);
   }
 
+  function smartParseFloat(value) {
+    // Convert strings to numbers where possible so that
+    // strings that reprepsent numbers are compared as numbers
+    if (!_.isString(value)) {
+      return value;
+    }
+
+    if (isNaN(parseFloat(value.trim()))) {
+      return value;
+    }
+
+    if (parseFloat(value.trim()).toString() !== value.trim()) {
+      return value;
+    }
+
+    return parseFloat(value);
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('plaintext', function (context) {
       var result = $('<div></div>').html(context).text();
@@ -92,22 +110,24 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
 
     Handlebars.registerHelper('formatComment', function(text) {
+      var res = text;
+
       /* capture email addresses and turn into mailto links */
-      text = text.replace(Static.RegExp.email, '<a href="mailto:$&">$&</a>');
+      res = res.replace(Static.RegExp.email, '<a href="mailto:$&">$&</a>');
 
       /* capture phone numbers and turn into tel links */
-      text = text.replace(Static.RegExp.phone, '<a href="tel:$&">$&</a>');
+      res = res.replace(Static.RegExp.phone, '<a href="tel:$&">$&</a>');
 
       /* capture URLs and turn into links */
-      text = text.replace(Static.RegExp.url, function(match, p1, p2, p3, p4, p5, offset, string) {
+      res = res.replace(Static.RegExp.url, function(match, p1, p2, p3, p4, p5, offset, string) {
         return Static.RegExp.linebreak.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>' :
           ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
       });
 
-      text = text.replace(Static.RegExp.mention, '<strong>$&</strong>');
+      res = res.replace(Static.RegExp.mention, '<strong>$&</strong>');
 
       /* capture line break and turn into <br> */
-      text = text.replace(Static.RegExp.linebreak, '<br>');
+      res = res.replace(Static.RegExp.linebreak, '<br>');
 
       return new Handlebars.SafeString(res);
     });
@@ -193,22 +213,24 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       query.value = [query.value];
     }
 
+    // Select filters using on legacy class-based methods
+    query.value.forEach(function(values, index) {
+      if (!Array.isArray(values)) {
+        query.value[index] = [values];
+      }
+
+      query.value[index].forEach(function (value) {
+        var className = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+        selectors.push('[data-toggle="' + className + '"]');
+      });
+    });
+
     if (_.get(query, 'column', []).length) {
       // Select filters using on legacy column-specific methods
-      query.column.forEach(function (key, index) {
-        if (!Array.isArray(query.value[index])) {
-          query.value[index] = [query.value[index]];
-        }
-
+      query.column.forEach(function (field, index) {
         query.value[index].forEach(function (value) {
-          selectors.push('[data-key="' + key + '"][data-value="' + value + '"]');
+          selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
         });
-      });
-    } else {
-      // Select filters using on legacy class-based methods
-      query.value.forEach(function(value) {
-        value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-        selectors.push('[data-toggle="' + value + '"]');
       });
     }
 
@@ -220,7 +242,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   }
 
   function recordContains(record, value) {
-    if (!record) {
+    if (_.isNil(record)) {
       return false;
     }
 
@@ -302,24 +324,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       '<=': function (a, b) { return smartParseFloat(a) <= smartParseFloat(b) }
     };
 
-    function smartParseFloat(value) {
-      // Convert strings to numbers where possible so that
-      // strings that reprepsent numbers are compared as numbers
-      if (!_.isString(value)) {
-        return value;
-      }
-
-      if (isNaN(parseFloat(value.trim()))) {
-        return value;
-      }
-
-      if (parseFloat(value.trim()).toString() !== value.trim()) {
-        return value;
-      }
-
-      return parseFloat(value);
-    }
-
     return _.filter(records, function (record) {
       return _.every(filters, function (filter) {
         if (!filter.condition === 'none' || filter.column === 'none' || !filter.value) {
@@ -354,6 +358,99 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         }
       });
     });
+  }
+
+  function runActiveFilters(options) {
+    options = options || {};
+
+    var records = options.records || [];
+    var filters = options.filters;
+    var config = options.config;
+    var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
+
+    if (_.isEmpty(filters)) {
+      if (!showBookmarks) {
+        return records;
+      }
+
+      return _.filter(records, { bookmarked: true });
+    }
+
+    var filteredData = [];
+
+    return _.filter(records, function (record) {
+      return (!showBookmarks || record.bookmarked) && recordMatchesFilters({
+        record: record,
+        filters: filters,
+        config: config
+      });
+    });
+  }
+
+  function runRecordSearch(options) {
+    options = options || {};
+
+    var value = options.value || '';
+    var records = options.records || [];
+    var fields = options.fields || [];
+    var config = options.config || {};
+    var activeFilters = options.activeFilters || {};
+    var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
+
+    if (!Array.isArray(fields)) {
+      fields = _.compact([fields]);
+    }
+
+    if (typeof config.searchData === 'function') {
+      var runSearch = config.searchData({
+        config: config,
+        query: value,
+        activeFilters: activeFilters,
+        records: records,
+        showBookmarks: showBookmarks
+      });
+
+      if (!(runSearch instanceof Promise)) {
+        runSearch = Promise.resolve(runSearch);
+      }
+
+      return runSearch;
+    }
+
+    return Promise.resolve(_.filter(records, function (record) {
+      // Check for bookmark status
+      if (showBookmarks && !record.bookmarked) {
+        return false;
+      }
+
+      // Check against filters
+      if (!recordMatchesFilters({
+        record: record,
+        filters: activeFilters,
+        config: config
+      })) {
+        return false;
+      }
+
+      // No string
+      if (value === '') {
+        return true;
+      }
+
+      // Use custom string match function
+      if (typeof config.searchMatch === 'function') {
+        return config.searchMatch({
+          record: record,
+          value: value,
+          fields: fields
+        });
+      }
+
+      // Check if record contains value in the search fields
+      return _.some(fields, function (field) {
+        return recordContains(record.data[field], value);
+      });
+    }));
   }
 
   function getRecordFields(records, key) {
@@ -418,8 +515,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var filters = options.filters;
     var config = options.config;
 
-    // Returns true if record matches all of provided filters and values
-    var recordFilterValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
+    var recordFieldValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
       return _.map(_.uniq(getRecordField({
         record: record,
         field: field,
@@ -427,20 +523,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       })), convertData);
     }));
 
-    return _.every(_.keys(filters), function (key) {
-      return _.every(filters[key], function (value) {
-        return _.includes(_.get(recordFilterValues, key), value);
+    // Returns true if record matches all of provided filters and values
+    return _.every(_.keys(filters), function (field) {
+      return _.every(filters[field], function (value) {
+        if (field === 'undefined') {
+          // Legacy class-based filters
+          return _.includes(_.map(_.get(record, 'data.flFilters'), 'data.class'), value);
+        }
+
+        // Filter UI contains data-field, i.e. uses new field-based filters
+        return _.includes(_.get(recordFieldValues, field), value);
       });
-    });
-  }
-
-  function recordMatchesFilterClasses(record, filterClasses) {
-    filterClasses = filterClasses || [];
-
-    var filters = _.map(_.get(record, 'data.flFilters'), 'data.class');
-
-    return _.every(filterClasses, function (filter) {
-      return _.includes(filters, filter);
     });
   }
 
@@ -472,11 +565,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         // _.uniqBy iteratee
         return JSON.stringify(filter);
       }), 'data.name'), 'type'),
-      function (values, key) {
+      function (values, field) {
         // _.map iteratee for defining of each filter value
         return {
           id: id,
-          name: key,
+          name: field,
           data: _.map(values, 'data')
         };
       }),
@@ -745,6 +838,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var records = options.records || [];
     var config = options.config || {};
 
+    if (!_.isArray(config.filterOptions) && _.isObject(config.filterOptions)) {
+      config.filterOptions = [config.filterOptions];
+    }
+
     // Filter data based on filter options, filter queries and PV storage values (deprecated)
     var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
     records = runRecordFilters(records, _.map(filters, function(option) {
@@ -908,8 +1005,72 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function getjQueryObjects(target) {
+    if (target instanceof jQuery) {
+      return target;
+    }
+
+    var $target = $();
+
+    // target is a DOM element or a selector string
+    if (target.tagName || typeof target === 'string') {
+      $target = $(target);
+    }
+
+    // target is expected as an array of DOM elements
+    if (target instanceof NodeList || target instanceof Array) {
+      // Non-DOM elements in the array are removed
+      target = _.filter(target, function (element) {
+        return element.tagName;
+      });
+
+      $target = $(target);
+    }
+
+    return $target;
+  }
+
+  function getUsersToMention(options) {
+    options = options || {};
+
+    var allUsers = options.allUsers;
+    var config = options.config;
+
+    return _.map(allUsers, function(user) {
+      var userName = '';
+      var userNickname = '';
+      var counter = 1;
+
+      if (config.userNameFields && config.userNameFields.length > 1) {
+        config.userNameFields.forEach(function(name, i) {
+          userName += user.data[name] + ' ';
+          userNickname += counter === 1
+            ? (user.data[name] || '').toLowerCase().charAt(0) + ' '
+            : (user.data[name] || '').toLowerCase().replace(/\s/g, '') + ' ';
+        });
+        userName = userName.trim();
+        userNickname = userNickname.trim();
+
+        counter++;
+      } else {
+        userName = user.data[config.userNameFields[0]] || '';
+        userNickname = (user.data[config.userNameFields[0]] || '').toLowerCase().replace(/\s/g, '')
+      }
+
+      return {
+        id: user.id,
+        username: userNickname,
+        name: userName,
+        image: user.data[config.userPhotoColumn] || ''
+      };
+    });
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
+    DOM: {
+      $: getjQueryObjects
+    },
     String: {
       splitByCommas: splitByCommas
     },
@@ -924,11 +1085,12 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       isEditable: recordIsEditable,
       isDeletable: recordIsDeletable,
       isCurrentUser: recordIsCurrentUser,
-      matchesFilters: recordMatchesFilters,
-      matchesFilterClasses: recordMatchesFilterClasses
+      matchesFilters: recordMatchesFilters
     },
     Records: {
       runFilters: runRecordFilters,
+      runActiveFilters: runActiveFilters,
+      runSearch: runRecordSearch,
       getFields: getRecordFields,
       getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
@@ -940,6 +1102,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     User: {
       isAdmin: userIsAdmin,
       canAddRecord: userCanAddRecord
+    },
+    Users: {
+      getUsersToMention: getUsersToMention
     }
   };
 }()));

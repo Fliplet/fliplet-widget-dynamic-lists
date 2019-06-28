@@ -95,11 +95,12 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     value: Fliplet.Navigate.query['dynamicListSearchValue'],
     openSingleEntry: Fliplet.Navigate.query['dynamicListOpenSingleEntry']
   });
-  this.querySearch = _(this.pvSearchQuery).size() > 0;
+  this.querySearch = !_.isUndefined(_.get(this.pvSearchQuery, 'value'));
 
   if (this.querySearch) {
     // check if a comma separated list of columns were passed as column
     this.pvSearchQuery.column = splitQueryValues(this.pvSearchQuery.column);
+    this.pvSearchQuery.openSingleEntry = (this.pvSearchQuery.openSingleEntry || '').toLowerCase() === 'true';
     this.data.searchEnabled = this.querySearch;
   } else {
     this.querySearch = null;
@@ -110,7 +111,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     value: Fliplet.Navigate.query['dynamicListFilterValue'],
     hideControls: Fliplet.Navigate.query['dynamicListFilterHideControls']
   });
-  this.queryFilter = _(this.pvFilterQuery).size() > 0;
+  this.queryFilter = !_.isUndefined(_.get(this.pvFilterQuery, 'value'));
 
   if (this.queryFilter) {
     // check if a comma separated list of columns/values were passed as column/value
