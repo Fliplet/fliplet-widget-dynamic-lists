@@ -710,7 +710,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
-      } else{
+      } else {
         _this.$container.find('.new-small-h-card-list-container').addClass('ready');
         resolve();
       }
