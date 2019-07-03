@@ -1169,25 +1169,29 @@ var DynamicLists = (function() {
     setUpTokenFields: function() {
       $('.search-fields').html(tokenField({
         name: 'search-column-fields',
-        id: 'search-column-fields-tokenfield'
+        id: 'search-column-fields-tokenfield',
+        createTokensOnBlur: true
       }));
       $('#search-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
           source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
-        showAutocompleteOnFocus: true
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: true
       });
       $('.filter-fields').html(tokenField({
         name: 'filter-column-fields',
-        id: 'filter-column-fields-tokenfield'
+        id: 'filter-column-fields-tokenfield',
+        createTokensOnBlur: true
       }));
       $('#filter-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
           source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
-        showAutocompleteOnFocus: true
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: true
       });
 
       _this.loadTokenFields();
@@ -1203,7 +1207,8 @@ var DynamicLists = (function() {
           source: userDataSourceColumns || [],
           delay: 100
         },
-        showAutocompleteOnFocus: true
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: true
       });
 
       _this.loadUserTokenFields();
