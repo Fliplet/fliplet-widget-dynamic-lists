@@ -963,6 +963,20 @@ var DynamicLists = (function() {
               });
             }
 
+            if (fromStart && !defaultSettings[listLayout]['showSummaryFieldsInDetailView']) {
+              // Duplicates are removed from detail view because all summary view fields
+              // are rendered at the top of the detail view by default - Only on first load
+              _this.config['summary-fields'].forEach(function(field) {
+                 if (!field.column || field.column === 'none' || field.column === 'custom') {
+                  return;
+                }
+
+                _.remove(_this.config.detailViewOptions, function (option) {
+                  return !option.paranoid && field.column === option.column;
+                });
+              });
+            }
+
             // TRY TO RESTORE LOST LOCKED FIELDS
             var foundLockedFields = [];
             var foundLockedFieldsIndices = [];

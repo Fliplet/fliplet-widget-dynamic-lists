@@ -334,6 +334,7 @@ window.flListLayoutConfig = {
         type: 'text',
         column: 'Category'
       }
-    ]
+    ],
+    'showSummaryFieldsInDetailView': true
   }
 }
