@@ -71,7 +71,7 @@
             <div class="agenda-item-detail-label">\{{label}}</div>
             \{{/if}}
 
-            <div class="agenda-item-detail-body-text">\{{{content}}}</div>
+            <div class="agenda-item-detail-body-text">\{{{auth content}}}</div>
           \{{/if}}
         \{{/ifCond}}
 
@@ -83,7 +83,7 @@
             \{{/if}}
 
             <div class="agenda-item-detail-body-text">
-              <a href="\{{content}}" target="_blank">Tap to open</a>
+              <a href="\{{{auth content}}}" target="_blank">Tap to open</a>
             </div>
           \{{/if}}
         \{{/ifCond}}
