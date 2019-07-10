@@ -555,7 +555,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         }
 
         // Filter UI contains data-field, i.e. uses new field-based filters
-        return _.includes(_.get(recordFieldValues, field), value);
+        return _.some(_.get(recordFieldValues, field), function (recordFieldValue) {
+          // Loosely typed comparison is used to make filtering more predictable for users
+          return recordFieldValue == value;
+        });
       });
     });
   }
