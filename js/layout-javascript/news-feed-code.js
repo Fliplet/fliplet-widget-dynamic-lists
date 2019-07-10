@@ -1501,6 +1501,9 @@ DynamicList.prototype.searchData = function(options) {
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
   var showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
+  var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
+    ? _this.data.limitEntries
+    : -1;
 
   _this.searchValue = value;
   value = value.toLowerCase();
@@ -1512,8 +1515,20 @@ DynamicList.prototype.searchData = function(options) {
     fields: fields,
     config: _this.data,
     activeFilters: _this.activeFilters,
-    showBookmarks: showBookmarks
-  }).then(function (searchedData) {
+    showBookmarks: showBookmarks,
+    limit: limit
+  }).then(function (results) {
+    results = results || {};
+
+    if (Array.isArray(results)) {
+      results = {
+        records: searchedData
+      };
+    }
+
+    var searchedData = results.records;
+    var truncated = results.truncated;
+
     if (openSingleEntry && searchedData.length === 1) {
       _this.showDetails(searchedData[0].id);
     }
@@ -1538,14 +1553,7 @@ DynamicList.prototype.searchData = function(options) {
     }
 
     if (_this.data.enabledLimitEntries) {
-      if (!showBookmarks
-        && _.isEmpty(_this.activeFilters)
-        && value === ''
-        && _this.data.limitEntries < searchedData.length) {
-        _this.$container.find('.limit-entries-text').removeClass('hidden');
-      } else {
-        _this.$container.find('.limit-entries-text').addClass('hidden');
-      }
+      _this.$container.find('.limit-entries-text')[truncated ? 'removeClass' : 'addClass']('hidden');
     }
 
     if (searchedData.length && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {

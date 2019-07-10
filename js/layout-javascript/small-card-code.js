@@ -1247,6 +1247,9 @@ DynamicList.prototype.searchData = function(options) {
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
   var showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
+  var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
+    ? _this.data.limitEntries
+    : -1;
 
   _this.searchValue = value;
   value = value.toLowerCase();
@@ -1258,8 +1261,20 @@ DynamicList.prototype.searchData = function(options) {
     fields: fields,
     config: _this.data,
     activeFilters: _this.activeFilters,
-    showBookmarks: $('.toggle-bookmarks').hasClass('mixitup-control-active')
-  }).then(function (searchedData) {
+    showBookmarks: $('.toggle-bookmarks').hasClass('mixitup-control-active'),
+    limit: limit
+  }).then(function (results) {
+    results = results || {};
+
+    if (Array.isArray(results)) {
+      results = {
+        records: searchedData
+      };
+    }
+
+    var searchedData = results.records;
+    var truncated = results.truncated;
+
     if (openSingleEntry && searchedData.length === 1) {
       _this.showDetails(searchedData[0].id);
     }
@@ -1267,32 +1282,25 @@ DynamicList.prototype.searchData = function(options) {
     /**
      * Update search UI
      **/
-     $inputField.val('');
-     $inputField.blur();
-     _this.$container.find('.new-small-card-list-container').removeClass('searching');
-     // Adds search query to HTML
-     _this.$container.find('.current-query').html(_this.searchValue);
-     // Search value is provided
-     _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
-     _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'), !value.length);
-     _this.$container.find('.hidden-search-controls').addClass('active');
-     _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
+    $inputField.val('');
+    $inputField.blur();
+    _this.$container.find('.new-small-card-list-container').removeClass('searching');
+    // Adds search query to HTML
+    _this.$container.find('.current-query').html(_this.searchValue);
+    // Search value is provided
+    _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
+    _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'), !value.length);
+    _this.$container.find('.hidden-search-controls').addClass('active');
+    _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
 
-     if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
-       // Same results returned. Do nothing.
-       return Promise.resolve();
-     }
+    if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      // Same results returned. Do nothing.
+      return Promise.resolve();
+    }
 
-     if (_this.data.enabledLimitEntries) {
-       if (!showBookmarks
-         && _.isEmpty(_this.activeFilters)
-         && value === ''
-         && _this.data.limitEntries < searchedData.length) {
-         _this.$container.find('.limit-entries-text').removeClass('hidden');
-       } else {
-         _this.$container.find('.limit-entries-text').addClass('hidden');
-       }
-     }
+    if (_this.data.enabledLimitEntries) {
+      _this.$container.find('.limit-entries-text')[truncated ? 'removeClass' : 'addClass']('hidden');
+    }
 
     if (searchedData.length && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
       // Search results is a subset of the current render.

@@ -1389,7 +1389,18 @@ DynamicList.prototype.searchData = function(options) {
     records: _this.listItems,
     config: _this.data,
     showBookmarks: showBookmarks
-  }).then(function (searchedData) {
+  }).then(function (results) {
+    results = results || {};
+
+    if (Array.isArray(results)) {
+      results = {
+        records: searchedData
+      };
+    }
+
+    var searchedData = results.records;
+    var truncated = results.truncated;
+
     /**
      * Render results
      **/

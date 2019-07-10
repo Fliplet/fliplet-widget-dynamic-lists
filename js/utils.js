@@ -396,6 +396,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var config = options.config || {};
     var activeFilters = options.activeFilters || {};
     var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
+    var limit = _.get(options, 'limit', -1);
 
     if (!Array.isArray(fields)) {
       fields = _.compact([fields]);
@@ -407,7 +408,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         query: value,
         activeFilters: activeFilters,
         records: records,
-        showBookmarks: showBookmarks
+        showBookmarks: showBookmarks,
+        limit: limit
       });
 
       if (!(runSearch instanceof Promise)) {
@@ -417,7 +419,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return runSearch;
     }
 
-    return Promise.resolve(_.filter(records, function (record) {
+    var searchResults = [];
+    var truncated = _.some(records, function (record) {
       // Check for bookmark status
       if (showBookmarks && !record.bookmarked) {
         return false;
@@ -434,23 +437,43 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
       // No string
       if (value === '') {
-        return true;
+        searchResults.push(record);
+        return limit > -1 && searchResults.length >= limit;
       }
 
       // Use custom string match function
       if (typeof config.searchMatch === 'function') {
-        return config.searchMatch({
+        var matchesSearch = config.searchMatch({
           record: record,
           value: value,
           fields: fields
         });
+
+        if (!matchesSearch) {
+          return false;
+        }
+
+        searchResults.push(record);
+        return limit > -1 && searchResults.length >= limit;
       }
 
       // Check if record contains value in the search fields
-      return _.some(fields, function (field) {
+      var containsSearch = _.some(fields, function (field) {
         return recordContains(record.data[field], value);
       });
-    }));
+
+      if (!containsSearch) {
+        return false;
+      }
+
+      searchResults.push(record);
+      return limit > -1 && searchResults.length >= limit;
+    });
+
+    return Promise.resolve({
+      records: searchResults,
+      truncated: truncated
+    });
   }
 
   function getRecordFields(records, key) {
