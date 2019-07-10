@@ -47,8 +47,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         context = context.toString();
       }
 
-      var result = $('<div></div>').html(context).text();
-      return $('<div></div>').html(result).text();
+      return $('<div></div>').html(context).text();
     });
 
     Handlebars.registerHelper('removeSpaces', function (context) {
