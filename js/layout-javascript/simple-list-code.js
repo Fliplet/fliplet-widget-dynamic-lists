@@ -764,6 +764,7 @@ DynamicList.prototype.initialize = function() {
 
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
+      _this.addFilters(_this.modifiedListItems);
       _this.renderLoopHTML().then(function(records){
         _this.searchedListItems = _.clone(_this.listItems);
         return _this.initializeSocials(records);
