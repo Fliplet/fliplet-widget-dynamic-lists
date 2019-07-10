@@ -23,7 +23,7 @@ Fliplet.Registry.set('dynamicListUtils', function() {
 
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('plaintext', function(context) {
-      if (typeof context.toString === 'function') {
+      if (typeof context === 'object' && typeof context.toString === 'function') {
         context = context.toString();
       }
 
