@@ -43,7 +43,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('plaintext', function(context) {
-      if (typeof context === 'object' && typeof context.toString === 'function') {
+      if (_.isFunction(_.get(context, 'toString'))) {
         context = context.toString();
       }
 
@@ -186,9 +186,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return moment(date);
     }
 
-    if (date.string) {
-      // Handlebars variable
-      date = date.string;
+    if (_.isFunction(_.get(data, 'toString'))) {
+      date = date.toString();
     }
 
     if (date.match(/^\d{4}-\d{2}-\d{2}/)) {
