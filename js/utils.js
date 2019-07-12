@@ -186,7 +186,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return moment(date);
     }
 
-    if (_.isFunction(_.get(data, 'toString'))) {
+    if (_.isFunction(_.get(date, 'toString'))) {
       date = date.toString();
     }
 
