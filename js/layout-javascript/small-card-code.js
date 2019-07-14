@@ -1108,6 +1108,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
+  var limitedList;
 
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
     && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks) {
