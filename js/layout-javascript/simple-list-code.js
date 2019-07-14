@@ -30,6 +30,8 @@ function DynamicList(id, data, container) {
   this.entryClicked = undefined;
   this.isFiltering;
   this.isSearching;
+  this.showBookmarks;
+  this.fetchedAllBookmarks = false;
 
   this.listItems;
   this.modifiedListItems;
@@ -765,10 +767,10 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.addFilters(_this.modifiedListItems);
-      _this.renderLoopHTML().then(function(records){
-        _this.searchedListItems = _.clone(_this.listItems);
-        return _this.initializeSocials(records);
-      });
+      return _this.renderLoopHTML();
+    }).then(function(records){
+      _this.searchedListItems = _.clone(_this.listItems);
+      return _this.initializeSocials(records);
     });
   }
 
@@ -835,7 +837,7 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       _this.addFilters(_this.modifiedListItems);
       _this.parseFilterQueries();
-      _this.parseSearchQueries();
+      return _this.parseSearchQueries();
     })
 }
 
@@ -1133,7 +1135,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
@@ -1141,13 +1143,14 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
   var limitedList = undefined;
 
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
+    && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
-  }
 
-  // Hides the entry limit warning if the number of entries to show is less than the limit value
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries > _this.modifiedListItems.length) {
-    _this.$container.find('.limit-entries-text').addClass('hidden');
+    // Hides the entry limit warning if the number of entries to show is less than the limit value
+    if (_this.data.limitEntries > _this.modifiedListItems.length) {
+      _this.$container.find('.limit-entries-text').addClass('hidden');
+    }
   }
 
   $('#simple-list-wrapper-' + _this.data.id).empty();
@@ -1155,7 +1158,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   var renderLoopIndex = 0;
   var data = (limitedList || _this.modifiedListItems);
 
-  return new Promise(function(resolve){
+  return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
       let nextBatch = data.slice(
@@ -1276,14 +1279,16 @@ DynamicList.prototype.searchData = function(options) {
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
-  var showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   _this.searchValue = value;
   value = value.toLowerCase();
   _this.activeFilters = _this.getActiveFilters();
+  _this.isSearching = value !== '';
+  _this.isFiltering = !_.isEmpty(_this.activeFilters);
+  _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
-    && value === '' && !showBookmarks && _.isEmpty(_this.activeFilters)
+    && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
     ? _this.data.limitEntries
     : -1;
 
@@ -1293,7 +1298,7 @@ DynamicList.prototype.searchData = function(options) {
     fields: fields,
     config: _this.data,
     activeFilters: _this.activeFilters,
-    showBookmarks: showBookmarks,
+    showBookmarks: _this.showBookmarks,
     limit: limit
   }).then(function (results) {
     results = results || {};
@@ -1569,34 +1574,67 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
   ]);
 };
 
+DynamicList.prototype.getAllBookmarks = function () {
+  var _this = this;
+
+  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+    return Promise.resolve();
+  }
+
+  return Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+    return instance.query({
+      where: {
+        content: {
+          entryId: {
+            $regex: '\\d-bookmark'
+          }
+        }
+      },
+      exact: false
+    });
+  }).then(function (bookmarkedRecords) {
+    var bookmarkedIds = _.compact(_.map(bookmarkedRecords, function (record) {
+      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      return match ? parseInt(match[1], 10) : '';
+    }));
+
+    _.forEach(_this.listItems, function (record) {
+      record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
+    });
+    _this.fetchedAllBookmarks = true;
+  });
+};
+
 DynamicList.prototype.initializeSocials = function (records) {
   var _this = this;
 
-  return Promise.all(_.flatten(_.map(records, function (record) {
-    var title = _this.$container.find('.simple-list-item[data-entry-id="' + record.id + '"] .list-item-title').text().trim();
-    var masterRecord = _.find(_this.listItems, { id: record.id });
+  return _this.getAllBookmarks().then(function () {
+    return Promise.all(_.flatten(_.map(records, function (record) {
+      var title = _this.$container.find('.simple-list-item[data-entry-id="' + record.id + '"] .list-item-title').text().trim();
+      var masterRecord = _.find(_this.listItems, { id: record.id });
 
-    return Promise.all([
-      _this.setupLikeButton({
-        target: '.https://cl.ly/46015df90ec3 .simple-list-like-holder-' + record.id,
-        id: record.id,
-        identifier: record.id + '-like',
-        title: title,
-        record: masterRecord
-      }),
-      _this.setupBookmarkButton({
-        target: '.https://cl.ly/46015df90ec3 .simple-list-bookmark-holder-' + record.id,
-        id: record.id,
-        identifier: record.id + '-bookmark',
-        title: title,
-        record: masterRecord
-      }),
-      _this.getEntryComments({
-        id: record.id,
-        record: masterRecord
-      })
-    ]);
-  })));
+      return [
+        _this.setupLikeButton({
+          target: '.https://cl.ly/46015df90ec3 .simple-list-like-holder-' + record.id,
+          id: record.id,
+          identifier: record.id + '-like',
+          title: title,
+          record: masterRecord
+        }),
+        _this.setupBookmarkButton({
+          target: '.https://cl.ly/46015df90ec3 .simple-list-bookmark-holder-' + record.id,
+          id: record.id,
+          identifier: record.id + '-bookmark',
+          title: title,
+          record: masterRecord
+        }),
+        _this.getEntryComments({
+          id: record.id,
+          record: masterRecord
+        })
+      ];
+    })));
+  });
 };
 
 DynamicList.prototype.getCommentUsers = function () {

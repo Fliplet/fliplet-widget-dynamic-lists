@@ -25,6 +25,8 @@ function DynamicList(id, data, container) {
   this.allowClick = true;
   this.isFiltering;
   this.isSearching;
+  this.showBookmarks;
+  this.fetchedAllBookmarks = false;
 
   this.emailField = 'Email';
   this.myProfileData;
@@ -1100,23 +1102,21 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
   return _this.modifiedListItems;
 }
 
-DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
-
-
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
-  var limitedList = undefined;
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
+    && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
-  }
 
-  // Hides the entry limit warning if the number of entries to show is less than the limit value
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries > _this.modifiedListItems.length) {
-    _this.$container.find('.limit-entries-text').addClass('hidden');
+    // Hides the entry limit warning if the number of entries to show is less than the limit value
+    if (_this.data.limitEntries > _this.modifiedListItems.length) {
+      _this.$container.find('.limit-entries-text').addClass('hidden');
+    }
   }
 
   $('#small-card-list-wrapper-' + _this.data.id).empty();
@@ -1124,7 +1124,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   var renderLoopIndex = 0;
   var data = (limitedList || _this.modifiedListItems);
 
-  return new Promise(function(resolve){
+  return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
       var nextBatch = data.slice(
@@ -1246,14 +1246,18 @@ DynamicList.prototype.searchData = function(options) {
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
-  var showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
-  var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
-    ? _this.data.limitEntries
-    : -1;
 
   _this.searchValue = value;
   value = value.toLowerCase();
   _this.activeFilters = _this.getActiveFilters();
+  _this.isSearching = value !== '';
+  _this.isFiltering = !_.isEmpty(_this.activeFilters);
+  _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
+
+  var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
+    && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
+    ? _this.data.limitEntries
+    : -1;
 
   return _this.Utils.Records.runSearch({
     value: value,
@@ -1261,7 +1265,7 @@ DynamicList.prototype.searchData = function(options) {
     fields: fields,
     config: _this.data,
     activeFilters: _this.activeFilters,
-    showBookmarks: $('.toggle-bookmarks').hasClass('mixitup-control-active'),
+    showBookmarks: _this.showBookmarks,
     limit: limit
   }).then(function (results) {
     results = results || {};
@@ -1435,21 +1439,54 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
   });
 }
 
+DynamicList.prototype.getAllBookmarks = function () {
+  var _this = this;
+
+  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+    return Promise.resolve();
+  }
+
+  return Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+    return instance.query({
+      where: {
+        content: {
+          entryId: {
+            $regex: '\\d-bookmark'
+          }
+        }
+      },
+      exact: false
+    });
+  }).then(function (bookmarkedRecords) {
+    var bookmarkedIds = _.compact(_.map(bookmarkedRecords, function (record) {
+      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      return match ? parseInt(match[1], 10) : '';
+    }));
+
+    _.forEach(_this.listItems, function (record) {
+      record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
+    });
+    _this.fetchedAllBookmarks = true;
+  });
+};
+
 DynamicList.prototype.initializeSocials = function (records) {
   var _this = this;
 
-  return Promise.all(_.map(records, function (record) {
-    var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
-    var masterRecord = _.find(_this.listItems, { id: record.id });
+  return _this.getAllBookmarks().then(function () {
+    return Promise.all(_.map(records, function (record) {
+      var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
+      var masterRecord = _.find(_this.listItems, { id: record.id });
 
-    return _this.setupBookmarkButton({
-      target: '.new-small-card-list-container .small-card-bookmark-holder-' + record.id,
-      id: record.id,
-      identifier: record.id + '-bookmark',
-      title: title,
-      record: masterRecord
-    });
-  }));
+      return _this.setupBookmarkButton({
+        target: '.new-small-card-list-container .small-card-bookmark-holder-' + record.id,
+        id: record.id,
+        identifier: record.id + '-bookmark',
+        title: title,
+        record: masterRecord
+      });
+    }));
+  });
 };
 
 DynamicList.prototype.openLinkAction = function(entryId) {

@@ -681,8 +681,6 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
 DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
-
-
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
@@ -692,7 +690,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var renderLoopIndex = 0;
   var data = _this.modifiedListItems;
 
-  return new Promise(function(resolve){
+  return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
       let nextBatch = data.slice(

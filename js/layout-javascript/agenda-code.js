@@ -31,6 +31,8 @@ function DynamicList(id, data, container) {
   this.isPanning = false;
   this.myUserData;
   this.agendaDates = [];
+  this.showBookmarks;
+  this.fetchedAllBookmarks = false;
 
   this.listItems;
   this.agendasByDay;
@@ -968,7 +970,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var renderLoopIndex = 0;
   var $renderFull = $([]);
 
-  return new Promise(function(resolve){
+  return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
       var nextBatch = _this.agendasByDay.slice(
@@ -1111,21 +1113,54 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 }
 
+DynamicList.prototype.getAllBookmarks = function () {
+  var _this = this;
+
+  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+    return Promise.resolve();
+  }
+
+  return Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+    return instance.query({
+      where: {
+        content: {
+          entryId: {
+            $regex: '\\d-bookmark'
+          }
+        }
+      },
+      exact: false
+    });
+  }).then(function (bookmarkedRecords) {
+    var bookmarkedIds = _.compact(_.map(bookmarkedRecords, function (record) {
+      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      return match ? parseInt(match[1], 10) : '';
+    }));
+
+    _.forEach(_this.listItems, function (record) {
+      record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
+    });
+    _this.fetchedAllBookmarks = true;
+  });
+};
+
 DynamicList.prototype.initializeSocials = function() {
   var _this = this;
 
-  return Promise.all(_.map(_.flatten(_this.agendasByDay), function (record) {
-    var title = _this.$container.find('.agenda-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
-    var masterRecord = _.find(_this.listItems, { id: record.id });
+  return _this.getAllBookmarks().then(function () {
+    return Promise.all(_.map(_.flatten(_this.agendasByDay), function (record) {
+      var title = _this.$container.find('.agenda-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
+      var masterRecord = _.find(_this.listItems, { id: record.id });
 
-    return _this.setupBookmarkButton({
-      target: '.new-agenda-list-container .agenda-item-bookmark-holder-' + record.id,
-      id: record.id,
-      identifier: record.id + '-bookmark',
-      title: title,
-      record: masterRecord
-    });
-  }));
+      return _this.setupBookmarkButton({
+        target: '.new-agenda-list-container .agenda-item-bookmark-holder-' + record.id,
+        id: record.id,
+        identifier: record.id + '-bookmark',
+        title: title,
+        record: masterRecord
+      });
+    }));
+  });
 }
 
 /* ANIMATION FOR DATES BACK AND FORWARD */
@@ -1383,12 +1418,13 @@ DynamicList.prototype.searchData = function(options) {
   options = options || {};
 
   var _this = this;
-  var showBookmarks = $('.toggle-agenda').hasClass('mixitup-control-active');
+
+  _this.showBookmarks = $('.toggle-agenda').hasClass('mixitup-control-active');
 
   return _this.Utils.Records.runSearch({
     records: _this.listItems,
     config: _this.data,
-    showBookmarks: showBookmarks
+    showBookmarks: _this.showBookmarks
   }).then(function (results) {
     results = results || {};
 
