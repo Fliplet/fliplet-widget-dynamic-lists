@@ -1615,14 +1615,14 @@ DynamicList.prototype.initializeSocials = function (records) {
 
       return [
         _this.setupLikeButton({
-          target: '.https://cl.ly/46015df90ec3 .simple-list-like-holder-' + record.id,
+          target: '.simple-list-container .simple-list-like-holder-' + record.id,
           id: record.id,
           identifier: record.id + '-like',
           title: title,
           record: masterRecord
         }),
         _this.setupBookmarkButton({
-          target: '.https://cl.ly/46015df90ec3 .simple-list-bookmark-holder-' + record.id,
+          target: '.simple-list-container .simple-list-bookmark-holder-' + record.id,
           id: record.id,
           identifier: record.id + '-bookmark',
           title: title,
