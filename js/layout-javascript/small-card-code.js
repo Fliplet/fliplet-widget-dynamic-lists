@@ -1,5 +1,5 @@
 // Constructor
-var DynamicList = function(id, data, container) {
+function DynamicList(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
@@ -17,30 +17,29 @@ var DynamicList = function(id, data, container) {
   // Makes data and the component container available to Public functions
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
+  this.data.computedFields = this.data.computedFields || {};
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
-  this.queryOptions = {};
 
   // Other variables
   // Global variables
   this.allowClick = true;
   this.isFiltering;
   this.isSearching;
+  this.showBookmarks;
+  this.fetchedAllBookmarks = false;
 
   this.emailField = 'Email';
   this.myProfileData;
   this.modifiedProfileData;
   this.myUserData;
 
-  this.mixer;
-  this.bookmarkButtons = [];
-  this.bookmarkButtonOverlay;
-
   this.listItems;
   this.modifiedListItems;
   this.searchedListItems;
   this.dataSourceColumns;
   this.directoryDetailWrapper;
-  this.filterClasses = [];
+  this.searchValue = '';
+  this.activeFilters = {};
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -85,6 +84,22 @@ var DynamicList = function(id, data, container) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+DynamicList.prototype.toggleFilterElement = function (target, toggle) {
+  var $target = this.Utils.DOM.$(target);
+
+  if (typeof toggle === 'undefined') {
+    $target.toggleClass('mixitup-control-active');
+  } else {
+    $target[!!toggle ? 'addClass' : 'removeClass']('mixitup-control-active');
+  }
+
+  if (this.$container.find('.mixitup-control-active').length) {
+    this.$container.find('.clear-filters').removeClass('hidden');
+  } else {
+    this.$container.find('.clear-filters').addClass('hidden');
+  }
+}
+
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
   // Attach your event listeners here
@@ -121,40 +136,30 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.apply-filters', function() {
-      _this.filterList();
+      _this.searchData();
 
       $(this).parents('.small-card-search-filter-overlay').removeClass('display');
       $('body').removeClass('lock');
     })
     .on('click', '.clear-filters', function() {
-      $('.mixitup-control-active').removeClass('mixitup-control-active');
+      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
       $(this).addClass('hidden');
-      _this.filterList();
+      _this.searchData();
     })
-    .on('click', '.small-card-search-filter-overlay .hidden-filter-controls-filter', function() {
+    .on('click', '.hidden-filter-controls-filter', function() {
+      var $filter = $(this);
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
-        label: $(this).text()
+        label: $filter.text()
       });
 
-      $(this).toggleClass('mixitup-control-active');
+      _this.toggleFilterElement(this);
 
-      if ($('.mixitup-control-active').length) {
-        $('.clear-filters').removeClass('hidden');
-      } else {
-        $('.clear-filters').addClass('hidden');
+      if ($filter.parents('.inline-filter-holder').length) {
+        _this.searchData();
       }
-    })
-    .on('click', '.inline-filter-holder .hidden-filter-controls-filter', function() {
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter',
-        label: $(this).text()
-      });
-
-      $(this).toggleClass('mixitup-control-active');
-      _this.filterList();
     })
     .on('click', '.small-card-list-detail-button a', function() {
       var _that = $(this);
@@ -202,7 +207,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.small-card-list-name').text();
+      var entryTitle = $(this).find('.small-card-list-name').text().trim();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -311,18 +316,38 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.removeClass('display');
       $('body').removeClass('lock');
 
-      // Resets selected filters if any
-      $('.mixitup-control-active').removeClass('mixitup-control-active');
+      // Clear all selected filters
+      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
 
-      if (_this.filterClasses.length) {
-        _this.filterClasses.forEach(function(filter) {
-          $('.hidden-filter-controls-filter[data-toggle="' + filter + '"]').addClass('mixitup-control-active');
-        });
+      // Select filters based on existing settings
+      if (_this.activeFilters) {
+        if (_.isEmpty(_this.activeFilters)) {
+          _this.$container.find('.clear-filters').addClass('hidden');
+          return;
+        }
 
-        $('.clear-filters').removeClass('hidden');
-      } else {
-        $('.clear-filters').addClass('hidden');
+        var selectors = _.flatten(_.map(_this.activeFilters, function (values, key) {
+          return _.map(values, function (value) {
+            return '.hidden-filter-controls-filter[data-field="' + key + '"][data-value="' + value + '"]';
+          });
+        })).join(',');
+        _this.toggleFilterElement(_this.$container.find(selectors), true);
+
+        _this.$container.find('.clear-filters').removeClass('hidden');
+        return;
       }
+
+      // Legacy class-based settings
+      if (!_this.filterClasses || !_this.filterClasses.length) {
+        _this.$container.find('.clear-filters').addClass('hidden');
+        return;
+      }
+
+      _this.filterClasses.forEach(function(filter) {
+        _this.toggleFilterElement(_this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]'), true);
+      });
+
+      _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
@@ -349,7 +374,7 @@ DynamicList.prototype.attachObservers = function() {
         if (value === '') {
           _this.$container.find('.new-small-card-list-container').removeClass('searching');
           _this.isSearching = false;
-          _this.clearSearch();
+          _this.searchData('');
           return;
         }
 
@@ -371,7 +396,7 @@ DynamicList.prototype.attachObservers = function() {
       if (value === '') {
         _this.$container.find('.new-small-card-list-container').removeClass('searching');
         _this.isSearching = false;
-        _this.clearSearch();
+        _this.searchData('');
         return;
       }
 
@@ -388,7 +413,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.clear-search', function() {
       _this.$container.find('.new-small-card-list-container').removeClass('searching');
       _this.isSearching = false;
-      _this.clearSearch();
+      _this.searchData('');
     })
     .on('show.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
@@ -474,22 +499,13 @@ DynamicList.prototype.attachObservers = function() {
                   } else {
                     _this.closeDetails();
                   }
-                  _this.prepareToRenderLoop(_this.listItems);
-                  _this.renderLoopHTML();
+                  _this.removeListItemHTML({
+                    id: entryId
+                  });
                 })
                 .catch(function(error) {
-                  Fliplet.UI.Toast({
-                    message: 'Error deleting entry',
-                    actions: [
-                      {
-                        label: 'Details',
-                        action: function () {
-                          Fliplet.UI.Toast({
-                            html: error.message || error
-                          });
-                        }
-                      }
-                    ]
+                  Fliplet.UI.Toast.error(error, {
+                    message: 'Error deleting entry'
                   });
                 });
             }
@@ -507,6 +523,29 @@ DynamicList.prototype.attachObservers = function() {
       }).then(function() {
         Fliplet.UI.Actions(options);
       });
+    })
+    .on('click', '.toggle-bookmarks', function () {
+      var $toggle = $(this);
+
+      $toggle.toggleClass('mixitup-control-active');
+      _this.searchData();
+    })
+    .on('click', '.small-card-detail-overlay .small-card-bookmark-wrapper', function() {
+      var id = $(this).parents('.small-card-detail-wrapper').data('entry-id');
+      var record = _.find(_this.listItems, { id: id });
+
+      if (!record || !record.bookmarkButton) {
+        return;
+      }
+
+      if (record.bookmarked) {
+        $(this).parents('.small-card-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+        record.bookmarkButton.unlike();
+        return;
+      }
+
+      $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+      record.bookmarkButton.like();
     });
 }
 
@@ -520,189 +559,99 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 }
 
-DynamicList.prototype.prepareData = function(records) {
-  var _this = this;
-  var filtered;
+DynamicList.prototype.removeListItemHTML = function (options) {
+  options = options || {};
 
-  // Prepare sorting
-  if (_this.data.sortOptions.length) {
-    var fields = [];
-    var sortOrder = [];
-    var sortColumns = [];
+  var id = options.id;
 
-    _this.data.sortOptions.forEach(function(option) {
-      fields.push({
-        column: option.column,
-        type: option.sortBy
-      });
-
-      if (option.orderBy === 'ascending') {
-        sortOrder.push('asc');
-      }
-      if (option.orderBy === 'descending') {
-        sortOrder.push('desc');
-      }
-    });
-
-    var mappedRecords = _.clone(records);
-    mappedRecords = mappedRecords.map(function(record) {
-      fields.forEach(function(field) {
-        record.data['modified_' + field.column] = record.data[field.column] || '';
-        record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
-
-        if (field.type === "alphabetical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].normalize('NFD').match(/[A-Za-z]/)
-            ? record.data['modified_' + field.column].normalize('NFD')
-            : '{' + record.data['modified_' + field.column];
-        }
-
-        if (field.type === "numerical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[0-9]/)
-            ? parseInt(record.data['modified_' + field.column], 10)
-            : record.data['modified_' + field.column];
-        }
-
-        if (field.type === "date") {
-          // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
-        }
-
-        if (field.type === "time") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column];
-        }
-
-      });
-
-      return record;
-    });
-
-    sortColumns = fields.map(function (field) {
-      return 'data[modified_' + field.column + ']';
-    })
-    // Sort data
-    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
+  if (!id) {
+    return;
   }
 
-  // Prepare filtering
-  if (_this.data.filterOptions.length) {
-    var filters = [];
-
-    _this.data.filterOptions.forEach(function(option) {
-      var filter = {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      }
-      filters.push(filter);
-    });
-
-    // Filter data
-    filtered = _this.Utils.Records.runFilters(records, filters);
-    records = filtered;
-  }
-
-  var prefiltered;
-  var prefilters = [];
-  if (_this.queryPreFilter) {
-    _this.pvPreFilterQuery.forEach(function(option) {
-      var filter = {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      }
-      prefilters.push(filter);
-    });
-
-    // Filter data
-    prefiltered = _this.Utils.Records.runFilters(records, prefilters);
-    records = prefiltered;
-  }
-
-  // Add flag for likes
-  records.forEach(function(obj, i) {
-    // Add bookmarks flag
-    records[i].bookmarksEnabled = _this.data.social && _this.data.social.bookmark;
-  });
-
-  return records;
+  this.$container.find('.small-card-list-item[data-entry-id="' + id + '"]').remove();
 }
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
+  // Render Base HTML template
+  _this.renderBaseHTML();
+  _this.attachObservers();
+
   // Render list with default data
   if (_this.data.defaultData) {
-    // Render Base HTML template
-    _this.renderBaseHTML();
-    var records = _this.prepareData(_this.data.defaultEntries);
+    var records = _this.Utils.Records.prepareData({
+      records: _this.data.defaultEntries,
+      config: _this.data,
+      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+    });
+
     _this.listItems = _this.getPermissions(records);
     _this.dataSourceColumns = _this.data.defaultColumns;
 
     return _this.Utils.Records.updateFiles({
       records: _this.listItems,
       config: _this.data
-    })
-      .then(function(response) {
-        _this.listItems = _.uniqBy(response, function (item) {
-          return item.id;
+    }).then(function(response) {
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
+      });
+
+      // Get user profile
+      if (_this.myUserData) {
+        // Create flag for current user
+        _this.listItems.forEach(function(item) {
+          item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
+
+          if (item.isCurrentUser) {
+            _this.myProfileData = item;
+          }
         });
+      }
 
-        // Get user profile
-        if (_this.myUserData) {
-          // Create flag for current user
-          _this.listItems.forEach(function(item) {
-            item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
-          });
+      // Render Loop HTML
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.addFilters(_this.modifiedListItems);
+      return _this.renderLoopHTML().then(function(records){
+        _this.searchedListItems = _.clone(_this.listItems);
 
-          _this.myProfileData = _.filter(_this.listItems, function(row) {
-            return row.isCurrentUser;
-          });
+        // Render user profile
+        if (_this.myProfileData && _this.myProfileData.length) {
+          _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
+          var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
+          var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+          _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
+
+          var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
+          var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+          _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+
+          _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
         }
 
-        // Render Loop HTML
-        _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML(function(from, to){
-          _this.onPartialRender(from, to);
-        }).then(function(){
-          _this.addFilters(_this.modifiedListItems);
-          // Render user profile
-          if (_this.myProfileData && _this.myProfileData.length) {
-            _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
-            var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
-            var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-            _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
-
-            var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
-            var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-            _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
-
-            _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
-          }
-          // Listeners and Ready
-          _this.attachObservers();
-          _this.checkBookmarked();
-          _this.initializeMixer();
-        });
-
+        return _this.initializeSocials(records);
       });
+    });
   }
 
   var shouldInitFromQuery = _this.parseQueryVars();
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
-  if(shouldInitFromQuery){
+  if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   };
 
   // Check if there is a query or PV for search/filter queries
   (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
-      // Render Base HTML template
-      _this.renderBaseHTML();
-
       return _this.connectToDataSource();
     })
     .then(function (records) {
+      _this.Utils.Records.addComputedFields({
+        records: records,
+        config: _this.data
+      });
+
       return Fliplet.Hooks.run('flListDataAfterGetData', {
         config: _this.data,
         id: _this.data.id,
@@ -714,25 +663,31 @@ DynamicList.prototype.initialize = function() {
           records = [records];
         }
 
-        records = _this.prepareData(records);
-        // Make rows available Globally
-        records = _this.getPermissions(records);
-        _this.listItems = records;
-
-        // Get user profile
-        if (_this.myUserData) {
-          // Create flag for current user
-          records.forEach(function(record) {
-            record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
-          });
-
-          _this.myProfileData = _.filter(records, function(row) {
-            return row.isCurrentUser;
-          });
-        }
+        return _this.Utils.Records.prepareData({
+          records: records,
+          config: _this.data,
+          filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+        });
       });
     })
-    .then(function() {
+    .then(function (records) {
+      records = _this.getPermissions(records);
+
+      // Get user profile
+      if (_this.myUserData) {
+        // Create flag for current user
+        records.forEach(function(record) {
+          record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
+
+          if (record.isCurrentUser) {
+            _this.myProfileData = record;
+          }
+        });
+      }
+
+      // Make rows available Globally
+      _this.listItems = records;
+
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }
@@ -754,30 +709,9 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.renderLoopHTML(function(from, to){
-        _this.onPartialRender(from, to);
-      }).then(function(){
-        _this.addFilters(_this.modifiedListItems);
-        _this.prepareToSearch();
-        _this.prepareToFilter();
-
-        // Render user profile
-        if (_this.myProfileData && _this.myProfileData.length) {
-          _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
-          var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
-          var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
-          _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
-
-          var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
-          var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
-          _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
-
-          _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
-        }
-        _this.attachObservers();
-        _this.checkBookmarked();
-        _this.initializeMixer();
-      });
+      _this.addFilters(_this.modifiedListItems);
+      _this.parseFilterQueries();
+      _this.parseSearchQueries();
     })
 }
 
@@ -818,41 +752,50 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   _this.showDetails(entry.id);
 }
 
-DynamicList.prototype.prepareToSearch = function() {
+DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
-  if ( !_.hasIn(_this.pvSearchQuery, 'value') ) {
-    return;
+  if (!_.get(_this.pvSearchQuery, 'value')) {
+    return _this.searchData({
+      query: true
+    });
   }
 
   if (_.hasIn(_this.pvSearchQuery, 'column')) {
-    _this.overrideSearchData(_this.pvSearchQuery.value);
-    return;
+    return _this.searchData({
+      value: _this.pvSearchQuery.value,
+      openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+      query: true
+    });
   }
 
-  _this.searchData(_this.pvSearchQuery.value);
+  _this.$container.find('.new-small-card-list-container').addClass('searching');
+  _this.isSearching = true;
+
+  return _this.searchData({
+    column: _this.pvSearchQuery.column,
+    value: _this.pvSearchQuery.value,
+    openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+    query: true
+  });
 }
 
-DynamicList.prototype.prepareToFilter = function() {
+DynamicList.prototype.parseFilterQueries = function() {
   var _this = this;
 
-  if ( !_this.pvFilterQuery || !_.hasIn(_this.pvFilterQuery, 'value') ) {
+  if (!_this.queryFilter) {
     return;
   }
 
-  if (Array.isArray(_this.pvFilterQuery.value)) {
-    _this.pvFilterQuery.value.forEach(function(value) {
-      value = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-      $('.hidden-filter-controls-filter[data-toggle="' + value + '"]').addClass('mixitup-control-active');
-    });
-  } else {
-    _this.pvFilterQuery.value = _this.pvFilterQuery.value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-    $('.hidden-filter-controls-filter[data-toggle="' + _this.pvFilterQuery.value + '"]').addClass('mixitup-control-active');
-  }
+  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
+  var $filters = _this.$container.find(_.map(filterSelectors, function (selector) {
+    return '.hidden-filter-controls-filter' + selector;
+  }).join(','));
 
-  _this.filterList();
+  _this.toggleFilterElement($filters, true);
+  $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
 
-  if (typeof _this.pvFilterQuery.hideControls !== 'undefined' && !_this.pvFilterQuery.hideControls) {
+  if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
     _this.$container.find('.list-search-cancel').addClass('active');
 
@@ -967,7 +910,20 @@ DynamicList.prototype.connectToDataSource = function() {
       .then(function (connection) {
         // If you want to do specific queries to return your rows
         // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        return connection.find(_this.queryOptions);
+        var query = {};
+
+        if (typeof _this.data.dataQuery === 'function') {
+          query = _this.data.dataQuery({
+            config: _this.data,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container
+          });
+        } else if (typeof _this.data.dataQuery === 'object') {
+          query = _this.data.dataQuery;
+        }
+
+        return connection.find(query);
       });
   }
 
@@ -987,18 +943,8 @@ DynamicList.prototype.connectToDataSource = function() {
 
     return getData(cache);
   }).catch(function (error) {
-    Fliplet.UI.Toast({
-      message: 'Error loading data',
-      actions: [
-        {
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              html: error.message || error
-            });
-          }
-        }
-      ]
+    Fliplet.UI.Toast.error(error, {
+      message: 'Error loading data'
     });
   });
 }
@@ -1021,17 +967,19 @@ DynamicList.prototype.renderBaseHTML = function() {
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
-  ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
-  : Handlebars.compile(baseHTML());
+    ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
+    : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
+  _this.$container.html(template(data));
 }
 
 DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
   var _this = this;
-
   var savedColumns = [];
-  var modifiedData = _this.convertCategories(records);
+  var modifiedData = _this.Utils.Records.addFilterProperties({
+    records: records,
+    config: _this.data
+  });
   var loopData = [];
   var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
@@ -1060,7 +1008,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
-        content = _this.splitByCommas(entry.data[obj.column]).join(', ');
+        content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
       } else {
         content = entry.data[obj.column];
       }
@@ -1074,7 +1022,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
         if (obj.column === 'custom') {
           content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
         } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
-          content = _this.splitByCommas(entry.data[obj.column]).join(', ');
+          content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
         } else {
           content = entry.data[obj.column];
         }
@@ -1097,14 +1045,16 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
+
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
         content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
-        content = _this.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
+        content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
       } else {
         content = entry.data[dynamicDataObj.column];
       }
+
       // Define data object
       var newEntryDetail = {
         id: dynamicDataObj.id,
@@ -1118,7 +1068,6 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
     });
     loopData.push(newObject);
   });
-
 
   savedColumns = dynamicData.map(function(data){
     return data.column;
@@ -1153,40 +1102,41 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
   return _this.modifiedListItems;
 }
 
-DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
-
-
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
+  var limitedList;
 
-  var limitedList = undefined;
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0 && !_this.isSearching && !_this.isFiltering) {
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
+    && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+
+    // Hides the entry limit warning if the number of entries to show is less than the limit value
+    if (_this.data.limitEntries > _this.modifiedListItems.length) {
+      _this.$container.find('.limit-entries-text').addClass('hidden');
+    }
   }
 
-  // Hides the entry limit warning if the number of entries to show is less than the limit value
-  if (_this.data.enabledLimitEntries && (_this.data.limitEntries > _this.modifiedListItems.length)) {
-    _this.$container.find('.limit-entries-text').addClass('hidden');
-  }
-
-  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).empty();
+  $('#small-card-list-wrapper-' + _this.data.id).empty();
 
   var renderLoopIndex = 0;
   var data = (limitedList || _this.modifiedListItems);
-  return new Promise(function(resolve){
+
+  return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
-      let nextBatch = data.slice(
+      var nextBatch = data.slice(
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
       );
+
       if (nextBatch.length) {
-        _this.$container.find('#small-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if(iterateeCb && typeof iterateeCb === 'function'){
-          if(renderLoopIndex === 0){
+        $('#small-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if (iterateeCb && typeof iterateeCb === 'function') {
+          if (renderLoopIndex === 0) {
             _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
           }
           iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
@@ -1194,10 +1144,9 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
-      }
-      else{
+      } else {
         _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
-        resolve()
+        resolve(data);
       }
     }
     // start the initial render
@@ -1222,217 +1171,54 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 }
 
-DynamicList.prototype.addFilters = function(data) {
+DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
-  var filters = [];
   var filtersData = {
-    'filtersInOverlay': _this.data.filtersInOverlay
+    filtersInOverlay: _this.data.filtersInOverlay,
+    filters: _this.Utils.Records.parseFilters({
+      records: records,
+      filters: _this.data.filterFields,
+      id: _this.data.id
+    })
   };
-
-  data.forEach(function(row) {
-    row['flFilters'].forEach(function(filter) {
-      filters.push(filter);
-    });
-  });
-
-  var uniqueCategories = _.uniqBy(filters, function(obj) {
-    return obj.data.name;
-  });
-
-  var allFilters = [];
-  _this.data.filterFields.forEach(function(filter) {
-    var arrangedFilters = {
-      id: _this.data.id,
-      name: filter,
-      data: []
-    };
-    uniqueCategories.forEach(function(item) {
-      if (item.type === filter) {
-        arrangedFilters.data.push(item.data);
-      }
-    });
-
-    arrangedFilters.data = _.orderBy(arrangedFilters.data, function(item) {
-      return item.name;
-    }, ['asc']);
-
-    allFilters.push(arrangedFilters);
-  });
-
-  filtersData.filters = allFilters
 
   filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
   var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
-  ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
-  : Handlebars.compile(filtersTemplate());
+    ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
+    : Handlebars.compile(filtersTemplate());
 
   _this.$container.find('.filter-holder').html(template(filtersData));
-}
+};
 
-DynamicList.prototype.filterList = function() {
-  var _this = this;
-  _this.filterClasses = [];
-
-  var listData = _this.searchedListItems ? _this.searchedListItems : _this.listItems;
-
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
-  }
-
-  _this.$container.find('.hidden-search-controls').removeClass('no-results');
-
-  if (!$('.hidden-filter-controls-filter.mixitup-control-active').length) {
-    _this.$container.find('.new-small-card-list-container').removeClass('filtering');
-    _this.isFiltering = false;
-    _this.prepareToRenderLoop(listData);
-    _this.renderLoopHTML(function(from, to){
-      _this.onPartialRender(from, to);
-    });
-    return;
-  }
-
-  $('.hidden-filter-controls-filter.mixitup-control-active').each(function(index, element) {
-    _this.filterClasses.push($(element).data('toggle'));
-  });
-
-  var filteredData = _.filter(listData, function(row) {
-    var filters = [];
-    row.data['flFilters'].forEach(function(obj) {
-      filters.push(obj.data.class);
-    });
-
-    var matched = [];
-    _this.filterClasses.forEach(function(filter) {
-      matched.push(filters.indexOf(filter.toString()) >= 0);
-    });
-
-    // If "_.includes" returns TRUE
-    // we actually want to return FALSE to _.filter
-    return !_.includes(matched, false);
-  });
-
-  if (!filteredData.length) {
-    _this.$container.find('.hidden-search-controls').addClass('no-results');
-  }
-
-  _this.$container.find('.new-small-card-list-container').addClass('filtering');
-  _this.isFiltering = true;
-  _this.prepareToRenderLoop(filteredData);
-  _this.renderLoopHTML(function(from, to){
-    _this.onPartialRender(from, to);
-  });
-}
-
-DynamicList.prototype.splitByCommas = function(str) {
-  if (str === undefined || str === null) {
-    return [];
-  }
-
-  if (Array.isArray(str)) {
-    return str;
-  }
-
-  if (typeof str !== 'string') {
-    return [str];
-  }
-
-  // Split a string by commas but ignore commas within double-quotes using Javascript
-  // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
-  var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
-  var arr = [];
-  var res;
-  while ((res = regexp.exec(str)) !== null) {
-    arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
-  }
-  return arr;
-}
-
-DynamicList.prototype.convertCategories = function(data) {
-  // Function that get and converts the categories for the filters to work
-  var _this = this;
-
-  data.forEach(function(element) {
-    element.data['flClasses'] = '';
-    element.data['flFilters'] = [];
-    var lowerCaseTags = [];
-    _this.data.filterFields.forEach(function(filter) {
-      var arrayOfTags = [];
-      if (element.data[filter] !== null && typeof element.data[filter] !== 'undefined' && element.data[filter] !== '') {
-        var arrayOfTags = _this.splitByCommas(element.data[filter]).map(function(item) {
-          if (typeof item !== 'string') {
-            return item;
-          }
-
-          return item.trim();
-        });
-      }
-      arrayOfTags.forEach(function(item, index) {
-        if (!item || typeof item !== 'string') {
-          return;
-        }
-
-        var classConverted = item.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-        if (classConverted === '') {
-          return;
-        }
-        var newObj = {
-          type: filter,
-          data: {
-            name: item,
-            class: classConverted
-          }
-        }
-        lowerCaseTags.push(classConverted);
-        element.data['flFilters'].push(newObj);
+DynamicList.prototype.getActiveFilters = function () {
+  return _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'))
+    .map(function (el) {
+      return _.pickBy({
+        class: el.dataset.toggle,
+        field: el.dataset.field,
+        value: el.dataset.value
       });
+    })
+    .groupBy('field')
+    .mapValues(function (filters) {
+      return _.map(filters, function (filter) {
+        return _.has(filter, 'field') && _.has(filter, 'value')
+          ? filter.value
+          : filter.class;
+      });
+    })
+    .value();
+};
 
-    });
-    element.data['flClasses'] = lowerCaseTags.join(' ');
+DynamicList.prototype.calculateFiltersHeight = function($el) {
+  $el.find('.hidden-filter-controls').each(function () {
+    var $controls = $(this);
+    var totalHeight = $controls.find('.hidden-filter-controls-content').height();
+    $controls.animate({
+      height: totalHeight,
+    }, 200);
   });
-  return data;
-}
-
-DynamicList.prototype.onPartialRender = function(from, to) {
-  // Function called when it's ready to show the list and remove the Loading
-  var _this = this;
-
-  if (_this.data.social && _this.data.social.bookmark) {
-    _this.$container.find('.small-card-list-item').not('.is-current-user').slice(from, to).each(function(index, element) {
-      var cardId = $(element).data('entry-id');
-      var likeIndentifier = cardId + '-bookmark';
-      var title = $(element).find('.small-card-list-name').text();
-      _this.setupBookmarkButton(cardId, likeIndentifier, title);
-    });
-
-    _this.likesObservers();
-  }
-}
-
-DynamicList.prototype.checkBookmarked = function() {
-  var _this = this;
-
-  // Wait for bookmark to appear on the page
-  var checkTimer = 0;
-  var checkInterval = setInterval(function() {
-    // Check for 10 seconds
-    if (checkTimer > 10) {
-      clearInterval(checkInterval);
-      return;
-    }
-    _this.$container.find('.btn-bookmarked').each(function(idx, element) {
-      $(element).parents('.small-card-list-item').addClass('bookmarked');
-    });
-    checkTimer++;
-  }, 1000);
-}
-
-DynamicList.prototype.calculateFiltersHeight = function(element) {
-  var totalHeight = element.find('.hidden-filter-controls-content').height();
-
-  element.find('.hidden-filter-controls').animate({
-    height: totalHeight,
-  }, 200);
 }
 
 DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
@@ -1447,269 +1233,138 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   }, 200);
 }
 
-DynamicList.prototype.overrideSearchData = function(value) {
+DynamicList.prototype.searchData = function(options) {
+  if (typeof options === 'string') {
+    options = {
+      value: options
+    };
+  }
+
+  options = options || {};
+
   var _this = this;
+  var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var fields = options.fields || _this.data.searchFields;
+  var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
-  var copyOfValue = value;
+
+  _this.searchValue = value;
   value = value.toLowerCase();
+  _this.activeFilters = _this.getActiveFilters();
+  _this.isSearching = value !== '';
+  _this.isFiltering = !_.isEmpty(_this.activeFilters);
+  _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
-  // Search
-  var searchedData = [];
-  var filteredData;
-  var fields = _this.pvSearchQuery.column; // Can be Array or String
+  var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
+    && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
+    ? _this.data.limitEntries
+    : -1;
 
-  if (Array.isArray(_this.pvSearchQuery.column)) {
-    fields.forEach(function(field) {
-      filteredData = _.filter(_this.listItems, function(obj) {
-        return _this.Utils.Record.contains(obj.data[field], value);
-      });
+  return _this.Utils.Records.runSearch({
+    value: value,
+    records: _this.listItems,
+    fields: fields,
+    config: _this.data,
+    activeFilters: _this.activeFilters,
+    showBookmarks: _this.showBookmarks,
+    limit: limit
+  }).then(function (results) {
+    results = results || {};
 
-      if (filteredData.length) {
-        filteredData.forEach(function(item) {
-          searchedData.push(item);
-        });
-      }
-    });
-  } else {
-    searchedData = _.filter(_this.listItems, function(obj) {
-      return _this.Utils.Record.contains(obj, value);
-    });
-
-    if (!searchedData || !searchedData.length) {
-      searchedData = [];
+    if (Array.isArray(results)) {
+      results = {
+        records: searchedData
+      };
     }
-  }
 
-  // Remove duplicates
-  searchedData = _.uniq(searchedData);
+    var searchedData = results.records;
+    var truncated = results.truncated;
 
-  if (_this.pvSearchQuery && _this.pvSearchQuery.openSingleEntry && searchedData.length === 1) {
-    _this.showDetails(searchedData[0].id);
-    return;
-  }
-
-  $inputField.val('');
-  $inputField.blur();
-  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-search-controls').addClass('active');
-
-  // Removes cards
-  _this.$container.find('#small-card-wrapper-' + _this.data.id).html('');
-  // Adds search query to HTML
-  _this.$container.find('.current-query').html(value);
-
-  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
-  _this.$container.find('.new-small-card-list-container').removeClass('searching');
-
-  _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'));
-
-  if (!searchedData.length) {
-    _this.$container.find('.hidden-search-controls').addClass('no-results');
-  }
-
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
-  }
-
-  if (_this.data.enabledLimitEntries) {
-    $('.limit-entries-text').addClass('hidden');
-  }
-
-  _this.searchedListItems = searchedData;
-  _this.prepareToRenderLoop(searchedData);
-  _this.renderLoopHTML(function(from, to){
-    _this.onPartialRender(from, to);
-  }).then(function(){
-    _this.addFilters(_this.modifiedListItems);
-    _this.checkBookmarked();
-    _this.initializeMixer();
-  });
-}
-
-DynamicList.prototype.searchData = function(value) {
-  // Function called when user executes a search
-  var _this = this;
-  var $inputField = _this.$container.find('.search-holder input');
-  var copyOfValue = value;
-  value = value.toLowerCase();
-
-  $inputField.val('');
-  $inputField.blur();
-  _this.$container.find('.hidden-search-controls').addClass('is-searching').removeClass('no-results');
-  _this.$container.find('.hidden-search-controls').addClass('active');
-
-  // Removes cards
-  _this.$container.find('#small-card-list-wrapper-' + _this.data.id).html('');
-  // Adds search query to HTML
-  _this.$container.find('.current-query').html(value);
-
-  // Search
-  if (!_this.data.searchEnabled || !_this.data.searchFields.length) {
-    return;
-  }
-
-  var executeSeach;
-
-  if (typeof _this.data.searchData === 'function') {
-    executeSearch = _this.data.searchData({
-      config: _this.data,
-      query: value
-    });
-
-    if (!(executeSearch instanceof Promise)) {
-      executeSearch = Promise.resolve(executeSearch);
+    if (openSingleEntry && searchedData.length === 1) {
+      _this.showDetails(searchedData[0].id);
     }
-  } else {
-    executeSearch = new Promise(function (resolve, reject) {
-      var searchedData = [];
-      var filteredData;
 
-      _this.data.searchFields.forEach(function(field) {
-        filteredData = _.filter(_this.listItems, function(obj) {
-          return _this.Utils.Record.contains(obj.data[field], value);
-        });
-
-        if (filteredData.length) {
-          filteredData.forEach(function(item) {
-            searchedData.push(item);
-          });
-        }
-      });
-
-      resolve(searchedData);
-    });
-  }
-
-  executeSearch.then(function (searchedData) {
-    _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results').addClass('search-results');
+    /**
+     * Update search UI
+     **/
+    $inputField.val('');
+    $inputField.blur();
     _this.$container.find('.new-small-card-list-container').removeClass('searching');
+    // Adds search query to HTML
+    _this.$container.find('.current-query').html(_this.searchValue);
+    // Search value is provided
+    _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
+    _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'), !value.length);
+    _this.$container.find('.hidden-search-controls').addClass('active');
+    _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
 
-    _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'));
-
-    if (!searchedData.length) {
-      _this.$container.find('.hidden-search-controls').addClass('no-results');
-    }
-
-    if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-      _this.mixer.destroy();
+    if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      // Same results returned. Do nothing.
+      return Promise.resolve();
     }
 
     if (_this.data.enabledLimitEntries) {
-      $('.limit-entries-text').addClass('hidden');
+      _this.$container.find('.limit-entries-text')[truncated ? 'removeClass' : 'addClass']('hidden');
     }
 
-    // Remove duplicates
-    searchedData = _.uniq(searchedData);
-    _this.searchedListItems = searchedData;
+    if (searchedData.length && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
+      // Search results is a subset of the current render.
+      // Remove the extra records without re-render.
+      _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
+        return '.small-card-list-item[data-entry-id="' + record.id + '"]';
+      }).join(',')).remove();
+      _this.searchedListItems = searchedData;
+      return Promise.resolve();
+    }
 
+    /**
+     * Render results
+     **/
+
+    $('#small-card-list-wrapper-' + _this.data.id).html('');
+
+    _this.searchedListItems = searchedData;
     _this.prepareToRenderLoop(searchedData);
-    _this.renderLoopHTML(function(from, to){
-      _this.onPartialRender(from, to);
-    }).then(function(){
-      _this.addFilters(_this.modifiedListItems);
-      _this.checkBookmarked();
-      _this.initializeMixer();
+    _this.renderLoopHTML().then(function (records) {
+      // Render user profile
+      if (_this.myProfileData && _this.myProfileData.length) {
+        var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
+        var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
+        var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
+        var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
+
+        _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
+        _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
+        _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
+        _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
+      }
+
+      return _this.initializeSocials(records);
     });
   });
 }
 
-DynamicList.prototype.clearSearch = function() {
-  // Function called when user clears the search field
-  var _this = this;
-
-  // Removes value from search box
-  _this.$container.find('.search-holder').find('input').val('').blur().removeClass('not-empty');
-  // Resets all classes related to search
-  _this.$container.find('.hidden-search-controls').removeClass('is-searching no-results search-results searching');
-
-  if (_this.$container.find('.hidden-search-controls').hasClass('active')) {
-    _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'), true);
-  } else {
-    _this.$container.find('.hidden-search-controls').animate({ height: 0 }, 200);
+DynamicList.prototype.setupBookmarkButton = function(options) {
+  if (!_.get(this.data, 'social.bookmark')) {
+    return Promise.resolve();
   }
 
-  if (_this.data.social && _this.data.social.bookmark && _this.mixer) {
-    _this.mixer.destroy();
+  options = options || {};
+
+  var _this = this;
+  var id = options.id;
+  var identifier = options.identifier;
+  var title = options.title;
+  var target = options.target;
+  var record = options.record || _.find(_this.listItems, { id: id });
+
+  if (!record) {
+    return Promise.resolve();
   }
 
-  if (_this.data.enabledLimitEntries) {
-    $('.limit-entries-text').removeClass('hidden');
-  }
-
-  // Resets list
-  _this.searchedListItems = undefined;
-  _this.prepareToRenderLoop(_this.listItems);
-  _this.renderLoopHTML(function(from, to){
-    _this.onPartialRender(from, to);
-  }).then(function(){
-    _this.addFilters(_this.modifiedListItems);
-    _this.checkBookmarked();
-    _this.initializeMixer();
-  });
-}
-
-DynamicList.prototype.initializeMixer = function() {
-  // Function that initializes MixItUP
-  // Plugin used for filtering
-  var _this = this;
-
-  _this.mixer = mixitup('#small-card-list-wrapper-' + _this.data.id, {
-    selectors: {
-      control: '[data-mixitup-control="' + _this.data.id + '"]',
-      target: '.small-card-list-item'
-    },
-    load: {
-      filter: 'all'
-    },
-    layout: {
-      allowNestedTargets: false
-    },
-    animation: {
-      enable: false
-    },
-    callbacks: {
-      onMixStart: function(state, originalEvent) {
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'filter',
-          label: 'bookmarks'
-        });
-      },
-      onMixEnd: function(state, originalEvent) {
-        if (!state.totalShow) {
-          if (_this.data.enabledLimitEntries) {
-            $('.limit-entries-text').addClass('hidden');
-          }
-
-          $('.no-bookmarks-holder').addClass('show');
-          return;
-        }
-
-        if (state.totalShow && state.totalShow === state.totalTargets) {
-          if (_this.data.enabledLimitEntries) {
-            $('.limit-entries-text').removeClass('hidden');
-          }
-
-          $('.no-bookmarks-holder').removeClass('show');
-        } else if (state.totalShow && state.totalShow !== state.totalTargets) {
-          if (_this.data.enabledLimitEntries) {
-            $('.limit-entries-text').addClass('hidden');
-          }
-
-          $('.no-bookmarks-holder').removeClass('show');
-        }
-      }
-    }
-  });
-}
-
-DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
-  var _this = this;
-
-  // Sets up the like feature
-  _this.bookmarkButtons.push({
-    btn: LikeButton({
-      target: '.small-card-bookmark-holder-' + id,
+  return new Promise(function (resolve) {
+    var btn = LikeButton({
+      target: target,
       dataSourceId: _this.data.bookmarkDataSourceId,
       content: {
         entryId: identifier
@@ -1720,87 +1375,131 @@ DynamicList.prototype.setupBookmarkButton = function(id, identifier, title) {
       likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
       likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
       addType: 'html',
-      getAllCounts: false
-    }),
-    id: id
-  });
-}
+      getAllCounts: false,
+      liked: record.bookmarked
+    });
+    record.bookmarkButton = btn;
 
-DynamicList.prototype.prepareSetupBookmarkOverlay = function(id) {
-  var _this = this;
-  var isLiked = false;
-  var button = _.find(_this.bookmarkButtons, function(btn) {
-    return btn.id === id;
-  });
+    btn.on('like.status', function (liked) {
+      record.bookmarked = liked;
+      resolve(btn);
+    });
 
-  if (button && button.btn) {
-    if (button.btn.isLiked()) {
-      $('.small-card-detail-overlay').find('.small-card-bookmark-holder-' + button.id).addClass('bookmarked');
-      isLiked = button.btn.isLiked();
-    } else {
-      $('.small-card-detail-overlay').find('.small-card-bookmark-holder-' + button.id).addClass('not-bookmarked');
-      isLiked = button.btn.isLiked();
-    }
-  } else {
-    $('.small-card-detail-overlay').find('.small-card-bookmark-holder').addClass('not-bookmarked');
-    isLiked = false;
-  }
-
-  _this.likesObserversOverlay(id, button, isLiked);
-}
-
-DynamicList.prototype.likesObservers = function() {
-  var _this = this;
-
-  _this.bookmarkButtons.forEach(function(button) {
-    button.btn.on('liked', function(data){
-      this.$btn.parents('.small-card-list-item').addClass('bookmarked');
-      var entryTitle = this.$btn.parents('.small-card-list-text-wrapper').find('.small-card-list-name').text();
+    btn.on('liked', function(data){
+      record.bookmarked = btn.isLiked();
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_bookmark',
-        label: entryTitle
+        label: title
       });
     });
 
-    button.btn.on('liked.fail', function(data){
-      this.$btn.parents('.small-card-list-item').removeClass('bookmarked');
-      $('.small-card-detail-overlay').find('.small-card-bookmark-holder-' + button.id).removeClass('bookmarked').addClass('not-bookmarked');
+    btn.on('liked.fail', function(data){
+      record.bookmarked = btn.isLiked();
+      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
     });
 
-    button.btn.on('unliked', function(data){
-      this.$btn.parents('.small-card-list-item').removeClass('bookmarked');
-      var entryTitle = this.$btn.parents('.small-card-list-text-wrapper').find('.small-card-list-name').text();
+    btn.on('unliked', function(data){
+      record.bookmarked = btn.isLiked();
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'entry_unbookmark',
-        label: entryTitle
+        label: title
       });
     });
 
-    button.btn.on('unliked.fail', function(data){
-      this.$btn.parents('.small-card-list-item').addClass('bookmarked');
-      $('.small-card-detail-overlay').find('.small-card-bookmark-holder-' + button.id).removeClass('not-bookmarked').addClass('bookmarked');
+    btn.on('unliked.fail', function(data){
+      record.bookmarked = btn.isLiked();
+      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
     });
   });
 }
 
-DynamicList.prototype.likesObserversOverlay = function(id, button, isLiked) {
+DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
+  var record = _.find(_this.listItems, { id: id });
 
-  $('.small-card-detail-overlay').find('.small-card-bookmark-wrapper').on('click', function() {
-    if (isLiked) {
-      $(this).parents('.small-card-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
-      button.btn.unlike();
-      isLiked = !isLiked;
-      return;
-    }
+  if (!record) {
+    return Promise.resolve();
+  }
 
-    $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
-    button.btn.like();
-    isLiked = !isLiked;
+  var title = _this.$container.find('.small-card-detail-overlay .small-card-detail-wrapper[data-entry-id="' + id + '"] .small-card-list-detail-name').text().trim();
+
+  if (record.bookmarkButton) {
+    _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(record.bookmarkButton.isLiked() ? 'bookmarked' : 'not-bookmarked');
+    return Promise.resolve();
+  }
+
+  return _this.setupBookmarkButton({
+    id: id,
+    identifier: id + '-bookmark',
+    title: title,
+    record: record
+  }).then(function (btn) {
+    _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
   });
 }
+
+DynamicList.prototype.getAllBookmarks = function () {
+  var _this = this;
+
+  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+    return Promise.resolve();
+  }
+
+  return _this.Utils.Query.fetchAndCache({
+    key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
+    waitFor: 400,
+    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+      return instance.query({
+        where: {
+          content: { entryId: { $regex: '\\d-bookmark' } }
+        },
+        exact: false
+      });
+    })
+  }).then(function (results) {
+    var bookmarkedIds = _.compact(_.map(results.data, function (record) {
+      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      return match ? parseInt(match[1], 10) : '';
+    }));
+
+    if (results.fromCache) {
+      _.forEach(_this.listItems, function (record) {
+        if (bookmarkedIds.indexOf(record.id) === -1) {
+          return;
+        }
+
+        record.bookmarked = true;
+      });
+    } else {
+      _.forEach(_this.listItems, function (record) {
+        record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
+      });
+    }
+
+    _this.fetchedAllBookmarks = true;
+  });
+};
+
+DynamicList.prototype.initializeSocials = function (records) {
+  var _this = this;
+
+  return _this.getAllBookmarks().then(function () {
+    return Promise.all(_.map(records, function (record) {
+      var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
+      var masterRecord = _.find(_this.listItems, { id: record.id });
+
+      return _this.setupBookmarkButton({
+        target: '.new-small-card-list-container .small-card-bookmark-holder-' + record.id,
+        id: record.id,
+        identifier: record.id + '-bookmark',
+        title: title,
+        record: masterRecord
+      });
+    }));
+  });
+};
 
 DynamicList.prototype.openLinkAction = function(entryId) {
   var _this = this;
@@ -1821,20 +1520,14 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.showDetails = function(id) {
+DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-
-  var entryData = _.find(_this.modifiedListItems, function(entry) {
-    return entry.id === id;
-  });
+  var entryData = _.find(_this.modifiedListItems, { id: id });
   // Process template with data
-  var entryId = {
-    id: id
-  };
+  var entryId = { id: id };
   var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var $overlay = _this.$container.find('#small-card-detail-overlay-' + _this.data.id);
-
+  var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
   var beforeShowDetails = Promise.resolve({
     src: src,
@@ -1867,10 +1560,7 @@ DynamicList.prototype.showDetails = function(id) {
     $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
     $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
 
-    // Doesn't setup the bookmark button for the current user profile
-    if ((data.data && !data.data.isCurrentUser) || (entryData && !entryData.isCurrentUser)) {
-      _this.prepareSetupBookmarkOverlay(id);
-    }
+    _this.initializeOverlaySocials(id);
 
     // Trigger animations
     _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
@@ -1879,7 +1569,7 @@ DynamicList.prototype.showDetails = function(id) {
       $overlay.addClass('ready');
 
       if (typeof _this.directoryDetailWrapper === 'undefined') {
-        _this.directoryDetailWrapper = $('.small-card-list-item[data-entry-id="' + id + '"]').find('.small-card-list-detail-wrapper');
+        _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
       }
 
       if (typeof _this.data.afterShowDetails === 'function') {
@@ -1897,7 +1587,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  var $overlay = _this.$container.find('#small-card-detail-overlay-' + _this.data.id);
+  var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
   $overlay.removeClass('open');
   _this.$container.find('.new-small-card-list-container').removeClass('overlay-open');
 

@@ -4,6 +4,25 @@
  * for prepopulating, prefiltering and opening an entry
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
+  function splitQueryValues(input) {
+    var splitPattern = /\,\s?(?![^\\[]*\])/;
+    var testPattern = /^(?:\[[\w\W]*\])$/;
+
+    if (_.isNil(input)) {
+      return input;
+    }
+
+    return ('' + input).trim().split(splitPattern).map(function (str) {
+      str = str.trim();
+
+      if (!testPattern.test(str)) {
+        return str;
+      }
+
+      return _.compact(splitQueryValues(str.substring(1, str.length-1)));
+    });
+  }
+
   // we do not execute previousScreen like in the PV case so we don't open ourselves up to an xss attack
   this.previousScreen = Fliplet.Navigate.query['dynamicListPreviousScreen'] === 'true';
 
@@ -30,14 +49,12 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   if (this.queryPreFilter) {
     // take the query parameters and parse them down to arrays
-    var prefilterColumnParts = this.pvPreFilterQuery.column ? this.pvPreFilterQuery.column.split(',') : [];
-    var prefilterLogicParts = this.pvPreFilterQuery.logic ? this.pvPreFilterQuery.logic.split(',') : [];
-    var prefilterValueParts = this.pvPreFilterQuery.value ? this.pvPreFilterQuery.value.split(',') : [];
+    var prefilterColumnParts = splitQueryValues(this.pvPreFilterQuery.column) || [];
+    var prefilterLogicParts = splitQueryValues(this.pvPreFilterQuery.logic) || [];
+    var prefilterValueParts = splitQueryValues(this.pvPreFilterQuery.value) || [];
 
-    if (
-      prefilterColumnParts.length !== prefilterLogicParts.length ||
-      prefilterLogicParts.length !== prefilterValueParts.length
-    ) {
+    if (prefilterColumnParts.length !== prefilterLogicParts.length
+      || prefilterLogicParts.length !== prefilterValueParts.length) {
       this.pvPreFilterQuery = null;
       this.queryPreFilter = false;
       console.warn('Please supply an equal number of parameter to the dynamicListPrefilter filters.');
@@ -78,38 +95,48 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     value: Fliplet.Navigate.query['dynamicListSearchValue'],
     openSingleEntry: Fliplet.Navigate.query['dynamicListOpenSingleEntry']
   });
-  this.querySearch = _(this.pvSearchQuery).size() > 0;
+  this.querySearch = !_.isUndefined(_.get(this.pvSearchQuery, 'value'));
+
   if (this.querySearch) {
     // check if a comma separated list of columns were passed as column
-    var searchColumns = this.pvSearchQuery.column ? this.pvSearchQuery.column.split(',') : null;
-    this.pvSearchQuery.column = searchColumns && searchColumns.length ? searchColumns : this.pvSearchQuery.column;
+    this.pvSearchQuery.column = splitQueryValues(this.pvSearchQuery.column);
+    this.pvSearchQuery.openSingleEntry = (this.pvSearchQuery.openSingleEntry || '').toLowerCase() === 'true';
     this.data.searchEnabled = this.querySearch;
   } else {
     this.querySearch = null;
   }
 
   this.pvFilterQuery = _.pickBy({
+    column: Fliplet.Navigate.query['dynamicListFilterColumn'],
     value: Fliplet.Navigate.query['dynamicListFilterValue'],
     hideControls: Fliplet.Navigate.query['dynamicListFilterHideControls']
   });
-  this.queryFilter = _(this.pvFilterQuery).size() > 0;
+  this.queryFilter = !_.isUndefined(_.get(this.pvFilterQuery, 'value'));
+
   if (this.queryFilter) {
-    // check if a comma separated list of columns were passed as column
-    var filterValues = this.pvFilterQuery.value ? this.pvFilterQuery.value.split(',') : null;
-    this.pvFilterQuery.value = filterValues && filterValues.length ? filterValues : this.pvFilterQuery.column;
+    // check if a comma separated list of columns/values were passed as column/value
+    this.pvFilterQuery.column = splitQueryValues(this.pvFilterQuery.column) || [];
+    this.pvFilterQuery.value = splitQueryValues(this.pvFilterQuery.value) || [];
+
+    if (!_.isEmpty(this.pvFilterQuery.column) && !_.isEmpty(this.pvFilterQuery.value)
+      && this.pvFilterQuery.column.length !== this.pvFilterQuery.value.length) {
+      this.pvFilterQuery.column = undefined;
+      this.pvFilterQuery.value = undefined;
+      this.queryFilter = false;
+      console.warn('Please supply an equal number of parameter to the dynamicListFilterColumn and dynamicListFilterValue.');
+    }
 
     // cast to boolean
-    this.pvFilterQuery.hideControls = this.pvFilterQuery.hideControls === 'true';
+    this.pvFilterQuery.hideControls = (this.pvFilterQuery.hideControls || '').toLowerCase() === 'true';
     this.data.filtersEnabled = this.queryFilter;
   } else {
     this.queryFilter = null;
   }
-  return (
-    this.previousScreen ||
-    this.queryGoBack ||
-    this.queryPreFilter ||
-    this.queryOpen ||
-    this.querySearch ||
-    this.queryFilter
-  );
+
+  return this.previousScreen
+    || this.queryGoBack
+    || this.queryPreFilter
+    || this.queryOpen
+    || this.querySearch
+    || this.queryFilter;
 });

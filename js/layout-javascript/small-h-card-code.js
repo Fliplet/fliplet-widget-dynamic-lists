@@ -1,21 +1,21 @@
 // Constructor
-var DynamicList = function(id, data, container) {
+function DynamicList(id, data, container) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
-  this.smallHorizontalLayoutMapping = {
+  this.layoutMapping = {
     'small-h-card': {
       'base': 'templates.build.small-h-card-base',
       'loop': 'templates.build.small-h-card-loop',
-      'detail': 'templates.build.small-h-card-detail',
+      'detail': 'templates.build.small-h-card-detail'
     }
   };
 
   // Makes data and the component container available to Public functions
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
+  this.data.computedFields = this.data.computedFields || {};
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
-  this.queryOptions = {};
 
   // Other variables
   // Global variables
@@ -45,7 +45,7 @@ var DynamicList = function(id, data, container) {
   // Register handlebars helpers
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
-    : Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[this.data.layout]['detail']]();
+    : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
 
   this.profileHTML = Handlebars.compile(this.src);
 
@@ -76,7 +76,7 @@ DynamicList.prototype.attachObservers = function() {
        Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'profile_buttons',
-        label: _that.find('.small-h-card-list-detail-button-text').text()
+        label: _that.find('.small-h-card-list-detail-button-text').text().trim()
       });
     })
     .on('touchstart', '.small-h-card-list-item', function(event) {
@@ -99,7 +99,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.small-h-card-list-item', function(event) {
       var _that = $(this);
       var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.small-h-card-list-item-text').text();
+      var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -258,18 +258,8 @@ DynamicList.prototype.attachObservers = function() {
                   _this.renderLoopHTML();
                 })
                 .catch(function(error) {
-                  Fliplet.UI.Toast({
-                    message: 'Error deleting entry',
-                    actions: [
-                      {
-                        label: 'Details',
-                        action: function () {
-                          Fliplet.UI.Toast({
-                            html: error.message || error
-                          });
-                        }
-                      }
-                    ]
+                  Fliplet.UI.Toast.error(error, {
+                    message: 'Error deleting entry'
                   });
                 });
             }
@@ -300,107 +290,6 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 }
 
-DynamicList.prototype.prepareData = function(records) {
-  var _this = this;
-  var filtered;
-
-  // Prepare sorting
-  if (_this.data.sortOptions.length) {
-    var fields = [];
-    var sortOrder = [];
-    var sortedColumns = [];
-
-    _this.data.sortOptions.forEach(function(option) {
-      fields.push({
-        column: option.column,
-        type: option.sortBy
-      });
-
-      if (option.orderBy === 'ascending') {
-        sortOrder.push('asc');
-      }
-      if (option.orderBy === 'descending') {
-        sortOrder.push('desc');
-      }
-    });
-
-    var mappedRecords = _.clone(records);
-    mappedRecords = mappedRecords.map(function(record) {
-      fields.forEach(function(field) {
-        record.data['modified_' + field.column] = record.data[field.column] || '';
-        record.data['modified_' + field.column] = record.data['modified_' + field.column].toString().toUpperCase();
-
-        if (field.type === "alphabetical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].normalize('NFD').match(/[A-Za-z]/)
-            ? record.data['modified_' + field.column].normalize('NFD')
-            : '{' + record.data['modified_' + field.column];
-        }
-
-        if (field.type === "numerical") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column].match(/[0-9]/)
-            ? parseInt(record.data['modified_' + field.column], 10)
-            : record.data['modified_' + field.column];
-        }
-
-        if (field.type === "date") {
-          // If an incorrect date format is used, the entry will be pushed at the end
-          record.data['modified_' + field.column] = _this.Utils.Date.moment(record.data['modified_' + field.column]).format('YYYY-MM-DD');
-        }
-
-        if (field.type === "time") {
-          record.data['modified_' + field.column] = record.data['modified_' + field.column];
-        }
-
-      });
-
-      return record;
-    });
-
-    sortColumns = fields.map(function (field) {
-      return 'data[modified_' + field.column + ']';
-    })
-    // Sort data
-    records = _.orderBy(mappedRecords, sortColumns, sortOrder);
-  }
-
-  // Prepare filtering
-  if (_this.data.filterOptions.length) {
-    var filters = [];
-
-    _this.data.filterOptions.forEach(function(option) {
-      var filter = {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      }
-      filters.push(filter);
-    });
-
-    // Filter data
-    filtered = _this.Utils.Records.runFilters(records, filters);
-    records = filtered;
-  }
-
-  var prefiltered;
-  var prefilters = [];
-  if (_this.queryPreFilter) {
-    _this.pvPreFilterQuery.forEach(function(option) {
-      var filter = {
-        column: option.column,
-        condition: option.logic,
-        value: option.value
-      }
-      prefilters.push(filter);
-    });
-
-    // Filter data
-    prefiltered = _this.Utils.Records.runFilters(records, prefilters);
-    records = prefiltered;
-  }
-
-  return records;
-}
-
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
@@ -409,44 +298,48 @@ DynamicList.prototype.initialize = function() {
     // Render Base HTML template
     _this.renderBaseHTML();
 
-    var records = _this.prepareData(_this.data.defaultEntries);
+    var records = _this.Utils.Records.prepareData({
+      records: _this.data.defaultEntries,
+      config: _this.data,
+      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+    });
+
     _this.listItems = _this.getPermissions(records);
     _this.dataSourceColumns = _this.data.defaultColumns;
 
     return _this.Utils.Records.updateFiles({
       records: _this.listItems,
       config: _this.data
-    })
-      .then(function(response) {
-        _this.listItems = _.uniqBy(response, function (item) {
-          return item.id;
-        });
-
-        // Get user profile
-        if (_this.myUserData) {
-          // Create flag for current user
-          _this.listItems.forEach(function(item) {
-            item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
-          });
-
-          _this.myProfileData = _.filter(_this.listItems, function(row) {
-            return row.isCurrentUser;
-          });
-        }
-
-        // Render Loop HTML
-        _this.prepareToRenderLoop(_this.listItems);
-        _this.renderLoopHTML().then(function(){
-          // Listeners and Ready
-          _this.attachObservers();
-        });
+    }).then(function(response) {
+      _this.listItems = _.uniqBy(response, function (item) {
+        return item.id;
       });
+
+      // Get user profile
+      if (_this.myUserData) {
+        // Create flag for current user
+        _this.listItems.forEach(function(item) {
+          item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
+
+          if (item.isCurrentUser) {
+            _this.myProfileData = item.isCurrentUser;
+          }
+        });
+      }
+
+      // Render Loop HTML
+      _this.prepareToRenderLoop(_this.listItems);
+      _this.renderLoopHTML().then(function(){
+        // Listeners and Ready
+        _this.attachObservers();
+      });
+    });
   }
 
   var shouldInitFromQuery = _this.parseQueryVars();
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
-  if(shouldInitFromQuery){
+  if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   };
 
@@ -459,6 +352,11 @@ DynamicList.prototype.initialize = function() {
       return _this.connectToDataSource();
     })
     .then(function (records) {
+      _this.Utils.Records.addComputedFields({
+        records: records,
+        config: _this.data
+      });
+
       return Fliplet.Hooks.run('flListDataAfterGetData', {
         config: _this.data,
         id: _this.data.id,
@@ -466,25 +364,35 @@ DynamicList.prototype.initialize = function() {
         container: _this.$container,
         records: records
       }).then(function () {
-        records = _this.prepareData(records);
-        records = _this.getPermissions(records);
-        // Make rows available Globally
-        _this.listItems = records;
-
-        // Get user profile
-        if (_this.myUserData) {
-          // Create flag for current user
-          records.forEach(function(record) {
-            record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
-          });
-
-          _this.myProfileData = _.filter(records, function(row) {
-            return row.isCurrentUser;
-          });
+        if (records && !Array.isArray(records)) {
+          records = [records];
         }
+
+        return _this.Utils.Records.prepareData({
+          records: records,
+          config: _this.data,
+          filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+        });
       });
     })
-    .then(function() {
+    .then(function (records) {
+      records = _this.getPermissions(records);
+
+      // Get user profile
+      if (_this.myUserData) {
+        // Create flag for current user
+        records.forEach(function(record) {
+          record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
+        });
+
+        _this.myProfileData = _.filter(records, function(row) {
+          return row.isCurrentUser;
+        });
+      }
+
+      // Make rows available Globally
+      _this.listItems = records;
+
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }
@@ -599,7 +507,20 @@ DynamicList.prototype.connectToDataSource = function() {
       .then(function (connection) {
         // If you want to do specific queries to return your rows
         // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        return connection.find(_this.queryOptions);
+        var query = {};
+
+        if (typeof _this.data.dataQuery === 'function') {
+          query = _this.data.dataQuery({
+            config: _this.data,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container
+          });
+        } else if (typeof _this.data.dataQuery === 'object') {
+          query = _this.data.dataQuery;
+        }
+
+        return connection.find(query);
       });
   }
 
@@ -619,18 +540,8 @@ DynamicList.prototype.connectToDataSource = function() {
 
     return getData(cache);
   }).catch(function (error) {
-    Fliplet.UI.Toast({
-      message: 'Error loading data',
-      actions: [
-        {
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              html: error.message || error
-            });
-          }
-        }
-      ]
+    Fliplet.UI.Toast.error(error, {
+      message: 'Error loading data'
     });
   });
 }
@@ -646,14 +557,14 @@ DynamicList.prototype.renderBaseHTML = function() {
   data.previousScreen = _this.pvPreviousScreen;
 
   if (typeof _this.data.layout !== 'undefined') {
-    baseHTML = Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['base']];
+    baseHTML = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['base']];
   }
 
   var template = _this.data.advancedSettings && _this.data.advancedSettings.baseHTML
-  ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
-  : Handlebars.compile(baseHTML());
+    ? Handlebars.compile(_this.data.advancedSettings.baseHTML)
+    : Handlebars.compile(baseHTML());
 
-  $('[data-dynamic-lists-id="' + _this.data.id + '"]').html(template(data));
+  _this.$container.html(template(data));
 }
 
 DynamicList.prototype.prepareToRenderLoop = function(records) {
@@ -700,7 +611,6 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       }
     });
 
-
     dynamicData.forEach(function(dynamicDataObj) {
       var label = '';
       var labelEnabled = true;
@@ -716,12 +626,14 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       if (dynamicDataObj.fieldLabel === 'no-label') {
         labelEnabled = false;
       }
+
       // Define content
       if (dynamicDataObj.customFieldEnabled) {
         content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
       } else {
         content = entry.data[dynamicDataObj.column];
       }
+
       // Define data object
       var newEntryDetail = {
         id: entry.id,
@@ -766,20 +678,19 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
   _this.modifiedListItems = loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   // Function that renders the List template
   var _this = this;
-
-
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-    : Handlebars.compile(Fliplet.Widget.Templates[_this.smallHorizontalLayoutMapping[_this.data.layout]['loop']]());
+    : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
 
-  _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).empty();
+  $('#small-h-card-list-wrapper-' + _this.data.id).empty();
 
   var renderLoopIndex = 0;
   var data = _this.modifiedListItems;
-  return new Promise(function(resolve){
+
+  return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
       let nextBatch = data.slice(
@@ -787,9 +698,9 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
       );
       if (nextBatch.length) {
-        _this.$container.find('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if(iterateeCb && typeof iterateeCb === 'function'){
-          if(renderLoopIndex === 0){
+        $('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        if (iterateeCb && typeof iterateeCb === 'function'){
+          if (renderLoopIndex === 0){
             _this.$container.find('.new-small-h-card-list-container').addClass('ready');
           }
           iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
@@ -797,8 +708,7 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
-      }
-      else{
+      } else {
         _this.$container.find('.new-small-h-card-list-container').addClass('ready');
         resolve();
       }
@@ -844,20 +754,14 @@ DynamicList.prototype.openLinkAction = function(entryId) {
   }
 }
 
-DynamicList.prototype.showDetails = function(id) {
+DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-
-  var entryData = _.find(_this.modifiedListItems, function(entry) {
-    return entry.id === id;
-  });
+  var entryData = _.find(_this.modifiedListItems, { id: id });
   // Process template with data
-  var entryId = {
-    id: id
-  };
+  var entryId = { id: id };
   var wrapper = '<div class="small-h-card-detail-wrapper" data-entry-id="{{id}}"></div>';
-  var $overlay = _this.$container.find('#small-h-card-detail-overlay-' + _this.data.id);
-
+  var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
   var beforeShowDetails = Promise.resolve({
     src: src,
@@ -897,7 +801,7 @@ DynamicList.prototype.showDetails = function(id) {
       $overlay.addClass('ready');
 
       if (typeof _this.directoryDetailWrapper === 'undefined') {
-        _this.directoryDetailWrapper = $('.small-h-card-list-item[data-entry-id="' + id + '"]').find('.small-h-card-list-detail-wrapper');
+        _this.directoryDetailWrapper = _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"]').find('.small-h-card-list-detail-wrapper');
       }
 
       if (typeof _this.data.afterShowDetails === 'function') {
@@ -915,7 +819,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  var $overlay = _this.$container.find('#small-h-card-detail-overlay-' + _this.data.id);
+  var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
 

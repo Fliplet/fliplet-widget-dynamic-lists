@@ -963,6 +963,20 @@ var DynamicLists = (function() {
               });
             }
 
+            if (fromStart && !defaultSettings[listLayout]['showSummaryFieldsInDetailView']) {
+              // Duplicates are removed from detail view because all summary view fields
+              // are rendered at the top of the detail view by default - Only on first load
+              _this.config['summary-fields'].forEach(function(field) {
+                 if (!field.column || field.column === 'none' || field.column === 'custom') {
+                  return;
+                }
+
+                _.remove(_this.config.detailViewOptions, function (option) {
+                  return !option.paranoid && field.column === option.column;
+                });
+              });
+            }
+
             // TRY TO RESTORE LOST LOCKED FIELDS
             var foundLockedFields = [];
             var foundLockedFieldsIndices = [];
@@ -1169,25 +1183,29 @@ var DynamicLists = (function() {
     setUpTokenFields: function() {
       $('.search-fields').html(tokenField({
         name: 'search-column-fields',
-        id: 'search-column-fields-tokenfield'
+        id: 'search-column-fields-tokenfield',
+        createTokensOnBlur: true
       }));
       $('#search-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
           source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
-        showAutocompleteOnFocus: true
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: true
       });
       $('.filter-fields').html(tokenField({
         name: 'filter-column-fields',
-        id: 'filter-column-fields-tokenfield'
+        id: 'filter-column-fields-tokenfield',
+        createTokensOnBlur: true
       }));
       $('#filter-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
           source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
-        showAutocompleteOnFocus: true
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: true
       });
 
       _this.loadTokenFields();
@@ -1203,7 +1221,8 @@ var DynamicLists = (function() {
           source: userDataSourceColumns || [],
           delay: 100
         },
-        showAutocompleteOnFocus: true
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: true
       });
 
       _this.loadUserTokenFields();
