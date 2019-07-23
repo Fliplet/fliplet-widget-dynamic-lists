@@ -1120,26 +1120,37 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  return Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
-    return instance.query({
-      where: {
-        content: {
-          entryId: {
-            $regex: '\\d-bookmark'
-          }
-        }
-      },
-      exact: false
-    });
-  }).then(function (bookmarkedRecords) {
-    var bookmarkedIds = _.compact(_.map(bookmarkedRecords, function (record) {
+  return _this.Utils.Query.fetchAndCache({
+    key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
+    waitFor: 400,
+    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+      return instance.query({
+        where: {
+          content: { entryId: { $regex: '\\d-bookmark' } }
+        },
+        exact: false
+      });
+    })
+  }).then(function (results) {
+    var bookmarkedIds = _.compact(_.map(results.data, function (record) {
       var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
       return match ? parseInt(match[1], 10) : '';
     }));
 
-    _.forEach(_this.listItems, function (record) {
-      record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
-    });
+    if (results.fromCache) {
+      _.forEach(_this.listItems, function (record) {
+        if (bookmarkedIds.indexOf(record.id) === -1) {
+          return;
+        }
+
+        record.bookmarked = true;
+      });
+    } else {
+      _.forEach(_this.listItems, function (record) {
+        record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
+      });
+    }
+
     _this.fetchedAllBookmarks = true;
   });
 };

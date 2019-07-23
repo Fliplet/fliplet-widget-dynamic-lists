@@ -239,6 +239,52 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return selectors;
   }
 
+  function fetchAndCache(options) {
+    options = options || {};
+
+    var request;
+
+    if (options.request instanceof Promise) {
+      request = options.request;
+    } else if (typeof options.request === 'function') {
+      request = options.request();
+
+      if (!(request instanceof Promise)) {
+        request = Promise.resolve(request);
+      }
+    } else {
+      request = Promise.resolve(request);
+    }
+
+    return new Promise(function (resolve, reject) {
+      request.then(function (results) {
+        Fliplet.App.Storage.set(options.key, results);
+
+        resolve({
+          fromCache: false,
+          data: results
+        });
+      }).catch(reject);
+
+      if (options.waitFor === false || options.waitFor < 0) {
+        return;
+      }
+
+      setTimeout(function () {
+        Fliplet.App.Storage.get(options.key).then(function (results) {
+          if (!results) {
+            return;
+          }
+
+          resolve({
+            fromCache: true,
+            data: results
+          });
+        });
+      }, options.waitFor);
+    });
+  }
+
   function removeSymbols(str) {
     return ('' + str).replace(/[&\/\\#,+()$~%.`'‘’"“”:*?<>{}]+/g, '');
   }
@@ -1107,6 +1153,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
+      fetchAndCache: fetchAndCache
     },
     Record: {
       contains: recordContains,
