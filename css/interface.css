@@ -929,6 +929,11 @@ header .btn,
   padding-right: 5px;
 }
 
+.image-type-select.clearfix, .rTableCell.select.field.picker-provider-button {
+  max-height: 44px;
+  overflow: visible;
+}
+
 .rTableHead.title,
 .rTableCell.title {
   width: 18%;
