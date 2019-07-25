@@ -942,6 +942,9 @@ header .btn,
   display: flex;
   height: 44px;
   align-items: center;
+}
+
+.flex-right {
   justify-content: flex-end;
 }
 
