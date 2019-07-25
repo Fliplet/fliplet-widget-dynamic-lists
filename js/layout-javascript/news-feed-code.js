@@ -2084,10 +2084,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var userName = '';
 
   if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
-    return Fliplet.Navigate.popup({
-      title: 'Invalid login',
-      message: 'You must be logged in to use this feature.'
-    });
+    return Fliplet.UI.Toast('You must be logged in to use this feature');
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
@@ -2104,9 +2101,8 @@ DynamicList.prototype.sendComment = function(id, value) {
   });
 
   if (!userFromDataSource) {
-    return Fliplet.Navigate.popup({
-      title: 'Invalid user',
-      message: 'We couldn\'t find your user details.'
+    return Fliplet.UI.Toast.error('We couldn\'t find your user details.', {
+      message: 'Invalid user'
     });
   }
 
