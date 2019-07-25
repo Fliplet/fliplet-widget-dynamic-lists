@@ -78,9 +78,16 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
+
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
+  });
+
+  Fliplet.Hooks.on('beforePageView', function (options) {
+    if (options.addToHistory === false) {
+      Fliplet.Page.Context.remove('dynamicListOpenId');
+    }
   });
 
   _this.$container
@@ -232,6 +239,9 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         _this.showDetails(entryId);
+        Fliplet.Page.Context.update({
+          dynamicListOpenId: entryId
+        });
       });
     })
     .on('click', '.agenda-detail-overlay-close', function() {
@@ -266,6 +276,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       _this.closeDetails();
+      Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('keydown', function(e) {
       if (e.keyCode === 39) {
