@@ -109,6 +109,7 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   Fliplet.Hooks.on('beforePageView', function (options) {
     if (options.addToHistory === false) {
+      _this.closeDetails();
       Fliplet.Page.Context.remove('dynamicListOpenId');
     }
   });

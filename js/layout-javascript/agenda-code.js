@@ -86,6 +86,7 @@ DynamicList.prototype.attachObservers = function() {
 
   Fliplet.Hooks.on('beforePageView', function (options) {
     if (options.addToHistory === false) {
+      _this.closeDetails();
       Fliplet.Page.Context.remove('dynamicListOpenId');
     }
   });
