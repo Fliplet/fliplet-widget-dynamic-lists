@@ -563,6 +563,7 @@
 .new-small-card-list-container {
   max-width: 600px;
   margin: 0 auto;
+  padding-right: 40px;
 }
 
 .new-small-card-list-container .small-card-list-wrapper {
@@ -661,6 +662,18 @@
   border-radius: 0;
 }
 
+.small-card-list-text-wrapper {
+  width: calc(100% - 61px)
+}
+
+.small-card-list-name, .small-card-list-role, .small-card-list-location {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  padding-right: 15px
+}
+
 .new-small-card-list-container .small-card-list-text-wrapper {
   height: 100%;
   padding: 0 0 0 15px;
@@ -691,7 +704,6 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 1.4;
-  padding-right: 40px;
 }
 
 .new-small-card-list-container .small-card-list-location {
@@ -700,7 +712,6 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 1.6;
-  padding-right: 40px;
 }
 
 .new-small-card-list-container .small-card-bookmark-holder {
