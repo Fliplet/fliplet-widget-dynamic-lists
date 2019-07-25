@@ -929,14 +929,20 @@ header .btn,
   padding-right: 5px;
 }
 
-.image-type-select.clearfix, .rTableCell.select.field.picker-provider-button {
-  max-height: 44px;
-  overflow: visible;
+.image-type-select.clearfix {
+  align-items: flex-start;
 }
 
 .rTableHead.title,
 .rTableCell.title {
   width: 18%;
+}
+
+.rTableCell.title {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .rTableHead.select,
@@ -1013,6 +1019,10 @@ header .btn,
 
 .image-type-select .selected-folder span {
   font-weight: bold;
+}
+
+.selected-folder {
+  max-height: 32px;
 }
 
 .intro-form {
