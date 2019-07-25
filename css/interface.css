@@ -938,13 +938,10 @@ header .btn,
   width: 18%;
 }
 
-.rTableCell.title {
+.flex-right {
   display: flex;
   height: 44px;
   align-items: center;
-}
-
-.flex-right {
   justify-content: flex-end;
 }
 
