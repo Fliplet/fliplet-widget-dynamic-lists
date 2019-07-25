@@ -69,7 +69,14 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
+
   // Attach your event listeners here
+  Fliplet.Hooks.on('beforePageView', function (options) {
+    if (options.addToHistory === false) {
+      _this.closeDetails();
+    }
+  });
+
   _this.$container
     .on('click', '.small-h-card-list-detail-button a', function() {
       var _that = $(this);
@@ -127,6 +134,7 @@ DynamicList.prototype.attachObservers = function() {
           _this.openLinkAction(entryId);
           return;
         }
+
         // find the element to expand and expand it
         if (_this.allowClick && $(window).width() < 640) {
           _this.directoryDetailWrapper = _that.find('.small-h-card-list-detail-wrapper');
@@ -134,6 +142,10 @@ DynamicList.prototype.attachObservers = function() {
         } else if (_this.allowClick && $(window).width() >= 640) {
           _this.showDetails(entryId);
         }
+
+        Fliplet.Page.Context.update({
+          dynamicListOpenId: entryId
+        });
       });
     })
     .on('click', '.small-h-card-detail-overlay-close', function(event) {
@@ -175,6 +187,8 @@ DynamicList.prototype.attachObservers = function() {
       } else {
         _this.closeDetails();
       }
+
+      Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('click', '.dynamic-list-add-item', function() {
       var options = {
@@ -818,8 +832,9 @@ DynamicList.prototype.showDetails = function (id) {
 DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
-
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
+
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
 

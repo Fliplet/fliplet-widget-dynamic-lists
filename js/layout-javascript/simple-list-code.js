@@ -98,6 +98,12 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
+  Fliplet.Hooks.on('beforePageView', function (options) {
+    if (options.addToHistory === false) {
+      _this.closeDetails();
+    }
+  });
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
@@ -192,6 +198,9 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         _this.showDetails(entryId);
+        Fliplet.Page.Context.update({
+          dynamicListOpenId: entryId
+        });
       });
     })
     .on('click', '.simple-list-detail-overlay-close', function() {
@@ -1834,8 +1843,9 @@ DynamicList.prototype.showDetails = function (id) {
 DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
-
   var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
+
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   $('body').removeClass('lock');
   $overlay.removeClass('open');
   _this.$container.find('.simple-list-container').removeClass('overlay-open');
