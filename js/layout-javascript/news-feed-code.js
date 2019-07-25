@@ -110,7 +110,6 @@ DynamicList.prototype.attachObservers = function() {
   Fliplet.Hooks.on('beforePageView', function (options) {
     if (options.addToHistory === false) {
       _this.closeDetails();
-      Fliplet.Page.Context.remove('dynamicListOpenId');
     }
   });
 
@@ -262,7 +261,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       _this.closeDetails();
-      Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
@@ -1894,6 +1892,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
   $('body').removeClass('lock');

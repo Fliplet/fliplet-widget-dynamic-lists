@@ -74,7 +74,6 @@ DynamicList.prototype.attachObservers = function() {
   Fliplet.Hooks.on('beforePageView', function (options) {
     if (options.addToHistory === false) {
       _this.closeDetails();
-      Fliplet.Page.Context.remove('dynamicListOpenId');
     }
   });
 
@@ -833,8 +832,9 @@ DynamicList.prototype.showDetails = function (id) {
 DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
-
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
+
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
 

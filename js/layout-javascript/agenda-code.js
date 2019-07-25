@@ -87,7 +87,6 @@ DynamicList.prototype.attachObservers = function() {
   Fliplet.Hooks.on('beforePageView', function (options) {
     if (options.addToHistory === false) {
       _this.closeDetails();
-      Fliplet.Page.Context.remove('dynamicListOpenId');
     }
   });
 
@@ -277,7 +276,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       _this.closeDetails();
-      Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('keydown', function(e) {
       if (e.keyCode === 39) {
@@ -1685,8 +1683,9 @@ DynamicList.prototype.showDetails = function (id) {
 DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
-
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
+
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.agenda-feed-list-container').removeClass('overlay-open');
   $('body').removeClass('lock');
