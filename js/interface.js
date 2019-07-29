@@ -84,6 +84,7 @@ var DynamicLists = (function() {
     }, configuration);
     _this.widgetId = configuration.id;
 
+    _this.isLoaded = false;
     $('.layouts-flex').html(layoutsTemplate(listLayouts));
 
     _this.attachListeners();
@@ -659,6 +660,7 @@ var DynamicLists = (function() {
           return _this.loadData();
         })
         .then(function() {
+          _this.isLoaded = true;
           _this.initializeFilterSortable();
           _this.initializeSortSortable();
         });

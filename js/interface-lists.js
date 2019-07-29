@@ -510,7 +510,9 @@ function attahObservers() {
   });
 
   Fliplet.Widget.onSaveRequest(function () {
-    $('form').submit();
+    if (dynamicLists.isLoaded) {
+      $('form').submit();
+    }
   });
 }
 
