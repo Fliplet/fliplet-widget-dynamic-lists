@@ -16,7 +16,9 @@
       </div>
     </div>
     \{{/if}}
-    <div class="small-card-list-detail-name">\{{[First Name]}} \{{[Last Name]}}</div>
+    \{{#ifCond [First Name] '||' [Last Name] }}
+      <div class="small-card-list-detail-name">\{{[First Name]}} \{{[Last Name]}}</div>
+    \{{/ifCond}}
     <div class="small-card-list-detail-role">\{{[Title]}}</div>
     <div class="small-card-list-detail-location">\{{[Location]}}</div>
     <div class="small-card-list-detail-buttons-wrapper">
