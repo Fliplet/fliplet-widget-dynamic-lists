@@ -242,7 +242,12 @@ DynamicList.prototype.attachObservers = function() {
 
       beforeOpen.then(function () {
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-          _this.openLinkAction(entryId);
+          _this.Utils.Navigate.openLinkAction({
+            records: _this.listItems,
+            recordId: entryId,
+            summaryLinkAction: _this.data.summaryLinkOption
+          });
+
           return;
         }
 
