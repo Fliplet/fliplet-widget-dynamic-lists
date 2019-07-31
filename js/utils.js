@@ -1140,6 +1140,28 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
+  function openLinkAction(options) {
+    var entry = _.find(options.records, function(entry) {
+      return entry.id === options.recordId;
+    });
+
+    if (!entry) {
+      return;
+    }
+
+    var value = entry.data[options.summaryLinkAction.column];
+
+    if (Array.isArray(value)) {
+      value = _.first(value);
+    }
+
+    if (options.summaryLinkAction.type === 'url') {
+      Fliplet.Navigate.url(value);
+    } else {
+      Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
+    }
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
@@ -1154,6 +1176,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
       fetchAndCache: fetchAndCache
+    },
+    Navigate: {
+      openLinkAction: openLinkAction
     },
     Record: {
       contains: recordContains,

@@ -1593,25 +1593,6 @@ DynamicList.prototype.sliderGoTo = function(number) {
   }
 }
 
-DynamicList.prototype.openLinkAction = function(entryId) {
-  var _this = this;
-  var entry = _.find(_this.listItems, function(entry) {
-    return entry.id === entryId;
-  });
-
-  if (!entry) {
-    return;
-  }
-
-  var value = entry.data[_this.data.summaryLinkAction.column];
-
-  if (_this.data.summaryLinkAction.type === 'url') {
-    Fliplet.Navigate.url(value);
-  } else {
-    Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
-  }
-}
-
 DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
