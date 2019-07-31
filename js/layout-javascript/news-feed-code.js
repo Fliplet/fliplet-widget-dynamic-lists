@@ -105,7 +105,14 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
+
   // Attach your event listeners here
+  Fliplet.Hooks.on('beforePageView', function (options) {
+    if (options.addToHistory === false) {
+      _this.closeDetails();
+    }
+  });
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
@@ -216,6 +223,9 @@ DynamicList.prototype.attachObservers = function() {
         // find the element to expand and expand it
         if (_this.allowClick) {
           _this.showDetails(entryId);
+          Fliplet.Page.Context.update({
+            dynamicListOpenId: entryId
+          });
         }
       });
     })
@@ -1882,6 +1892,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
   $('body').removeClass('lock');
@@ -2073,10 +2084,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var userName = '';
 
   if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
-    return Fliplet.Navigate.popup({
-      title: 'Invalid login',
-      message: 'You must be logged in to use this feature.'
-    });
+    return Fliplet.UI.Toast('You must be logged in to use this feature');
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
@@ -2093,9 +2101,8 @@ DynamicList.prototype.sendComment = function(id, value) {
   });
 
   if (!userFromDataSource) {
-    return Fliplet.Navigate.popup({
-      title: 'Invalid user',
-      message: 'We couldn\'t find your user details.'
+    return Fliplet.UI.Toast.error('We couldn\'t find your user details.', {
+      message: 'Invalid user'
     });
   }
 

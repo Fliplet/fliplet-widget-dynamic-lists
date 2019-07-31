@@ -78,9 +78,16 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
+
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
+  });
+
+  Fliplet.Hooks.on('beforePageView', function (options) {
+    if (options.addToHistory === false) {
+      _this.closeDetails();
+    }
   });
 
   _this.$container
@@ -232,6 +239,9 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         _this.showDetails(entryId);
+        Fliplet.Page.Context.update({
+          dynamicListOpenId: entryId
+        });
       });
     })
     .on('click', '.agenda-detail-overlay-close', function() {
@@ -1673,8 +1683,9 @@ DynamicList.prototype.showDetails = function (id) {
 DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
-
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
+
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.agenda-feed-list-container').removeClass('overlay-open');
   $('body').removeClass('lock');
