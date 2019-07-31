@@ -1141,6 +1141,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   }
 
   function openLinkAction(options) {
+    if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
+      return;
+    }
+
     var entry = _.find(options.records, function(entry) {
       return entry.id === options.recordId;
     });
@@ -1153,6 +1157,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     if (Array.isArray(value)) {
       value = _.first(value);
+    }
+
+    if (!value) {
+      return;
     }
 
     if (options.summaryLinkAction.type === 'url') {

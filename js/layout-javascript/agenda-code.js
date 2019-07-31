@@ -237,7 +237,7 @@ DynamicList.prototype.attachObservers = function() {
           _this.Utils.Navigate.openLinkAction({
             records: _this.listItems,
             recordId: entryId,
-            summaryLinkAction: _this.data.summaryLinkOption
+            summaryLinkAction: _this.data.summaryLinkAction
           });
 
           return;
