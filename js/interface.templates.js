@@ -15,43 +15,43 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.detail-view-panels"]
     + alias2(alias1(depth0, depth0))
     + "\">"
     + alias2(alias1(depth0, depth0))
-    + "</option>\n";
+    + "</option>\r\n";
 },"7":function(container,depth0,helpers,partials,data) {
     return "disabled";
 },"9":function(container,depth0,helpers,partials,data) {
-    return "    <div class=\"rTableCell title delete text-danger\">\n      <i class=\"fa fa-trash-o\" aria-hidden=\"true\"></i>\n    </div>\n";
+    return "    <div class=\"rTableCell title delete text-danger\">\r\n      <i class=\"fa fa-trash-o\" aria-hidden=\"true\"></i>\r\n    </div>\r\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"rTableRow clearfix\" data-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n  <div class=\"original-row clearfix\">\n    <div class=\"rTableCell title\">\n      "
+    + "\">\r\n  <div class=\"original-row clearfix\">\r\n    <div class=\"rTableCell title\">\r\n      "
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.helper : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
-    + "\n    </div>\n    <div class=\"rTableCell select field\">\n      <select name=\"detail_select_field\" id=\"detail_select_field_"
+    + "\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <select name=\"detail_select_field\" id=\"detail_select_field_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"form-control\">\n        <option value=\"none\">-- Select a data field</option>\n        <option disabled>------</option>\n        <option value=\"custom\">Custom</option>\n        <option disabled>------</option>\n"
+    + "\" class=\"form-control\">\r\n        <option value=\"none\">-- Select a data field</option>\r\n        <option disabled>------</option>\r\n        <option value=\"custom\">Custom</option>\r\n        <option disabled>------</option>\r\n"
     + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.columns : depth0),{"name":"each","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "      </select>\n    </div>\n    <div class=\"rTableCell select type\">\n      <select name=\"detail_field_type\" id=\"detail_select_type_"
+    + "      </select>\r\n    </div>\r\n    <div class=\"rTableCell select type\">\r\n      <select name=\"detail_field_type\" id=\"detail_select_type_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"form-control\" "
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.editable : depth0),{"name":"unless","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + ">\n        <option value=\"none\">-- Select a type</option>\n        <option disabled>------</option>\n        <option value=\"image\">Image</option>\n        <option value=\"text\">Plain text</option>\n        <option value=\"html\">HTML</option>\n        <option value=\"url\">URL</option>\n        <option value=\"tel\">Telephone</option>\n        <option value=\"mail\">Email</option>\n        <option value=\"date\">Date (e.g. "
+    + ">\r\n        <option value=\"none\">-- Select a type</option>\r\n        <option disabled>------</option>\r\n        <option value=\"image\">Image</option>\r\n        <option value=\"text\">Plain text</option>\r\n        <option value=\"html\">HTML</option>\r\n        <option value=\"url\">URL</option>\r\n        <option value=\"tel\">Telephone</option>\r\n        <option value=\"mail\">Email</option>\r\n        <option value=\"date\">Date (e.g. "
     + alias4(((helper = (helper = helpers.date || (depth0 != null ? depth0.date : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"date","hash":{},"data":data}) : helper)))
-    + ")</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select type\">\n      <select name=\"select_field_label\" id=\"detail_select_label_"
+    + ")</option>\r\n      </select>\r\n    </div>\r\n    <div class=\"rTableCell select type\">\r\n      <select name=\"select_field_label\" id=\"detail_select_label_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"form-control\" "
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.editable : depth0),{"name":"unless","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + ">\n        <option value=\"none\">-- Select an option</option>\n        <option disabled>------</option>\n        <option value=\"column-name\">Column name as label</option>\n        <option value=\"custom-label\">Custom label</option>\n        <option value=\"no-label\">No label</option>\n      </select>\n    </div>\n"
+    + ">\r\n        <option value=\"none\">-- Select an option</option>\r\n        <option disabled>------</option>\r\n        <option value=\"column-name\">Column name as label</option>\r\n        <option value=\"custom-label\">Custom label</option>\r\n        <option value=\"no-label\">No label</option>\r\n      </select>\r\n    </div>\r\n"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.editable : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "  </div>\n  <div class=\"custom-field-input clearfix hidden\">\n    <div class=\"rTableCell title text-right\">\n      <small>Custom field</small>\n    </div>\n    <div class=\"rTableCell select field\">\n      <input type=\"text\" class=\"form-control\" id=\"detail_custom_field_"
+    + "  </div>\r\n  <div class=\"custom-field-input clearfix hidden\">\r\n    <div class=\"rTableCell title text-right\">\r\n      <small>Custom field</small>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <input type=\"text\" class=\"form-control\" id=\"detail_custom_field_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info\">Use <code>{{[*]}}</code> to wrap around a field name, e.g. <code>{{[city]}}, {{[country]}}</code>.</p>\n    </div>\n  </div>\n  <div class=\"image-type-select clearfix hidden\">\n    <div class=\"rTableCell title text-right\"><small>Data type</small></div>\n    <div class=\"rTableCell select field\">\n      <select class=\"form-control\" id=\"detail_image_field_type_"
+    + "\">\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <p class=\"text-muted field-text-info\">Use <code>{{[*]}}</code> to wrap around a field name, e.g. <code>{{[city]}}, {{[country]}}</code>.</p>\r\n    </div>\r\n  </div>\r\n  <div class=\"image-type-select clearfix hidden\">\r\n    <div class=\"rTableCell title text-right\"><small>Data type</small></div>\r\n    <div class=\"rTableCell select field\">\r\n      <select class=\"form-control\" id=\"detail_image_field_type_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" name=\"image_type_select\">\n        <option value=\"all-folders\">Image folder</option>\n        <option value=\"url\" selected>URL to external image</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select field picker-provider-button hidden\" data-field-id=\""
+    + "\" name=\"image_type_select\">\r\n        <option value=\"all-folders\">Image folder</option>\r\n        <option value=\"url\" selected>URL to external image</option>\r\n      </select>\r\n    </div>\r\n    <div class=\"rTableCell select field picker-provider-button hidden\" data-field-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n      <div class=\"btn btn-default file-picker-btn\" data-file-picker-details>Select a folder</div>\n      <div class=\"selected-folder hidden\">Selected folder: <span></span></div>\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use a URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\n    </div>\n  </div>\n  <div class=\"custom-label-input clearfix hidden\">\n    <div class=\"rTableCell title text-right\">\n      <small>Custom label</small>\n    </div>\n    <div class=\"rTableCell select field\">\n      <input type=\"text\" class=\"form-control\" id=\"detail_custom_field_name_"
+    + "\">\r\n      <div class=\"btn btn-default file-picker-btn\" data-file-picker-details>Select a folder</div>\r\n      <div class=\"selected-folder hidden\">Selected folder: <span></span></div>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\r\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use a URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\r\n    </div>\r\n  </div>\r\n  <div class=\"custom-label-input clearfix hidden\">\r\n    <div class=\"rTableCell title text-right\">\r\n      <small>Custom label</small>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <input type=\"text\" class=\"form-control\" id=\"detail_custom_field_name_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n    </div>\n  </div>\n</div>";
+    + "\">\r\n    </div>\r\n  </div>\r\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.field-token"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -79,47 +79,47 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias2(alias1(depth0, depth0))
     + "\">"
     + alias2(alias1(depth0, depth0))
-    + "</option>\n";
+    + "</option>\r\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"panel panel-default filter-panel\" data-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n  <div class=\"panel-heading ui-sortable-handle\">\n    <h4 class=\"panel-title\" data-toggle=\"collapse\" data-parent=\"#filter-accordion\" data-target=\"#collapse-"
+    + "\">\r\n  <div class=\"panel-heading ui-sortable-handle\">\r\n    <h4 class=\"panel-title\" data-toggle=\"collapse\" data-parent=\"#filter-accordion\" data-target=\"#collapse-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n      <div class=\"screen-reorder-handle\">\n        <i class=\"fa fa-ellipsis-v\"></i><i class=\"fa fa-ellipsis-v\"></i>\n      </div>\n      <span class=\"panel-title-text\">\n        <span class=\"column\">"
+    + "\">\r\n      <div class=\"screen-reorder-handle\">\r\n        <i class=\"fa fa-ellipsis-v\"></i><i class=\"fa fa-ellipsis-v\"></i>\r\n      </div>\r\n      <span class=\"panel-title-text\">\r\n        <span class=\"column\">"
     + alias4(((helper = (helper = helpers.columnLabel || (depth0 != null ? depth0.columnLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"columnLabel","hash":{},"data":data}) : helper)))
     + "</span> - <span class=\"logic\">"
     + alias4(((helper = (helper = helpers.logicLabel || (depth0 != null ? depth0.logicLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"logicLabel","hash":{},"data":data}) : helper)))
     + "</span> - <span class=\"value\">"
     + alias4(((helper = (helper = helpers.valueLabel || (depth0 != null ? depth0.valueLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"valueLabel","hash":{},"data":data}) : helper)))
-    + "</span>\n      </span>\n      <span class=\"fa fa-chevron-"
+    + "</span>\r\n      </span>\r\n      <span class=\"fa fa-chevron-"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.fromLoading : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
-    + " panel-chevron\"></span>\n    </h4>\n    <a href=\"#\"><span class=\"icon-delete fa fa-trash\"></span></a>\n  </div>\n  <div id=\"collapse-"
+    + " panel-chevron\"></span>\r\n    </h4>\r\n    <a href=\"#\"><span class=\"icon-delete fa fa-trash\"></span></a>\r\n  </div>\r\n  <div id=\"collapse-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"panel-collapse collapse "
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.fromLoading : depth0),{"name":"unless","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "\">\n    <div class=\"panel-body\">\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Data field name</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"select-data-field-"
+    + "\">\r\n    <div class=\"panel-body\">\r\n\r\n      <div class=\"form-group clearfix\">\r\n        <div class=\"col-sm-4 control-label\">\r\n          <label>Data field name</label>\r\n        </div>\r\n        <div class=\"col-sm-8\">\r\n          <label for=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"select-proxy-display\">\n            <select name=\"select-data-field-"
+    + "\" class=\"select-proxy-display\">\r\n            <select name=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"field\" data-label=\"-- Select a data field\" class=\"hidden-select form-control\">\n              <option value=\"none\">-- Select a data field</option>\n"
+    + "\" data-field=\"field\" data-label=\"-- Select a data field\" class=\"hidden-select form-control\">\r\n              <option value=\"none\">-- Select a data field</option>\r\n"
     + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.columns : depth0),{"name":"each","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n            <span class=\"select-value-proxy\">-- Please wait</span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Logic</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"logic-field-"
+    + "            </select>\r\n            <span class=\"icon fa fa-chevron-down\"></span>\r\n            <span class=\"select-value-proxy\">-- Please wait</span>\r\n          </label>\r\n        </div>\r\n      </div>\r\n\r\n      <div class=\"form-group clearfix\">\r\n        <div class=\"col-sm-4 control-label\">\r\n          <label>Logic</label>\r\n        </div>\r\n        <div class=\"col-sm-8\">\r\n          <label for=\"logic-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"select-proxy-display\">\n            <select name=\"logic-field-"
+    + "\" class=\"select-proxy-display\">\r\n            <select name=\"logic-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"logic-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"logic\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\n              <option value=\"none\">-- Select an option</option>\n              <option value=\"==\">Equals</option>\n              <option value=\"!=\">Doesn't equal</option>\n              <option value=\"contains\">Contains</option>\n              <option value=\"notcontain\">Doesn't contain</option>\n              <option value=\"regex\">Regex</option>\n              <option value=\">\">Greater than</option>\n              <option value=\">=\">Greater or equal to</option>\n              <option value=\"<\">Less than</option>\n              <option value=\"<=\">Less or equal to</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n            <span class=\"select-value-proxy\">-- Please wait</span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label for=\"value-field-"
+    + "\" data-field=\"logic\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\r\n              <option value=\"none\">-- Select an option</option>\r\n              <option value=\"==\">Equals</option>\r\n              <option value=\"!=\">Doesn't equal</option>\r\n              <option value=\"contains\">Contains</option>\r\n              <option value=\"notcontain\">Doesn't contain</option>\r\n              <option value=\"regex\">Regex</option>\r\n              <option value=\">\">Greater than</option>\r\n              <option value=\">=\">Greater or equal to</option>\r\n              <option value=\"<\">Less than</option>\r\n              <option value=\"<=\">Less or equal to</option>\r\n            </select>\r\n            <span class=\"icon fa fa-chevron-down\"></span>\r\n            <span class=\"select-value-proxy\">-- Please wait</span>\r\n          </label>\r\n        </div>\r\n      </div>\r\n\r\n      <div class=\"form-group clearfix\">\r\n        <div class=\"col-sm-4 control-label\">\r\n          <label for=\"value-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">Value</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <input type=\"text\" name=\"value-field-"
+    + "\">Value</label>\r\n        </div>\r\n        <div class=\"col-sm-8\">\r\n          <input type=\"text\" name=\"value-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>";
+    + "\" data-field=\"value\" class=\"form-control\">\r\n        </div>\r\n      </div>\r\n\r\n    </div>\r\n  </div>\r\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.layouts"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
@@ -127,17 +127,17 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.layouts"] = Handleba
 
   return "  <div class=\"layout-holder\" data-layout=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n    <div class=\"layout-info\">\n      <p class=\"title\">"
+    + "\">\r\n    <div class=\"layout-info\">\r\n      <p class=\"title\">"
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
     + " "
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.warning : depth0),{"name":"if","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "</p>\n      <p class=\"description\">"
+    + "</p>\r\n      <p class=\"description\">"
     + alias4(((helper = (helper = helpers.description || (depth0 != null ? depth0.description : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"description","hash":{},"data":data}) : helper)))
-    + "</p>\n    </div>\n    <div class=\"image-holder\">\n      <div class=\"selected-screen\">\n        <i class=\"fa fa-check-circle\"></i>\n        <div class=\"layout-info\">\n          \n        </div>\n      </div>\n      <img class=\"animated-gif\" src=\""
+    + "</p>\r\n    </div>\r\n    <div class=\"image-holder\">\r\n      <div class=\"selected-screen\">\r\n        <i class=\"fa fa-check-circle\"></i>\r\n        <div class=\"layout-info\">\r\n          \r\n        </div>\r\n      </div>\r\n      <img class=\"animated-gif\" src=\""
     + alias4(((helper = (helper = helpers.gif || (depth0 != null ? depth0.gif : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"gif","hash":{},"data":data}) : helper)))
-    + "\" />\n      <img class=\"static-img\" src=\""
+    + "\" />\r\n      <img class=\"static-img\" src=\""
     + alias4(((helper = (helper = helpers.image || (depth0 != null ? depth0.image : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"image","hash":{},"data":data}) : helper)))
-    + "\" />\n    </div>\n  </div>\n";
+    + "\" />\r\n    </div>\r\n  </div>\r\n";
 },"2":function(container,depth0,helpers,partials,data) {
     var helper;
 
@@ -163,47 +163,47 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.sort-panels"] = Hand
     + alias2(alias1(depth0, depth0))
     + "\">"
     + alias2(alias1(depth0, depth0))
-    + "</option>\n";
+    + "</option>\r\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"panel panel-default sort-panel\" data-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n  <div class=\"panel-heading ui-sortable-handle\">\n    <h4 class=\"panel-title\" data-toggle=\"collapse\" data-parent=\"#sort-accordion\" data-target=\"#collapse-"
+    + "\">\r\n  <div class=\"panel-heading ui-sortable-handle\">\r\n    <h4 class=\"panel-title\" data-toggle=\"collapse\" data-parent=\"#sort-accordion\" data-target=\"#collapse-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n      <div class=\"screen-reorder-handle\">\n        <i class=\"fa fa-ellipsis-v\"></i><i class=\"fa fa-ellipsis-v\"></i>\n      </div>\n      <span class=\"panel-title-text\">\n        <span class=\"column\">"
+    + "\">\r\n      <div class=\"screen-reorder-handle\">\r\n        <i class=\"fa fa-ellipsis-v\"></i><i class=\"fa fa-ellipsis-v\"></i>\r\n      </div>\r\n      <span class=\"panel-title-text\">\r\n        <span class=\"column\">"
     + alias4(((helper = (helper = helpers.columnLabel || (depth0 != null ? depth0.columnLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"columnLabel","hash":{},"data":data}) : helper)))
     + "</span> - <span class=\"sort-by\">"
     + alias4(((helper = (helper = helpers.sortByLabel || (depth0 != null ? depth0.sortByLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"sortByLabel","hash":{},"data":data}) : helper)))
     + "</span> - <span class=\"order-by\">"
     + alias4(((helper = (helper = helpers.orderByLabel || (depth0 != null ? depth0.orderByLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"orderByLabel","hash":{},"data":data}) : helper)))
-    + "</span>\n      </span>\n      <span class=\"fa fa-chevron-"
+    + "</span>\r\n      </span>\r\n      <span class=\"fa fa-chevron-"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.fromLoading : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
-    + " panel-chevron\"></span>\n    </h4>\n    <a href=\"#\"><span class=\"icon-delete fa fa-trash\"></span></a>\n  </div>\n  <div id=\"collapse-"
+    + " panel-chevron\"></span>\r\n    </h4>\r\n    <a href=\"#\"><span class=\"icon-delete fa fa-trash\"></span></a>\r\n  </div>\r\n  <div id=\"collapse-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"panel-collapse collapse "
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.fromLoading : depth0),{"name":"unless","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "\">\n    <div class=\"panel-body\">\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Data field name</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"select-data-field-"
+    + "\">\r\n    <div class=\"panel-body\">\r\n\r\n      <div class=\"form-group clearfix\">\r\n        <div class=\"col-sm-4 control-label\">\r\n          <label>Data field name</label>\r\n        </div>\r\n        <div class=\"col-sm-8\">\r\n          <label for=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"select-proxy-display\">\n            <select name=\"select-data-field-"
+    + "\" class=\"select-proxy-display\">\r\n            <select name=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"field\" data-label=\"-- Select a data field\" class=\"hidden-select form-control\">\n              <option value=\"none\">-- Select a data field</option>\n"
+    + "\" data-field=\"field\" data-label=\"-- Select a data field\" class=\"hidden-select form-control\">\r\n              <option value=\"none\">-- Select a data field</option>\r\n"
     + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.columns : depth0),{"name":"each","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n            <span class=\"select-value-proxy\">-- Please wait</span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Sort by</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"sort-by-field-"
+    + "            </select>\r\n            <span class=\"icon fa fa-chevron-down\"></span>\r\n            <span class=\"select-value-proxy\">-- Please wait</span>\r\n          </label>\r\n        </div>\r\n      </div>\r\n\r\n      <div class=\"form-group clearfix\">\r\n        <div class=\"col-sm-4 control-label\">\r\n          <label>Sort by</label>\r\n        </div>\r\n        <div class=\"col-sm-8\">\r\n          <label for=\"sort-by-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"select-proxy-display\">\n            <select name=\"sort-by-field-"
+    + "\" class=\"select-proxy-display\">\r\n            <select name=\"sort-by-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"sort-by-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"sort\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\n              <option value=\"none\">-- Select an option</option>\n              <option value=\"alphabetical\">Alphabetical (A-Z)</option>\n              <option value=\"numerical\">Numerical (0-9)</option>\n              <option value=\"date\">Date (YYYY-MM-DD)</option>\n              <option value=\"time\">Time (HH:MM)</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n            <span class=\"select-value-proxy\">-- Please wait</span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Order by</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"order-by-field-"
+    + "\" data-field=\"sort\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\r\n              <option value=\"none\">-- Select an option</option>\r\n              <option value=\"alphabetical\">Alphabetical (A-Z)</option>\r\n              <option value=\"numerical\">Numerical (0-9)</option>\r\n              <option value=\"date\">Date (YYYY-MM-DD)</option>\r\n              <option value=\"time\">Time (HH:MM)</option>\r\n            </select>\r\n            <span class=\"icon fa fa-chevron-down\"></span>\r\n            <span class=\"select-value-proxy\">-- Please wait</span>\r\n          </label>\r\n        </div>\r\n      </div>\r\n\r\n      <div class=\"form-group clearfix\">\r\n        <div class=\"col-sm-4 control-label\">\r\n          <label>Order by</label>\r\n        </div>\r\n        <div class=\"col-sm-8\">\r\n          <label for=\"order-by-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"select-proxy-display\">\n            <select name=\"order-by-field-"
+    + "\" class=\"select-proxy-display\">\r\n            <select name=\"order-by-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"order-by-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"order\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\n              <option value=\"none\">-- Select an option</option>\n              <option value=\"ascending\">Ascending</option>\n              <option value=\"descending\">Descending</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n            <span class=\"select-value-proxy\">-- Please wait</span>\n          </label>\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>";
+    + "\" data-field=\"order\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\r\n              <option value=\"none\">-- Select an option</option>\r\n              <option value=\"ascending\">Ascending</option>\r\n              <option value=\"descending\">Descending</option>\r\n            </select>\r\n            <span class=\"icon fa fa-chevron-down\"></span>\r\n            <span class=\"select-value-proxy\">-- Please wait</span>\r\n          </label>\r\n        </div>\r\n      </div>\r\n\r\n    </div>\r\n  </div>\r\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.summary-view-panels"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
@@ -213,29 +213,29 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.summary-view-panels"
     + alias2(alias1(depth0, depth0))
     + "\">"
     + alias2(alias1(depth0, depth0))
-    + "</option>\n";
+    + "</option>\r\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"rTableRow clearfix\" data-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n  <div class=\"original-row clearfix\">\n    <div class=\"rTableCell title\">\n      "
+    + "\">\r\n  <div class=\"original-row clearfix\">\r\n    <div class=\"rTableCell title\">\r\n      "
     + alias4(((helper = (helper = helpers.interfaceName || (depth0 != null ? depth0.interfaceName : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"interfaceName","hash":{},"data":data}) : helper)))
-    + "\n    </div>\n    <div class=\"rTableCell select field\">\n      <select name=\"summary_select_field\" id=\"summary_select_field_"
+    + "\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <select name=\"summary_select_field\" id=\"summary_select_field_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"form-control\">\n        <option value=\"none\">-- Select a data field</option>\n        <option disabled>------</option>\n        <option value=\"empty\">None</option>\n        <option value=\"custom\">Custom</option>\n        <option disabled>------</option>\n"
+    + "\" class=\"form-control\">\r\n        <option value=\"none\">-- Select a data field</option>\r\n        <option disabled>------</option>\r\n        <option value=\"empty\">None</option>\r\n        <option value=\"custom\">Custom</option>\r\n        <option disabled>------</option>\r\n"
     + ((stack1 = helpers.each.call(alias1,(depth0 != null ? depth0.columns : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "      </select>\n    </div>\n    <div class=\"rTableCell select type\">\n      <select name=\"summary_field_type\" id=\"summary_select_type_"
+    + "      </select>\r\n    </div>\r\n    <div class=\"rTableCell select type\">\r\n      <select name=\"summary_field_type\" id=\"summary_select_type_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" class=\"form-control disabled\" disabled>\n        <option value=\"none\">-- Select a type</option>\n        <option disabled>------</option>\n        <option value=\"image\">Image</option>\n        <option value=\"text\">Plain text</option>\n        <option value=\"html\">HTML</option>\n        <option value=\"url\">URL</option>\n        <option value=\"tel\">Telephone</option>\n        <option value=\"mail\">Email</option>\n        <option value=\"date\">Date (e.g. "
+    + "\" class=\"form-control disabled\" disabled>\r\n        <option value=\"none\">-- Select a type</option>\r\n        <option disabled>------</option>\r\n        <option value=\"image\">Image</option>\r\n        <option value=\"text\">Plain text</option>\r\n        <option value=\"html\">HTML</option>\r\n        <option value=\"url\">URL</option>\r\n        <option value=\"tel\">Telephone</option>\r\n        <option value=\"mail\">Email</option>\r\n        <option value=\"date\">Date (e.g. "
     + alias4(((helper = (helper = helpers.date || (depth0 != null ? depth0.date : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"date","hash":{},"data":data}) : helper)))
-    + ")</option>\n        <option value=\"time\">Time (e.g. "
+    + ")</option>\r\n        <option value=\"time\">Time (e.g. "
     + alias4(((helper = (helper = helpers.time || (depth0 != null ? depth0.time : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"time","hash":{},"data":data}) : helper)))
-    + ")</option>\n      </select>\n    </div>\n  </div>\n  <div class=\"custom-field-input clearfix hidden\">\n    <div class=\"rTableCell title text-right\">\n      <small>Custom field</small>\n    </div>\n    <div class=\"rTableCell select field\">\n      <input type=\"text\" class=\"form-control\" id=\"summary_custom_field_"
+    + ")</option>\r\n      </select>\r\n    </div>\r\n  </div>\r\n  <div class=\"custom-field-input clearfix hidden\">\r\n    <div class=\"rTableCell title text-right\">\r\n      <small>Custom field</small>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <input type=\"text\" class=\"form-control\" id=\"summary_custom_field_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info\">Use <code>{{[*]}}</code> to wrap around a field name, e.g. <code>{{[city]}}, {{[country]}}</code>.</p>\n    </div>\n  </div>\n  <div class=\"image-type-select clearfix hidden\">\n    <div class=\"rTableCell title text-right\">\n      <small>Data type</small>\n    </div>\n    <div class=\"rTableCell select field\">\n      <select class=\"form-control\" id=\"summary_image_field_type_"
+    + "\">\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <p class=\"text-muted field-text-info\">Use <code>{{[*]}}</code> to wrap around a field name, e.g. <code>{{[city]}}, {{[country]}}</code>.</p>\r\n    </div>\r\n  </div>\r\n  <div class=\"image-type-select clearfix hidden\">\r\n    <div class=\"rTableCell title text-right\">\r\n      <small>Data type</small>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <select class=\"form-control\" id=\"summary_image_field_type_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" name=\"image_type_select\">\n        <option value=\"all-folders\">Image folder</option>\n        <option value=\"url\">URL to external image</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select field picker-provider-button hidden\" data-field-id=\""
+    + "\" name=\"image_type_select\">\r\n        <option value=\"all-folders\">Image folder</option>\r\n        <option value=\"url\">URL to external image</option>\r\n      </select>\r\n    </div>\r\n    <div class=\"rTableCell select field picker-provider-button hidden\" data-field-id=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n      <div class=\"btn btn-default file-picker-btn\" data-file-picker-summary>Select a folder</div>\n      <div class=\"selected-folder hidden\">Selected folder: <span></span></div>\n    </div>\n    <div class=\"rTableCell select field\">\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use a URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\n    </div>\n  </div>\n</div>";
+    + "\">\r\n      <div class=\"btn btn-default file-picker-btn\" data-file-picker-summary>Select a folder</div>\r\n      <div class=\"selected-folder hidden\">Selected folder: <span></span></div>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\r\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use a URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\r\n    </div>\r\n  </div>\r\n</div>";
 },"useData":true});

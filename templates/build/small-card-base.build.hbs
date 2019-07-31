@@ -101,14 +101,7 @@
 
   \{{#if enabledLimitEntries}}
   <div class="limit-entries-text">
-    \{{#ifCond limitEntries '==' 0}}
-      \{{#ifCond searchEnabled '||' filtersEnabled}}
-      <p>\{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see the list items</p>
-      \{{/ifCond}}
-    \{{/ifCond}}
-    \{{#ifCond limitEntries '>' 0}}
-    <p>Showing the first \{{limitEntries}} list items. \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.</p>
-    \{{/ifCond}}
+    <p>\{{limitEntriesText}}</p>
   </div>
   \{{/if}}
 
