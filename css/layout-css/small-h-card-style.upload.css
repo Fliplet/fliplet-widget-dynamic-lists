@@ -31,6 +31,7 @@
 
 .new-small-h-card-list-container.ready .small-h-card-list-wrapper {
   display: flex;
+  justify-content: center;
 }
 
 .lock .new-small-h-card-list-container .small-h-card-list-wrapper {
