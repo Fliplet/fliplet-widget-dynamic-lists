@@ -1002,7 +1002,7 @@ header .btn,
 }
 
 .image-type-select .selected-folder,
- .alert-message {
+.error-message {
   font-size: 12px;
   margin-top: 6px;
 }
