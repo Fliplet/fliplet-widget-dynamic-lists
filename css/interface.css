@@ -1001,7 +1001,8 @@ header .btn,
   margin-top: 10px;
 }
 
-.image-type-select .selected-folder {
+.image-type-select .selected-folder,
+ .alert-message {
   font-size: 12px;
   margin-top: 6px;
 }
