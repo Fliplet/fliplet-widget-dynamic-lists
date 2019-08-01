@@ -193,7 +193,12 @@ DynamicList.prototype.attachObservers = function() {
 
       beforeOpen.then(function () {
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-          _this.openLinkAction(entryId);
+          _this.Utils.Navigate.openLinkAction({
+            records: _this.listItems,
+            recordId: entryId,
+            summaryLinkAction: _this.data.summaryLinkAction
+          });
+
           return;
         }
 
@@ -1696,25 +1701,6 @@ DynamicList.prototype.getCommentUsers = function () {
       _this.usersToMention = usersToMention;
     });
 };
-
-DynamicList.prototype.openLinkAction = function(entryId) {
-  var _this = this;
-  var entry = _.find(_this.listItems, function(entry) {
-    return entry.id === entryId;
-  });
-
-  if (!entry) {
-    return;
-  }
-
-  var value = entry.data[_this.data.summaryLinkAction.column];
-
-  if (_this.data.summaryLinkAction.type === 'url') {
-    Fliplet.Navigate.url(value);
-  } else {
-    Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
-  }
-}
 
 DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
