@@ -282,7 +282,7 @@ function attahObservers() {
             value: widgetData.userAdminColumn,
             field: '#select_user_admin'
           });
-          
+
           values.forEach(function(field) {
             if (!validate(field.value)) {
               errors.push(field.field);
@@ -330,7 +330,7 @@ function attahObservers() {
           if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
-          
+
           values.forEach(function(field) {
             if (!validate(field.value)) {
               errors.push(field.field);
@@ -369,11 +369,11 @@ function attahObservers() {
             value: widgetData.userEmailColumn,
             field: '#select_user_email'
           });
-          
+
           if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
-          
+
           values.forEach(function(field) {
             if (!validate(field.value)) {
               errors.push(field.field);
@@ -408,7 +408,7 @@ function attahObservers() {
             value: widgetData.pollColumn,
             field: '#select_poll_data'
           });
-          
+
           values.forEach(function(field) {
             if (!validate(field.value)) {
               errors.push(field.field);
@@ -443,7 +443,7 @@ function attahObservers() {
             value: widgetData.pollColumn,
             field: '#select_survey_data'
           });
-          
+
           values.forEach(function(field) {
             if (!validate(field.value)) {
               errors.push(field.field);
@@ -478,7 +478,7 @@ function attahObservers() {
             value: widgetData.pollColumn,
             field: '#select_questions_data'
           });
-          
+
           values.forEach(function(field) {
             if (!validate(field.value)) {
               errors.push(field.field);
@@ -510,9 +510,10 @@ function attahObservers() {
   });
 
   Fliplet.Widget.onSaveRequest(function () {
-    if (dynamicLists.isLoaded) {
-      $('form').submit();
+    if (!dynamicLists.isLoaded) {
+      Fliplet.Widget.complete();
     }
+    $('form').submit();
   });
 }
 
