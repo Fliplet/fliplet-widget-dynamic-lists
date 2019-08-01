@@ -1208,7 +1208,23 @@ var DynamicLists = (function() {
         createTokensOnBlur: true
       });
 
+      _this.handleTokensSelection();
       _this.loadTokenFields();
+    },
+    handleTokensSelection: function () {
+      $('input.tokenfield').on('tokenfield:createdtoken tokenfield:removedtoken', function (event) {
+        var field = $(this);
+        var currentTokens = field.tokenfield('getTokens');
+        var originalSource = field.data('bs.tokenfield').options.autocomplete.source;
+
+        // Remove the token from the newSource
+        var newSource = _.xorBy(originalSource, currentTokens, function (item) {
+          return item.label || item;
+        });
+
+        // Update source
+        field.data('bs.tokenfield').$input.autocomplete({source: newSource});
+      });
     },
     setUpUserTokenFields: function() {
       $('.user-name-fields').html(tokenField({
