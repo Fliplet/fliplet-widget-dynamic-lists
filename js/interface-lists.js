@@ -222,8 +222,6 @@ function attahObservers() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
       var field = _.find(widgetData['summary-fields'], { id: fieldId });
 
-      $('.text-danger').addClass('hidden');
-
       _.each(selectedFieldId, function(id) {
         $('[data-field-id="' + id + '"] .text-danger').addClass('hidden');
       });
@@ -244,7 +242,10 @@ function attahObservers() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
       var field = _.find(widgetData.detailViewOptions, { id: fieldId });
 
-      $('.text-danger').addClass('hidden');
+      _.each(selectedFieldId, function(id) {
+        $('[data-field-id="' + id + '"] .text-danger').addClass('hidden');
+      });
+
       if (field) {
         initFilePickerProvider(field);
       } else {
