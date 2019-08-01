@@ -2371,7 +2371,6 @@ var DynamicLists = (function() {
       if (limit && limit.length && /^\d+$/.test(limit)) {
         data.enabledLimitEntries = true;
         data.limitEntries = parseInt(limit, 10);
-        data.limitEntriesText = constructEntriesText(data);
       } else {
         data.enabledLimitEntries = false;
         data.limitEntries = '';

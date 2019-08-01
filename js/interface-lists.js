@@ -528,28 +528,4 @@ function save(notifyComplete) {
   });
 }
 
-function constructEntriesText(data) {
-  if (data.limitEntries < 0) {
-    return '';
-  }
-  var hasEntriesLimit = data.limitEntries > 0;
-  var text = hasEntriesLimit ?  'Showing the first ' + data.limitEntries : '';
-  if (data.searchEnabled || data.filtersEnabled) { 
-    text += hasEntriesLimit ? ' list items.' : '';
-    if (data.searchEnabled) {
-      text += ' Search';
-    }
-    if (data.searchEnabled && data.filtersEnabled) {
-      text += ' and/or'
-    }
-    if (data.filtersEnabled) {
-      text += ' Filter';
-    }
-    text += hasEntriesLimit ? ' to see more.' : ' to see the list items';
-  } else if (hasEntriesLimit) {
-    text += ' items';
-  }
-  return text;
-}
-
 initialize();
