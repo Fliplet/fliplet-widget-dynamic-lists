@@ -512,6 +512,7 @@ function attahObservers() {
   Fliplet.Widget.onSaveRequest(function () {
     if (!dynamicLists.isLoaded) {
       Fliplet.Widget.complete();
+      return;
     }
     $('form').submit();
   });
