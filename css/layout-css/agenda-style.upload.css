@@ -643,9 +643,14 @@
 }
 
 .agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder {
-  display: flex;
+  display: none;
   align-items: center;
   min-width: 56px;
+}
+
+.agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder.not-bookmarked,
+.agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder.bookmarked {
+  display: flex;
 }
 
 .agenda-item-bookmark.more-buttons .agenda-item-bookmark-holder .bookmark-wrapper span {
