@@ -103,7 +103,7 @@
       \{{/ifCond}}
     \{{/ifCond}}
     \{{#ifCond limitEntries '>' 0}}
-    <p>Showing the first \{{limitEntries}} list items. \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.</p>
+    <p>Showing the first \{{limitEntries}} list items.\{{#ifCond searchEnabled '||' filtersEnabled}} \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.\{{/ifCond}}</p>
     \{{/ifCond}}
   </div>
   \{{/if}}

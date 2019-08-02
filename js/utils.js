@@ -469,9 +469,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var searchResults = [];
     var truncated = _.some(records, function (record) {
+      if (limit > -1 && searchResults.length >= limit) {
+        // Search results reached limit
+        return true;
+      }
+
       // Check for bookmark status
       if (showBookmarks && !record.bookmarked) {
-        return false;
+        return;
       }
 
       // Check against filters
@@ -480,13 +485,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         filters: activeFilters,
         config: config
       })) {
-        return false;
+        return;
       }
 
       // No string
       if (value === '') {
         searchResults.push(record);
-        return limit > -1 && searchResults.length >= limit;
+        return;
       }
 
       // Use custom string match function
@@ -498,11 +503,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         });
 
         if (!matchesSearch) {
-          return false;
+          return;
         }
 
         searchResults.push(record);
-        return limit > -1 && searchResults.length >= limit;
+        return;
       }
 
       // Check if record contains value in the search fields
@@ -511,11 +516,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       });
 
       if (!containsSearch) {
-        return false;
+        return;
       }
 
       searchResults.push(record);
-      return limit > -1 && searchResults.length >= limit;
     });
 
     return Promise.resolve({
@@ -1140,6 +1144,36 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
+  function openLinkAction(options) {
+    if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
+      return;
+    }
+
+    var entry = _.find(options.records, function(entry) {
+      return entry.id === options.recordId;
+    });
+
+    if (!entry) {
+      return;
+    }
+
+    var value = entry.data[options.summaryLinkAction.column];
+
+    if (Array.isArray(value)) {
+      value = _.first(value);
+    }
+
+    if (!value) {
+      return;
+    }
+
+    if (options.summaryLinkAction.type === 'url') {
+      Fliplet.Navigate.url(value);
+    } else {
+      Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
+    }
+  }
+
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
@@ -1154,6 +1188,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
       fetchAndCache: fetchAndCache
+    },
+    Navigate: {
+      openLinkAction: openLinkAction
     },
     Record: {
       contains: recordContains,

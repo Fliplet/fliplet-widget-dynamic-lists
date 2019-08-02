@@ -105,7 +105,14 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
+
   // Attach your event listeners here
+  Fliplet.Hooks.on('beforePageView', function (options) {
+    if (options.addToHistory === false) {
+      _this.closeDetails();
+    }
+  });
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
@@ -210,12 +217,20 @@ DynamicList.prototype.attachObservers = function() {
 
       beforeOpen.then(function () {
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-          _this.openLinkAction(entryId);
+          _this.Utils.Navigate.openLinkAction({
+            records: _this.listItems,
+            recordId: entryId,
+            summaryLinkAction: _this.data.summaryLinkAction
+          });
+
           return;
         }
         // find the element to expand and expand it
         if (_this.allowClick) {
           _this.showDetails(entryId);
+          Fliplet.Page.Context.update({
+            dynamicListOpenId: entryId
+          });
         }
       });
     })
@@ -1511,11 +1526,9 @@ DynamicList.prototype.getActiveFilters = function () {
 
 DynamicList.prototype.calculateFiltersHeight = function($el) {
   $el.find('.hidden-filter-controls').each(function () {
-    var $controls = $(this);
-    var totalHeight = $controls.find('.hidden-filter-controls-content').height();
-    $controls.animate({
-      height: totalHeight,
-    }, 200);
+    $(this).animate({
+      height: '100%',
+    }, 200);   
   });
 }
 
@@ -1553,8 +1566,9 @@ DynamicList.prototype.searchData = function(options) {
   _this.isFiltering = !_.isEmpty(_this.activeFilters);
   _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
-  var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
-  && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
+  var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
+  var limit = limitEntriesEnabled && _this.data.limitEntries > -1
+    && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
     ? _this.data.limitEntries
     : -1;
 
@@ -1594,15 +1608,15 @@ DynamicList.prototype.searchData = function(options) {
     _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
     _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'), !value.length);
     _this.$container.find('.hidden-search-controls').addClass('active');
-    _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
+    _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
     if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
       // Same results returned. Do nothing.
       return Promise.resolve();
     }
 
-    if (_this.data.enabledLimitEntries) {
-      _this.$container.find('.limit-entries-text')[truncated ? 'removeClass' : 'addClass']('hidden');
+    if (limitEntriesEnabled) {
+      _this.$container.find('.limit-entries-text')[truncated && _this.data.limitEntries > 0 ? 'removeClass' : 'addClass']('hidden');
     }
 
     if (searchedData.length && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
@@ -1791,25 +1805,6 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
   });
 }
 
-DynamicList.prototype.openLinkAction = function(entryId) {
-  var _this = this;
-  var entry = _.find(_this.listItems, function(entry) {
-    return entry.id === entryId;
-  });
-
-  if (!entry) {
-    return;
-  }
-
-  var value = entry.data[_this.data.summaryLinkAction.column];
-
-  if (_this.data.summaryLinkAction.type === 'url') {
-    Fliplet.Navigate.url(value);
-  } else {
-    Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
-  }
-}
-
 DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
@@ -1882,6 +1877,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
+  Fliplet.Page.Context.remove('dynamicListOpenId');
   _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
   $('body').removeClass('lock');
@@ -2073,10 +2069,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var userName = '';
 
   if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
-    return Fliplet.Navigate.popup({
-      title: 'Invalid login',
-      message: 'You must be logged in to use this feature.'
-    });
+    return Fliplet.UI.Toast('You must be logged in to use this feature');
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
@@ -2093,9 +2086,8 @@ DynamicList.prototype.sendComment = function(id, value) {
   });
 
   if (!userFromDataSource) {
-    return Fliplet.Navigate.popup({
-      title: 'Invalid user',
-      message: 'We couldn\'t find your user details.'
+    return Fliplet.UI.Toast.error('We couldn\'t find your user details.', {
+      message: 'Invalid user'
     });
   }
 
