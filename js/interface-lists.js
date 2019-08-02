@@ -545,7 +545,7 @@ function attahObservers() {
     if (!widgetData['summary-fields']) {
       highlightError(selectedFieldId);
       return false;
-  }
+    }
 
     var totalArray = _.concat(widgetData.detailViewOptions, widgetData['summary-fields']);
     var errorInputIds = _.filter(selectedFieldId, function(id) {
