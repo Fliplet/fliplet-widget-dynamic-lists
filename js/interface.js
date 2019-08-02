@@ -1232,7 +1232,7 @@ var DynamicLists = (function() {
 
       $('input.tokenfield').on('tokenfield:createtoken', function (event) {
         var currentTokens = $(this).tokenfield('getTokens');
-        var isExist = _.some(currentTokens, function (item) {
+        var tokenExists = _.some(currentTokens, function (item) {
           return item.label === event.attrs.label;
         });
 
