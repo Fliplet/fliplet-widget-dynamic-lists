@@ -302,7 +302,7 @@
 }
 
 .hidden-filter-controls-content {
-  padding-bottom: 25px;
+  padding-bottom: 15px;
 }
 
 .hidden-filter-controls-search {
@@ -459,6 +459,7 @@
 .hidden-filter-controls-filter-wrapper {
   padding: 0 15px;
   overflow-x: auto;
+  overflow-y: hidden;
   white-space: nowrap;
 }
 
@@ -467,7 +468,7 @@
   border: 1px solid #e5e5e5;
   border-radius: 20px;
   padding: 8px 15px;
-  margin: 0 5px 0 0;
+  margin: 0 5px 7px 0;
   font-size: 14px;
 }
 
