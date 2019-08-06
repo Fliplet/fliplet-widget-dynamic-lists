@@ -1369,6 +1369,9 @@
 }
 
 .news-feed-detail-overlay-wrapper .news-feed-detail-overlay-close {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
   right: 15px;
   top: 15px;
@@ -1515,16 +1518,15 @@
     padding: 40px;
   }
 
-  .news-feed-detail-overlay-close {
-    display: none;
-  }
-
   .news-feed-detail-overlay-wrapper .news-feed-detail-overlay-close.tablet {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: fixed;
   }
-
-  .news-feed-detail-overlay-panel .news-feed-detail-overlay-heading {
+  
+  .news-feed-detail-overlay-panel .news-feed-detail-overlay-heading,
+  .news-feed-detail-overlay-wrapper .news-feed-detail-overlay-close {
     display: none;
   }
 }
