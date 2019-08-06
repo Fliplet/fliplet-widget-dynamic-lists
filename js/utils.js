@@ -374,7 +374,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     return _.filter(records, function (record) {
       return _.every(filters, function (filter) {
-        if (!filter.condition === 'none' || filter.column === 'none' || !filter.value) {
+        if (filter.condition === 'none' || filter.column === 'none' || !filter.value) {
           // Filter isn't configured correctly
           return true;
         }
