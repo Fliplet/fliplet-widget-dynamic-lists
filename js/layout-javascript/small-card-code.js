@@ -165,7 +165,10 @@ DynamicList.prototype.attachObservers = function() {
       _this.toggleFilterElement(this);
 
       if ($filter.parents('.inline-filter-holder').length) {
-        _this.searchData();
+        // @HACK Skip an execution loop to allow custom handlers to update the filters
+        setTimeout(function () {
+          _this.searchData();
+        }, 0);
       }
     })
     .on('click', '.small-card-list-detail-button a', function() {
@@ -1236,7 +1239,7 @@ DynamicList.prototype.calculateFiltersHeight = function($el) {
   $el.find('.hidden-filter-controls').each(function () {
     $(this).animate({
       height: '100%',
-    }, 200);   
+    }, 200);
   });
 }
 
