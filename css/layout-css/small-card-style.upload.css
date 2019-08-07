@@ -1113,6 +1113,9 @@
 }
 
 .small-card-detail-overlay-wrapper .small-card-detail-overlay-close {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
   right: 15px;
   top: 15px;
@@ -1201,16 +1204,23 @@
     padding: 40px;
   }
 
-  .small-card-detail-overlay-close {
-    display: none;
-  }
-
   .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: fixed;
   }
 
-  .small-card-detail-overlay-panel .small-card-detail-overlay-heading {
+  .small-card-detail-overlay-panel .small-card-detail-overlay-heading,
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close {
     display: none;
   }
+}
+
+.fa-times-thin {
+  padding-bottom: 2px;
+}
+
+.fa-times-thin::before {
+  content: '\00d7';
 }
