@@ -1213,8 +1213,11 @@ var DynamicLists = (function() {
       _this.handleTokensSelection();
       _this.loadTokenFields();
     },
+    removeFocusFromTokenInput: function () {
+      $('input.token-input.ui-autocomplete-input').blur();
+    },
     handleTokensSelection: function () {
-      $('input.tokenfield').on('tokenfield:createdtoken tokenfield:removedtoken', function (event) {
+      $('input.tokenfield').on('tokenfield:createdtoken tokenfield:removedtoken', function () {
         var field = $(this);
         var currentTokens = field.tokenfield('getTokens');
         var originalSource = field.data('bs.tokenfield').options.autocomplete.source;
@@ -1226,6 +1229,18 @@ var DynamicLists = (function() {
 
         // Update source
         field.data('bs.tokenfield').$input.autocomplete({source: newSource});
+        _this.removeFocusFromTokenInput();
+      });
+
+      $('input.tokenfield').on('tokenfield:createtoken', function (event) {
+        var currentTokens = $(this).tokenfield('getTokens');
+        var tokenExists = _.some(currentTokens, function (item) {
+          return item.label === event.attrs.label;
+        });
+
+        if (isExist) {
+          event.preventDefault();
+        }
       });
     },
     setUpUserTokenFields: function() {
