@@ -374,7 +374,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     return _.filter(records, function (record) {
       return _.every(filters, function (filter) {
-        if (!filter.condition === 'none' || filter.column === 'none' || !filter.value) {
+        if (filter.condition === 'none' || filter.column === 'none' || !filter.value) {
           // Filter isn't configured correctly
           return true;
         }
@@ -469,9 +469,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var searchResults = [];
     var truncated = _.some(records, function (record) {
+      if (limit > -1 && searchResults.length >= limit) {
+        // Search results reached limit
+        return true;
+      }
+
       // Check for bookmark status
       if (showBookmarks && !record.bookmarked) {
-        return false;
+        return;
       }
 
       // Check against filters
@@ -480,13 +485,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         filters: activeFilters,
         config: config
       })) {
-        return false;
+        return;
       }
 
       // No string
       if (value === '') {
         searchResults.push(record);
-        return limit > -1 && searchResults.length >= limit;
+        return;
       }
 
       // Use custom string match function
@@ -498,11 +503,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         });
 
         if (!matchesSearch) {
-          return false;
+          return;
         }
 
         searchResults.push(record);
-        return limit > -1 && searchResults.length >= limit;
+        return;
       }
 
       // Check if record contains value in the search fields
@@ -511,11 +516,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       });
 
       if (!containsSearch) {
-        return false;
+        return;
       }
 
       searchResults.push(record);
-      return limit > -1 && searchResults.length >= limit;
     });
 
     return Promise.resolve({
@@ -1164,6 +1168,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     if (options.summaryLinkAction.type === 'url') {
+      value = Fliplet.Media.authenticate(value);
       Fliplet.Navigate.url(value);
     } else {
       Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });

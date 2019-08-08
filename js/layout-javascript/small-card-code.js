@@ -165,7 +165,10 @@ DynamicList.prototype.attachObservers = function() {
       _this.toggleFilterElement(this);
 
       if ($filter.parents('.inline-filter-holder').length) {
-        _this.searchData();
+        // @HACK Skip an execution loop to allow custom handlers to update the filters
+        setTimeout(function () {
+          _this.searchData();
+        }, 0);
       }
     })
     .on('click', '.small-card-list-detail-button a', function() {
@@ -1234,10 +1237,8 @@ DynamicList.prototype.getActiveFilters = function () {
 
 DynamicList.prototype.calculateFiltersHeight = function($el) {
   $el.find('.hidden-filter-controls').each(function () {
-    var $controls = $(this);
-    var totalHeight = $controls.find('.hidden-filter-controls-content').height();
-    $controls.animate({
-      height: totalHeight,
+    $(this).animate({
+      height: '100%',
     }, 200);
   });
 }
@@ -1276,7 +1277,8 @@ DynamicList.prototype.searchData = function(options) {
   _this.isFiltering = !_.isEmpty(_this.activeFilters);
   _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
-  var limit = _this.data.enabledLimitEntries && _this.data.limitEntries
+  var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
+  var limit = limitEntriesEnabled && _this.data.limitEntries > -1
     && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
     ? _this.data.limitEntries
     : -1;
@@ -1317,15 +1319,15 @@ DynamicList.prototype.searchData = function(options) {
     _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
     _this.calculateSearchHeight(_this.$container.find('.new-small-card-list-container'), !value.length);
     _this.$container.find('.hidden-search-controls').addClass('active');
-    _this.$container.find('.hidden-search-controls')[searchedData.length ? 'removeClass' : 'addClass']('no-results');
+    _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
     if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
       // Same results returned. Do nothing.
       return Promise.resolve();
     }
 
-    if (_this.data.enabledLimitEntries) {
-      _this.$container.find('.limit-entries-text')[truncated ? 'removeClass' : 'addClass']('hidden');
+    if (limitEntriesEnabled) {
+      _this.$container.find('.limit-entries-text')[truncated && _this.data.limitEntries > 0 ? 'removeClass' : 'addClass']('hidden');
     }
 
     if (searchedData.length && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {

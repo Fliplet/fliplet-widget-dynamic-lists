@@ -103,7 +103,7 @@
       \{{/ifCond}}
     \{{/ifCond}}
     \{{#ifCond limitEntries '>' 0}}
-    <p>Showing the first \{{limitEntries}} list items. \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.</p>
+    <p>Showing the first \{{limitEntries}} list items.\{{#ifCond searchEnabled '||' filtersEnabled}} \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.\{{/ifCond}}</p>
     \{{/ifCond}}
   </div>
   \{{/if}}
@@ -125,7 +125,7 @@
   <div class="news-feed-detail-overlay-wrapper">
     <div class="news-feed-detail-overlay-panel">
       <div class="news-feed-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
-        <i class="fa fa-times"></i>
+        <i class="fa fa-times-thin fa-2x"></i>
       </div>
       <div class="news-feed-detail-overlay-content">
         <div class="news-feed-detail-overlay-content-holder">
@@ -134,7 +134,7 @@
       </div>
     </div>
     <div class="news-feed-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
-      <i class="fa fa-times"></i>
+      <i class="fa fa-times-thin fa-2x"></i>
     </div>
   </div>
 </div>
