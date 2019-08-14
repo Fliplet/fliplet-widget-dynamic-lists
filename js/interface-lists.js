@@ -8,6 +8,7 @@ var linkAddEntryProvider;
 var linkEditEntryProvider;
 var filePickerPromises = [];
 var withError = false;
+var selectedFieldId = [];
 
 var addEntryLinkData = $.extend(true, {
   action: 'screen',
@@ -221,6 +222,8 @@ function attahObservers() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
       var field = _.find(widgetData['summary-fields'], { id: fieldId });
 
+      highlightError(selectedFieldId, true);
+
       if (field) {
         initFilePickerProvider(field);
       } else {
@@ -237,6 +240,8 @@ function attahObservers() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
       var field = _.find(widgetData.detailViewOptions, { id: fieldId });
 
+      highlightError(selectedFieldId, true);
+
       if (field) {
         initFilePickerProvider(field);
       } else {
@@ -248,7 +253,24 @@ function attahObservers() {
 
         initFilePickerProvider(field);
       }
+    })
+    .on('change', '[name="image_type_select"]', function() {
+      var $element = $(this);
+      var dataType = $element.val();
+      var fieldId = $element.data('current-id');
+
+      switch (dataType) {
+        case 'all-folders':
+          selectedFieldId.push(fieldId);
+          break;
+        case 'url':
+          selectedFieldId = _.filter(selectedFieldId, function(item) {
+            return item !== fieldId;
+          });
+          break;
+      }
     });
+
   $('[data-toggle="tooltip"]').tooltip();
   $('form').submit(function (event) {
     event.preventDefault();
@@ -509,12 +531,48 @@ function attahObservers() {
       });
   });
 
+  function highlightError(fieldIds, showError) {
+    var action = showError ? 'addClass': 'removeClass';
+    _.each(fieldIds, function(id) {
+      $('[data-field-id="' + id + '"] .text-danger')[action]('hidden');
+    });
+  }
+
+  function validateImageFoldersSelection() {
+    if (!widgetData['summary-fields']) {
+      highlightError(selectedFieldId, false);
+      return selectedFieldId.length === 0;
+    }
+
+    var totalArray = _.concat(widgetData.detailViewOptions, widgetData['summary-fields']);
+    var errorInputIds = _.filter(selectedFieldId, function(id) {
+      return !_.some(totalArray, function(item) {
+        return item.id === id && item.folder;
+      });
+    });
+    highlightError(errorInputIds, false);
+    return errorInputIds.length === 0;
+  }
+
   Fliplet.Widget.onSaveRequest(function () {
     if (!dynamicLists.isLoaded) {
       Fliplet.Widget.complete();
       return;
     }
-    $('form').submit();
+
+    var dataViewWindowIsOpen = $('.relations-tab').hasClass('present');
+    var imageFolderSelectionIsValid = validateImageFoldersSelection();
+
+    if (imageFolderSelectionIsValid || filePickerPromises.length || !dataViewWindowIsOpen) {
+      highlightError(selectedFieldId, true);
+      $('form').submit();
+      return;
+    }
+
+    Fliplet.Modal.alert({
+      title: 'Invalid configuration',
+      message: 'Please review settings in <strong>Data view settings</strong> to continue.'
+    });
   });
 }
 

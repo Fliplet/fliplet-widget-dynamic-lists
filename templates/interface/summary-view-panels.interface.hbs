@@ -46,7 +46,7 @@
       <small>Data type</small>
     </div>
     <div class="rTableCell select field">
-      <select class="form-control" id="summary_image_field_type_{{id}}" name="image_type_select">
+      <select class="form-control" id="summary_image_field_type_{{id}}" name="image_type_select" data-current-id={{id}}>
         <option value="all-folders">Image folder</option>
         <option value="url">URL to external image</option>
       </select>
@@ -54,6 +54,7 @@
     <div class="rTableCell select field picker-provider-button hidden" data-field-id="{{id}}">
       <div class="btn btn-default file-picker-btn" data-file-picker-summary>Select a folder</div>
       <div class="selected-folder hidden">Selected folder: <span></span></div>
+      <div class="text-danger error-message hidden" data-submission-error><span>Please select a folder to continue</span></div>
     </div>
     <div class="rTableCell select field">
       <p class="text-muted field-text-info folders-only">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>
