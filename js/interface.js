@@ -63,6 +63,8 @@ var DynamicLists = (function() {
     '!=': 'Doesn\'t equal',
     'contains': 'Contains',
     'notcontain': 'Doesn\'t contain',
+    'isempty': 'Is empty',
+    'isnotempty': 'Isn\'t empty',
     'regex': 'Regex',
     '>': 'Greater than',
     '>=': 'Greater or equal to',
@@ -193,6 +195,12 @@ var DynamicLists = (function() {
 
           if (type === 'logic') {
             $(this).parents('.filter-panel').find('.panel-title-text .logic').html(logicMap[value]);
+
+            if (['isempty', 'isnotempty'].indexOf(value) > -1) {
+              $(this).parents('.filter-panel').find('.form-group-value').hide();
+            } else {
+              $(this).parents('.filter-panel').find('.form-group-value').show();
+            }
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -2318,7 +2326,10 @@ var DynamicLists = (function() {
       _.forEach(_this.config.filterOptions, function(item) {
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+
+        if (['isempty', 'isnotempty'].indexOf(item.logic) === -1) {
+          item.value = $('#value-field-' + item.id).val();
+        }
       });
 
       data.sortOptions = _this.config.sortOptions;
