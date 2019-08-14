@@ -374,21 +374,29 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     return _.filter(records, function (record) {
       return _.every(filters, function (filter) {
-        if (filter.condition === 'none' || filter.column === 'none' || !filter.value) {
+        var condition = filter.condition;
+        var rowData = _.get(record, 'data.' + filter.column, null);
+
+        if (condition === 'isempty') {
+          return _.isEmpty(rowData);
+        }
+
+        if (condition === 'isnotempty') {
+          return !_.isEmpty(rowData);
+        }
+
+        if (condition === 'none' || filter.column === 'none' || !filter.value) {
           // Filter isn't configured correctly
           return true;
         }
-
-        var condition = filter.condition;
-        var rowData;
 
         // Case insensitive
         if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
         }
 
-        if (!_.isNull(_.get(record, 'data.' + filter.column, null))) {
-          rowData = record.data[filter.column].toString().toLowerCase();
+        if (!_.isNull(rowData)) {
+          rowData = rowData.toString().toLowerCase();
         }
 
         switch (condition) {
