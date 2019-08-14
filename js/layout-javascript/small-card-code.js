@@ -1459,6 +1459,10 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
     title: title,
     record: record
   }).then(function (btn) {
+    if (!btn) {
+      return;
+    }
+
     _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
   });
 }
