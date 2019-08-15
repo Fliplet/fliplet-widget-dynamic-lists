@@ -93,24 +93,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       }
     });
 
-    Handlebars.registerHelper('validateImage', function (image) {
-      var validatedImage = image;
-
-      if (!validatedImage) {
-        return '';
-      }
-
-      if (_.isArray(validatedImage) && !validatedImage.length) {
-        return '';
-      }
-
-      // Validate thumbnail against URL and Base64 patterns
-      if (!Static.RegExp.httpUrl.test(validatedImage) && !Static.RegExp.base64Image.test(validatedImage)) {
-        return '';
-      }
-
-      return Fliplet.Media.authenticate(validatedImage);
-    });
+    Handlebars.registerHelper('validateImage', validateImageUrl);
 
     Handlebars.registerHelper('formatComment', function(text) {
       var res = text;
@@ -164,6 +147,25 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }), function (value) {
       return [undefined, null, '', NaN].indexOf(value) === -1;
     });
+  }
+
+  function validateImageUrl(url) {
+    if (_.isArray(url)) {
+      return _.map(url, function (val) {
+        return validateImageUrl(val);
+      });
+    }
+
+    if (!url) {
+      return '';
+    }
+
+    // Validate thumbnail against URL and Base64 patterns
+    if (!Static.RegExp.httpUrl.test(url) && !Static.RegExp.base64Image.test(url)) {
+      return '';
+    }
+
+    return Fliplet.Media.authenticate(url);
   }
 
   function getMomentDate(date) {
@@ -1181,7 +1183,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       $: getjQueryObjects
     },
     String: {
-      splitByCommas: splitByCommas
+      splitByCommas: splitByCommas,
+      validateImageUrl: validateImageUrl
     },
     Date: {
       moment: getMomentDate
