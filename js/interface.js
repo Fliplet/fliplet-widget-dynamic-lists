@@ -1238,7 +1238,7 @@ var DynamicLists = (function() {
           return item.label === event.attrs.label;
         });
 
-        if (isExist) {
+        if (tokenExists) {
           event.preventDefault();
         }
       });
