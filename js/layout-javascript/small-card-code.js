@@ -628,7 +628,7 @@ DynamicList.prototype.initialize = function() {
           item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
 
           if (item.isCurrentUser) {
-            _this.myProfileData = item;
+            _this.myProfileData = [item];
           }
         });
       }
@@ -704,7 +704,7 @@ DynamicList.prototype.initialize = function() {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
 
           if (record.isCurrentUser) {
-            _this.myProfileData = record;
+            _this.myProfileData = [record];
           }
         });
       }
