@@ -640,7 +640,7 @@ DynamicList.prototype.initialize = function() {
         _this.searchedListItems = _.clone(_this.listItems);
 
         // Render user profile
-        if (_this.myProfileData && _this.myProfileData.length) {
+        if (!_.isEmpty(_this.myProfileData)) {
           _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
           var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
           var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
@@ -1350,7 +1350,7 @@ DynamicList.prototype.searchData = function(options) {
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML().then(function (records) {
       // Render user profile
-      if (_this.myProfileData && _this.myProfileData.length) {
+      if (!_.isEmpty(_this.myProfileData)) {
         var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
         var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
