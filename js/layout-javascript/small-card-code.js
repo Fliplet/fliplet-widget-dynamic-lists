@@ -29,7 +29,7 @@ function DynamicList(id, data, container) {
   this.fetchedAllBookmarks = false;
 
   this.emailField = 'Email';
-  this.myProfileData;
+  this.myProfileData = [];
   this.modifiedProfileData;
   this.myUserData;
 
@@ -628,7 +628,7 @@ DynamicList.prototype.initialize = function() {
           item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
 
           if (item.isCurrentUser) {
-            _this.myProfileData = item;
+            _this.myProfileData.push(item);
           }
         });
       }
@@ -640,7 +640,7 @@ DynamicList.prototype.initialize = function() {
         _this.searchedListItems = _.clone(_this.listItems);
 
         // Render user profile
-        if (_this.myProfileData && _this.myProfileData.length) {
+        if (!_.isEmpty(_this.myProfileData)) {
           _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
           var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
           var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
@@ -704,7 +704,7 @@ DynamicList.prototype.initialize = function() {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
 
           if (record.isCurrentUser) {
-            _this.myProfileData = record;
+            _this.myProfileData.push(record);
           }
         });
       }
@@ -1350,7 +1350,7 @@ DynamicList.prototype.searchData = function(options) {
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML().then(function (records) {
       // Render user profile
-      if (_this.myProfileData && _this.myProfileData.length) {
+      if (!_.isEmpty(_this.myProfileData)) {
         var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
         var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
