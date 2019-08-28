@@ -208,6 +208,19 @@ function validate(value) {
   return false;
 }
 
+function showOrHideError (showError, element) {
+  if (showError) {
+    var $element = $(element);
+    $element.addClass('has-error');
+    $element.parents('.form-group').addClass('has-error');
+    $element.parents('.panel').addClass('panel-danger').removeClass('panel-default');
+    return;
+  }
+    $('.has-error').removeClass('has-error');
+    $('.component-error').addClass('hidden');
+    $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
+}
+
 function attahObservers() {
   $(document)
     .on('click', '[data-file-picker-user]', function() {
@@ -421,6 +434,23 @@ function attahObservers() {
             $('.component-error').addClass('hidden');
           }
         }
+        var imageFolderSelected = validateImageFoldersSelection();
+        if (imageFolderSelected) {
+          highlightError(selectedFieldId, false);
+
+          $('[data-relations-fields]').addClass('btn-default').removeClass('relations-error');
+        } else {
+          highlightError(selectedFieldId, true);
+
+          $('[data-relations-fields]').removeClass('btn-default').addClass('relations-error');
+
+          Fliplet.Modal.alert({
+            title: 'Invalid configuration',
+            message: 'Please review settings in <strong>Data view settings</strong> to continue.'
+          });
+
+          return;
+        }
 
         if (widgetData.pollEnabled && widgetData.pollColumn) {
           var errors = [];
@@ -440,8 +470,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+              showOrHideError(true, field)
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -452,8 +481,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
+            showOrHideError(false);
           }
         }
 
@@ -462,7 +490,7 @@ function attahObservers() {
           var values = [];
 
           values.push({
-            value: widgetData.pollColumn,
+            value: widgetData.surveyColumn,
             field: '#select_survey_data'
           });
 
@@ -475,8 +503,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+              showOrHideError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -487,8 +514,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
+            showOrHideError(false);
           }
         }
 
@@ -497,7 +523,7 @@ function attahObservers() {
           var values = [];
 
           values.push({
-            value: widgetData.pollColumn,
+            value: widgetData.questionsColumn,
             field: '#select_questions_data'
           });
 
@@ -510,8 +536,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+              showOrHideError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -522,8 +547,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
+            showOrHideError(false);
           }
         }
 
@@ -532,7 +556,7 @@ function attahObservers() {
   });
 
   function highlightError(fieldIds, showError) {
-    var action = showError ? 'addClass': 'removeClass';
+    var action = showError ? 'removeClass': 'addClass';
     _.each(fieldIds, function(id) {
       $('[data-field-id="' + id + '"] .text-danger')[action]('hidden');
     });
@@ -540,7 +564,7 @@ function attahObservers() {
 
   function validateImageFoldersSelection() {
     if (!widgetData['summary-fields']) {
-      highlightError(selectedFieldId, false);
+      highlightError(selectedFieldId, true);
       return selectedFieldId.length === 0;
     }
 
@@ -550,7 +574,7 @@ function attahObservers() {
         return item.id === id && item.folder;
       });
     });
-    highlightError(errorInputIds, false);
+    highlightError(errorInputIds, true);
     return errorInputIds.length === 0;
   }
 
@@ -564,7 +588,7 @@ function attahObservers() {
     var imageFolderSelectionIsValid = validateImageFoldersSelection();
 
     if (imageFolderSelectionIsValid || filePickerPromises.length || !dataViewWindowIsOpen) {
-      highlightError(selectedFieldId, true);
+      highlightError(selectedFieldId, false);
       $('form').submit();
       return;
     }
