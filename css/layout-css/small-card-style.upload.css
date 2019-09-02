@@ -1225,3 +1225,7 @@
 .fa-times-thin::before {
   content: '\00d7';
 }
+
+ .bookmark-padding {
+  padding-right: 20px !important;
+}
