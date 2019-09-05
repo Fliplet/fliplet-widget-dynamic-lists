@@ -394,10 +394,11 @@
 }
 
 .search-holder .search-feed:focus ~ .btn.search-btn,
-.search-holder .search-feed.not-empty ~ .btn.search-btn {
+.search-holder .search-feed:valid ~ .btn.search-btn {
   opacity: 1;
   pointer-events: all;
 }
+
 .search-holder .search-feed:focus ~ .btn.search-btn,
 .search-holder .search-feed:focus ~ .btn.search-btn:hover,
 .search-holder .search-feed:focus ~ .btn.search-btn:active,
