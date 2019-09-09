@@ -1558,6 +1558,10 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
       identifier: id + '-bookmark',
       record: record
     }).then(function (btn) {
+      if (!btn) {
+        return;
+      }
+
       _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
     });
   }
@@ -1574,6 +1578,10 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
       identifier: id + '-like',
       record: record
     }).then(function (btn) {
+      if (!btn) {
+        return;
+      }
+
       count = btn.getCount() > 0 ? btn.getCount() : '';
       _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
       _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id).removeClass('liked not-liked').addClass(btn.isLiked() ? 'liked' : 'not-liked');

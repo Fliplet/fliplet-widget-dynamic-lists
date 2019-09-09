@@ -802,6 +802,10 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
       title: title,
       record: record
     }).then(function (btn) {
+      if (!btn) {
+        return;
+      }
+
       _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
     });
   }
@@ -819,6 +823,10 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
       title: title,
       record: record
     }).then(function (btn) {
+      if (!btn) {
+        return;
+      }
+
       count = btn.getCount() > 0 ? btn.getCount() : '';
       _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
       _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id).removeClass('liked not-liked').addClass(btn.isLiked() ? 'liked' : 'not-liked');
