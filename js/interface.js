@@ -1214,6 +1214,7 @@ var DynamicLists = (function() {
       _this.loadTokenFields();
     },
     removeFocusFromTokenInput: function () {
+      $('input.token-input.ui-autocomplete-input').val('');
       $('input.token-input.ui-autocomplete-input').blur();
     },
     handleTokensSelection: function () {
