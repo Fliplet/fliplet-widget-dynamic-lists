@@ -332,7 +332,10 @@
   pointer-events: none;
   position: absolute;
   top: 1px;
-  right: 1px;
+  right: 2px;
+  font-size: 14px;
+  height: 35px;
+  line-height: 1.6;
   z-index: 1;
   border-radius: 40px;
   background-color: #eeeeee;
