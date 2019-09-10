@@ -217,9 +217,9 @@ function toggleError (showError, element) {
     return;
   }
 
-    $('.has-error').removeClass('has-error');
-    $('.component-error').addClass('hidden');
-    $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
+  $('.has-error').removeClass('has-error');
+  $('.component-error').addClass('hidden');
+  $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
 }
 
 function attahObservers() {
@@ -435,7 +435,9 @@ function attahObservers() {
             $('.component-error').addClass('hidden');
           }
         }
+        
         var imageFolderSelected = validateImageFoldersSelection();
+
         if (imageFolderSelected) {
           highlightError(selectedFieldId, false);
 
