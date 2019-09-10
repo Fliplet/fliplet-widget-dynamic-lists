@@ -208,7 +208,7 @@ function validate(value) {
   return false;
 }
 
-function showOrHideError (showError, element) {
+function toggleError (showError, element) {
   if (showError) {
     var $element = $(element);
     $element.addClass('has-error');
@@ -216,6 +216,7 @@ function showOrHideError (showError, element) {
     $element.parents('.panel').addClass('panel-danger').removeClass('panel-default');
     return;
   }
+
     $('.has-error').removeClass('has-error');
     $('.component-error').addClass('hidden');
     $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
@@ -470,7 +471,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-              showOrHideError(true, field)
+              toggleError(true, field)
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -481,7 +482,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            showOrHideError(false);
+            toggleError(false);
           }
         }
 
@@ -503,7 +504,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-              showOrHideError(true, field);
+              toggleError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -514,7 +515,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            showOrHideError(false);
+            toggleError(false);
           }
         }
 
@@ -536,7 +537,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-              showOrHideError(true, field);
+              toggleError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -547,7 +548,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            showOrHideError(false);
+            toggleError(false);
           }
         }
 
