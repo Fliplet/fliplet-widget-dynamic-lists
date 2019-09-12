@@ -2081,7 +2081,7 @@ DynamicList.prototype.showComments = function(id) {
         config: _this.data,
         html: commentsHTML,
         comments: entryComments,
-        entryId: identifier
+        entryId: id
       }).then(function () {
         $commentArea.stop().animate({
           scrollTop: $commentArea[0].scrollHeight
