@@ -1186,7 +1186,7 @@ var DynamicLists = (function() {
       $('.search-fields').html(tokenField({
         name: 'search-column-fields',
         id: 'search-column-fields-tokenfield',
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       }));
       $('#search-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
@@ -1194,12 +1194,12 @@ var DynamicLists = (function() {
           delay: 100
         },
         showAutocompleteOnFocus: true,
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       });
       $('.filter-fields').html(tokenField({
         name: 'filter-column-fields',
         id: 'filter-column-fields-tokenfield',
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       }));
       $('#filter-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
@@ -1207,14 +1207,13 @@ var DynamicLists = (function() {
           delay: 100
         },
         showAutocompleteOnFocus: true,
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       });
 
       _this.handleTokensSelection();
       _this.loadTokenFields();
     },
     removeFocusFromTokenInput: function () {
-      $('input.token-input.ui-autocomplete-input').val('');
       $('input.token-input.ui-autocomplete-input').blur();
     },
     handleTokensSelection: function () {
