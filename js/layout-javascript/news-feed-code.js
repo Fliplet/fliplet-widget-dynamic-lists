@@ -2075,9 +2075,9 @@ DynamicList.prototype.showComments = function(id) {
       entryId: id
     };
 
-    return Fliplet.Hooks.run('beforeShowComments', hookData).then(function () {
+    return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function () {
       $commentArea.html(hookData.html);
-      return Fliplet.Hooks.run('afterShowComments', {
+      return Fliplet.Hooks.run('flListDataAfterShowComments', {
         config: _this.data,
         html: commentsHTML,
         comments: entryComments,
