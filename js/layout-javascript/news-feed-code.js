@@ -2066,10 +2066,28 @@ DynamicList.prototype.showComments = function(id) {
     var commentsTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments);
-    // Display comments (fl-comments-list-holder)
-    _this.$container.find('.news-feed-comment-area').html(commentsHTML).stop().animate({
-      scrollTop: _this.$container.find('.news-feed-comment-area')[0].scrollHeight
-    }, 250);
+    var $commentArea = _this.$container.find('.news-feed-comment-area');
+    var hookData = {
+      config: _this.data,
+      html: commentsHTML,
+      src: commentsTemplate,
+      comments: entryComments,
+      entryId: id
+    };
+
+    return Fliplet.Hooks.run('beforeShowComments', hookData).then(function () {
+      $commentArea.html(hookData.html);
+      return Fliplet.Hooks.run('afterShowComments', {
+        config: _this.data,
+        html: commentsHTML,
+        comments: entryComments,
+        entryId: identifier
+      }).then(function () {
+        $commentArea.stop().animate({
+          scrollTop: $commentArea[0].scrollHeight
+        }, 250);
+      });
+    });
   }).catch(function (error) {
     Fliplet.UI.Toast.error(error, {
       message: 'Unable to load comments'

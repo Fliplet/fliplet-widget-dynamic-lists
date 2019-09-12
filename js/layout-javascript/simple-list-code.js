@@ -1956,10 +1956,10 @@ DynamicList.prototype.showComments = function(id) {
   _this.$container.find('simple-list-comment-area').html(_this.commentsLoadingHTML);
 
   return _this.getCommentUsers().then(function () {
-      return _this.getEntryComments({
-        id: id,
-        force: true
-      });
+    return _this.getEntryComments({
+      id: id,
+      force: true
+    });
   }).then(function() {
     // Get comments for entry
     var entryComments = _.get(_.find(_this.listItems, { id: id }), 'comments');
@@ -2020,11 +2020,28 @@ DynamicList.prototype.showComments = function(id) {
     var commentsTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments);
-    // Display comments (fl-comments-list-holder)
     var $commentArea = _this.$container.find('.simple-list-comment-area');
-    $commentArea.html(commentsHTML).stop().animate({
-      scrollTop: $commentArea[0].scrollHeight
-    }, 250);
+    var hookData = {
+      config: _this.data,
+      html: commentsHTML,
+      src: commentsTemplate,
+      comments: entryComments,
+      entryId: id
+    };
+
+    return Fliplet.Hooks.run('beforeShowComments', hookData).then(function () {
+      $commentArea.html(hookData.html);
+      return Fliplet.Hooks.run('afterShowComments', {
+        config: _this.data,
+        html: commentsHTML,
+        comments: entryComments,
+        entryId: identifier
+      }).then(function () {
+        $commentArea.stop().animate({
+          scrollTop: $commentArea[0].scrollHeight
+        }, 250);
+      });
+    });
   }).catch(function (error) {
     Fliplet.UI.Toast.error(error, {
       message: 'Unable to load comments'
