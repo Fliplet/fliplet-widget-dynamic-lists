@@ -261,12 +261,15 @@
 }
 
 .new-small-card-list-container .my-profile-icon {
-  width: 35px;
-  min-width: 35px;
-  height: 35px;
-  min-height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  min-width: 45px;
+  height: 45px;
+  min-height: 45px;
   color: rgba(51,51,51,0.4);
-  border: 1px solid rgba(51,51,51,0.2);
+  border: 1px solid rgba(51, 51, 51, 0.2);
   border-radius: 50%;
   text-align: center;
   line-height: 40px;
@@ -274,10 +277,10 @@
 }
 
 .new-small-card-list-container .profile-image {
-  width: 35px;
-  min-width: 35px;
-  height: 35px;
-  min-height: 35px;
+  width: 45px;
+  min-width: 45px;
+  height: 45px;
+  min-height: 45px;
   background-size: cover;
   background-position: center center;
   border-radius: 50%;
@@ -291,10 +294,7 @@
 }
 
 .new-small-card-list-container .my-profile-text {
-  font-size: 10px;
-  opacity: 0.6;
-  margin: 5px 0 0 0;
-  text-transform: uppercase;
+  font-size: 16px;
 }
 
 /* SEARCH / FILTERS */
@@ -383,7 +383,10 @@
   pointer-events: none;
   position: absolute;
   top: 1px;
-  right: 1px;
+  right: 2px;
+  font-size: 14px;
+  height: 35px;
+  line-height: 1.6;
   z-index: 1;
   border-radius: 40px;
   background-color: #eeeeee;
@@ -1217,3 +1220,13 @@
     display: none;
   }
 }
+
+.fa-times-thin {
+  padding-top: 1px;
+  padding-bottom: 3px;
+}
+
+.fa-times-thin::before {
+  content: '\00d7';
+}
+

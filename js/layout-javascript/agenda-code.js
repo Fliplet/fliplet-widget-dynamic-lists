@@ -506,13 +506,13 @@ DynamicList.prototype.scrollEvent = function() {
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
-  // Render Base HTML template
-  _this.renderBaseHTML();
-  _this.bindTouchEvents();
   _this.attachObservers();
 
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
     var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
@@ -554,6 +554,8 @@ DynamicList.prototype.initialize = function() {
   // Check if there is a query or PV for search/filter queries
   (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -774,6 +776,7 @@ DynamicList.prototype.renderBaseHTML = function() {
     : Handlebars.compile(baseHTML());
 
   _this.$container.html(template(data));
+  _this.bindTouchEvents();
 }
 
 DynamicList.prototype.convertTime = function(time) {
@@ -1436,6 +1439,10 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
     title: title,
     record: record
   }).then(function (btn) {
+    if (!btn) {
+      return;
+    }
+
     _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
   });
 }

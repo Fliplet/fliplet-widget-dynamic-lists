@@ -758,12 +758,13 @@ DynamicList.prototype.removeListItemHTML = function (options) {
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
-  // Render Base HTML template
-  _this.renderBaseHTML();
   _this.attachObservers();
 
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
     var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
@@ -801,6 +802,8 @@ DynamicList.prototype.initialize = function() {
   // Check if there is a query or PV for search/filter queries
   (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -1558,6 +1561,10 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
       identifier: id + '-bookmark',
       record: record
     }).then(function (btn) {
+      if (!btn) {
+        return;
+      }
+
       _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('bookmarked not-bookmarked').addClass(btn.isLiked() ? 'bookmarked' : 'not-bookmarked');
     });
   }
@@ -1574,6 +1581,10 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
       identifier: id + '-like',
       record: record
     }).then(function (btn) {
+      if (!btn) {
+        return;
+      }
+
       count = btn.getCount() > 0 ? btn.getCount() : '';
       _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
       _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id).removeClass('liked not-liked').addClass(btn.isLiked() ? 'liked' : 'not-liked');
@@ -1945,10 +1956,10 @@ DynamicList.prototype.showComments = function(id) {
   _this.$container.find('simple-list-comment-area').html(_this.commentsLoadingHTML);
 
   return _this.getCommentUsers().then(function () {
-      return _this.getEntryComments({
-        id: id,
-        force: true
-      });
+    return _this.getEntryComments({
+      id: id,
+      force: true
+    });
   }).then(function() {
     // Get comments for entry
     var entryComments = _.get(_.find(_this.listItems, { id: id }), 'comments');
@@ -2009,11 +2020,28 @@ DynamicList.prototype.showComments = function(id) {
     var commentsTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments);
-    // Display comments (fl-comments-list-holder)
     var $commentArea = _this.$container.find('.simple-list-comment-area');
-    $commentArea.html(commentsHTML).stop().animate({
-      scrollTop: $commentArea[0].scrollHeight
-    }, 250);
+    var hookData = {
+      config: _this.data,
+      html: commentsHTML,
+      src: commentsTemplate,
+      comments: entryComments,
+      entryId: id
+    };
+
+    return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function () {
+      $commentArea.html(hookData.html);
+      return Fliplet.Hooks.run('flListDataAfterShowComments', {
+        config: _this.data,
+        html: commentsHTML,
+        comments: entryComments,
+        entryId: id
+      }).then(function () {
+        $commentArea.stop().animate({
+          scrollTop: $commentArea[0].scrollHeight
+        }, 250);
+      });
+    });
   }).catch(function (error) {
     Fliplet.UI.Toast.error(error, {
       message: 'Unable to load comments'

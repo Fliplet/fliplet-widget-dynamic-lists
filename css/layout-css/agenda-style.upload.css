@@ -16,7 +16,7 @@
   bottom: 15px;
   bottom: calc(15px + env(safe-area-inset-bottom));
   right: 15px;
-  z-index: 11;
+  z-index: 9;
   cursor: pointer;
   width: 65px;
   height: 65px;
@@ -100,7 +100,7 @@
   display: flex;
   padding: 16px 0 10px 0;
   background-color: #ffffff;
-  z-index: 12;
+  z-index: 9;
 }
 
 .fl-with-top-menu .new-agenda-list-container .agenda-date-selector {

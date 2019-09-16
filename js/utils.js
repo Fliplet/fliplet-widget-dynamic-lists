@@ -62,6 +62,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return getMomentDate(date).format('DD MMMM YYYY');
     });
 
+    Handlebars.registerHelper('formatCSV', function (context) {
+      if (!context) {
+        return '';
+      }
+
+      return splitByCommas(context).join(', ');
+    });
+
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
       switch (operator) {
         case '==':
