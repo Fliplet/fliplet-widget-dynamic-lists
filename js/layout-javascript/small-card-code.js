@@ -667,7 +667,7 @@ DynamicList.prototype.initialize = function() {
   };
 
   // Check if there is a query or PV for search/filter queries
-  (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
+  return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
