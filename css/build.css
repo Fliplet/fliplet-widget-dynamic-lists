@@ -140,3 +140,8 @@
     }
   }
 }
+
+/* For native devices */
+.native .fa-times-thin {
+  padding-top: 4px;
+} 
