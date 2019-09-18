@@ -899,7 +899,7 @@ var DynamicLists = (function() {
                   id: index + 1,
                   columns: dataSourceColumns,
                   column: column,
-                  type: listLayout === 'agenda' ? 'html' : 'text',
+                  type: listLayout === 'agenda' && column === 'Content' ? 'html' : 'text',
                   fieldLabel: 'column-name',
                   editable: true
                 };
