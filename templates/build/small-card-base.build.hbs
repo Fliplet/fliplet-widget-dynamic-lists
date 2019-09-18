@@ -40,13 +40,12 @@
     <div class="my-profile-container">
       <div class="my-profile-icon"></div>
       <div class="my-profile-placeholder"></div>
-      <div class="my-profile-text">My profile</div>
     </div>
 
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search...">
+      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required>
       <div class="btn btn-default search-btn">Search</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
@@ -129,7 +128,7 @@
   <div class="small-card-detail-overlay-wrapper">
     <div class="small-card-detail-overlay-panel">
       <div class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
-        <i class="fa fa-times-thin fa-2x" aria-hidden="true"></i>
+        <i class="fa fa-times-thin" aria-hidden="true"></i>
       </div>
       <div class="small-card-detail-overlay-content">
         <div class="small-card-detail-overlay-content-holder">
@@ -138,7 +137,7 @@
       </div>
     </div>
     <div class="small-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
-      <i class="fa fa-times-thin fa-2x" aria-hidden="true"></i>
+      <i class="fa fa-times-thin" aria-hidden="true"></i>
     </div>
   </div>
 </div>

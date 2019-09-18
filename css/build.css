@@ -113,6 +113,39 @@
   margin-left: 5px;
 }
 
+.fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 4px;
+  font-size: 0.8em !important;
+}
+
+.fa-times-thin::before {
+  content: '\002573';
+}
+
+/* IE11 layout */
+@media screen and (-ms-high-contrast: none) {
+  .fa-times-thin {
+    padding-top: 0px;
+    padding-bottom: 5px;
+  }
+}
+
+/* Safari layout */
+@media not all and (min-resolution:.001dpcm) {
+  @media {
+    .fa-times-thin {
+      padding-top: 1px;
+      padding-bottom: 0px;
+    }
+  }
+}
+
+/* For native devices */
+.native .fa-times-thin {
+  padding-top: 4px;
+}
+
 .mode-interact .fl-widget-instance {
   min-height: 32px;
 }
