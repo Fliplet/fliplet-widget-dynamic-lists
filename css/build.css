@@ -142,6 +142,10 @@
 }
 
 /* For native devices */
-.native .fa-times-thin {
-  padding-top: 4px;
+.native.android .fa-times-thin {
+  padding-top: 5px;
+}
+
+.native.iphonex .fa-times-thin {
+  padding-top: 3px;
 } 
