@@ -1042,3 +1042,8 @@ header .btn,
 .agenda-options-select {
   margin-bottom: 20px;
 }
+
+.relations-error {
+  background-color: #f2dede; 
+  color: #a94442;
+} 
