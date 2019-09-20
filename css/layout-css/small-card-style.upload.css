@@ -1226,6 +1226,6 @@
   content: '\00d7';
 }
 
- .bookmark-padding {
+ .has-bookmarks {
   padding-right: 20px !important;
 }
