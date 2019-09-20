@@ -1220,3 +1220,7 @@
     display: none;
   }
 }
+
+ .has-bookmarks {
+  padding-right: 20px !important;
+}
