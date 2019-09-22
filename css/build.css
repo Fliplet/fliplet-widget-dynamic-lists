@@ -146,6 +146,6 @@
   padding-top: 4px;
 }
 
-.dynamic-list-layout {
+[data-dynamic-lists-id] {
   min-height: 32px;
 }
