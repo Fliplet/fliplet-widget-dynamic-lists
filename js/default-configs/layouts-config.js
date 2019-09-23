@@ -207,6 +207,12 @@ window.flListLayoutConfig = {
         column: 'Full Date',
         paranoid: true,
         helper: 'Full Date'
+      },
+      {
+        id: 'KjDtRjrT',
+        location: 'Content',
+        type: 'html',
+        column: 'Content'
       }
     ],
     'detail-fields-ignore': ['Poll', 'Survey', 'Questions']
