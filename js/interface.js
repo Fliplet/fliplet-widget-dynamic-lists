@@ -902,7 +902,7 @@ var DynamicLists = (function() {
                   type: 'text',
                   fieldLabel: 'column-name',
                   editable: true
-                }
+                };
 
                 _this.config.detailViewOptions.push(item);
               });
