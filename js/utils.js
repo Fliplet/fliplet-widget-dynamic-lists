@@ -170,10 +170,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Validate thumbnail against URL and Base64 patterns
     if (!Static.RegExp.httpUrl.test(url) && !Static.RegExp.base64Image.test(url)) {
-      return '';
+      return url;
     }
 
-    return Fliplet.Media.authenticate(url);
+    return new Handlebars.SafeString(Fliplet.Media.authenticate(url));
   }
 
   function getMomentDate(date) {
