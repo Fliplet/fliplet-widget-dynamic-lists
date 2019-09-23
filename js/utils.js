@@ -173,7 +173,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return url;
     }
 
-    return Fliplet.Media.authenticate(url);
+    return new Handlebars.SafeString(Fliplet.Media.authenticate(url));
   }
 
   function getMomentDate(date) {
