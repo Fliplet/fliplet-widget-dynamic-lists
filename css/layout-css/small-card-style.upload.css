@@ -683,8 +683,9 @@
   padding: 0 0 0 15px;
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
-  flex: 1;
   background-color: #ffffff;
+  flex-grow: 1;
+  flex-shrink: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
