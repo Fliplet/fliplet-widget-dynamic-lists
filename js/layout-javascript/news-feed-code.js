@@ -274,6 +274,8 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
+      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
         $('body').addClass('lock');
@@ -334,6 +336,8 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
+
+      _this.Utils.Page.updateFilterControlsContext();
 
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
@@ -1148,9 +1152,9 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
-    _this.$container.find('.list-search-cancel').addClass('active');
 
     if (!_this.data.filtersInOverlay) {
+      _this.$container.find('.list-search-cancel').addClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
     }
 
@@ -1585,6 +1589,12 @@ DynamicList.prototype.searchData = function(options) {
     && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
     ? _this.data.limitEntries
     : -1;
+
+  _this.Utils.Page.updateSearchContext({
+    activeFilters: _this.activeFilters,
+    searchValue: _this.searchValue,
+    filterControlsActive: _this.$container.find('.hidden-filter-controls.active').length
+  });
 
   return _this.Utils.Records.runSearch({
     value: value,
