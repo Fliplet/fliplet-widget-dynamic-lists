@@ -146,6 +146,6 @@
   padding-top: 4px;
 }
 
-[data-dynamic-lists-id] {
+.mode-interact [data-dynamic-lists-id] {
   min-height: 32px;
 }
