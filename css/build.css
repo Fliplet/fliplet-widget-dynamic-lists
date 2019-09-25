@@ -132,7 +132,7 @@
 }
 
 /* Safari layout */
-@media not all and (min-resolution:.001dpcm) {
+@media not all and (min-resolution:.001dpcm) { 
   @media {
     .fa-times-thin {
       padding-top: 1px;
@@ -142,10 +142,14 @@
 }
 
 /* For native devices */
-.native .fa-times-thin {
-  padding-top: 4px;
+.native.android .fa-times-thin {
+  padding-top: 5px;
+}
+
+.native.ios .fa-times-thin {
+  padding-top: 3px;
 }
 
 .mode-interact [data-dynamic-lists-id] {
-  min-height: 32px;
+    min-height: 32px;
 }
