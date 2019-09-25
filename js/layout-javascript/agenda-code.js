@@ -806,11 +806,12 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
     return _this.Utils.Date.moment(row[dateField]).format('YYYY-MM-DD');
   });
   var recordMerges = [];
+  var recordDates = _.orderBy(_.keys(recordGroups));
 
   // Prepare a merge if the date values are parsed as the same date
-  _.forEach(_.keys(recordGroups), function (key, i) {
+  _.forEach(recordDates, function (key, i) {
     var date = _this.Utils.Date.moment(key);
-    _.forEach(_.keys(recordGroups), function (comp, j) {
+    _.forEach(recordDates, function (comp, j) {
       if (j >= i) {
         return false;
       }
@@ -833,7 +834,7 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
     delete recordGroups[merge.from];
   });
 
-  return _.values(recordGroups);
+  return _.map(_.sortBy(_.toPairs(recordGroups), 0), 1);
 };
 
 DynamicList.prototype.prepareToRenderLoop = function(rows) {

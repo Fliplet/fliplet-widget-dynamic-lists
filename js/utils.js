@@ -170,10 +170,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Validate thumbnail against URL and Base64 patterns
     if (!Static.RegExp.httpUrl.test(url) && !Static.RegExp.base64Image.test(url)) {
-      return '';
+      return url;
     }
 
-    return Fliplet.Media.authenticate(url);
+    return new Handlebars.SafeString(Fliplet.Media.authenticate(url));
   }
 
   function getMomentDate(date) {
@@ -1118,6 +1118,51 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return $target;
   }
 
+  function updateSearchContext(options) {
+    options = options || {};
+
+    // Update page context for navigation
+    var pageCtx = {};
+    var filterColumns = _.map(_.toPairs(options.activeFilters), 0).join(',');
+    var filterValues = _.map(_.toPairs(options.activeFilters), function (filter) {
+      return filter[1].length > 1 ? '[' + filter[1].join(',') + ']' : filter[1].join(',');
+    }).join(',');
+
+    if (!options.searchValue) {
+      Fliplet.Page.Context.remove('dynamicListSearchValue');
+    } else if (Fliplet.Page.Context.get('dynamicListSearchValue') !== options.searchValue) {
+      pageCtx.dynamicListSearchValue = options.searchValue;
+    }
+
+    if (!filterColumns) {
+      Fliplet.Page.Context.remove('dynamicListFilterColumn');
+    } else if (Fliplet.Page.Context.get('dynamicListFilterColumn') !== filterColumns) {
+      pageCtx.dynamicListFilterColumn = filterColumns;
+    }
+
+    if (!filterValues) {
+      Fliplet.Page.Context.remove('dynamicListFilterValue');
+    } else if (Fliplet.Page.Context.get('dynamicListFilterValue') !== filterValues) {
+      pageCtx.dynamicListFilterValue = filterValues;
+    }
+
+    if (options.filterControlsActive) {
+      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+    } else if (filterColumns || filterValues) {
+      pageCtx.dynamicListFilterHideControls = true;
+    }
+
+    Fliplet.Page.Context.update(pageCtx);
+  }
+
+  function updateFilterControlsContext() {
+    if (Fliplet.Navigate.query.dynamicListFilterColumn || Fliplet.Navigate.query.dynamicListFilterValue) {
+      Fliplet.Page.Context.update({
+        dynamicListFilterHideControls: true
+      });
+    }
+  }
+
   function getUsersToMention(options) {
     options = options || {};
 
@@ -1189,6 +1234,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
       $: getjQueryObjects
+    },
+    Page: {
+      updateSearchContext: updateSearchContext,
+      updateFilterControlsContext: updateFilterControlsContext
     },
     String: {
       splitByCommas: splitByCommas,
