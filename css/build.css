@@ -148,4 +148,8 @@
 
 .native.ios .fa-times-thin {
   padding-top: 3px;
-} 
+}
+
+.mode-interact [data-dynamic-lists-id] {
+  min-height: 32px;
+}
