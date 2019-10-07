@@ -274,6 +274,8 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
+      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
         $('body').addClass('lock');
@@ -334,6 +336,8 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
+
+      _this.Utils.Page.updateFilterControlsContext();
 
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
@@ -960,12 +964,13 @@ DynamicList.prototype.getCommentUsers = function () {
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
-  // Render Base HTML template
-  _this.renderBaseHTML();
   _this.attachObservers();
 
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
     var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
@@ -1001,8 +1006,10 @@ DynamicList.prototype.initialize = function() {
   };
 
   // Check if there is a query or PV for search/filter queries
-  (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
+  return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -1145,9 +1152,9 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
-    _this.$container.find('.list-search-cancel').addClass('active');
 
     if (!_this.data.filtersInOverlay) {
+      _this.$container.find('.list-search-cancel').addClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
     }
 
@@ -1582,6 +1589,12 @@ DynamicList.prototype.searchData = function(options) {
     && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
     ? _this.data.limitEntries
     : -1;
+
+  _this.Utils.Page.updateSearchContext({
+    activeFilters: _this.activeFilters,
+    searchValue: _this.searchValue,
+    filterControlsActive: _this.$container.find('.hidden-filter-controls.active').length
+  });
 
   return _this.Utils.Records.runSearch({
     value: value,
@@ -2063,10 +2076,28 @@ DynamicList.prototype.showComments = function(id) {
     var commentsTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['comments']];
     var commentsTemplateCompiled = Handlebars.compile(commentsTemplate());
     var commentsHTML = commentsTemplateCompiled(entryComments);
-    // Display comments (fl-comments-list-holder)
-    _this.$container.find('.news-feed-comment-area').html(commentsHTML).stop().animate({
-      scrollTop: _this.$container.find('.news-feed-comment-area')[0].scrollHeight
-    }, 250);
+    var $commentArea = _this.$container.find('.news-feed-comment-area');
+    var hookData = {
+      config: _this.data,
+      html: commentsHTML,
+      src: commentsTemplate,
+      comments: entryComments,
+      entryId: id
+    };
+
+    return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function () {
+      $commentArea.html(hookData.html);
+      return Fliplet.Hooks.run('flListDataAfterShowComments', {
+        config: _this.data,
+        html: commentsHTML,
+        comments: entryComments,
+        entryId: id
+      }).then(function () {
+        $commentArea.stop().animate({
+          scrollTop: $commentArea[0].scrollHeight
+        }, 250);
+      });
+    });
   }).catch(function (error) {
     Fliplet.UI.Toast.error(error, {
       message: 'Unable to load comments'

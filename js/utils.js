@@ -62,6 +62,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return getMomentDate(date).format('DD MMMM YYYY');
     });
 
+    Handlebars.registerHelper('formatCSV', function (context) {
+      if (!context) {
+        return '';
+      }
+
+      return splitByCommas(context).join(', ');
+    });
+
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
       switch (operator) {
         case '==':
@@ -93,24 +101,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       }
     });
 
-    Handlebars.registerHelper('validateImage', function (image) {
-      var validatedImage = image;
-
-      if (!validatedImage) {
-        return '';
-      }
-
-      if (_.isArray(validatedImage) && !validatedImage.length) {
-        return '';
-      }
-
-      // Validate thumbnail against URL and Base64 patterns
-      if (!Static.RegExp.httpUrl.test(validatedImage) && !Static.RegExp.base64Image.test(validatedImage)) {
-        return '';
-      }
-
-      return Fliplet.Media.authenticate(validatedImage);
-    });
+    Handlebars.registerHelper('validateImage', validateImageUrl);
 
     Handlebars.registerHelper('formatComment', function(text) {
       var res = text;
@@ -164,6 +155,25 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }), function (value) {
       return [undefined, null, '', NaN].indexOf(value) === -1;
     });
+  }
+
+  function validateImageUrl(url) {
+    if (_.isArray(url)) {
+      return _.map(url, function (val) {
+        return validateImageUrl(val);
+      });
+    }
+
+    if (!url) {
+      return '';
+    }
+
+    // Validate thumbnail against URL and Base64 patterns
+    if (!Static.RegExp.httpUrl.test(url) && !Static.RegExp.base64Image.test(url)) {
+      return url;
+    }
+
+    return new Handlebars.SafeString(Fliplet.Media.authenticate(url));
   }
 
   function getMomentDate(date) {
@@ -1116,6 +1126,51 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return $target;
   }
 
+  function updateSearchContext(options) {
+    options = options || {};
+
+    // Update page context for navigation
+    var pageCtx = {};
+    var filterColumns = _.map(_.toPairs(options.activeFilters), 0).join(',');
+    var filterValues = _.map(_.toPairs(options.activeFilters), function (filter) {
+      return filter[1].length > 1 ? '[' + filter[1].join(',') + ']' : filter[1].join(',');
+    }).join(',');
+
+    if (!options.searchValue) {
+      Fliplet.Page.Context.remove('dynamicListSearchValue');
+    } else if (Fliplet.Page.Context.get('dynamicListSearchValue') !== options.searchValue) {
+      pageCtx.dynamicListSearchValue = options.searchValue;
+    }
+
+    if (!filterColumns) {
+      Fliplet.Page.Context.remove('dynamicListFilterColumn');
+    } else if (Fliplet.Page.Context.get('dynamicListFilterColumn') !== filterColumns) {
+      pageCtx.dynamicListFilterColumn = filterColumns;
+    }
+
+    if (!filterValues) {
+      Fliplet.Page.Context.remove('dynamicListFilterValue');
+    } else if (Fliplet.Page.Context.get('dynamicListFilterValue') !== filterValues) {
+      pageCtx.dynamicListFilterValue = filterValues;
+    }
+
+    if (options.filterControlsActive) {
+      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+    } else if (filterColumns || filterValues) {
+      pageCtx.dynamicListFilterHideControls = true;
+    }
+
+    Fliplet.Page.Context.update(pageCtx);
+  }
+
+  function updateFilterControlsContext() {
+    if (Fliplet.Navigate.query.dynamicListFilterColumn || Fliplet.Navigate.query.dynamicListFilterValue) {
+      Fliplet.Page.Context.update({
+        dynamicListFilterHideControls: true
+      });
+    }
+  }
+
   function getUsersToMention(options) {
     options = options || {};
 
@@ -1188,8 +1243,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     DOM: {
       $: getjQueryObjects
     },
+    Page: {
+      updateSearchContext: updateSearchContext,
+      updateFilterControlsContext: updateFilterControlsContext
+    },
     String: {
-      splitByCommas: splitByCommas
+      splitByCommas: splitByCommas,
+      validateImageUrl: validateImageUrl
     },
     Date: {
       moment: getMomentDate

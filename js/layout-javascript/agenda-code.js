@@ -38,6 +38,7 @@ function DynamicList(id, data, container) {
   this.agendasByDay;
   this.searchedListItems;
   this.dataSourceColumns;
+  this.dateFieldLocation = 'Full Date';
 
   this.queryOpen = false;
   this.queryPreFilter = false;
@@ -71,6 +72,11 @@ function DynamicList(id, data, container) {
 
       // Start running the Public functions
       return _this.initialize();
+    })
+    .catch(function (error) {
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error loading agenda'
+      });
     });
 };
 
@@ -506,13 +512,13 @@ DynamicList.prototype.scrollEvent = function() {
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
-  // Render Base HTML template
-  _this.renderBaseHTML();
-  _this.bindTouchEvents();
   _this.attachObservers();
 
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
     var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
@@ -552,8 +558,10 @@ DynamicList.prototype.initialize = function() {
   };
 
   // Check if there is a query or PV for search/filter queries
-  (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
+  return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -583,19 +591,14 @@ DynamicList.prototype.initialize = function() {
     .then(function(records) {
       _this.listItems = records;
 
-      // Render dates HTML
-      _this.renderDatesHTML(_this.listItems);
-      _this.scrollEvent();
-
-      if (!_this.data.detailViewAutoUpdate) {
-        return Promise.resolve();
-      }
-
       return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function (columns) {
         _this.dataSourceColumns = columns;
       });
     })
-    .then(function() {
+    .then(function () {
+      // Render dates HTML
+      _this.renderDatesHTML(_this.listItems);
+      _this.scrollEvent();
       return _this.Utils.Records.updateFiles({
         records: _this.listItems,
         config: _this.data
@@ -774,6 +777,7 @@ DynamicList.prototype.renderBaseHTML = function() {
     : Handlebars.compile(baseHTML());
 
   _this.$container.html(template(data));
+  _this.bindTouchEvents();
 }
 
 DynamicList.prototype.convertTime = function(time) {
@@ -802,11 +806,12 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
     return _this.Utils.Date.moment(row[dateField]).format('YYYY-MM-DD');
   });
   var recordMerges = [];
+  var recordDates = _.orderBy(_.keys(recordGroups));
 
   // Prepare a merge if the date values are parsed as the same date
-  _.forEach(_.keys(recordGroups), function (key, i) {
+  _.forEach(recordDates, function (key, i) {
     var date = _this.Utils.Date.moment(key);
-    _.forEach(_.keys(recordGroups), function (comp, j) {
+    _.forEach(recordDates, function (comp, j) {
       if (j >= i) {
         return false;
       }
@@ -829,7 +834,7 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
     delete recordGroups[merge.from];
   });
 
-  return _.values(recordGroups);
+  return _.map(_.sortBy(_.toPairs(recordGroups), 0), 1);
 };
 
 DynamicList.prototype.prepareToRenderLoop = function(rows) {
@@ -839,11 +844,6 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
   clonedRecords = _this.getPermissions(clonedRecords);
 
   var loopData = [];
-  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Date'});
-  var dateField = 'Full Date';
-  if (foundDateField) {
-    dateField = foundDateField.column;
-  }
   var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
   });
@@ -887,7 +887,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
         content = entry.data[obj.column];
       }
 
-      if (obj.location === "Start Time" || obj.location === "End Time") {
+      if (obj.location === 'Start Time' || obj.location === 'End Time') {
         content = _this.convertTime(content);
       }
 
@@ -938,7 +938,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
         type: dynamicDataObj.type
       }
       newObject.entryDetails.push(newEntryDetail);
-  });
+    });
     loopData.push(newObject);
   });
 
@@ -970,7 +970,7 @@ DynamicList.prototype.prepareToRenderLoop = function(rows) {
     });
   }
 
-  _this.agendasByDay = _this.groupLoopDataByDate(loopData, dateField);;
+  _this.agendasByDay = _this.groupLoopDataByDate(loopData, _this.dateFieldLocation);
 }
 
 DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
@@ -1028,22 +1028,25 @@ DynamicList.prototype.renderDatesHTML = function(rows, index) {
   var firstDate;
   var lastDate;
   var numberOfPlaceholderDays = 3;
-  var clonedRecords = _.clone(rows);
-  var foundDateField = _.find(_this.data.detailViewOptions, {type: 'date', location: 'Full Date'});
-  var dateField = 'Full Date';
   var formats = {
     week: 'ddd',
     day: 'DD',
     month: 'MMM'
   };
-  if (foundDateField) {
-    dateField = foundDateField.column;
+  var foundDateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
+  var dateField = _.get(foundDateField, 'column');
+
+  if (!dateField
+    || _this.dataSourceColumns.indexOf(dateField) === -1) {
+    throw new Error('Date field is misconfigured. Please check your component settings.');
   }
 
+  var clonedRecords = _.clone(rows);
+
   // Keep only records with valid dates when rendering dates selectors
-  clonedRecords = _.filter(clonedRecords, function (record) {
+  clonedRecords = _.orderBy(_.filter(clonedRecords, function (record) {
     return _this.Utils.Date.moment(record.data[dateField]).isValid();
-  });
+  }), 'data.' + dateField);
 
   if (clonedRecords.length) {
     // Set first date in agenda

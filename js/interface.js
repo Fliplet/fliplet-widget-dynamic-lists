@@ -910,7 +910,7 @@ var DynamicLists = (function() {
                   type: 'text',
                   fieldLabel: 'column-name',
                   editable: true
-                }
+                };
 
                 _this.config.detailViewOptions.push(item);
               });
@@ -1194,7 +1194,7 @@ var DynamicLists = (function() {
       $('.search-fields').html(tokenField({
         name: 'search-column-fields',
         id: 'search-column-fields-tokenfield',
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       }));
       $('#search-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
@@ -1202,12 +1202,12 @@ var DynamicLists = (function() {
           delay: 100
         },
         showAutocompleteOnFocus: true,
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       });
       $('.filter-fields').html(tokenField({
         name: 'filter-column-fields',
         id: 'filter-column-fields-tokenfield',
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       }));
       $('#filter-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
@@ -1215,7 +1215,7 @@ var DynamicLists = (function() {
           delay: 100
         },
         showAutocompleteOnFocus: true,
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       });
 
       _this.handleTokensSelection();
@@ -1379,7 +1379,7 @@ var DynamicLists = (function() {
       var poolFieldValue = $('#select_poll_data').val();
       var poolFieldOptions = [];
       $('#select_poll_data').html('');
-      poolFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      poolFieldOptions.push('<option value="none">-- Select a field</option>');
       poolFieldOptions.push('<option disabled>------</option>');
       dataSourceColumns.forEach(function(value, index) {
         poolFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
@@ -1395,7 +1395,7 @@ var DynamicLists = (function() {
       var surveyFieldValue = $('#select_survey_data').val();
       var surveyFieldOptions = [];
       $('#select_survey_data').html('');
-      surveyFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      surveyFieldOptions.push('<option value="none">-- Select a field</option>');
       surveyFieldOptions.push('<option disabled>------</option>');
       dataSourceColumns.forEach(function(value, index) {
         surveyFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
@@ -1411,7 +1411,7 @@ var DynamicLists = (function() {
       var questionsFieldValue = $('#select_questions_data').val();
       var questionsFieldOptions = [];
       $('#select_questions_data').html('');
-      questionsFieldOptions.push('<option value="none">-- Select the poll data field</option>');
+      questionsFieldOptions.push('<option value="none">-- Select a field</option>');
       questionsFieldOptions.push('<option disabled>------</option>');
       dataSourceColumns.forEach(function(value, index) {
         questionsFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');

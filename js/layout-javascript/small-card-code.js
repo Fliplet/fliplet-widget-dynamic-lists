@@ -29,7 +29,7 @@ function DynamicList(id, data, container) {
   this.fetchedAllBookmarks = false;
 
   this.emailField = 'Email';
-  this.myProfileData;
+  this.myProfileData = [];
   this.modifiedProfileData;
   this.myUserData;
 
@@ -312,6 +312,8 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-small-card-list-container');
 
+      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
         $('body').addClass('lock');
@@ -376,6 +378,8 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.list-search-cancel', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-small-card-list-container');
+
+      _this.Utils.Page.updateFilterControlsContext();
 
       if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
         $parentElement.find('.hidden-filter-controls').removeClass('active');
@@ -598,12 +602,13 @@ DynamicList.prototype.removeListItemHTML = function (options) {
 DynamicList.prototype.initialize = function() {
   var _this = this;
 
-  // Render Base HTML template
-  _this.renderBaseHTML();
   _this.attachObservers();
 
   // Render list with default data
   if (_this.data.defaultData) {
+    // Render Base HTML template
+    _this.renderBaseHTML();
+
     var records = _this.Utils.Records.prepareData({
       records: _this.data.defaultEntries,
       config: _this.data,
@@ -628,7 +633,7 @@ DynamicList.prototype.initialize = function() {
           item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
 
           if (item.isCurrentUser) {
-            _this.myProfileData = item;
+            _this.myProfileData.push(item);
           }
         });
       }
@@ -640,7 +645,7 @@ DynamicList.prototype.initialize = function() {
         _this.searchedListItems = _.clone(_this.listItems);
 
         // Render user profile
-        if (_this.myProfileData && _this.myProfileData.length) {
+        if (!_.isEmpty(_this.myProfileData)) {
           _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
           var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
           var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
@@ -666,8 +671,10 @@ DynamicList.prototype.initialize = function() {
   };
 
   // Check if there is a query or PV for search/filter queries
-  (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
+  return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
+      // Render Base HTML template
+      _this.renderBaseHTML();
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -704,7 +711,7 @@ DynamicList.prototype.initialize = function() {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
 
           if (record.isCurrentUser) {
-            _this.myProfileData = record;
+            _this.myProfileData.push(record);
           }
         });
       }
@@ -821,9 +828,9 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
-    _this.$container.find('.list-search-cancel').addClass('active');
 
     if (!_this.data.filtersInOverlay) {
+      _this.$container.find('.list-search-cancel').addClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
     }
 
@@ -1283,6 +1290,12 @@ DynamicList.prototype.searchData = function(options) {
     ? _this.data.limitEntries
     : -1;
 
+  _this.Utils.Page.updateSearchContext({
+    activeFilters: _this.activeFilters,
+    searchValue: _this.searchValue,
+    filterControlsActive: _this.$container.find('.hidden-filter-controls.active').length
+  });
+
   return _this.Utils.Records.runSearch({
     value: value,
     records: _this.listItems,
@@ -1350,7 +1363,7 @@ DynamicList.prototype.searchData = function(options) {
     _this.prepareToRenderLoop(searchedData);
     _this.renderLoopHTML().then(function (records) {
       // Render user profile
-      if (_this.myProfileData && _this.myProfileData.length) {
+      if (!_.isEmpty(_this.myProfileData)) {
         var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
         var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
         var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
