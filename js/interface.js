@@ -1255,9 +1255,10 @@ var DynamicLists = (function() {
           delay: 100
         },
         showAutocompleteOnFocus: true,
-        createTokensOnBlur: true
+        createTokensOnBlur: false
       });
 
+      _this.handleTokensSelection();
       _this.loadUserTokenFields();
     },
     getColumns: function(dataSourceId) {
