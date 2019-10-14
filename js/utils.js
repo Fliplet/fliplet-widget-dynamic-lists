@@ -610,7 +610,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Returns true if record matches all of provided filters and values
     return _.every(_.keys(filters), function (field) {
-      return _.every(filters[field], function (value) {
+      return _.some(filters[field], function (value) {
         if (field === 'undefined') {
           // Legacy class-based filters
           return _.includes(_.map(_.get(record, 'data.flFilters'), 'data.class'), value);
