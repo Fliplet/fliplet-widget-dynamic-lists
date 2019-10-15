@@ -598,7 +598,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var record = options.record;
     var filters = options.filters;
-    var config = options.config;
+    var config = options.config || {};
 
     var recordFieldValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
       return _.map(_.uniq(getRecordField({
@@ -610,7 +610,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Returns true if record matches all of provided filters and values
     return _.every(_.keys(filters), function (field) {
-      return _.some(filters[field], function (value) {
+      return _[config.filterMatch === 'all' ? 'every' : 'some'](filters[field], function (value) {
         if (field === 'undefined') {
           // Legacy class-based filters
           return _.includes(_.map(_.get(record, 'data.flFilters'), 'data.class'), value);
