@@ -450,42 +450,69 @@ DynamicList.prototype.attachObservers = function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
     .on('click', '.dynamic-list-add-item', function() {
-      var options = {
-        title: 'Link not configured',
-        message: 'Form not found. Please check the component\'s configuration.',
-      };
+      if (!_this.data.addEntryLinkAction) {
+        return;
+      }
 
-      if (_this.data.addEntryLinkAction) {
-        _this.data.addEntryLinkAction.query = '?mode=add';
+      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.',
+        });
+        return;
+      }
 
-        if (typeof _this.data.addEntryLinkAction.page !== 'undefined' && _this.data.addEntryLinkAction.page !== '') {
-          Fliplet.Navigate.to(_this.data.addEntryLinkAction)
-            .catch(function() {
-              Fliplet.UI.Toast(options);
+      _this.data.addEntryLinkAction.query = '?mode=add';
+
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
+
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error adding entry'
+              });
             });
-        } else {
-          Fliplet.UI.Toast(options);
         }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error adding entry'
+        });
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
+      if (!_this.data.editEntryLinkAction) {
+        return;
+      }
+
+      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.',
+        });
+        return;
+      }
+
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
-      var options = {
-        title: 'Link not configured',
-        message: 'Form not found. Please check the component\'s configuration.',
-      };
 
-      if (_this.data.editEntryLinkAction) {
-        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
 
-        if (typeof _this.data.editEntryLinkAction.page !== 'undefined' && _this.data.editEntryLinkAction.page !== '') {
-          Fliplet.Navigate.to(_this.data.editEntryLinkAction)
-            .catch(function() {
-              Fliplet.UI.Toast(options);
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
+
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error editing entry'
+              });
             });
-        } else {
-          Fliplet.UI.Toast(options);
         }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error editing entry'
+        });
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
