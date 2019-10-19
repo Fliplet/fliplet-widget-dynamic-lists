@@ -2372,6 +2372,12 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
     return comment.id === commentId;
   });
 
+  if (entryComments) {
+    commentData = _.find(entryComments, function(comment) {
+      return comment.id === commentId;
+    });
+  }
+
   if (commentData) {
     commentData.data.settings.text = value;
     _this.replaceComment(commentId, commentData, 'temp');
