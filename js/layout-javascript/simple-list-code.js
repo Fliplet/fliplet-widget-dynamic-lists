@@ -1946,9 +1946,12 @@ DynamicList.prototype.getEntryComments = function(options) {
           }
         });
       })
-      .then(function(entries){
-        record.comments = entries;
-        record.commentCount = entries.length;
+      .then(function(entries) {
+        var filteredEntries = _.filter(entries, function(entry) {
+          return entry.data.settings.text.trim();
+        });
+        record.comments = filteredEntries;
+        record.commentCount = filteredEntries.length;
       });
   }
 
