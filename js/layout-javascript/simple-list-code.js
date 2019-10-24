@@ -410,12 +410,12 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.simple-list-comment-input-holder .comment', function() {
       var entryId = _this.entryClicked;
       var $commentArea = $(this).parents('.simple-list-comment-input-holder').find('[data-comment-body]');
-      var comment = $commentArea.val();
+      var comment = $commentArea.val().trim();
 
-      $commentArea.val('').trigger('change');;
+      $commentArea.val('').trigger('change');
       autosize.update($commentArea);
 
-      if (comment !== '') {
+      if (comment) {
         _this.sendComment(entryId, comment);
       }
 
@@ -457,7 +457,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('keyup change', '[data-comment-body]', function() {
-      var value = $(this).val();
+      var value = $(this).val().trim();
 
       if (value.length) {
         $(this).parents('.simple-list-comment-input-holder').addClass('ready');
