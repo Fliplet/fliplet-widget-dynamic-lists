@@ -299,7 +299,7 @@ DynamicList.prototype.attachObservers = function() {
         var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').next());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-        _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate)
+        _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate);
 
         _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
@@ -314,7 +314,7 @@ DynamicList.prototype.attachObservers = function() {
         var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').prev());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-        _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate)
+        _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate);
 
         _this.moveBackDate(indexOfClickedDate, indexDifference);
         return;
@@ -332,7 +332,7 @@ DynamicList.prototype.attachObservers = function() {
       var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(this);
       var indexDifference = indexOfClickedDate - indexOfActiveDate
 
-      _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate)
+      _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -520,13 +520,13 @@ DynamicList.prototype.scrollEvent = function() {
 
 DynamicList.prototype.updateNavigatorQuery = function(defaultDateIndex, indexOfClickedDate) {
   if (defaultDateIndex === indexOfClickedDate) {
-    Fliplet.Page.Context.remove('dayUserLeft');
+    Fliplet.Page.Context.remove('dateIndex');
   } else {
     Fliplet.Page.Context.update({
-      dayUserLeft: indexOfClickedDate
+      dateIndex: indexOfClickedDate
     });
   }
-}
+};
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
@@ -1586,23 +1586,18 @@ DynamicList.prototype.getDateIndex = function (date) {
 };
 
 DynamicList.prototype.goToToday = function () {
-  var dayUserLeft = parseInt(Fliplet.Navigate.query.dayUserLeft, 10);
+  var dateIndex = parseInt(Fliplet.Navigate.query.dateIndex, 10);
 
-  if (dayUserLeft) {
-    this.goToDate(dayUserLeft, true);
+  if (dateIndex) {
+    this.sliderGoTo(dateIndex);
     return;
   }
 
   this.goToDate(moment().format('YYYY-MM-DD'), false);
 };
 
-DynamicList.prototype.goToDate = function (date, goToDayUserLeft) {
+DynamicList.prototype.goToDate = function (date) {
   if (!date) {
-    return;
-  }
-
-  if (goToDayUserLeft) {
-    this.sliderGoTo(date);
     return;
   }
 
