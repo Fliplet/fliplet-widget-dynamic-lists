@@ -736,32 +736,41 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var renderLoopIndex = 0;
   var data = _this.modifiedListItems;
 
-  return new Promise(function (resolve) {
-    function render() {
-      // get the next batch of items to render
-      let nextBatch = data.slice(
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
-      );
-      if (nextBatch.length) {
-        $('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if (iterateeCb && typeof iterateeCb === 'function'){
-          if (renderLoopIndex === 0){
-            _this.$container.find('.new-small-h-card-list-container').addClass('ready');
+  return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+    records: data,
+    config: _this.data
+  }).then(function () {
+    return new Promise(function (resolve) {
+      function render() {
+        // get the next batch of items to render
+        let nextBatch = data.slice(
+          renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+          renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+        );
+        if (nextBatch.length) {
+          $('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
+          if (iterateeCb && typeof iterateeCb === 'function'){
+            if (renderLoopIndex === 0){
+              _this.$container.find('.new-small-h-card-list-container').addClass('ready');
+            }
+            iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
           }
-          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+          renderLoopIndex++;
+          // if the browser is ready, render
+          requestAnimationFrame(render);
+        } else {
+          _this.$container.find('.new-small-h-card-list-container').addClass('ready');
+          Fliplet.Hooks.run('flListDataAfterRenderList', {
+            records: data,
+            config: _this.data
+          });
+          resolve();
         }
-        renderLoopIndex++;
-        // if the browser is ready, render
-        requestAnimationFrame(render);
-      } else {
-        _this.$container.find('.new-small-h-card-list-container').addClass('ready');
-        resolve();
       }
-    }
-    // start the initial render
-    requestAnimationFrame(render);
-})
+      // start the initial render
+      requestAnimationFrame(render);
+    });
+  });
 }
 
 DynamicList.prototype.getAddPermission = function(data) {

@@ -1012,39 +1012,48 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var renderLoopIndex = 0;
   var $renderFull = $([]);
 
-  return new Promise(function (resolve) {
-    function render() {
-      // get the next batch of items to render
-      var nextBatch = _this.agendasByDay.slice(
-        _this.INCREMENTAL_RENDERING_BATCH_SIZE * renderLoopIndex,
-        _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
-      );
+  return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+    records: _this.agendasByDay,
+    config: _this.data
+  }).then(function () {
+    return new Promise(function (resolve) {
+      function render() {
+        // get the next batch of items to render
+        var nextBatch = _this.agendasByDay.slice(
+          _this.INCREMENTAL_RENDERING_BATCH_SIZE * renderLoopIndex,
+          _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
+        );
 
-      if (!nextBatch.length) {
-        resolve(renderLoopIndex - 1, $renderFull);
-        return;
+        if (!nextBatch.length) {
+          Fliplet.Hooks.run('flListDataAfterRenderList', {
+            records: _this.agendasByDay,
+            config: _this.data
+          });
+          resolve(renderLoopIndex - 1, $renderFull);
+          return;
+        }
+
+        var $renderBatch = $(template(nextBatch));
+        $renderFull.add($renderBatch);
+        $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append($renderBatch);
+
+        if (renderLoopIndex === 0 || renderLoopIndex === -1) {
+          _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+          _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+        }
+
+        if (iterateeCb && typeof iterateeCb === 'function') {
+          iterateeCb(renderLoopIndex, $renderBatch);
+        }
+
+        renderLoopIndex++;
+
+        // if the browser is ready, render
+        requestAnimationFrame(render);
       }
-
-      var $renderBatch = $(template(nextBatch));
-      $renderFull.add($renderBatch);
-      $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append($renderBatch);
-
-      if (renderLoopIndex === 0 || renderLoopIndex === -1) {
-        _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-        _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
-      }
-
-      if (iterateeCb && typeof iterateeCb === 'function') {
-        iterateeCb(renderLoopIndex, $renderBatch);
-      }
-
-      renderLoopIndex++;
-
-      // if the browser is ready, render
+      // start the initial render
       requestAnimationFrame(render);
-    }
-    // start the initial render
-    requestAnimationFrame(render);
+    });
   });
 }
 
