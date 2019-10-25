@@ -1483,32 +1483,41 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var renderLoopIndex = 0;
   var data = (limitedList || _this.modifiedListItems);
 
-  return new Promise(function (resolve) {
-    function render() {
-      // get the next batch of items to render
-      var nextBatch = data.slice(
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
-      );
+  return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+    records: data,
+    config: _this.data
+  }).then(function () {
+    return new Promise(function (resolve) {
+      function render() {
+        // get the next batch of items to render
+        var nextBatch = data.slice(
+          renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+          renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+        );
 
-      if (nextBatch.length) {
-        $('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if (iterateeCb && typeof iterateeCb === 'function') {
-          if (renderLoopIndex === 0) {
-            _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+        if (nextBatch.length) {
+          $('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
+          if (iterateeCb && typeof iterateeCb === 'function') {
+            if (renderLoopIndex === 0) {
+              _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+            }
+            iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
           }
-          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
+          renderLoopIndex++;
+          // if the browser is ready, render
+          requestAnimationFrame(render);
+        } else {
+          _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+          Fliplet.Hooks.run('flListDataAfterRenderList', {
+            records: data,
+            config: _this.data
+          });
+          resolve(data);
         }
-        renderLoopIndex++;
-        // if the browser is ready, render
-        requestAnimationFrame(render);
-      } else {
-        _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
-        resolve(data);
       }
-    }
-    // start the initial render
-    requestAnimationFrame(render);
+      // start the initial render
+      requestAnimationFrame(render);
+    });
   });
 }
 
@@ -1532,21 +1541,38 @@ DynamicList.prototype.getPermissions = function(entries) {
 DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
-  var filtersData = {
-    filtersInOverlay: _this.data.filtersInOverlay,
-    filters: _this.Utils.Records.parseFilters({
+  var filters = _this.Utils.Records.parseFilters({
+    records: records,
+    filters: _this.data.filterFields,
+    id: _this.data.id
+  });
+
+  return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
+    filters: filters,
+    records: records,
+    config: _this.data
+  }).then(function () {
+    filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
+
+    var filtersData = {
+      filtersInOverlay: _this.data.filtersInOverlay,
+      filters: filters
+    };
+    var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
+      ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
+      : Handlebars.compile(filtersTemplate());
+
+    _.remove(filters, function (filter) {
+      return _.isEmpty(filter.data);
+    });
+    _this.$container.find('.filter-holder').html(template(filtersData));
+    Fliplet.Hooks.run('flListDataAfterRenderFilters', {
+      filters: filters,
       records: records,
-      filters: _this.data.filterFields,
-      id: _this.data.id
-    })
-  };
+      config: _this.data
+    });
 
-  filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
-    ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
-    : Handlebars.compile(filtersTemplate());
-
-  _this.$container.find('.filter-holder').html(template(filtersData));
+  });
 };
 
 DynamicList.prototype.getActiveFilters = function () {
