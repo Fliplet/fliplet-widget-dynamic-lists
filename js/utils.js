@@ -739,6 +739,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           record.data['flFilters'].push(newObj);
         });
       });
+
+      var existingClasses = _.get(record, 'data.flClasses', []);
+
+      if (typeof existingClasses === 'string') {
+        existingClasses = existingClasses.split(' ');
+      }
+
+      classes = _.concat(classes, existingClasses);
       record.data['flClasses'] = _.compact(_.uniq(classes)).join(' ');
     });
 
