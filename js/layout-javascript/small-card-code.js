@@ -1241,21 +1241,37 @@ DynamicList.prototype.getPermissions = function(entries) {
 DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
-  var filtersData = {
-    filtersInOverlay: _this.data.filtersInOverlay,
-    filters: _this.Utils.Records.parseFilters({
+  var filters = _this.Utils.Records.parseFilters({
+    records: records,
+    filters: _this.data.filterFields,
+    id: _this.data.id
+  });
+
+  return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
+    filters: filters,
+    records: records,
+    config: _this.data
+  }).then(function () {
+    filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
+
+    var filtersData = {
+      filtersInOverlay: _this.data.filtersInOverlay,
+      filters: filters
+    };
+    var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
+      ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
+      : Handlebars.compile(filtersTemplate());
+
+    _.remove(filters, function (filter) {
+      return _.isEmpty(filter.data);
+    });
+    _this.$container.find('.filter-holder').html(template(filtersData));
+    Fliplet.Hooks.run('flListDataAfterRenderFilters', {
+      filters: filters,
       records: records,
-      filters: _this.data.filterFields,
-      id: _this.data.id
-    })
-  };
-
-  filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
-    ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
-    : Handlebars.compile(filtersTemplate());
-
-  _this.$container.find('.filter-holder').html(template(filtersData));
+      config: _this.data
+    });
+  });
 };
 
 DynamicList.prototype.getActiveFilters = function () {
