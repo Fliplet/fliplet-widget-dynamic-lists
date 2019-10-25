@@ -792,7 +792,7 @@ DynamicList.prototype.initialize = function() {
   _this.attachObservers();
 
   // Render list with default data
-  if (_this.data.defaultData) {
+  if (_this.data.defaultData && !_this.data.dataSourceId) {
     // Render Base HTML template
     _this.renderBaseHTML();
 
