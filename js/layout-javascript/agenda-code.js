@@ -538,52 +538,15 @@ DynamicList.prototype.scrollEvent = function() {
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
-
-  _this.attachObservers();
-
-  // Render list with default data
-  if (_this.data.defaultData && !_this.data.dataSourceId) {
-    // Render Base HTML template
-    _this.renderBaseHTML();
-
-    var records = _this.Utils.Records.prepareData({
-      records: _this.data.defaultEntries,
-      config: _this.data,
-      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
-    });
-
-    _this.listItems = records;
-    _this.dataSourceColumns = _this.data.defaultColumns;
-
-    return _this.Utils.Records.updateFiles({
-      records: _this.listItems,
-      config: _this.data
-    }).then(function(response) {
-      _this.listItems = _.uniqBy(response, function (item) {
-        return item.id;
-      });
-
-      // Render dates HTML
-      _this.renderDatesHTML(_this.listItems);
-      _this.scrollEvent();
-
-      // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
-      _this.renderLoopHTML().then(function(records){
-        _this.searchedListItems = _.clone(_this.listItems);
-        // Listeners and Ready
-        return _this.initializeSocials();
-      });
-    });
-  }
-
   var shouldInitFromQuery = _this.parseQueryVars();
+
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
   if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   };
 
+  _this.attachObservers();
   // Check if there is a query or PV for search/filter queries
   return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
@@ -643,7 +606,7 @@ DynamicList.prototype.initialize = function() {
         render: true,
         goToToday: true
       });
-    })
+    });
 }
 
 DynamicList.prototype.checkIsToOpen = function(options) {
@@ -741,6 +704,10 @@ DynamicList.prototype.connectToDataSource = function() {
   var cache = { offline: true };
 
   function getData (options) {
+    if (_this.data.defaultData && !_this.data.dataSourceId) {
+      return Promise.resolve(_this.data.defaultEntries);
+    }
+
     options = options || cache;
     return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
       .then(function (connection) {
@@ -1012,48 +979,43 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var renderLoopIndex = 0;
   var $renderFull = $([]);
 
-  return Fliplet.Hooks.run('flListDataBeforeRenderList', {
-    records: _this.agendasByDay,
-    config: _this.data
-  }).then(function () {
-    return new Promise(function (resolve) {
-      function render() {
-        // get the next batch of items to render
-        var nextBatch = _this.agendasByDay.slice(
-          _this.INCREMENTAL_RENDERING_BATCH_SIZE * renderLoopIndex,
-          _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
-        );
+  return new Promise(function (resolve) {
+    function render() {
+      // get the next batch of items to render
+      var nextBatch = _this.agendasByDay.slice(
+        _this.INCREMENTAL_RENDERING_BATCH_SIZE * renderLoopIndex,
+        _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
+      );
 
-        if (!nextBatch.length) {
-          Fliplet.Hooks.run('flListDataAfterRenderList', {
-            records: _this.agendasByDay,
-            config: _this.data
-          });
-          resolve(renderLoopIndex - 1, $renderFull);
-          return;
-        }
-
-        var $renderBatch = $(template(nextBatch));
-        $renderFull.add($renderBatch);
-        $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append($renderBatch);
-
-        if (renderLoopIndex === 0 || renderLoopIndex === -1) {
-          _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-          _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
-        }
-
-        if (iterateeCb && typeof iterateeCb === 'function') {
-          iterateeCb(renderLoopIndex, $renderBatch);
-        }
-
-        renderLoopIndex++;
-
-        // if the browser is ready, render
-        requestAnimationFrame(render);
+      if (!nextBatch.length) {
+        Fliplet.Hooks.run('flListDataAfterRenderList', {
+          records: _this.agendasByDay,
+          config: _this.data
+        });
+        resolve(renderLoopIndex - 1, $renderFull);
+        return;
       }
-      // start the initial render
+
+      var $renderBatch = $(template(nextBatch));
+      $renderFull.add($renderBatch);
+      $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder').append($renderBatch);
+
+      if (renderLoopIndex === 0 || renderLoopIndex === -1) {
+        _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+        _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+      }
+
+      if (iterateeCb && typeof iterateeCb === 'function') {
+        iterateeCb(renderLoopIndex, $renderBatch);
+      }
+
+      renderLoopIndex++;
+
+      // if the browser is ready, render
       requestAnimationFrame(render);
-    });
+    }
+    // start the initial render
+    requestAnimationFrame(render);
   });
 }
 
@@ -1504,38 +1466,44 @@ DynamicList.prototype.searchData = function(options) {
     }
 
     var searchedData = results.records;
-    var truncated = results.truncated;
+    return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+      records: searchedData,
+      config: _this.data,
+      showBookmarks: _this.showBookmarks
+    }).then(function () {
+      var truncated = results.truncated || searchedData.length < _this.listItems;
 
-    /**
-     * Render results
-     **/
-    _this.prepareToRenderLoop(searchedData);
-    _this.searchedListItems = searchedData;
+      /**
+       * Render results
+       **/
+      _this.prepareToRenderLoop(searchedData);
+      _this.searchedListItems = searchedData;
 
-    if (options.render) {
-      // Render the full list
-      return _this.renderLoopHTML().then(function(records){
-        if (options.goToToday) {
-          _this.goToToday();
-        } else {
-          // @TODO Stay in current date index
-          _this.sliderGoTo($('.agenda-date-selector li.active').index() - $('.agenda-date-selector li:not(.placeholder)').index());
-        }
+      if (options.render) {
+        // Render the full list
+        return _this.renderLoopHTML().then(function(records){
+          if (options.goToToday) {
+            _this.goToToday();
+          } else {
+            // @TODO Stay in current date index
+            _this.sliderGoTo($('.agenda-date-selector li.active').index() - $('.agenda-date-selector li:not(.placeholder)').index());
+          }
 
-        return _this.initializeSocials();
-      });
-    }
+          return _this.initializeSocials();
+        });
+      }
 
-    var recordIdsToShow = _.map(_this.searchedListItems, 'id');
-    var recordIdsToHide = _.difference(_.map(_this.listItems, 'id'), recordIdsToShow);
+      var recordIdsToShow = _.map(_this.searchedListItems, 'id');
+      var recordIdsToHide = _.difference(_.map(_this.listItems, 'id'), recordIdsToShow);
 
-    // Hide and show content based on existing render
-    $(_.map(recordIdsToShow, function (id) {
-      return '.agenda-list-item[data-entry-id="' + id + '"]';
-    }).join(',')).show();
-    $(_.map(recordIdsToHide, function (id) {
-      return '.agenda-list-item[data-entry-id="' + id + '"]';
-    }).join(',')).hide();
+      // Hide and show content based on existing render
+      $(_.map(recordIdsToShow, function (id) {
+        return '.agenda-list-item[data-entry-id="' + id + '"]';
+      }).join(',')).show();
+      $(_.map(recordIdsToHide, function (id) {
+        return '.agenda-list-item[data-entry-id="' + id + '"]';
+      }).join(',')).hide();
+    });
   });
 }
 
