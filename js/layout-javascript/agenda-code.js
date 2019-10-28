@@ -1471,6 +1471,8 @@ DynamicList.prototype.searchData = function(options) {
       config: _this.data,
       showBookmarks: _this.showBookmarks
     }).then(function () {
+      searchedData = searchedData || [];
+
       var truncated = results.truncated || searchedData.length < _this.listItems;
 
       /**
