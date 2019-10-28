@@ -338,51 +338,8 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
-
-  // Render list with default data
-  if (_this.data.defaultData && !_this.data.dataSourceId) {
-    // Render Base HTML template
-    _this.renderBaseHTML();
-
-    var records = _this.Utils.Records.prepareData({
-      records: _this.data.defaultEntries,
-      config: _this.data,
-      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
-    });
-
-    _this.listItems = _this.getPermissions(records);
-    _this.dataSourceColumns = _this.data.defaultColumns;
-
-    return _this.Utils.Records.updateFiles({
-      records: _this.listItems,
-      config: _this.data
-    }).then(function(response) {
-      _this.listItems = _.uniqBy(response, function (item) {
-        return item.id;
-      });
-
-      // Get user profile
-      if (_this.myUserData) {
-        // Create flag for current user
-        _this.listItems.forEach(function(item) {
-          item.isCurrentUser = _this.Utils.Record.isCurrentUser(item, _this.data, _this.myUserData);
-
-          if (item.isCurrentUser) {
-            _this.myProfileData = item.isCurrentUser;
-          }
-        });
-      }
-
-      // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
-      _this.renderLoopHTML().then(function(){
-        // Listeners and Ready
-        _this.attachObservers();
-      });
-    });
-  }
-
   var shouldInitFromQuery = _this.parseQueryVars();
+
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
   if (shouldInitFromQuery) {
@@ -394,7 +351,6 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
-
       return _this.connectToDataSource();
     })
     .then(function (records) {
@@ -465,7 +421,7 @@ DynamicList.prototype.initialize = function() {
         _this.attachObservers();
       });
       return;
-    })
+    });
 }
 
 DynamicList.prototype.checkIsToOpen = function(options) {
@@ -548,6 +504,10 @@ DynamicList.prototype.connectToDataSource = function() {
   var cache = { offline: true };
 
   function getData (options) {
+    if (_this.data.defaultData && !_this.data.dataSourceId) {
+      return Promise.resolve(_this.data.defaultEntries);
+    }
+
     options = options || cache;
     return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
       .then(function (connection) {
@@ -743,7 +703,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
     return new Promise(function (resolve) {
       function render() {
         // get the next batch of items to render
-        let nextBatch = data.slice(
+        var nextBatch = data.slice(
           renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
           renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
         );
