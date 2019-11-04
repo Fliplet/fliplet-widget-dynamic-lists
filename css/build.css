@@ -168,6 +168,11 @@
     padding-top: 2px;
     padding-bottom: 5px;
   }
+
+  .no-windows .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
 }
 
 /* For Android Chrome browser*/
