@@ -153,3 +153,25 @@
 .mode-interact [data-dynamic-lists-id] {
   min-height: 32px;
 }
+
+/* For MS Edge */
+@supports (-ms-ime-align:auto) {
+  .fa-times-thin {
+    padding-top: 1px;
+    padding-bottom: 3px;
+  }
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+  .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 5px;
+  }
+}
+
+/* For Android Chrome browser*/
+.android.no-native .fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
