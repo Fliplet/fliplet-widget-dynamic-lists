@@ -556,6 +556,7 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  height: 4.4em;
 }
 
 .simple-list-item .list-item-title {
