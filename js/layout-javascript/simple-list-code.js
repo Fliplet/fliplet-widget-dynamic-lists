@@ -52,6 +52,7 @@ function DynamicList(id, data, container) {
   this.pvFilterQuery;
   this.pvPreFilterQuery;
   this.pvOpenQuery;
+  this.openedEntryOnQuery = false;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -172,13 +173,6 @@ DynamicList.prototype.attachObservers = function() {
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text().trim();
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_open',
-        label: entryTitle
-      });
-
       var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
@@ -186,7 +180,8 @@ DynamicList.prototype.attachObservers = function() {
           config: _this.data,
           entry: _.find(_this.listItems, { id: entryId }),
           entryId: entryId,
-          entryTitle: entryTitle
+          entryTitle: entryTitle,
+          event: event
         });
 
         if (!(beforeOpen instanceof Promise)) {
@@ -195,6 +190,12 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function () {
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_open',
+          label: entryTitle
+        });
+
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
           _this.Utils.Navigate.openLinkAction({
             records: _this.listItems,
@@ -893,7 +894,9 @@ DynamicList.prototype.checkIsToOpen = function(options) {
     return;
   }
 
-  _this.showDetails(entry.id);
+  _this.showDetails(entry.id).then(function () {
+    _this.openedEntryOnQuery = true;
+  });
 }
 
 DynamicList.prototype.parseSearchQueries = function() {
@@ -1848,7 +1851,7 @@ DynamicList.prototype.showDetails = function (id) {
     }
   }
 
-  beforeShowDetails.then(function (data) {
+  return beforeShowDetails.then(function (data) {
     data = data || {};
     var template = Handlebars.compile(data.src || src);
     var wrapperTemplate = Handlebars.compile(wrapper);
@@ -1880,6 +1883,10 @@ DynamicList.prototype.showDetails = function (id) {
 }
 
 DynamicList.prototype.closeDetails = function() {
+  if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
+    return Fliplet.Navigate.back();
+  }
+
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);

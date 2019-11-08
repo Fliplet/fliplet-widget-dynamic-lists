@@ -36,6 +36,7 @@ function DynamicList(id, data, container) {
   this.pvPreviousScreen;
   this.pvPreFilterQuery;
   this.pvOpenQuery;
+  this.openedEntryOnQuery = false;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -107,13 +108,6 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_open',
-        label: entryTitle
-      });
-
       var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
@@ -121,7 +115,8 @@ DynamicList.prototype.attachObservers = function() {
           config: _this.data,
           entry: _.find(_this.listItems, { id: entryId }),
           entryId: entryId,
-          entryTitle: entryTitle
+          entryTitle: entryTitle,
+          event: event
         });
 
         if (!(beforeOpen instanceof Promise)) {
@@ -130,6 +125,12 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function () {
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_open',
+          label: entryTitle
+        });
+
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
           _this.Utils.Navigate.openLinkAction({
             records: _this.listItems,
@@ -187,6 +188,12 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       if ($(window).width() < 640) {
+        if (typeof _this.directoryDetailWrapper === 'undefined') {
+          var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
+
+          _this.directoryDetailWrapper = _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"] .small-h-card-list-detail-wrapper');
+        }
+
         _this.collapseElement(_this.directoryDetailWrapper);
         _this.directoryDetailWrapper = undefined;
       } else {
@@ -458,7 +465,9 @@ DynamicList.prototype.checkIsToOpen = function(options) {
     return;
   }
 
-  _this.showDetails(entry.id);
+  _this.showDetails(entry.id).then(function () {
+    _this.openedEntryOnQuery = true;
+  });
 }
 
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
@@ -776,7 +785,7 @@ DynamicList.prototype.showDetails = function (id) {
     }
   }
 
-  beforeShowDetails.then(function (data) {
+  return beforeShowDetails.then(function (data) {
     data = data || {};
     var template = Handlebars.compile(data.src || src);
     var wrapperTemplate = Handlebars.compile(wrapper);
@@ -812,6 +821,10 @@ DynamicList.prototype.showDetails = function (id) {
 }
 
 DynamicList.prototype.closeDetails = function() {
+  if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
+    return Fliplet.Navigate.back();
+  }
+
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
@@ -912,6 +925,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   var _this = this;
 
   $('body').removeClass('lock');
+  elementToCollapse = $([]).add(elementToCollapse);
 
   var directoryDetailImageWrapper = elementToCollapse.find('.small-h-card-list-detail-image-wrapper');
   var directoryDetailImage = elementToCollapse.find('.small-h-card-list-detail-image');
