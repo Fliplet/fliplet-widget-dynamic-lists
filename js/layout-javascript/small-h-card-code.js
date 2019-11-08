@@ -465,8 +465,9 @@ DynamicList.prototype.checkIsToOpen = function(options) {
     return;
   }
 
-  _this.openedEntryOnQuery = true;
-  _this.showDetails(entry.id);
+  _this.showDetails(entry.id).then(function () {
+    _this.openedEntryOnQuery = true;
+  });
 }
 
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
@@ -784,7 +785,7 @@ DynamicList.prototype.showDetails = function (id) {
     }
   }
 
-  beforeShowDetails.then(function (data) {
+  return beforeShowDetails.then(function (data) {
     data = data || {};
     var template = Handlebars.compile(data.src || src);
     var wrapperTemplate = Handlebars.compile(wrapper);
