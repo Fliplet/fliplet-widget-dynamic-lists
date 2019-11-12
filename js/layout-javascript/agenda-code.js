@@ -294,12 +294,11 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        var defaultDateIndex = _this.getDateIndex(_this.Utils.Date.moment());
         var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
         var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').next());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-        _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate);
+        _this.updateDateIndexContext(indexOfClickedDate);
 
         _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
@@ -309,12 +308,11 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        var defaultDateIndex = _this.getDateIndex(_this.Utils.Date.moment());
         var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
         var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').prev());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-        _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate);
+        _this.updateDateIndexContext(indexOfClickedDate);
 
         _this.moveBackDate(indexOfClickedDate, indexDifference);
         return;
@@ -327,12 +325,11 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      var defaultDateIndex = _this.getDateIndex(_this.Utils.Date.moment());
       var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
       var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(this);
-      var indexDifference = indexOfClickedDate - indexOfActiveDate
+      var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-      _this.updateNavigatorQuery(defaultDateIndex, indexOfClickedDate);
+      _this.updateDateIndexContext(indexOfClickedDate);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -518,7 +515,9 @@ DynamicList.prototype.scrollEvent = function() {
   });
 }
 
-DynamicList.prototype.updateNavigatorQuery = function(defaultDateIndex, indexOfClickedDate) {
+DynamicList.prototype.updateDateIndexContext = function(indexOfClickedDate) {
+  var defaultDateIndex = this.getDateIndex(this.Utils.Date.moment());
+
   if (defaultDateIndex === indexOfClickedDate) {
     Fliplet.Page.Context.remove('dateIndex');
   } else {
