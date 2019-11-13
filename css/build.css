@@ -112,3 +112,7 @@
 .dynamic-list-edit-item + .dynamic-list-delete-item {
   margin-left: 5px;
 }
+
+.close-icon {
+  width: 40%;
+}
