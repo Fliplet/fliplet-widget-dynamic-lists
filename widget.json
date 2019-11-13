@@ -89,7 +89,8 @@
       { "compile": false, "path": "js/layout-javascript/agenda-code.js" },
       { "compile": false, "path": "js/layout-javascript/small-h-card-code.js" },
       { "compile": false, "path": "js/layout-javascript/simple-list-code.js" },
-      { "compile": false, "path": "img/cross.svg"}
+      { "compile": false, "path": "img/cross.svg"},
+      { "compile": false, "path": "img/cross_white.svg"}
     ]
   },
   "references": [
