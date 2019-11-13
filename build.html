@@ -35,6 +35,10 @@
         'small-h-card': '{{{ asset "js/layout-javascript/small-h-card-code.js" }}}',
         'simple-list': '{{{ asset "js/layout-javascript/simple-list-code.js" }}}'
       };
+      var closeIcon = {
+        'url': '{{{ asset "img/cross.svg" }}}',
+        'path': "img/cross.svg"
+      };
     </script>
     <div data-script-insert="{{ id }}" class="hidden"></div>
     <script type="text/javascript">
@@ -49,6 +53,7 @@
           DynamicListFuncs[id] = DynamicList;
           DynamicList = null;
           var data = Fliplet.Widget.getData(id);
+          data.closeIcon = closeIcon;
           dynamicLists[id] = new DynamicListFuncs[id](id, data);
         };
         script.src = assetUrl['{{ layout }}'];
