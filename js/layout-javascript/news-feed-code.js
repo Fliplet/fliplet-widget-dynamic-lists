@@ -1055,7 +1055,9 @@ DynamicList.prototype.initialize = function() {
       // Render Loop HTML
       _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
-      _this.addFilters(_this.modifiedListItems);
+      return _this.addFilters(_this.modifiedListItems);
+    })
+    .then(function () {
       _this.parseFilterQueries();
       _this.parseSearchQueries();
     });
