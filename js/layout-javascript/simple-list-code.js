@@ -1942,13 +1942,16 @@ DynamicList.prototype.getEntryComments = function(options) {
         return instance.query({
           allowGrouping: true,
           where: {
-            content: content
+            content: content,
+            settings: {
+              text: { $regex: '[^\s]+' }
+            }
           }
         });
       })
       .then(function(entries) {
         var filteredEntries = _.filter(entries, function(entry) {
-          return entry.data.settings.text.trim();
+          return _.get(entry, 'data.settings.text', '').trim();
         });
         record.comments = filteredEntries;
         record.commentCount = filteredEntries.length;
