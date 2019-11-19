@@ -299,6 +299,8 @@ DynamicList.prototype.attachObservers = function() {
         var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').next());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
+        _this.updateDateIndexContext(indexOfClickedDate);
+
         _this.moveForwardDate(indexOfClickedDate, indexDifference);
         return;
       }
@@ -310,6 +312,8 @@ DynamicList.prototype.attachObservers = function() {
         var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
         var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').prev());
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
+
+        _this.updateDateIndexContext(indexOfClickedDate);
 
         _this.moveBackDate(indexOfClickedDate, indexDifference);
         return;
@@ -324,7 +328,9 @@ DynamicList.prototype.attachObservers = function() {
 
       var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
       var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(this);
-      var indexDifference = indexOfClickedDate - indexOfActiveDate
+      var indexDifference = indexOfClickedDate - indexOfActiveDate;
+
+      _this.updateDateIndexContext(indexOfClickedDate);
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -536,6 +542,18 @@ DynamicList.prototype.scrollEvent = function() {
      lastScrollTop = st;
   });
 }
+
+DynamicList.prototype.updateDateIndexContext = function(indexOfClickedDate) {
+  var defaultDateIndex = this.getDateIndex(this.Utils.Date.moment());
+
+  if (defaultDateIndex === indexOfClickedDate) {
+    Fliplet.Page.Context.remove('dateIndex');
+  } else {
+    Fliplet.Page.Context.update({
+      dateIndex: indexOfClickedDate
+    });
+  }
+};
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
@@ -1576,7 +1594,14 @@ DynamicList.prototype.getDateIndex = function (date) {
 };
 
 DynamicList.prototype.goToToday = function () {
-  this.goToDate(moment().format('YYYY-MM-DD'));
+  var dateIndex = parseInt(Fliplet.Navigate.query.dateIndex, 10);
+
+  if (dateIndex) {
+    this.sliderGoTo(dateIndex);
+    return;
+  }
+
+  this.goToDate(moment().format('YYYY-MM-DD'), false);
 };
 
 DynamicList.prototype.goToDate = function (date) {
