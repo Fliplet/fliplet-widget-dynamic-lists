@@ -2393,10 +2393,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
       return instance.update({
         settings: commentData.data.settings
       }, {
-        id: commentId,
-        where: {
-          content: content
-        }
+        id: commentId
       });
     })
     .then(function() {
