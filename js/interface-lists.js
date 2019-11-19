@@ -1,7 +1,9 @@
 var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
+var page = Fliplet.Widget.getPage();
 var dynamicLists;
 
+var omitPages = page ? [page.id] : [];
 var addEntryLinkAction;
 var editEntryLinkAction;
 var linkAddEntryProvider;
@@ -13,6 +15,7 @@ var selectedFieldId = [];
 var addEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
+  omitPages: omitPages,
   transition: 'fade',
   options: {
     hideAction: true
@@ -21,6 +24,7 @@ var addEntryLinkData = $.extend(true, {
 var editEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
+  omitPages: omitPages,
   transition: 'fade',
   options: {
     hideAction: true
@@ -435,7 +439,7 @@ function attahObservers() {
             $('.component-error').addClass('hidden');
           }
         }
-        
+
         var imageFolderSelected = validateImageFoldersSelection();
 
         if (imageFolderSelected) {
