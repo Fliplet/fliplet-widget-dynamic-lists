@@ -341,6 +341,14 @@ window.flListLayoutConfig = {
         column: 'Category'
       }
     ],
-    'showSummaryFieldsInDetailView': true
+    'showSummaryFieldsInDetailView': true,
+    'detail-fields': [
+      {
+        id: 'wWkqeYGN',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      }
+    ]
   }
 }
