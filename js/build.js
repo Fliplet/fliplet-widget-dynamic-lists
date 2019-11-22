@@ -17,6 +17,7 @@ $('[data-dynamic-lists-id]').each(function(){
       if ($(descriptionSelector).length) {
         clearInterval(awaitForDom);
         var descriptions = document.querySelectorAll(descriptionSelector);
+
         for (var i = 0; i < descriptions.length; i++) {
           $clamp(descriptions[i], {clamp: showLines});
         }
