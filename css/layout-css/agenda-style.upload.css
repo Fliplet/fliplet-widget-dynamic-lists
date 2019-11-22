@@ -436,6 +436,10 @@
   line-height: 1;
 }
 
+.new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-content-holder {
+  width: calc(100% - 60px);
+}
+
 .new-agenda-list-container .slide-over .agenda-item-inner-content h2.agenda-item-title,
 .agenda-detail-overlay .agenda-item-inner-content h2.agenda-item-title {
   position: relative;
