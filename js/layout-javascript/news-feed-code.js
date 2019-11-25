@@ -1988,11 +1988,14 @@ DynamicList.prototype.getEntryComments = function(options) {
         return instance.query({
           allowGrouping: true,
           where: {
-            content: content
+            content: content,
+            settings: {
+              text: { $regex: '[^\s]+' }
+            }
           }
         });
       })
-      .then(function(entries){
+      .then(function(entries) {
         record.comments = entries;
         record.commentCount = entries.length;
       });
