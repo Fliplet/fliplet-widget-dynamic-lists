@@ -1950,11 +1950,8 @@ DynamicList.prototype.getEntryComments = function(options) {
         });
       })
       .then(function(entries) {
-        var filteredEntries = _.filter(entries, function(entry) {
-          return _.get(entry, 'data.settings.text', '').trim();
-        });
-        record.comments = filteredEntries;
-        record.commentCount = filteredEntries.length;
+        record.comments = entries;
+        record.commentCount = entries.length;
       });
   }
 
