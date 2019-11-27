@@ -1479,6 +1479,16 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         requestAnimationFrame(render);
       } else {
         _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+
+        _this.$container.find('[data-line-clamp]').each(function() {
+          var lineClamp = $(this).data('line-clamp');
+          var showLines =  Modernizr.ie11
+            ? lineClamp + 1 
+            : lineClamp;
+
+          $clamp(this, { clamp: showLines });
+        });
+
         Fliplet.Hooks.run('flListDataAfterRenderList', {
           records: data,
           config: _this.data
