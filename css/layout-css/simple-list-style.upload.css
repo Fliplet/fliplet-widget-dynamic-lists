@@ -548,6 +548,12 @@
   background-repeat: no-repeat;
 }
 
+.simple-list-item .list-item-title,	
+.simple-list-item .list-item-description,	
+.simple-list-item .list-item-subtitle {	
+max-height: 4.4em;
+}
+
 .simple-list-item .list-item-title {
   font-size: 18px;
 }
