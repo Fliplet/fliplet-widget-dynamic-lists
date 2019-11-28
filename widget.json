@@ -73,7 +73,6 @@
       "vendor/mixitup-multifilter.min.js",
       "vendor/autosize.js",
       "vendor/unorm.js",
-      "vendor/clamp.js",
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",
