@@ -287,6 +287,20 @@ function attahObservers() {
           });
           break;
       }
+    })
+    .on('change', '[name="detail_field_type"]', function() {
+      var $element = $(this);
+      var fieldName = $element.val();
+      var fieldId = parseInt($element.parents('.rTableRow.clearfix').data('id'), 10);
+      var fieldIdInSelectedFields = selectedFieldId.indexOf(fieldId) !== -1;
+
+      if (fieldName !== 'image' && fieldIdInSelectedFields) {
+        selectedFieldId = _.filter(selectedFieldId, function(item) {
+          return item !== fieldId;
+        });
+      } else if ($('#detail_image_field_type_' + fieldId).val() === 'all-folders') {
+        selectedFieldId.push(fieldId);
+      }
     });
 
   $('[data-toggle="tooltip"]').tooltip();
