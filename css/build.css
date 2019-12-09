@@ -121,6 +121,7 @@
   This part of the code needed for support .fa-times-thin class in users who manage to update the LFD component
   before we changed the UNICODE icon for the SVG icon.
 */
+
 .fa-times-thin {
   padding-top: 2px;
   padding-bottom: 4px;
