@@ -527,9 +527,9 @@ var DynamicLists = (function() {
         .on('click', '.rTableCell.delete', function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
-
-          selectedFieldId = _.filter(selectedFieldId, function(item) {
-            return item !== fieldId;
+          
+          _.remove(selectedFieldId, function(item) {
+            return item === fieldId;
           });
 
           _.remove(_this.config.detailViewOptions, function(option) {
