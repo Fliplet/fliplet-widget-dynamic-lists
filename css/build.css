@@ -118,8 +118,8 @@
 }
 
 /*
-  This part of the code needed for support .fa-times-thin class in users who manage to update the LFD component
-  before we changed the UNICODE icon for the SVG icon.
+  This part of the code is needed for supporting .fa-times-thin class in users who updated
+  to use UNICODE icons instead of SVG icons.
 */
 
 .fa-times-thin {
