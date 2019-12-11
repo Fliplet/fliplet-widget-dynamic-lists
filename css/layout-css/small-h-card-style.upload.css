@@ -23,7 +23,6 @@
 .new-small-h-card-list-container .small-h-card-list-wrapper {
   width: 100%;
   min-height: 156px;
-  margin: 15px 0 40px 0;
   display: none;
   flex-wrap: nowrap;
   overflow-x: auto;
