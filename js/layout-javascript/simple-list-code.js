@@ -1205,6 +1205,9 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         requestAnimationFrame(render);
       } else{
         _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+        ellipsizeTextBox('.list-item-title', 3);
+        ellipsizeTextBox('.list-item-description', 3);
+        ellipsizeTextBox('.list-item-subtitle', 3);
         Fliplet.Hooks.run('flListDataAfterRenderList', {
           records: data,
           config: _this.data

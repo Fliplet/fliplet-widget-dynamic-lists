@@ -1479,6 +1479,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         requestAnimationFrame(render);
       } else {
         _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
+        ellipsizeTextBox('.news-feed-item-description', 3);
         Fliplet.Hooks.run('flListDataAfterRenderList', {
           records: data,
           config: _this.data
