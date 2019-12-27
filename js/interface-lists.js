@@ -346,8 +346,7 @@ function attahObservers() {
           if (errors && errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+              toggleError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -358,8 +357,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
+            toggleError(false);
           }
         }
 
@@ -394,8 +392,7 @@ function attahObservers() {
           if (errors && errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+              toggleError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -406,8 +403,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
+            toggleError(false);
           }
         }
 
@@ -437,8 +433,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+              toggleError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -449,8 +444,7 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
+            toggleError(false)
           }
         }
 
