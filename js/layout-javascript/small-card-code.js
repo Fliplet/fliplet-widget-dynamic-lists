@@ -1744,7 +1744,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
 
   var collapseTarget = elementToCollapse.parent();
 
-  if (!collapseTarget || !collapseTarget.offset()) {
+  if (!collapseTarget.length) {
     return;
   }
 
