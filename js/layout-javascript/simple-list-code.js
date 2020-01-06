@@ -1208,17 +1208,17 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
 
         // SuperClamp works only when elemet has a fixed max-height or height
         // To do so we need to take computed line-height and multiple it on data-line-clamp value
-        _this.setClampHeight('[data-line-clamp]')
-        .then(function(elements) {
-          Superclamp.register(elements);
-          return Promise.resolve(elements);
-        })
-        .then(function(elements) {
-          _this.removeClampHeight(elements);
-        })
-        .catch(function(selector) {
-          console.error('Fail to clamp line in the selector ' + selector);
-        });
+        setClampHeight('[data-line-clamp]')
+          .then(function (elements) {
+            Superclamp.register(elements);
+            return Promise.resolve(elements);
+          })
+          .then(function (elements) {
+            removeClampHeight(elements);
+          })
+          .catch(function (selector) {
+            console.error('Fail to clamp line in the selector ' + selector);
+          });
         Fliplet.Hooks.run('flListDataAfterRenderList', {
           records: data,
           config: _this.data
@@ -1229,37 +1229,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
     // start the initial render
     requestAnimationFrame(render);
   });
-}
-
-DynamicList.prototype.setClampHeight = function(selector) {
-  return new Promise(function (resolve, reject) {
-    var elements = document.querySelectorAll(selector);
-    
-    if (!elements.length) {
-      reject(selector);
-    }
-
-    for (var i = 0; i < elements.length; i++) {
-      var element = elements[i];
-      var lineHeightValue = window.getComputedStyle(element).getPropertyValue('line-height').match(/[a-zA-Z]+|[0-9]+(?:\.[0-9]+|)/g);
-      var lineHeightMeasure  = lineHeightValue[1];
-      var elementHeight = parseFloat(lineHeightValue[0]);
-      var clampLines = element.dataset.lineClamp;
-      var elementHeight = elementHeight * clampLines;
-
-      element.style.height = elementHeight + lineHeightMeasure;
-    }
- 
-    resolve(elements);
-  });
-}
-
-DynamicList.prototype.removeClampHeight = function(elements) {
-  for (var i = 0; i < elements.length; i++) {
-    var element = elements[i];
-
-    element.removeAttribute("style");
-  }
 }
 
 DynamicList.prototype.getAddPermission = function(data) {
