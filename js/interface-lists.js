@@ -391,14 +391,17 @@ function attahObservers() {
 
           if (errors.length) {
             var $componentError = $('.component-error');
+
             $componentError.removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
               toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $componentError.addClass('hidden').removeClass('bounceInUp');
             }, 4000);
