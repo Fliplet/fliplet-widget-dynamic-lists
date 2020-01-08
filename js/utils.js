@@ -17,6 +17,39 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   };
   var computedFieldClashes = [];
 
+  function setClampHeight (selector) {
+    return new Promise(function (resolve, reject) {
+      var elements = document.querySelectorAll(selector);
+      
+      if (!elements.length) {
+        reject(selector);
+      }
+
+      for (var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        var lineHeightValue = window.getComputedStyle(element)
+          .getPropertyValue('line-height').match(/[a-zA-Z]+|[0-9]+(?:\.[0-9]+|)/g);
+        var lineHeightMeasure  = lineHeightValue[1];
+        var elementHeight = parseFloat(lineHeightValue[0]);
+        var clampLines = element.dataset.lineClamp;
+        var elementHeight = elementHeight * clampLines;
+
+        element.style.height = elementHeight + lineHeightMeasure;
+      }
+
+      resolve(elements);
+    });
+  }
+
+  // To avoid large distance between block we remove height at the element
+  function removeClampHeight (elements) {
+    for (var i = 0; i < elements.length; i++) {
+      var element = elements[i];
+
+      element.removeAttribute("style");
+    }
+  }
+
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)
@@ -1245,7 +1278,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     },
     Page: {
       updateSearchContext: updateSearchContext,
-      updateFilterControlsContext: updateFilterControlsContext
+      updateFilterControlsContext: updateFilterControlsContext,
+      setClampHeight: setClampHeight,
+      removeClampHeight: removeClampHeight
     },
     String: {
       splitByCommas: splitByCommas,

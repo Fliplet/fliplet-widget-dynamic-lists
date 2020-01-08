@@ -1482,13 +1482,13 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
 
         // SuperClamp works only when elemet has a fixed max-height or height
         // To do so we need to take computed line-height and multiple it on data-line-clamp value
-        setClampHeight('[data-line-clamp]')
+        _this.Utils.Page.setClampHeight('[data-line-clamp]')
           .then(function (elements) {
             Superclamp.register(elements);
             return Promise.resolve(elements);
           })
           .then(function (elements) {
-            removeClampHeight(elements);
+            _this.Utils.Page.removeClampHeight(elements);
           })
           .catch(function (selector) {
             console.error('Fail to clamp line in the selector ' + selector);
