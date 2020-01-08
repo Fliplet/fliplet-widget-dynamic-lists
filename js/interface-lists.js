@@ -361,6 +361,56 @@ function attahObservers() {
           }
         }
 
+        if ((widgetData.editEntry && widgetData.editPermissions === 'users-admins')
+          || (widgetData.deleteEntry && widgetData.deletePermissions === 'everyone')) {
+          var errors = [];
+          var values = [
+            {
+              value: widgetData.userDataSourceId,
+              field: '#select_user_datasource'
+            },
+            {
+              value: widgetData.userEmailColumn,
+              field: '#select_user_email'
+            },
+            {
+              value: widgetData.userAdminColumn,
+              field: '#select_user_admin'
+            },
+            {
+              value: widgetData.userListEmailColumn,
+              field: '#select_user_email_data'
+            }
+          ];
+
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors.length) {
+            var $componentError = $('.component-error');
+
+            $componentError.removeClass('hidden').addClass('bounceInUp');
+            errors.forEach(function(field) {
+              toggleError(true, field);
+            });
+
+            if (!linkAddEntryProvider || !linkEditEntryProvider) {
+              withError = true;
+              linkProviderInit();
+            }
+
+            setTimeout(function() {
+              $componentError.addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+            return;
+          } else {
+            toggleError(false);
+          }
+        }
+        
         if ((widgetData.editEntry && widgetData.editPermissions === 'user')
           || (widgetData.deleteEntry && widgetData.deletePermissions === 'user')) {
           var errors = [];
