@@ -1743,6 +1743,11 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   }
 
   var collapseTarget = elementToCollapse.parent();
+
+  if (!collapseTarget.length) {
+    return;
+  }
+
   var elementScrollTop = $(window).scrollTop();
   var targetCollpsePlaceholderTop = collapseTarget.offset().top - elementScrollTop;
   var targetCollpsePlaceholderLeft = collapseTarget.offset().left;
