@@ -17,7 +17,23 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   };
   var computedFieldClashes = [];
 
+  function setLineClamps () {
+    setClampHeight()
+      .then(function (elements) {
+        Superclamp.register(elements);
+        return Promise.resolve(elements);
+      })
+      .then(function (elements) {
+        removeClampHeight(elements);
+      })
+      .catch(function (selector) {
+        console.error('Fail to clamp line in the selector ' + selector);
+      });
+  }
+
   function setClampHeight (selector) {
+    selector = selector || '[data-line-clamp]';
+
     return new Promise(function (resolve, reject) {
       var elements = document.querySelectorAll(selector);
       
@@ -1279,8 +1295,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Page: {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
-      setClampHeight: setClampHeight,
-      removeClampHeight: removeClampHeight
+      setLineClamps: setLineClamps,
     },
     String: {
       splitByCommas: splitByCommas,
