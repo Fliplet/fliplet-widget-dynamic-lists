@@ -790,7 +790,7 @@ var DynamicLists = (function() {
               $('.filter-loop-item, .detail-view-item, .items-number').removeClass('hidden');
               break;
             case 'agenda':
-              $('.date-loop-item, .detail-view-item').removeClass('hidden');
+              $('.filter-loop-item, .date-loop-item, .detail-view-item').removeClass('hidden');
               break;
             case 'small-h-card':
               $('.detail-view-item').removeClass('hidden');
@@ -1082,6 +1082,7 @@ var DynamicLists = (function() {
               $('.detail-view-item').removeClass('hidden');
               break;
             case 'agenda':
+              $('.filter-loop-item').removeClass('hidden');
               $('.date-loop-item').removeClass('hidden');
               $('.detail-view-item').removeClass('hidden');
               break;
