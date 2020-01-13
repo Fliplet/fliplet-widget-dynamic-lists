@@ -21,9 +21,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     setClampHeight()
       .then(function (elements) {
         Superclamp.register(elements);
-        return Promise.resolve(elements);
-      })
-      .then(function (elements) {
         removeClampHeight(elements);
       })
       .catch(function (selector) {
@@ -35,14 +32,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     selector = selector || '[data-line-clamp]';
 
     return new Promise(function (resolve, reject) {
-      var elements = document.querySelectorAll(selector);
+      var $elements = $(selector);
       
-      if (!elements.length) {
+      if (!$elements.length) {
         reject(selector);
       }
 
-      for (var i = 0; i < elements.length; i++) {
-        var element = elements[i];
+      $elements.each(function () {
+        var element = this;
         var lineHeightValue = window.getComputedStyle(element)
           .getPropertyValue('line-height').match(/[a-zA-Z]+|[0-9]+(?:\.[0-9]+|)/g);
         var lineHeightMeasure  = lineHeightValue[1];
@@ -50,20 +47,18 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         var clampLines = element.dataset.lineClamp;
         var elementHeight = elementHeight * clampLines;
 
-        element.style.height = elementHeight + lineHeightMeasure;
-      }
+        $(element).css('height', elementHeight + lineHeightMeasure );
+      });
 
-      resolve(elements);
+      resolve($elements);
     });
   }
 
   // To avoid large distance between block we remove height at the element
-  function removeClampHeight (elements) {
-    for (var i = 0; i < elements.length; i++) {
-      var element = elements[i];
-
-      element.removeAttribute("style");
-    }
+  function removeClampHeight ($elements) {
+    $elements.each(function() {
+      $(this).css('height', 'auto');
+    });
   }
 
   function isValidImageUrl(str) {
