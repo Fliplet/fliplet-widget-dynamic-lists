@@ -299,6 +299,7 @@
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
+  position: relative;
 }
 
 .hidden-filter-controls-content {
