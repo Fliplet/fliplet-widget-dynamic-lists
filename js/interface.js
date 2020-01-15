@@ -527,7 +527,7 @@ var DynamicLists = (function() {
         .on('click', '.rTableCell.delete', function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
-          
+
           _.remove(selectedFieldId, function(item) {
             return item === fieldId;
           });
@@ -1271,7 +1271,7 @@ var DynamicLists = (function() {
           cache: false
         }).then(function (dataSource) {
           newDataSource = dataSource;
-          dataSourceColumns = dataSource.columns;
+          dataSourceColumns = _.compact(dataSource.columns);
           _this.updateFieldsWithColumns(dataSourceColumns);
           return;
         });
