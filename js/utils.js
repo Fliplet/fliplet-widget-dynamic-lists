@@ -36,6 +36,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       
       if (!$elements.length) {
         reject(selector);
+        return;
       }
 
       $elements.each(function () {
@@ -57,7 +58,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   // To avoid large distance between block we remove height at the element
   function removeClampHeight ($elements) {
     $elements.each(function() {
-      $(this).css('height', 'auto');
+      $(this).css('height', '');
     });
   }
 
