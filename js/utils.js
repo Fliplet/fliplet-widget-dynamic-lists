@@ -17,8 +17,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   };
   var computedFieldClashes = [];
 
-  function setLineClamps () {
-    setClampHeight()
+  function setLineClamps (selector) {
+    return setClampHeight(selector)
       .then(function (elements) {
         Superclamp.register(elements);
         removeClampHeight(elements);
@@ -1290,7 +1290,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Page: {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
-      setLineClamps: setLineClamps,
+      setLineClamps: setLineClamps
     },
     String: {
       splitByCommas: splitByCommas,
