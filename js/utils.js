@@ -792,10 +792,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             return;
           }
 
-          var lastDotInNameIndex = file.name.lastIndexOf('.');
-          var nameWithoutExt = file.name.substring(0, lastDotInNameIndex);
+          // remove file extension 
+          var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
 
-          if (entryData[column] && (file.name === entryData[column] || nameWithoutExt === entryData[column])) {
+          if (entryData[column] && (file.name === entryData[column] || fileName === entryData[column])) {
             // File found
             entryData[column] = file.url;
             return true;
