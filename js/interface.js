@@ -82,10 +82,9 @@ var DynamicLists = (function() {
       social: {},
       advancedSettings: {}
     }, configuration);
-    _this.widgetId = configuration.id;
 
+    _this.widgetId = configuration.id;
     _this.isLoaded = false;
-    $('.layouts-flex').html(layoutsTemplate(listLayouts));
 
     _this.attachListeners();
     _this.init();
@@ -527,7 +526,7 @@ var DynamicLists = (function() {
         .on('click', '.rTableCell.delete', function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
-          
+
           _.remove(selectedFieldId, function(item) {
             return item === fieldId;
           });
@@ -655,8 +654,18 @@ var DynamicLists = (function() {
 
       return value;
     },
+    setupLayoutSelector: function () {
+      if (_this.config.layout) {
+        return;
+      }
+
+      $('.layouts-flex').html(layoutsTemplate(listLayouts));
+      Fliplet.Studio.emit('widget-mode', 'wide');
+      $('.state').removeClass('loading is-loading');
+    },
     init: function() {
-      _this.getDataSources()
+      _this.setupLayoutSelector();
+      return _this.getDataSources()
         .then(function() {
           return _this.setupCodeEditors();
         })
@@ -671,11 +680,7 @@ var DynamicLists = (function() {
     },
     loadData: function() {
       if (!_this.config.layout) {
-        return new Promise(function(resolve) {
-          Fliplet.Studio.emit('widget-mode', 'wide');
-          $('.state').removeClass('loading is-loading');
-          resolve();
-        });
+        return Promise.resolve();
       } else {
         if (_this.config['style-specific'].length) {
           _.forEach(_this.config['style-specific'], function(item) {
@@ -741,6 +746,7 @@ var DynamicLists = (function() {
 
         // Load
         var loadingPromise;
+
         if (!_this.config.dataSourceId) {
           loadingPromise = new Promise(function(resolve, reject) {
             _this.updateFieldsWithColumns(_this.config.defaultColumns);
