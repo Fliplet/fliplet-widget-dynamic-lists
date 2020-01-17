@@ -17,6 +17,51 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   };
   var computedFieldClashes = [];
 
+  function setLineClamps (selector) {
+    return setClampHeight(selector)
+      .then(function (elements) {
+        Superclamp.register(elements);
+        removeClampHeight(elements);
+      })
+      .catch(function (selector) {
+        console.error('Fail to clamp line in the selector ' + selector);
+      });
+  }
+
+  function setClampHeight (selector) {
+    selector = selector || '[data-line-clamp]';
+
+    return new Promise(function (resolve, reject) {
+      var $elements = $(selector);
+      
+      if (!$elements.length) {
+        reject(selector);
+        return;
+      }
+
+      $elements.each(function () {
+        var element = this;
+        var lineHeightValue = window.getComputedStyle(element)
+          .getPropertyValue('line-height').match(/[a-zA-Z]+|[0-9]+(?:\.[0-9]+|)/g);
+        var lineHeightMeasure  = lineHeightValue[1];
+        var elementHeight = parseFloat(lineHeightValue[0]);
+        var clampLines = element.dataset.lineClamp;
+        var elementHeight = elementHeight * clampLines;
+
+        $(element).css('height', elementHeight + lineHeightMeasure );
+      });
+
+      resolve($elements);
+    });
+  }
+
+  // To avoid large distance between block we remove height at the element
+  function removeClampHeight ($elements) {
+    $elements.each(function() {
+      $(this).css('height', '');
+    });
+  }
+
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)
@@ -1245,7 +1290,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     },
     Page: {
       updateSearchContext: updateSearchContext,
-      updateFilterControlsContext: updateFilterControlsContext
+      updateFilterControlsContext: updateFilterControlsContext,
+      setLineClamps: setLineClamps
     },
     String: {
       splitByCommas: splitByCommas,
