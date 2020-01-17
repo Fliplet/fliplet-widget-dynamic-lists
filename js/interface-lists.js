@@ -362,7 +362,7 @@ function attahObservers() {
         }
 
         if ((widgetData.editEntry && widgetData.editPermissions === 'users-admins')
-          || (widgetData.deleteEntry && widgetData.deletePermissions === 'everyone')) {
+          || (widgetData.deleteEntry && widgetData.deletePermissions === 'users-admins')) {
           var errors = [];
           var values = [
             {
