@@ -837,7 +837,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             return;
           }
 
-          if (entryData[column] && file.name.indexOf(entryData[column]) !== -1) {
+          // remove file extension 
+          var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
+
+          if (entryData[column] && (file.name === entryData[column] || fileName === entryData[column])) {
             // File found
             entryData[column] = file.url;
             return true;
