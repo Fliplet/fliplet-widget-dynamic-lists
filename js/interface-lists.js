@@ -374,7 +374,8 @@ function attahObservers() {
         }
 
         if (widgetData.editEntry) {
-          selectedPermissions.push('editPermissions');}
+          selectedPermissions.push('editPermissions');
+        }
 
         if (widgetData.deleteEntry) {
           selectedPermissions.push('deletePermissions');
