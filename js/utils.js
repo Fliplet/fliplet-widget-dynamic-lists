@@ -33,7 +33,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     return new Promise(function (resolve, reject) {
       var $elements = $(selector);
-      
+
       if (!$elements.length) {
         reject(selector);
         return;
@@ -837,7 +837,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             return;
           }
 
-          // remove file extension 
+          // remove file extension
           var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
 
           if (entryData[column] && (file.name === entryData[column] || fileName === entryData[column])) {
@@ -1269,6 +1269,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     var value = entry.data[options.summaryLinkAction.column];
+    var query = entry.data[options.summaryLinkAction.queryColumn];
 
     if (Array.isArray(value)) {
       value = _.first(value);
@@ -1282,7 +1283,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       value = Fliplet.Media.authenticate(value);
       Fliplet.Navigate.url(value);
     } else {
-      Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
+      var opt = { transition: 'fade' };
+
+      if (query) {
+        opt.query = query;
+      }
+
+      Fliplet.Navigate.screen(parseInt(value, 10), opt);
     }
   }
 
