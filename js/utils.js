@@ -61,7 +61,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       var $element = $(this);
 
       $element.css('height', '');
-      $element.removeClass('clamp');
+      $element.removeAttr('data-line-clamp');
     });
   }
 
