@@ -23,6 +23,7 @@ window.flLayoutMapping = {
     'name': 'Agenda',
     'base': 'templates.build.agenda-base',
     'loop': 'templates.build.agenda-cards-loop',
+    'search-results': 'templates.build.agenda-cards-search-results',
     'detail': 'templates.build.agenda-cards-detail',
     'filter': 'templates.build.agenda-filters',
     'other-loop': 'templates.build.agenda-dates-loop',

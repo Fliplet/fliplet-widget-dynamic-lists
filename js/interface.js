@@ -32,6 +32,7 @@ var DynamicLists = (function() {
 
   var baseTemplateEditor;
   var loopTemplateEditor;
+  var searchResultsTemplateEditor;
   var detailTemplateEditor;
   var filterLoopTemplateEditor;
   var otherLoopTemplateEditor;
@@ -40,6 +41,7 @@ var DynamicLists = (function() {
 
   var baseTemplateCode = '';
   var loopTemplateCode = '';
+  var searchResultsTemplateCode = '';
   var detailTemplateCode = '';
   var filterLoopTemplateCode = '';
   var otherLoopTemplateCode = '';
@@ -790,7 +792,7 @@ var DynamicLists = (function() {
               $('.filter-loop-item, .detail-view-item, .items-number').removeClass('hidden');
               break;
             case 'agenda':
-              $('.filter-loop-item, .date-loop-item, .detail-view-item').removeClass('hidden');
+              $('.filter-loop-item, .date-loop-item, .detail-view-item, .search-results-item').removeClass('hidden');
               break;
             case 'small-h-card':
               $('.detail-view-item').removeClass('hidden');
@@ -1847,10 +1849,24 @@ var DynamicLists = (function() {
           )
         }
 
+        if (searchResultsTemplateEditor) {
+          var totalLinesSearchResultsTemplateEditor = searchResultsTemplateEditor.lineCount()
+          var totalCharsSearchResultsTemplateEditor = searchResultsTemplateEditor.getTextArea().value.length
+          searchResultsTemplateEditor.autoFormatRange(
+            { line: 0, ch: 0 },
+            { line: totalLinesSearchResultsTemplateEditor, ch: totalCharsSearchResultsTemplateEditor }
+          )
+          // Remove selection
+          searchResultsTemplateEditor.setSelection(
+            { line: 0, ch: 0 },
+            { line: 0, ch: 0 }
+          )
+        }
+
         if (detailTemplateEditor) {
           var totalLinesDetailTemplateEditor = detailTemplateEditor.lineCount()
           var totalCharsDetailTemplateEditor = detailTemplateEditor.getTextArea().value.length
-          otherLoopTemplateEditor.autoFormatRange(
+          detailTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesDetailTemplateEditor, ch: totalCharsDetailTemplateEditor }
           )
@@ -1864,7 +1880,7 @@ var DynamicLists = (function() {
         if (filterLoopTemplateEditor) {
           var totalLinesFilterLoopTemplateEditor = filterLoopTemplateEditor.lineCount()
           var totalCharsFilterLoopTemplateEditor = filterLoopTemplateEditor.getTextArea().value.length
-          otherLoopTemplateEditor.autoFormatRange(
+          filterLoopTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesFilterLoopTemplateEditor, ch: totalCharsFilterLoopTemplateEditor }
           )
@@ -1960,9 +1976,11 @@ var DynamicLists = (function() {
     getCodeEditorData: function(selectedLayout, fromReset) {
       var basePromise = new Promise(function(resolve) {
         var baseTemplateCompiler;
+
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].base) {
           baseTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].base];
         }
+
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.baseHTML !== 'undefined') {
           baseTemplateCode = !fromReset ? _this.config.advancedSettings.baseHTML : baseTemplateEditor.getValue();
         } else if (typeof baseTemplateCompiler !== 'undefined') {
@@ -1976,9 +1994,11 @@ var DynamicLists = (function() {
 
       var loopPromise = new Promise(function(resolve) {
         var loopTemplateCompiler;
+
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].loop) {
           loopTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].loop];
         }
+
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.loopHTML !== 'undefined') {
           loopTemplateCode = !fromReset ? _this.config.advancedSettings.loopHTML : loopTemplateEditor.getValue();
         } else if (typeof loopTemplateCompiler !== 'undefined') {
@@ -1990,11 +2010,31 @@ var DynamicLists = (function() {
         resolve();
       });
 
+      var searchResultsPromise = new Promise(function(resolve) {
+        var searchResultsTemplateCompiler;
+
+        if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout]['search-results']) {
+          searchResultsTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout]['search-results']];
+        }
+
+        if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.searchResultsHTML !== 'undefined') {
+          searchResultsTemplateCode = !fromReset ? _this.config.advancedSettings.searchResultsHTML : searchResultsTemplateEditor.getValue();
+        } else if (typeof searchResultsTemplateCompiler !== 'undefined') {
+          searchResultsTemplateCode = searchResultsTemplateCompiler();
+        } else {
+          searchResultsTemplateCode = '';
+        }
+
+        resolve();
+      });
+
       var detailPromise = new Promise(function(resolve) {
         var detailTemplateCompiler;
+
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].detail) {
           detailTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].detail];
         }
+
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.detailHTML !== 'undefined') {
           detailTemplateCode = !fromReset ? _this.config.advancedSettings.detailHTML : detailTemplateEditor.getValue();
         } else if (typeof detailTemplateCompiler !== 'undefined') {
@@ -2008,9 +2048,11 @@ var DynamicLists = (function() {
 
       var filterLoopPromise = new Promise(function(resolve) {
         var filterLoopTemplateCompiler;
+
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].filter) {
           filterLoopTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout].filter];
         }
+
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.filterHTML !== 'undefined') {
           filterLoopTemplateCode = !fromReset ? _this.config.advancedSettings.filterHTML : filterLoopTemplateEditor.getValue();
         } else if (typeof filterLoopTemplateCompiler !== 'undefined') {
@@ -2024,9 +2066,11 @@ var DynamicLists = (function() {
 
       var otherLoopPromise = new Promise(function(resolve) {
         var otherLoopTemplateCompiler;
+
         if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout]['other-loop']) {
           otherLoopTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout]['other-loop']];
         }
+
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.otherLoopHTML !== 'undefined') {
           otherLoopTemplateCode = !fromReset ? _this.config.advancedSettings.otherLoopHTML : otherLoopTemplateEditor.getValue();
         } else if (typeof otherLoopTemplateCompiler !== 'undefined') {
@@ -2065,6 +2109,8 @@ var DynamicLists = (function() {
       var baseTemplateType = $(baseTemplate).data('type');
       var loopTemplate = document.getElementById('loop-template');
       var loopTemplateType = $(loopTemplate).data('type');
+      var searchResultsTemplate = document.getElementById('search-results-template');
+      var searchResultsTemplateType = $(searchResultsTemplate).data('type');
       var detailTemplate = document.getElementById('detail-view-template');
       var detailTemplateType = $(detailTemplate).data('type');
       var filterLoopTemplate = document.getElementById('filter-loop-template');
@@ -2103,6 +2149,21 @@ var DynamicLists = (function() {
           }
 
           if (loopTemplateEditor) {
+            resolve();
+          }
+        });
+
+        var searchResultsTemplatePromise = new Promise(function(resolve) {
+          if (searchResultsTemplateEditor) {
+            searchResultsTemplateEditor.getDoc().setValue(searchResultsTemplateCode);
+          } else if (searchResultsTemplate) {
+            searchResultsTemplateEditor = CodeMirror.fromTextArea(
+              searchResultsTemplate,
+              _this.codeMirrorConfig(searchResultsTemplateType)
+            );
+          }
+
+          if (searchResultsTemplateEditor) {
             resolve();
           }
         });
@@ -2182,7 +2243,7 @@ var DynamicLists = (function() {
           }
         });
 
-        return Promise.all([baseTemplatePromise, loopTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
+        return Promise.all([baseTemplatePromise, loopTemplatePromise, searchResultsTemplatePromise, detailTemplatePromise, filterLoopTemplatePromise, otherLoopTemplatePromise, cssStylePromise, javascriptPromise])
           .then(function() {
             _this.resizeCodeEditors();
           });
@@ -2235,6 +2296,8 @@ var DynamicLists = (function() {
               _this.config.advancedSettings.detailHTML = undefined;
               break;
             case 'agenda':
+              _this.config.advancedSettings.searchResultsHTML = undefined;
+              _this.config.advancedSettings.filterHTML = undefined;
               _this.config.advancedSettings.otherLoopHTML = undefined;
               _this.config.advancedSettings.detailHTML = undefined;
               break;
@@ -2396,6 +2459,8 @@ var DynamicLists = (function() {
             data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             break;
           case 'agenda':
+            data.advancedSettings.searchResultsHTML = searchResultsTemplateEditor.getValue();
+            data.advancedSettings.filterHTML = filterLoopTemplateEditor.getValue();
             data.advancedSettings.otherLoopHTML = otherLoopTemplateEditor.getValue();
             data.advancedSettings.detailHTML = detailTemplateEditor.getValue();
             break;

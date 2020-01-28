@@ -1,4 +1,35 @@
-<div class="new-agenda-list-container loading \{{#ifCond social '&&' social.bookmark}}has-agenda-toggle\{{/ifCond}}">
+<div class="new-agenda-list-container loading\{{#ifCond social '&&' social.bookmark}} has-agenda-toggle\{{/ifCond}}\{{#ifCond searchEnabled '||' filtersEnabled}} has-top-bar\{{/ifCond}}">
+  <!-- Filter Overlay -->
+  \{{#if filtersInOverlay}}
+  <div class="agenda-search-filter-overlay">
+    <div class="agenda-overlay-screen"></div>
+    <div class="agenda-overlay-wrapper">
+      <div class="agenda-overlay-header">
+        <div class="agenda-overlay-close">
+          <i class="fa fa-angle-left"></i>
+        </div>
+        <div class="filter-header-holder">
+          <div class="filter-header-btn-controls">
+            <div class="btn clear-filters hidden">Clear</div>
+            <div class="btn apply-filters">Apply</div>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-overlay-content">
+        <div class="hidden-filter-controls">
+          <div class="hidden-filter-controls-content">
+            <div class="filters-header">Filter by</div>
+            <div class="filter-holder">
+              <!-- Filters here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  \{{/if}}
+  <!-- End of Filter Overlay -->
+
   \{{#ifCond social '&&' social.bookmark}}
   <div class="agenda-list-controls">
     <div class="toggle-agenda" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
@@ -8,6 +39,59 @@
     </div>
   </div>
   \{{/ifCond}}
+
+  <!-- Top bar with profile and search icons -->
+  \{{#ifCond searchEnabled '||' filtersEnabled}}
+  <div class="section-top-wrapper">
+    \{{#if searchEnabled}}
+    <div class="search-holder">
+      <i class="fa fa-search"></i>
+      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required>
+      <div class="btn btn-default search-btn">Search</div>
+      <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
+    </div>
+    \{{/if}}
+    <div class="list-search-icon">
+      <div class="list-search-cancel"><span class="fa fa-times"></span></div>
+      \{{#if filtersEnabled}}
+      <i class="fa fa-sliders"></i>
+      \{{/if}}
+    </div>
+  </div>
+  <!-- End of Top bar -->
+  \{{/ifCond}}
+
+  <!-- Inline Search and Filters -->
+  <div class="hidden-controls">
+    \{{#if searchEnabled}}
+    <div class="hidden-search-controls">
+      <div class="hidden-search-controls-content">
+        <div class="hidden-filter-controls-search">
+          <div class="search-query-holder">
+            <div class="search-query">
+            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    \{{/if}}
+    \{{#if filtersEnabled}}
+    <div class="hidden-filter-controls">
+      <div class="hidden-filter-controls-content">
+        \{{#ifCond filtersInOverlay '!==' true}}
+          \{{#if filtersEnabled}}
+          <div class="filter-holder inline-filter-holder">
+            <!-- Filters here -->
+          </div>
+          \{{/if}}
+        \{{/ifCond}}
+      </div>
+    </div>
+    \{{/if}}
+  </div>
+  <!-- End of Inline Search and Filters -->
+
   <!-- Days slider -->
   <div class="agenda-date-selector">
     <ul>
@@ -27,6 +111,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Search results -->
+  <div class="search-results-wrapper"></div>
 </div>
 
 <!-- Detail view overlay -->
