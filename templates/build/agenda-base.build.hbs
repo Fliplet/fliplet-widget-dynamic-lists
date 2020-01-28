@@ -1,4 +1,4 @@
-<div class="new-agenda-list-container loading\{{#ifCond social '&&' social.bookmark}} has-agenda-toggle\{{/ifCond}}\{{#ifCond searchEnabled '||' filtersEnabled}} has-top-bar\{{/ifCond}}">
+<div class="new-agenda-list-container loading\{{#ifCond searchEnabled '||' filtersEnabled}} has-top-bar\{{/ifCond}}">
   <!-- Filter Overlay -->
   \{{#if filtersInOverlay}}
   <div class="agenda-search-filter-overlay">
@@ -30,18 +30,7 @@
   \{{/if}}
   <!-- End of Filter Overlay -->
 
-  \{{#ifCond social '&&' social.bookmark}}
-  <div class="agenda-list-controls">
-    <div class="toggle-agenda" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
-      <span class="fa fa-bookmark-o"></span>
-      <span class="fa fa-bookmark"></span>
-      <div class="agenda-list-label">My Agenda</div>
-    </div>
-  </div>
-  \{{/ifCond}}
-
   <!-- Top bar with profile and search icons -->
-  \{{#ifCond searchEnabled '||' filtersEnabled}}
   <div class="section-top-wrapper">
     \{{#if searchEnabled}}
     <div class="search-holder">
@@ -51,15 +40,22 @@
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
+    \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
+      \{{#if bookmarksEnabled}}
+      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
+        <span class="fa fa-bookmark-o"></span>
+        <span class="fa fa-bookmark"></span>
+      </div>
+      \{{/if}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
       <i class="fa fa-sliders"></i>
       \{{/if}}
     </div>
+    \{{/ifCond}}
   </div>
   <!-- End of Top bar -->
-  \{{/ifCond}}
 
   <!-- Inline Search and Filters -->
   <div class="hidden-controls">

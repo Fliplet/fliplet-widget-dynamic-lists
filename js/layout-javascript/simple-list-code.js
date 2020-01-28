@@ -59,7 +59,7 @@ function DynamicList(id, data, container) {
    */
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
-  this.data.bookmarksEnabled = _this.data.social.bookmark;
+  this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
@@ -1330,7 +1330,7 @@ DynamicList.prototype.searchData = function(options) {
   _this.activeFilters = _this.getActiveFilters();
   _this.isSearching = value !== '';
   _this.isFiltering = !_.isEmpty(_this.activeFilters);
-  _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
+  _this.showBookmarks = _this.$container.find('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
   var limit = limitEntriesEnabled && _this.data.limitEntries > -1

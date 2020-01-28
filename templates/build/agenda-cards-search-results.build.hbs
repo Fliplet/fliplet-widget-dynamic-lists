@@ -1,6 +1,6 @@
 <div class="search-results-holder">
 \{{#each this}}
-  <h4>Date \{{@index}}</h4>
+  <h3>\{{moment this.0.[Full Date] format="ddd D MMM"}}</h3>
   <div class="search-results-list-day-holder">
   \{{#each this}}
     <div class="agenda-list-item" data-entry-id="\{{id}}">

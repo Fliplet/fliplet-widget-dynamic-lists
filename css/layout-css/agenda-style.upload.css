@@ -557,11 +557,7 @@
 .new-agenda-list-container .hidden-filter-controls-label {
   font-size: 14px;
   color: #aaaaaa;
-  padding: 0 18px 5px;
-}
-
-.new-agenda-list-container .hidden-filter-controls-filter-container + .hidden-filter-controls-label {
-  padding-top: 10px;
+  padding: 10px 18px 5px;
 }
 
 .new-agenda-list-container .hidden-filter-controls-label span {
@@ -618,13 +614,23 @@
   left: 0;
   right: 0;
   display: flex;
-  padding: 10px 0;
+  padding: 10px 0 0;
   background-color: #ffffff;
   z-index: 9;
+  -webkit-transition: opacity 0.2s ease-out;
+  -ms-transition: opacity 0.2s ease-out;
+  transition: opacity 0.2s ease-out;
+  -webkit-transition-delay: 0.3s;
+  -ms-transition-delay: 0.3s;
+  transition-delay: 0.3s;
 }
 
 [data-view="search-results"] .new-agenda-list-container .agenda-date-selector {
-  display: none;
+  -webkit-transition: none;
+  -ms-transition: none;
+  transition: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .new-agenda-list-container.has-top-bar .agenda-date-selector {
@@ -724,10 +730,20 @@
   bottom: 0;
   overflow: hidden;
   margin: auto;
+  -webkit-transition: opacity 0.2s ease-out;
+  -ms-transition: opacity 0.2s ease-out;
+  transition: opacity 0.2s ease-out;
+  -webkit-transition-delay: 0.3s;
+  -ms-transition-delay: 0.3s;
+  transition-delay: 0.3s;
 }
 
 [data-view="search-results"] .new-agenda-list-container .agenda-cards-wrapper {
-  display: none;
+  -webkit-transition: none;
+  -ms-transition: none;
+  transition: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .new-agenda-list-container .agenda-list-holder {
@@ -753,8 +769,8 @@
 }
 
 .new-agenda-list-container.has-top-bar .agenda-list-day-holder {
-  margin-top: 148px;
-  height: calc(100% - 148px);
+  margin-top: 142px;
+  height: calc(100% - 142px);
 }
 
 .fl-with-top-menu .new-agenda-list-container .agenda-list-day-holder {
@@ -763,8 +779,8 @@
 }
 
 .fl-with-top-menu .new-agenda-list-container.has-top-bar .agenda-list-day-holder {
-  margin-top: 198px;
-  height: calc(100% - 198px);
+  margin-top: 192px;
+  height: calc(100% - 192px);
 }
 
 .fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder {
@@ -1084,7 +1100,8 @@
   left: 0;
   margin-top: 53px;
   overflow: auto;
-  display: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .fl-with-top-menu .new-agenda-list-container .search-results-wrapper {
@@ -1092,7 +1109,14 @@
 }
 
 [data-view="search-results"] .new-agenda-list-container .search-results-wrapper {
-  display: block;
+  -webkit-transition: opacity 0.2s ease-out;
+  -ms-transition: opacity 0.2s ease-out;
+  transition: opacity 0.2s ease-out;
+  -webkit-transition-delay: 0.3s;
+  -ms-transition-delay: 0.3s;
+  transition-delay: 0.3s;
+  opacity: 1;
+  pointer-events: all;
 }
 
 .new-agenda-list-container .search-results-holder {
