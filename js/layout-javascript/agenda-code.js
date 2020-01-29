@@ -128,7 +128,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData();
 
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock');
+      $('body').removeClass('lock has-overlay');
     })
     .on('click', '.clear-filters', function() {
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
@@ -160,7 +160,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        $('body').addClass('lock');
+        $('body').addClass('lock has-overlay');
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
@@ -183,7 +183,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.agenda-overlay-close', function() {
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock');
+      $('body').removeClass('lock has-overlay');
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);

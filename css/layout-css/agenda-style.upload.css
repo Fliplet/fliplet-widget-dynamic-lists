@@ -10,6 +10,27 @@
   overflow: hidden !important;
 }
 
+.new-agenda-list-container ~ .dynamic-list-add-item {
+  z-index: 11;
+  -webkit-transition: z-index 0s linear;
+  -ms-transition: z-index 0s linear;
+  transition: z-index 0s linear;
+  -webkit-transition-delay: 0.2s;
+  -ms-transition-delay: 0.2s;
+  transition-delay: 0.2s;
+}
+
+.circle-menu-active .new-agenda-list-container ~ .dynamic-list-add-item,
+.has-push-menu .new-agenda-list-container ~ .dynamic-list-add-item,
+.has-slide-menu .new-agenda-list-container ~ .dynamic-list-add-item,
+.has-overlay-menu .new-agenda-list-container ~ .dynamic-list-add-item,
+.has-overlay .new-agenda-list-container ~ .dynamic-list-add-item {
+  z-index: 2;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
+}
+
 /* AGENDA CONTROLS - MY AGENDA */
 .new-agenda-list-container .agenda-list-controls {
   position: absolute;
@@ -28,26 +49,29 @@
   background-color: #ffffff;
 }
 
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls {
-  bottom: 80px;
-  bottom: calc(80px + env(safe-area-inset-bottom));
-}
-
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls {
-  bottom: 15px;
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls,
+.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls {
   bottom: calc(15px + env(safe-area-inset-bottom));
 }
 
-[data-has-notch].platform-web .new-agenda-list-container .agenda-list-controls {
-  bottom: calc(15px + 34px); /* For Fliplet Studio */
+[data-has-notch] .new-agenda-list-container .agenda-list-controls,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls {
+  bottom: calc(15px + 34px);
 }
 
-[data-has-notch].platform-web .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls {
-  bottom: calc(80px + 34px); /* For Fliplet Studio */
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls,
+[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls {
+  /* Bottom menu */
+  bottom: 15px;
 }
 
-[data-has-notch].platform-web .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls {
-  bottom: calc(15px + 34px); /* For Fliplet Studio */
+.new-agenda-list-container.has-add-entry .agenda-list-controls {
+  right: 75px;
+}
+
+.fl-menu-circle-right .new-agenda-list-container.has-add-entry .agenda-list-controls {
+  right: 135px;
 }
 
 .no-touchevents .new-agenda-list-container .agenda-list-controls:active,
@@ -99,7 +123,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 11;
+  z-index: 10;
   background-color: transparent;
   transform: translate3d(100%, 0, 0);
   transition: all 0.2s ease-out;
@@ -648,10 +672,6 @@
   top: calc(92px + env(safe-area-inset-top));
 }
 
-.new-agenda-list-container .agenda-date-selector.slim {
-  padding: 5px 15px;
-}
-
 .new-agenda-list-container .agenda-date-selector ul {
   margin: 0;
   padding: 0;
@@ -707,11 +727,6 @@
   color: rgba(51, 51, 51, 0.1);
 }
 
-.new-agenda-list-container .agenda-date-selector.slim ul li {
-  font-size: 8px;
-  line-height: 1.2;
-}
-
 /* AGENDA LIST */
 .new-agenda-list-container {
   position: fixed;
@@ -719,9 +734,52 @@
   top: 0;
   top: env(safe-area-inset-top);
   bottom: 0;
+  bottom: env(safe-area-inset-bottom);
   left: 0;
-  /* Top menus are also fixed, so we're matching the z-index here to display the UI correctly */
-  z-index: 10;
+  /* Top menus are also fixed, so we're increasing the z-index here to display the UI correctly */
+  z-index: 11;
+  -webkit-transition: z-index 0s linear;
+  -ms-transition: z-index 0s linear;
+  transition: z-index 0s linear;
+  -webkit-transition-delay: 0.2s;
+  -ms-transition-delay: 0.2s;
+  transition-delay: 0.2s;
+}
+
+.has-push-menu .new-agenda-list-container,
+.has-overlay-menu .new-agenda-list-container,
+.has-slide-menu .new-agenda-list-container {
+  z-index: 9;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
+}
+
+.fl-with-top-menu .new-agenda-list-container {
+  /* Top menu */
+  top: 44px;
+  top: calc(44px + env(safe-area-inset-top));
+}
+
+.fl-with-bottom-menu .new-agenda-list-container {
+  /* Bottom menu */
+  bottom: 65px;
+  bottom: calc(65px + env(safe-area-inset-bottom));
+}
+
+[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container {
+  bottom: calc(65px + 34px);
+}
+
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container,
+.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container {
+  /* Circle menu */
+  bottom: 0;
+}
+
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container {
+  bottom: 0;
 }
 
 .new-agenda-list-container .agenda-cards-wrapper {
@@ -762,62 +820,54 @@
 .new-agenda-list-container .agenda-list-day-holder {
   display: inline-block;
   font-size: 16px;
-  padding: 14px 15px 0;
-  margin: 111px auto 0;
+  padding: 14px 15px 15px;
+  margin: 100px auto 0;
   width: 100vw;
-  height: calc(100% - 111px);
+  height: calc(100% - 100px);
   overflow: auto;
   vertical-align: top;
 }
 
 .new-agenda-list-container.has-top-bar .agenda-list-day-holder {
-  margin-top: 142px;
-  height: calc(100% - 142px);
+  /* Top bar */
+  margin-top: 148px;
+  height: calc(100% - 148px);
 }
 
-.fl-with-top-menu .new-agenda-list-container .agenda-list-day-holder {
-  margin-top: 144px;
-  height: calc(100% - 144px);
+.new-agenda-list-container.has-add-entry .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+  /* Add Entry */
+  padding-bottom: 65px;
+  padding-bottom: calc(65px + env(safe-area-inset-bottom));
 }
 
-.fl-with-top-menu .new-agenda-list-container.has-top-bar .agenda-list-day-holder {
-  margin-top: 192px;
-  height: calc(100% - 192px);
+[data-has-notch] .new-agenda-list-container.has-add-entry .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+  padding-bottom: calc(65px + 34px);
 }
 
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder {
-  margin-top: 102px;
-  height: calc(100% - 102px);
-}
-
-.fl-with-top-menu .new-agenda-list-container .agenda-date-selector.slim + .agenda-cards-wrapper .agenda-list-day-holder {
-  margin-top: 109px;
-  height: calc(100% - 109px);
-}
-
-.fl-with-bottom-menu .new-agenda-list-container .agenda-date-selector.slim + .agenda-cards-wrapper .agenda-list-day-holder {
-  margin-top: 65px;
-  height: calc(100% - 65px);
-}
-
-.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
-  padding-bottom: 95px;
-}
-
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder .agenda-list-card-holder {
+.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+.new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+  /* My Agenda (Legacy) */
+  /* Add Entry + My Agenda (Legacy) */
   padding-bottom: 80px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
-  padding-bottom: 160px;
+[data-has-notch] .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+[data-has-notch] .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+  padding-bottom: calc(80px + 34px);
 }
 
-.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry .agenda-list-card-holder {
-  padding-bottom: 180px;
-}
-
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder.has-add-entry .agenda-list-card-holder {
-  padding-bottom: 240px;
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+.fl-with-bottom-menu .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+  /* Bottom Menu + My Agenda (Legacy) */
+  /* Bottom Menu + Add Entry + My Agenda (Legacy) */
+  padding-bottom: 80px;
 }
 
 .new-agenda-list-container .agenda-state-messages {

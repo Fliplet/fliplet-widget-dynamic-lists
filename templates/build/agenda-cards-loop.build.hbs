@@ -1,5 +1,5 @@
 \{{#each this}}
-  <div class="agenda-list-day-holder \{{#if addEntry}}has-add-entry\{{/if}}">
+  <div class="agenda-list-day-holder">
     <div id="contentArea-\{{@index}}" class="agenda-list-card-holder">
       \{{#each this}}
       <div class="agenda-list-item" data-entry-id="\{{id}}">
@@ -23,7 +23,7 @@
                   \{{/if}}
                   <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{[Full Date]}}</p>
                 </div>
-                
+
                 <div class="agenda-item-bookmark">
                   <div class="agenda-item-bookmark-holder agenda-item-bookmark-holder-\{{id}}">
                     <!-- Bookmark button will be here -->

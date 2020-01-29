@@ -1,4 +1,4 @@
-<div class="new-agenda-list-container loading\{{#ifCond searchEnabled '||' filtersEnabled}} has-top-bar\{{/ifCond}}">
+<div class="new-agenda-list-container loading\{{#ifCond searchEnabled '||' filtersEnabled}} has-top-bar\{{/ifCond}}\{{#if showAddEntry}} has-add-entry\{{/if}}">
   <!-- Filter Overlay -->
   \{{#if filtersInOverlay}}
   <div class="new-agenda-search-filter-overlay">
