@@ -24,7 +24,7 @@
 .has-push-menu .new-agenda-list-container ~ .dynamic-list-add-item,
 .has-slide-menu .new-agenda-list-container ~ .dynamic-list-add-item,
 .has-overlay-menu .new-agenda-list-container ~ .dynamic-list-add-item,
-.has-overlay .new-agenda-list-container ~ .dynamic-list-add-item {
+.has-filter-overlay .new-agenda-list-container ~ .dynamic-list-add-item {
   z-index: 2;
   -webkit-transition-delay: 0s;
   -ms-transition-delay: 0s;
@@ -737,7 +737,7 @@
   bottom: env(safe-area-inset-bottom);
   left: 0;
   /* Top menus are also fixed, so we're increasing the z-index here to display the UI correctly */
-  z-index: 11;
+  z-index: 10;
   -webkit-transition: z-index 0s linear;
   -ms-transition: z-index 0s linear;
   transition: z-index 0s linear;
@@ -750,6 +750,14 @@
 .has-overlay-menu .new-agenda-list-container,
 .has-slide-menu .new-agenda-list-container {
   z-index: 9;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
+}
+
+.has-filter-overlay .new-agenda-list-container {
+  /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
+  z-index: 1010;
   -webkit-transition-delay: 0s;
   -ms-transition-delay: 0s;
   transition-delay: 0s;
