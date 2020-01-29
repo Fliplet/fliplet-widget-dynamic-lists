@@ -1372,9 +1372,10 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
-      _this.searchedListItems = searchedData;
       _this.prepareToRenderLoop(searchedData);
       _this.renderLoopHTML().then(function (records) {
+        _this.searchedListItems = searchedData;
+
         // Render user profile
         if (!_.isEmpty(_this.myProfileData)) {
           var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];

@@ -38,11 +38,11 @@ function DynamicList(id, data, container) {
   this.searchValue = '';
   this.activeFilters = {};
 
-  this.listItems;
-  this.agendasByDay;
-  this.filteredListItemsByDay;
-  this.filteredListItems;
-  this.dataSourceColumns;
+  this.listItems = [];
+  this.agendasByDay = [];
+  this.filteredListItemsByDay = [];
+  this.filteredListItems = [];
+  this.dataSourceColumns = [];
   this.dateFieldLocation = 'Full Date';
 
   this.queryOpen = false;
@@ -1239,7 +1239,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
       $renderFull.add($renderBatch);
       $agendaListHolder.append($renderBatch);
 
-      if (_this.isInLoopView() && (renderLoopIndex === 0 || renderLoopIndex === -1)) {
+      if (renderLoopIndex === 0 || renderLoopIndex === -1) {
         _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
         _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
       }
@@ -1965,12 +1965,13 @@ DynamicList.prototype.searchData = function(options) {
        * Render results
        **/
 
-      _this.cacheSearchedData(searchedData);
       _this.prepareToRenderLoop(searchedData);
       _this.agendasByDay = _this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation);
 
       // Render the full list
       return _this.renderLoopHTML().then(function(records){
+        _this.cacheSearchedData(searchedData);
+
         if (_this.isInLoopView()) {
           if (options.goToToday) {
             _this.goToToday();

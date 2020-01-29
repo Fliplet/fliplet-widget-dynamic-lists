@@ -1693,9 +1693,9 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#news-feed-list-wrapper-' + _this.data.id).html('');
 
-      _this.searchedListItems = searchedData;
       _this.prepareToRenderLoop(searchedData);
       return _this.renderLoopHTML().then(function (records) {
+        _this.searchedListItems = searchedData;
         return _this.initializeSocials(records);
       });
     });
