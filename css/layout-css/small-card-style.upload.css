@@ -350,6 +350,7 @@
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
+  position: relative;
 }
 
 .new-small-card-list-container .hidden-filter-controls-content {

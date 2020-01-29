@@ -84,10 +84,9 @@ var DynamicLists = (function() {
       social: {},
       advancedSettings: {}
     }, configuration);
-    _this.widgetId = configuration.id;
 
+    _this.widgetId = configuration.id;
     _this.isLoaded = false;
-    $('.layouts-flex').html(layoutsTemplate(listLayouts));
 
     _this.attachListeners();
     _this.init();
@@ -657,8 +656,18 @@ var DynamicLists = (function() {
 
       return value;
     },
+    setupLayoutSelector: function () {
+      if (_this.config.layout) {
+        return;
+      }
+
+      $('.layouts-flex').html(layoutsTemplate(listLayouts));
+      Fliplet.Studio.emit('widget-mode', 'wide');
+      $('.state').removeClass('loading is-loading');
+    },
     init: function() {
-      _this.getDataSources()
+      _this.setupLayoutSelector();
+      return _this.getDataSources()
         .then(function() {
           return _this.setupCodeEditors();
         })
@@ -673,8 +682,6 @@ var DynamicLists = (function() {
     },
     loadData: function() {
       if (!_this.config.layout) {
-        Fliplet.Studio.emit('widget-mode', 'wide');
-        $('.state').removeClass('loading is-loading');
         return Promise.resolve();
       }
 

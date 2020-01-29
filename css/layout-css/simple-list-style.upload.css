@@ -299,6 +299,7 @@
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
+  position: relative;
 }
 
 .simple-list-container .hidden-filter-controls-content {
@@ -553,16 +554,6 @@
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
-}
-
-.simple-list-item .list-item-title,
-.simple-list-item .list-item-description,
-.simple-list-item .list-item-subtitle {
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .simple-list-item .list-item-title {
