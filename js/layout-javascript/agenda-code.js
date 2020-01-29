@@ -127,7 +127,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.apply-filters', function() {
       _this.searchData();
 
-      $(this).parents('.agenda-search-filter-overlay').removeClass('display');
+      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       $('body').removeClass('lock');
     })
     .on('click', '.clear-filters', function() {
@@ -159,7 +159,7 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
       if (_this.data.filtersInOverlay) {
-        _this.$container.find('.agenda-search-filter-overlay').addClass('display');
+        _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
         $('body').addClass('lock');
 
         Fliplet.Analytics.trackEvent({
@@ -174,8 +174,7 @@ DynamicList.prototype.attachObservers = function() {
       $el.addClass('active');
 
       _this.toggleListView();
-      _this.calculateFiltersHeight().then(_this.searchData.bind(_this));
-      // _this.searchData().then(_this.toggleListView.bind(_this)).catch(_this.toggleListView.bind(_this));
+      _this.calculateFiltersHeight();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -183,7 +182,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.agenda-overlay-close', function() {
-      $(this).parents('.agenda-search-filter-overlay').removeClass('display');
+      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       $('body').removeClass('lock');
 
       // Clear all selected filters
@@ -663,8 +662,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find(e.handleObj.selector).toggleClass('mixitup-control-active');
       _this.searchData();
     })
-    .on('click', '.agenda-detail-overlay .bookmark-wrapper', function() {
-      var id = $(this).parents('.agenda-detail-wrapper').data('entry-id');
+    .on('click', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function() {
+      var fromOverlay = !!$(this).parents('.agenda-detail-wrapper').length;
+      var id = fromOverlay
+        ? $(this).parents('.agenda-detail-wrapper').data('entry-id')
+        : $(this).parents('.agenda-list-item').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
       if (!record || !record.bookmarkButton) {
@@ -672,13 +674,27 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       if (record.bookmarked) {
-        $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+        if (fromOverlay) {
+          $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+        } else {
+          $(this).removeClass('btn-bookmarked').addClass('btn-bookmark');
+        }
+
         record.bookmarkButton.unlike();
         return;
       }
 
-      $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+      if (fromOverlay) {
+        $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+      } else {
+        $(this).removeClass('btn-bookmark').addClass('btn-bookmarked');
+      }
+
       record.bookmarkButton.like();
+    })
+    .on('click', '.search-results-wrapper .bookmark-wrapper', function (e) {
+      console.log(e);
+      debugger;
     });
 }
 
@@ -1183,7 +1199,7 @@ DynamicList.prototype.emptyLoop = function () {
   if (this.isInLoopView()) {
     $('#agenda-cards-wrapper-' + this.data.id + ' .agenda-list-holder').empty();
   } else {
-    this.$container.find('.search-results-wrapper').empty();
+    this.$container.find('.search-results-wrapper .search-results-holder').empty();
   }
 };
 
@@ -1208,7 +1224,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var $renderFull = $([]);
   var $agendaListHolder = _this.isInLoopView()
     ? $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder')
-    : _this.$container.find('.search-results-wrapper');
+    : _this.$container.find('.search-results-wrapper .search-results-holder');
 
   return new Promise(function (resolve) {
     function render() {
@@ -1218,11 +1234,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
       );
 
-      if (!nextBatch.length) {
-        resolve(renderLoopIndex - 1, $renderFull);
-        return;
-      }
-
       var $renderBatch = $(template(nextBatch));
 
       $renderFull.add($renderBatch);
@@ -1231,6 +1242,11 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
       if (_this.isInLoopView() && (renderLoopIndex === 0 || renderLoopIndex === -1)) {
         _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
         _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+      }
+
+      if (!nextBatch.length) {
+        resolve(renderLoopIndex - 1, $renderFull);
+        return;
       }
 
       if (iterateeCb && typeof iterateeCb === 'function') {
@@ -1423,7 +1439,7 @@ DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
     _this.$container.find('.hidden-filter-controls').data('height', totalHeight).animate({
       height: totalHeight
     }, _this.ANIMATION_SPEED, resolve);
-    _this.calculateListViewPosition();
+    _this.calculateSearchResultsPosition();
   });
 }
 
@@ -1437,11 +1453,11 @@ DynamicList.prototype.calculateSearchHeight = function(clearSearch) {
     _this.$container.find('.hidden-search-controls').data('height', totalHeight).animate({
       height: totalHeight
     }, _this.ANIMATION_SPEED, resolve);
-    _this.calculateListViewPosition();
+    _this.calculateSearchResultsPosition();
   });
 }
 
-DynamicList.prototype.calculateListViewPosition = function () {
+DynamicList.prototype.calculateSearchResultsPosition = function () {
   var _this = this;
   var $hiddenControls = this.$container.find('.hidden-filter-controls, .hidden-search-controls');
   var totalHeight = 0;
@@ -1451,8 +1467,9 @@ DynamicList.prototype.calculateListViewPosition = function () {
   });
 
   return new Promise(function (resolve) {
-    _this.$container.find('.search-results-wrapper').animate({
-      paddingTop: totalHeight
+    _this.$container.find('.search-results-holder').animate({
+      marginTop: totalHeight,
+      height: _this.$container.find('.search-results-wrapper').height() - totalHeight
     }, _this.ANIMATION_SPEED, resolve);
   });
 };
@@ -1729,6 +1746,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     btn.on('liked.fail', function(data){
       record.bookmarked = btn.isLiked();
       _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
+      _this.$container.find('.search-results-wrapper .agenda-item-bookmark-holder-' + id + ' .bookmark-wrapper').removeClass('btn-bookmarked').addClass('btn-bookmark');
     });
 
     btn.on('unliked', function(data){
@@ -1743,6 +1761,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     btn.on('unliked.fail', function(data){
       record.bookmarked = btn.isLiked();
       _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
+      _this.$container.find('.search-results-wrapper .agenda-item-bookmark-holder-' + id + ' .bookmark-wrapper').removeClass('btn-bookmark').addClass('btn-bookmarked');
     });
   });
 }
@@ -1783,23 +1802,37 @@ DynamicList.prototype.toggleListView = function (view) {
     view = this.isInLoopView() ? 'loop' : 'search-results';
   }
 
+  if (view !== 'search-results') {
+    // Empty search results
+    this.emptySearchResults();
+  }
+
   this.$container.attr('data-view', view);
 };
 
-DynamicList.prototype.getSearchData = function () {
+DynamicList.prototype.emptySearchResults = function () {
+  this.$container.find('.search-results-wrapper .search-results-holder').empty();
+  this.filteredListItems = [];
+};
+
+DynamicList.prototype.getListItems = function () {
   return this.isInLoopView() ? this.filteredListItemsByDay : this.filteredListItems;
 };
 
 DynamicList.prototype.isSameResult = function (data) {
-  return data.length && !_.xorBy(data, this.getSearchData(), 'id').length;
+  return data.length && !_.xorBy(data, this.getListItems(), 'id').length;
 };
 
 DynamicList.prototype.isSubsetResult = function (data) {
-  return data.length && data.length === _.intersectionBy(data, this.getSearchData(), 'id').length;
+  return data.length && data.length === _.intersectionBy(data, this.getListItems(), 'id').length;
 };
 
 DynamicList.prototype.isInLoopView = function () {
   return !this.isFiltering && !this.isSearching && !this.showBookmarks && !this.$container.find('.list-search-icon .fa-sliders.active').length;
+};
+
+DynamicList.prototype.isInSearchResultsView = function () {
+  return this.isFiltering || this.isSearching || this.showBookmarks || this.$container.find('.list-search-icon .fa-sliders.active').length;
 };
 
 DynamicList.prototype.removeFilteredEntries = function (data) {
@@ -1951,7 +1984,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function () {
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         value: value,
-        records: _this.getSearchData(),
+        records: _this.getListItems(),
         config: _this.data,
         activeFilters: _this.activeFilters,
         showBookmarks: _this.showBookmarks

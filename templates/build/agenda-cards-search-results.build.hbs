@@ -1,6 +1,9 @@
-<div class="search-results-holder">
+<div class="search-results \{{#unless length}}no-results\{{/unless}}">
+\{{#unless this}}
+  <p>No results found</p>
+\{{/unless}}
 \{{#each this}}
-  <h3>\{{moment this.0.[Full Date] format="ddd D MMM"}}</h3>
+  <h3 class="search-results-list-date">\{{moment this.0.[Full Date] format="ddd D MMM"}}</h3>
   <div class="search-results-list-day-holder">
   \{{#each this}}
     <div class="agenda-list-item" data-entry-id="\{{id}}">

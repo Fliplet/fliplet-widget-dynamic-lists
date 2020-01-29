@@ -1,7 +1,7 @@
 <div class="new-agenda-list-container loading\{{#ifCond searchEnabled '||' filtersEnabled}} has-top-bar\{{/ifCond}}">
   <!-- Filter Overlay -->
   \{{#if filtersInOverlay}}
-  <div class="agenda-search-filter-overlay">
+  <div class="new-agenda-search-filter-overlay">
     <div class="agenda-overlay-screen"></div>
     <div class="agenda-overlay-wrapper">
       <div class="agenda-overlay-header">
@@ -109,7 +109,7 @@
   </div>
 
   <!-- Search results -->
-  <div class="search-results-wrapper"></div>
+  <div class="search-results-wrapper"><div class="search-results-holder"></div></div>
 </div>
 
 <!-- Detail view overlay -->
