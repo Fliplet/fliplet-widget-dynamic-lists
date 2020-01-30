@@ -110,6 +110,16 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
   }
 };
 
+DynamicList.prototype.clearFilters = function () {
+  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
+  return this.searchData();
+};
+
+DynamicList.prototype.hideFilterOverlay = function () {
+  this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
+  $('body').removeClass('lock has-filter-overlay');
+};
+
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -216,17 +226,14 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click', '.list-search-cancel', function() {
-      var $el = $(this);
+      // Hide filters
+      $(this).removeClass('active');
+      _this.$container.find('.hidden-filter-controls').removeClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.calculateFiltersHeight(true);
 
-      _this.Utils.Page.updateFilterControlsContext();
-
-      if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-        _this.$container.find('.hidden-filter-controls').removeClass('active');
-        $el.removeClass('active');
-        _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
-        _this.toggleListView();
-        _this.calculateFiltersHeight(true);
-      }
+      // Clear filters
+      _this.clearFilters();
     })
     .on('keydown change paste', '.search-holder input', function(e) {
       var $inputField = $(this);
