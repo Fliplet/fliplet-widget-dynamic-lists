@@ -2015,6 +2015,7 @@ DynamicList.prototype.searchData = function(options) {
 DynamicList.prototype.bindTouchEvents = function() {
   var _this = this;
   var handle = document.getElementById('agenda-cards-wrapper-' +_this.data.id);
+
   _this.hammer = _this.hammer || new Hammer(handle, {
     inputClass: Hammer.TouchInput,
     touchAction: 'pan-y'
