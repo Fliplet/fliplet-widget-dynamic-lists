@@ -1401,14 +1401,31 @@ DynamicList.prototype.searchData = function(options) {
 }
 
 DynamicList.prototype.getBookmarkIdentifier = function (record) {
-  return Promise.resolve({
+  var defaultIdentifier = {
     entryId: record.id + '-bookmark'
-  });
-};
+  };
+  var customIdentifier = Promise.resolve();
 
-DynamicList.prototype.getBookmarkQuery = function () {
-  return Promise.resolve({
-    entryId: { $regex: '\\d-bookmark' }
+  if (typeof this.data.getBookmarkIdentifier === 'function') {
+    customIdentifier = this.data.getBookmarkIdentifier({
+      record: record,
+      config: this.data,
+      id: this.data.id,
+      uuid: this.data.uuid,
+      container: this.$container
+    });
+
+    if (!(customIdentifier instanceof Promise)) {
+      customIdentifier = Promise.resolve(customIdentifier);
+    }
+  }
+
+  return customIdentifier.then(function (identifier) {
+    if (!identifier) {
+      identifier = defaultIdentifier;
+    }
+
+    return identifier;
   });
 };
 
@@ -1518,19 +1535,23 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  return _this.getBookmarkQuery().then(function (query) {
-    return _this.Utils.Query.fetchAndCache({
-      key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
-      waitFor: 400,
-      request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
-        return instance.query({
-          where: {
-            content: query
-          },
-          exact: false
-        });
-      })
-    });
+  if (typeof _this.data.getBookmarkIdentifier === 'function') {
+    return Promise.resolve();
+  }
+
+  return _this.Utils.Query.fetchAndCache({
+    key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
+    waitFor: 400,
+    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+      return instance.query({
+        where: {
+          content: {
+            entryId: { $regex: '\\d-bookmark' }
+          }
+        },
+        exact: false
+      });
+    })
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
       var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
