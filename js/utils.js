@@ -693,23 +693,31 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var id = options.id;
 
     // Parse legacy flFilters from records to generate a list of filter values
-    return _.orderBy(_.map(
-      _.groupBy(_.orderBy(_.uniqBy(_.flatten(_.map(records, 'flFilters')), function (filter) {
+    return _(records)
+      .map('flFilters')
+      .flatten()
+      .uniqBy(function (filter) {
         // _.uniqBy iteratee
         return JSON.stringify(filter);
-      }), 'data.name'), 'type'),
-      function (values, field) {
+      })
+      .orderBy('data.name')
+      .groupBy('type')
+      .map(function (values, field) {
         // _.map iteratee for defining of each filter value
         return {
           id: id,
           name: field,
           data: _.map(values, 'data')
         };
-      }),
-      function (filter) {
+      })
+      .filter(function (filter) {
+        return filter.name && _.size(filter.data);
+      })
+      .orderBy(function (filter) {
         // _.orderBy iteratee
         return _.indexOf(filters, filter.name);
-      });
+      })
+      .value();
   }
 
   function getRecordField(options) {

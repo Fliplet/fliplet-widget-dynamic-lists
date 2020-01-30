@@ -59,7 +59,7 @@ function DynamicList(id, data, container) {
    */
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
-  this.data.bookmarksEnabled = _this.data.social.bookmark;
+  this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
@@ -1335,7 +1335,7 @@ DynamicList.prototype.searchData = function(options) {
   _this.activeFilters = _this.getActiveFilters();
   _this.isSearching = value !== '';
   _this.isFiltering = !_.isEmpty(_this.activeFilters);
-  _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
+  _this.showBookmarks = _this.$container.find('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
   var limit = limitEntriesEnabled && _this.data.limitEntries > -1
@@ -1378,7 +1378,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function () {
       searchedData = searchedData || [];
 
-      var truncated = results.truncated || searchedData.length < _this.listItems;
+      var truncated = results.truncated || searchedData.length < _this.listItems.length;
 
       if (openSingleEntry && searchedData.length === 1) {
         _this.showDetails(searchedData[0].id);
@@ -1423,14 +1423,20 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#simple-list-wrapper-' + _this.data.id).html('');
 
-      _this.searchedListItems = searchedData;
       _this.prepareToRenderLoop(searchedData);
       return _this.renderLoopHTML().then(function (records) {
+        _this.searchedListItems = searchedData;
         return _this.initializeSocials(records);
       });
     });
   });
 }
+
+DynamicList.prototype.getLikeIdentifier = function (record) {
+  return Promise.resolve({
+    entryId: record.id + '-like'
+  });
+};
 
 DynamicList.prototype.setupLikeButton = function(options) {
   if (!_.get(this.data, 'social.likes')) {
@@ -1441,7 +1447,6 @@ DynamicList.prototype.setupLikeButton = function(options) {
 
   var _this = this;
   var id = options.id;
-  var identifier = options.identifier;
   var title = options.title;
   var record = options.record || _.find(_this.listItems, { id: id });
 
@@ -1449,78 +1454,91 @@ DynamicList.prototype.setupLikeButton = function(options) {
     return Promise.resolve();
   }
 
-  return new Promise(function (resolve) {
-    var btn = LikeButton({
-      target: '.simple-list-like-holder-' + id,
-      dataSourceId: _this.data.likesDataSourceId,
-      content: {
-        entryId: identifier
-      },
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
-      likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-      likeWrapper: '<div class="simple-list-like-wrapper btn-like"></div>',
-      likedWrapper: '<div class="simple-list-like-wrapper btn-liked"></div>',
-      addType: 'html',
-      liked: record.liked,
-      count: record.likeCount
-    });
-    record.likeButton = btn;
+  return _this.getLikeIdentifier(record)
+    .then(function (identifier) {
+      return new Promise(function (resolve) {
+        var btn = LikeButton({
+          target: '.simple-list-like-holder-' + id,
+          dataSourceId: _this.data.likesDataSourceId,
+          content: identifier,
+          name: Fliplet.Env.get('pageTitle') + '/' + title,
+          likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+          likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
+          likeWrapper: '<div class="simple-list-like-wrapper btn-like"></div>',
+          likedWrapper: '<div class="simple-list-like-wrapper btn-liked"></div>',
+          addType: 'html',
+          liked: record.liked,
+          count: record.likeCount
+        });
+        record.likeButton = btn;
 
-    btn.on('like.status', function (liked, count) {
-      record.liked = liked;
-      record.likeCount = count;
-      resolve(btn);
-    });
+        btn.on('like.status', function (liked, count) {
+          record.liked = liked;
+          record.likeCount = count;
+          resolve(btn);
+        });
 
-    btn.on('liked', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
+        btn.on('liked', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
 
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
 
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_like',
-        label: title
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_like',
+            label: title
+          });
+        });
+
+        btn.on('liked.fail', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
+
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id).removeClass('liked').addClass('not-liked');
+          _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
+        });
+
+        btn.on('unliked', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
+
+
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
+
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_unlike',
+            label: title
+          });
+        });
+
+        btn.on('unliked.fail', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
+
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id).removeClass('not-liked').addClass('liked');
+          _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
+        });
       });
     });
-
-    btn.on('liked.fail', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
-
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id).removeClass('liked').addClass('not-liked');
-      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
-    });
-
-    btn.on('unliked', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
-
-
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unlike',
-        label: title
-      });
-    });
-
-    btn.on('unliked.fail', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
-
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id).removeClass('not-liked').addClass('liked');
-      _this.$container.find('.simple-list-detail-overlay .simple-list-like-holder-' + id + ' .count').html(count);
-    });
-  });
 }
+
+DynamicList.prototype.getBookmarkIdentifier = function (record) {
+  return Promise.resolve({
+    entryId: record.id + '-bookmark'
+  });
+};
+
+DynamicList.prototype.getBookmarkQuery = function () {
+  return Promise.resolve({
+    entryId: { $regex: '\\d-bookmark' }
+  });
+};
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
   if (!_.get(this.data, 'social.bookmark')) {
@@ -1531,7 +1549,6 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
 
   var _this = this;
   var id = options.id;
-  var identifier = options.identifier;
   var title = options.title;
   var record = options.record || _.find(_this.listItems, { id: id });
 
@@ -1539,57 +1556,58 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     return Promise.resolve();
   }
 
-  return new Promise(function (resolve) {
-    var btn = LikeButton({
-      target: '.simple-list-bookmark-holder-' + id,
-      dataSourceId: _this.data.bookmarkDataSourceId,
-      content: {
-        entryId: identifier
-      },
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
-      likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-      likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
-      likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
-      addType: 'html',
-      getAllCounts: false,
-      liked: record.bookmarked
-    });
-    record.bookmarkButton = btn;
+  return _this.getBookmarkIdentifier(record)
+    .then(function (identifier) {
+      return new Promise(function (resolve) {
+        var btn = LikeButton({
+          target: '.simple-list-bookmark-holder-' + id,
+          dataSourceId: _this.data.bookmarkDataSourceId,
+          content: identifier,
+          name: Fliplet.Env.get('pageTitle') + '/' + title,
+          likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+          likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+          likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
+          likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
+          addType: 'html',
+          getAllCounts: false,
+          liked: record.bookmarked
+        });
+        record.bookmarkButton = btn;
 
-    btn.on('like.status', function (liked) {
-      record.bookmarked = liked;
-      resolve(btn);
-    });
+        btn.on('like.status', function (liked) {
+          record.bookmarked = liked;
+          resolve(btn);
+        });
 
-    btn.on('liked', function(data){
-      record.bookmarked = btn.isLiked();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: title
+        btn.on('liked', function(data){
+          record.bookmarked = btn.isLiked();
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_bookmark',
+            label: title
+          });
+        });
+
+        btn.on('liked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
+        });
+
+        btn.on('unliked', function(data){
+          record.bookmarked = btn.isLiked();
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_unbookmark',
+            label: title
+          });
+        });
+
+        btn.on('unliked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
+        });
       });
     });
-
-    btn.on('liked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
-    });
-
-    btn.on('unliked', function(data){
-      record.bookmarked = btn.isLiked();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: title
-      });
-    });
-
-    btn.on('unliked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
-    });
-  });
 }
 
 DynamicList.prototype.initializeOverlaySocials = function (id) {
@@ -1608,7 +1626,6 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
   } else {
     bookmarkPromise = _this.setupBookmarkButton({
       id: id,
-      identifier: id + '-bookmark',
       record: record
     }).then(function (btn) {
       if (!btn) {
@@ -1628,7 +1645,6 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
   } else {
     likePromise = _this.setupLikeButton({
       id: id,
-      identifier: id + '-like',
       record: record
     }).then(function (btn) {
       if (!btn) {
@@ -1658,17 +1674,19 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  return _this.Utils.Query.fetchAndCache({
-    key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
-    waitFor: 400,
-    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
-      return instance.query({
-        where: {
-          content: { entryId: { $regex: '\\d-bookmark' } }
-        },
-        exact: false
-      });
-    })
+  return _this.getBookmarkQuery().then(function (query) {
+    return _this.Utils.Query.fetchAndCache({
+      key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
+      waitFor: 400,
+      request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+        return instance.query({
+          where: {
+            content: query
+          },
+          exact: false
+        });
+      })
+    });
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
       var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
@@ -1705,14 +1723,12 @@ DynamicList.prototype.initializeSocials = function (records) {
         _this.setupLikeButton({
           target: '.simple-list-container .simple-list-like-holder-' + record.id,
           id: record.id,
-          identifier: record.id + '-like',
           title: title,
           record: masterRecord
         }),
         _this.setupBookmarkButton({
           target: '.simple-list-container .simple-list-bookmark-holder-' + record.id,
           id: record.id,
-          identifier: record.id + '-bookmark',
           title: title,
           record: masterRecord
         }),
@@ -1918,6 +1934,13 @@ DynamicList.prototype.closeDetails = function() {
 /**** COMMENTS ****/
 /******************/
 
+DynamicList.prototype.getCommentIdentifier = function (entry) {
+  return Promise.resolve({
+    contentDataSourceEntryId: _.get(entry, 'id'),
+    type: 'comment'
+  });
+};
+
 DynamicList.prototype.getEntryComments = function(options) {
   if (!_.get(this.data, 'social.comments')) {
     return Promise.resolve();
@@ -1934,33 +1957,32 @@ DynamicList.prototype.getEntryComments = function(options) {
   }
 
   var count = record.commentCount;
-  var content = {
-    contentDataSourceEntryId: id,
-    type: 'comment'
-  };
 
-  var getComments = Promise.resolve();
+  return _this.getCommentIdentifier(record)
+    .then(function (identifier) {
+      var getComments = Promise.resolve();
 
-  if (typeof count === 'undefined' || options.force) {
-    getComments = Fliplet.Content({ dataSourceId: _this.data.commentsDataSourceId })
-      .then(function(instance) {
-        return instance.query({
-          allowGrouping: true,
-          where: {
-            content: content,
-            settings: {
-              text: { $regex: '[^\s]+' }
-            }
-          }
-        });
-      })
-      .then(function(entries) {
-        record.comments = entries;
-        record.commentCount = entries.length;
-      });
-  }
+      if (typeof count === 'undefined' || options.force) {
+        getComments = Fliplet.Content({ dataSourceId: _this.data.commentsDataSourceId })
+          .then(function(instance) {
+            return instance.query({
+              allowGrouping: true,
+              where: {
+                content: identifier,
+                settings: {
+                  text: { $regex: '[^\s]+' }
+                }
+              }
+            });
+          })
+          .then(function(entries) {
+            record.comments = entries;
+            record.commentCount = entries.length;
+          });
+      }
 
-  return getComments
+      return getComments;
+    })
     .then(function () {
       _this.updateCommentCounter({
         id: id,
@@ -2138,6 +2160,10 @@ DynamicList.prototype.sendComment = function(id, value) {
 
   var record = _.find(_this.listItems, { id: id });
 
+  if (!record) {
+    return Promise.resolve();
+  }
+
   if (_.get(record, 'commentCount')) {
     record.commentCount++;
   }
@@ -2156,11 +2182,6 @@ DynamicList.prototype.sendComment = function(id, value) {
   var comment = {
     fromName: userName,
     user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
-  };
-
-  var content = {
-    contentDataSourceEntryId: id,
-    type: 'comment'
   };
 
   _.assignIn(comment, { contentDataSourceEntryId: id });
@@ -2202,11 +2223,14 @@ DynamicList.prototype.sendComment = function(id, value) {
   comment.text = value;
   comment.timestamp = timestamp;
 
-  return Fliplet.Profile.Content({ dataSourceId: _this.data.commentsDataSourceId })
-    .then(function(instance) {
-      return instance.create(content, {
-        settings: comment
-      })
+  return _this.getCommentIdentifier(record)
+    .then(function (identifier) {
+      return Fliplet.Profile.Content({ dataSourceId: _this.data.commentsDataSourceId })
+        .then(function(instance) {
+          return instance.create(identifier, {
+            settings: comment
+          })
+        });
     })
     .then(function(comment) {
       record.comments.push(comment);
@@ -2356,11 +2380,6 @@ DynamicList.prototype.saveComment = function(entryId, commentId, value) {
     commentData.data.settings.text = value;
     _this.replaceComment(commentId, commentData, 'temp');
   }
-
-  var content = {
-    contentDataSourceEntryId: entryId,
-    type: 'comment'
-  };
 
   Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
     .then(function(instance) {

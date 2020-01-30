@@ -397,6 +397,13 @@
   transition: opacity 0.2s ease-out;
 }
 
+.search-holder .btn.search-btn:focus,
+.search-holder .btn.search-btn:hover,
+.search-holder .btn.search-btn:active:focus,
+.search-holder .btn.search-btn:active:hover {
+  border-radius: 40px;
+}
+
 .search-holder .search-feed:focus ~ .btn.search-btn,
 .search-holder .search-feed:valid ~ .btn.search-btn {
   opacity: 1;
@@ -477,7 +484,7 @@
   text-overflow: ellipsis;
   max-width: calc(100% - 185px);
   display: inline-block;
-  vertical-align: text-top;
+  vertical-align: baseline;
 }
 
 .new-small-card-list-container .current-query-wrapper .clear-search {
