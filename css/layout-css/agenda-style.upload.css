@@ -836,6 +836,10 @@
   vertical-align: top;
 }
 
+.new-agenda-list-container .agenda-date-selector.is-panning ~ .agenda-cards-wrapper .agenda-list-day-holder {
+  overflow: hidden;
+}
+
 .new-agenda-list-container.has-top-bar .agenda-list-day-holder {
   /* Top bar */
   margin-top: 148px;

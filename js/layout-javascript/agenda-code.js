@@ -2015,44 +2015,42 @@ DynamicList.prototype.searchData = function(options) {
 DynamicList.prototype.bindTouchEvents = function() {
   var _this = this;
   var handle = document.getElementById('agenda-cards-wrapper-' +_this.data.id);
-  _this.hammer = _this.hammer || new Hammer(handle);
+  _this.hammer = _this.hammer || new Hammer(handle, {
+    inputClass: Hammer.TouchInput,
+    touchAction: 'pan-y'
+  });
 
   _this.hammer.on('panright panleft', function(e) {
-    if (_this.checkScrollHorizontal(e)) {
-      _this.isPanning = true;
-      _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
-      _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
-      _this.$container.find('.agenda-date-selector ul').addClass('is-panning');
-
-      var reverse = e.deltaX - (e.deltaX * 2);
-      _this.scrollValue = reverse;
-      _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
+    if (!_this.isPanningHorizontal(e)) {
+      return;
     }
+
+    _this.isPanning = true;
+    _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
+    _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
+    _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').addClass('is-panning');
+    _this.scrollValue = -1 * e.deltaX;
+    _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
   });
 
   _this.hammer.on('panend', function(e) {
-    _this.$container.find('.agenda-date-selector ul').removeClass('is-panning');
-    if (_this.checkScrollHorizontal(e)) {
-      if ( _this.scrollValue > 0 ) {
-        _this.sliderGoTo( _this.activeSlideIndex + 1 );
-      } else if ( _this.scrollValue < 0 ) {
-        _this.sliderGoTo( _this.activeSlideIndex - 1 );
-      }
+    _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').removeClass('is-panning');
+
+    if (!_this.isPanningHorizontal(e)) {
+      return;
+    }
+
+    if ( _this.scrollValue > 0 ) {
+      _this.sliderGoTo( _this.activeSlideIndex + 1 );
+    } else if ( _this.scrollValue < 0 ) {
+      _this.sliderGoTo( _this.activeSlideIndex - 1 );
     }
   });
-}
+};
 
-DynamicList.prototype.checkScrollHorizontal = function(e) {
-  var _this = this;
-  var deltaY = e.deltaY;
-  var positiveDeltaY = deltaY < 0 ? deltaY *= -1 : deltaY;
-  var deltaX = e.deltaX;
-  var positiveDeltaX = deltaX < 0 ? deltaX *= -1 : deltaX;
-  var distanceY = e.distance - positiveDeltaY;
-  var distanceX = e.distance - positiveDeltaX;
-
-  return distanceX < distanceY
-}
+DynamicList.prototype.isPanningHorizontal = function(e) {
+  return Math.abs(e.deltaX) > Math.abs(e.deltaY);
+};
 
 DynamicList.prototype.getDateIndex = function (date) {
   var d = this.Utils.Date.moment(date);
