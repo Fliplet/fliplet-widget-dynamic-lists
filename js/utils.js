@@ -1114,6 +1114,16 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function getRecordUniqueId(options) {
+    options = options || {};
+
+    if (typeof options.field === 'string' && options.field.length) {
+      return _.get(options, ['record', 'data', options.field]);
+    }
+
+    return _.get(options, ['record', 'id']);
+  }
+
   function userIsAdmin(config, userData) {
     var adminValue = _.get(userData, config.userAdminColumn);
 
@@ -1342,7 +1352,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
-      addComputedFields: addRecordsComputedFields
+      addComputedFields: addRecordsComputedFields,
+      getUniqueId: getRecordUniqueId
     },
     User: {
       isAdmin: userIsAdmin,

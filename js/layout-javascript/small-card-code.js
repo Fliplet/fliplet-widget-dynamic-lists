@@ -1401,8 +1401,12 @@ DynamicList.prototype.searchData = function(options) {
 }
 
 DynamicList.prototype.getBookmarkIdentifier = function (record) {
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    field: this.data.dataPrimaryKey
+  });
   var defaultIdentifier = {
-    entryId: record.id + '-bookmark'
+    entryId: uniqueId + '-bookmark'
   };
   var customIdentifier = Promise.resolve();
 

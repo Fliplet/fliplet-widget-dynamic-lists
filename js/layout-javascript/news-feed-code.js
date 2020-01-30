@@ -1715,8 +1715,12 @@ DynamicList.prototype.searchData = function(options) {
 }
 
 DynamicList.prototype.getLikeIdentifier = function (record) {
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    field: this.data.dataPrimaryKey
+  });
   var defaultIdentifier = {
-    entryId: record.id + '-like',
+    entryId: uniqueId + '-like',
     pageId: Fliplet.Env.get('pageId')
   };
   var customIdentifier = Promise.resolve();
@@ -1836,8 +1840,12 @@ DynamicList.prototype.setupLikeButton = function(options) {
 }
 
 DynamicList.prototype.getBookmarkIdentifier = function (record) {
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    field: this.data.dataPrimaryKey
+  });
   var defaultIdentifier = {
-    entryId: record.id + '-bookmark'
+    entryId: uniqueId + '-bookmark'
   };
   var customIdentifier = Promise.resolve();
 
@@ -2033,8 +2041,12 @@ DynamicList.prototype.closeDetails = function() {
 /******************/
 
 DynamicList.prototype.getCommentIdentifier = function (record) {
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    field: this.data.dataPrimaryKey
+  });
   var defaultIdentifier = {
-    contentDataSourceEntryId: _.get(entry, 'id'),
+    contentDataSourceEntryId: uniqueId,
     type: 'comment'
   };
   var customIdentifier = Promise.resolve();
