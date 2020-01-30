@@ -668,7 +668,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData();
     })
     .on('click', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function() {
-      var id = $(this).parents('.agenda-detail-wrapper').data('entry-id');
+      var id = $(this).parents('.agenda-detail-wrapper, .agenda-list-item').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
       if (!record || !record.bookmarkButton) {
@@ -1689,14 +1689,16 @@ DynamicList.prototype.toggleBookmarkStatus = function (record) {
 
   if (record.bookmarked) {
     this.$container
-      .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmark')
-        .removeClass('btn-bookmark').addClass('btn-bookmarked')
-        .find('.fa-bookmark-o').removeClass('fa-bookmark-o').addClass('fa-bookmark');
+      .find('.agenda-cards-wrapper, .search-results-wrapper')
+        .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmark')
+          .removeClass('btn-bookmark').addClass('btn-bookmarked')
+          .find('.fa-bookmark-o').removeClass('fa-bookmark-o').addClass('fa-bookmark');
   } else {
     this.$container
-      .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmarked')
-        .removeClass('btn-bookmarked').addClass('btn-bookmark')
-        .find('.fa-bookmark').removeClass('fa-bookmark').addClass('fa-bookmark-o');
+      .find('.agenda-cards-wrapper, .search-results-wrapper')
+        .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmarked')
+          .removeClass('btn-bookmarked').addClass('btn-bookmark')
+          .find('.fa-bookmark').removeClass('fa-bookmark').addClass('fa-bookmark-o');
   }
 };
 
@@ -1746,8 +1748,16 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
           likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
           addType: 'prepend',
-          getAllCounts: false
+          getAllCounts: false,
+          liked: record.bookmarked,
+          silent: record.bookmarkButton
         });
+
+        if (record.bookmarkButton) {
+          resolve(btn);
+          return;
+        }
+
         record.bookmarkButton = btn;
 
         btn.on('like.status', function (liked) {
