@@ -313,6 +313,10 @@
 
 .new-small-card-list-container .list-search-icon {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
 }
 
 .new-small-card-list-container .list-search-icon .fa {
@@ -321,7 +325,7 @@
   font-size: 20px;
   width: 35px;
   height: 35px;
-  text-align: right;
+  text-align: center;
   line-height: 35px;
 }
 
