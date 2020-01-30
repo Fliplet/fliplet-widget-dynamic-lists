@@ -96,6 +96,16 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
   }
 }
 
+DynamicList.prototype.clearFilters = function () {
+  this.toggleFilterElement(this.$container.find('.mixitup-control-active'), false);
+  return this.searchData();
+};
+
+DynamicList.prototype.hideFilterOverlay = function () {
+  this.$container.find('.simple-list-search-filter-overlay').removeClass('display');
+  $('body').removeClass('lock');
+};
+
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -138,15 +148,13 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.apply-filters', function() {
+      _this.hideFilterOverlay();
       _this.searchData();
-
-      $(this).parents('.simple-list-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock');
     })
     .on('click', '.clear-filters', function() {
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
       $(this).addClass('hidden');
-      _this.searchData();
+      _this.hideFilterOverlay();
+      _this.clearFilters();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
       var $filter = $(this);
@@ -309,17 +317,13 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click', '.list-search-cancel', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.simple-list-container');
-
-      _this.Utils.Page.updateFilterControlsContext();
-
-      if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
-        $parentElement.find('.hidden-filter-controls').removeClass('active');
-        $elementClicked.removeClass('active');
-        $parentElement.find('.list-search-icon .fa-sliders').removeClass('active');
-        $parentElement.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-      }
+      // Hide filters
+      $(this).removeClass('active');
+      _this.$container.find('.hidden-filter-controls').removeClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+      // Clear filters
+      _this.clearFilters();
     })
     .on('keydown change paste', '.search-holder input', function(e) {
       var $inputField = $(this);
