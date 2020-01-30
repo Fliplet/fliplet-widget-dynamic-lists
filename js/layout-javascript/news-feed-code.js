@@ -885,7 +885,7 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  if (typeof _this.data.getBookmarkIdentifier === 'function') {
+  if (typeof _this.data.getBookmarkIdentifier === 'function' || _this.data.dataPrimaryKey) {
     return Promise.resolve();
   }
 
@@ -1717,7 +1717,7 @@ DynamicList.prototype.searchData = function(options) {
 DynamicList.prototype.getLikeIdentifier = function (record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
-    field: this.data.dataPrimaryKey
+    config: this.data
   });
   var defaultIdentifier = {
     entryId: uniqueId + '-like',
@@ -1842,7 +1842,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
 DynamicList.prototype.getBookmarkIdentifier = function (record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
-    field: this.data.dataPrimaryKey
+    config: this.data
   });
   var defaultIdentifier = {
     entryId: uniqueId + '-bookmark'
@@ -2043,7 +2043,7 @@ DynamicList.prototype.closeDetails = function() {
 DynamicList.prototype.getCommentIdentifier = function (record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
-    field: this.data.dataPrimaryKey
+    config: this.data
   });
   var defaultIdentifier = {
     contentDataSourceEntryId: uniqueId,

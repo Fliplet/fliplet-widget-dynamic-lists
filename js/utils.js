@@ -1117,8 +1117,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   function getRecordUniqueId(options) {
     options = options || {};
 
-    if (typeof options.field === 'string' && options.field.length) {
-      return _.get(options, ['record', 'data', options.field]);
+    var primaryKey = _.get(options, 'config.dataPrimaryKey');
+
+    if (typeof primaryKey === 'function') {
+      return primaryKey({
+        record: options.record,
+        config: options.config
+      });
+    }
+
+    if (typeof primaryKey === 'string' && primaryKey.length) {
+      return _.get(options, ['record', 'data', primaryKey]);
     }
 
     return _.get(options, ['record', 'id']);

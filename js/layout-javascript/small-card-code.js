@@ -1403,7 +1403,7 @@ DynamicList.prototype.searchData = function(options) {
 DynamicList.prototype.getBookmarkIdentifier = function (record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
-    field: this.data.dataPrimaryKey
+    config: this.data
   });
   var defaultIdentifier = {
     entryId: uniqueId + '-bookmark'
@@ -1539,7 +1539,7 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  if (typeof _this.data.getBookmarkIdentifier === 'function') {
+  if (typeof _this.data.getBookmarkIdentifier === 'function' || _this.data.dataPrimaryKey) {
     return Promise.resolve();
   }
 
