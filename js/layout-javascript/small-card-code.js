@@ -154,15 +154,13 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.apply-filters', function() {
+      _this.hideFilterOverlay();
       _this.searchData();
-
-      $(this).parents('.small-card-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock');
     })
     .on('click', '.clear-filters', function() {
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
       $(this).addClass('hidden');
-      _this.searchData();
+      _this.hideFilterOverlay();
+      _this.clearFilters();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
       var $filter = $(this);

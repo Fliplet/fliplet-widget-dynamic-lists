@@ -136,15 +136,13 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('click', '.apply-filters', function() {
+      _this.hideFilterOverlay();
       _this.searchData();
-
-      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock has-filter-overlay');
     })
     .on('click', '.clear-filters', function() {
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
       $(this).addClass('hidden');
-      _this.searchData();
+      _this.hideFilterOverlay();
+      _this.clearFilters();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
       var $filter = $(this);
@@ -671,7 +669,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData();
     })
     .on('click', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function() {
-      var id = $(this).parents('.agenda-detail-wrapper').data('entry-id');
+      var id = $(this).parents('.agenda-detail-wrapper, .agenda-list-item').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
       if (!record || !record.bookmarkButton) {
@@ -1692,14 +1690,16 @@ DynamicList.prototype.toggleBookmarkStatus = function (record) {
 
   if (record.bookmarked) {
     this.$container
-      .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmark')
-        .removeClass('btn-bookmark').addClass('btn-bookmarked')
-        .find('.fa-bookmark-o').removeClass('fa-bookmark-o').addClass('fa-bookmark');
+      .find('.agenda-cards-wrapper, .search-results-wrapper')
+        .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmark')
+          .removeClass('btn-bookmark').addClass('btn-bookmarked')
+          .find('.fa-bookmark-o').removeClass('fa-bookmark-o').addClass('fa-bookmark');
   } else {
     this.$container
-      .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmarked')
-        .removeClass('btn-bookmarked').addClass('btn-bookmark')
-        .find('.fa-bookmark').removeClass('fa-bookmark').addClass('fa-bookmark-o');
+      .find('.agenda-cards-wrapper, .search-results-wrapper')
+        .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmarked')
+          .removeClass('btn-bookmarked').addClass('btn-bookmark')
+          .find('.fa-bookmark').removeClass('fa-bookmark').addClass('fa-bookmark-o');
   }
 };
 
@@ -1749,8 +1749,16 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
           likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
           addType: 'prepend',
-          getAllCounts: false
+          getAllCounts: false,
+          liked: record.bookmarked,
+          silent: record.bookmarkButton
         });
+
+        if (record.bookmarkButton) {
+          resolve(btn);
+          return;
+        }
+
         record.bookmarkButton = btn;
 
         btn.on('like.status', function (liked) {
@@ -2035,44 +2043,43 @@ DynamicList.prototype.searchData = function(options) {
 DynamicList.prototype.bindTouchEvents = function() {
   var _this = this;
   var handle = document.getElementById('agenda-cards-wrapper-' +_this.data.id);
-  _this.hammer = _this.hammer || new Hammer(handle);
+
+  _this.hammer = _this.hammer || new Hammer(handle, {
+    inputClass: Hammer.TouchInput,
+    touchAction: 'pan-y'
+  });
 
   _this.hammer.on('panright panleft', function(e) {
-    if (_this.checkScrollHorizontal(e)) {
-      _this.isPanning = true;
-      _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
-      _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
-      _this.$container.find('.agenda-date-selector ul').addClass('is-panning');
-
-      var reverse = e.deltaX - (e.deltaX * 2);
-      _this.scrollValue = reverse;
-      _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
+    if (!_this.isPanningHorizontal(e)) {
+      return;
     }
+
+    _this.isPanning = true;
+    _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
+    _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
+    _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').addClass('is-panning');
+    _this.scrollValue = -1 * e.deltaX;
+    _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
   });
 
   _this.hammer.on('panend', function(e) {
-    _this.$container.find('.agenda-date-selector ul').removeClass('is-panning');
-    if (_this.checkScrollHorizontal(e)) {
-      if ( _this.scrollValue > 0 ) {
-        _this.sliderGoTo( _this.activeSlideIndex + 1 );
-      } else if ( _this.scrollValue < 0 ) {
-        _this.sliderGoTo( _this.activeSlideIndex - 1 );
-      }
+    _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').removeClass('is-panning');
+
+    if (!_this.isPanningHorizontal(e)) {
+      return;
+    }
+
+    if ( _this.scrollValue > 0 ) {
+      _this.sliderGoTo( _this.activeSlideIndex + 1 );
+    } else if ( _this.scrollValue < 0 ) {
+      _this.sliderGoTo( _this.activeSlideIndex - 1 );
     }
   });
-}
+};
 
-DynamicList.prototype.checkScrollHorizontal = function(e) {
-  var _this = this;
-  var deltaY = e.deltaY;
-  var positiveDeltaY = deltaY < 0 ? deltaY *= -1 : deltaY;
-  var deltaX = e.deltaX;
-  var positiveDeltaX = deltaX < 0 ? deltaX *= -1 : deltaX;
-  var distanceY = e.distance - positiveDeltaY;
-  var distanceX = e.distance - positiveDeltaX;
-
-  return distanceX < distanceY
-}
+DynamicList.prototype.isPanningHorizontal = function(e) {
+  return Math.abs(e.deltaX) > Math.abs(e.deltaY);
+};
 
 DynamicList.prototype.getDateIndex = function (date) {
   var d = this.Utils.Date.moment(date);
