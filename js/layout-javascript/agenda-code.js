@@ -40,6 +40,7 @@ function DynamicList(id, data, container) {
 
   this.listItems = [];
   this.agendasByDay = [];
+  this.filteredAgendasByDay = [];
   this.filteredListItemsByDay = [];
   this.filteredListItems = [];
   this.dataSourceColumns = [];
@@ -801,7 +802,7 @@ DynamicList.prototype.initialize = function() {
       _this.listItems = _.uniqBy(response, 'id');
 
       _this.prepareToRenderLoop(_this.listItems);
-      _this.agendasByDay = _this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation);
+      _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
       _this.checkIsToOpen();
       return _this.addFilters(_this.modifiedListItems);
     }).then(function () {
@@ -824,7 +825,7 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _(_this.agendasByDay)
+    entry = _(_this.getAgendasByDay())
       .chain()
       .thru(function(day) {
         return _.union(day, _.map(day, 'children'));
@@ -840,7 +841,7 @@ DynamicList.prototype.checkIsToOpen = function(options) {
     };
     queryObject.originalData[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
 
-    entry = _(_this.agendasByDay)
+    entry = _(_this.getAgendasByDay())
       .chain()
       .thru(function(day) {
         return _.union(day, _.map(day, 'children'));
@@ -1214,7 +1215,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
-      var nextBatch = _this.agendasByDay.slice(
+      var nextBatch = _this.getAgendasByDay().slice(
         _this.INCREMENTAL_RENDERING_BATCH_SIZE * renderLoopIndex,
         _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
       );
@@ -1507,7 +1508,7 @@ DynamicList.prototype.initializeSocials = function() {
   var _this = this;
 
   return _this.getAllBookmarks().then(function () {
-    return Promise.all(_.map(_.flatten(_this.agendasByDay), function (record) {
+    return Promise.all(_.map(_.flatten(_this.getAgendasByDay()), function (record) {
       var title = _this.$container.find('.agenda-cards-wrapper .agenda-list-item[data-entry-id="' + record.id + '"] .agenda-item-title').text().trim();
       var masterRecord = _.find(_this.listItems, { id: record.id });
       var $listView = _this.isInLoopView()
@@ -1833,6 +1834,18 @@ DynamicList.prototype.emptySearchResults = function () {
   this.filteredListItems = [];
 };
 
+DynamicList.prototype.getAgendasByDay = function () {
+  return this.isInLoopView() ? this.agendasByDay : this.filteredAgendasByDay;
+};
+
+DynamicList.prototype.setAgendasByDay = function (agenda) {
+  if (this.isInLoopView()) {
+    this.agendasByDay = agenda;
+  } else {
+    this.filteredAgendasByDay = agenda;
+  }
+};
+
 DynamicList.prototype.getListItems = function () {
   return this.isInLoopView() ? this.filteredListItemsByDay : this.filteredListItems;
 };
@@ -1984,7 +1997,7 @@ DynamicList.prototype.searchData = function(options) {
        **/
 
       _this.prepareToRenderLoop(searchedData);
-      _this.agendasByDay = _this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation);
+      _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
 
       // Render the full list
       return _this.renderLoopHTML().then(function(records){
@@ -2129,7 +2142,7 @@ DynamicList.prototype.sliderGoTo = function(number) {
 DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _(_this.agendasByDay)
+  var entryData = _(_this.getAgendasByDay())
     .chain()
     .thru(function(coll) {
       return _.union(coll, _.map(coll, 'children'));
