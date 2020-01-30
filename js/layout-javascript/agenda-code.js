@@ -1466,17 +1466,19 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  return _this.Utils.Query.fetchAndCache({
-    key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
-    waitFor: 400,
-    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
-      return instance.query({
-        where: {
-          content: { entryId: { $regex: '\\d-bookmark' } }
-        },
-        exact: false
-      });
-    })
+  return _this.getBookmarkQuery().then(function (query) {
+    return _this.Utils.Query.fetchAndCache({
+      key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
+      waitFor: 400,
+      request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+        return instance.query({
+          where: {
+            content: query
+          },
+          exact: false
+        });
+      })
+    });
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
       var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
@@ -1515,7 +1517,6 @@ DynamicList.prototype.initializeSocials = function() {
       return _this.setupBookmarkButton({
         target: $listView.find('.agenda-item-bookmark-holder-' + record.id),
         id: record.id,
-        identifier: record.id + '-bookmark',
         title: title,
         record: masterRecord
       });
@@ -1694,6 +1695,19 @@ DynamicList.prototype.toggleBookmarkStatus = function (record) {
   }
 };
 
+DynamicList.prototype.getBookmarkIdentifier = function (record) {
+  return Promise.resolve({
+    entryId: record.id + '-bookmark',
+    pageId: Fliplet.Env.get('pageId')
+  });
+};
+
+DynamicList.prototype.getBookmarkQuery = function () {
+  return Promise.resolve({
+    entryId: { $regex: '\\d-bookmark' }
+  });
+};
+
 // Functions to setup Fliplet Like
 DynamicList.prototype.setupBookmarkButton = function(options) {
   if (!this.data.bookmarksEnabled) {
@@ -1713,62 +1727,62 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     return Promise.resolve();
   }
 
-  return new Promise(function (resolve) {
-    var btn = LikeButton({
-      target: target,
-      dataSourceId: _this.data.bookmarkDataSourceId,
-      content: {
-        entryId: identifier,
-        pageId: Fliplet.Env.get('pageId')
-      },
-      allowAnonymous: true,
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<span class="fa fa-bookmark-o"></span>',
-      likedLabel: '<span class="fa fa-bookmark"></span>',
-      likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
-      likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
-      addType: 'prepend',
-      getAllCounts: false
-    });
-    record.bookmarkButton = btn;
+  return _this.getBookmarkIdentifier(record)
+    .then(function (identifier) {
+      return new Promise(function (resolve) {
+        var btn = LikeButton({
+          target: target,
+          dataSourceId: _this.data.bookmarkDataSourceId,
+          content: identifier,
+          allowAnonymous: true,
+          name: Fliplet.Env.get('pageTitle') + '/' + title,
+          likeLabel: '<span class="fa fa-bookmark-o"></span>',
+          likedLabel: '<span class="fa fa-bookmark"></span>',
+          likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
+          likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
+          addType: 'prepend',
+          getAllCounts: false
+        });
+        record.bookmarkButton = btn;
 
-    btn.on('like.status', function (liked) {
-      record.bookmarked = liked;
-      resolve(btn);
-    });
+        btn.on('like.status', function (liked) {
+          record.bookmarked = liked;
+          resolve(btn);
+        });
 
-    btn.on('liked', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.toggleBookmarkStatus(record);
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: title
+        btn.on('liked', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.toggleBookmarkStatus(record);
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_bookmark',
+            label: title
+          });
+        });
+
+        btn.on('liked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
+          _this.$container.find('.search-results-wrapper .agenda-item-bookmark-holder-' + id + ' .bookmark-wrapper').removeClass('btn-bookmarked').addClass('btn-bookmark');
+        });
+
+        btn.on('unliked', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.toggleBookmarkStatus(record);
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_unbookmark',
+            label: title
+          });
+        });
+
+        btn.on('unliked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
+          _this.$container.find('.search-results-wrapper .agenda-item-bookmark-holder-' + id + ' .bookmark-wrapper').removeClass('btn-bookmark').addClass('btn-bookmarked');
+        });
       });
     });
-
-    btn.on('liked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
-      _this.$container.find('.search-results-wrapper .agenda-item-bookmark-holder-' + id + ' .bookmark-wrapper').removeClass('btn-bookmarked').addClass('btn-bookmark');
-    });
-
-    btn.on('unliked', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.toggleBookmarkStatus(record);
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: title
-      });
-    });
-
-    btn.on('unliked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.agenda-detail-overlay .agenda-item-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
-      _this.$container.find('.search-results-wrapper .agenda-item-bookmark-holder-' + id + ' .bookmark-wrapper').removeClass('btn-bookmark').addClass('btn-bookmarked');
-    });
-  });
 }
 
 DynamicList.prototype.initializeOverlaySocials = function(id) {
@@ -1788,7 +1802,6 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 
   return _this.setupBookmarkButton({
     id: id,
-    identifier: id + '-bookmark',
     title: title,
     record: record
   }).then(function (btn) {

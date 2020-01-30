@@ -1395,6 +1395,18 @@ DynamicList.prototype.searchData = function(options) {
   });
 }
 
+DynamicList.prototype.getBookmarkIdentifier = function (record) {
+  return Promise.resolve({
+    entryId: record.id + '-bookmark'
+  });
+};
+
+DynamicList.prototype.getBookmarkQuery = function () {
+  return Promise.resolve({
+    entryId: { $regex: '\\d-bookmark' }
+  });
+};
+
 DynamicList.prototype.setupBookmarkButton = function(options) {
   if (!_.get(this.data, 'social.bookmark')) {
     return Promise.resolve();
@@ -1404,7 +1416,6 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
 
   var _this = this;
   var id = options.id;
-  var identifier = options.identifier;
   var title = options.title;
   var target = options.target;
   var record = options.record || _.find(_this.listItems, { id: id });
@@ -1413,57 +1424,58 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     return Promise.resolve();
   }
 
-  return new Promise(function (resolve) {
-    var btn = LikeButton({
-      target: target,
-      dataSourceId: _this.data.bookmarkDataSourceId,
-      content: {
-        entryId: identifier
-      },
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<i class="fa fa-bookmark-o"></i>',
-      likedLabel: '<i class="fa fa-bookmark animated fadeIn"></i>',
-      likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
-      likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
-      addType: 'html',
-      getAllCounts: false,
-      liked: record.bookmarked
-    });
-    record.bookmarkButton = btn;
+  return _this.getBookmarkIdentifier(record)
+    .then(function (identifier) {
+      return new Promise(function (resolve) {
+        var btn = LikeButton({
+          target: target,
+          dataSourceId: _this.data.bookmarkDataSourceId,
+          content: identifier,
+          name: Fliplet.Env.get('pageTitle') + '/' + title,
+          likeLabel: '<i class="fa fa-bookmark-o"></i>',
+          likedLabel: '<i class="fa fa-bookmark animated fadeIn"></i>',
+          likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
+          likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
+          addType: 'html',
+          getAllCounts: false,
+          liked: record.bookmarked
+        });
+        record.bookmarkButton = btn;
 
-    btn.on('like.status', function (liked) {
-      record.bookmarked = liked;
-      resolve(btn);
-    });
+        btn.on('like.status', function (liked) {
+          record.bookmarked = liked;
+          resolve(btn);
+        });
 
-    btn.on('liked', function(data){
-      record.bookmarked = btn.isLiked();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: title
+        btn.on('liked', function(data){
+          record.bookmarked = btn.isLiked();
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_bookmark',
+            label: title
+          });
+        });
+
+        btn.on('liked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
+        });
+
+        btn.on('unliked', function(data){
+          record.bookmarked = btn.isLiked();
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_unbookmark',
+            label: title
+          });
+        });
+
+        btn.on('unliked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
+        });
       });
     });
-
-    btn.on('liked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
-    });
-
-    btn.on('unliked', function(data){
-      record.bookmarked = btn.isLiked();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: title
-      });
-    });
-
-    btn.on('unliked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.small-card-detail-overlay .small-card-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
-    });
-  });
 }
 
 DynamicList.prototype.initializeOverlaySocials = function(id) {
@@ -1483,7 +1495,6 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 
   return _this.setupBookmarkButton({
     id: id,
-    identifier: id + '-bookmark',
     title: title,
     record: record
   }).then(function (btn) {
@@ -1502,17 +1513,19 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  return _this.Utils.Query.fetchAndCache({
-    key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
-    waitFor: 400,
-    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
-      return instance.query({
-        where: {
-          content: { entryId: { $regex: '\\d-bookmark' } }
-        },
-        exact: false
-      });
-    })
+  return _this.getBookmarkQuery().then(function (query) {
+    return _this.Utils.Query.fetchAndCache({
+      key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
+      waitFor: 400,
+      request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+        return instance.query({
+          where: {
+            content: query
+          },
+          exact: false
+        });
+      })
+    });
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
       var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
@@ -1548,7 +1561,6 @@ DynamicList.prototype.initializeSocials = function (records) {
       return _this.setupBookmarkButton({
         target: '.new-small-card-list-container .small-card-bookmark-holder-' + record.id,
         id: record.id,
-        identifier: record.id + '-bookmark',
         title: title,
         record: masterRecord
       });
