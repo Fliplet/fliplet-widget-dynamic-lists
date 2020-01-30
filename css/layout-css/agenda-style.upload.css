@@ -378,6 +378,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: 5px;
 }
 
 .new-agenda-list-container .list-search-icon .fa {
@@ -386,7 +387,7 @@
   font-size: 20px;
   width: 35px;
   height: 35px;
-  text-align: right;
+  text-align: center;
   line-height: 35px;
 }
 
@@ -416,8 +417,8 @@
   margin: 0 auto;
   top: 49px;
   top: calc(49px + env(safe-area-inset-top));
-  left: 10px;
-  right: 10px;
+  left: 0;
+  right: 0;
   max-width: 600px;
 }
 

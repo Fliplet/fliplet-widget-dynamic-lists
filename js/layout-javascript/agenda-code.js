@@ -40,6 +40,7 @@ function DynamicList(id, data, container) {
 
   this.listItems = [];
   this.agendasByDay = [];
+  this.filteredAgendasByDay = [];
   this.filteredListItemsByDay = [];
   this.filteredListItems = [];
   this.dataSourceColumns = [];
@@ -109,6 +110,16 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
   }
 };
 
+DynamicList.prototype.clearFilters = function () {
+  this.toggleFilterElement(this.$container.find('.mixitup-control-active'), false);
+  return this.searchData();
+};
+
+DynamicList.prototype.hideFilterOverlay = function () {
+  this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
+  $('body').removeClass('lock has-filter-overlay');
+};
+
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -125,15 +136,13 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('click', '.apply-filters', function() {
+      _this.hideFilterOverlay();
       _this.searchData();
-
-      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock has-filter-overlay');
     })
     .on('click', '.clear-filters', function() {
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
       $(this).addClass('hidden');
-      _this.searchData();
+      _this.hideFilterOverlay();
+      _this.clearFilters();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
       var $filter = $(this);
@@ -215,17 +224,13 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click', '.list-search-cancel', function() {
-      var $el = $(this);
-
-      _this.Utils.Page.updateFilterControlsContext();
-
-      if (_this.$container.find('.hidden-filter-controls').hasClass('active')) {
-        _this.$container.find('.hidden-filter-controls').removeClass('active');
-        $el.removeClass('active');
-        _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
-        _this.toggleListView();
-        _this.calculateFiltersHeight(true);
-      }
+      // Hide filters
+      $(this).removeClass('active');
+      _this.$container.find('.hidden-filter-controls').removeClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.calculateFiltersHeight(true);
+      // Clear filters
+      _this.clearFilters();
     })
     .on('keydown change paste', '.search-holder input', function(e) {
       var $inputField = $(this);
@@ -663,7 +668,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData();
     })
     .on('click', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function() {
-      var id = $(this).parents('.agenda-detail-wrapper').data('entry-id');
+      var id = $(this).parents('.agenda-detail-wrapper, .agenda-list-item').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
       if (!record || !record.bookmarkButton) {
@@ -801,7 +806,7 @@ DynamicList.prototype.initialize = function() {
       _this.listItems = _.uniqBy(response, 'id');
 
       _this.prepareToRenderLoop(_this.listItems);
-      _this.agendasByDay = _this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation);
+      _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
       _this.checkIsToOpen();
       return _this.addFilters(_this.modifiedListItems);
     }).then(function () {
@@ -824,7 +829,7 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _(_this.agendasByDay)
+    entry = _(_this.getAgendasByDay())
       .chain()
       .thru(function(day) {
         return _.union(day, _.map(day, 'children'));
@@ -840,7 +845,7 @@ DynamicList.prototype.checkIsToOpen = function(options) {
     };
     queryObject.originalData[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
 
-    entry = _(_this.agendasByDay)
+    entry = _(_this.getAgendasByDay())
       .chain()
       .thru(function(day) {
         return _.union(day, _.map(day, 'children'));
@@ -1214,7 +1219,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
-      var nextBatch = _this.agendasByDay.slice(
+      var nextBatch = _this.getAgendasByDay().slice(
         _this.INCREMENTAL_RENDERING_BATCH_SIZE * renderLoopIndex,
         _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
       );
@@ -1507,7 +1512,7 @@ DynamicList.prototype.initializeSocials = function() {
   var _this = this;
 
   return _this.getAllBookmarks().then(function () {
-    return Promise.all(_.map(_.flatten(_this.agendasByDay), function (record) {
+    return Promise.all(_.map(_.flatten(_this.getAgendasByDay()), function (record) {
       var title = _this.$container.find('.agenda-cards-wrapper .agenda-list-item[data-entry-id="' + record.id + '"] .agenda-item-title').text().trim();
       var masterRecord = _.find(_this.listItems, { id: record.id });
       var $listView = _this.isInLoopView()
@@ -1684,14 +1689,16 @@ DynamicList.prototype.toggleBookmarkStatus = function (record) {
 
   if (record.bookmarked) {
     this.$container
-      .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmark')
-        .removeClass('btn-bookmark').addClass('btn-bookmarked')
-        .find('.fa-bookmark-o').removeClass('fa-bookmark-o').addClass('fa-bookmark');
+      .find('.agenda-cards-wrapper, .search-results-wrapper')
+        .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmark')
+          .removeClass('btn-bookmark').addClass('btn-bookmarked')
+          .find('.fa-bookmark-o').removeClass('fa-bookmark-o').addClass('fa-bookmark');
   } else {
     this.$container
-      .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmarked')
-        .removeClass('btn-bookmarked').addClass('btn-bookmark')
-        .find('.fa-bookmark').removeClass('fa-bookmark').addClass('fa-bookmark-o');
+      .find('.agenda-cards-wrapper, .search-results-wrapper')
+        .find('.agenda-item-bookmark-holder-' + record.id + ' .bookmark-wrapper.btn-bookmarked')
+          .removeClass('btn-bookmarked').addClass('btn-bookmark')
+          .find('.fa-bookmark').removeClass('fa-bookmark').addClass('fa-bookmark-o');
   }
 };
 
@@ -1741,8 +1748,16 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
           likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
           addType: 'prepend',
-          getAllCounts: false
+          getAllCounts: false,
+          liked: record.bookmarked,
+          silent: record.bookmarkButton
         });
+
+        if (record.bookmarkButton) {
+          resolve(btn);
+          return;
+        }
+
         record.bookmarkButton = btn;
 
         btn.on('like.status', function (liked) {
@@ -1831,6 +1846,18 @@ DynamicList.prototype.toggleListView = function (view) {
 DynamicList.prototype.emptySearchResults = function () {
   this.$container.find('.search-results-wrapper .search-results-holder').empty();
   this.filteredListItems = [];
+};
+
+DynamicList.prototype.getAgendasByDay = function () {
+  return this.isInLoopView() ? this.agendasByDay : this.filteredAgendasByDay;
+};
+
+DynamicList.prototype.setAgendasByDay = function (agenda) {
+  if (this.isInLoopView()) {
+    this.agendasByDay = agenda;
+  } else {
+    this.filteredAgendasByDay = agenda;
+  }
 };
 
 DynamicList.prototype.getListItems = function () {
@@ -1984,7 +2011,7 @@ DynamicList.prototype.searchData = function(options) {
        **/
 
       _this.prepareToRenderLoop(searchedData);
-      _this.agendasByDay = _this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation);
+      _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
 
       // Render the full list
       return _this.renderLoopHTML().then(function(records){
@@ -2128,7 +2155,7 @@ DynamicList.prototype.sliderGoTo = function(number) {
 DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _(_this.agendasByDay)
+  var entryData = _(_this.getAgendasByDay())
     .chain()
     .thru(function(coll) {
       return _.union(coll, _.map(coll, 'children'));
