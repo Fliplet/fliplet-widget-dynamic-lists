@@ -111,7 +111,7 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
 };
 
 DynamicList.prototype.clearFilters = function () {
-  this.toggleFilterElement(this.$container.find('.mixitup-control-active'), false);
+  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
   return this.searchData();
 };
 
@@ -229,6 +229,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.calculateFiltersHeight(true);
+
       // Clear filters
       _this.clearFilters();
     })
@@ -1471,22 +1472,27 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
-  return _this.getBookmarkQuery().then(function (query) {
-    return _this.Utils.Query.fetchAndCache({
-      key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
-      waitFor: 400,
-      request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
-        return instance.query({
-          where: {
-            content: query
-          },
-          exact: false
-        });
-      })
-    });
+  if (typeof _this.data.getBookmarkIdentifier === 'function' || _this.data.dataPrimaryKey) {
+    return Promise.resolve();
+  }
+
+  return _this.Utils.Query.fetchAndCache({
+    key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
+    waitFor: 400,
+    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+      return instance.query({
+        where: {
+          content: {
+            entryId: { $regex: '\\d-bookmark' }
+          }
+        },
+        exact: false
+      });
+    })
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
       var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+
       return match ? parseInt(match[1], 10) : '';
     }));
 
@@ -1703,15 +1709,36 @@ DynamicList.prototype.toggleBookmarkStatus = function (record) {
 };
 
 DynamicList.prototype.getBookmarkIdentifier = function (record) {
-  return Promise.resolve({
-    entryId: record.id + '-bookmark',
-    pageId: Fliplet.Env.get('pageId')
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    config: this.data
   });
-};
+  var defaultIdentifier = {
+    entryId: uniqueId + '-bookmark',
+    pageId: Fliplet.Env.get('pageId')
+  };
+  var customIdentifier = Promise.resolve();
 
-DynamicList.prototype.getBookmarkQuery = function () {
-  return Promise.resolve({
-    entryId: { $regex: '\\d-bookmark' }
+  if (typeof this.data.getBookmarkIdentifier === 'function') {
+    customIdentifier = this.data.getBookmarkIdentifier({
+      record: record,
+      config: this.data,
+      id: this.data.id,
+      uuid: this.data.uuid,
+      container: this.$container
+    });
+
+    if (!(customIdentifier instanceof Promise)) {
+      customIdentifier = Promise.resolve(customIdentifier);
+    }
+  }
+
+  return customIdentifier.then(function (identifier) {
+    if (!identifier) {
+      identifier = defaultIdentifier;
+    }
+
+    return identifier;
   });
 };
 

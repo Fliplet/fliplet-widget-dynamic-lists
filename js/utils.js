@@ -670,6 +670,25 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
+  function getRecordUniqueId(options) {
+    options = options || {};
+
+    var primaryKey = _.get(options, 'config.dataPrimaryKey');
+
+    if (typeof primaryKey === 'function') {
+      return primaryKey({
+        record: options.record,
+        config: options.config
+      });
+    }
+
+    if (typeof primaryKey === 'string' && primaryKey.length) {
+      return _.get(options, ['record', 'data', primaryKey]);
+    }
+
+    return _.get(options, ['record', 'id']);
+  }
+
   function getRecordFieldValues(records, fields) {
     // Extract a list of filter values based on a list of records and filter fields
     if (_.isUndefined(fields) || _.isNull(fields)) {
@@ -1330,7 +1349,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       isEditable: recordIsEditable,
       isDeletable: recordIsDeletable,
       isCurrentUser: recordIsCurrentUser,
-      matchesFilters: recordMatchesFilters
+      matchesFilters: recordMatchesFilters,
+      getUniqueId: getRecordUniqueId
     },
     Records: {
       runFilters: runRecordFilters,
