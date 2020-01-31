@@ -1,4 +1,4 @@
-<div class="new-agenda-list-container loading\{{#ifCond searchEnabled '||' filtersEnabled}} has-top-bar\{{/ifCond}}\{{#if showAddEntry}} has-add-entry\{{/if}}">
+<div class="new-agenda-list-container loading\{{#if hasTopBar}} has-top-bar\{{/if}}\{{#if showAddEntry}} has-add-entry\{{/if}}">
   <!-- Filter Overlay -->
   \{{#if filtersInOverlay}}
   <div class="new-agenda-search-filter-overlay">
@@ -42,12 +42,12 @@
     \{{/if}}
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
-      \{{#if bookmarksEnabled}}
+      \{{#ifCond bookmarksEnabled '&&' hasTopBar}}
       <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
-      \{{/if}}
+      \{{/ifCond}}
       <div class="list-search-cancel"><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
       <i class="fa fa-sliders"></i>
@@ -75,18 +75,30 @@
     \{{#if filtersEnabled}}
     <div class="hidden-filter-controls">
       <div class="hidden-filter-controls-content">
-        \{{#ifCond filtersInOverlay '!==' true}}
+        \{{#unless filtersInOverlay}}
           \{{#if filtersEnabled}}
           <div class="filter-holder inline-filter-holder">
             <!-- Filters here -->
           </div>
           \{{/if}}
-        \{{/ifCond}}
+        \{{/unless}}
       </div>
     </div>
     \{{/if}}
   </div>
   <!-- End of Inline Search and Filters -->
+
+  \{{#if bookmarksEnabled}}
+    \{{#unless hasTopBar}}
+    <div class="agenda-list-controls">
+      <div class="toggle-agenda" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
+        <span class="fa fa-bookmark-o"></span>
+        <span class="fa fa-bookmark"></span>
+        <div class="agenda-list-label">My Agenda</div>
+      </div>
+    </div>
+    \{{/unless}}
+  \{{/if}}
 
   <!-- Days slider -->
   <div class="agenda-date-selector">

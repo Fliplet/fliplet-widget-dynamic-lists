@@ -79,13 +79,13 @@
   \{{#if filtersEnabled}}
   <div class="hidden-filter-controls">
     <div class="hidden-filter-controls-content">
-      \{{#ifCond filtersInOverlay '!==' true}}
+      \{{#unless filtersInOverlay}}
         \{{#if filtersEnabled}}
         <div class="filter-holder inline-filter-holder">
           <!-- Filters here -->
         </div>
         \{{/if}}
-      \{{/ifCond}}
+      \{{/unless}}
     </div>
   </div>
   \{{/if}}
