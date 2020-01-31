@@ -66,7 +66,8 @@
   bottom: 15px;
 }
 
-.new-agenda-list-container.has-add-entry .agenda-list-controls {
+.new-agenda-list-container.has-add-entry .agenda-list-controls,
+.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls {
   right: 75px;
 }
 
