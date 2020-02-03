@@ -127,6 +127,10 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
+
+    if (_this.isInSearchResultsView()) {
+      _.debounce(_this.calculateSearchResultsPosition.bind(_this), 100, { leading: true })();
+    }
   });
 
   Fliplet.Hooks.on('beforePageView', function (options) {
@@ -376,10 +380,36 @@ DynamicList.prototype.attachObservers = function() {
     .on('touchend touchcancel', '.agenda-list-controls', function() {
       $(this).removeClass('hover');
     })
-    .on('click', '.agenda-list-controls', function(event) {
+    .on('click', '.agenda-list-controls', function () {
+      var $toggle = $(this).find('.toggle-agenda');
+
+      if (!$toggle.length) {
+        return;
+      }
+
+      $toggle.toggleClass('mixitup-control-active');
+      _this.searchData();
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
-        action: 'bookmarks_show'
+        action: $toggle.hasClass('mixitup-control-active')
+          ? 'bookmarks_show'
+          : 'bookmarks_hide'
+      });
+    })
+    .on('click', '.toggle-agenda, .toggle-bookmarks', function(e) {
+      e.stopPropagation();
+
+      var $toggle = _this.$container.find(e.handleObj.selector);
+
+      $toggle.toggleClass('mixitup-control-active');
+      _this.searchData();
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: $toggle.hasClass('mixitup-control-active')
+          ? 'bookmarks_show'
+          : 'bookmarks_hide'
       });
     })
     .on('touchstart', '.agenda-list-item', function(event) {
@@ -664,10 +694,6 @@ DynamicList.prototype.attachObservers = function() {
       }).then(function() {
         Fliplet.UI.Actions(options);
       });
-    })
-    .on('click', '.toggle-agenda, .toggle-bookmarks', function (e) {
-      _this.$container.find(e.handleObj.selector).toggleClass('mixitup-control-active');
-      _this.searchData();
     })
     .on('click', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function() {
       var id = $(this).parents('.agenda-detail-wrapper, .agenda-list-item').data('entry-id');
@@ -1423,7 +1449,7 @@ DynamicList.prototype.getActiveFilters = function () {
 
 DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
   var _this = this;
-  var totalHeight = hideFilters
+  var totalHeight = hideFilters || $('.toggle-agenda.mixitup-control-active, .toggle-bookmarks.mixitup-control-active').length
     ? 0
     : this.$container.find('.hidden-filter-controls-content').height();
 
