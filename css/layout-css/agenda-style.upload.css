@@ -1186,14 +1186,14 @@
   right: 0;
   bottom: 0;
   left: 0;
-  margin-top: 53px;
+  margin-top: 0;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
 }
 
-.fl-with-top-menu .new-agenda-list-container .search-results-wrapper {
-  margin-top: 97px;
+.new-agenda-list-container.has-top-bar  .search-results-wrapper {
+  margin-top: 48px;
 }
 
 [data-view="search-results"] .new-agenda-list-container .search-results-wrapper {
