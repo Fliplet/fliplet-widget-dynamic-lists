@@ -849,53 +849,29 @@
   height: calc(100% - 148px);
 }
 
-.new-agenda-list-container.has-add-entry .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+.new-agenda-list-container.has-add-entry .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+.new-agenda-list-container.has-add-entry .search-results,
+.new-agenda-list-container .agenda-list-controls ~ .search-results-wrapper .search-results {
+  /* My Agenda (Legacy) */
   /* Add Entry */
   padding-bottom: 65px;
-  padding-bottom: calc(65px + env(safe-area-inset-bottom));
 }
 
-.new-agenda-list-container.has-add-entry .search-results {
-  padding-bottom: 65px;
-}
-
-.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-.new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
-  /* My Agenda (Legacy) */
-  /* Add Entry + My Agenda (Legacy) */
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-card-holder,
+.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-card-holder,
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-wrapper .search-results,
+.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-wrapper .search-results {
+  /* Circle menu */
   padding-bottom: 65px;
   padding-bottom: calc(65px + env(safe-area-inset-bottom));
 }
 
-.new-agenda-list-container .agenda-list-controls ~ .search-results-wrapper .search-results,
-.new-agenda-list-container.has-add-entry .agenda-list-controls ~ .search-results-wrapper .search-results,
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls ~ .search-results-wrapper .search-results,
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .search-results-wrapper .search-results,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls ~ .search-results-wrapper .search-results,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .search-results-wrapper .search-results {
-  padding-bottom: 65px;
-}
-
-[data-has-notch] .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-[data-has-notch] .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-card-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-wrapper .search-results,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-wrapper .search-results {
   padding-bottom: calc(65px + 34px);
-}
-
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-.fl-with-bottom-menu .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container.has-add-entry .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder {
-  /* Bottom Menu + My Agenda (Legacy) */
-  /* Bottom Menu + Add Entry + My Agenda (Legacy) */
-  padding-bottom: 65px;
 }
 
 .new-agenda-list-container .agenda-state-messages {
