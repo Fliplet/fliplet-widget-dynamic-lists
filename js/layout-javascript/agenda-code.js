@@ -127,6 +127,10 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
+
+    if (_this.isInSearchResultsView()) {
+      _.debounce(_this.calculateSearchResultsPosition.bind(_this), 100, { leading: true })();
+    }
   });
 
   Fliplet.Hooks.on('beforePageView', function (options) {
@@ -1445,7 +1449,7 @@ DynamicList.prototype.getActiveFilters = function () {
 
 DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
   var _this = this;
-  var totalHeight = hideFilters
+  var totalHeight = hideFilters || $('.toggle-agenda.mixitup-control-active, .toggle-bookmarks.mixitup-control-active').length
     ? 0
     : this.$container.find('.hidden-filter-controls-content').height();
 
