@@ -739,6 +739,8 @@
   bottom: 0;
   bottom: env(safe-area-inset-bottom);
   left: 0;
+  right: 0;
+  max-width: none !important;
   /* Top menus are also fixed, so we're increasing the z-index here to display the UI correctly */
   z-index: 10;
   -webkit-transition: z-index 0s linear;
@@ -1201,13 +1203,9 @@
 
 .new-agenda-list-container .search-results {
   max-width: 600px;
-  margin: 0 10px;
-}
-
-@media screen and (min-width: 620px) {
-  .new-agenda-list-container .search-results {
-    margin: 0 auto;
-  }
+  margin: 0 auto;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .new-agenda-list-container .search-results.no-results {
