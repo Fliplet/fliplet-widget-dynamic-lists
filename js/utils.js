@@ -58,7 +58,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   // To avoid large distance between block we remove height at the element
   function removeClampHeight ($elements) {
     $elements.each(function() {
-      $(this).css('height', '');
+      var $element = $(this);
+
+      $element.css('height', '');
+      $element.removeAttr('data-line-clamp');
     });
   }
 
