@@ -127,10 +127,6 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
-
-    if (_this.isInSearchResultsView()) {
-      _.debounce(_this.calculateSearchResultsPosition.bind(_this), 100, { leading: true })();
-    }
   });
 
   Fliplet.Hooks.on('beforePageView', function (options) {
@@ -838,9 +834,8 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       return _this.addFilters(_this.modifiedListItems);
     }).then(function () {
-      _this.searchData({
-        goToToday: true
-      });
+      _this.parseFilterQueries();
+      _this.parseSearchQueries();
     });
 }
 
@@ -934,6 +929,62 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       return;
     });
+}
+
+DynamicList.prototype.parseSearchQueries = function() {
+  var _this = this;
+
+  if (!_.get(_this.pvSearchQuery, 'value')) {
+    return _this.searchData({
+      query: true,
+      goToToday: true
+    });
+  }
+
+  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+    return _this.searchData({
+      value: _this.pvSearchQuery.value,
+      openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+      query: true
+    });
+  }
+
+  _this.$container.find('.new-agenda-list-container').addClass('searching');
+  _this.isSearching = true;
+
+  return _this.searchData({
+    column: _this.pvSearchQuery.column,
+    value: _this.pvSearchQuery.value,
+    openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+    query: true
+  });
+}
+
+DynamicList.prototype.parseFilterQueries = function() {
+  var _this = this;
+
+  if (!_this.queryFilter) {
+    return;
+  }
+
+  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
+  var $filters = _this.$container.find(_.map(filterSelectors, function (selector) {
+    return '.hidden-filter-controls-filter' + selector;
+  }).join(','));
+
+  _this.toggleFilterElement($filters, true);
+  $filters.parents('.agenda-filters-panel').find('.panel-collapse').addClass('in');
+
+  if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
+    _this.$container.find('.hidden-filter-controls').addClass('active');
+
+    if (!_this.data.filtersInOverlay) {
+      _this.$container.find('.list-search-cancel').addClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
+    }
+
+    _this.calculateFiltersHeight(_this.$container.find('.new-agenda-list-container'));
+  }
 }
 
 DynamicList.prototype.connectToDataSource = function() {
@@ -1457,7 +1508,6 @@ DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
     _this.$container.find('.hidden-filter-controls').data('height', totalHeight).animate({
       height: totalHeight
     }, _this.ANIMATION_SPEED, resolve);
-    _this.calculateSearchResultsPosition();
   });
 }
 
@@ -1471,26 +1521,8 @@ DynamicList.prototype.calculateSearchHeight = function(clearSearch) {
     _this.$container.find('.hidden-search-controls').data('height', totalHeight).animate({
       height: totalHeight
     }, _this.ANIMATION_SPEED, resolve);
-    _this.calculateSearchResultsPosition();
   });
 }
-
-DynamicList.prototype.calculateSearchResultsPosition = function () {
-  var _this = this;
-  var $hiddenControls = this.$container.find('.hidden-filter-controls, .hidden-search-controls');
-  var totalHeight = 0;
-
-  $hiddenControls.each(function () {
-    totalHeight += $(this).data('height') || 0;
-  });
-
-  return new Promise(function (resolve) {
-    _this.$container.find('.search-results-holder').animate({
-      marginTop: totalHeight,
-      height: _this.$container.find('.search-results-wrapper').height() - totalHeight
-    }, _this.ANIMATION_SPEED, resolve);
-  });
-};
 
 DynamicList.prototype.getAllBookmarks = function () {
   var _this = this;
@@ -2044,7 +2076,7 @@ DynamicList.prototype.searchData = function(options) {
       // Adds search query to HTML
       _this.$container.find('.current-query').html(_this.searchValue);
       // Search value is provided
-      _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
+      _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('has-query');
       _this.calculateSearchHeight(!value.length);
       _this.$container.find('.hidden-search-controls').addClass('active');
       _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');

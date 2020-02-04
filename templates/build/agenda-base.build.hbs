@@ -57,37 +57,6 @@
   </div>
   <!-- End of Top bar -->
 
-  <!-- Inline Search and Filters -->
-  <div class="hidden-controls">
-    \{{#if searchEnabled}}
-    <div class="hidden-search-controls">
-      <div class="hidden-search-controls-content">
-        <div class="hidden-filter-controls-search">
-          <div class="search-query-holder">
-            <div class="search-query">
-            Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    \{{/if}}
-    \{{#if filtersEnabled}}
-    <div class="hidden-filter-controls">
-      <div class="hidden-filter-controls-content">
-        \{{#unless filtersInOverlay}}
-          \{{#if filtersEnabled}}
-          <div class="filter-holder inline-filter-holder">
-            <!-- Filters here -->
-          </div>
-          \{{/if}}
-        \{{/unless}}
-      </div>
-    </div>
-    \{{/if}}
-  </div>
-  <!-- End of Inline Search and Filters -->
-
   \{{#if bookmarksEnabled}}
     \{{#unless hasTopBar}}
     <div class="agenda-list-controls">
@@ -121,7 +90,39 @@
   </div>
 
   <!-- Search results -->
-  <div class="search-results-wrapper"><div class="search-results-holder"></div></div>
+  <div class="search-results-wrapper">
+    <!-- Inline Search and Filters -->
+    <div class="hidden-controls">
+      \{{#if searchEnabled}}
+      <div class="hidden-search-controls">
+        <div class="hidden-search-controls-content">
+          <div class="hidden-filter-controls-search">
+            <div class="search-query-holder">
+              <div class="search-query">
+              Searching for <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      \{{/if}}
+      \{{#if filtersEnabled}}
+      <div class="hidden-filter-controls">
+        <div class="hidden-filter-controls-content">
+          \{{#unless filtersInOverlay}}
+            \{{#if filtersEnabled}}
+            <div class="filter-holder inline-filter-holder">
+              <!-- Filters here -->
+            </div>
+            \{{/if}}
+          \{{/unless}}
+        </div>
+      </div>
+      \{{/if}}
+    </div>
+    <!-- End of Inline Search and Filters -->
+    <div class="search-results-holder"></div>
+  </div>
 </div>
 
 <!-- Detail view overlay -->

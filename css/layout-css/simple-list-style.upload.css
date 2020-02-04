@@ -308,7 +308,7 @@
 }
 
 .simple-list-container .hidden-filter-controls-search {
-  padding: 15px 15px;
+  padding: 18px;
 }
 
 .simple-list-container .search-holder {
@@ -409,6 +409,8 @@
   width: 100%;
   display: none;
   align-items: center;
+  color: #aaaaaa;
+  font-size: 14px;
 }
 
 .simple-list-container .search-results .hidden-filter-controls-search .search-query-holder {
@@ -422,7 +424,6 @@
   color: #ffffff;
   padding: 8px 34px 8px 15px;
   border-radius: 20px;
-  font-size: 14px;
   line-height: 1;
 }
 
