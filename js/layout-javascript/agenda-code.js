@@ -834,9 +834,8 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       return _this.addFilters(_this.modifiedListItems);
     }).then(function () {
-      _this.searchData({
-        goToToday: true
-      });
+      _this.parseFilterQueries();
+      _this.parseSearchQueries();
     });
 }
 
@@ -930,6 +929,62 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       return;
     });
+}
+
+DynamicList.prototype.parseSearchQueries = function() {
+  var _this = this;
+
+  if (!_.get(_this.pvSearchQuery, 'value')) {
+    return _this.searchData({
+      query: true,
+      goToToday: true
+    });
+  }
+
+  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+    return _this.searchData({
+      value: _this.pvSearchQuery.value,
+      openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+      query: true
+    });
+  }
+
+  _this.$container.find('.new-agenda-list-container').addClass('searching');
+  _this.isSearching = true;
+
+  return _this.searchData({
+    column: _this.pvSearchQuery.column,
+    value: _this.pvSearchQuery.value,
+    openSingleEntry: _this.pvSearchQuery.openSingleEntry,
+    query: true
+  });
+}
+
+DynamicList.prototype.parseFilterQueries = function() {
+  var _this = this;
+
+  if (!_this.queryFilter) {
+    return;
+  }
+
+  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
+  var $filters = _this.$container.find(_.map(filterSelectors, function (selector) {
+    return '.hidden-filter-controls-filter' + selector;
+  }).join(','));
+
+  _this.toggleFilterElement($filters, true);
+  $filters.parents('.agenda-filters-panel').find('.panel-collapse').addClass('in');
+
+  if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
+    _this.$container.find('.hidden-filter-controls').addClass('active');
+
+    if (!_this.data.filtersInOverlay) {
+      _this.$container.find('.list-search-cancel').addClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
+    }
+
+    _this.calculateFiltersHeight(_this.$container.find('.new-agenda-list-container'));
+  }
 }
 
 DynamicList.prototype.connectToDataSource = function() {
