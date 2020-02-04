@@ -1162,10 +1162,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         requestAnimationFrame(render);
       } else {
         _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
-        Fliplet.Hooks.run('flListDataAfterRenderList', {
-          records: data,
-          config: _this.data
-        });
         resolve(data);
       }
     }
@@ -1395,6 +1391,17 @@ DynamicList.prototype.searchData = function(options) {
         }
 
         return _this.initializeSocials(records);
+      });
+    }).then(function () {
+      return Fliplet.Hooks.run('flListDataAfterRenderList', {
+        value: value,
+        records: _this.searchedListItems,
+        config: _this.data,
+        activeFilters: _this.activeFilters,
+        showBookmarks: _this.showBookmarks,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
       });
     });
   });

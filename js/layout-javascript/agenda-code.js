@@ -2119,7 +2119,10 @@ DynamicList.prototype.searchData = function(options) {
         records: _this.getListItems(),
         config: _this.data,
         activeFilters: _this.activeFilters,
-        showBookmarks: _this.showBookmarks
+        showBookmarks: _this.showBookmarks,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
       });
     });
   });

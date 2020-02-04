@@ -1214,11 +1214,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         // SuperClamp works only when elemet has a fixed max-height or height
         // To do so we need to take computed line-height and multiple it on data-line-clamp value
         _this.Utils.Page.setLineClamps();
-
-        Fliplet.Hooks.run('flListDataAfterRenderList', {
-          records: data,
-          config: _this.data
-        });
         resolve(data);
       }
     }
@@ -1432,6 +1427,17 @@ DynamicList.prototype.searchData = function(options) {
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
         return _this.initializeSocials(records);
+      });
+    }).then(function () {
+      return Fliplet.Hooks.run('flListDataAfterRenderList', {
+        value: value,
+        records: _this.searchedListItems,
+        config: _this.data,
+        activeFilters: _this.activeFilters,
+        showBookmarks: _this.showBookmarks,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
       });
     });
   });
