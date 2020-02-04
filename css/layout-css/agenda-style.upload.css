@@ -822,12 +822,30 @@
 .new-agenda-list-container .agenda-list-day-holder {
   display: inline-block;
   font-size: 16px;
-  padding: 14px 15px 15px;
+  padding: 15px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
   margin: 100px auto 0;
   width: 100vw;
   height: calc(100% - 100px);
   overflow: auto;
   vertical-align: top;
+}
+
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder,
+[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder {
+  padding-bottom: 15px;
+}
+
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-day-holder,
+.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-day-holder {
+  padding: 15px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
+}
+
+[data-has-notch] .new-agenda-list-container .agenda-list-day-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-day-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-day-holder {
+  padding-bottom: calc(15px + 34px);
 }
 
 .new-agenda-list-container .agenda-date-selector.is-panning ~ .agenda-cards-wrapper .agenda-list-day-holder {
@@ -847,22 +865,6 @@
   /* My Agenda (Legacy) */
   /* Add Entry */
   padding-bottom: 65px;
-}
-
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-card-holder,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-card-holder,
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-wrapper .search-results,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-wrapper .search-results {
-  /* Circle menu */
-  padding-bottom: 65px;
-  padding-bottom: calc(65px + env(safe-area-inset-bottom));
-}
-
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-card-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-wrapper .search-results,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-wrapper .search-results {
-  padding-bottom: calc(65px + 34px);
 }
 
 .new-agenda-list-container .agenda-state-messages {
@@ -1180,8 +1182,22 @@
   padding-left: 8px;
 }
 
-.new-agenda-list-container .search-results-holder {
+.new-agenda-list-container .search-results-holder,
+.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-holder,
+.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-holder {
   padding-bottom: 15px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
+}
+
+.fl-with-bottom-menu .new-agenda-list-container .search-results-holder,
+[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .search-results-holder {
+  padding-bottom: 15px;
+}
+
+[data-has-notch] .new-agenda-list-container .search-results-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-holder,
+[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-holder {
+  padding-bottom: calc(15px + 34px);
 }
 
 .new-agenda-list-container .search-results {
