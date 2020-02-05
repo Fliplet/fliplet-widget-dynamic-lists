@@ -48,7 +48,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         var clampLines = element.dataset.lineClamp;
         var elementHeight = elementHeight * clampLines;
 
-        $(element).css('max-height', elementHeight + lineHeightMeasure );
+        $(element).css('height', elementHeight + lineHeightMeasure );
       });
 
       resolve($elements);
@@ -60,7 +60,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     $elements.each(function() {
       var $element = $(this);
 
-      $element.css('max-height', '');
+      $element.css('height', '');
       $element.removeAttr('data-line-clamp');
     });
   }
