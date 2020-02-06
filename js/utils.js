@@ -806,35 +806,34 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           return data.record;
         }
 
-        var entryData = data.record.data;
-        var column = data.field.column;
+        var image = _.get(data, ['record', 'data', data.field.column]);
 
-        if (isValidImageUrl(entryData[column])) {
+        if (_.isArray(image)) {
+          image = _.compact(image)[0];
+        }
+
+        if (isValidImageUrl(image)) {
           // Record data doesn't need updating
           return data.record;
         }
 
         var urlEdited = _.some(response.files, function(file) {
-          if (!_.compact(entryData[column]).length) {
-            return;
-          }
-
           // remove file extension
           var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
 
-          if (entryData[column] && (file.name === entryData[column] || fileName === entryData[column])) {
+          if (image && (file.name === image || fileName === image)) {
             // File found
-            entryData[column] = file.url;
+            _.set(data, ['record', 'data', data.field.column], file.url);
             return true;
-          } else if (Static.RegExp.number.test(entryData[column])
-            && parseInt(entryData[column], 10) === file.id) {
-            entryData[column] = file.url;
+          } else if (Static.RegExp.number.test(image)
+            && parseInt(image, 10) === file.id) {
+            _.set(data, ['record', 'data', data.field.column], file.url);
             return true;
           }
         });
 
         if (!urlEdited) {
-          entryData[column] = '';
+          _.set(data, ['record', 'data', data.field.column], '');
         }
 
         return data.record;
