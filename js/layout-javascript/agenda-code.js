@@ -2111,10 +2111,23 @@ DynamicList.prototype.searchData = function(options) {
           }
         }
 
-        _this.initializeSocials();
+        _this.initializeSocials().then(function () {
+          return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+            view: _this.$container.attr('data-view'),
+            value: value,
+            records: _this.getListItems(),
+            config: _this.data,
+            activeFilters: _this.activeFilters,
+            showBookmarks: _this.showBookmarks,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container
+          });
+        });
       });
     }).then(function () {
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
+        view: _this.$container.attr('data-view'),
         value: value,
         records: _this.getListItems(),
         config: _this.data,

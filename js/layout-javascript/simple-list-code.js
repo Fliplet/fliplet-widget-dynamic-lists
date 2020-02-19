@@ -1426,7 +1426,18 @@ DynamicList.prototype.searchData = function(options) {
       _this.prepareToRenderLoop(searchedData);
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
-        return _this.initializeSocials(records);
+        _this.initializeSocials(records).then(function () {
+          return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+            value: value,
+            records: _this.searchedListItems,
+            config: _this.data,
+            activeFilters: _this.activeFilters,
+            showBookmarks: _this.showBookmarks,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container
+          });
+        });
       });
     }).then(function () {
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
