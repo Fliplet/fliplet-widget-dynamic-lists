@@ -2110,22 +2110,21 @@ DynamicList.prototype.searchData = function(options) {
             _this.sliderGoTo($('.agenda-date-selector li.active').index() - $('.agenda-date-selector li:not(.placeholder)').index());
           }
         }
-
-        _this.initializeSocials().then(function () {
-          return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
-            view: _this.$container.attr('data-view'),
-            value: value,
-            records: _this.getListItems(),
-            config: _this.data,
-            activeFilters: _this.activeFilters,
-            showBookmarks: _this.showBookmarks,
-            id: _this.data.id,
-            uuid: _this.data.uuid,
-            container: _this.$container
-          });
-        });
       });
     }).then(function () {
+      _this.initializeSocials().then(function () {
+        return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+          view: _this.$container.attr('data-view'),
+          value: value,
+          records: _this.getListItems(),
+          config: _this.data,
+          activeFilters: _this.activeFilters,
+          showBookmarks: _this.showBookmarks,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container
+        });
+      });
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         view: _this.$container.attr('data-view'),
         value: value,

@@ -1374,7 +1374,7 @@ DynamicList.prototype.searchData = function(options) {
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
       _this.prepareToRenderLoop(searchedData);
-      _this.renderLoopHTML().then(function (records) {
+      return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
 
         // Render user profile
@@ -1389,21 +1389,20 @@ DynamicList.prototype.searchData = function(options) {
           _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
         }
-
-        _this.initializeSocials(records).then(function () {
-          return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
-            value: value,
-            records: _this.searchedListItems,
-            config: _this.data,
-            activeFilters: _this.activeFilters,
-            showBookmarks: _this.showBookmarks,
-            id: _this.data.id,
-            uuid: _this.data.uuid,
-            container: _this.$container
-          });
-        });
       });
     }).then(function () {
+      _this.initializeSocials().then(function () {
+        return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+          value: value,
+          records: _this.searchedListItems,
+          config: _this.data,
+          activeFilters: _this.activeFilters,
+          showBookmarks: _this.showBookmarks,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container
+        });
+      });
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         value: value,
         records: _this.searchedListItems,
@@ -1598,11 +1597,11 @@ DynamicList.prototype.getAllBookmarks = function () {
   });
 };
 
-DynamicList.prototype.initializeSocials = function (records) {
+DynamicList.prototype.initializeSocials = function () {
   var _this = this;
 
   return _this.getAllBookmarks().then(function () {
-    return Promise.all(_.map(records, function (record) {
+    return Promise.all(_.map(_this.searchedListItems, function (record) {
       var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
       var masterRecord = _.find(_this.listItems, { id: record.id });
 

@@ -1426,20 +1426,20 @@ DynamicList.prototype.searchData = function(options) {
       _this.prepareToRenderLoop(searchedData);
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
-        _this.initializeSocials(records).then(function () {
-          return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
-            value: value,
-            records: _this.searchedListItems,
-            config: _this.data,
-            activeFilters: _this.activeFilters,
-            showBookmarks: _this.showBookmarks,
-            id: _this.data.id,
-            uuid: _this.data.uuid,
-            container: _this.$container
-          });
-        });
       });
     }).then(function () {
+      _this.initializeSocials().then(function () {
+        return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+          value: value,
+          records: _this.searchedListItems,
+          config: _this.data,
+          activeFilters: _this.activeFilters,
+          showBookmarks: _this.showBookmarks,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container
+        });
+      });
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         value: value,
         records: _this.searchedListItems,
@@ -1785,11 +1785,11 @@ DynamicList.prototype.getAllBookmarks = function () {
   });
 };
 
-DynamicList.prototype.initializeSocials = function (records) {
+DynamicList.prototype.initializeSocials = function () {
   var _this = this;
 
   return _this.getAllBookmarks().then(function () {
-    return Promise.all(_.flatten(_.map(records, function (record) {
+    return Promise.all(_.flatten(_.map(_this.searchedListItems, function (record) {
       var title = _this.$container.find('.simple-list-item[data-entry-id="' + record.id + '"] .list-item-title').text().trim();
       var masterRecord = _.find(_this.listItems, { id: record.id });
 
