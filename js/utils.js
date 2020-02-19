@@ -17,54 +17,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   };
   var computedFieldClashes = [];
 
-  function setLineClamps (selector) {
-    return setClampHeight(selector)
-      .then(function (elements) {
-        Superclamp.register(elements);
-        removeClampHeight(elements);
-      })
-      .catch(function (selector) {
-        console.error('Fail to clamp line in the selector ' + selector);
-      });
-  }
-
-  function setClampHeight (selector) {
-    selector = selector || '[data-line-clamp]';
-
-    return new Promise(function (resolve, reject) {
-      var $elements = $(selector);
-
-      if (!$elements.length) {
-        reject(selector);
-        return;
-      }
-
-      $elements.each(function () {
-        var element = this;
-        var lineHeightValue = window.getComputedStyle(element)
-          .getPropertyValue('line-height').match(/[a-zA-Z]+|[0-9]+(?:\.[0-9]+|)/g);
-        var lineHeightMeasure  = lineHeightValue[1];
-        var elementHeight = parseFloat(lineHeightValue[0]);
-        var clampLines = element.dataset.lineClamp;
-        var elementHeight = elementHeight * clampLines;
-
-        $(element).css('height', elementHeight + lineHeightMeasure );
-      });
-
-      resolve($elements);
-    });
-  }
-
-  // To avoid large distance between block we remove height at the element
-  function removeClampHeight ($elements) {
-    $elements.each(function() {
-      var $element = $(this);
-
-      $element.css('height', '');
-      $element.removeAttr('data-line-clamp');
-    });
-  }
-
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)
@@ -854,35 +806,34 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           return data.record;
         }
 
-        var entryData = data.record.data;
-        var column = data.field.column;
+        var image = _.get(data, ['record', 'data', data.field.column]);
 
-        if (isValidImageUrl(entryData[column])) {
+        if (_.isArray(image)) {
+          image = _.compact(image)[0];
+        }
+
+        if (isValidImageUrl(image)) {
           // Record data doesn't need updating
           return data.record;
         }
 
         var urlEdited = _.some(response.files, function(file) {
-          if (!_.compact(entryData[column]).length) {
-            return;
-          }
-
           // remove file extension
           var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
 
-          if (entryData[column] && (file.name === entryData[column] || fileName === entryData[column])) {
+          if (image && (file.name === image || fileName === image)) {
             // File found
-            entryData[column] = file.url;
+            _.set(data, ['record', 'data', data.field.column], file.url);
             return true;
-          } else if (Static.RegExp.number.test(entryData[column])
-            && parseInt(entryData[column], 10) === file.id) {
-            entryData[column] = file.url;
+          } else if (Static.RegExp.number.test(image)
+            && parseInt(image, 10) === file.id) {
+            _.set(data, ['record', 'data', data.field.column], file.url);
             return true;
           }
         });
 
         if (!urlEdited) {
-          entryData[column] = '';
+          _.set(data, ['record', 'data', data.field.column], '');
         }
 
         return data.record;
@@ -1330,8 +1281,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     },
     Page: {
       updateSearchContext: updateSearchContext,
-      updateFilterControlsContext: updateFilterControlsContext,
-      setLineClamps: setLineClamps
+      updateFilterControlsContext: updateFilterControlsContext
     },
     String: {
       splitByCommas: splitByCommas,
