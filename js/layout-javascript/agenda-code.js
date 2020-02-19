@@ -644,6 +644,7 @@ DynamicList.prototype.attachObservers = function() {
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                instance: _this,
                 entryId: entryID,
                 config: _this.data,
                 id: _this.data.id,
@@ -682,6 +683,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        instance: _this,
         entryId: entryID,
         config: _this.data,
         id: _this.data.id,
@@ -793,6 +795,7 @@ DynamicList.prototype.initialize = function() {
       });
 
       return Fliplet.Hooks.run('flListDataAfterGetData', {
+        instance: _this,
         config: _this.data,
         id: _this.data.id,
         uuid: _this.data.uuid,
@@ -1019,6 +1022,7 @@ DynamicList.prototype.connectToDataSource = function() {
   }
 
   return Fliplet.Hooks.run('flListDataBeforeGetData', {
+    instance: _this,
     config: _this.data,
     id: _this.data.id,
     uuid: _this.data.uuid,
@@ -1452,6 +1456,7 @@ DynamicList.prototype.addFilters = function(records) {
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
+    instance: _this,
     filters: filters,
     records: records,
     config: _this.data
@@ -1471,6 +1476,7 @@ DynamicList.prototype.addFilters = function(records) {
     });
     _this.$container.find('.filter-holder').html(template(filtersData));
     Fliplet.Hooks.run('flListDataAfterRenderFilters', {
+      instance: _this,
       filters: filters,
       records: records,
       config: _this.data
@@ -2050,6 +2056,7 @@ DynamicList.prototype.searchData = function(options) {
     var searchedData = results.records;
 
     return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+      instance: _this,
       value: value,
       records: searchedData,
       config: _this.data,
@@ -2114,6 +2121,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function () {
       _this.initializeSocials().then(function () {
         return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+          instance: _this,
           view: _this.$container.attr('data-view'),
           value: value,
           records: _this.getListItems(),
@@ -2126,6 +2134,7 @@ DynamicList.prototype.searchData = function(options) {
         });
       });
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
+        instance: _this,
         view: _this.$container.attr('data-view'),
         value: value,
         records: _this.getListItems(),

@@ -281,6 +281,7 @@ DynamicList.prototype.attachObservers = function() {
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                instance: _this,
                 entryId: entryID,
                 config: _this.data,
                 id: _this.data.id,
@@ -322,6 +323,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        instance: _this,
         entryId: entryID,
         config: _this.data,
         id: _this.data.id,
@@ -367,6 +369,7 @@ DynamicList.prototype.initialize = function() {
       });
 
       return Fliplet.Hooks.run('flListDataAfterGetData', {
+        instance: _this,
         config: _this.data,
         id: _this.data.id,
         uuid: _this.data.uuid,
@@ -540,6 +543,7 @@ DynamicList.prototype.connectToDataSource = function() {
   }
 
   return Fliplet.Hooks.run('flListDataBeforeGetData', {
+    instance: _this,
     config: _this.data,
     id: _this.data.id,
     uuid: _this.data.uuid,
@@ -706,6 +710,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   var data = _this.modifiedListItems;
 
   return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+    instance: _this,
     records: data,
     config: _this.data
   }).then(function () {
@@ -730,6 +735,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         } else {
           _this.$container.find('.new-small-h-card-list-container').addClass('ready');
           Fliplet.Hooks.run('flListDataAfterRenderList', {
+            instance: _this,
             records: data,
             config: _this.data
           });
