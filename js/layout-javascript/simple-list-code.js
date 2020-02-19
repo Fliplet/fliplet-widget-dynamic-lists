@@ -1214,10 +1214,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         requestAnimationFrame(render);
       } else{
         _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
-
-        // SuperClamp works only when elemet has a fixed max-height or height
-        // To do so we need to take computed line-height and multiple it on data-line-clamp value
-        _this.Utils.Page.setLineClamps();
         resolve(data);
       }
     }
