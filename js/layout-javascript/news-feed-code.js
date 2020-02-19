@@ -701,6 +701,7 @@ DynamicList.prototype.attachObservers = function() {
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                instance: _this,
                 entryId: entryID,
                 config: _this.data,
                 id: _this.data.id,
@@ -737,6 +738,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        instance: _this,
         entryId: entryID,
         config: _this.data,
         id: _this.data.id,
@@ -926,11 +928,11 @@ DynamicList.prototype.getAllBookmarks = function () {
   });
 };
 
-DynamicList.prototype.initializeSocials = function (records) {
+DynamicList.prototype.initializeSocials = function () {
   var _this = this;
 
   return _this.getAllBookmarks().then(function () {
-    return Promise.all(_.flatten(_.map(records, function (record) {
+    return Promise.all(_.flatten(_.map(_this.searchedListItems, function (record) {
       var title = _this.$container.find('.news-feed-list-item[data-entry-id="' + record.id + '"] .news-feed-item-title').text().trim();
       var masterRecord = _.find(_this.listItems, { id: record.id });
 
@@ -1021,6 +1023,7 @@ DynamicList.prototype.initialize = function() {
       });
 
       return Fliplet.Hooks.run('flListDataAfterGetData', {
+        instance: _this,
         config: _this.data,
         id: _this.data.id,
         uuid: _this.data.uuid,
@@ -1292,6 +1295,7 @@ DynamicList.prototype.connectToDataSource = function() {
   }
 
   return Fliplet.Hooks.run('flListDataBeforeGetData', {
+    instance: _this,
     config: _this.data,
     id: _this.data.id,
     uuid: _this.data.uuid,
@@ -1486,10 +1490,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         requestAnimationFrame(render);
       } else {
         _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
-        Fliplet.Hooks.run('flListDataAfterRenderList', {
-          records: data,
-          config: _this.data
-        });
         resolve(data);
       }
     }
@@ -1525,6 +1525,7 @@ DynamicList.prototype.addFilters = function(records) {
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
+    instance: _this,
     filters: filters,
     records: records,
     config: _this.data
@@ -1544,6 +1545,7 @@ DynamicList.prototype.addFilters = function(records) {
     });
     _this.$container.find('.filter-holder').html(template(filtersData));
     Fliplet.Hooks.run('flListDataAfterRenderFilters', {
+      instance: _this,
       filters: filters,
       records: records,
       config: _this.data
@@ -1645,6 +1647,7 @@ DynamicList.prototype.searchData = function(options) {
 
     var searchedData = results.records;
     return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+      instance: _this,
       value: value,
       records: searchedData,
       fields: fields,
@@ -1703,8 +1706,32 @@ DynamicList.prototype.searchData = function(options) {
       _this.prepareToRenderLoop(searchedData);
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
-        return _this.initializeSocials(records);
       });
+    });
+  }).then(function () {
+    _this.initializeSocials().then(function () {
+      return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+        instance: _this,
+        value: value,
+        records: _this.searchedListItems,
+        config: _this.data,
+        activeFilters: _this.activeFilters,
+        showBookmarks: _this.showBookmarks,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
+      });
+    });
+    return Fliplet.Hooks.run('flListDataAfterRenderList', {
+      instance: _this,
+      value: value,
+      records: _this.searchedListItems,
+      config: _this.data,
+      activeFilters: _this.activeFilters,
+      showBookmarks: _this.showBookmarks,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container
     });
   });
 }
@@ -2229,6 +2256,7 @@ DynamicList.prototype.showComments = function(id) {
     var commentsHTML = commentsTemplateCompiled(entryComments);
     var $commentArea = _this.$container.find('.news-feed-comment-area');
     var hookData = {
+      instance: _this,
       config: _this.data,
       html: commentsHTML,
       src: commentsTemplate,
@@ -2239,6 +2267,7 @@ DynamicList.prototype.showComments = function(id) {
     return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function () {
       $commentArea.html(hookData.html);
       return Fliplet.Hooks.run('flListDataAfterShowComments', {
+        instance: _this,
         config: _this.data,
         html: commentsHTML,
         comments: entryComments,
