@@ -4,15 +4,16 @@
  * for prepopulating, prefiltering and opening an entry
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
+  var _this = this;
+
   function splitQueryValues(input) {
-    var splitPattern = /\,\s?(?![^\\[]*\])/;
     var testPattern = /^(?:\[[\w\W]*\])$/;
 
     if (_.isNil(input)) {
       return input;
     }
 
-    return ('' + input).trim().split(splitPattern).map(function (str) {
+    return _.map(_this.Utils.String.splitByCommas('' + input), function (str) {
       str = str.trim();
 
       if (!testPattern.test(str)) {
