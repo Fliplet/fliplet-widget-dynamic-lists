@@ -1396,9 +1396,11 @@ DynamicList.prototype.searchData = function(options) {
           _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
         }
+
+        return records;
       });
-    }).then(function () {
-      _this.initializeSocials().then(function () {
+    }).then(function (renderedRecords) {
+      _this.initializeSocials(renderedRecords).then(function () {
         return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
           instance: _this,
           value: value,
@@ -1606,11 +1608,11 @@ DynamicList.prototype.getAllBookmarks = function () {
   });
 };
 
-DynamicList.prototype.initializeSocials = function () {
+DynamicList.prototype.initializeSocials = function (records) {
   var _this = this;
 
   return _this.getAllBookmarks().then(function () {
-    return Promise.all(_.map(_this.searchedListItems, function (record) {
+    return Promise.all(_.map(records, function (record) {
       var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
       var masterRecord = _.find(_this.listItems, { id: record.id });
 
