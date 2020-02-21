@@ -2528,11 +2528,27 @@ var DynamicLists = (function() {
         _this.config.likesDataSourceId = '';
       }
       if (_this.config.social.bookmark && (!_this.config.bookmarkDataSourceId || _this.config.bookmarkDataSourceId === '')) {
-        // Create likes data source
+        // Create bookmarks data source
         bookmarksPromise = Fliplet.DataSources.create({
           name: appName + ' - Bookmarks',
-          bundle: true,
-          organizationId: organizationId // optional
+          bundle: false,
+          organizationId: organizationId, // optional
+          definition: {
+            views: [
+              {
+                name: 'userBookmarks',
+                bundle: true,
+                filter: {
+                  user: {
+                    $or: [
+                      { uuid: 'session.uuid' },
+                      { email: 'session.email' }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
         }).then(function (dataSource) {
           _this.config.bookmarkDataSourceId = dataSource.id;
         });

@@ -18,7 +18,6 @@
   CodeMirror.extendMode("javascript", {
     commentStart: "/*",
     commentEnd: "*/",
-    // FIXME semicolons inside of for
     newlineAfterToken: function(_type, content, textAfter, state) {
       if (this.jsonMode) {
         return /^[\[,{]$/.test(content) || /^}/.test(textAfter);
