@@ -1637,6 +1637,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
         var btn = LikeButton({
           target: '.simple-list-bookmark-holder-' + id,
           dataSourceId: _this.data.bookmarkDataSourceId,
+          view: 'userBookmarks',
           content: identifier,
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',

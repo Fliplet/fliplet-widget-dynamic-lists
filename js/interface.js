@@ -2541,8 +2541,14 @@ var DynamicLists = (function() {
                 filter: {
                   user: {
                     $or: [
+                      // Guest users
                       { uuid: 'session.uuid' },
-                      { email: 'session.email' }
+
+                      // Logged in users
+                      { email: 'session.email' },
+
+                      // Legacy support just in case
+                      { dataSourceEntryId: 'session.id' }
                     ]
                   }
                 }
@@ -2551,6 +2557,13 @@ var DynamicLists = (function() {
           }
         }).then(function (dataSource) {
           _this.config.bookmarkDataSourceId = dataSource.id;
+          _this.config.dataSourceViews = _this.config.dataSourceViews || [];
+
+          _this.config.dataSourceViews.push({
+            id: dataSource.id,
+            name: 'userBookmarks',
+            bundle: true
+          })
         });
       } else if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
         _this.config.bookmarkDataSourceId = '';
