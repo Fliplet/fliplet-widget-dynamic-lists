@@ -2561,7 +2561,7 @@ var DynamicLists = (function() {
 
           _this.config.dataSourceViews.push({
             id: dataSource.id,
-            name: 'userBookmarks',
+            view: 'userBookmarks',
             bundle: true
           });
 
