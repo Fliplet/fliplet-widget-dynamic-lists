@@ -18,6 +18,7 @@ function DynamicList(id, data, container) {
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
+  this.data.forceRenderList = false;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
 
   // Other variables
@@ -939,7 +940,7 @@ DynamicList.prototype.parseSearchQueries = function() {
 
   if (!_.get(_this.pvSearchQuery, 'value')) {
     return _this.searchData({
-      query: true,
+      initialRender: true,
       goToToday: true
     });
   }
@@ -948,7 +949,7 @@ DynamicList.prototype.parseSearchQueries = function() {
     return _this.searchData({
       value: _this.pvSearchQuery.value,
       openSingleEntry: _this.pvSearchQuery.openSingleEntry,
-      query: true
+      initialRender: true
     });
   }
 
@@ -959,7 +960,7 @@ DynamicList.prototype.parseSearchQueries = function() {
     column: _this.pvSearchQuery.column,
     value: _this.pvSearchQuery.value,
     openSingleEntry: _this.pvSearchQuery.openSingleEntry,
-    query: true
+    initialRender: true
   });
 }
 
@@ -1276,7 +1277,7 @@ DynamicList.prototype.emptyLoop = function () {
   }
 };
 
-DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function () {
   // Function that renders the List template
   var _this = this;
   var template = '';
@@ -1318,12 +1319,8 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
       }
 
       if (!nextBatch.length) {
-        resolve(renderLoopIndex - 1, $renderFull);
+        resolve(_.flatten(_this.getAgendasByDay()));
         return;
-      }
-
-      if (iterateeCb && typeof iterateeCb === 'function') {
-        iterateeCb(renderLoopIndex, $renderBatch);
       }
 
       renderLoopIndex++;
@@ -2088,12 +2085,12 @@ DynamicList.prototype.searchData = function(options) {
       _this.$container.find('.hidden-search-controls').addClass('active');
       _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      if (_this.isSameResult(searchedData)) {
+      if (!_this.data.forceRenderList && _this.isSameResult(searchedData)) {
         // Same results returned. Do nothing.
         return Promise.resolve();
       }
 
-      if (_this.isSubsetResult(searchedData)) {
+      if (!_this.data.forceRenderList && _this.isSubsetResult(searchedData)) {
         _this.removeFilteredEntries(searchedData);
         _this.cacheSearchedData(searchedData);
         return Promise.resolve();
@@ -2132,7 +2129,8 @@ DynamicList.prototype.searchData = function(options) {
           showBookmarks: _this.showBookmarks,
           id: _this.data.id,
           uuid: _this.data.uuid,
-          container: _this.$container
+          container: _this.$container,
+          initialRender: !!options.initialRender
         });
       });
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
@@ -2145,7 +2143,8 @@ DynamicList.prototype.searchData = function(options) {
         showBookmarks: _this.showBookmarks,
         id: _this.data.id,
         uuid: _this.data.uuid,
-        container: _this.$container
+        container: _this.$container,
+        initialRender: !!options.initialRender
       });
     });
   });

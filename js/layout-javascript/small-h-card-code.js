@@ -737,7 +737,8 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
           Fliplet.Hooks.run('flListDataAfterRenderList', {
             instance: _this,
             records: data,
-            config: _this.data
+            config: _this.data,
+            initialRender: true
           });
           resolve();
         }

@@ -18,6 +18,7 @@ function DynamicList(id, data, container) {
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
+  this.data.forceRenderList = false;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
 
   // Other variables
@@ -772,7 +773,7 @@ DynamicList.prototype.parseSearchQueries = function() {
 
   if (!_.get(_this.pvSearchQuery, 'value')) {
     return _this.searchData({
-      query: true
+      initialRender: true
     });
   }
 
@@ -780,7 +781,7 @@ DynamicList.prototype.parseSearchQueries = function() {
     return _this.searchData({
       value: _this.pvSearchQuery.value,
       openSingleEntry: _this.pvSearchQuery.openSingleEntry,
-      query: true
+      initialRender: true
     });
   }
 
@@ -791,7 +792,7 @@ DynamicList.prototype.parseSearchQueries = function() {
     column: _this.pvSearchQuery.column,
     value: _this.pvSearchQuery.value,
     openSingleEntry: _this.pvSearchQuery.openSingleEntry,
-    query: true
+    initialRender: true
   });
 }
 
@@ -1355,7 +1356,7 @@ DynamicList.prototype.searchData = function(options) {
         .addClass('active')
         [searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      if (!_this.data.forceRenderList && searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
         // Same results returned. Do nothing.
         return Promise.resolve();
       }
@@ -1364,7 +1365,9 @@ DynamicList.prototype.searchData = function(options) {
         _this.$container.find('.limit-entries-text')[truncated && _this.data.limitEntries > 0 ? 'removeClass' : 'addClass']('hidden');
       }
 
-      if (searchedData.length && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
+      if (!_this.data.forceRenderList
+        && searchedData.length
+        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
         _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
@@ -1410,7 +1413,8 @@ DynamicList.prototype.searchData = function(options) {
           showBookmarks: _this.showBookmarks,
           id: _this.data.id,
           uuid: _this.data.uuid,
-          container: _this.$container
+          container: _this.$container,
+          initialRender: !!options.initialRender
         });
       });
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
@@ -1422,7 +1426,8 @@ DynamicList.prototype.searchData = function(options) {
         showBookmarks: _this.showBookmarks,
         id: _this.data.id,
         uuid: _this.data.uuid,
-        container: _this.$container
+        container: _this.$container,
+        initialRender: !!options.initialRender
       });
     });
   });
