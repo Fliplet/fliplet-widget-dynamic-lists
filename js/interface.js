@@ -2563,7 +2563,10 @@ var DynamicLists = (function() {
             id: dataSource.id,
             name: 'userBookmarks',
             bundle: true
-          })
+          });
+
+          // Ensure we don't store the same view twice
+          _this.config.dataSourceViews = _.uniqWith(_this.config.dataSourceViews, _.isEqual);
         });
       } else if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
         _this.config.bookmarkDataSourceId = '';
