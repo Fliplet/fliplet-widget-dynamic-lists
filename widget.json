@@ -107,6 +107,7 @@
     "summary-fields.$.appFolderId:app",
     "detailViewOptions.$.appFolderId:app",
     "summary-fields.$.organizationFolderId:organization",
-    "detailViewOptions.$.organizationFolderId:organization"
+    "detailViewOptions.$.organizationFolderId:organization",
+    "dataSourceViews.$.id:dataSourceView"
   ]
 }

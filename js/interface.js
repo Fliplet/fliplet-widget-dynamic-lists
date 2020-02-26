@@ -2528,13 +2528,45 @@ var DynamicLists = (function() {
         _this.config.likesDataSourceId = '';
       }
       if (_this.config.social.bookmark && (!_this.config.bookmarkDataSourceId || _this.config.bookmarkDataSourceId === '')) {
-        // Create likes data source
+        // Create bookmarks data source
         bookmarksPromise = Fliplet.DataSources.create({
           name: appName + ' - Bookmarks',
-          bundle: true,
-          organizationId: organizationId // optional
+          bundle: false,
+          organizationId: organizationId, // optional
+          definition: {
+            views: [
+              {
+                name: 'userBookmarks',
+                bundle: true,
+                filter: {
+                  user: {
+                    $or: [
+                      // Guest users
+                      { uuid: 'session.uuid' },
+
+                      // Logged in users
+                      { email: 'session.email' },
+
+                      // Legacy support just in case
+                      { dataSourceEntryId: 'session.id' }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
         }).then(function (dataSource) {
           _this.config.bookmarkDataSourceId = dataSource.id;
+          _this.config.dataSourceViews = _this.config.dataSourceViews || [];
+
+          _this.config.dataSourceViews.push({
+            id: dataSource.id,
+            view: 'userBookmarks',
+            bundle: true
+          });
+
+          // Ensure we don't store the same view twice
+          _this.config.dataSourceViews = _.uniqWith(_this.config.dataSourceViews, _.isEqual);
         });
       } else if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
         _this.config.bookmarkDataSourceId = '';
