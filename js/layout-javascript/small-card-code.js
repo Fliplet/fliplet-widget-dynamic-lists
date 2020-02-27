@@ -1560,7 +1560,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     return option.editable;
   });
 
-  if (!entry.originalData) {
+  if (!entry.originalData && entry.data) {
     entry.originalData = entry.data;
   }
 
