@@ -718,8 +718,10 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
-      // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
+      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+        records: _this.listItems,
+        config: _this.data
+      });
       _this.checkIsToOpen();
       return _this.addFilters(_this.modifiedListItems);
     })
@@ -996,21 +998,11 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
   var _this = this;
-  var savedColumns = [];
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
     config: _this.data
   });
-  var loopData = [];
-  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
-    return !option.editable;
-  });
-  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
-    return option.editable;
-  });
-
-  // Uses sumamry view settings set by users
-  modifiedData.forEach(function(entry) {
+  var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1023,6 +1015,7 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       originalData: entry.data
     };
 
+    // Uses sumamry view settings set by users
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
 
@@ -1037,93 +1030,13 @@ DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
       newObject[obj.location] = content;
     });
 
-    notDynamicData.forEach(function(obj) {
-      if (!newObject[obj.location]) {
-        var content = '';
-        if (obj.column === 'custom') {
-          content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
-        } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
-          content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
-        } else {
-          content = entry.data[obj.column];
-        }
-        newObject[obj.location] = content;
-      }
-    });
-
-    dynamicData.forEach(function(dynamicDataObj) {
-      var label = '';
-      var labelEnabled = true;
-      var content = '';
-
-      // Define label
-      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
-        label = dynamicDataObj.column;
-      }
-      if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
-      }
-      if (dynamicDataObj.fieldLabel === 'no-label') {
-        labelEnabled = false;
-      }
-
-      // Define content
-      if (dynamicDataObj.customFieldEnabled) {
-        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
-      } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
-        content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
-      } else {
-        content = entry.data[dynamicDataObj.column];
-      }
-
-      // Define data object
-      var newEntryDetail = {
-        id: dynamicDataObj.id,
-        content: content,
-        label: label,
-        labelEnabled: labelEnabled,
-        type: dynamicDataObj.type
-      }
-
-      newObject.entryDetails.push(newEntryDetail);
-    });
-    loopData.push(newObject);
+    return newObject;
   });
 
-  savedColumns = dynamicData.map(function(data){
-    return data.column;
-  })
-
-  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
-    loopData.forEach(function(obj, index) {
-      var entryData = _.find(modifiedData, function(modEntry) {
-        return modEntry.id === obj.id;
-      });
-
-      extraColumns.forEach(function(column) {
-        var newColumnData = {
-          id: entryData.id,
-          content: entryData.data[column],
-          label: column,
-          labelEnabled: true,
-          type: 'text'
-        };
-
-        obj.entryDetails.push(newColumnData);
-      });
-    });
-  }
-
-  if (forProfile) {
-    return loopData;
-  }
-
-  _this.modifiedListItems = loopData;
-  return _this.modifiedListItems;
+  return loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function () {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
@@ -1156,12 +1069,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
 
       if (nextBatch.length) {
         $('#small-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if (iterateeCb && typeof iterateeCb === 'function') {
-          if (renderLoopIndex === 0) {
-            _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
-          }
-          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
-        }
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
@@ -1383,7 +1290,7 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
-      _this.prepareToRenderLoop(searchedData);
+      _this.modifiedListItems = _this.prepareToRenderLoop(searchedData);
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
 
@@ -1616,6 +1523,10 @@ DynamicList.prototype.getAllBookmarks = function () {
 DynamicList.prototype.initializeSocials = function (records) {
   var _this = this;
 
+  if (!_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+    return Promise.resolve();
+  }
+
   return _this.getAllBookmarks().then(function () {
     return Promise.all(_.map(records, function (record) {
       var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
@@ -1631,6 +1542,99 @@ DynamicList.prototype.initializeSocials = function (records) {
   });
 };
 
+DynamicList.prototype.addDetailViewData = function (entry) {
+  var _this = this;
+
+  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    return entry;
+  }
+
+  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return !option.editable;
+  });
+  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return option.editable;
+  });
+
+  entry.entryDetails = [];
+
+  // Uses detail view settings not set by users
+  notDynamicData.forEach(function(obj) {
+    if (!entry[obj.location]) {
+      var content = '';
+
+      if (obj.column === 'custom') {
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
+      } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+        content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
+      } else {
+        content = entry.data[obj.column];
+      }
+
+      entry[obj.location] = content;
+    }
+  });
+
+  // Uses detail view settings set by users
+  dynamicData.forEach(function(dynamicDataObj) {
+    var label = '';
+    var labelEnabled = true;
+    var content = '';
+
+    // Define label
+    if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
+      label = dynamicDataObj.column;
+    }
+    if (dynamicDataObj.fieldLabel === 'custom-label') {
+      label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
+    }
+    if (dynamicDataObj.fieldLabel === 'no-label') {
+      labelEnabled = false;
+    }
+
+    // Define content
+    if (dynamicDataObj.customFieldEnabled) {
+      content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
+    } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
+      content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
+    } else {
+      content = entry.data[dynamicDataObj.column];
+    }
+
+    // Define data object
+    var newEntryDetail = {
+      id: dynamicDataObj.id,
+      content: content,
+      label: label,
+      labelEnabled: labelEnabled,
+      type: dynamicDataObj.type
+    }
+
+    entry.entryDetails.push(newEntryDetail);
+  });
+
+  var savedColumns = _.map(dynamicData, function(data){
+    return data.column;
+  });
+  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+
+  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
+    _.forEach(extraColumns, function(column) {
+      var newColumnData = {
+        id: entry.id,
+        content: entry.data[column],
+        label: column,
+        labelEnabled: true,
+        type: 'text'
+      };
+
+      entry.entryDetails.push(newColumnData);
+    });
+  }
+
+  return entry;
+};
+
 DynamicList.prototype.showDetails = function (id) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
@@ -1640,6 +1644,9 @@ DynamicList.prototype.showDetails = function (id) {
   var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
+
+  entryData = _this.addDetailViewData(entryData);
+
   var beforeShowDetails = Promise.resolve({
     src: src,
     data: entryData
