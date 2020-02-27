@@ -1396,6 +1396,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
         var btn = LikeButton({
           target: target,
           dataSourceId: _this.data.bookmarkDataSourceId,
+          view: 'userBookmarks',
           content: identifier,
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o"></i>',
@@ -1486,7 +1487,10 @@ DynamicList.prototype.getAllBookmarks = function () {
   return _this.Utils.Query.fetchAndCache({
     key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
     waitFor: 400,
-    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+    request: Fliplet.Profile.Content({
+      dataSourceId: _this.data.bookmarkDataSourceId,
+      view: 'userBookmarks'
+    }).then(function (instance) {
       return instance.query({
         where: {
           content: {
