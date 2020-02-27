@@ -1560,6 +1560,10 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     return option.editable;
   });
 
+  if (!entry.originalData) {
+    entry.originalData = entry.data;
+  }
+
   entry.entryDetails = [];
 
   // Uses detail view settings not set by users
@@ -1568,11 +1572,11 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       var content = '';
 
       if (obj.column === 'custom') {
-        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
-        content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
+        content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
       } else {
-        content = entry.data[obj.column];
+        content = entry.originalData[obj.column];
       }
 
       entry[obj.location] = content;
@@ -1590,7 +1594,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       label = dynamicDataObj.column;
     }
     if (dynamicDataObj.fieldLabel === 'custom-label') {
-      label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
+      label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.originalData));
     }
     if (dynamicDataObj.fieldLabel === 'no-label') {
       labelEnabled = false;
@@ -1598,11 +1602,11 @@ DynamicList.prototype.addDetailViewData = function (entry) {
 
     // Define content
     if (dynamicDataObj.customFieldEnabled) {
-      content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
+      content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
     } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
-      content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
+      content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]).join(', ');
     } else {
-      content = entry.data[dynamicDataObj.column];
+      content = entry.originalData[dynamicDataObj.column];
     }
 
     // Define data object
@@ -1626,7 +1630,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     _.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
-        content: entry.data[column],
+        content: entry.originalData[column],
         label: column,
         labelEnabled: true,
         type: 'text'
