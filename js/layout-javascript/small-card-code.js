@@ -718,11 +718,11 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
+      _this.checkIsToOpen();
       _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
         config: _this.data
       });
-      _this.checkIsToOpen();
       return _this.addFilters(_this.modifiedListItems);
     })
     .then(function () {
@@ -732,8 +732,6 @@ DynamicList.prototype.initialize = function() {
 }
 
 DynamicList.prototype.checkIsToOpen = function(options) {
-  // List of entries saved in: _this.modifiedListItems
-
   options = options || {};
 
   var _this = this;
@@ -744,28 +742,21 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.id === _this.pvOpenQuery.id;
-    });
-  }
-
-  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.originalData[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
+  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.listItems, function(row) {
+      return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
   }
 
   if (!entry) {
-    // Entry not found
-    if (options.silent) {
-      return;
-    }
-
     Fliplet.UI.Toast('Entry not found');
     return;
   }
 
-  _this.showDetails(entry.id).then(function () {
+  var modifiedData = _this.addSummaryData([entry]);
+
+  _this.showDetails(entry.id, modifiedData).then(function () {
     _this.openedEntryOnQuery = true;
   });
 }
@@ -996,7 +987,7 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$container.html(template(data));
 }
 
-DynamicList.prototype.prepareToRenderLoop = function(records, forProfile) {
+DynamicList.prototype.addSummaryData = function(records, forProfile) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
@@ -1290,7 +1281,7 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
-      _this.modifiedListItems = _this.prepareToRenderLoop(searchedData);
+      _this.modifiedListItems = _this.addSummaryData(searchedData);
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
 
@@ -1301,7 +1292,7 @@ DynamicList.prototype.searchData = function(options) {
           var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
           var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
 
-          _this.modifiedProfileData = _this.prepareToRenderLoop(_this.myProfileData, true);
+          _this.modifiedProfileData = _this.addSummaryData(_this.myProfileData, true);
           _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
           _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
@@ -1560,10 +1551,6 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     return option.editable;
   });
 
-  if (!entry.originalData && entry.data) {
-    entry.originalData = entry.data;
-  }
-
   entry.entryDetails = [];
 
   // Uses detail view settings not set by users
@@ -1643,10 +1630,10 @@ DynamicList.prototype.addDetailViewData = function (entry) {
   return entry;
 };
 
-DynamicList.prototype.showDetails = function (id) {
+DynamicList.prototype.showDetails = function (id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(_this.modifiedListItems, { id: id });
+  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
   // Process template with data
   var entryId = { id: id };
   var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';
