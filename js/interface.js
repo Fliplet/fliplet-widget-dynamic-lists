@@ -592,7 +592,7 @@ var DynamicLists = (function() {
       Fliplet.Studio.onMessage(function(event) {
         if (event.data && event.data.event === 'overlay-close' && event.data.data && event.data.data.dataSourceId) {
           // Saving user data before reload interface
-          _this.saveLists()
+          _this.saveLists();
           _this.reloadDataSources().then(function(dataSources) {
             if (!_this.config.dataAlertSeen) {
               return Fliplet.Modal.confirm({
