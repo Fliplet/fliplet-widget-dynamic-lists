@@ -558,16 +558,6 @@
   background-repeat: no-repeat;
 }
 
-.simple-list-item .list-item-title,	
-.simple-list-item .list-item-description,	
-.simple-list-item .list-item-subtitle {	
-  margin: 0;	
-  display: -webkit-box;	
-  -webkit-line-clamp: 3;	
-  -webkit-box-orient: vertical;	
-  overflow: hidden;	
-}
-
 .simple-list-item .list-item-title {
   font-size: 18px;
 }
@@ -1201,4 +1191,12 @@
   .simple-list-detail-overlay-panel .simple-list-detail-overlay-heading {
     display: none;
   }
+}
+
+.simple-list-container.loading .simple-list-wrapper {
+  opacity: 0;
+}
+
+.simple-list-container.ready .simple-list-wrapper {
+  opacity: 1;
 }

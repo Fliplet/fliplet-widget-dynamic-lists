@@ -1211,6 +1211,9 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
           iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
         }
         renderLoopIndex++;
+
+        _this.Utils.Page.setLineClamps('[data-line-clamp]', _this.$container);
+
         // if the browser is ready, render
         requestAnimationFrame(render);
       } else{
