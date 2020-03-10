@@ -1700,6 +1700,7 @@ DynamicList.prototype.showDetails = function (id) {
 
 DynamicList.prototype.closeDetails = function() {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
+    Fliplet.Page.Context.remove('dynamicListPreviousScreen');
     return Fliplet.Navigate.back();
   }
 
