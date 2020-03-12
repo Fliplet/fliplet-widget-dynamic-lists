@@ -1282,7 +1282,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Page: {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
-      setLineClamps: setLineClamps
     },
     String: {
       splitByCommas: splitByCommas,

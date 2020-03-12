@@ -1212,6 +1212,8 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         }
         renderLoopIndex++;
 
+        window.ellipsed.ellipsis('[data-line-clamp]', $('[data-line-clamp]').data('line-clamp'));
+
         // if the browser is ready, render
         requestAnimationFrame(render);
       } else{
