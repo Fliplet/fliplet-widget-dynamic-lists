@@ -1238,3 +1238,71 @@
  .has-bookmarks {
   padding-right: 20px !important;
 }
+
+.small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 4px;
+  font-size: 0.8em !important;
+}
+
+.small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin::before {
+  content: '\002573';
+}
+
+/* IE11 layout */
+@media screen and (-ms-high-contrast: none) {
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+    padding-top: 0px;
+    padding-bottom: 5px;
+  }
+}
+
+/* Safari layout */
+@media not all and (min-resolution:.001dpcm) {
+  @media {
+    .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+      padding-top: 1px;
+      padding-bottom: 0px;
+    }
+  }
+}
+
+/* For native devices */
+.native.android .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+  padding-top: 5px;
+}
+
+.native.ios .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+  padding-top: 1px;
+}
+
+.mode-interact [data-dynamic-lists-id] {
+  min-height: 32px;
+}
+
+/* For MS Edge */
+@supports (-ms-ime-align:auto) {
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+    padding-top: 1px;
+    padding-bottom: 3px;
+  }
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 5px;
+  }
+
+  .no-windows .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
+
+/* For Android Chrome browser*/
+.android.no-native .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet .fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}

@@ -1200,3 +1200,72 @@
 .simple-list-container.ready .simple-list-wrapper {
   opacity: 1;
 }
+
+
+.simple-list-detail-overlay-close .fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 4px;
+  font-size: 0.8em !important;
+}
+
+.simple-list-detail-overlay-close .fa-times-thin::before {
+  content: '\002573';
+}
+
+/* IE11 layout */
+@media screen and (-ms-high-contrast: none) {
+  .simple-list-detail-overlay-close .fa-times-thin {
+    padding-top: 0px;
+    padding-bottom: 5px;
+  }
+}
+
+/* Safari layout */
+@media not all and (min-resolution:.001dpcm) {
+  @media {
+    .simple-list-detail-overlay-close .fa-times-thin {
+      padding-top: 1px;
+      padding-bottom: 0px;
+    }
+  }
+}
+
+/* For native devices */
+.native.android .simple-list-detail-overlay-close .fa-times-thin {
+  padding-top: 5px;
+}
+
+.native.ios .simple-list-detail-overlay-close .fa-times-thin {
+  padding-top: 1px;
+}
+
+.mode-interact [data-dynamic-lists-id] {
+  min-height: 32px;
+}
+
+/* For MS Edge */
+@supports (-ms-ime-align:auto) {
+  .simple-list-detail-overlay-close .fa-times-thin {
+    padding-top: 1px;
+    padding-bottom: 3px;
+  }
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+  .simple-list-detail-overlay-close .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 5px;
+  }
+
+  .no-windows .simple-list-detail-overlay-close .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
+
+/* For Android Chrome browser*/
+.android.no-native .simple-list-detail-overlay-close .fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
