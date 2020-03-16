@@ -73,10 +73,10 @@
       "vendor/mixitup-multifilter.min.js",
       "vendor/autosize.js",
       "vendor/unorm.js",
+      "vendor/ellipsed.js",
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",
-      "vendor/superclamp.min.js",
       "css/build.css",
 
       "css/layout-css/small-card-style.upload.css",

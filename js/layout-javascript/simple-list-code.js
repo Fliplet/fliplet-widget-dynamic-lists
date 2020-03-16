@@ -1212,7 +1212,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         }
         renderLoopIndex++;
 
-        _this.Utils.Page.setLineClamps('[data-line-clamp]', _this.$container);
+        window.ellipsed.ellipsis('[data-line-clamp]', $('[data-line-clamp]').data('line-clamp'));
 
         // if the browser is ready, render
         requestAnimationFrame(render);
