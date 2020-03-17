@@ -779,6 +779,14 @@
   left: 0;
 }
 
+.new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description {	
+  overflow: hidden;	
+  display: -webkit-box;	
+  -webkit-line-clamp: 3;	
+  -webkit-box-orient: vertical;	
+  height: 4.4em;	
+}
+
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-item-description,
 .news-feed-detail-overlay .news-feed-item-inner-content .news-feed-item-description {
   font-size: 16px;
