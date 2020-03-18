@@ -1608,12 +1608,10 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     entry.entryDetails.push(newEntryDetail);
   });
 
-  var savedColumns = _.map(dynamicData, function(data){
-    return data.column;
-  });
+  var savedColumns = _.map(dynamicData, 'column');
   var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
 
-  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
+  if (_this.data.detailViewAutoUpdate) {
     _.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
