@@ -67,8 +67,6 @@ function DynamicList(id, data, container) {
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
 
-  this.detailHTML = Handlebars.compile(this.src);
-
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
 
@@ -1046,7 +1044,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function (records) {
-      _this.listItems = records;
+      _this.listItems = _this.getPermissions(records);
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
@@ -1063,12 +1061,12 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, function (item) {
-        return item.id;
-      });
-      // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
+      _this.listItems = _.uniqBy(response, 'id');
       _this.checkIsToOpen();
+      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+        records: _this.listItems,
+        config: _this.data
+      });
       return _this.addFilters(_this.modifiedListItems);
     })
     .then(function () {
@@ -1077,11 +1075,7 @@ DynamicList.prototype.initialize = function() {
     });
 }
 
-DynamicList.prototype.checkIsToOpen = function(options) {
-  // List of entries saved in: _this.modifiedListItems
-
-  options = options || {};
-
+DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
 
@@ -1090,28 +1084,21 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.id === _this.pvOpenQuery.id;
-    });
-  }
-
-  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.originalData[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
+  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.listItems, function(row) {
+      return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
   }
 
   if (!entry) {
-    // Entry not found
-    if (options.silent) {
-      return;
-    }
-
     Fliplet.UI.Toast('Entry not found');
     return;
   }
 
-  _this.showDetails(entry.id).then(function () {
+  var modifiedData = _this.addSummaryData([entry]);
+
+  _this.showDetails(entry.id, modifiedData).then(function () {
     _this.openedEntryOnQuery = true;
   });
 }
@@ -1346,20 +1333,13 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$overlay = $('#news-feed-detail-overlay-' + _this.data.id);
 }
 
-DynamicList.prototype.prepareToRenderLoop = function(records) {
+DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  var savedColumns = [];
-  var loopHTML = '';
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
     config: _this.data
   });
-  modifiedData = _this.getPermissions(modifiedData);
-
-  var loopData = [];
-
-  // Uses sumamry view settings set by users
-  modifiedData.forEach(function(entry) {
+  var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1372,8 +1352,11 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       entryDetails: [],
       originalData: entry.data
     };
+
+    // Uses sumamry view settings set by users
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
+
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
@@ -1381,76 +1364,17 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       } else {
         content = entry.data[obj.column];
       }
+
       newObject[obj.location] = content;
     });
 
-    _this.data.detailViewOptions.forEach(function(dynamicDataObj) {
-      var label = '';
-      var labelEnabled = true;
-      var content = '';
-
-      // Define label
-      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
-        label = dynamicDataObj.column;
-      }
-      if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
-      }
-      if (dynamicDataObj.fieldLabel === 'no-label') {
-        labelEnabled = false;
-      }
-
-      // Define content
-      if (dynamicDataObj.customFieldEnabled) {
-        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
-      } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
-        content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
-      } else {
-        content = entry.data[dynamicDataObj.column];
-      }
-
-      // Define data object
-      var newEntryDetail = {
-        id: dynamicDataObj.id,
-        content: content,
-        label: label,
-        labelEnabled: labelEnabled,
-        type: dynamicDataObj.type
-      }
-
-      newObject.entryDetails.push(newEntryDetail);
-    });
-    loopData.push(newObject);
+    return newObject;
   });
 
-  savedColumns = _this.data.detailViewOptions.map(function(data){
-    return data.column;
-  })
-
-  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
-    loopData.forEach(function(entry, index) {
-      var entryData = _.find(modifiedData, function(modEntry) {
-        return modEntry.id === entry.id;
-      });
-
-      extraColumns.forEach(function(column) {
-        var newColumnData = {
-          id: entryData.id,
-          content: entryData.data[column],
-          label: column,
-          labelEnabled: true,
-          type: 'text'
-        };
-
-        entry.entryDetails.push(newColumnData);
-      });
-    });
-  }
-  _this.modifiedListItems = loopData;
+  return loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function () {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
@@ -1483,12 +1407,6 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
 
       if (nextBatch.length) {
         $('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if (iterateeCb && typeof iterateeCb === 'function') {
-          if (renderLoopIndex === 0) {
-            _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
-          }
-          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
-        }
         renderLoopIndex++;
         // if the browser is ready, render
         requestAnimationFrame(render);
@@ -1709,7 +1627,7 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#news-feed-list-wrapper-' + _this.data.id).html('');
 
-      _this.prepareToRenderLoop(searchedData);
+      _this.modifiedListItems = _this.addSummaryData(searchedData);
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
         return records;
@@ -1976,13 +1894,84 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     });
 }
 
-DynamicList.prototype.showDetails = function (id) {
+DynamicList.prototype.addDetailViewData = function (entry) {
+  var _this = this;
+
+  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    return entry;
+  }
+
+  entry.entryDetails = [];
+
+  // Define detail view data based on user's settings
+  _this.data.detailViewOptions.forEach(function(obj) {
+    var label = '';
+    var labelEnabled = true;
+    var content = '';
+
+    // Define label
+    if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
+      label = obj.column;
+    }
+    if (obj.fieldLabel === 'custom-label') {
+      label = new Handlebars.SafeString(Handlebars.compile(obj.customFieldLabel)(entry.originalData));
+    }
+    if (obj.fieldLabel === 'no-label') {
+      labelEnabled = false;
+    }
+
+    // Define content
+    if (obj.customFieldEnabled) {
+      content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
+    } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+      content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
+    } else {
+      content = entry.originalData[obj.column];
+    }
+
+    // Define data object
+    var newEntryDetail = {
+      id: obj.id,
+      content: content,
+      label: label,
+      labelEnabled: labelEnabled,
+      type: obj.type
+    };
+
+    entry.entryDetails.push(newEntryDetail);
+  });
+
+  if (_this.data.detailViewAutoUpdate) {
+    var savedColumns = _.map(_this.data.detailViewOptions, 'column');
+    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+
+    _.forEach(extraColumns, function(column) {
+      var newColumnData = {
+        id: entry.id,
+        content: entry.originalData[column],
+        label: column,
+        labelEnabled: true,
+        type: 'text'
+      };
+
+      entry.entryDetails.push(newColumnData);
+    });
+  }
+
+  return entry;
+};
+
+DynamicList.prototype.showDetails = function (id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(_this.modifiedListItems, { id: id });
-  var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
+  // Process template with data
   var entryId = { id: id };
+  var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
   var src = _this.src;
+
+  entryData = _this.addDetailViewData(entryData);
+
   var beforeShowDetails = Promise.resolve({
     src: src,
     data: entryData

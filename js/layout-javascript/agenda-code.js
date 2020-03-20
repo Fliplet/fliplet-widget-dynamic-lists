@@ -815,7 +815,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(records) {
-      _this.listItems = records;
+      _this.listItems = _this.getPermissions(records);
 
       return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function (columns) {
         _this.dataSourceColumns = columns;
@@ -832,22 +832,21 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
-
-      _this.prepareToRenderLoop(_this.listItems);
-      _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
       _this.checkIsToOpen();
+      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+        records: _this.listItems,
+        config: _this.data
+      });
       return _this.addFilters(_this.modifiedListItems);
     }).then(function () {
+      _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
       _this.parseFilterQueries();
       _this.parseSearchQueries();
     });
 }
 
-DynamicList.prototype.checkIsToOpen = function(options) {
+DynamicList.prototype.checkIsToOpen = function() {
   // List of entries saved in: _this.modifiedListItems
-
-  options = options || {};
-
   var _this = this;
   var entry;
 
@@ -856,43 +855,21 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _(_this.getAgendasByDay())
-      .chain()
-      .thru(function(day) {
-        return _.union(day, _.map(day, 'children'));
-      })
-      .flatten()
-      .find({ id: _this.pvOpenQuery.id })
-      .value();
-  }
-
-  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    var queryObject = {
-      originalData: {}
-    };
-    queryObject.originalData[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
-
-    entry = _(_this.getAgendasByDay())
-      .chain()
-      .thru(function(day) {
-        return _.union(day, _.map(day, 'children'));
-      })
-      .flatten()
-      .find(queryObject)
-      .value();
+    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
+  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.listItems, function(row) {
+      return row.data[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    });
   }
 
   if (!entry) {
-    // Entry not found
-    if (options.silent) {
-      return;
-    }
-
     Fliplet.UI.Toast('Entry not found');
     return;
   }
 
-  _this.showDetails(entry.id).then(function () {
+  var modifiedData = _this.addSummaryData([entry]);
+
+  _this.showDetails(entry.id, modifiedData).then(function () {
     _this.openedEntryOnQuery = true;
   });
 }
@@ -1124,24 +1101,15 @@ DynamicList.prototype.groupLoopDataByDate = function (loopData, dateField) {
   return _(recordGroups).toPairs().sortBy(0).map(1).value();
 };
 
-DynamicList.prototype.prepareToRenderLoop = function(records) {
+DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  var savedColumns = [];
-  var loopData = [];
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
     config: _this.data
   });
-  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
-    return !option.editable;
-  });
-  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
-    return option.editable;
-  });
 
-  modifiedData = _this.getPermissions(modifiedData);
   // Uses sumamry view settings set by users
-  modifiedData.forEach(function(entry) {
+  var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1170,8 +1138,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       entryDetails: [],
       originalData: entry.data
     };
+
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
+
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
@@ -1185,88 +1155,10 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       newObject[obj.location] = content;
     });
 
-    notDynamicData.forEach(function(obj) {
-      if (newObject[obj.location]) {
-        return;
-      }
-
-      var content = '';
-
-      if (obj.column === 'custom') {
-        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
-      } else {
-        content = entry.data[obj.column];
-      }
-
-      newObject[obj.location] = content;
-    });
-
-    dynamicData.forEach(function(dynamicDataObj) {
-      var label = '';
-      var labelEnabled = true;
-      var content = '';
-
-      // Define label
-      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
-        label = dynamicDataObj.column;
-      }
-      if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
-      }
-      if (dynamicDataObj.fieldLabel === 'no-label') {
-        labelEnabled = false;
-      }
-
-      // Define content
-      if (dynamicDataObj.customFieldEnabled) {
-        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
-      } else {
-        content = entry.data[dynamicDataObj.column];
-      }
-
-      // Define data object
-      var newEntryDetail = {
-        id: entry.id,
-        content: content,
-        label: label,
-        labelEnabled: labelEnabled,
-        type: dynamicDataObj.type
-      }
-      newObject.entryDetails.push(newEntryDetail);
-    });
-    loopData.push(newObject);
+    return newObject;
   });
 
-  // Define detail view data based on user's settings
-
-  savedColumns = dynamicData.map(function(data){
-    return data.column;
-  })
-
-  // Converts date format
-  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-
-  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
-    loopData.forEach(function(obj, index) {
-      var entryData = _.find(modifiedData, function(modEntry) {
-        return modEntry.id === obj.id;
-      });
-
-      extraColumns.forEach(function(column) {
-        var newColumnData = {
-          id: entryData.id,
-          content: entryData.data[column],
-          label: column,
-          labelEnabled: true,
-          type: 'text'
-        };
-
-        obj.entryDetails.push(newColumnData);
-      });
-    });
-  }
-
-  _this.modifiedListItems = loopData;
+  return loopData;
 }
 
 DynamicList.prototype.emptyLoop = function () {
@@ -2104,7 +1996,7 @@ DynamicList.prototype.searchData = function(options) {
        * Render results
        **/
 
-      _this.prepareToRenderLoop(searchedData);
+      _this.modifiedListItems = _this.addSummaryData(searchedData);
       _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
 
       // Render the full list
@@ -2267,10 +2159,98 @@ DynamicList.prototype.sliderGoTo = function(number) {
   }
 }
 
-DynamicList.prototype.showDetails = function (id) {
+DynamicList.prototype.addDetailViewData = function (entry) {
+  var _this = this;
+
+  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    return entry;
+  }
+
+  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return !option.editable;
+  });
+  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return option.editable;
+  });
+
+  entry.entryDetails = [];
+
+  // Uses detail view settings not set by users
+  notDynamicData.forEach(function(obj) {
+    if (entry[obj.location]) {
+      return;
+    }
+
+    var content = '';
+
+    if (obj.column === 'custom') {
+      content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
+    } else {
+      content = entry.originalData[obj.column];
+    }
+
+    entry[obj.location] = content;
+  });
+
+  // Uses detail view settings set by users
+  dynamicData.forEach(function(dynamicDataObj) {
+    var label = '';
+    var labelEnabled = true;
+    var content = '';
+
+    // Define label
+    if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
+      label = dynamicDataObj.column;
+    }
+    if (dynamicDataObj.fieldLabel === 'custom-label') {
+      label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.originalData));
+    }
+    if (dynamicDataObj.fieldLabel === 'no-label') {
+      labelEnabled = false;
+    }
+
+    // Define content
+    if (dynamicDataObj.customFieldEnabled) {
+      content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
+    } else {
+      content = entry.originalData[dynamicDataObj.column];
+    }
+
+    // Define data object
+    var newEntryDetail = {
+      id: entry.id,
+      content: content,
+      label: label,
+      labelEnabled: labelEnabled,
+      type: dynamicDataObj.type
+    }
+    entry.entryDetails.push(newEntryDetail);
+  });
+
+  if (_this.data.detailViewAutoUpdate) {
+    var savedColumns = _.map(dynamicData, 'column');
+    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+
+    _.forEach(extraColumns, function(column) {
+      var newColumnData = {
+        id: entry.id,
+        content: entry.originalData[column],
+        label: column,
+        labelEnabled: true,
+        type: 'text'
+      };
+
+      entry.entryDetails.push(newColumnData);
+    });
+  }
+
+  return entry;
+};
+
+DynamicList.prototype.showDetails = function (id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _(_this.getAgendasByDay())
+  var entryData = listData || _(_this.getAgendasByDay())
     .chain()
     .thru(function(coll) {
       return _.union(coll, _.map(coll, 'children'));
@@ -2284,6 +2264,9 @@ DynamicList.prototype.showDetails = function (id) {
   var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
   var src = _this.src;
+
+  entryData = _this.addDetailViewData(entryData);
+
   var beforeShowDetails = Promise.resolve({
     src: src,
     data: entryData
