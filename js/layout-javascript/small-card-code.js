@@ -731,9 +731,7 @@ DynamicList.prototype.initialize = function() {
     });
 }
 
-DynamicList.prototype.checkIsToOpen = function(options) {
-  options = options || {};
-
+DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
 
@@ -1603,15 +1601,15 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       label: label,
       labelEnabled: labelEnabled,
       type: dynamicDataObj.type
-    }
+    };
 
     entry.entryDetails.push(newEntryDetail);
   });
 
-  var savedColumns = _.map(dynamicData, 'column');
-  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-
   if (_this.data.detailViewAutoUpdate) {
+    var savedColumns = _.map(dynamicData, 'column');
+    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+
     _.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
