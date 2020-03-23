@@ -745,6 +745,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function (record) {
+      if (_.isArray(_.get(record, 'data.flFilters')) && !options.force) {
+        // If filters are alredy present, skip unless it's forced
+        return;
+      }
+
       var classes = [];
       record.data['flFilters'] = [];
       _.forEach(config.filterFields, function (field) {

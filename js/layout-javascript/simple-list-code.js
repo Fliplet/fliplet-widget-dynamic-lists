@@ -839,7 +839,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function (records) {
-      _this.listItems = records;
+      _this.listItems = _this.getPermissions(records);
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
@@ -856,13 +856,12 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, function (item) {
-        return item.id;
-      });
-
-      // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
+      _this.listItems = _.uniqBy(response, 'id');
       _this.checkIsToOpen();
+      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+        records: _this.listItems,
+        config: _this.data
+      });
       return _this.addFilters(_this.modifiedListItems);
     })
     .then(function () {
@@ -871,11 +870,7 @@ DynamicList.prototype.initialize = function() {
     });
 }
 
-DynamicList.prototype.checkIsToOpen = function(options) {
-  // List of entries saved in: _this.modifiedListItems
-
-  options = options || {};
-
+DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
 
@@ -884,28 +879,21 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.id === _this.pvOpenQuery.id;
-    });
-  }
-
-  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.originalData[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
+  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.listItems, function(row) {
+      return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
   }
 
   if (!entry) {
-    // Entry not found
-    if (options.silent) {
-      return;
-    }
-
     Fliplet.UI.Toast('Entry not found');
     return;
   }
 
-  _this.showDetails(entry.id).then(function () {
+  var modifiedData = _this.addSummaryData([entry]);
+
+  _this.showDetails(entry.id, modifiedData).then(function () {
     _this.openedEntryOnQuery = true;
   });
 }
@@ -1136,16 +1124,13 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$container.html(template(data));
 }
 
-DynamicList.prototype.prepareToRenderLoop = function(records) {
+DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
     config: _this.data
   });
-  var loopData = [];
-
-  // Uses sumamry view settings set by users
-  modifiedData.forEach(function(entry) {
+  var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1155,8 +1140,11 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       commentsEnabled: entry.commentsEnabled,
       originalData: entry.data
     };
+
+    // Uses sumamry view settings set by users
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
+
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
@@ -1164,15 +1152,17 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       } else {
         content = entry.data[obj.column];
       }
+
       newObject[obj.location] = content;
     });
-    loopData.push(newObject);
+
+    return newObject;
   });
 
-  _this.modifiedListItems = loopData;
+  return loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function () {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
@@ -1202,14 +1192,9 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
         renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
       );
+
       if (nextBatch.length) {
         $('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if (iterateeCb && typeof iterateeCb === 'function'){
-          if (renderLoopIndex === 0){
-            _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
-          }
-          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
-        }
         renderLoopIndex++;
 
         if (Modernizr.ie11) {
@@ -1439,7 +1424,7 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#simple-list-wrapper-' + _this.data.id).html('');
 
-      _this.prepareToRenderLoop(searchedData);
+      _this.modifiedListItems = _this.addSummaryData(searchedData);
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
         return records;
@@ -1880,24 +1865,16 @@ DynamicList.prototype.getCommentUsers = function () {
     });
 };
 
-DynamicList.prototype.showDetails = function (id) {
-  // Function that loads the selected entry data into an overlay for more details
+DynamicList.prototype.addDetailViewData = function (entry) {
   var _this = this;
-  var savedColumns = [];
-  var modifiedData = _this.getPermissions(_this.listItems);
-  var entryData = _.find(modifiedData, { id: id });
-  // Define detail view data based on user's settings
-  var newData = {
-    id: entryData.id,
-    editEntry: entryData.editEntry,
-    deleteEntry: entryData.deleteEntry,
-    likesEnabled: entryData.likesEnabled,
-    bookmarksEnabled: entryData.bookmarksEnabled,
-    commentsEnabled: entryData.commentsEnabled,
-    data: [],
-    originalData: entryData.data
-  };
 
+  if (_.isArray(entry.data) && entry.data.length) {
+    return entry;
+  }
+
+  entry.data = [];
+
+  // Define detail view data based on user's settings
   _this.data.detailViewOptions.forEach(function(obj) {
     var label = '';
     var labelEnabled = true;
@@ -1908,7 +1885,7 @@ DynamicList.prototype.showDetails = function (id) {
       label = obj.column;
     }
     if (obj.fieldLabel === 'custom-label') {
-      label = new Handlebars.SafeString(Handlebars.compile(obj.customFieldLabel)(entryData.data));
+      label = new Handlebars.SafeString(Handlebars.compile(obj.customFieldLabel)(entry.originalData));
     }
     if (obj.fieldLabel === 'no-label') {
       labelEnabled = false;
@@ -1916,56 +1893,69 @@ DynamicList.prototype.showDetails = function (id) {
 
     // Define content
     if (obj.customFieldEnabled) {
-      content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entryData.data));
+      content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
+    } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+      content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
     } else {
-      content = entryData.data[obj.column];
+      content = entry.originalData[obj.column];
     }
 
     // Define data object
-    var newObject = {
+    var newEntryDetail = {
+      id: obj.id,
       content: content,
       label: label,
       labelEnabled: labelEnabled,
       type: obj.type
-    }
-    newData.data.push(newObject);
-    savedColumns.push(obj.column);
+    };
+
+    entry.data.push(newEntryDetail);
   });
 
-  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
   if (_this.data.detailViewAutoUpdate) {
-    extraColumns.forEach(function(column) {
+    var savedColumns = _.map(_this.data.detailViewOptions, 'column');
+    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+
+    _.forEach(extraColumns, function(column) {
       var newColumnData = {
-        content: entryData.data[column],
+        id: entry.id,
+        content: entry.originalData[column],
         label: column,
         labelEnabled: true,
         type: 'text'
       };
 
-      newData.data.push(newColumnData);
+      entry.data.push(newColumnData);
     });
   }
 
+  return entry;
+};
+
+DynamicList.prototype.showDetails = function (id, listData) {
+  // Function that loads the selected entry data into an overlay for more details
+  var _this = this;
+  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
   // Process template with data
-  var entryId = {
-    id: id
-  };
+  var entryId = { id: id };
   var wrapper = '<div class="simple-list-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
-
   var src = _this.data.advancedSettings && _this.data.advancedSettings.detailHTML
     ? _this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['detail']]();
+
+  entryData = _this.addDetailViewData(entryData);
+
   var beforeShowDetails = Promise.resolve({
     src: src,
-    data: newData
+    data: entryData
   });
 
   if (typeof _this.data.beforeShowDetails === 'function') {
     beforeShowDetails = _this.data.beforeShowDetails({
       config: _this.data,
       src: src,
-      data: newData
+      data: entryData
     });
 
     if (!(beforeShowDetails instanceof Promise)) {
@@ -1975,6 +1965,7 @@ DynamicList.prototype.showDetails = function (id) {
 
   return beforeShowDetails.then(function (data) {
     data = data || {};
+
     var template = Handlebars.compile(data.src || src);
     var wrapperTemplate = Handlebars.compile(wrapper);
 
@@ -1985,7 +1976,7 @@ DynamicList.prototype.showDetails = function (id) {
 
     // Adds content to overlay
     $overlay.find('.simple-list-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-    $overlay.find('.simple-list-detail-wrapper').append(template(data.data || newData));
+    $overlay.find('.simple-list-detail-wrapper').append(template(data.data || entryData));
 
     _this.initializeOverlaySocials(id);
 
@@ -1998,7 +1989,7 @@ DynamicList.prototype.showDetails = function (id) {
       _this.data.afterShowDetails({
         config: _this.data,
         src: data.src || src,
-        data: data.data || newData
+        data: data.data || entryData
       });
     }
   });

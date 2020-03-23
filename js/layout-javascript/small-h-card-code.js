@@ -43,13 +43,6 @@ function DynamicList(id, data, container) {
    */
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
-  // Register handlebars helpers
-  this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
-    ? this.data.advancedSettings.detailHTML
-    : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
-
-  this.profileHTML = Handlebars.compile(this.src);
-
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
@@ -308,7 +301,7 @@ DynamicList.prototype.attachObservers = function() {
                   } else {
                     _this.closeDetails();
                   }
-                  _this.prepareToRenderLoop(_this.listItems);
+                  _this.addSummaryData(_this.listItems);
                   _this.renderLoopHTML();
                 })
                 .catch(function(error) {
@@ -425,8 +418,8 @@ DynamicList.prototype.initialize = function() {
       });
 
       // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
       _this.checkIsToOpen();
+      _this.modifiedListItems = _this.addSummaryData(_this.listItems);
       _this.renderLoopHTML().then(function(){
         _this.attachObservers();
       });
@@ -434,11 +427,7 @@ DynamicList.prototype.initialize = function() {
     });
 }
 
-DynamicList.prototype.checkIsToOpen = function(options) {
-  // List of entries saved in: _this.modifiedListItems
-
-  options = options || {};
-
+DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
 
@@ -447,26 +436,19 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.id === _this.pvOpenQuery.id;
-    });
-  }
-
-  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.originalData[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
+  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.listItems, function(row) {
+      return row.data[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
     });
   }
 
   if (!entry) {
-    // Entry not found
-    if (options.silent) {
-      return;
-    }
-
     Fliplet.UI.Toast('Entry not found');
     return;
   }
+
+  var modifiedData = _this.addSummaryData([entry]);
 
   _this.showDetails(entry.id).then(function () {
     _this.openedEntryOnQuery = true;
@@ -586,20 +568,10 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$container.html(template(data));
 }
 
-DynamicList.prototype.prepareToRenderLoop = function(records) {
+DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-
-  var savedColumns = [];
-  var loopData = [];
-  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
-    return !option.editable;
-  });
-  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
-    return option.editable;
-  });
-
   // Uses sumamry view settings set by users
-  records.forEach(function(entry) {
+  var loopData = _.map(records, function(entry) {
     var newObject = {
       id: entry.id,
       editEntry: entry.editEntry,
@@ -608,93 +580,23 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       entryDetails: [],
       originalData: entry.data
     };
-    _this.data['summary-fields'].some(function(obj) {
+
+    _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
+
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
         content = entry.data[obj.column];
       }
+
       newObject[obj.location] = content;
     });
 
-    notDynamicData.some(function(obj) {
-      if (!newObject[obj.location]) {
-        var content = '';
-        if (obj.column === 'custom') {
-          content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
-        } else {
-          content = entry.data[obj.column];
-        }
-        newObject[obj.location] = content;
-      }
-    });
-
-    dynamicData.forEach(function(dynamicDataObj) {
-      var label = '';
-      var labelEnabled = true;
-      var content = '';
-
-      // Define label
-      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
-        label = dynamicDataObj.column;
-      }
-      if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
-      }
-      if (dynamicDataObj.fieldLabel === 'no-label') {
-        labelEnabled = false;
-      }
-
-      // Define content
-      if (dynamicDataObj.customFieldEnabled) {
-        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
-      } else {
-        content = entry.data[dynamicDataObj.column];
-      }
-
-      // Define data object
-      var newEntryDetail = {
-        id: entry.id,
-        content: content,
-        label: label,
-        labelEnabled: labelEnabled,
-        type: dynamicDataObj.type
-      }
-
-      newObject.entryDetails.push(newEntryDetail);
-    });
-    loopData.push(newObject);
+    return newObject;
   });
 
-  savedColumns = dynamicData.map(function(data){
-    return data.column;
-  })
-
-  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-  loopData.forEach(function(obj, index) {
-    if (_this.data.detailViewAutoUpdate && extraColumns.length) {
-      var entryData = _.find(records, function(modEntry) {
-        return modEntry.id === obj.id;
-      });
-
-      extraColumns.forEach(function(column) {
-        var newColumnData = {
-          id: entryData.id,
-          content: entryData.data[column],
-          label: column,
-          labelEnabled: true,
-          type: 'text'
-        };
-
-        obj.entryDetails.push(newColumnData);
-      });
-    }
-
-    obj.profileHTML = _this.profileHTML(obj);
-  });
-
-  _this.modifiedListItems = loopData;
+  return loopData;
 }
 
 DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
@@ -766,15 +668,108 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 }
 
-DynamicList.prototype.showDetails = function (id) {
+DynamicList.prototype.addDetailViewData = function (entry) {
+  var _this = this;
+
+  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    return entry;
+  }
+
+  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return !option.editable;
+  });
+  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+    return option.editable;
+  });
+
+  entry.entryDetails = [];
+
+  // Uses detail view settings not set by users
+  notDynamicData.forEach(function(obj) {
+    if (!entry[obj.location]) {
+      var content = '';
+
+      if (obj.column === 'custom') {
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
+      } else {
+        content = entry.originalData[obj.column];
+      }
+
+      entry[obj.location] = content;
+    }
+  });
+
+  // Uses detail view settings set by users
+  dynamicData.forEach(function(dynamicDataObj) {
+    var label = '';
+    var labelEnabled = true;
+    var content = '';
+
+    // Define label
+    if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
+      label = dynamicDataObj.column;
+    }
+    if (dynamicDataObj.fieldLabel === 'custom-label') {
+      label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.originalData));
+    }
+    if (dynamicDataObj.fieldLabel === 'no-label') {
+      labelEnabled = false;
+    }
+
+    // Define content
+    if (dynamicDataObj.customFieldEnabled) {
+      content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
+    } else {
+      content = entry.originalData[dynamicDataObj.column];
+    }
+
+    // Define data object
+    var newEntryDetail = {
+      id: dynamicDataObj.id,
+      content: content,
+      label: label,
+      labelEnabled: labelEnabled,
+      type: dynamicDataObj.type
+    };
+
+    entry.entryDetails.push(newEntryDetail);
+  });
+
+  if (_this.data.detailViewAutoUpdate) {
+    var savedColumns = _.map(dynamicData, 'data');
+    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    var entryData = _.find(records, { id: entry.id });
+
+    _.forEach(extraColumns, function(column) {
+      var newColumnData = {
+        id: entry.id,
+        content: entry.originalData[column],
+        label: column,
+        labelEnabled: true,
+        type: 'text'
+      };
+
+      entry.entryDetails.push(newColumnData);
+    });
+  }
+
+  return entry;
+};
+
+DynamicList.prototype.showDetails = function (id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(_this.modifiedListItems, { id: id });
+  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
   // Process template with data
   var entryId = { id: id };
   var wrapper = '<div class="small-h-card-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
-  var src = _this.src;
+  var src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
+    ? this.data.advancedSettings.detailHTML
+    : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
+
+  entryData = _this.addDetailViewData(entryData);
+
   var beforeShowDetails = Promise.resolve({
     src: src,
     data: entryData
