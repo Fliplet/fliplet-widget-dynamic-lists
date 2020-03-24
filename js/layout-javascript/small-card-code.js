@@ -209,11 +209,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.my-profile-container', function() {
       if ($(window).width() < 640) {
         _this.directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
-        _this.expandElement(_this.directoryDetailWrapper, _this.modifiedProfileData[0].id);
+        _this.expandElement(_this.directoryDetailWrapper, _this.modifiedProfileData[0].id, _this.modifiedProfileData);
       } else {
-        _this.showDetails(_this.modifiedProfileData[0].id);
+        _this.showDetails(_this.modifiedProfileData[0].id, _this.modifiedProfileData);
         Fliplet.Page.Context.update({
-          dynamicListOpenId: entryId
+          dynamicListOpenId: _this.modifiedProfileData[0].id
         });
       }
 
@@ -1719,7 +1719,7 @@ DynamicList.prototype.closeDetails = function() {
   }, 300);
 }
 
-DynamicList.prototype.expandElement = function(elementToExpand, id) {
+DynamicList.prototype.expandElement = function(elementToExpand, id, listData) {
   // Function called when a list item is tapped to expand
   var _this = this;
 
@@ -1768,7 +1768,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
       'width': expandWidth,
       'max-width': expandWidth
     }, 200, 'linear', function() {
-      _this.showDetails(id);
+      _this.showDetails(id, listData);
 
       setTimeout(function() {
         elementToExpand.parents('.small-card-list-item').removeClass('opening');
