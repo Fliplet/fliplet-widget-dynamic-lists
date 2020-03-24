@@ -313,7 +313,7 @@ DynamicList.prototype.attachObservers = function() {
       $('body').removeClass('lock');
 
       // Clear all selected filters
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
+      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected
       if (_.isEmpty(_this.activeFilters)) {
