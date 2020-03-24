@@ -1,4 +1,13 @@
-<div class="rTableRow clearfix" data-id="{{id}}">
+<div class="rTableRow clearfix {{#if editable}}editable{{else}}no-editable{{/if}}" data-id="{{id}}">
+  {{#if editable}}
+  <div class="reorder-handle">
+    <i class="fa fa-ellipsis-v"></i><i class="fa fa-ellipsis-v"></i>
+  </div>
+  {{else}}
+  <div class="reorder-handle-placeholder">
+    <i class="fa fa-ellipsis-v"></i><i class="fa fa-ellipsis-v"></i>
+  </div>
+  {{/if}}
   <div class="original-row clearfix">
     <div class="rTableCell title">
       {{#if helper}}{{helper}}{{else}}Data field{{/if}}
@@ -37,8 +46,8 @@
       </select>
     </div>
     {{#if editable}}
-    <div class="rTableCell title delete text-danger">
-      <i class="fa fa-trash-o" aria-hidden="true"></i>
+    <div class="rTableCell title delete">
+      <i class="fa fa-trash-o"></i>
     </div>
     {{/if}}
   </div>

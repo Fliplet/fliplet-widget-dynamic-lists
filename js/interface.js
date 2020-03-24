@@ -680,6 +680,7 @@ var DynamicLists = (function() {
           _this.isLoaded = true;
           _this.initializeFilterSortable();
           _this.initializeSortSortable();
+          _this.initializeDetailViewSortable();
         });
     },
     loadData: function() {
@@ -1748,12 +1749,48 @@ var DynamicLists = (function() {
       var $newPanel = $(detailsRowTemplate(data));
       $detailsRowContainer.append($newPanel);
     },
+    initializeDetailViewSortable: function () {
+      $detailsRowContainer.sortable({
+        items: '.rTableRow.editable',
+        handle: '.reorder-handle',
+        tolerance: 'pointer',
+        placeholder: 'rTableRow clearfix placeholder',
+        cursor: '-webkit-grabbing; -moz-grabbing;',
+        axis: 'y',
+        forcePlaceholderSize: true,
+        start: function(event, ui) {
+          ui.item.parents('.detail-table-panels-holder').addClass('sorting');
+        },
+        stop: function(event, ui) {
+          var sortedIds = $detailsRowContainer.sortable('toArray', {
+            attribute: 'data-id'
+          });
+
+          ui.item.parents('.detail-table-panels-holder').removeClass('sorting');
+          _this.config.detailViewOptions = _.concat.apply(this, _(_this.config.detailViewOptions)
+            .partition(function (option) {
+              return !option.editable;
+            })
+            .map(function (items, i) {
+              if (i === 0) {
+                // Keep non-editable items as is
+                return items;
+              }
+
+              // Sort editable items by sorted IDs
+              return _.sortBy(items, function (item) {
+                return sortedIds.indexOf(item.id.toString());
+              });
+            })
+            .value());
+        }
+      });
+    },
     initializeSortSortable: function() {
       $('#sort-accordion').sortable({
         handle: ".panel-heading",
         cancel: ".icon-delete",
         tolerance: 'pointer',
-        revert: 150,
         placeholder: 'panel panel-default placeholder tile',
         cursor: '-webkit-grabbing; -moz-grabbing;',
         axis: 'y',
@@ -1790,7 +1827,6 @@ var DynamicLists = (function() {
         handle: ".panel-heading",
         cancel: ".icon-delete",
         tolerance: 'pointer',
-        revert: 150,
         placeholder: 'panel panel-default placeholder tile',
         cursor: '-webkit-grabbing; -moz-grabbing;',
         axis: 'y',

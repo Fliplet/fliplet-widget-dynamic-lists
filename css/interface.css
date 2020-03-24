@@ -425,7 +425,8 @@ header .btn,
 }
 
 .panel-title .fa {
-  cursor: pointer;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
 }
 
 .panel-chevron {
@@ -895,10 +896,52 @@ header .btn,
   border-bottom: 1px solid #ddd;
 }
 
+.rTableRow.ui-sortable-helper {
+  border-bottom-color: transparent;
+  background-color: #f8f6f7;
+}
+
+.rTableRow.ui-sortable-helper .rTableCell.delete,
+.rTableRow.ui-sortable-helper:hover .rTableCell.delete {
+  opacity: 0;
+}
+
+.rTableRow .reorder-handle,
+.rTableRow .reorder-handle-placeholder {
+  display: block;
+  width: 2.4rem;
+  float: left;
+  margin-right: 6px;
+  text-align: center;
+  opacity: 0.1;
+  line-height: 44px;
+  font-size: 1.2em;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+
+.rTableRow:hover .reorder-handle {
+  opacity: 0.3;
+}
+
+.rTableRow .reorder-handle-placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rTableRow .reorder-handle .fa ~ .fa,
+.rTableRow .reorder-handle-placeholder .fa ~ .fa {
+  margin-left: 2px;
+}
+
 .summary-table-panels-holder .rTableRow:last-child,
 .detail-table-panels-holder .rTableRow:last-child,
 .detail-table-panels-holder ~ .rTableRow {
   border-bottom: none;
+}
+
+.detail-table-panels-holder.sorting .rTableRow.no-editable {
+  opacity: 0.3;
 }
 
 .rTableHead {
@@ -961,6 +1004,12 @@ header .btn,
 .rTableCell.delete {
   cursor: pointer;
   height: 44px;
+  opacity: 0.3;
+}
+
+.rTableRow:hover .rTableCell.delete {
+  opacity: 1;
+  color: #E60000;
 }
 
 .rTableHead.delete i,
@@ -970,7 +1019,6 @@ header .btn,
   line-height: 30px;
   text-align: center;
   font-size: 1.5em;
-  color: red;
   cursor: pointer;
 }
 
@@ -1044,6 +1092,6 @@ header .btn,
 }
 
 .relations-error {
-  background-color: #f2dede; 
+  background-color: #f2dede;
   color: #a94442;
-} 
+}
