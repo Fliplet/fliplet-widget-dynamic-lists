@@ -312,7 +312,13 @@ DynamicList.prototype.attachObservers = function() {
       if (screen) {
         Fliplet.App.Storage.set('pollSessionTitle-' + screen.id, data)
           .then(function() {
-            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
+            Fliplet.Navigate.screen(screen.id, {
+              transition: 'fade',
+              query: '?sessionId=' + _this.Utils.Record.getUniqueId({
+                record: record,
+                config: _this.data
+              })
+            });
           });
       }
     })
@@ -338,7 +344,13 @@ DynamicList.prototype.attachObservers = function() {
       if (screen) {
         Fliplet.App.Storage.set('surveySessionTitle-' + screen.id, data)
           .then(function() {
-            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
+            Fliplet.Navigate.screen(screen.id, {
+              transition: 'fade',
+              query: '?sessionId=' + _this.Utils.Record.getUniqueId({
+                record: record,
+                config: _this.data
+              })
+            });
           });
       }
     })
@@ -364,7 +376,13 @@ DynamicList.prototype.attachObservers = function() {
       if (screen) {
         Fliplet.App.Storage.set('questionsSessionTitle-' + screen.id, data)
           .then(function() {
-            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
+            Fliplet.Navigate.screen(screen.id, {
+              transition: 'fade',
+              query: '?sessionId=' + _this.Utils.Record.getUniqueId({
+                record: record,
+                config: _this.data
+              })
+            });
           });
       }
     })
