@@ -400,6 +400,7 @@ DynamicList.prototype.attachObservers = function() {
       var $toggle = _this.$container.find(e.handleObj.selector);
 
       $toggle.toggleClass('mixitup-control-active');
+      _this.$container.find('.new-agenda-list-container').toggleClass('show-bookmarks');
       _this.searchData();
 
       Fliplet.Analytics.trackEvent({
@@ -1923,6 +1924,18 @@ DynamicList.prototype.searchData = function(options) {
   _this.isSearching = value !== '';
   _this.isFiltering = !_.isEmpty(_this.activeFilters);
   _this.showBookmarks = !!_this.$container.find('.toggle-agenda.mixitup-control-active, .toggle-bookmarks.mixitup-control-active').length;
+
+  if (_this.isFiltering) {
+    _this.$container.find('.new-agenda-list-container').addClass('is-filtering');
+  } else {
+    _this.$container.find('.new-agenda-list-container').removeClass('is-filtering');
+  }
+
+  if (_this.isSearching) {
+    _this.$container.find('.new-agenda-list-container').addClass('is-searching');
+  } else {
+    _this.$container.find('.new-agenda-list-container').removeClass('is-searching');
+  }
 
   _this.Utils.Page.updateSearchContext({
     activeFilters: _this.activeFilters,
