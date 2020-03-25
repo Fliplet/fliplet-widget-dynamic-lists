@@ -2310,7 +2310,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
 DynamicList.prototype.showDetails = function (id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = listData || _(_this.getAgendasByDay())
+  var entryData = _.find(listData, { id: id }) || _(_this.getAgendasByDay())
     .chain()
     .thru(function(coll) {
       return _.union(coll, _.map(coll, 'children'));
