@@ -450,7 +450,7 @@ DynamicList.prototype.checkIsToOpen = function() {
 
   var modifiedData = _this.addSummaryData([entry]);
 
-  _this.showDetails(entry.id).then(function () {
+  _this.showDetails(entry.id, modifiedData).then(function () {
     _this.openedEntryOnQuery = true;
   });
 }
