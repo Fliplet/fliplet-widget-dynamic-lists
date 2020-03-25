@@ -738,7 +738,6 @@ DynamicList.prototype.addDetailViewData = function (entry) {
   if (_this.data.detailViewAutoUpdate) {
     var savedColumns = _.map(dynamicData, 'data');
     var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-    var entryData = _.find(records, { id: entry.id });
 
     _.forEach(extraColumns, function(column) {
       var newColumnData = {
