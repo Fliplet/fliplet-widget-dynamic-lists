@@ -1213,9 +1213,20 @@
   margin-top: 20vh;
 }
 
-.new-agenda-list-container .search-results + .no-results {
-  /* The no-results content is always on screen. Only show it if it's the only content. */
+.new-agenda-list-container .results-empty-bookmarks,
+.new-agenda-list-container.show-bookmarks .results-empty,
+.new-agenda-list-container .results-empty-filtering,
+.new-agenda-list-container .results-empty-searching {
   display: none;
+}
+
+.new-agenda-list-container.show-bookmarks .results-empty-bookmarks {
+  display: block;
+}
+
+.new-agenda-list-container.is-filtering .results-empty-filtering,
+.new-agenda-list-container.is-searching .results-empty-searching {
+  display: inline;
 }
 
 /* CLOSE BUTTON */
