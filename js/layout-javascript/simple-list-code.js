@@ -1135,6 +1135,8 @@ DynamicList.prototype.addSummaryData = function(records) {
       id: entry.id,
       flClasses: entry.data['flClasses'],
       flFilters: entry.data['flFilters'],
+      editEntry: entry.editEntry,
+      deleteEntry: entry.deleteEntry,
       likesEnabled: entry.likesEnabled,
       bookmarksEnabled: entry.bookmarksEnabled,
       commentsEnabled: entry.commentsEnabled,
