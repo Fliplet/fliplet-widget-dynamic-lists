@@ -839,7 +839,6 @@ DynamicList.prototype.initialize = function() {
       });
       return _this.addFilters(_this.modifiedListItems);
     }).then(function () {
-      _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
       _this.parseFilterQueries();
       _this.parseSearchQueries();
     });
@@ -1139,7 +1138,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       originalData: entry.data
     };
 
-    _this.data['summary-fields'].some(function(obj) {
+    _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
 
       if (obj.column === 'custom') {
@@ -1154,6 +1153,12 @@ DynamicList.prototype.addSummaryData = function(records) {
 
       newObject[obj.location] = content;
     });
+
+    var dateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
+
+    if (dateField) {
+      newObject[_this.dateFieldLocation] = entry.data[dateField.column];
+    }
 
     return newObject;
   });
