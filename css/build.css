@@ -82,13 +82,14 @@
   bottom: calc(166px + 34px); /* For Fliplet Studio */
 }
 
-.btn.dynamic-list-edit-item,
-.btn.dynamic-list-delete-item {
+[data-widget-package="com.fliplet.dynamic-lists"] .btn.dynamic-list-edit-item,
+[data-widget-package="com.fliplet.dynamic-lists"] .btn.dynamic-list-delete-item {
   display: inline-block;
   cursor: pointer;
   border-radius: 40px;
   padding: 8px 18px;
   font-size: 0.9em;
+  width: auto;
 }
 
 .dynamic-list-delete-item {
