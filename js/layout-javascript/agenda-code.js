@@ -122,6 +122,48 @@ DynamicList.prototype.hideFilterOverlay = function () {
   $('body').removeClass('lock has-filter-overlay');
 };
 
+DynamicList.prototype.goToAgendaFeature = function (options) {
+  options = options || {};
+
+  var _this = this;
+  var entry = options.entry;
+  var type = options.type;
+
+  if (!entry || !type) {
+    console.warn('Unable to open agenda feature');
+    return;
+  }
+
+  var entryUniqueId = _this.Utils.Record.getUniqueId({
+    record: options.entry,
+    config: _this.data
+  });
+  var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
+  var data = {
+    id: entryUniqueId,
+    title: entryTitle
+  };
+  var screenName = entry.data[_this.data[type + 'Column']];
+
+  if (!screenName) {
+    return;
+  }
+
+  var screen = _.find(Fliplet.Env.get('appPages'), { title: screenName });
+
+  if (!screen) {
+    return;
+  }
+
+  return Fliplet.App.Storage.set(type + 'SessionTitle-' + screen.id, data)
+    .then(function() {
+      return Fliplet.Navigate.screen(screen.id, {
+        transition: 'fade',
+        query: '?sessionId=' + encodeURIComponent(entryUniqueId) + '&sessionTitle=' + encodeURIComponent(entryTitle)
+      });
+    });
+};
+
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -296,25 +338,14 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
-      var data = {
-        id: entryId,
-        title: entryTitle
-      }
       var entry = _.find(_this.listItems, function(entry) {
         return entry.id === entryId;
       });
-      var screenFromColumn = entry.data[_this.data.pollColumn];
-      var screen = _.find(Fliplet.Env.get('appPages'), function(page) {
-        return page.title === screenFromColumn;
-      });
 
-      if (screen) {
-        Fliplet.App.Storage.set('pollSessionTitle-' + screen.id, data)
-          .then(function() {
-            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
-          });
-      }
+      _this.goToAgendaFeature({
+        type: 'poll',
+        entry: entry
+      });
     })
     .on('click', '.go-to-survey', function() {
       if (!_this.data.surveyEnabled || !_this.data.surveyColumn) {
@@ -322,25 +353,14 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
-      var data = {
-        id: entryId,
-        title: entryTitle
-      }
       var entry = _.find(_this.listItems, function(entry) {
         return entry.id === entryId;
       });
-      var screenFromColumn = entry.data[_this.data.surveyColumn];
-      var screen = _.find(Fliplet.Env.get('appPages'), function(page) {
-        return page.title === screenFromColumn;
-      });
 
-      if (screen) {
-        Fliplet.App.Storage.set('surveySessionTitle-' + screen.id, data)
-          .then(function() {
-            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
-          });
-      }
+      _this.goToAgendaFeature({
+        type: 'survey',
+        entry: entry
+      });
     })
     .on('click', '.go-to-questions', function() {
       if (!_this.data.questionsEnabled || !_this.data.questionsColumn) {
@@ -348,25 +368,14 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entryTitle = $(this).parents('.agenda-item-inner-content').find('.agenda-item-title').text().trim();
-      var data = {
-        id: entryId,
-        title: entryTitle
-      }
       var entry = _.find(_this.listItems, function(entry) {
         return entry.id === entryId;
       });
-      var screenFromColumn = entry.data[_this.data.questionsColumn];
-      var screen = _.find(Fliplet.Env.get('appPages'), function(page) {
-        return page.title === screenFromColumn;
-      });
 
-      if (screen) {
-        Fliplet.App.Storage.set('questionsSessionTitle-' + screen.id, data)
-          .then(function() {
-            Fliplet.Navigate.screen(screen.id, { transition: 'fade' });
-          });
-      }
+      _this.goToAgendaFeature({
+        type: 'questions',
+        entry: entry
+      });
     })
     .on('touchstart', '.agenda-list-controls', function(event) {
       $(this).addClass('hover');
@@ -2268,7 +2277,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
 DynamicList.prototype.showDetails = function (id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = listData || _(_this.getAgendasByDay())
+  var entryData = _.find(listData, { id: id }) || _(_this.getAgendasByDay())
     .chain()
     .thru(function(coll) {
       return _.union(coll, _.map(coll, 'children'));
