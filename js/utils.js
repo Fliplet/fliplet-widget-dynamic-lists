@@ -613,11 +613,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return _[config.filterMatch === 'all' ? 'every' : 'some'](filters[field], function (value) {
         if (field === 'undefined') {
           // Legacy class-based filters
-          return _.includes(_.map(_.get(record, 'data.flFilters'), 'data.class'), value);
+          return _.includes(_.map(record.data && record.data.flFilters, function (flFilter) {
+            return flFilter.data && flFilter.data.class;
+          }), value);
         }
 
         // Filter UI contains data-field, i.e. uses new field-based filters
-        return _.some(_.get(recordFieldValues, field), function (recordFieldValue) {
+        return _.some(recordFieldValues[field], function (recordFieldValue) {
           // Loosely typed comparison is used to make filtering more predictable for users
           return recordFieldValue == value;
         });
@@ -628,7 +630,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   function getRecordUniqueId(options) {
     options = options || {};
 
-    var primaryKey = _.get(options, 'config.dataPrimaryKey');
+    var primaryKey = options.config && options.config.dataPrimaryKey;
 
     if (typeof primaryKey === 'function') {
       return primaryKey({
@@ -638,10 +640,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     if (typeof primaryKey === 'string' && primaryKey.length) {
-      return _.get(options, ['record', 'data', primaryKey]);
+      return options.record && options.record.data && options.record.data[primaryKey];
     }
 
-    return _.get(options, ['record', 'id']);
+    return options.record && options.record.id;
   }
 
   function getRecordFieldValues(records, fields) {
@@ -655,7 +657,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     return _.zipObject(fields, _.map(fields, function (field) {
-      return _.sortBy(_.uniq(splitByCommas(_.map(records, 'data.' + field))));
+      return _.sortBy(_.uniq(splitByCommas(_.map(records, function (record) {
+        return record.data && record.data[field];
+      }))));
     }));
   }
 
@@ -676,7 +680,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         // _.uniqBy iteratee
         return JSON.stringify(filter);
       })
-      .orderBy('data.name')
+      .orderBy(function (record) {
+        return record.data && record.data.name;
+      })
       .groupBy('type')
       .map(function (values, field) {
         // _.map iteratee for defining of each filter value
@@ -715,6 +721,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       var path = field.shift();
 
       if (field.length) {
+        var arr = useData
+          ? record.data && record.data[path]
+          : record[path];
         var arr = _.get(record, (useData ? 'data.' : '') + path);
         return _.map(arr, function (item) {
           return getRecordField({
@@ -733,7 +742,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     if (typeof field === 'string') {
-      return splitByCommas(_.get(record, (useData ? 'data.' : '') + field));
+      return splitByCommas(useData
+        ? record.data && record.data[field]
+        : record[field]);
     }
 
     return [];
@@ -747,7 +758,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function (record) {
-      if (_.isArray(_.get(record, 'data.flFilters')) && !options.force) {
+      if (_.isArray(record.data && record.data.flFilters) && !options.force) {
         // If filters are alredy present, skip unless it's forced
         return;
       }
@@ -774,7 +785,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         });
       });
 
-      var existingClasses = _.get(record, 'data.flClasses', []);
+      var existingClasses = (record.data && record.flClasses) || [];
 
       if (typeof existingClasses === 'string') {
         existingClasses = existingClasses.split(' ');
@@ -1113,9 +1124,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
   function recordIsCurrentUser(record, config, userData) {
     return config.userEmailColumn !== 'none'
-      && !_.isEmpty(_.get(userData, config.userEmailColumn))
-      && !_.isEmpty(_.get(record, ['data', config.userListEmailColumn]))
-      && _.get(userData, config.userEmailColumn) === _.get(record, ['data', config.userListEmailColumn]);
+      && !_.isEmpty(userData[config.userEmailColumn])
+      && !_.isEmpty(record.data && record.data[config.userListEmailColumn])
+      && userData[config.userEmailColumn] === (record.data && record.data[config.userListEmailColumn]);
   }
 
   function userCanAddRecord(config, userData) {

@@ -41,6 +41,7 @@ function DynamicList(id, data, container) {
   this.isSearching;
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
+  this.allFilterPropertiesAdded = false;
   this.searchValue = '';
   this.activeFilters = {};
 
@@ -1063,11 +1064,12 @@ DynamicList.prototype.initialize = function() {
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
       _this.checkIsToOpen();
-      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+      _this.listItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
         config: _this.data
       });
-      return _this.addFilters(_this.modifiedListItems);
+      _this.allFilterPropertiesAdded = true;
+      return _this.addFilters(_this.listItems);
     })
     .then(function () {
       _this.parseFilterQueries();
@@ -1335,10 +1337,15 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  var modifiedData = _this.Utils.Records.addFilterProperties({
-    records: records,
-    config: _this.data
-  });
+  var modifiedData = records;
+
+  if (!_this.allFilterPropertiesAdded) {
+    modifiedData = _this.Utils.Records.addFilterProperties({
+      records: modifiedData,
+      config: _this.data
+    });
+  }
+
   var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
