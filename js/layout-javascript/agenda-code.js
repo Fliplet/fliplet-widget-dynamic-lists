@@ -826,7 +826,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(records) {
-      _this.listItems = _this.getPermissions(records);
+      _this.listItems = records;
 
       return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function (columns) {
         _this.dataSourceColumns = columns;
@@ -1129,8 +1129,6 @@ DynamicList.prototype.addSummaryData = function(records) {
       id: entry.id,
       flClasses: entry.data['flClasses'],
       flFilters: entry.data['flFilters'],
-      editEntry: entry.editEntry,
-      deleteEntry: entry.deleteEntry,
       pollButton: _this.data.pollEnabled
         && entry.data[_this.data.pollColumn]
         && entry.data[_this.data.pollColumn] !== '',
@@ -1344,16 +1342,16 @@ DynamicList.prototype.getAddPermission = function(data) {
   return data;
 }
 
-DynamicList.prototype.getPermissions = function(entries) {
-  var _this = this;
+DynamicList.prototype.addPermissions = function(entry) {
+  if (!_.isObject(entry)) {
+    return entry;
+  }
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function (entry) {
-    entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
-    entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
-  });
+  entry.editEntry = this.Utils.Record.isEditable(entry, this.data, this.myUserData);
+  entry.deleteEntry = this.Utils.Record.isDeletable(entry, this.data, this.myUserData);
 
-  return entries;
+  return entry;
 }
 
 DynamicList.prototype.addFilters = function(records) {
@@ -2206,6 +2204,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     return option.editable;
   });
 
+  entry = _this.addPermissions(entry);
   entry.entryDetails = [];
 
   // Uses detail view settings not set by users

@@ -22,7 +22,6 @@ function DynamicList(id, data, container) {
   this.allowClick = true;
 
   this.emailField = 'Email';
-  this.myProfileData;
   this.modifiedProfileData;
   this.myUserData;
 
@@ -381,20 +380,6 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function (records) {
-      records = _this.getPermissions(records);
-
-      // Get user profile
-      if (_this.myUserData) {
-        // Create flag for current user
-        records.forEach(function(record) {
-          record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
-        });
-
-        _this.myProfileData = _.filter(records, function(row) {
-          return row.isCurrentUser;
-        });
-      }
-
       // Make rows available Globally
       _this.listItems = records;
 
@@ -574,8 +559,6 @@ DynamicList.prototype.addSummaryData = function(records) {
   var loopData = _.map(records, function(entry) {
     var newObject = {
       id: entry.id,
-      editEntry: entry.editEntry,
-      deleteEntry: entry.deleteEntry,
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
       entryDetails: [],
       originalData: entry.data
@@ -656,16 +639,16 @@ DynamicList.prototype.getAddPermission = function(data) {
   return data;
 }
 
-DynamicList.prototype.getPermissions = function(entries) {
-  var _this = this;
+DynamicList.prototype.addPermissions = function(entry) {
+  if (!_.isObject(entry)) {
+    return entry;
+  }
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function (entry) {
-    entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
-    entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
-  });
+  entry.editEntry = this.Utils.Record.isEditable(entry, this.data, this.myUserData);
+  entry.deleteEntry = this.Utils.Record.isDeletable(entry, this.data, this.myUserData);
 
-  return entries;
+  return entry;
 }
 
 DynamicList.prototype.addDetailViewData = function (entry) {
@@ -682,6 +665,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     return option.editable;
   });
 
+  entry = _this.addPermissions(entry);
   entry.entryDetails = [];
 
   // Uses detail view settings not set by users

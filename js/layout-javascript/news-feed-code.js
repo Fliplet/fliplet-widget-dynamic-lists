@@ -982,13 +982,12 @@ DynamicList.prototype.getCommentUsers = function () {
 
       // Update my user data
       if (_this.myUserData) {
-        var myUser = _.find(_this.allUsers, function(user) {
-          return _this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn];
+        _this.allUsers.some(function (user) {
+          if (_this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn]) {
+            _this.myUserData = $.extend(true, _this.myUserData, user.data);
+            return true;
+          }
         });
-
-        if (myUser) {
-          _this.myUserData = $.extend(true, _this.myUserData, myUser.data);
-        }
       }
 
       return _this.Utils.Users.getUsersToMention({
@@ -1045,7 +1044,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function (records) {
-      _this.listItems = _this.getPermissions(records);
+      _this.listItems = records;
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
@@ -1351,8 +1350,6 @@ DynamicList.prototype.addSummaryData = function(records) {
       id: entry.id,
       flClasses: entry.data['flClasses'],
       flFilters: entry.data['flFilters'],
-      editEntry: entry.editEntry,
-      deleteEntry: entry.deleteEntry,
       likesEnabled: entry.likesEnabled,
       bookmarksEnabled: entry.bookmarksEnabled,
       commentsEnabled: entry.commentsEnabled,
@@ -1442,16 +1439,16 @@ DynamicList.prototype.getAddPermission = function(data) {
   return data;
 }
 
-DynamicList.prototype.getPermissions = function(entries) {
-  var _this = this;
+DynamicList.prototype.addPermissions = function(entry) {
+  if (!_.isObject(entry)) {
+    return entry;
+  }
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function (entry) {
-    entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
-    entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
-  });
+  entry.editEntry = this.Utils.Record.isEditable(entry, this.data, this.myUserData);
+  entry.deleteEntry = this.Utils.Record.isDeletable(entry, this.data, this.myUserData);
 
-  return entries;
+  return entry;
 }
 
 DynamicList.prototype.addFilters = function(records) {
@@ -1918,6 +1915,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     return entry;
   }
 
+  entry = _this.addPermissions(entry);
   entry.entryDetails = [];
 
   // Define detail view data based on user's settings
