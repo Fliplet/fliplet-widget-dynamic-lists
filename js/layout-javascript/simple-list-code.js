@@ -1501,7 +1501,7 @@ DynamicList.prototype.getLikeIdentifier = function (record) {
 };
 
 DynamicList.prototype.setupLikeButton = function(options) {
-  if (!_.get(this.data, 'social.likes')) {
+  if (!(this.data.social && this.data.social.likes)) {
     return Promise.resolve();
   }
 
@@ -1624,7 +1624,7 @@ DynamicList.prototype.getBookmarkIdentifier = function (record) {
 };
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
-  if (!_.get(this.data, 'social.bookmark')) {
+  if (!(this.data.social && this.data.social.bookmark)) {
     return Promise.resolve();
   }
 
@@ -1754,7 +1754,7 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
 DynamicList.prototype.getAllBookmarks = function () {
   var _this = this;
 
-  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (_this.fetchedAllBookmarks || !(_this.data.social && _this.data.social.bookmark) || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -1780,7 +1780,7 @@ DynamicList.prototype.getAllBookmarks = function () {
     })
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      var match = ((record.data && record.data.content && record.data.content.entryId) || '').match(/(\d*)-bookmark/);
       return match ? parseInt(match[1], 10) : '';
     }));
 
@@ -1833,7 +1833,7 @@ DynamicList.prototype.initializeSocials = function (records) {
 };
 
 DynamicList.prototype.getCommentUsers = function () {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!(this.data.social && this.data.social.comments)) {
     return Promise.resolve();
   }
 
@@ -2067,7 +2067,7 @@ DynamicList.prototype.getCommentIdentifier = function (record) {
 };
 
 DynamicList.prototype.getEntryComments = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!(this.data.social && this.data.social.comments)) {
     return Promise.resolve();
   }
 
@@ -2129,7 +2129,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
 }
 
 DynamicList.prototype.updateCommentCounter = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!(this.data.social && this.data.social.comments)) {
     return;
   }
 
@@ -2174,7 +2174,7 @@ DynamicList.prototype.showComments = function(id) {
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
       var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
-        return _.get(entry, 'data.settings.user.' + name);
+        return entry.data && entry.data.settings && entry.data.settings.user && entry.data.settings.user[name];
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
@@ -2302,7 +2302,7 @@ DynamicList.prototype.sendComment = function(id, value) {
 
   userName = _.compact(_.map(_this.data.userNameFields, function (name) {
     return _this.myUserData.isSaml2
-      ? _.get(userFromDataSource, 'data.' + name)
+      ? userFromDataSource.data && userFromDataSource.data[name]
       : _this.myUserData[name];
   })).join(' ').trim();
 
@@ -2383,7 +2383,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
   var timestamp = (new Date()).toISOString();
   var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
     return _this.myUserData.isSaml2
-      ? _.get(userFromDataSource, 'data.' + name)
+      ? userFromDataSource.data && userFromDataSource.data[name]
       : _this.myUserData[name];
   })).join(' ').trim();
 
@@ -2415,7 +2415,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
   var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
-    return _.get(commentData, 'data.settings.user.' + name);
+    return commentData.data && commentData.data.settings && commentData.data.settings.user && commentData.data.settings.user[name];
   })).join(' ').trim();
 
   if (!commentData.literalDate) {

@@ -1467,7 +1467,7 @@ DynamicList.prototype.getAllBookmarks = function () {
     })
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      var match = ((record.data && record.data.content && record.data.content.entryId) || '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));

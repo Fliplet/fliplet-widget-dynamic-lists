@@ -1367,7 +1367,7 @@ DynamicList.prototype.getBookmarkIdentifier = function (record) {
 };
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
-  if (!_.get(this.data, 'social.bookmark')) {
+  if (!(this.data.social && this.data.social.bookmark)) {
     return Promise.resolve();
   }
 
@@ -1469,7 +1469,7 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 DynamicList.prototype.getAllBookmarks = function () {
   var _this = this;
 
-  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (_this.fetchedAllBookmarks || !(_this.data.social && _this.data.social.bookmark) || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -1495,7 +1495,7 @@ DynamicList.prototype.getAllBookmarks = function () {
     })
   }).then(function (results) {
     var bookmarkedIds = _.compact(_.map(results.data, function (record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      var match = ((record.data && record.data.content && record.data.content.entryId) || '').match(/(\d*)-bookmark/);
       return match ? parseInt(match[1], 10) : '';
     }));
 
@@ -1520,7 +1520,7 @@ DynamicList.prototype.getAllBookmarks = function () {
 DynamicList.prototype.initializeSocials = function (records) {
   var _this = this;
 
-  if (!_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (!(_this.data.social && _this.data.social.bookmark) || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
