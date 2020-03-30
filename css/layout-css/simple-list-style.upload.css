@@ -131,8 +131,8 @@
   cursor: pointer;
 }
 
-.simple-list-search-filter-overlay .hidden-filter-controls,
-.simple-list-search-filter-overlay .hidden-search-controls {
+.simple-list-container .simple-list-search-filter-overlay .hidden-filter-controls,
+.simple-list-container .simple-list-search-filter-overlay .hidden-search-controls {
   height: auto;
   overflow: initial;
   margin: 0;
