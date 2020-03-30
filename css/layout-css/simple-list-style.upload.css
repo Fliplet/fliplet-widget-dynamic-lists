@@ -107,7 +107,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 59px 15px 15px;
+  margin-top: 44px;
+  padding: 15px;
   padding-bottom: calc(15px + env(safe-area-inset-bottom));
   z-index: 1;
   overflow-y: auto;
@@ -131,8 +132,8 @@
   cursor: pointer;
 }
 
-.simple-list-search-filter-overlay .hidden-filter-controls,
-.simple-list-search-filter-overlay .hidden-search-controls {
+.simple-list-container .simple-list-search-filter-overlay .hidden-filter-controls,
+.simple-list-container .simple-list-search-filter-overlay .hidden-search-controls {
   height: auto;
   overflow: initial;
   margin: 0;
@@ -558,14 +559,14 @@
   background-repeat: no-repeat;
 }
 
-.simple-list-item .list-item-title,	
-.simple-list-item .list-item-description,	
-.simple-list-item .list-item-subtitle {	
-  margin: 0;	
-  display: -webkit-box;	
-  -webkit-line-clamp: 3;	
-  -webkit-box-orient: vertical;	
-  overflow: hidden;	
+.simple-list-item .list-item-title,
+.simple-list-item .list-item-description,
+.simple-list-item .list-item-subtitle {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .simple-list-item .list-item-title {
