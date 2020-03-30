@@ -351,34 +351,48 @@ DynamicList.prototype.attachObservers = function() {
       // Clear filters
       _this.clearFilters();
     })
-    .on('keydown change paste', '.search-holder input', function(e) {
+    .on('keyup input', '.search-holder input', function(e) {
       var $inputField = $(this);
       var value = $inputField.val();
 
-      if (value.length) {
-        $inputField.addClass('not-empty');
-      } else {
-        $inputField.removeClass('not-empty');
-      }
+      Fliplet.Hooks.run(e.type === 'keyup' ? 'flListDataSearchKeyUp' : 'flListDataSearchInput', {
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
+        input: $inputField,
+        value: value,
+        event: e
+      }).then(function () {
+        // In case the value has been changed via hooks
+        value = $inputField.val();
 
-      if (e.which == 13 || e.keyCode == 13) {
-        if (value === '') {
-          _this.$container.find('.new-news-feed-list-container').removeClass('searching');
-          _this.isSearching = false;
-          _this.searchData('');
-          return;
+        if (value.length) {
+          $inputField.addClass('not-empty');
+        } else {
+          $inputField.removeClass('not-empty');
         }
 
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'search',
-          label: value
-        });
+        if (e.type === 'keyup' && (e.which === 13 || e.keyCode === 13)) {
+          if (value === '') {
+            _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+            _this.isSearching = false;
+            _this.searchData('');
+            return;
+          }
 
-        _this.$container.find('.new-news-feed-list-container').addClass('searching');
-        _this.isSearching = true;
-        _this.searchData(value);
-      }
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'search',
+            label: value
+          });
+
+          _this.$container.find('.new-news-feed-list-container').addClass('searching');
+          _this.isSearching = true;
+          _this.searchData(value);
+        }
+      });
     })
     .on('click', '.search-holder .search-btn', function(e) {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
