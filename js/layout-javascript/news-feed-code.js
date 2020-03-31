@@ -2240,7 +2240,8 @@ DynamicList.prototype.showComments = function(id, commentId) {
     });
   }).then(function() {
     // Get comments for entry
-    var entryComments = _.get(_.find(_this.listItems, { id: id }), 'comments');
+    var entry = _.find(_this.listItems, { id: id });
+    var entryComments = _.get(entry, 'comments');
 
     // Display comments
     entryComments.forEach(function(entry, index) {
@@ -2302,10 +2303,14 @@ DynamicList.prototype.showComments = function(id, commentId) {
     var hookData = {
       instance: _this,
       config: _this.data,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container,
       html: commentsHTML,
       src: commentsTemplate,
       comments: entryComments,
-      entryId: id
+      entryId: id,
+      record: entry
     };
 
     return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function () {
@@ -2313,9 +2318,13 @@ DynamicList.prototype.showComments = function(id, commentId) {
       return Fliplet.Hooks.run('flListDataAfterShowComments', {
         instance: _this,
         config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
         html: commentsHTML,
         comments: entryComments,
-        entryId: id
+        entryId: id,
+        record: entry
       }).then(function () {
         var scrollTop = $commentArea[0].scrollHeight;
 
@@ -2377,6 +2386,7 @@ DynamicList.prototype.sendComment = function(id, value) {
     id: _this.data.id,
     uuid: _this.data.uuid,
     container: _this.$container,
+    record: record,
     comment: value,
     commentGuid: guid
   };
@@ -2464,6 +2474,7 @@ DynamicList.prototype.sendComment = function(id, value) {
           id: _this.data.id,
           uuid: _this.data.uuid,
           container: _this.$container,
+          record: record,
           commentEntry: comment,
           commentGuid: guid
         };
@@ -2595,6 +2606,7 @@ DynamicList.prototype.deleteComment = function(id) {
     id: _this.data.id,
     uuid: _this.data.uuid,
     container: _this.$container,
+    record: entry,
     commentId: id,
     commentContainer: commentHolder
   };
@@ -2639,9 +2651,9 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
     id: _this.data.id,
     uuid: _this.data.uuid,
     container: _this.$container,
+    record: entry,
     oldCommentData: oldCommentData,
-    newComment: newComment,
-    commentId: commentId
+    newComment: newComment
   };
 
   return Fliplet.Hooks.run('flListDataBeforeUpdateComment', options)
@@ -2670,9 +2682,9 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
             id: _this.data.id,
             uuid: _this.data.uuid,
             container: _this.$container,
+            record: entry,
             oldCommentData: oldCommentData,
-            newCommentData: newCommentData,
-            commentId: commentId
+            newCommentData: newCommentData
           };
           return Fliplet.Hooks.run('flListDataAfterUpdateComment', options)
             .then(function () {
