@@ -2310,6 +2310,12 @@ DynamicList.prototype.showComments = function(id) {
 }
 
 DynamicList.prototype.sendComment = function(id, value) {
+  var record = _.find(this.listItems, { id: id });
+
+  if (!record) {
+    return Promise.resolve();
+  }
+
   var _this = this;
   var guid = Fliplet.guid();
   var userName = '';
@@ -2337,99 +2343,125 @@ DynamicList.prototype.sendComment = function(id, value) {
     });
   }
 
-  _this.appendTempComment(id, value, guid, userFromDataSource);
-
-  var record = _.find(_this.listItems, { id: id });
-
-  if (!record) {
-    return Promise.resolve();
-  }
-
-  if (_.get(record, 'commentCount')) {
-    record.commentCount++;
-  }
-
-  _this.updateCommentCounter({
-    id: id,
-    record: record
-  });
-
-  userName = _.compact(_.map(_this.data.userNameFields, function (name) {
-    return _this.myUserData.isSaml2
-      ? _.get(userFromDataSource, 'data.' + name)
-      : _this.myUserData[name];
-  })).join(' ').trim();
-
-  var comment = {
-    fromName: userName,
-    user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
+  var options = {
+    instance: _this,
+    config: _this.data,
+    id: _this.data.id,
+    uuid: _this.data.uuid,
+    container: _this.$container,
+    comment: value,
+    commentGuid: guid
   };
 
-  _.assignIn(comment, { contentDataSourceEntryId: id });
+  return Fliplet.Hooks.run('flListDataBeforeNewComment', options).then(function () {
+    value = options.comment;
+    guid = options.commentGuid;
 
-  var query;
+    if (!value) {
+      return Promise.resolve();
+    }
 
-  var timestamp = (new Date()).toISOString();
+    _this.appendTempComment(id, value, guid, userFromDataSource);
 
-  // Get mentioned user(s)
-  var mentionRegexp = /\B@[a-z0-9_-]+/ig;
-  var mentions = value.match(mentionRegexp);
-  var usersMentioned = [];
+    if (_.get(record, 'commentCount')) {
+      record.commentCount++;
+    }
 
-  if (mentions && mentions.length) {
-    var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
-      return mentions.indexOf('@' + userToMention.username) > -1;
+    _this.updateCommentCounter({
+      id: id,
+      record: record
     });
 
-    if (filteredUsers && filteredUsers.length) {
-      filteredUsers.forEach(function(filteredUser) {
-        var foundUser = _.find(_this.allUsers, function(user) {
-          return user.id === filteredUser.id;
-        });
+    userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+      return _this.myUserData.isSaml2
+        ? _.get(userFromDataSource, 'data.' + name)
+        : _this.myUserData[name];
+    })).join(' ').trim();
 
-        if (foundUser) {
-          usersMentioned.push(foundUser);
-        }
+    var comment = {
+      fromName: userName,
+      user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
+    };
+
+    _.assignIn(comment, { contentDataSourceEntryId: id });
+
+    var timestamp = (new Date()).toISOString();
+
+    // Get mentioned user(s)
+    var mentionRegexp = /\B@[a-z0-9_-]+/ig;
+    var mentions = value.match(mentionRegexp);
+    var usersMentioned = [];
+
+    if (mentions && mentions.length) {
+      var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
+        return mentions.indexOf('@' + userToMention.username) > -1;
+      });
+
+      if (filteredUsers && filteredUsers.length) {
+        filteredUsers.forEach(function(filteredUser) {
+          var foundUser = _.find(_this.allUsers, function(user) {
+            return user.id === filteredUser.id;
+          });
+
+          if (foundUser) {
+            usersMentioned.push(foundUser);
+          }
+        });
+      }
+    }
+
+    comment.mentions = [];
+    if (usersMentioned && usersMentioned.length) {
+      usersMentioned.forEach(function(user) {
+        comment.mentions.push(user.id);
       });
     }
-  }
 
-  comment.mentions = [];
-  if (usersMentioned && usersMentioned.length) {
-    usersMentioned.forEach(function(user) {
-      comment.mentions.push(user.id);
-    });
-  }
+    comment.text = value;
+    comment.timestamp = timestamp;
 
-  comment.text = value;
-  comment.timestamp = timestamp;
-
-  return _this.getCommentIdentifier(record)
-    .then(function (identifier) {
-      return Fliplet.Profile.Content({ dataSourceId: _this.data.commentsDataSourceId })
-        .then(function(instance) {
-          return instance.create(identifier, {
-            settings: comment
+    return _this.getCommentIdentifier(record)
+      .then(function (identifier) {
+        return Fliplet.Profile.Content({ dataSourceId: _this.data.commentsDataSourceId })
+          .then(function(instance) {
+            return instance.create(identifier, {
+              settings: comment
+            });
           });
-        });
-    })
-    .then(function(comment) {
-      record.comments.push(comment);
-      _this.replaceComment(guid, comment, 'final');
-    })
-    .catch(function onQueryError(error) {
-      // Reverses count if error occurs
-      console.error(error);
+      })
+      .then(function(comment) {
+        options = {
+          instance: _this,
+          config: _this.data,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container,
+          commentEntry: comment,
+          commentGuid: guid
+        };
+        return Fliplet.Hooks.run('flListDataAfterNewComment', options)
+          .then(function () {
+            comment = options.commentEntry || comment;
+            record.comments.push(comment);
+            _this.replaceComment(guid, comment, 'final');
+            options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + comment.id + '"]');
+            Fliplet.Hooks.run('flListDataAfterNewCommentShown', options);
+          });
+      })
+  })
+  .catch(function (error) {
+    // Reverses count if error occurs
+    console.error(error);
 
-      if (_.get(record, 'commentCount')) {
-        record.commentCount--;
-      }
+    if (_.get(record, 'commentCount')) {
+      record.commentCount--;
+    }
 
-      _this.updateCommentCounter({
-        id: id,
-        record: record
-      });
+    _this.updateCommentCounter({
+      id: id,
+      record: record
     });
+  });
 }
 
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
@@ -2530,48 +2562,103 @@ DynamicList.prototype.deleteComment = function(id) {
   var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
   var entry = _.find(_this.listItems, { id: entryId });
   var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
+  var options = {
+    instance: _this,
+    config: _this.data,
+    id: _this.data.id,
+    uuid: _this.data.uuid,
+    container: _this.$container,
+    commentId: id,
+    commentContainer: commentHolder
+  };
 
-  return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function (connection) {
-    return connection.removeById(id, { ack: true });
-  }).then(function onRemove() {
-    _.remove(entry.comments, { id: id });
-    entry.commentCount--;
-    _this.updateCommentCounter({
-      id: entryId,
-      record: entry
+  commentHolder.hide();
+
+  return Fliplet.Hooks.run('flListDataBeforeDeleteComment', options).then(function () {
+    return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function (connection) {
+      return connection.removeById(id, { ack: true });
+    }).then(function onRemove() {
+      _.remove(entry.comments, { id: id });
+      entry.commentCount--;
+      _this.updateCommentCounter({
+        id: entryId,
+        record: entry
+      });
+      commentHolder.remove();
+      Fliplet.Hooks.run('flListDataAfterDeleteComment', options);
     });
-    commentHolder.remove();
+  }).catch(function (error) {
+    commentHolder.show();
+    Fliplet.UI.Toast.error(error, {
+      message: 'Error deleting comment'
+    });
   });
 }
 
-DynamicList.prototype.saveComment = function(entryId, commentId, value) {
+DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   var _this = this;
   var entry = _.find(_this.listItems, { id: entryId });
   var entryComments = _.get(entry, 'comments', []);
-  var commentData = _.find(entryComments.entries, function(comment) {
-    return comment.id === commentId;
-  });
+  var commentData = _.find(entryComments, { id: commentId });
 
-  if (entryComments) {
-    commentData = _.find(entryComments, function(comment) {
-      return comment.id === commentId;
-    });
+  if (!commentData) {
+    return Promise.reject('Comment not found');
   }
 
-  if (commentData) {
-    commentData.data.settings.text = value;
-    _this.replaceComment(commentId, commentData, 'temp');
-  }
+  var oldCommentData = _.clone(commentData);
+  var options = {
+    instance: _this,
+    config: _this.data,
+    id: _this.data.id,
+    uuid: _this.data.uuid,
+    container: _this.$container,
+    oldCommentData: oldCommentData,
+    newComment: newComment,
+    commentId: commentId
+  };
 
-  return Fliplet.Content({ dataSourceId: _this.data.commentsDataSourceId })
-    .then(function(instance) {
-      return instance.update({
-        settings: commentData.data.settings
-      }, {
-        id: commentId
-      });
+  return Fliplet.Hooks.run('flListDataBeforeUpdateComment', options)
+    .then(function () {
+      newComment = options.newComment;
+
+      if (!newComment) {
+        return Promise.resolve();
+      }
+
+      commentData.data.settings.text = newComment;
+      _this.replaceComment(commentId, commentData, 'temp');
+
+      return Fliplet.Content({ dataSourceId: _this.data.commentsDataSourceId })
+        .then(function(instance) {
+          return instance.update({
+            settings: commentData.data.settings
+          }, {
+            id: commentId
+          });
+        })
+        .then(function(newCommentData) {
+          options = {
+            instance: _this,
+            config: _this.data,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container,
+            oldCommentData: oldCommentData,
+            newCommentData: newCommentData,
+            commentId: commentId
+          };
+          return Fliplet.Hooks.run('flListDataAfterUpdateComment', options)
+            .then(function () {
+              _this.replaceComment(commentId, options.newCommentData, 'final');
+              options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + comment.id + '"]');
+              Fliplet.Hooks.run('flListDataAfterUpdateCommentShown', options);
+            });
+        });
     })
-    .then(function() {
-      _this.replaceComment(commentId, commentData, 'final');
+    .catch(function (error) {
+      _this.replaceComment(commentId, oldCommentData, 'final');
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error updating comment'
+      });
     });
 }
