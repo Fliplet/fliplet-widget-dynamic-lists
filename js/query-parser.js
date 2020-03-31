@@ -86,7 +86,9 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   this.pvOpenQuery = _.pickBy({
     id: parseInt(Fliplet.Navigate.query['dynamicListOpenId'], 10),
     column: Fliplet.Navigate.query['dynamicListOpenColumn'],
-    value: Fliplet.Navigate.query['dynamicListOpenValue']
+    value: Fliplet.Navigate.query['dynamicListOpenValue'],
+    openComments: (Fliplet.Navigate.query['dynamicListOpenComments'] || '').toLowerCase() === 'true',
+    commentId: parseInt(Fliplet.Navigate.query['dynamicListCommentId'], 10)
   });
   this.queryOpen = _(this.pvOpenQuery).size() > 0;
   this.pvOpenQuery = this.queryOpen ? this.pvOpenQuery : null;

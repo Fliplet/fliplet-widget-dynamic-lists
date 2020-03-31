@@ -26,7 +26,7 @@ function DynamicList(id, data, container) {
   // Global variables
   this.allowClick = true;
   this.allUsers;
-  this.usersToMention = [];
+  this.usersToMention;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
   this.isFiltering;
@@ -412,9 +412,6 @@ DynamicList.prototype.attachObservers = function() {
       }
       _this.entryClicked = identifier;
       _this.showComments(identifier);
-      $('body').addClass('lock');
-      _this.$container.find('.simple-list-detail-overlay-content-holder').addClass('lock');
-      _this.$container.find('.simple-list-comment-panel').addClass('open');
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -909,6 +906,10 @@ DynamicList.prototype.checkIsToOpen = function() {
 
   _this.showDetails(entry.id, modifiedData).then(function () {
     _this.openedEntryOnQuery = true;
+
+    if (_this.pvOpenQuery.openComments || _this.pvOpenQuery.commentId) {
+      _this.showComments(entry.id, _this.pvOpenQuery.commentId);
+    }
   });
 }
 
@@ -1846,6 +1847,10 @@ DynamicList.prototype.getCommentUsers = function () {
     return Promise.resolve();
   }
 
+  if (this.usersToMention) {
+    return Promise.resolve(this.usersToMention);
+  }
+
   var _this = this;
 
   // Get users info for comments
@@ -2163,10 +2168,25 @@ DynamicList.prototype.updateCommentCounter = function(options) {
   _this.$container.find('.simple-list-comemnt-holder-' + id).html(html);
 }
 
-DynamicList.prototype.showComments = function(id) {
+DynamicList.prototype.showComments = function(id, commentId) {
   var _this = this;
 
   _this.$container.find('simple-list-comment-area').html(_this.commentsLoadingHTML);
+  $('body').addClass('lock');
+  _this.$container.find('.simple-list-detail-overlay-content-holder').addClass('lock');
+  _this.$container.find('.simple-list-comment-panel').addClass('open');
+
+  var context = {
+    dynamicListOpenId: id
+  };
+
+  if (commentId) {
+    context.dynamicListCommentId = commentId;
+  } else {
+    context.dynamicListOpenComments = 'true';
+  }
+
+  Fliplet.Page.Context.update(context);
 
   return _this.getCommentUsers().then(function () {
     return _this.getEntryComments({
@@ -2252,9 +2272,17 @@ DynamicList.prototype.showComments = function(id) {
         comments: entryComments,
         entryId: id
       }).then(function () {
-        $commentArea.stop().animate({
-          scrollTop: $commentArea[0].scrollHeight
-        }, 250);
+        var scrollTop = $commentArea[0].scrollHeight;
+
+        if (commentId) {
+          var $commentHolder = $('.fl-individual-comment[data-id="' + commentId + '"]');
+
+          if ($commentHolder.length) {
+            scrollTop = $commentHolder.position().top - $('.simple-list-comment-panel-header').outerHeight();
+          }
+        }
+
+        $commentArea.scrollTop(scrollTop);
       });
     });
   }).catch(function (error) {
