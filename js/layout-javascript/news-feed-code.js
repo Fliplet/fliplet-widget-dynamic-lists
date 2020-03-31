@@ -2447,9 +2447,8 @@ DynamicList.prototype.sendComment = function(id, value) {
             options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + comment.id + '"]');
             Fliplet.Hooks.run('flListDataAfterNewCommentShown', options);
           });
-      })
-  })
-  .catch(function (error) {
+      });
+  }).catch(function (error) {
     // Reverses count if error occurs
     console.error(error);
 
@@ -2649,8 +2648,9 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
           };
           return Fliplet.Hooks.run('flListDataAfterUpdateComment', options)
             .then(function () {
-              _this.replaceComment(commentId, options.newCommentData, 'final');
-              options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + comment.id + '"]');
+              newCommentData = options.newCommentData;
+              _this.replaceComment(commentId, newCommentData, 'final');
+              options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + newCommentData.id + '"]');
               Fliplet.Hooks.run('flListDataAfterUpdateCommentShown', options);
             });
         });
