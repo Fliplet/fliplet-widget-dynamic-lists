@@ -761,6 +761,7 @@
   position: relative;
   margin: 8px 0 30px 0;
   transition: all 0.1s;
+  word-break: break-all;
 }
 
 .new-news-feed-list-container .news-feed-list-item.open .slide-over .news-feed-item-inner-content h2.news-feed-item-title,
@@ -785,7 +786,6 @@
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  height: 4.4em;
 }
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-item-description,

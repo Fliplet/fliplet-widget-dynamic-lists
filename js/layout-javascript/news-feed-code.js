@@ -1429,13 +1429,21 @@ DynamicList.prototype.renderLoopHTML = function () {
         $('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
         renderLoopIndex++;
 
+        var newsTitleSelector = 'h2.news-feed-item-title';
+
         if (Modernizr.ie11) {
           // In case if there is no data-line-clamp attribute we should clamp .news-feed-item-description selector with 3 lines
           var $lineClamp = $('[data-line-clamp]');
           var selector = $lineClamp.length ? '[data-line-clamp]' : '.news-feed-item-description';
           var linesToClamp = $lineClamp.length ? $lineClamp.data('line-clamp') : 3;
 
-          window.ellipsed.ellipsis(selector, linesToClamp);
+          window.ellipsed.ellipsis(selector, linesToClamp, {delimiter: '',});
+          window.ellipsed.ellipsis(newsTitleSelector, linesToClamp, {delimiter: '',});
+        } else {
+          var newsDescriptionSelector = '.news-feed-item-description';
+          
+          window.ellipsed.ellipsis(newsTitleSelector, 3, {delimiter: '',});
+          $(newsDescriptionSelector).css('max-height', '4.4em');
         }
 
         // if the browser is ready, render
