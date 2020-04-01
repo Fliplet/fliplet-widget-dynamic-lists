@@ -801,11 +801,11 @@
 }
 
 .simple-list-comment-panel .simple-list-comment-area {
-  height: calc(100% - 148px);
+  height: calc(100% - 159px);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 15px;
-  margin: 54px 0 109px;
+  margin: 54px 0 105px;
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 1;
 }
