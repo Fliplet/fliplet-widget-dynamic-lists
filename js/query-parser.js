@@ -1,7 +1,10 @@
 /**
- * this basically gets data out of the url as an INPUT,
+ * This gets data out of the URL as an INPUT,
  * parses it, and as an OUTPUT sets all the required variables used by LFD
  * for prepopulating, prefiltering and opening an entry
+ *
+ * Note: Boolean flags are treated as strings as Fliplet.Navigate.query
+ * does not parse the values into boolean values.
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
   var _this = this;
