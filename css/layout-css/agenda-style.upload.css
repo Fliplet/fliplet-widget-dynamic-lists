@@ -1599,6 +1599,11 @@
     height: 32px;
     padding: 6px 12px;
   }
+
+  .fl-with-top-menu .new-agenda-list-container .agenda-date-selector {
+    position: relative;
+    top: 0;
+  }
 }
 
 /* Safari layout */
