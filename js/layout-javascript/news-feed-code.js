@@ -2457,6 +2457,8 @@ DynamicList.prototype.sendComment = function(id, value) {
 
     comment.text = value;
     comment.timestamp = timestamp;
+    comment.contentDataSourceId = _this.data.dataSourceId;
+    comment.contentDataSourceEntryId = id;
 
     return _this.getCommentIdentifier(record)
       .then(function (identifier) {
