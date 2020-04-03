@@ -2103,6 +2103,7 @@ DynamicList.prototype.getCommentIdentifier = function (record) {
   };
   var customIdentifier = Promise.resolve();
 
+  /* Deprecated method of defining comment identifiers */
   if (typeof this.data.getCommentIdentifier === 'function') {
     customIdentifier = this.data.getCommentIdentifier({
       record: record,
