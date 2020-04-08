@@ -2103,6 +2103,7 @@ DynamicList.prototype.getCommentIdentifier = function (record) {
   };
   var customIdentifier = Promise.resolve();
 
+  /* Deprecated method of defining comment identifiers */
   if (typeof this.data.getCommentIdentifier === 'function') {
     customIdentifier = this.data.getCommentIdentifier({
       record: record,
@@ -2457,6 +2458,8 @@ DynamicList.prototype.sendComment = function(id, value) {
 
     comment.text = value;
     comment.timestamp = timestamp;
+    comment.contentDataSourceId = _this.data.dataSourceId;
+    comment.contentDataSourceEntryId = id;
 
     return _this.getCommentIdentifier(record)
       .then(function (identifier) {
