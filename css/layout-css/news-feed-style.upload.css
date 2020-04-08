@@ -761,7 +761,9 @@
   position: relative;
   margin: 8px 0 30px 0;
   transition: all 0.1s;
-  word-break: break-all;
+  word-break: break-word;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .new-news-feed-list-container .news-feed-list-item.open .slide-over .news-feed-item-inner-content h2.news-feed-item-title,
