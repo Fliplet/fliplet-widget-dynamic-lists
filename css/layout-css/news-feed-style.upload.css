@@ -754,6 +754,9 @@
   margin-bottom: 0;
   flex: 1;
   margin: 0 1.4rem 0 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content h2.news-feed-item-title,
@@ -788,6 +791,10 @@
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  height: 4.4em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-item-description,

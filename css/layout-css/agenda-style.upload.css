@@ -1060,10 +1060,16 @@
   margin-top: 0;
   line-height: 1.2em;
   margin-bottom: 5px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .new-agenda-list-container .slide-over .agenda-item-inner-content h2.agenda-item-title {
   font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .agenda-detail-overlay .agenda-item-inner-content h2.agenda-item-title {
@@ -1098,12 +1104,18 @@
 
 .new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-session-location .agenda-item-location {
   margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-session-location .agenda-item-location,
 .agenda-detail-overlay .agenda-item-inner-content .agenda-item-session-location .agenda-item-location {
   margin-bottom: 5px;
   font-size: 20px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-session-location .agenda-item-start-date-time,

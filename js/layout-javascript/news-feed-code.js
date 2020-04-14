@@ -1436,10 +1436,6 @@ DynamicList.prototype.renderLoopHTML = function () {
           var linesToClamp = $lineClamp.length ? $lineClamp.data('line-clamp') : 3;
 
           window.ellipsed.ellipsis(selector, linesToClamp, {delimiter: '',});
-        } else {
-          var newsDescriptionSelector = '.news-feed-item-description';
-
-          $(newsDescriptionSelector).css('max-height', '4.4em');
         }
 
         // if the browser is ready, render
