@@ -727,6 +727,9 @@
 .simple-list-detail-value {
   font-size: 1.15em;
   margin-bottom: 25px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .simple-list-detail-overlay-close.tablet {

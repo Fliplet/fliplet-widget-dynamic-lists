@@ -801,6 +801,9 @@
 .news-feed-detail-overlay .news-feed-item-inner-content .news-feed-item-description {
   font-size: 16px;
   line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-item-description p {
