@@ -345,6 +345,24 @@
   overflow-y: auto;
 }
 
+@media screen and (max-height: 749px) {
+  .select2-container--default .select2-results>.select2-results__options {
+    max-height: 350px;
+  }
+}
+
+@media screen and (max-height: 379px) {
+  .select2-container--default .select2-results>.select2-results__options {
+    max-height: 280px;
+  }
+}
+
+@media screen and (min-height: 380px) {
+  .select2-container--default .select2-results>.select2-results__options {
+    max-height: calc(100vh - 250px);
+  }
+}
+
 .select2-container--default .select2-results__option[role=group] {
   padding: 0;
 }
