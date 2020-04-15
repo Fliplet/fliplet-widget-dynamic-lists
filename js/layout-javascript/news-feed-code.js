@@ -19,6 +19,7 @@ function DynamicList(id, data, container) {
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
+  this.data.forceRenderList = false;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
   this.$overlay;
 
@@ -32,7 +33,7 @@ function DynamicList(id, data, container) {
   this.searchedListItems;
   this.dataSourceColumns;
   this.allUsers;
-  this.usersToMention = [];
+  this.usersToMention;
   this.myUserData;
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
   this.entryClicked = undefined;
@@ -53,6 +54,7 @@ function DynamicList(id, data, container) {
   this.pvFilterQuery;
   this.pvPreFilterQuery;
   this.pvOpenQuery;
+  this.openedEntryOnQuery = false;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -64,8 +66,6 @@ function DynamicList(id, data, container) {
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
-
-  this.detailHTML = Handlebars.compile(this.src);
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
@@ -102,6 +102,16 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
     this.$container.find('.clear-filters').addClass('hidden');
   }
 }
+
+DynamicList.prototype.clearFilters = function () {
+  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
+  return this.searchData();
+};
+
+DynamicList.prototype.hideFilterOverlay = function () {
+  this.$container.find('.news-feed-search-filter-overlay').removeClass('display');
+  $('body').removeClass('lock');
+};
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -146,15 +156,13 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.apply-filters', function() {
+      _this.hideFilterOverlay();
       _this.searchData();
-
-      $(this).parents('.news-feed-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock');
     })
     .on('click', '.clear-filters', function() {
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
       $(this).addClass('hidden');
-      _this.searchData();
+      _this.hideFilterOverlay();
+      _this.clearFilters();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
       var $filter = $(this);
@@ -196,13 +204,6 @@ DynamicList.prototype.attachObservers = function() {
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_open',
-        label: entryTitle
-      });
-
       var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
@@ -210,7 +211,8 @@ DynamicList.prototype.attachObservers = function() {
           config: _this.data,
           entry: _.find(_this.listItems, { id: entryId }),
           entryId: entryId,
-          entryTitle: entryTitle
+          entryTitle: entryTitle,
+          event: event
         });
 
         if (!(beforeOpen instanceof Promise)) {
@@ -219,6 +221,12 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function () {
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_open',
+          label: entryTitle
+        });
+
         if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
           _this.Utils.Navigate.openLinkAction({
             records: _this.listItems,
@@ -305,7 +313,7 @@ DynamicList.prototype.attachObservers = function() {
       $('body').removeClass('lock');
 
       // Clear all selected filters
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active'), false);
+      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected
       if (_.isEmpty(_this.activeFilters)) {
@@ -334,46 +342,57 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click', '.list-search-cancel', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
+      // Hide filters
+      $(this).removeClass('active');
+      _this.$container.find('.hidden-filter-controls').removeClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
 
-      _this.Utils.Page.updateFilterControlsContext();
-
-      if ($parentElement.find('.hidden-filter-controls').hasClass('active')) {
-        $parentElement.find('.hidden-filter-controls').removeClass('active');
-        $elementClicked.removeClass('active');
-        $parentElement.find('.list-search-icon .fa-sliders').removeClass('active');
-        $parentElement.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-      }
+      // Clear filters
+      _this.clearFilters();
     })
-    .on('keydown change paste', '.search-holder input', function(e) {
+    .on('keyup input', '.search-holder input', function(e) {
       var $inputField = $(this);
       var value = $inputField.val();
 
-      if (value.length) {
-        $inputField.addClass('not-empty');
-      } else {
-        $inputField.removeClass('not-empty');
-      }
+      Fliplet.Hooks.run(e.type === 'keyup' ? 'flListDataSearchKeyUp' : 'flListDataSearchInput', {
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
+        input: $inputField,
+        value: value,
+        event: e
+      }).then(function () {
+        // In case the value has been changed via hooks
+        value = $inputField.val();
 
-      if (e.which == 13 || e.keyCode == 13) {
-        if (value === '') {
-          _this.$container.find('.new-news-feed-list-container').removeClass('searching');
-          _this.isSearching = false;
-          _this.searchData('');
-          return;
+        if (value.length) {
+          $inputField.addClass('not-empty');
+        } else {
+          $inputField.removeClass('not-empty');
         }
 
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'search',
-          label: value
-        });
+        if (e.type === 'keyup' && (e.which === 13 || e.keyCode === 13)) {
+          if (value === '') {
+            _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+            _this.isSearching = false;
+            _this.searchData('');
+            return;
+          }
 
-        _this.$container.find('.new-news-feed-list-container').addClass('searching');
-        _this.isSearching = true;
-        _this.searchData(value);
-      }
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'search',
+            label: value
+          });
+
+          _this.$container.find('.new-news-feed-list-container').addClass('searching');
+          _this.isSearching = true;
+          _this.searchData(value);
+        }
+      });
     })
     .on('click', '.search-holder .search-btn', function(e) {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
@@ -417,8 +436,6 @@ DynamicList.prototype.attachObservers = function() {
       }
       _this.entryClicked = identifier;
       _this.showComments(identifier);
-      $('body').addClass('lock');
-      _this.$container.find('.new-news-feed-comment-panel').addClass('open');
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -435,12 +452,12 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.news-feed-comment-input-holder .comment', function() {
       var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
-      var comment = $commentArea.val();
+      var comment = $commentArea.val().trim();
 
-      $commentArea.val('').trigger('change');;
+      $commentArea.val('').trigger('change');
       autosize.update($commentArea);
 
-      if (comment !== '') {
+      if (comment) {
         _this.sendComment(entryId, comment);
       }
 
@@ -482,7 +499,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('keyup change', '[data-comment-body]', function() {
-      var value = $(this).val();
+      var value = $(this).val().trim();
 
       if (value.length) {
         $(this).parents('.news-feed-comment-input-holder').addClass('ready');
@@ -617,42 +634,69 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.dynamic-list-add-item', function() {
-      var options = {
-        title: 'Link not configured',
-        message: 'Form not found. Please check the component\'s configuration.',
-      };
+      if (!_this.data.addEntryLinkAction) {
+        return;
+      }
 
-      if (_this.data.addEntryLinkAction) {
-        _this.data.addEntryLinkAction.query = '?mode=add';
+      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.',
+        });
+        return;
+      }
 
-        if (typeof _this.data.addEntryLinkAction.page !== 'undefined' && _this.data.addEntryLinkAction.page !== '') {
-          Fliplet.Navigate.to(_this.data.addEntryLinkAction)
-            .catch(function() {
-              Fliplet.UI.Toast(options);
+      _this.data.addEntryLinkAction.query = '?mode=add';
+
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
+
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error adding entry'
+              });
             });
-        } else {
-          Fliplet.UI.Toast(options);
         }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error adding entry'
+        });
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
+      if (!_this.data.editEntryLinkAction) {
+        return;
+      }
+
+      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.',
+        });
+        return;
+      }
+
       var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-      var options = {
-        title: 'Link not configured',
-        message: 'Form not found. Please check the component\'s configuration.',
-      };
 
-      if (_this.data.editEntryLinkAction) {
-        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
 
-        if (typeof _this.data.editEntryLinkAction.page !== 'undefined' && _this.data.editEntryLinkAction.page !== '') {
-          Fliplet.Navigate.to(_this.data.editEntryLinkAction)
-            .catch(function() {
-              Fliplet.UI.Toast(options);
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
+
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error editing entry'
+              });
             });
-        } else {
-          Fliplet.UI.Toast(options);
         }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error editing entry'
+        });
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
@@ -668,6 +712,7 @@ DynamicList.prototype.attachObservers = function() {
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                instance: _this,
                 entryId: entryID,
                 config: _this.data,
                 id: _this.data.id,
@@ -704,6 +749,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        instance: _this,
         entryId: entryID,
         config: _this.data,
         id: _this.data.id,
@@ -802,7 +848,6 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
   } else {
     bookmarkPromise = _this.setupBookmarkButton({
       id: id,
-      identifier: id + '-bookmark',
       title: title,
       record: record
     }).then(function (btn) {
@@ -823,7 +868,6 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
   } else {
     likePromise = _this.setupLikeButton({
       id: id,
-      identifier: id + '-like',
       title: title,
       record: record
     }).then(function (btn) {
@@ -854,13 +898,22 @@ DynamicList.prototype.getAllBookmarks = function () {
     return Promise.resolve();
   }
 
+  if (typeof _this.data.getBookmarkIdentifier === 'function' || _this.data.dataPrimaryKey) {
+    return Promise.resolve();
+  }
+
   return _this.Utils.Query.fetchAndCache({
     key: 'bookmarks-' + _this.data.bookmarkDataSourceId,
     waitFor: 400,
-    request: Fliplet.Profile.Content(_this.data.bookmarkDataSourceId).then(function (instance) {
+    request: Fliplet.Profile.Content({
+      dataSourceId: _this.data.bookmarkDataSourceId,
+      view: 'userBookmarks'
+    }).then(function (instance) {
       return instance.query({
         where: {
-          content: { entryId: { $regex: '\\d-bookmark' } }
+          content: {
+            entryId: { $regex: '\\d-bookmark' }
+          }
         },
         exact: false
       });
@@ -901,14 +954,12 @@ DynamicList.prototype.initializeSocials = function (records) {
         _this.setupLikeButton({
           target: '.new-news-feed-list-container .news-feed-like-holder-' + record.id,
           id: record.id,
-          identifier: record.id + '-like',
           title: title,
           record: masterRecord
         }),
         _this.setupBookmarkButton({
           target: '.new-news-feed-list-container .news-feed-bookmark-holder-' + record.id,
           id: record.id,
-          identifier: record.id + '-bookmark',
           title: title,
           record: masterRecord
         }),
@@ -924,6 +975,10 @@ DynamicList.prototype.initializeSocials = function (records) {
 DynamicList.prototype.getCommentUsers = function () {
   if (!_.get(this.data, 'social.comments')) {
     return Promise.resolve();
+  }
+
+  if (this.usersToMention) {
+    return Promise.resolve(this.usersToMention);
   }
 
   var _this = this;
@@ -963,48 +1018,15 @@ DynamicList.prototype.getCommentUsers = function () {
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
-
-  _this.attachObservers();
-
-  // Render list with default data
-  if (_this.data.defaultData) {
-    // Render Base HTML template
-    _this.renderBaseHTML();
-
-    var records = _this.Utils.Records.prepareData({
-      records: _this.data.defaultEntries,
-      config: _this.data,
-      filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
-    });
-
-    _this.listItems = records;
-    _this.dataSourceColumns = _this.data.defaultColumns;
-
-    return _this.Utils.Records.updateFiles({
-      records: _this.listItems,
-      config: _this.data
-    }).then(function(response) {
-      _this.listItems = _.uniqBy(response, function (item) {
-        return item.id;
-      });
-
-      // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
-      _this.addFilters(_this.modifiedListItems);
-      _this.renderLoopHTML().then(function (records) {
-        _this.searchedListItems = _.clone(_this.listItems);
-        return _this.initializeSocials(records);
-      });
-    });
-  }
-
   var shouldInitFromQuery = _this.parseQueryVars();
+
   // query will always have higher priority than storage
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
   if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   };
 
+  _this.attachObservers();
   // Check if there is a query or PV for search/filter queries
   return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
@@ -1019,6 +1041,7 @@ DynamicList.prototype.initialize = function() {
       });
 
       return Fliplet.Hooks.run('flListDataAfterGetData', {
+        instance: _this,
         config: _this.data,
         id: _this.data.id,
         uuid: _this.data.uuid,
@@ -1037,7 +1060,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function (records) {
-      _this.listItems = records;
+      _this.listItems = _this.getPermissions(records);
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
@@ -1054,23 +1077,21 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, function (item) {
-        return item.id;
-      });
-      // Render Loop HTML
-      _this.prepareToRenderLoop(_this.listItems);
+      _this.listItems = _.uniqBy(response, 'id');
       _this.checkIsToOpen();
-      _this.addFilters(_this.modifiedListItems);
+      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+        records: _this.listItems,
+        config: _this.data
+      });
+      return _this.addFilters(_this.modifiedListItems);
+    })
+    .then(function () {
       _this.parseFilterQueries();
       _this.parseSearchQueries();
     });
 }
 
-DynamicList.prototype.checkIsToOpen = function(options) {
-  // List of entries saved in: _this.modifiedListItems
-
-  options = options || {};
-
+DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
 
@@ -1079,28 +1100,27 @@ DynamicList.prototype.checkIsToOpen = function(options) {
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.id === _this.pvOpenQuery.id;
-    });
-  }
-
-  if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.modifiedListItems, function(row) {
-      return row.originalData[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
+    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
+  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _.find(_this.listItems, function(row) {
+      return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
   }
 
   if (!entry) {
-    // Entry not found
-    if (options.silent) {
-      return;
-    }
-
     Fliplet.UI.Toast('Entry not found');
     return;
   }
 
-  _this.showDetails(entry.id);
+  var modifiedData = _this.addSummaryData([entry]);
+
+  _this.showDetails(entry.id, modifiedData).then(function () {
+    _this.openedEntryOnQuery = true;
+
+    if (_this.pvOpenQuery.openComments || _this.pvOpenQuery.commentId) {
+      _this.showComments(entry.id, _this.pvOpenQuery.commentId);
+    }
+  });
 }
 
 DynamicList.prototype.parseSearchQueries = function() {
@@ -1109,7 +1129,7 @@ DynamicList.prototype.parseSearchQueries = function() {
   if (!_.get(_this.pvSearchQuery, 'value')) {
     // Continue to exectute query filters
     return _this.searchData({
-      query: true
+      initialRender: true
     });
   }
 
@@ -1119,7 +1139,7 @@ DynamicList.prototype.parseSearchQueries = function() {
       value: _this.pvSearchQuery.value,
       column: _this.pvSearchQuery.column,
       openSingleEntry: _this.pvSearchQuery.openSingleEntry,
-      query: true
+      initialRender: true
     });
   }
 
@@ -1130,7 +1150,7 @@ DynamicList.prototype.parseSearchQueries = function() {
   return _this.searchData({
     value: _this.pvSearchQuery.value,
     openSingleEntry: _this.pvSearchQuery.openSingleEntry,
-    query: true
+    initialRender: true
   });
 }
 
@@ -1190,7 +1210,6 @@ DynamicList.prototype.navigateBackEvent = function() {
     if (!(result instanceof Promise)) {
       result = Promise.resolve();
     }
-
 
     return result.then(function () {
       return Fliplet.Navigate.back();
@@ -1260,6 +1279,10 @@ DynamicList.prototype.connectToDataSource = function() {
   var cache = { offline: true };
 
   function getData (options) {
+    if (_this.data.defaultData && !_this.data.dataSourceId) {
+      return Promise.resolve(_this.data.defaultEntries);
+    }
+
     options = options || cache;
     return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
       .then(function (connection) {
@@ -1283,6 +1306,7 @@ DynamicList.prototype.connectToDataSource = function() {
   }
 
   return Fliplet.Hooks.run('flListDataBeforeGetData', {
+    instance: _this,
     config: _this.data,
     id: _this.data.id,
     uuid: _this.data.uuid,
@@ -1329,20 +1353,13 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$overlay = $('#news-feed-detail-overlay-' + _this.data.id);
 }
 
-DynamicList.prototype.prepareToRenderLoop = function(records) {
+DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  var savedColumns = [];
-  var loopHTML = '';
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
     config: _this.data
   });
-  modifiedData = _this.getPermissions(modifiedData);
-
-  var loopData = [];
-
-  // Uses sumamry view settings set by users
-  modifiedData.forEach(function(entry) {
+  var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1355,8 +1372,11 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       entryDetails: [],
       originalData: entry.data
     };
+
+    // Uses sumamry view settings set by users
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
+
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
@@ -1364,76 +1384,17 @@ DynamicList.prototype.prepareToRenderLoop = function(records) {
       } else {
         content = entry.data[obj.column];
       }
+
       newObject[obj.location] = content;
     });
 
-    _this.data.detailViewOptions.forEach(function(dynamicDataObj) {
-      var label = '';
-      var labelEnabled = true;
-      var content = '';
-
-      // Define label
-      if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
-        label = dynamicDataObj.column;
-      }
-      if (dynamicDataObj.fieldLabel === 'custom-label') {
-        label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.data));
-      }
-      if (dynamicDataObj.fieldLabel === 'no-label') {
-        labelEnabled = false;
-      }
-
-      // Define content
-      if (dynamicDataObj.customFieldEnabled) {
-        content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.data));
-      } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
-        content = _this.Utils.String.splitByCommas(entry.data[dynamicDataObj.column]).join(', ');
-      } else {
-        content = entry.data[dynamicDataObj.column];
-      }
-
-      // Define data object
-      var newEntryDetail = {
-        id: dynamicDataObj.id,
-        content: content,
-        label: label,
-        labelEnabled: labelEnabled,
-        type: dynamicDataObj.type
-      }
-
-      newObject.entryDetails.push(newEntryDetail);
-    });
-    loopData.push(newObject);
+    return newObject;
   });
 
-  savedColumns = _this.data.detailViewOptions.map(function(data){
-    return data.column;
-  })
-
-  var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
-  if (_this.data.detailViewAutoUpdate && extraColumns.length) {
-    loopData.forEach(function(entry, index) {
-      var entryData = _.find(modifiedData, function(modEntry) {
-        return modEntry.id === entry.id;
-      });
-
-      extraColumns.forEach(function(column) {
-        var newColumnData = {
-          id: entryData.id,
-          content: entryData.data[column],
-          label: column,
-          labelEnabled: true,
-          type: 'text'
-        };
-
-        entry.entryDetails.push(newColumnData);
-      });
-    });
-  }
-  _this.modifiedListItems = loopData;
+  return loopData;
 }
 
-DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function () {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
@@ -1454,7 +1415,7 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
   $('#news-feed-list-wrapper-' + _this.data.id).empty();
 
   var renderLoopIndex = 0;
-  var data = (limitedList || _this.modifiedListItems);
+  var data = limitedList || _this.modifiedListItems;
 
   return new Promise(function (resolve) {
     function render() {
@@ -1466,13 +1427,17 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
 
       if (nextBatch.length) {
         $('#news-feed-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        if (iterateeCb && typeof iterateeCb === 'function') {
-          if (renderLoopIndex === 0) {
-            _this.$container.find('.new-news-feed-list-container').removeClass('loading').addClass('ready');
-          }
-          iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
-        }
         renderLoopIndex++;
+
+        if (Modernizr.ie11) {
+          // In case if there is no data-line-clamp attribute we should clamp .news-feed-item-description selector with 3 lines
+          var $lineClamp = $('[data-line-clamp]');
+          var selector = $lineClamp.length ? '[data-line-clamp]' : '.news-feed-item-description';
+          var linesToClamp = $lineClamp.length ? $lineClamp.data('line-clamp') : 3;
+
+          window.ellipsed.ellipsis(selector, linesToClamp);
+        }
+
         // if the browser is ready, render
         requestAnimationFrame(render);
       } else {
@@ -1505,21 +1470,40 @@ DynamicList.prototype.getPermissions = function(entries) {
 DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
-  var filtersData = {
-    filtersInOverlay: _this.data.filtersInOverlay,
-    filters: _this.Utils.Records.parseFilters({
+  var filters = _this.Utils.Records.parseFilters({
+    records: records,
+    filters: _this.data.filterFields,
+    id: _this.data.id
+  });
+
+  return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
+    instance: _this,
+    filters: filters,
+    records: records,
+    config: _this.data
+  }).then(function () {
+    filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
+
+    var filtersData = {
+      filtersInOverlay: _this.data.filtersInOverlay,
+      filters: filters
+    };
+    var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
+      ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
+      : Handlebars.compile(filtersTemplate());
+
+    _.remove(filters, function (filter) {
+      return _.isEmpty(filter.data);
+    });
+    _this.$container.find('.filter-holder').html(template(filtersData));
+    Fliplet.Hooks.run('flListDataAfterRenderFilters', {
+      instance: _this,
+      filters: filters,
       records: records,
-      filters: _this.data.filterFields,
-      id: _this.data.id
-    })
-  };
+      config: _this.data
+    });
 
-  filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
-    ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
-    : Handlebars.compile(filtersTemplate());
-
-  _this.$container.find('.filter-holder').html(template(filtersData));
+  });
 };
 
 DynamicList.prototype.getActiveFilters = function () {
@@ -1614,58 +1598,134 @@ DynamicList.prototype.searchData = function(options) {
     }
 
     var searchedData = results.records;
-    var truncated = results.truncated;
+    return Fliplet.Hooks.run('flListDataBeforeRenderList', {
+      instance: _this,
+      value: value,
+      records: searchedData,
+      fields: fields,
+      config: _this.data,
+      activeFilters: _this.activeFilters,
+      showBookmarks: _this.showBookmarks,
+      limit: limit
+    }).then(function () {
+      searchedData = searchedData || [];
 
-    if (openSingleEntry && searchedData.length === 1) {
-      _this.showDetails(searchedData[0].id);
-    }
+      var truncated = results.truncated || searchedData.length < _this.listItems.length;
 
-    /**
-     * Update search UI
-     **/
-    $inputField.val('');
-    $inputField.blur();
-    _this.$container.find('.new-news-feed-list-container').removeClass('searching');
-    // Adds search query to HTML
-    _this.$container.find('.current-query').html(_this.searchValue);
-    // Search value is provided
-    _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
-    _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'), !value.length);
-    _this.$container.find('.hidden-search-controls').addClass('active');
-    _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
+      if (openSingleEntry && searchedData.length === 1) {
+        _this.showDetails(searchedData[0].id);
+      }
 
-    if (searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
-      // Same results returned. Do nothing.
-      return Promise.resolve();
-    }
+      /**
+       * Update search UI
+       **/
+      $inputField.val('');
+      $inputField.blur();
+      _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+      // Adds search query to HTML
+      _this.$container.find('.current-query').html(_this.searchValue);
+      // Search value is provided
+      _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
+      _this.calculateSearchHeight(_this.$container.find('.new-news-feed-list-container'), !value.length);
+      _this.$container.find('.hidden-search-controls').addClass('active');
+      _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-    if (limitEntriesEnabled) {
-      _this.$container.find('.limit-entries-text')[truncated && _this.data.limitEntries > 0 ? 'removeClass' : 'addClass']('hidden');
-    }
+      if (!_this.data.forceRenderList && searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+        // Same results returned. Do nothing.
+        return Promise.resolve();
+      }
 
-    if (searchedData.length && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
-      // Search results is a subset of the current render.
-      // Remove the extra records without re-render.
-      _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
-        return '.news-feed-list-item[data-entry-id="' + record.id + '"]';
-      }).join(',')).remove();
-      _this.searchedListItems = searchedData;
-      return Promise.resolve();
-    }
+      if (limitEntriesEnabled) {
+        _this.$container.find('.limit-entries-text')[truncated && _this.data.limitEntries > 0 ? 'removeClass' : 'addClass']('hidden');
+      }
 
-    /**
-     * Render results
-     **/
+      if (!_this.data.forceRenderList
+        && searchedData.length
+        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
+        // Search results is a subset of the current render.
+        // Remove the extra records without re-render.
+        _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
+          return '.news-feed-list-item[data-entry-id="' + record.id + '"]';
+        }).join(',')).remove();
+        _this.searchedListItems = searchedData;
+        return Promise.resolve();
+      }
 
-    $('#news-feed-list-wrapper-' + _this.data.id).html('');
+      /**
+       * Render results
+       **/
 
-    _this.searchedListItems = searchedData;
-    _this.prepareToRenderLoop(searchedData);
-    return _this.renderLoopHTML().then(function (records) {
-      return _this.initializeSocials(records);
+      $('#news-feed-list-wrapper-' + _this.data.id).html('');
+
+      _this.modifiedListItems = _this.addSummaryData(searchedData);
+      return _this.renderLoopHTML().then(function (records) {
+        _this.searchedListItems = searchedData;
+        return records;
+      });
+    });
+  }).then(function (renderedRecords) {
+    _this.initializeSocials(renderedRecords).then(function () {
+      return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
+        instance: _this,
+        value: value,
+        records: _this.searchedListItems,
+        config: _this.data,
+        activeFilters: _this.activeFilters,
+        showBookmarks: _this.showBookmarks,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
+        initialRender: !!options.initialRender
+      });
+    });
+    return Fliplet.Hooks.run('flListDataAfterRenderList', {
+      instance: _this,
+      value: value,
+      records: _this.searchedListItems,
+      config: _this.data,
+      activeFilters: _this.activeFilters,
+      showBookmarks: _this.showBookmarks,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container,
+      initialRender: !!options.initialRender
     });
   });
 }
+
+DynamicList.prototype.getLikeIdentifier = function (record) {
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    config: this.data
+  });
+  var defaultIdentifier = {
+    entryId: uniqueId + '-like',
+    pageId: Fliplet.Env.get('pageId')
+  };
+  var customIdentifier = Promise.resolve();
+
+  if (typeof this.data.getLikeIdentifier === 'function') {
+    customIdentifier = this.data.getLikeIdentifier({
+      record: record,
+      config: this.data,
+      id: this.data.id,
+      uuid: this.data.uuid,
+      container: this.$container
+    });
+
+    if (!(customIdentifier instanceof Promise)) {
+      customIdentifier = Promise.resolve(customIdentifier);
+    }
+  }
+
+  return customIdentifier.then(function (identifier) {
+    if (!identifier) {
+      identifier = defaultIdentifier;
+    }
+
+    return identifier;
+  });
+};
 
 DynamicList.prototype.setupLikeButton = function(options) {
   if (!_.get(this.data, 'social.likes')) {
@@ -1685,78 +1745,111 @@ DynamicList.prototype.setupLikeButton = function(options) {
     return Promise.resolve();
   }
 
-  return new Promise(function (resolve) {
-    var btn = LikeButton({
-      target: target,
-      dataSourceId: _this.data.likesDataSourceId,
-      content: {
-        entryId: identifier,
-        pageId: Fliplet.Env.get('pageId')
-      },
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
-      likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-      likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
-      likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
-      addType: 'html',
-      liked: record.liked,
-      count: record.likeCount
-    });
-    record.likeButton = btn;
+  return _this.getLikeIdentifier(record)
+    .then(function (identifier) {
+      return new Promise(function (resolve) {
+        var btn = LikeButton({
+          target: target,
+          dataSourceId: _this.data.likesDataSourceId,
+          content: identifier,
+          name: Fliplet.Env.get('pageTitle') + '/' + title,
+          likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
+          likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
+          likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
+          likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+          addType: 'html',
+          liked: record.liked,
+          count: record.likeCount
+        });
+        record.likeButton = btn;
 
-    btn.on('like.status', function (liked, count) {
-      record.liked = liked;
-      record.likeCount = count;
-      resolve(btn);
-    });
+        btn.on('like.status', function (liked, count) {
+          record.liked = liked;
+          record.likeCount = count;
+          resolve(btn);
+        });
 
-    btn.on('liked', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
+        btn.on('liked', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
 
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
 
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_like',
-        label: title
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_like',
+            label: title
+          });
+        });
+
+        btn.on('liked.fail', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
+
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id).removeClass('liked').addClass('not-liked');
+          _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
+        });
+
+        btn.on('unliked', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
+
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
+
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_unlike',
+            label: title
+          });
+        });
+
+        btn.on('unliked.fail', function(data){
+          var count = btn.getCount() > 0 ? btn.getCount() : '';
+
+          record.liked = btn.isLiked();
+          record.likeCount = count;
+          _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id).removeClass('not-liked').addClass('liked');
+          _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
+        });
       });
     });
-
-    btn.on('liked.fail', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
-
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id).removeClass('liked').addClass('not-liked');
-      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
-    });
-
-    btn.on('unliked', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
-
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unlike',
-        label: title
-      });
-    });
-
-    btn.on('unliked.fail', function(data){
-      var count = btn.getCount() > 0 ? btn.getCount() : '';
-
-      record.liked = btn.isLiked();
-      record.likeCount = count;
-      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id).removeClass('not-liked').addClass('liked');
-      _this.$container.find('.news-feed-detail-overlay .news-feed-like-holder-' + id + ' .count').html(count);
-    });
-  });
 }
+
+DynamicList.prototype.getBookmarkIdentifier = function (record) {
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    config: this.data
+  });
+  var defaultIdentifier = {
+    entryId: uniqueId + '-bookmark'
+  };
+  var customIdentifier = Promise.resolve();
+
+  if (typeof this.data.getBookmarkIdentifier === 'function') {
+    customIdentifier = this.data.getBookmarkIdentifier({
+      record: record,
+      config: this.data,
+      id: this.data.id,
+      uuid: this.data.uuid,
+      container: this.$container
+    });
+
+    if (!(customIdentifier instanceof Promise)) {
+      customIdentifier = Promise.resolve(customIdentifier);
+    }
+  }
+
+  return customIdentifier.then(function (identifier) {
+    if (!identifier) {
+      identifier = defaultIdentifier;
+    }
+
+    return identifier;
+  });
+};
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
   if (!_.get(this.data, 'social.bookmark')) {
@@ -1776,66 +1869,139 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     return Promise.resolve();
   }
 
-  return new Promise(function (resolve) {
-    var btn = LikeButton({
-      target: target,
-      dataSourceId: _this.data.bookmarkDataSourceId,
-      content: {
-        entryId: identifier
-      },
-      name: Fliplet.Env.get('pageTitle') + '/' + title,
-      likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
-      likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-      likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
-      likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
-      addType: 'html',
-      getAllCounts: false,
-      liked: record.bookmarked
-    });
-    record.bookmarkButton = btn;
+  return _this.getBookmarkIdentifier(record)
+    .then(function (identifier) {
+      return new Promise(function (resolve) {
+        var btn = LikeButton({
+          target: target,
+          dataSourceId: _this.data.bookmarkDataSourceId,
+          view: 'userBookmarks',
+          content: identifier,
+          name: Fliplet.Env.get('pageTitle') + '/' + title,
+          likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
+          likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
+          likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
+          likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
+          addType: 'html',
+          getAllCounts: false,
+          liked: record.bookmarked
+        });
+        record.bookmarkButton = btn;
 
-    btn.on('like.status', function (liked) {
-      record.bookmarked = liked;
-      resolve(btn);
-    });
+        btn.on('like.status', function (liked) {
+          record.bookmarked = liked;
+          resolve(btn);
+        });
 
-    btn.on('liked', function(data){
-      record.bookmarked = btn.isLiked();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_bookmark',
-        label: title
+        btn.on('liked', function(data){
+          record.bookmarked = btn.isLiked();
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_bookmark',
+            label: title
+          });
+        });
+
+        btn.on('liked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
+        });
+
+        btn.on('unliked', function(data){
+          record.bookmarked = btn.isLiked();
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_unbookmark',
+            label: title
+          });
+        });
+
+        btn.on('unliked.fail', function(data){
+          record.bookmarked = btn.isLiked();
+          _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
+        });
       });
     });
-
-    btn.on('liked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
-    });
-
-    btn.on('unliked', function(data){
-      record.bookmarked = btn.isLiked();
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'entry_unbookmark',
-        label: title
-      });
-    });
-
-    btn.on('unliked.fail', function(data){
-      record.bookmarked = btn.isLiked();
-      _this.$container.find('.news-feed-detail-overlay .news-feed-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
-    });
-  });
 }
 
-DynamicList.prototype.showDetails = function (id) {
+DynamicList.prototype.addDetailViewData = function (entry) {
+  var _this = this;
+
+  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    return entry;
+  }
+
+  entry.entryDetails = [];
+
+  // Define detail view data based on user's settings
+  _this.data.detailViewOptions.forEach(function(obj) {
+    var label = '';
+    var labelEnabled = true;
+    var content = '';
+
+    // Define label
+    if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
+      label = obj.column;
+    }
+    if (obj.fieldLabel === 'custom-label') {
+      label = new Handlebars.SafeString(Handlebars.compile(obj.customFieldLabel)(entry.originalData));
+    }
+    if (obj.fieldLabel === 'no-label') {
+      labelEnabled = false;
+    }
+
+    // Define content
+    if (obj.customFieldEnabled) {
+      content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
+    } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+      content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
+    } else {
+      content = entry.originalData[obj.column];
+    }
+
+    // Define data object
+    var newEntryDetail = {
+      id: obj.id,
+      content: content,
+      label: label,
+      labelEnabled: labelEnabled,
+      type: obj.type
+    };
+
+    entry.entryDetails.push(newEntryDetail);
+  });
+
+  if (_this.data.detailViewAutoUpdate) {
+    var savedColumns = _.map(_this.data.detailViewOptions, 'column');
+    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+
+    _.forEach(extraColumns, function(column) {
+      var newColumnData = {
+        id: entry.id,
+        content: entry.originalData[column],
+        label: column,
+        labelEnabled: true,
+        type: 'text'
+      };
+
+      entry.entryDetails.push(newColumnData);
+    });
+  }
+
+  return entry;
+};
+
+DynamicList.prototype.showDetails = function (id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(_this.modifiedListItems, { id: id });
-  var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
+  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
+  // Process template with data
   var entryId = { id: id };
+  var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
   var src = _this.src;
+
+  entryData = _this.addDetailViewData(entryData);
+
   var beforeShowDetails = Promise.resolve({
     src: src,
     data: entryData
@@ -1853,7 +2019,7 @@ DynamicList.prototype.showDetails = function (id) {
     }
   }
 
-  beforeShowDetails.then(function (data) {
+  return beforeShowDetails.then(function (data) {
     data = data || {};
     var template = Handlebars.compile(data.src || src);
     var wrapperTemplate = Handlebars.compile(wrapper);
@@ -1898,6 +2064,11 @@ DynamicList.prototype.showDetails = function (id) {
 }
 
 DynamicList.prototype.closeDetails = function() {
+  if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
+    Fliplet.Page.Context.remove('dynamicListPreviousScreen');
+    return Fliplet.Navigate.back();
+  }
+
   // Function that closes the overlay
   var _this = this;
 
@@ -1921,6 +2092,41 @@ DynamicList.prototype.closeDetails = function() {
 /**** COMMENTS ****/
 /******************/
 
+DynamicList.prototype.getCommentIdentifier = function (record) {
+  var uniqueId = this.Utils.Record.getUniqueId({
+    record: record,
+    config: this.data
+  });
+  var defaultIdentifier = {
+    contentDataSourceEntryId: uniqueId,
+    type: 'comment'
+  };
+  var customIdentifier = Promise.resolve();
+
+  /* Deprecated method of defining comment identifiers */
+  if (typeof this.data.getCommentIdentifier === 'function') {
+    customIdentifier = this.data.getCommentIdentifier({
+      record: record,
+      config: this.data,
+      id: this.data.id,
+      uuid: this.data.uuid,
+      container: this.$container
+    });
+
+    if (!(customIdentifier instanceof Promise)) {
+      customIdentifier = Promise.resolve(customIdentifier);
+    }
+  }
+
+  return customIdentifier.then(function (identifier) {
+    if (!identifier) {
+      identifier = defaultIdentifier;
+    }
+
+    return identifier;
+  });
+};
+
 DynamicList.prototype.getEntryComments = function(options) {
   if (!_.get(this.data, 'social.comments')) {
     return Promise.resolve();
@@ -1937,29 +2143,32 @@ DynamicList.prototype.getEntryComments = function(options) {
   }
 
   var count = record.commentCount;
-  var content = {
-    contentDataSourceEntryId: id,
-    type: 'comment'
-  };
-  var getComments = Promise.resolve();
 
-  if (typeof count === 'undefined' || options.force) {
-    getComments = Fliplet.Content({ dataSourceId: _this.data.commentsDataSourceId })
-      .then(function(instance) {
-        return instance.query({
-          allowGrouping: true,
-          where: {
-            content: content
-          }
-        });
-      })
-      .then(function(entries){
-        record.comments = entries;
-        record.commentCount = entries.length;
-      });
-  }
+  return _this.getCommentIdentifier(record)
+    .then(function (identifier) {
+      var getComments = Promise.resolve();
 
-  return getComments
+      if (typeof count === 'undefined' || options.force) {
+        getComments = Fliplet.Content({ dataSourceId: _this.data.commentsDataSourceId })
+          .then(function(instance) {
+            return instance.query({
+              allowGrouping: true,
+              where: {
+                content: identifier,
+                settings: {
+                  text: { $regex: '[^\s]+' }
+                }
+              }
+            });
+          })
+          .then(function(entries) {
+            record.comments = entries;
+            record.commentCount = entries.length;
+          });
+      }
+
+      return getComments;
+    })
     .then(function () {
       _this.updateCommentCounter({
         id: id,
@@ -2006,10 +2215,24 @@ DynamicList.prototype.updateCommentCounter = function(options) {
   _this.$container.find('.news-feed-comemnt-holder-' + id).html(html);
 }
 
-DynamicList.prototype.showComments = function(id) {
+DynamicList.prototype.showComments = function(id, commentId) {
   var _this = this;
 
   _this.$container.find('.news-feed-comment-area').html(_this.commentsLoadingHTML);
+  $('body').addClass('lock');
+  _this.$container.find('.new-news-feed-comment-panel').addClass('open');
+
+  var context = {
+    dynamicListOpenId: id
+  };
+
+  if (commentId) {
+    context.dynamicListCommentId = commentId;
+  } else {
+    context.dynamicListOpenComments = 'true';
+  }
+
+  Fliplet.Page.Context.update(context);
 
   return _this.getCommentUsers().then(function () {
     return _this.getEntryComments({
@@ -2018,7 +2241,8 @@ DynamicList.prototype.showComments = function(id) {
     });
   }).then(function() {
     // Get comments for entry
-    var entryComments = _.get(_.find(_this.listItems, { id: id }), 'comments');
+    var entry = _.find(_this.listItems, { id: id });
+    var entryComments = _.get(entry, 'comments');
 
     // Display comments
     entryComments.forEach(function(entry, index) {
@@ -2078,24 +2302,42 @@ DynamicList.prototype.showComments = function(id) {
     var commentsHTML = commentsTemplateCompiled(entryComments);
     var $commentArea = _this.$container.find('.news-feed-comment-area');
     var hookData = {
+      instance: _this,
       config: _this.data,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container,
       html: commentsHTML,
       src: commentsTemplate,
       comments: entryComments,
-      entryId: id
+      entryId: id,
+      record: entry
     };
 
     return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function () {
       $commentArea.html(hookData.html);
       return Fliplet.Hooks.run('flListDataAfterShowComments', {
+        instance: _this,
         config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container,
         html: commentsHTML,
         comments: entryComments,
-        entryId: id
+        entryId: id,
+        record: entry
       }).then(function () {
-        $commentArea.stop().animate({
-          scrollTop: $commentArea[0].scrollHeight
-        }, 250);
+        var scrollTop = $commentArea[0].scrollHeight;
+
+        if (commentId) {
+          var $commentHolder = $('.fl-individual-comment[data-id="' + commentId + '"]');
+
+          if ($commentHolder.length) {
+            scrollTop = $commentHolder.position().top - $('.news-feed-comment-panel-header').outerHeight();
+          }
+        }
+
+        $commentArea.scrollTop(scrollTop);
       });
     });
   }).catch(function (error) {
@@ -2106,6 +2348,12 @@ DynamicList.prototype.showComments = function(id) {
 }
 
 DynamicList.prototype.sendComment = function(id, value) {
+  var record = _.find(this.listItems, { id: id });
+
+  if (!record) {
+    return Promise.resolve();
+  }
+
   var _this = this;
   var guid = Fliplet.guid();
   var userName = '';
@@ -2133,97 +2381,128 @@ DynamicList.prototype.sendComment = function(id, value) {
     });
   }
 
-  _this.appendTempComment(id, value, guid, userFromDataSource);
-
-  var record = _.find(_this.listItems, { id: id });
-
-  if (_.get(record, 'commentCount')) {
-    record.commentCount++;
-  }
-
-  _this.updateCommentCounter({
-    id: id,
-    record: record
-  });
-
-  userName = _.compact(_.map(_this.data.userNameFields, function (name) {
-    return _this.myUserData.isSaml2
-      ? _.get(userFromDataSource, 'data.' + name)
-      : _this.myUserData[name];
-  })).join(' ').trim();
-
-  var comment = {
-    fromName: userName,
-    user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
+  var options = {
+    instance: _this,
+    config: _this.data,
+    id: _this.data.id,
+    uuid: _this.data.uuid,
+    container: _this.$container,
+    record: record,
+    comment: value,
+    commentGuid: guid
   };
 
-  var content = {
-    contentDataSourceEntryId: id,
-    type: 'comment'
-  };
+  return Fliplet.Hooks.run('flListDataBeforeNewComment', options).then(function () {
+    value = options.comment;
+    guid = options.commentGuid;
 
-  _.assignIn(comment, { contentDataSourceEntryId: id });
+    if (!value) {
+      return Promise.resolve();
+    }
 
-  var query;
+    _this.appendTempComment(id, value, guid, userFromDataSource);
 
-  var timestamp = (new Date()).toISOString();
+    if (_.get(record, 'commentCount')) {
+      record.commentCount++;
+    }
 
-  // Get mentioned user(s)
-  var mentionRegexp = /\B@[a-z0-9_-]+/ig;
-  var mentions = value.match(mentionRegexp);
-  var usersMentioned = [];
-
-  if (mentions && mentions.length) {
-    var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
-      return mentions.indexOf('@' + userToMention.username) > -1;
+    _this.updateCommentCounter({
+      id: id,
+      record: record
     });
 
-    if (filteredUsers && filteredUsers.length) {
-      filteredUsers.forEach(function(filteredUser) {
-        var foundUser = _.find(_this.allUsers, function(user) {
-          return user.id === filteredUser.id;
-        });
+    userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+      return _this.myUserData.isSaml2
+        ? _.get(userFromDataSource, 'data.' + name)
+        : _this.myUserData[name];
+    })).join(' ').trim();
 
-        if (foundUser) {
-          usersMentioned.push(foundUser);
-        }
+    var comment = {
+      fromName: userName,
+      user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
+    };
+
+    _.assignIn(comment, { contentDataSourceEntryId: id });
+
+    var timestamp = (new Date()).toISOString();
+
+    // Get mentioned user(s)
+    var mentionRegexp = /\B@[a-z0-9_-]+/ig;
+    var mentions = value.match(mentionRegexp);
+    var usersMentioned = [];
+
+    if (mentions && mentions.length) {
+      var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
+        return mentions.indexOf('@' + userToMention.username) > -1;
+      });
+
+      if (filteredUsers && filteredUsers.length) {
+        filteredUsers.forEach(function(filteredUser) {
+          var foundUser = _.find(_this.allUsers, function(user) {
+            return user.id === filteredUser.id;
+          });
+
+          if (foundUser) {
+            usersMentioned.push(foundUser);
+          }
+        });
+      }
+    }
+
+    comment.mentions = [];
+    if (usersMentioned && usersMentioned.length) {
+      usersMentioned.forEach(function(user) {
+        comment.mentions.push(user.id);
       });
     }
-  }
 
-  comment.mentions = [];
-  if (usersMentioned && usersMentioned.length) {
-    usersMentioned.forEach(function(user) {
-      comment.mentions.push(user.id);
-    });
-  }
+    comment.text = value;
+    comment.timestamp = timestamp;
+    comment.contentDataSourceId = _this.data.dataSourceId;
+    comment.contentDataSourceEntryId = id;
 
-  comment.text = value;
-  comment.timestamp = timestamp;
-
-  return Fliplet.Profile.Content({ dataSourceId: _this.data.commentsDataSourceId })
-    .then(function(instance) {
-      return instance.create(content, {
-        settings: comment
+    return _this.getCommentIdentifier(record)
+      .then(function (identifier) {
+        return Fliplet.Profile.Content({ dataSourceId: _this.data.commentsDataSourceId })
+          .then(function(instance) {
+            return instance.create(identifier, {
+              settings: comment
+            });
+          });
       })
-    })
-    .then(function(comment) {
-      record.comments.push(comment);
-      _this.replaceComment(guid, comment, 'final');
-    })
-    .catch(function onQueryError(error) {
-      // Reverses count if error occurs
-      console.error(error);
-
-      if (_.get(record, 'commentCount')) {
-        record.commentCount--;
-      }
-
-      _this.updateCommentCounter({
-        id: id,
-        record: record
+      .then(function(comment) {
+        options = {
+          instance: _this,
+          config: _this.data,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container,
+          record: record,
+          commentEntry: comment,
+          commentGuid: guid
+        };
+        return Fliplet.Hooks.run('flListDataAfterNewComment', options)
+          .then(function () {
+            comment = options.commentEntry || comment;
+            record.comments.push(comment);
+            _this.replaceComment(guid, comment, 'final');
+            options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + comment.id + '"]');
+            Fliplet.Hooks.run('flListDataAfterNewCommentShown', options);
+          });
       });
+  }).catch(function (error) {
+    // Reverses count if error occurs
+    console.error(error);
+
+    if (_.get(record, 'commentCount')) {
+      record.commentCount--;
+    }
+
+    _this.updateCommentCounter({
+      id: id,
+      record: record
     });
+  });
 }
 
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
@@ -2322,50 +2601,107 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
   var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
-  var entry = _.find(_this.listItem, { id: entryId });
+  var entry = _.find(_this.listItems, { id: entryId });
   var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
+  var options = {
+    instance: _this,
+    config: _this.data,
+    id: _this.data.id,
+    uuid: _this.data.uuid,
+    container: _this.$container,
+    record: entry,
+    commentId: id,
+    commentContainer: commentHolder
+  };
 
-  return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function (connection) {
-    return connection.removeById(id, { ack: true });
-  }).then(function onRemove() {
-    _.remove(entry.comments, { id: id });
-    entry.commentCount--;
-    _this.updateCommentCounter({
-      id: entryId,
-      record: entry
+  commentHolder.hide();
+
+  return Fliplet.Hooks.run('flListDataBeforeDeleteComment', options).then(function () {
+    return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function (connection) {
+      return connection.removeById(id, { ack: true });
+    }).then(function onRemove() {
+      _.remove(entry.comments, { id: id });
+      entry.commentCount--;
+      _this.updateCommentCounter({
+        id: entryId,
+        record: entry
+      });
+      commentHolder.remove();
+      Fliplet.Hooks.run('flListDataAfterDeleteComment', options);
     });
-    commentHolder.remove();
+  }).catch(function (error) {
+    commentHolder.show();
+    Fliplet.UI.Toast.error(error, {
+      message: 'Error deleting comment'
+    });
   });
 }
 
-DynamicList.prototype.saveComment = function(entryId, commentId, value) {
+DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   var _this = this;
-  var entryComments = _.get(_.find(_this.listItems, { id: entryId }), 'comments', []);
-  var commentData = _.find(entryComments.entries, function(comment) {
-    return comment.id === commentId;
-  });
+  var entry = _.find(_this.listItems, { id: entryId });
+  var entryComments = _.get(entry, 'comments', []);
+  var commentData = _.find(entryComments, { id: commentId });
 
-  if (commentData) {
-    commentData.data.settings.text = value;
-    _this.replaceComment(commentId, commentData, 'temp');
+  if (!commentData) {
+    return Promise.reject('Comment not found');
   }
 
-  var content = {
-    contentDataSourceEntryId: entryId,
-    type: 'comment'
+  var oldCommentData = _.clone(commentData);
+  var options = {
+    instance: _this,
+    config: _this.data,
+    id: _this.data.id,
+    uuid: _this.data.uuid,
+    container: _this.$container,
+    record: entry,
+    oldCommentData: oldCommentData,
+    newComment: newComment
   };
 
-  Fliplet.Content({dataSourceId: _this.data.commentsDataSourceId})
-    .then(function(instance) {
-      return instance.update({
-        settings: commentData.data.settings
-      }, {
-        where: {
-          content: content
-        }
-      });
+  return Fliplet.Hooks.run('flListDataBeforeUpdateComment', options)
+    .then(function () {
+      newComment = options.newComment;
+
+      if (!newComment) {
+        return Promise.resolve();
+      }
+
+      commentData.data.settings.text = newComment;
+      _this.replaceComment(commentId, commentData, 'temp');
+
+      return Fliplet.Content({ dataSourceId: _this.data.commentsDataSourceId })
+        .then(function(instance) {
+          return instance.update({
+            settings: commentData.data.settings
+          }, {
+            id: commentId
+          });
+        })
+        .then(function(newCommentData) {
+          options = {
+            instance: _this,
+            config: _this.data,
+            id: _this.data.id,
+            uuid: _this.data.uuid,
+            container: _this.$container,
+            record: entry,
+            oldCommentData: oldCommentData,
+            newCommentData: newCommentData
+          };
+          return Fliplet.Hooks.run('flListDataAfterUpdateComment', options)
+            .then(function () {
+              newCommentData = options.newCommentData;
+              _this.replaceComment(commentId, newCommentData, 'final');
+              options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + newCommentData.id + '"]');
+              Fliplet.Hooks.run('flListDataAfterUpdateCommentShown', options);
+            });
+        });
     })
-    .then(function() {
-      _this.replaceComment(commentId, commentData, 'final');
+    .catch(function (error) {
+      _this.replaceComment(commentId, oldCommentData, 'final');
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error updating comment'
+      });
     });
 }

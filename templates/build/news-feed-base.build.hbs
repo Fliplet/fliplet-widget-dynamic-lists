@@ -69,7 +69,7 @@
       <div class="hidden-filter-controls-search">
         <div class="search-query-holder">
           <div class="search-query">
-          Searching for: <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+          Searching for <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
           </div>
         </div>
       </div>
@@ -79,13 +79,13 @@
   \{{#if filtersEnabled}}
   <div class="hidden-filter-controls">
     <div class="hidden-filter-controls-content">
-      \{{#ifCond filtersInOverlay '!==' true}}
+      \{{#unless filtersInOverlay}}
       \{{#if filtersEnabled}}
       <div class="filter-holder inline-filter-holder">
         <!-- Filters here -->
       </div>
       \{{/if}}
-      \{{/ifCond}}
+      \{{/unless}}
     </div>
   </div>
   \{{/if}}
@@ -125,7 +125,7 @@
   <div class="news-feed-detail-overlay-wrapper">
     <div class="news-feed-detail-overlay-panel">
       <div class="news-feed-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
-        <i class="fa fa-times-thin"></i>
+        <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="news-feed-detail-overlay-content">
         <div class="news-feed-detail-overlay-content-holder">
@@ -134,7 +134,7 @@
       </div>
     </div>
     <div class="news-feed-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
-      <i class="fa fa-times-thin"></i>
+      <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>
 </div>

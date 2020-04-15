@@ -1,18 +1,22 @@
 /**
- * this basically gets data out of the url as an INPUT,
+ * This gets data out of the URL as an INPUT,
  * parses it, and as an OUTPUT sets all the required variables used by LFD
  * for prepopulating, prefiltering and opening an entry
+ *
+ * Note: Boolean flags are treated as strings as Fliplet.Navigate.query
+ * does not parse the values into boolean values.
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
+  var _this = this;
+
   function splitQueryValues(input) {
-    var splitPattern = /\,\s?(?![^\\[]*\])/;
     var testPattern = /^(?:\[[\w\W]*\])$/;
 
     if (_.isNil(input)) {
       return input;
     }
 
-    return ('' + input).trim().split(splitPattern).map(function (str) {
+    return _.map(_this.Utils.String.splitByCommas('' + input), function (str) {
       str = str.trim();
 
       if (!testPattern.test(str)) {
@@ -85,7 +89,9 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   this.pvOpenQuery = _.pickBy({
     id: parseInt(Fliplet.Navigate.query['dynamicListOpenId'], 10),
     column: Fliplet.Navigate.query['dynamicListOpenColumn'],
-    value: Fliplet.Navigate.query['dynamicListOpenValue']
+    value: Fliplet.Navigate.query['dynamicListOpenValue'],
+    openComments: (Fliplet.Navigate.query['dynamicListOpenComments'] || '').toLowerCase() === 'true',
+    commentId: parseInt(Fliplet.Navigate.query['dynamicListCommentId'], 10)
   });
   this.queryOpen = _(this.pvOpenQuery).size() > 0;
   this.pvOpenQuery = this.queryOpen ? this.pvOpenQuery : null;

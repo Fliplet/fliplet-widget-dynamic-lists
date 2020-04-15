@@ -73,6 +73,7 @@
       "vendor/mixitup-multifilter.min.js",
       "vendor/autosize.js",
       "vendor/unorm.js",
+      "vendor/ellipsed.js",
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",
@@ -88,7 +89,9 @@
       { "compile": false, "path": "js/layout-javascript/news-feed-code.js" },
       { "compile": false, "path": "js/layout-javascript/agenda-code.js" },
       { "compile": false, "path": "js/layout-javascript/small-h-card-code.js" },
-      { "compile": false, "path": "js/layout-javascript/simple-list-code.js" }
+      { "compile": false, "path": "js/layout-javascript/simple-list-code.js" },
+      { "compile": false, "path": "img/cross.svg"},
+      { "compile": false, "path": "img/cross_white.svg"}
     ]
   },
   "references": [
@@ -105,6 +108,7 @@
     "summary-fields.$.appFolderId:app",
     "detailViewOptions.$.appFolderId:app",
     "summary-fields.$.organizationFolderId:organization",
-    "detailViewOptions.$.organizationFolderId:organization"
+    "detailViewOptions.$.organizationFolderId:organization",
+    "dataSourceViews.$.id:dataSourceView"
   ]
 }

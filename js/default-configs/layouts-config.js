@@ -168,7 +168,7 @@ window.flListLayoutConfig = {
     'social': {
       'bookmark': true
     },
-    'style-specific': ['list-bookmark', 'list-agenda-options'],
+    'style-specific': ['list-filter', 'list-search', 'list-bookmark', 'list-agenda-options'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
@@ -341,6 +341,14 @@ window.flListLayoutConfig = {
         column: 'Category'
       }
     ],
-    'showSummaryFieldsInDetailView': true
+    'showSummaryFieldsInDetailView': true,
+    'detail-fields': [
+      {
+        id: 'wWkqeYGN',
+        location: 'Image',
+        type: 'image',
+        column: 'Image'
+      }
+    ]
   }
 }

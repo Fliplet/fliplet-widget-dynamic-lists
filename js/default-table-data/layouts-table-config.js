@@ -2,7 +2,7 @@ window.flListLayoutTableColumnConfig = {
   'small-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Linkedin', 'Bio', 'Sectors', 'Expertise'],
   'news-feed': ['Title', 'Date', 'Categories', 'Image', 'Content'],
   'agenda': ['Title', 'Poll', 'Survey', 'Questions', 'Full Date', 'Start Time', 'End Time', 'Location', 'Content'],
-  'small-h-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Bio', 'Sectors', 'Expertise'],
+  'small-h-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Linkedin', 'Bio', 'Sectors', 'Expertise'],
   'simple-list': ['Title', 'Image', 'Category', 'Description']
 };
 window.flListLayoutTableConfig = {

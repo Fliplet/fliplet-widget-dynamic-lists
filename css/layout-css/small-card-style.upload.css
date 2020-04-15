@@ -107,7 +107,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 59px 15px 15px;
+  margin-top: 44px;
+  padding: 15px;
   padding-bottom: calc(15px + env(safe-area-inset-bottom));
   z-index: 1;
   overflow-y: auto;
@@ -313,6 +314,10 @@
 
 .new-small-card-list-container .list-search-icon {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
 }
 
 .new-small-card-list-container .list-search-icon .fa {
@@ -321,7 +326,7 @@
   font-size: 20px;
   width: 35px;
   height: 35px;
-  text-align: right;
+  text-align: center;
   line-height: 35px;
 }
 
@@ -350,6 +355,7 @@
   height: 0;
   overflow: hidden;
   margin: 0 -15px;
+  position: relative;
 }
 
 .new-small-card-list-container .hidden-filter-controls-content {
@@ -357,7 +363,7 @@
 }
 
 .new-small-card-list-container .hidden-filter-controls-search {
-  padding: 15px 15px;
+  padding: 18px;
 }
 
 .new-small-card-list-container .search-holder {
@@ -394,6 +400,13 @@
   border: none;
   padding: 8px 12px;
   transition: opacity 0.2s ease-out;
+}
+
+.search-holder .btn.search-btn:focus,
+.search-holder .btn.search-btn:hover,
+.search-holder .btn.search-btn:active:focus,
+.search-holder .btn.search-btn:active:hover {
+  border-radius: 40px;
 }
 
 .search-holder .search-feed:focus ~ .btn.search-btn,
@@ -453,6 +466,8 @@
   width: 100%;
   display: none;
   align-items: center;
+  color: #aaaaaa;
+  font-size: 14px;
 }
 
 .new-small-card-list-container .search-results .hidden-filter-controls-search .search-query-holder {
@@ -466,7 +481,6 @@
   color: #ffffff;
   padding: 8px 34px 8px 15px;
   border-radius: 20px;
-  font-size: 14px;
   line-height: 1;
 }
 
@@ -476,7 +490,7 @@
   text-overflow: ellipsis;
   max-width: calc(100% - 185px);
   display: inline-block;
-  vertical-align: text-top;
+  vertical-align: baseline;
 }
 
 .new-small-card-list-container .current-query-wrapper .clear-search {
@@ -810,7 +824,7 @@
   width: 100%;
   text-align: left;
   cursor: default;
-  pointer-events: all;
+  pointer-events: none;
   background-color: #ffffff;
   overflow: hidden;
   -webkit-transform: translate3d(0,0,0);
@@ -1224,4 +1238,72 @@
 
  .has-bookmarks {
   padding-right: 20px !important;
+}
+
+.small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 4px;
+  font-size: 0.8em !important;
+}
+
+.small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin::before {
+  content: '\002573';
+}
+
+/* IE11 layout */
+@media screen and (-ms-high-contrast: none) {
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+    padding-top: 0px;
+    padding-bottom: 5px;
+  }
+}
+
+/* Safari layout */
+@media not all and (min-resolution:.001dpcm) {
+  @media {
+    .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+      padding-top: 1px;
+      padding-bottom: 0px;
+    }
+  }
+}
+
+/* For native devices */
+.native.android .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+  padding-top: 5px;
+}
+
+.native.ios .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+  padding-top: 1px;
+}
+
+.mode-interact [data-dynamic-lists-id] {
+  min-height: 32px;
+}
+
+/* For MS Edge */
+@supports (-ms-ime-align:auto) {
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+    padding-top: 1px;
+    padding-bottom: 3px;
+  }
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 5px;
+  }
+
+  .no-windows .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
+
+/* For Android Chrome browser*/
+.android.no-native .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+  padding-top: 2px;
+  padding-bottom: 2px;
 }

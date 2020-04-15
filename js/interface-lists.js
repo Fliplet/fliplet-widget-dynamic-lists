@@ -1,7 +1,9 @@
 var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
+var page = Fliplet.Widget.getPage();
 var dynamicLists;
 
+var omitPages = page ? [page.id] : [];
 var addEntryLinkAction;
 var editEntryLinkAction;
 var linkAddEntryProvider;
@@ -13,6 +15,7 @@ var selectedFieldId = [];
 var addEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
+  omitPages: omitPages,
   transition: 'fade',
   options: {
     hideAction: true
@@ -21,6 +24,7 @@ var addEntryLinkData = $.extend(true, {
 var editEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
+  omitPages: omitPages,
   transition: 'fade',
   options: {
     hideAction: true
@@ -283,6 +287,20 @@ function attahObservers() {
           });
           break;
       }
+    })
+    .on('change', '[name="detail_field_type"]', function() {
+      var $element = $(this);
+      var fieldName = $element.val();
+      var fieldId = $element.parents('.rTableRow.clearfix').data('id');
+      var fieldIdInSelectedFields = selectedFieldId.indexOf(fieldId) !== -1;
+
+      if (fieldName !== 'image' && fieldIdInSelectedFields) {
+        selectedFieldId = _.filter(selectedFieldId, function(item) {
+          return item != fieldId;
+        });
+      } else if ($('#detail_image_field_type_' + fieldId).val() === 'all-folders') {
+        selectedFieldId.push(fieldId);
+      }
     });
 
   $('[data-toggle="tooltip"]').tooltip();
@@ -300,98 +318,102 @@ function attahObservers() {
         }
 
         // Validation for required fields
-        if ((widgetData.addEntry && widgetData.addPermissions === 'admins')
-          || (widgetData.editEntry && widgetData.editPermissions === 'admins')
-          || (widgetData.deleteEntry && widgetData.deletePermissions === 'admins')) {
-          var errors = [];
-          var values = [];
-
-          values.push({
-            value: widgetData.userDataSourceId,
-            field: '#select_user_datasource'
-          });
-          values.push({
-            value: widgetData.userEmailColumn,
-            field: '#select_user_email'
-          });
-          values.push({
-            value: widgetData.userAdminColumn,
-            field: '#select_user_admin'
-          });
-
-          values.forEach(function(field) {
-            if (!validate(field.value)) {
-              errors.push(field.field);
+        var requiredFields = {
+          admins:[
+            {
+              value: widgetData.userDataSourceId,
+              field: '#select_user_datasource'
+            },
+            {
+              value: widgetData.userEmailColumn,
+              field: '#select_user_email'
+            },
+            {
+              value: widgetData.userAdminColumn,
+              field: '#select_user_admin'
             }
-          });
+          ],
+          "users-admins": [
+            {
+              value: widgetData.userDataSourceId,
+              field: '#select_user_datasource'
+            },
+            {
+              value: widgetData.userEmailColumn,
+              field: '#select_user_email'
+            },
+            {
+              value: widgetData.userAdminColumn,
+              field: '#select_user_admin'
+            },
+            {
+              value: widgetData.userListEmailColumn,
+              field: '#select_user_email_data'
+            }
+          ],
+          user: [
+            {
+              value: widgetData.userDataSourceId,
+              field: '#select_user_datasource'
+            },
+            {
+              value: widgetData.userEmailColumn,
+              field: '#select_user_email'
+            },
+            {
+              value: widgetData.userListEmailColumn,
+              field: '#select_user_email_data'
+            }
+          ]
+        };
+        var selectedPermissions = [];
+        var managementErrors = [];
 
-          if (errors && errors.length) {
-            $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+        if (widgetData.addEntry) {
+          selectedPermissions.push('addPermissions');
+        }
+
+        if (widgetData.editEntry) {
+          selectedPermissions.push('editPermissions');
+        }
+
+        if (widgetData.deleteEntry) {
+          selectedPermissions.push('deletePermissions');
+        }
+
+        selectedPermissions.forEach(function(permission) {
+          if (requiredFields[widgetData[permission]]) {
+            requiredFields[widgetData[permission]].forEach(function(field) {
+              if (!validate(field.value)) {
+                managementErrors.push(field.field);
+              }
             });
+          }
+
+          if (managementErrors.length) {
+            var $componentError = $('.component-error');
+
+            $componentError.removeClass('hidden').addClass('bounceInUp');
+            managementErrors.forEach(function(field) {
+              toggleError(true, field);
+            });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
-              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+              $componentError.addClass('hidden').removeClass('bounceInUp');
             }, 4000);
-            return;
-          } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
           }
+        });
+
+        if (managementErrors.length) {
+          return;
         }
 
-        if ((widgetData.editEntry && widgetData.editPermissions === 'user')
-          || (widgetData.deleteEntry && widgetData.deletePermissions === 'user')) {
-          var errors = [];
-          var values = [];
-
-          values.push({
-            value: widgetData.userDataSourceId,
-            field: '#select_user_datasource'
-          });
-          values.push({
-            value: widgetData.userEmailColumn,
-            field: '#select_user_email'
-          });
-          values.push({
-            value: widgetData.userListEmailColumn,
-            field: '#select_user_email_data'
-          });
-
-          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
-            errors.push('#user-name-column-fields-tokenfield');
-          }
-
-          values.forEach(function(field) {
-            if (!validate(field.value)) {
-              errors.push(field.field);
-            }
-          });
-
-          if (errors && errors.length) {
-            $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
-            });
-            if (!linkAddEntryProvider || !linkEditEntryProvider) {
-              withError = true;
-              linkProviderInit();
-            }
-            setTimeout(function() {
-              $('.component-error').addClass('hidden').removeClass('bounceInUp');
-            }, 4000);
-            return;
-          } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
-          }
-        }
+        toggleError(false);
 
         if (widgetData.social && widgetData.social.comments) {
           var errors = [];
@@ -419,8 +441,7 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-               $(field).addClass('has-error');
-               $(field).parents('.form-group').addClass('has-error');
+              toggleError(true, field);
             });
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
@@ -431,11 +452,10 @@ function attahObservers() {
             }, 4000);
             return;
           } else {
-            $('.has-error').removeClass('has-error');
-            $('.component-error').addClass('hidden');
+            toggleError(false)
           }
         }
-        
+
         var imageFolderSelected = validateImageFoldersSelection();
 
         if (imageFolderSelected) {

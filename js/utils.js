@@ -10,7 +10,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       linebreak: /(\r\n|\n|\r)/gm,
       email: /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
       phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
-      url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
+      url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,32})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
       mention: /\B@[a-z0-9_-]+/ig
     },
     refArraySeparator: '.$.'
@@ -606,7 +606,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     var record = options.record;
     var filters = options.filters;
-    var config = options.config;
+    var config = options.config || {};
 
     var recordFieldValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
       return _.map(_.uniq(getRecordField({
@@ -618,7 +618,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Returns true if record matches all of provided filters and values
     return _.every(_.keys(filters), function (field) {
-      return _.every(filters[field], function (value) {
+      return _[config.filterMatch === 'all' ? 'every' : 'some'](filters[field], function (value) {
         if (field === 'undefined') {
           // Legacy class-based filters
           return _.includes(_.map(_.get(record, 'data.flFilters'), 'data.class'), value);
@@ -631,6 +631,25 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         });
       });
     });
+  }
+
+  function getRecordUniqueId(options) {
+    options = options || {};
+
+    var primaryKey = _.get(options, 'config.dataPrimaryKey');
+
+    if (typeof primaryKey === 'function') {
+      return primaryKey({
+        record: options.record,
+        config: options.config
+      });
+    }
+
+    if (typeof primaryKey === 'string' && primaryKey.length) {
+      return _.get(options, ['record', 'data', primaryKey]);
+    }
+
+    return _.get(options, ['record', 'id']);
   }
 
   function getRecordFieldValues(records, fields) {
@@ -656,23 +675,33 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var id = options.id;
 
     // Parse legacy flFilters from records to generate a list of filter values
-    return _.orderBy(_.map(
-      _.groupBy(_.orderBy(_.uniqBy(_.flatten(_.map(records, 'flFilters')), function (filter) {
+    return _(records)
+      .map(function (record) {
+        return (record.data && record.data.flFilters) || record.flFilters;
+      })
+      .flatten()
+      .uniqBy(function (filter) {
         // _.uniqBy iteratee
         return JSON.stringify(filter);
-      }), 'data.name'), 'type'),
-      function (values, field) {
+      })
+      .orderBy('data.name')
+      .groupBy('type')
+      .map(function (values, field) {
         // _.map iteratee for defining of each filter value
         return {
           id: id,
           name: field,
           data: _.map(values, 'data')
         };
-      }),
-      function (filter) {
+      })
+      .filter(function (filter) {
+        return filter.name && _.size(filter.data);
+      })
+      .orderBy(function (filter) {
         // _.orderBy iteratee
         return _.indexOf(filters, filter.name);
-      });
+      })
+      .value();
   }
 
   function getRecordField(options) {
@@ -726,6 +755,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function (record) {
+      if (_.isArray(_.get(record, 'data.flFilters')) && !options.force) {
+        // If filters are alredy present, skip unless it's forced
+        return;
+      }
+
       var classes = [];
       record.data['flFilters'] = [];
       _.forEach(config.filterFields, function (field) {
@@ -747,6 +781,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           record.data['flFilters'].push(newObj);
         });
       });
+
+      var existingClasses = _.get(record, 'data.flClasses', []);
+
+      if (typeof existingClasses === 'string') {
+        existingClasses = existingClasses.split(' ');
+      }
+
+      classes = _.concat(classes, existingClasses);
       record.data['flClasses'] = _.compact(_.uniq(classes)).join(' ');
     });
 
@@ -779,32 +821,34 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           return data.record;
         }
 
-        var entryData = data.record.data;
-        var column = data.field.column;
+        var image = _.get(data, ['record', 'data', data.field.column]);
 
-        if (isValidImageUrl(entryData[column])) {
+        if (_.isArray(image)) {
+          image = _.compact(image)[0];
+        }
+
+        if (isValidImageUrl(image)) {
           // Record data doesn't need updating
           return data.record;
         }
 
         var urlEdited = _.some(response.files, function(file) {
-          if (!_.compact(entryData[column]).length) {
-            return;
-          }
+          // remove file extension
+          var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
 
-          if (entryData[column] && file.name.indexOf(entryData[column]) !== -1) {
+          if (image && (file.name === image || fileName === image)) {
             // File found
-            entryData[column] = file.url;
+            _.set(data, ['record', 'data', data.field.column], file.url);
             return true;
-          } else if (Static.RegExp.number.test(entryData[column])
-            && parseInt(entryData[column], 10) === file.id) {
-            entryData[column] = file.url;
+          } else if (Static.RegExp.number.test(image)
+            && parseInt(image, 10) === file.id) {
+            _.set(data, ['record', 'data', data.field.column], file.url);
             return true;
           }
         });
 
         if (!urlEdited) {
-          entryData[column] = '';
+          _.set(data, ['record', 'data', data.field.column], '');
         }
 
         return data.record;
@@ -1221,6 +1265,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     var value = entry.data[options.summaryLinkAction.column];
+    var query = entry.data[options.summaryLinkAction.queryColumn];
 
     if (Array.isArray(value)) {
       value = _.first(value);
@@ -1234,7 +1279,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       value = Fliplet.Media.authenticate(value);
       Fliplet.Navigate.url(value);
     } else {
-      Fliplet.Navigate.screen(parseInt(value, 10), { transition: 'fade' });
+      var opt = { transition: 'fade' };
+
+      if (query) {
+        opt.query = query;
+      }
+
+      Fliplet.Navigate.screen(parseInt(value, 10), opt);
     }
   }
 
@@ -1245,7 +1296,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     },
     Page: {
       updateSearchContext: updateSearchContext,
-      updateFilterControlsContext: updateFilterControlsContext
+      updateFilterControlsContext: updateFilterControlsContext,
     },
     String: {
       splitByCommas: splitByCommas,
@@ -1266,7 +1317,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       isEditable: recordIsEditable,
       isDeletable: recordIsDeletable,
       isCurrentUser: recordIsCurrentUser,
-      matchesFilters: recordMatchesFilters
+      matchesFilters: recordMatchesFilters,
+      getUniqueId: getRecordUniqueId
     },
     Records: {
       runFilters: runRecordFilters,

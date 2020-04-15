@@ -1,6 +1,16 @@
 <script type="text/javascript">
   var DynamicListFuncs = DynamicListFuncs || {};
   var dynamicLists = dynamicLists || {};
+  var closeIcon = {
+    black: {
+      url: '{{{ asset "img/cross.svg" }}}',
+      path: 'img/cross.svg'
+    },
+    white: {
+      url: '{{{ asset "img/cross_white.svg" }}}',
+      path: 'img/cross.svg'
+    }
+  };
 </script>
 {{#if layout}}
   {{#if advancedSettings.cssEnabled}}
@@ -14,11 +24,15 @@
     Fliplet().then(function () {
       var id = {{ id }};
       var data = Fliplet.Widget.getData(id);
+
+      data.closeIcon = closeIcon;
+
       try {
         {{{ advancedSettings.jsCode }}}
       } catch (e) {
         console.log('Error with custom JS code', e);
       }
+
       if (typeof DynamicList === 'function') {
         DynamicListFuncs[id] = DynamicList;
         DynamicList = null;
@@ -38,17 +52,23 @@
     </script>
     <div data-script-insert="{{ id }}" class="hidden"></div>
     <script type="text/javascript">
-      Fliplet().then(function(){
+      Fliplet().then(function () {
         var script = document.createElement('script');
-        script.onload = function() {
+
+        script.onload = function () {
           if (typeof DynamicList !== 'function') {
             console.warn('DynamicList() is not defined for widget for widget ID {{ id }}');
             return;
           }
+
           var id = {{ id }};
+
           DynamicListFuncs[id] = DynamicList;
           DynamicList = null;
+
           var data = Fliplet.Widget.getData(id);
+
+          data.closeIcon = closeIcon;
           dynamicLists[id] = new DynamicListFuncs[id](id, data);
         };
         script.src = assetUrl['{{ layout }}'];
