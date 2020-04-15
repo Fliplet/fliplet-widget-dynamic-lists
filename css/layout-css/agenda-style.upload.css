@@ -1607,7 +1607,8 @@
   }
 
   .fl-with-top-menu .new-agenda-list-container .section-top-wrapper {
-    margin: 10px 10px 0 10px;
+    margin-top: 10px;
+    padding: 0 10px;
     left: auto;
     right: auto;
   }
