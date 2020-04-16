@@ -1600,10 +1600,18 @@
     padding: 6px 12px;
   }
 
+  .fl-with-top-menu .new-agenda-list-container {
+    width: 100%;
+  }
+
   .fl-with-top-menu .new-agenda-list-container .agenda-date-selector,
   .fl-with-top-menu .new-agenda-list-container .section-top-wrapper {
     position: relative;
     top: 0 !important;
+  }
+
+  .fl-with-top-menu .new-agenda-list-container .agenda-date-selector {
+      width: 100vw;
   }
 
   .fl-with-top-menu .new-agenda-list-container .section-top-wrapper {
