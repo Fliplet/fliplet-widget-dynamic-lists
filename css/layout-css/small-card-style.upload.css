@@ -1159,6 +1159,7 @@
   height: 100%;
   overflow: auto;
   padding: 40px 15px 15px 15px;
+  word-break: break-word;
 }
 
 .small-card-detail-label {

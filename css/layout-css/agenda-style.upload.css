@@ -1511,6 +1511,7 @@
   height: 100%;
   overflow: auto;
   padding: 60px 15px 15px 15px;
+  word-break: break-word;
 }
 
 .agenda-detail-overlay-close.tablet {
