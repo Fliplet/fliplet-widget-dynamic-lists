@@ -2223,7 +2223,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
 
       var myEmail = '';
       if (_this.myUserData) {
-        myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
+        myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
       }
 
       var dataSourceEmail = '';
@@ -2313,7 +2313,19 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (!_this.myUserData || (_this.myUserData && (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email']))) {
+  if (!_this.myUserData || (_this.myUserData && !_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email'] && !_this.myUserData['Email'])) {
+    if (typeof Raven !== 'undefined' && Raven.captureMessage) {
+      Fliplet.User.getCachedSession().then(function(session) {
+        Raven.captureMessage('User data not found for commenting', {
+          extra: {
+            config: _this.data,
+            myUserData: _this.myUserData,
+            session: session
+          }
+        });
+      });
+    }
+
     return Fliplet.UI.Toast('You must be logged in to use this feature');
   }
 
