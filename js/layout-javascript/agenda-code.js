@@ -1229,6 +1229,12 @@ DynamicList.prototype.renderLoopHTML = function () {
         _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
       );
 
+      // Break render cycle after render to prevent rendering no results html
+      if (!nextBatch.length && renderLoopIndex > 0) {
+        resolve(_.flatten(_this.getAgendasByDay()));
+        return;
+      }
+
       var $renderBatch = $(template(nextBatch));
 
       $renderFull.add($renderBatch);
@@ -1239,6 +1245,7 @@ DynamicList.prototype.renderLoopHTML = function () {
         _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
       }
 
+      // Break render cycle if there is no more data
       if (!nextBatch.length) {
         resolve(_.flatten(_this.getAgendasByDay()));
         return;
