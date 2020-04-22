@@ -516,6 +516,14 @@
   margin-bottom: 20px;
 }
 
+.has-filter-overlay .simple-list-search-filter-overlay  {
+  /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
+  z-index: 1010;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
+}
+
 @media screen and (min-width: 640px) {
   .simple-list-back-button {
     display: inline-block;
