@@ -668,7 +668,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Parse legacy flFilters from records to generate a list of filter values
     return _(records)
-      .map('data.flFilters')
+      .map(function (record) {
+        return (record.data && record.data.flFilters) || record.flFilters;
+      })
       .flatten()
       .uniqBy(function (filter) {
         // _.uniqBy iteratee

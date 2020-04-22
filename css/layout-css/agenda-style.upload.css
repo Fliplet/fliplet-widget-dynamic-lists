@@ -218,7 +218,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 59px 15px 15px;
+  margin-top: 44px;
+  padding: 15px;
   padding-bottom: calc(15px + env(safe-area-inset-bottom));
   z-index: 1;
   overflow-y: auto;
@@ -1510,6 +1511,7 @@
   height: 100%;
   overflow: auto;
   padding: 60px 15px 15px 15px;
+  word-break: break-word;
 }
 
 .agenda-detail-overlay-close.tablet {
@@ -1604,7 +1606,32 @@
   .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .win7.fa-times-thin::before {
     content: '\2715';
   }
+ 
+  .search-holder .btn.search-btn {
+    height: 32px;
+    padding: 6px 12px;
+  }
 
+  .new-agenda-list-container {
+    width: 100%;
+  }
+
+  .new-agenda-list-container .agenda-date-selector,
+  .new-agenda-list-container .section-top-wrapper {
+    position: relative;
+    top: 0 !important;
+  }
+
+  .new-agenda-list-container .agenda-date-selector {
+      width: 100vw;
+  }
+
+  .new-agenda-list-container .section-top-wrapper {
+    margin-top: 10px;
+    padding: 0 10px;
+    left: auto;
+    right: auto;
+  }
 }
 
 /* Safari layout */
