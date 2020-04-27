@@ -316,7 +316,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       });
     }
 
-    record = removeSymbols(record).toLowerCase();
+    record = removeSymbols($('<div></div>').html(record).text()).toLowerCase();
     value = removeSymbols(value).toLowerCase().trim();
 
     return record.indexOf(value) > -1;
