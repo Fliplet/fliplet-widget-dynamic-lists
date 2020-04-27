@@ -16,6 +16,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     refArraySeparator: '.$.'
   };
   var computedFieldClashes = [];
+  var div = document.createElement('DIV');
 
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
@@ -316,7 +317,16 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       });
     }
 
-    record = removeSymbols($('<div></div>').html(record).text()).toLowerCase();
+    // Remove HTML entities
+    record = record.replace(/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/ig, '');
+
+    // Attempt to strip HTML if HTML tags are detected
+    if (record.match(/<[^>]+>/)) {
+      div.innerHTML = record;
+      record = div.innerText;
+    }
+
+    record = removeSymbols(record).toLowerCase();
     value = removeSymbols(value).toLowerCase().trim();
 
     return record.indexOf(value) > -1;
