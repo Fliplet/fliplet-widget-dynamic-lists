@@ -9,6 +9,11 @@
 Fliplet.Registry.set('dynamicListQueryParser', function() {
   var _this = this;
 
+  if (Fliplet.Env.get('mode') === 'interact') {
+    // Don't parse queries when editing in Studio
+    return false;
+  }
+
   function splitQueryValues(input) {
     var testPattern = /^(?:\[[\w\W]*\])$/;
 
