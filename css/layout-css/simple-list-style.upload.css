@@ -567,6 +567,9 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .simple-list-item .list-item-title {
@@ -725,6 +728,9 @@
 .simple-list-detail-value {
   font-size: 1.15em;
   margin-bottom: 25px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .simple-list-detail-overlay-close.tablet {

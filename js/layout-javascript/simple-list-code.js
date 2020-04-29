@@ -1220,7 +1220,7 @@ DynamicList.prototype.renderLoopHTML = function () {
           var selector = $lineClamp.length ? '[data-line-clamp]' : '.list-item-description';
           var linesToClamp = $lineClamp.length ? $lineClamp.data('line-clamp') : 3;
 
-          window.ellipsed.ellipsis(selector, linesToClamp);
+          window.ellipsed.ellipsis(selector, linesToClamp, { delimiter: '' });
         }
 
         // if the browser is ready, render

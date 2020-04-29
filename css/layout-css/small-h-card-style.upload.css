@@ -75,6 +75,10 @@
 }
 
 .new-small-h-card-list-container .small-h-card-list-item-text {
+  width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 10px;
   text-align: center;
   line-height: 1.3;

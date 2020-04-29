@@ -948,6 +948,9 @@
   color: #333333;
   opacity: 0.6;
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-location {
@@ -956,6 +959,9 @@
   color: #333333;
   opacity: 0.4;
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-buttons-wrapper {
