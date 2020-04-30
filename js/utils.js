@@ -1278,7 +1278,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     if (options.summaryLinkAction.type === 'url') {
-      value = Fliplet.Media.authenticate(value);
       Fliplet.Navigate.url(value);
     } else {
       var opt = { transition: 'fade' };
