@@ -1424,7 +1424,7 @@ DynamicList.prototype.getActiveFilters = function () {
 
 DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
   var _this = this;
-  var totalHeight = hideFilters || $('.toggle-agenda.mixitup-control-active, .toggle-bookmarks.mixitup-control-active').length
+  var totalHeight = hideFilters
     ? 0
     : this.$container.find('.hidden-filter-controls-content').height();
 
