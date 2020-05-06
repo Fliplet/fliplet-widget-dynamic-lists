@@ -565,7 +565,7 @@
 .new-agenda-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
-  top: 0;
+  top: -2px;
   width: 34px;
   height: 100%;
   display: flex;
