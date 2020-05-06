@@ -1584,6 +1584,18 @@
     padding-top: 0px;
     padding-bottom: 5px;
   }
+
+  .news-feed-detail-overlay-wrapper .news-feed-detail-overlay-close .win7.fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 1px;
+    font-weight: lighter;
+    font-size: 1.2em !important;
+  }
+
+  .news-feed-detail-overlay-wrapper .news-feed-detail-overlay-close .win7.fa-times-thin::before {
+    content: '\2715';
+  }
+
 }
 
 /* Safari layout */

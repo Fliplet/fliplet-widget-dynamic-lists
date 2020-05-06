@@ -1227,6 +1227,12 @@ DynamicList.prototype.renderLoopHTML = function () {
         requestAnimationFrame(render);
       } else{
         _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+
+        // Changing close icon in the fa-times-thin class for windows 7 IE11
+        if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
+          $('.fa-times-thin').addClass('win7');
+        }
+
         resolve(data);
       }
     }
