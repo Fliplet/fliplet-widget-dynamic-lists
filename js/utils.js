@@ -545,7 +545,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return Promise.resolve({
       records: searchResults,
       truncated: truncated,
-      filteredResult: showBookmarks || !_.isEmpty(activeFilters) || value
+      filteredResult: !!(showBookmarks || !_.isEmpty(activeFilters) || value)
     });
   }
 

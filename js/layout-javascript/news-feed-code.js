@@ -1643,7 +1643,7 @@ DynamicList.prototype.searchData = function(options) {
 
       if (limitEntriesEnabled) {
         // Do not show limit text when user is searching or filtering
-        _this.$container.find('.limit-entries-text').toggleClass('hidden', !!results.filteredResult);
+        _this.$container.find('.limit-entries-text').toggleClass('hidden', results.filteredResult);
       }
 
       if (!_this.data.forceRenderList
