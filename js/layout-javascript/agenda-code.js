@@ -1243,12 +1243,6 @@ DynamicList.prototype.renderLoopHTML = function () {
       $renderFull.add($renderBatch);
       $agendaListHolder.append($renderBatch);
 
-      // Break render cycle if there is no data at all
-      if (!nextBatch.length) {
-        resolve([]);
-        return;
-      }
-
       renderLoopIndex++;
 
       // if the browser is ready, render
