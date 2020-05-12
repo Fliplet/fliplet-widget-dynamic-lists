@@ -1221,6 +1221,9 @@ DynamicList.prototype.renderLoopHTML = function () {
     ? $('#agenda-cards-wrapper-' + _this.data.id + ' .agenda-list-holder')
     : _this.$container.find('.search-results-wrapper .search-results-holder');
 
+  _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
+  _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
+
   return new Promise(function (resolve) {
     function render() {
       // get the next batch of items to render
@@ -1229,7 +1232,7 @@ DynamicList.prototype.renderLoopHTML = function () {
         _this.INCREMENTAL_RENDERING_BATCH_SIZE * (renderLoopIndex + 1)
       );
 
-      // Break render cycle after render to prevent rendering no results html
+      // Break render cycle if there is no more data
       if (!nextBatch.length && renderLoopIndex > 0) {
         resolve(_.flatten(_this.getAgendasByDay()));
         return;
@@ -1240,14 +1243,9 @@ DynamicList.prototype.renderLoopHTML = function () {
       $renderFull.add($renderBatch);
       $agendaListHolder.append($renderBatch);
 
-      if (renderLoopIndex === 0 || renderLoopIndex === -1) {
-        _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-        _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
-      }
-
-      // Break render cycle if there is no more data
+      // Break render cycle if there is no data at all
       if (!nextBatch.length) {
-        resolve(_.flatten(_this.getAgendasByDay()));
+        resolve([]);
         return;
       }
 
