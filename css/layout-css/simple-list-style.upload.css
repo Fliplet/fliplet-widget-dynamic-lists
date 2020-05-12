@@ -440,7 +440,7 @@
 .simple-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
-  top: 0;
+  top: -2px;
   width: 34px;
   height: 100%;
   display: flex;
@@ -567,6 +567,9 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .simple-list-item .list-item-title {
@@ -725,6 +728,9 @@
 .simple-list-detail-value {
   font-size: 1.15em;
   margin-bottom: 25px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .simple-list-detail-overlay-close.tablet {
@@ -1230,6 +1236,18 @@
     padding-top: 0px;
     padding-bottom: 5px;
   }
+
+  .simple-list-detail-overlay-close .win7.fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 1px;
+    font-weight: lighter;
+    font-size: 1.2em !important;
+  }
+
+  .simple-list-detail-overlay-close .win7.fa-times-thin::before {
+    content: '\2715';
+  }
+
 }
 
 /* Safari layout */

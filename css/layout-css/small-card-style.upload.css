@@ -496,7 +496,7 @@
 .new-small-card-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
-  top: 0;
+  top: -2px;
   width: 34px;
   height: 100%;
   display: flex;
@@ -948,6 +948,9 @@
   color: #333333;
   opacity: 0.6;
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-location {
@@ -956,6 +959,9 @@
   color: #333333;
   opacity: 0.4;
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-buttons-wrapper {
@@ -1257,6 +1263,18 @@
     padding-top: 0px;
     padding-bottom: 5px;
   }
+
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 1px;
+    font-weight: lighter;
+    font-size: 1.2em !important;
+  }
+
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin::before {
+    content: '\2715';
+  }
+  
 }
 
 /* Safari layout */

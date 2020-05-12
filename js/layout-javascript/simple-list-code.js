@@ -1220,13 +1220,19 @@ DynamicList.prototype.renderLoopHTML = function () {
           var selector = $lineClamp.length ? '[data-line-clamp]' : '.list-item-description';
           var linesToClamp = $lineClamp.length ? $lineClamp.data('line-clamp') : 3;
 
-          window.ellipsed.ellipsis(selector, linesToClamp);
+          window.ellipsed.ellipsis(selector, linesToClamp, { delimiter: '' });
         }
 
         // if the browser is ready, render
         requestAnimationFrame(render);
       } else{
         _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+
+        // Changing close icon in the fa-times-thin class for windows 7 IE11
+        if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
+          $('.fa-times-thin').addClass('win7');
+        }
+
         resolve(data);
       }
     }

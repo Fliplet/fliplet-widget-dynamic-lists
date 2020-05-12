@@ -1249,6 +1249,12 @@ DynamicList.prototype.renderLoopHTML = function () {
       // if the browser is ready, render
       requestAnimationFrame(render);
     }
+
+    // Changing close icon in the fa-times-thin class for windows 7 IE11
+    if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
+      $('.fa-times-thin').addClass('win7');
+    }
+
     // start the initial render
     requestAnimationFrame(render);
   });
@@ -1424,7 +1430,7 @@ DynamicList.prototype.getActiveFilters = function () {
 
 DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
   var _this = this;
-  var totalHeight = hideFilters || $('.toggle-agenda.mixitup-control-active, .toggle-bookmarks.mixitup-control-active').length
+  var totalHeight = hideFilters
     ? 0
     : this.$container.find('.hidden-filter-controls-content').height();
 

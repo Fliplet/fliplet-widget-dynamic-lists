@@ -286,6 +286,10 @@
   padding: 8px 15px;
   margin: 10px 5px 10px 0;
   font-size: 14px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .new-agenda-search-filter-overlay .hidden-filter-controls-filter:hover,
@@ -561,7 +565,7 @@
 .new-agenda-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
-  top: 0;
+  top: -2px;
   width: 34px;
   height: 100%;
   display: flex;
@@ -1060,10 +1064,16 @@
   margin-top: 0;
   line-height: 1.2em;
   margin-bottom: 5px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .new-agenda-list-container .slide-over .agenda-item-inner-content h2.agenda-item-title {
   font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .agenda-detail-overlay .agenda-item-inner-content h2.agenda-item-title {
@@ -1098,12 +1108,18 @@
 
 .new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-session-location .agenda-item-location {
   margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-session-location .agenda-item-location,
 .agenda-detail-overlay .agenda-item-inner-content .agenda-item-session-location .agenda-item-location {
   margin-bottom: 5px;
   font-size: 20px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-session-location .agenda-item-start-date-time,
@@ -1596,6 +1612,17 @@
     padding-bottom: 5px;
   }
 
+  .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .win7.fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 1px;
+    font-weight: lighter;
+    font-size: 1.2em !important;
+  }
+
+  .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .win7.fa-times-thin::before {
+    content: '\2715';
+  }
+ 
   .search-holder .btn.search-btn {
     height: 32px;
     padding: 6px 12px;

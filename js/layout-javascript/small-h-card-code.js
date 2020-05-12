@@ -645,6 +645,12 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
           resolve();
         }
       }
+
+      // Changing close icon in the fa-times-thin class for windows 7 IE11
+      if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
+        $('.fa-times-thin').addClass('win7');
+      }
+    
       // start the initial render
       requestAnimationFrame(render);
     });
