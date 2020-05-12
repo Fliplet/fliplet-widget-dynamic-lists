@@ -20,7 +20,7 @@ var addEntryLinkData = $.extend(true, {
   options: {
     hideAction: true
   }
-}, widgetData.addEntryLinkAction);
+}, widgetData.addEntryLinkAction, { action: 'screen' });
 var editEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
@@ -29,7 +29,7 @@ var editEntryLinkData = $.extend(true, {
   options: {
     hideAction: true
   }
-}, widgetData.editEntryLinkAction);
+}, widgetData.editEntryLinkAction, { action: 'screen' });
 
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
