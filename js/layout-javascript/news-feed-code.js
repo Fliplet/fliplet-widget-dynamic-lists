@@ -1446,7 +1446,7 @@ DynamicList.prototype.renderLoopHTML = function () {
         // Changing close icon in the fa-times-thin class for windows 7 IE11
         if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
           $('.fa-times-thin').addClass('win7');
-        }        
+        }
 
         resolve(data);
       }
@@ -1643,7 +1643,9 @@ DynamicList.prototype.searchData = function(options) {
 
       if (limitEntriesEnabled) {
         // Do not show limit text when user is searching or filtering
-        _this.$container.find('.limit-entries-text').toggleClass('hidden', truncated);
+        var showLimitText = _this.isSearching || _this.isFiltering || _this.showBookmarks;
+        
+        _this.$container.find('.limit-entries-text').toggleClass('hidden', showLimitText);
       }
 
       if (!_this.data.forceRenderList
