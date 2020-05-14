@@ -583,7 +583,7 @@
 
 .simple-list-item .list-item-subtitle {
   font-size: 12px;
-  opacity: 0.4;
+  color: rgba(51, 51, 51, 0.4);
 }
 
 .list-item-description + .list-item-subtitle {

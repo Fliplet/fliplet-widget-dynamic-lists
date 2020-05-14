@@ -279,15 +279,14 @@
 .small-h-card-detail-overlay .small-h-card-list-detail-role {
   margin: 0 0 5px 0;
   font-size: 24px;
-  color: #333333;
-  opacity: 0.6;
+  color: rgba(51, 51, 51, 0.6);
   font-weight: 500;
 }
 
 .small-h-card-detail-overlay .small-h-card-list-detail-location {
   margin: 0 0 10px 0;
   font-size: 16px;
-  color: #333333;
+  color: rgba(51, 51, 51, 0.4);
   opacity: 0.4;
   font-weight: 500;
 }
@@ -322,20 +321,20 @@
 }
 
 .small-h-card-detail-overlay .small-h-card-list-detail-button-image {
-  opacity: 0.3;
+  color: rgba(51, 51, 51, 0.3);
   text-align: center;
   font-size: 35px;
 }
 
 .small-h-card-detail-overlay .small-h-card-list-detail-button-text {
+  color: rgba(51, 51, 51, 0.5);
   font-size: 10px;
   text-align: center;
-  opacity: 0.5;
 }
 
 .small-h-card-detail-overlay .small-h-card-list-detail-label {
   font-size: 12px;
-  opacity: 0.5;
+  color: rgba(51, 51, 51, 0.5);
   text-transform: uppercase;
   margin: 20px 0 0 0;
 }

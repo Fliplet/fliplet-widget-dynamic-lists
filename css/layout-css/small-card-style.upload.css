@@ -726,8 +726,7 @@
 }
 
 .new-small-card-list-container .small-card-list-location {
-  color: #333333;
-  opacity: 0.5;
+  color: rgba(51, 51, 51, 0.5);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.6;
@@ -945,8 +944,7 @@
 .small-card-detail-overlay .small-card-list-detail-role {
   margin: 0 0 5px 0;
   font-size: 24px;
-  color: #333333;
-  opacity: 0.6;
+  color: rgba(51, 51, 51, 0.6);
   font-weight: 500;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -956,8 +954,7 @@
 .small-card-detail-overlay .small-card-list-detail-location {
   margin: 0 0 10px 0;
   font-size: 16px;
-  color: #333333;
-  opacity: 0.4;
+  color: rgba(51, 51, 51, 0.4);
   font-weight: 500;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -985,7 +982,6 @@
 .small-card-detail-overlay .small-card-list-detail-button a:active,
 .small-card-detail-overlay .small-card-list-detail-button a:active:hover,
 .small-card-detail-overlay .small-card-list-detail-button a:active:focus {
-  color: #333333;
   text-decoration: none;
 }
 
@@ -994,20 +990,20 @@
 }
 
 .small-card-detail-overlay .small-card-list-detail-button-image {
-  opacity: 0.3;
+  color: rgba(51, 51, 51, 0.3);
   text-align: center;
   font-size: 35px;
 }
 
 .small-card-detail-overlay .small-card-list-detail-button-text {
+  color: rgba(51, 51, 51, 0.5);
   font-size: 10px;
   text-align: center;
-  opacity: 0.5;
 }
 
 .small-card-detail-overlay .small-card-list-detail-label {
   font-size: 12px;
-  opacity: 0.5;
+  color: rgba(51, 51, 51, 0.5);
   text-transform: uppercase;
   margin: 20px 0 0 0;
 }

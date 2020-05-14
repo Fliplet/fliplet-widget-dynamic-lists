@@ -1042,9 +1042,8 @@
 
 .new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-time {
   text-transform: uppercase;
-  color: #333333;
+  color: rgba(51, 51, 51, 0.4);
   font-size: 14px;
-  opacity: 0.4;
   font-weight: 500;
   line-height: 1.4;
 }
@@ -1101,8 +1100,7 @@
 .agenda-detail-overlay .agenda-item-inner-content .agenda-item-session-location {
   font-size: 0.9em;
   line-height: 1.4;
-  color: #333333;
-  opacity: 0.6;
+  color: rgba(51, 51, 51, 0.6);
   white-space: normal;
 }
 
