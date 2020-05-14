@@ -175,6 +175,10 @@
   padding: 8px 15px;
   margin: 10px 5px 10px 0;
   font-size: 14px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls-filter:hover,
@@ -1279,7 +1283,7 @@
   .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin::before {
     content: '\2715';
   }
-  
+
 }
 
 /* Safari layout */
