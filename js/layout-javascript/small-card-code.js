@@ -1278,7 +1278,10 @@ DynamicList.prototype.searchData = function(options) {
       }
 
       if (limitEntriesEnabled) {
-        _this.$container.find('.limit-entries-text')[truncated && _this.data.limitEntries > 0 ? 'removeClass' : 'addClass']('hidden');
+        // Do not show limit text when user is searching or filtering
+        var hideLimitText = !results.truncated && _this.data.limitEntries > 0;
+
+        _this.$container.find('.limit-entries-text').toggleClass('hidden', hideLimitText);
       }
 
       if (!_this.data.forceRenderList
