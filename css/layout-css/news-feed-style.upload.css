@@ -807,8 +807,6 @@
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-item-description,
 .news-feed-detail-overlay .news-feed-item-inner-content .news-feed-item-description {
-  font-size: 16px;
-  line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -956,7 +954,6 @@
 }
 
 .news-feed-detail-value {
-  font-size: 1em;
   margin-bottom: 25px;
 }
 
@@ -1438,11 +1435,6 @@
   opacity: 0.5;
   font-size: 1em;
   margin-bottom: 4px;
-}
-
-.news-feed-detail-value {
-  font-size: 1.15em;
-  margin-bottom: 25px;
 }
 
 .news-feed-detail-overlay-close.tablet {
