@@ -580,8 +580,9 @@
 
 /* List */
 .new-small-card-list-container {
-  max-width: 600px;
   margin: 0 auto;
+  max-width: 600px;
+  position: relative;
 }
 
 .new-small-card-list-container .small-card-list-wrapper {
@@ -746,6 +747,14 @@
   left: 0;
   padding: 15px;
   font-size: 25px;
+}
+
+.has-filter-overlay .new-small-card-list-container {
+  /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
+  z-index: 1010;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
 }
 
 @media screen and (min-width: 640px) {

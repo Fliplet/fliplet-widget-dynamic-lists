@@ -104,7 +104,7 @@ DynamicList.prototype.clearFilters = function () {
 
 DynamicList.prototype.hideFilterOverlay = function () {
   this.$container.find('.simple-list-search-filter-overlay').removeClass('display');
-  $('body').removeClass('lock');
+  $('body').removeClass('lock has-filter-overlay');
 };
 
 DynamicList.prototype.attachObservers = function() {
@@ -262,7 +262,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
-        $('body').addClass('lock');
+        $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
@@ -286,7 +286,7 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-search-filter-overlay');
       $parentElement.removeClass('display');
-      $('body').removeClass('lock');
+      $('body').removeClass('lock has-filter-overlay');
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
