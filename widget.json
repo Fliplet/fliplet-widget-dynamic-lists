@@ -7,6 +7,9 @@
   "provider_only": false,
   "html_tag": "div",
   "providers": [],
+  "attributes": {
+    "layout": "layout"
+  },
   "interface": {
     "dependencies": [
       "fliplet-core",
