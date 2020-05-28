@@ -2075,6 +2075,10 @@ DynamicList.prototype.searchData = function(options) {
           initialRender: !!options.initialRender
         });
       });
+
+      // Update selected highlight size in Edit
+      Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         instance: _this,
         view: _this.$container.attr('data-view'),
