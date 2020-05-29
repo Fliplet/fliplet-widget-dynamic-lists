@@ -110,6 +110,14 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
   } else {
     this.$container.find('.clear-filters').addClass('hidden');
   }
+  
+  // Add number of filters applied
+  var filterHolder = $target.parents('.agenda-filters-panel');
+  var filterName = filterHolder.find('.panel-title-text').text().trim();
+  var activeFilters = this.getActiveFilters()[filterName];
+  var numberOfFiltersText = !!activeFilters ? '(' + activeFilters.length + ')' : ''; 
+
+  filterHolder.find('.filter-number').text(numberOfFiltersText);
 };
 
 DynamicList.prototype.clearFilters = function () {
