@@ -7,8 +7,10 @@
   "provider_only": false,
   "html_tag": "div",
   "providers": [],
-  "attributes": {
-    "layout": "layout"
+  "settings": {
+    "attributes": {
+      "layout": "layout"
+    }
   },
   "interface": {
     "dependencies": [
