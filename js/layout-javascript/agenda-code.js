@@ -32,7 +32,7 @@ function DynamicList(id, data, container) {
   this.scrollValue = 0;
   this.copyOfScrollValue = _this.scrollValue;
   this.isPanning = false;
-  this.myUserData;
+  this.myUserData = {};
   this.agendaDates = [];
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
@@ -76,12 +76,14 @@ function DynamicList(id, data, container) {
   // Get the current session data
   Fliplet.User.getCachedSession()
     .then(function(session) {
-      if (_.get(session, 'entries.dataSource.data')) {
-        _this.myUserData = _.get(session, 'entries.dataSource.data');
-      } else if (_.get(session, 'entries.saml2.user')) {
+      if (_.get(session, 'entries.saml2.user')) {
         _this.myUserData = _.get(session, 'entries.saml2.user');
         _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
         _this.myUserData.isSaml2 = true;
+      }
+
+      if (_.get(session, 'entries.dataSource.data')) {
+         _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
       }
 
       // Start running the Public functions
