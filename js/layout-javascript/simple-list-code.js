@@ -38,7 +38,7 @@ function DynamicList(id, data, container) {
   this.modifiedListItems;
   this.searchedListItems;
   this.entryOverlay;
-  this.myUserData;
+  this.myUserData = {};
   this.dataSourceColumns;
   this.searchValue = '';
   this.activeFilters = {};
@@ -66,12 +66,14 @@ function DynamicList(id, data, container) {
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (_.get(session, 'entries.dataSource.data')) {
-      _this.myUserData = _.get(session, 'entries.dataSource.data');
-    } else if (_.get(session, 'entries.saml2.user')) {
+    if (_.get(session, 'entries.saml2.user')) {
       _this.myUserData = _.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
+    }
+
+    if (_.get(session, 'entries.dataSource.data')) {
+       _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
@@ -1875,7 +1877,7 @@ DynamicList.prototype.getCommentUsers = function () {
       _this.allUsers = users;
 
       // Update my user data
-      if (_this.myUserData) {
+      if (!_.isEmpty(_this.myUserData)) {
         var myUser = _.find(_this.allUsers, function(user) {
           return _this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn];
         });
@@ -2231,7 +2233,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       entryComments[index].text = entry.data.settings.text || '';
 
       var myEmail = '';
-      if (_this.myUserData) {
+      if (!_.isEmpty(_this.myUserData)) {
         myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
       }
 
@@ -2241,7 +2243,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       }
 
       // Check if comment is from current user
-      if (_this.myUserData && _this.myUserData.isSaml2) {
+      if (_this.myUserData.isSaml2) {
         var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
         var toComparePart = myEmailParts && myEmailParts.length ? myEmailParts[0] : '';
         var dataSourceEmailParts = dataSourceEmail.match(/[^\@]+[^\.]+/);
@@ -2322,7 +2324,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (!_this.myUserData || (_this.myUserData && !_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email'] && !_this.myUserData['Email'])) {
+  if (_.isEmpty(_this.myUserData) || (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email'] && !_this.myUserData['Email'])) {
     if (typeof Raven !== 'undefined' && Raven.captureMessage) {
       Fliplet.User.getCachedSession().then(function(session) {
         Raven.captureMessage('User data not found for commenting', {
@@ -2547,7 +2549,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
   if (context === 'final') {
     // Check if comment is from current user
-    if (_this.myUserData && _this.myUserData.isSaml2) {
+    if (_this.myUserData.isSaml2) {
       var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
       var toComparePart = myEmailParts[0];
       var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
