@@ -613,7 +613,7 @@ var DynamicLists = (function() {
                   _this.config.dataAlertSeen = true;
                 }
 
-                allDataSources = dataSources;
+                allDataSources = _this.sortDataSourcesListByCurrentAppId(dataSources);
                 _this.getColumns(_this.config.dataSourceId);
                 _this.initSelect2(allDataSources);
                 _this.initSecondSelect2(allDataSources);
@@ -621,7 +621,7 @@ var DynamicLists = (function() {
               });
             }
 
-            allDataSources = dataSources;
+            allDataSources = _this.sortDataSourcesListByCurrentAppId(dataSources);
             _this.getColumns(_this.config.dataSourceId);
             _this.initSelect2(allDataSources);
             _this.initSecondSelect2(allDataSources);
@@ -1193,6 +1193,27 @@ var DynamicLists = (function() {
       _this.handleTokensSelection();
       _this.loadTokenFields();
     },
+    sortDataSourcesListByCurrentAppId: function(dataSources) {
+      var currentAppDataSourcesId = dataSources.reduce(function(connectedDSIds, dataSource) {
+        if (dataSource.appId === appId) {
+          connectedDSIds.push(dataSource.id);
+        }
+
+        dataSource.apps.find(function(app) {
+          if (app.id === appId) {
+            connectedDSIds.push(dataSource.id);
+            return true;
+          }
+        });
+        
+        return connectedDSIds;
+      }, []);
+
+      return dataSources.sort(function(a, b) {
+        // Check if DS connected to the current app
+        return currentAppDataSourcesId.indexOf(a.id) !== -1 && currentAppDataSourcesId.indexOf(b.id) === -1 ? -1 : 1;
+      });
+    },
     removeFocusFromTokenInput: function () {
       $('input.token-input.ui-autocomplete-input').blur();
     },
@@ -1582,7 +1603,7 @@ var DynamicLists = (function() {
         cache: false
       }).then(function (dataSources) {
         var options = [];
-        allDataSources = dataSources;
+        allDataSources = _this.sortDataSourcesListByCurrentAppId(dataSources);
         _this.initSelect2(allDataSources);
         _this.initSecondSelect2(allDataSources);
       });
