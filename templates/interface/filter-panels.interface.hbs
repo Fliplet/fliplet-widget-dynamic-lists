@@ -5,7 +5,11 @@
         <i class="fa fa-ellipsis-v"></i><i class="fa fa-ellipsis-v"></i>
       </div>
       <span class="panel-title-text">
-        <span class="column">{{columnLabel}}</span> - <span class="logic">{{logicLabel}}</span> - <span class="value">{{valueLabel}}</span>
+        <span class="column">{{columnLabel}}</span>
+        <span> - </span> 
+        <span class="logic">{{logicLabel}}</span>
+        <span id="value-dash"> - </span>
+        <span class="value">{{valueLabel}}</span>
       </span>
       <span class="fa fa-chevron-{{#if fromLoading}}down{{else}}up{{/if}} panel-chevron"></span>
     </h4>
@@ -40,6 +44,8 @@
           <label for="logic-field-{{id}}" class="select-proxy-display">
             <select name="logic-field-{{id}}" id="logic-field-{{id}}" data-field="logic" data-label="-- Select an option" class="hidden-select form-control">
               <option value="none">-- Select an option</option>
+              <option value="empty">Is empty</option>
+              <option value="notempty">Is not empty</option>
               <option value="==">Equals</option>
               <option value="!=">Doesn't equal</option>
               <option value="contains">Contains</option>
@@ -56,7 +62,7 @@
         </div>
       </div>
 
-      <div class="form-group clearfix">
+      <div class="form-group clearfix" id="filter-value">
         <div class="col-sm-4 control-label">
           <label for="value-field-{{id}}">Value</label>
         </div>

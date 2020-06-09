@@ -61,6 +61,8 @@ var DynamicLists = (function() {
   var filePickerPromises = [];
 
   var logicMap = {
+    'empty': 'Is empty',
+    'notempty': 'Is not empty',
     '==': 'Equals',
     '!=': 'Doesn\'t equal',
     'contains': 'Contains',
@@ -187,13 +189,17 @@ var DynamicLists = (function() {
         .on('change', '.filter-panels-holder select', function() {
           var value = $(this).val();
           var type = $(this).data('field');
+          var $selector = $(this).parents('.filter-panel');
 
           if (type === 'field') {
-            $(this).parents('.filter-panel').find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
           }
 
           if (type === 'logic') {
-            $(this).parents('.filter-panel').find('.panel-title-text .logic').html(logicMap[value]);
+            var hideValueFields = value === 'empty' || value === 'notempty';
+
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+            $selector.find('.panel-title-text .logic').html(logicMap[value]);
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -1737,6 +1743,10 @@ var DynamicLists = (function() {
 
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
+
+      if (data.logic === 'empty' || data.logic === 'notempty') {
+        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
+      }
     },
     addSummaryItem: function(data) {
       data.date = moment().format('MMM Do YYYY');
