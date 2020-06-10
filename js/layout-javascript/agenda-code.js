@@ -1040,10 +1040,6 @@ DynamicList.prototype.connectToDataSource = function() {
     }
 
     return getData(cache);
-  }).catch(function (error) {
-    Fliplet.UI.Toast.error(error, {
-      message: 'Error loading data'
-    });
   });
 }
 
