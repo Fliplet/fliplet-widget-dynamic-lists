@@ -61,6 +61,16 @@
       \{{#if filtersEnabled}}
       <i class="fa fa-sliders" ></i>
       \{{/if}}
+      \{{#if sortEnabled}}
+      <div class="sort-group btn-group">
+        <i class="fa fa-sort-amount-desc" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
+        <ul class="dropdown-menu list-sort" id="sort-list">
+          \{{#each sortFields}}
+          <li data-sort-order="no" data-sort-field="\{{ this }}"><span>\{{ this }} <i class="fa fa-sort" aria-hidden="true"></i></span></li>
+          \{{/each}}
+        </ul>
+      </div>
+      \{{/if}}
     </div>
   </div>
   <!-- End of Top bar -->
