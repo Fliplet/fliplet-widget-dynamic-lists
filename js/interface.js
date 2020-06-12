@@ -273,6 +273,14 @@ var DynamicLists = (function() {
             $('.search-fields').addClass('hidden');
           }
         })
+        .on('change', '#enable-sort', function() {
+          if ( $(this).is(":checked") ) {
+            $('.sort-fields').removeClass('hidden');
+            $('#sort-column-fields-tokenfield').tokenfield('update');
+          } else {
+            $('.sort-fields').addClass('hidden');
+          }
+        })
         .on('change', '#enable-filters', function() {
           if ( $(this).is(":checked") ) {
             $('.filter-fields').removeClass('hidden');
@@ -759,6 +767,7 @@ var DynamicLists = (function() {
 
           // Load Search/Filter fields
           $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
+          $('#enable-sort').prop('checked', _this.config.sortEnabled).trigger('change');
           $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
           $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
 
@@ -1065,6 +1074,7 @@ var DynamicLists = (function() {
 
           // Load Search/Filter fields
           $('#enable-search').prop('checked', _this.config.searchEnabled).trigger('change');
+          $('#enable-sort').prop('checked', _this.config.sortEnabled).trigger('change');
           $('#enable-filters').prop('checked', _this.config.filtersEnabled).trigger('change');
           $('#enable-filter-overlay').prop('checked', _this.config.filtersInOverlay).trigger('change');
 
@@ -1135,6 +1145,10 @@ var DynamicLists = (function() {
       if (_this.config.filtersEnabled) {
         $('#filter-column-fields-tokenfield').tokenfield('setTokens', _this.config.filterFields );
       }
+
+      if (_this.config.sortEnabled) {
+        $('#sort-column-fields-tokenfield').tokenfield('setTokens', _this.config.sortFields );
+      }
     },
     loadUserTokenFields: function() {
       if (_this.config.userNameFields) {
@@ -1169,6 +1183,19 @@ var DynamicLists = (function() {
         createTokensOnBlur: false
       }));
       $('#search-column-fields-tokenfield').tokenfield('destroy').tokenfield({
+        autocomplete: {
+          source: dataSourceColumns || _this.config.defaultColumns,
+          delay: 100
+        },
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: false
+      });
+      $('.sort-fields').html(tokenField({
+        name: 'sort-column-fields',
+        id: 'sort-column-fields-tokenfield',
+        createTokensOnBlur: false
+      }));
+      $('#sort-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
           source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
@@ -2470,8 +2497,11 @@ var DynamicLists = (function() {
       // Get search and filter
       data.searchEnabled = $('#enable-search').is(":checked");
       data.filtersEnabled = $('#enable-filters').is(":checked");
+      data.sortEnabled = $('#enable-sort').is(":checked");
       data.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined' ?
         $('#search-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
+      data.sortFields = typeof $('#sort-column-fields-tokenfield').val() !== 'undefined' ?
+        $('#sort-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
         $('#filter-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.filtersInOverlay = $('#enable-filter-overlay').is(":checked");

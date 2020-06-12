@@ -125,6 +125,18 @@
   width: 40%;
 }
 
+.sort-group .list-sort {
+  right: 0;
+  left: auto;
+}
+
+.sort-group .list-sort > li > span {
+  padding: 3px 20px;
+  display: block;
+  clear: both;
+  white-space: nowrap;
+}
+
 /*
   This part of the code is needed for supporting .fa-times-thin class in users who updated
   to use UNICODE icons instead of SVG icons.

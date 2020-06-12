@@ -156,6 +156,37 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
+    .on('click', '.sort-group .list-sort li', function (e) {
+      e.stopPropagation();
+
+      var $sortListItem = $(e.currentTarget);
+      var sortOrder = $sortListItem.data('sortOrder');
+      var sortField = $sortListItem.data('sortField');
+      var $sortOrderIcon = $sortListItem.find('i');
+      var removeClasses = {
+        'no': 'fa-sort',
+        'asc': 'fa-sort-asc',
+        'desc': 'fa-sort-desc'
+      };
+      var addClasses = {
+        'no': 'fa-sort-asc',
+        'asc': 'fa-sort-desc',
+        'desc': 'fa-sort-asc'
+      }
+      var newSortOrder = {
+        'no': 'asc',
+        'asc': 'desc',
+        'desc': 'asc'
+      };
+
+      _this.resetSortIcons();
+
+      $sortOrderIcon.removeClass(removeClasses[sortOrder]).addClass(addClasses[sortOrder]);
+      $sortListItem.data('sortOrder', newSortOrder[sortOrder]);
+
+      _this.modifiedListItems = _.orderBy(_this.modifiedListItems, sortField, newSortOrder[sortOrder]);
+      _this.renderLoopHTML();
+    })
     .on('click', '.apply-filters', function() {
       _this.hideFilterOverlay();
       _this.searchData();
@@ -633,6 +664,29 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     });
+}
+
+DynamicList.prototype.resetSortIcons = function() {
+  var $allListItems = $('#sort-list').find('li');
+
+  $allListItems.each(function() {
+    var $listitem = $(this);
+    var $listSortOrder = $listitem.data('sortOrder');
+    var $listIcon = $listitem.find('i');
+
+    switch ($listSortOrder) {
+      case 'asc':
+        $listIcon.removeClass('fa-sort-asc').addClass('fa-sort');
+        break;
+      case 'desc':
+        $listIcon.removeClass('fa-sort-desc').addClass('fa-sort');
+        break;
+      default:
+        break;
+    }
+    
+    $listitem.data('sortOrder', 'no');
+  });
 }
 
 DynamicList.prototype.deleteEntry = function(entryID) {
