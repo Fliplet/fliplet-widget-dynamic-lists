@@ -175,6 +175,10 @@
   padding: 8px 15px;
   margin: 10px 5px 10px 0;
   font-size: 14px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls-filter:hover,
@@ -496,7 +500,7 @@
 .new-small-card-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
-  top: 0;
+  top: -2px;
   width: 34px;
   height: 100%;
   display: flex;
@@ -580,8 +584,9 @@
 
 /* List */
 .new-small-card-list-container {
-  max-width: 600px;
   margin: 0 auto;
+  max-width: 600px;
+  position: relative;
 }
 
 .new-small-card-list-container .small-card-list-wrapper {
@@ -726,8 +731,7 @@
 }
 
 .new-small-card-list-container .small-card-list-location {
-  color: #333333;
-  opacity: 0.5;
+  color: rgba(51, 51, 51, 0.5);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.6;
@@ -747,6 +751,14 @@
   left: 0;
   padding: 15px;
   font-size: 25px;
+}
+
+.has-filter-overlay .new-small-card-list-container {
+  /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
+  z-index: 1010;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
 }
 
 @media screen and (min-width: 640px) {
@@ -945,17 +957,21 @@
 .small-card-detail-overlay .small-card-list-detail-role {
   margin: 0 0 5px 0;
   font-size: 24px;
-  color: #333333;
-  opacity: 0.6;
+  color: rgba(51, 51, 51, 0.6);
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-location {
   margin: 0 0 10px 0;
   font-size: 16px;
-  color: #333333;
-  opacity: 0.4;
+  color: rgba(51, 51, 51, 0.4);
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-buttons-wrapper {
@@ -979,7 +995,6 @@
 .small-card-detail-overlay .small-card-list-detail-button a:active,
 .small-card-detail-overlay .small-card-list-detail-button a:active:hover,
 .small-card-detail-overlay .small-card-list-detail-button a:active:focus {
-  color: #333333;
   text-decoration: none;
 }
 
@@ -988,20 +1003,20 @@
 }
 
 .small-card-detail-overlay .small-card-list-detail-button-image {
-  opacity: 0.3;
+  color: rgba(51, 51, 51, 0.3);
   text-align: center;
   font-size: 35px;
 }
 
 .small-card-detail-overlay .small-card-list-detail-button-text {
+  color: rgba(51, 51, 51, 0.5);
   font-size: 10px;
   text-align: center;
-  opacity: 0.5;
 }
 
 .small-card-detail-overlay .small-card-list-detail-label {
   font-size: 12px;
-  opacity: 0.5;
+  color: rgba(51, 51, 51, 0.5);
   text-transform: uppercase;
   margin: 20px 0 0 0;
 }
@@ -1159,6 +1174,7 @@
   height: 100%;
   overflow: auto;
   padding: 40px 15px 15px 15px;
+  word-break: break-word;
 }
 
 .small-card-detail-label {
@@ -1256,6 +1272,18 @@
     padding-top: 0px;
     padding-bottom: 5px;
   }
+
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 1px;
+    font-weight: lighter;
+    font-size: 1.2em !important;
+  }
+
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin::before {
+    content: '\2715';
+  }
+
 }
 
 /* Safari layout */

@@ -20,7 +20,7 @@ var addEntryLinkData = $.extend(true, {
   options: {
     hideAction: true
   }
-}, widgetData.addEntryLinkAction);
+}, widgetData.addEntryLinkAction, { action: 'screen' });
 var editEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
@@ -29,7 +29,7 @@ var editEntryLinkData = $.extend(true, {
   options: {
     hideAction: true
   }
-}, widgetData.editEntryLinkAction);
+}, widgetData.editEntryLinkAction, { action: 'screen' });
 
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
@@ -205,6 +205,12 @@ function initialize() {
 }
 
 function validate(value) {
+  // token field returns always an array with one element even if we didn't past any data in the field
+  // that is why we are checking a value of the first element if no data past it will be an empty
+  if (Array.isArray(value)) {
+    return !!value[0];
+  }
+
   if (value && value !== '' && value !== 'none') {
     return true;
   }
@@ -215,9 +221,18 @@ function validate(value) {
 function toggleError (showError, element) {
   if (showError) {
     var $element = $(element);
+
     $element.addClass('has-error');
-    $element.parents('.form-group').addClass('has-error');
-    $element.parents('.panel').addClass('panel-danger').removeClass('panel-default');
+
+    // the token field has deferent structure from other elements
+    // that is why we show error differently for it
+    if ($element.hasClass('token-input')) {
+      $element.parents('.form-control').addClass('has-error');
+    } else {
+      $element.parents('.form-group').addClass('has-error');
+      $element.parents('.panel').addClass('panel-danger').removeClass('panel-default');
+    }
+
     return;
   }
 
@@ -347,6 +362,10 @@ function attahObservers() {
               field: '#select_user_admin'
             },
             {
+              value: widgetData.userNameFields,
+              field: '#user-name-column-fields-tokenfield-tokenfield'
+            },
+            {
               value: widgetData.userListEmailColumn,
               field: '#select_user_email_data'
             }
@@ -359,6 +378,10 @@ function attahObservers() {
             {
               value: widgetData.userEmailColumn,
               field: '#select_user_email'
+            },
+            {
+              value: widgetData.userNameFields,
+              field: '#user-name-column-fields-tokenfield-tokenfield'
             },
             {
               value: widgetData.userListEmailColumn,

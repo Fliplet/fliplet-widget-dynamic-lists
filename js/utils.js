@@ -16,6 +16,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     refArraySeparator: '.$.'
   };
   var computedFieldClashes = [];
+  var div = document.createElement('DIV');
 
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
@@ -314,6 +315,15 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return _.some(_.values(record), function (el) {
         return recordContains(el, value);
       });
+    }
+
+    // Remove HTML entities
+    record = record.replace(/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/ig, '');
+
+    // Attempt to strip HTML if any potential HTML tag is detected
+    if (record.match(/<[a-z0-9]+?>/i)) {
+      div.innerHTML = record;
+      record = div.innerText;
     }
 
     record = removeSymbols(record).toLowerCase();
@@ -1276,7 +1286,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     if (options.summaryLinkAction.type === 'url') {
-      value = Fliplet.Media.authenticate(value);
       Fliplet.Navigate.url(value);
     } else {
       var opt = { transition: 'fade' };

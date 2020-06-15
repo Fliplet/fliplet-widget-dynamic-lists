@@ -24,7 +24,7 @@ function DynamicList(id, data, container) {
   this.emailField = 'Email';
   this.myProfileData;
   this.modifiedProfileData;
-  this.myUserData;
+  this.myUserData = {};
 
   this.listItems;
   this.modifiedListItems
@@ -46,12 +46,14 @@ function DynamicList(id, data, container) {
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (_.get(session, 'entries.dataSource.data')) {
-      _this.myUserData = _.get(session, 'entries.dataSource.data');
-    } else if (_.get(session, 'entries.saml2.user')) {
+    if (_.get(session, 'entries.saml2.user')) {
       _this.myUserData = _.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
+    }
+
+    if (_.get(session, 'entries.dataSource.data')) {
+       _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
@@ -384,7 +386,7 @@ DynamicList.prototype.initialize = function() {
       records = _this.getPermissions(records);
 
       // Get user profile
-      if (_this.myUserData) {
+      if (!_.isEmpty(_this.myUserData)) {
         // Create flag for current user
         records.forEach(function(record) {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
@@ -421,6 +423,9 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       _this.modifiedListItems = _this.addSummaryData(_this.listItems);
       _this.renderLoopHTML().then(function(){
+        // Update selected highlight size in Edit
+        Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
         _this.attachObservers();
       });
       return;
@@ -645,6 +650,12 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
           resolve();
         }
       }
+
+      // Changing close icon in the fa-times-thin class for windows 7 IE11
+      if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
+        $('.fa-times-thin').addClass('win7');
+      }
+
       // start the initial render
       requestAnimationFrame(render);
     });
