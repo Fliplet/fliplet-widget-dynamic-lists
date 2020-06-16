@@ -403,11 +403,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         }
 
         if (condition === 'empty') {
-          return _.isEmpty(rowData) && !_.isFinite(rowData) && rowData !== true && rowData !== false;
+          return _.isEmpty(rowData) && !_.isFinite(rowData) && typeof rowData !== 'boolean';
         }
 
         if (condition === 'notempty') {
-          return !_.isEmpty(rowData) || _.isFinite(rowData) || rowData === true || rowData === false;
+          return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
         if (!filter.value) {
