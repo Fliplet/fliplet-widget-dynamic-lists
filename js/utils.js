@@ -395,7 +395,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return _.filter(records, function (record) {
       return _.every(filters, function (filter) {
         var condition = filter.condition;
-        var rowData = _.get(record, 'data.' + filter.column, null);
+        var rowData = _.get(record, ['data', filter.column], null);
 
         if (condition === 'none' || filter.column === 'none') {
           // Filter isn't configured correctly
@@ -403,11 +403,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         }
 
         if (condition === 'empty') {
-          return _.isEmpty(rowData) && !_.isFinite(rowData);
+          return _.isEmpty(rowData) && !_.isFinite(rowData) && rowData !== true && rowData !== false;
         }
 
         if (condition === 'notempty') {
-          return !_.isEmpty(rowData) && !_.isFinite(rowData);
+          return !_.isEmpty(rowData) || _.isFinite(rowData) || rowData === true || rowData === false;
         }
 
         if (!filter.value) {
