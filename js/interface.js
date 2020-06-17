@@ -1194,25 +1194,36 @@ var DynamicLists = (function() {
       _this.loadTokenFields();
     },
     sortDataSourcesListByCurrentAppId: function(dataSources) {
-      var currentAppDataSourcesId = dataSources.reduce(function(connectedDSIds, dataSource) {
+      var groupedDataSources = [
+        {
+          id: 'currentAppDSs',
+          text: 'This APP',
+          name: 'currentApp',
+          children: []
+        },
+        {
+          id: 'OtherDSs',
+          text: 'Other APPs',
+          name: 'otherApp',
+          children: []
+        }
+      ];
+
+      dataSources.forEach(function(dataSource) {
         if (dataSource.appId === appId) {
-          connectedDSIds.push(dataSource.id);
+          groupedDataSources[0].children.push(dataSource);
+          return;
         }
 
-        dataSource.apps.find(function(app) {
-          if (app.id === appId) {
-            connectedDSIds.push(dataSource.id);
-            return true;
-          }
-        });
-        
-        return connectedDSIds;
-      }, []);
+        if (_.findIndex(dataSource.apps, ['id', appId]) !== -1) {
+          groupedDataSources[0].children.push(dataSource);
+          return;
+        }
 
-      return dataSources.sort(function(a, b) {
-        // Check if DS connected to the current app
-        return currentAppDataSourcesId.indexOf(a.id) !== -1 && currentAppDataSourcesId.indexOf(b.id) === -1 ? -1 : 1;
-      });
+        groupedDataSources[1].children.push(dataSource);
+      })
+
+      return groupedDataSources;
     },
     removeFocusFromTokenInput: function () {
       $('input.token-input.ui-autocomplete-input').blur();
@@ -1519,7 +1530,7 @@ var DynamicLists = (function() {
       });
     },
     formatState: function(state) {
-      if (state.id === 'none') {
+      if (state.id === 'none' || state.id === 'currentAppDSs' || state.id === 'OtherDSs') {
         return $(
           '<span class="select2-value-holder">' + state.text + '</span>'
         );
@@ -1555,14 +1566,21 @@ var DynamicLists = (function() {
         return null;
       }
 
-      var name = data.name.toLowerCase();
-      var id = data.id.toString();
       var term = params.term.toLowerCase();
-      if (name.indexOf(term) > -1 || id.indexOf(term) > -1) {
-        var modifiedData = $.extend({}, data, true);
+      var matchedChildren = data.children.filter(function(child) {
+        var name = child.name.toLowerCase();
+        var id = child.id.toString();
 
-        // You can return modified objects from here
-        // This includes matching the `children` how you want in nested data sets
+        if (name.indexOf(term) > -1 || id.indexOf(term) > -1) {
+          return true;
+        }
+      });
+      
+      if (matchedChildren.length) {
+        var modifiedData = $.extend({}, data, true);;
+
+        modifiedData.children = matchedChildren;
+
         return modifiedData;
       }
 
