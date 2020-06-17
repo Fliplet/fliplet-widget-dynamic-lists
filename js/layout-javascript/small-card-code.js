@@ -29,6 +29,9 @@ function DynamicList(id, data, container) {
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
 
+  this.sortOrder;
+  this.sortField;
+
   this.emailField = 'Email';
   this.myProfileData = [];
   this.modifiedProfileData;
@@ -160,8 +163,7 @@ DynamicList.prototype.attachObservers = function() {
       e.stopPropagation();
 
       var $sortListItem = $(e.currentTarget);
-      var sortOrder = $sortListItem.data('sortOrder');
-      var sortField = $sortListItem.data('sortField');
+      var oldSortOrder = $sortListItem.data('sortOrder');
       var $sortOrderIcon = $sortListItem.find('i');
       var removeClasses = {
         'no': 'fa-sort',
@@ -179,13 +181,18 @@ DynamicList.prototype.attachObservers = function() {
         'desc': 'asc'
       };
 
+      _this.sortField = $sortListItem.data('sortField');
+      _this.sortOrder = newSortOrder[oldSortOrder];
       _this.resetSortIcons();
+      _this.data.forceRenderList = true;
 
-      $sortOrderIcon.removeClass(removeClasses[sortOrder]).addClass(addClasses[sortOrder]);
-      $sortListItem.data('sortOrder', newSortOrder[sortOrder]);
+      $sortOrderIcon.removeClass(removeClasses[oldSortOrder]).addClass(addClasses[oldSortOrder]);
+      $sortListItem.data('sortOrder', newSortOrder[oldSortOrder]);
 
-      _this.modifiedListItems = _.orderBy(_this.modifiedListItems, sortField, newSortOrder[sortOrder]);
-      _this.renderLoopHTML();
+      _this.searchData()
+        .then(function() {
+          _this.data.forceRenderList = false;
+        });
     })
     .on('click', '.apply-filters', function() {
       _this.hideFilterOverlay();
@@ -667,7 +674,7 @@ DynamicList.prototype.attachObservers = function() {
 }
 
 DynamicList.prototype.resetSortIcons = function() {
-  var $allListItems = $('#sort-list').find('li');
+  var $allListItems = $('#sort-list-directory').find('li');
 
   $allListItems.each(function() {
     var $listitem = $(this);
@@ -1359,6 +1366,13 @@ DynamicList.prototype.searchData = function(options) {
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
+      _this.modifiedListItems = _this.Utils.Records.sortByField(
+        {
+          records: _this.modifiedListItems,
+          sortField: _this.sortField,
+          sortOrder: _this.sortOrder
+        }
+      );
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
 
