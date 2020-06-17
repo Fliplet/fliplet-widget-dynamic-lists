@@ -991,13 +991,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     var records = options.records;
-    var orderBy = options.sortOrder;
-    var sortFild = options.sortField;
+    var sortOrder = options.sortOrder;
+    var sortField = options.sortField;
   
     return records.sort(function(a, b) {
-      var fieldType = typeof a[sortFild];
-      var aValue = orderBy === 'asc' ? a[sortFild] : b[sortFild];
-      var bValue = orderBy === 'asc' ? b[sortFild] : a[sortFild];
+      var fieldType = typeof a[sortField];
+      var aValue = sortOrder === 'asc' ? a[sortField] : b[sortField];
+      var bValue = sortOrder === 'asc' ? b[sortField] : a[sortField];
 
       switch (fieldType) {
         case 'string':
