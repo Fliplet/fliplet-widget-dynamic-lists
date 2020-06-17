@@ -1003,6 +1003,56 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return Promise.resolve(records);
   }
 
+  /**
+   * Sort items by field witch user have selected
+   * 
+   * @param {Object} options - object with settings for sort list items
+   *        keys: 
+   *          sortField {String} - name of the field to sort
+   *          sortOrder {String} - sort order of
+   *          records {Array} - array of records to sort
+   * @return {Array} - sorted by field array
+   */
+  function sortByField(options) {
+    // If user doesn't set sorting do nothing
+    if (!options.sortField) {
+      return options.records;
+    }
+
+    var records = options.records;
+    var orderBy = options.sortOrder;
+    var sortFild = options.sortField;
+  
+    return records.sort(function(a, b) {
+      var fieldType = typeof a[sortFild];
+      var aValue = orderBy === 'asc' ? a[sortFild] : b[sortFild];
+      var bValue = orderBy === 'asc' ? b[sortFild] : a[sortFild];
+
+      switch (fieldType) {
+        case 'string':
+          aValue = aValue.toUpperCase();
+          bValue = bValue.toUpperCase();
+
+          return aValue.localeCompare(bValue);
+        case 'date':
+          aValue = _this.Utils.Date.moment(aValue).valueOf;
+          bValue = _this.Utils.Date.moment(bValue).valueOf;
+  
+          return aValue - bValue;
+        case 'time':
+          if (aValue > bValue) {
+            return 1;
+          } else if (aValue < bValue) {
+            return -1;
+          } else if (aValue === bValue) {
+            return 0;
+          }
+        default:
+          return aValue - bValue;
+      }
+    });
+  }
+
   function prepareRecordsData(options) {
     options = options || {};
 
@@ -1360,7 +1410,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
-      addComputedFields: addRecordsComputedFields
+      addComputedFields: addRecordsComputedFields,
+      sortByField: sortByField
     },
     User: {
       isAdmin: userIsAdmin,
