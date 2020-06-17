@@ -1197,13 +1197,13 @@ var DynamicLists = (function() {
       var groupedDataSources = [
         {
           id: 'currentAppDSs',
-          text: 'This APP',
+          text: 'This app',
           name: 'currentApp',
           children: []
         },
         {
           id: 'OtherDSs',
-          text: 'Other APPs',
+          text: 'Other apps',
           name: 'otherApp',
           children: []
         }
