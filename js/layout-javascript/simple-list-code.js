@@ -34,9 +34,6 @@ function DynamicList(id, data, container) {
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
 
-  this.sortOrder;
-  this.sortField;
-
   this.listItems;
   this.modifiedListItems;
   this.searchedListItems;
@@ -158,6 +155,8 @@ DynamicList.prototype.attachObservers = function() {
 
       var $sortListItem = $(e.currentTarget);
       var oldSortOrder = $sortListItem.data('sortOrder');
+      var sortOrder;
+      var sortField = $sortListItem.data('sortField');;
       var $sortOrderIcon = $sortListItem.find('i');
       var removeClasses = {
         'no': 'fa-sort',
@@ -175,18 +174,17 @@ DynamicList.prototype.attachObservers = function() {
         'desc': 'asc'
       };
 
-      _this.sortField = $sortListItem.data('sortField');
-      _this.sortOrder = newSortOrder[oldSortOrder];
+      sortOrder = newSortOrder[oldSortOrder];
       _this.resetSortIcons();
       _this.data.forceRenderList = true;
 
       $sortOrderIcon.removeClass(removeClasses[oldSortOrder]).addClass(addClasses[oldSortOrder]);
       $sortListItem.data('sortOrder', newSortOrder[oldSortOrder]);
 
-      _this.searchData()
-        .then(function() {
-          _this.data.forceRenderList = false;
-        });
+      _this.searchData({
+        sortOrder,
+        sortField
+      });
     })
     .on('click', '.apply-filters', function() {
       _this.hideFilterOverlay();
@@ -1403,6 +1401,8 @@ DynamicList.prototype.searchData = function(options) {
 
   var _this = this;
   var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var sortField = _.isUndefined(options.sortField) || '';
+  var sortOrder = _.isUndefined(options.sortOrder) || 'asc';
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -1476,7 +1476,10 @@ DynamicList.prototype.searchData = function(options) {
       _this.$container.find('.hidden-search-controls').addClass('active');
       _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      if (!_this.data.forceRenderList && searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      if (!_this.data.forceRenderList 
+        && searchedData.length 
+        && !_.xorBy(searchedData, _this.searchedListItems, 'id').length 
+        && !sortField) {
         // Same results returned. Do nothing.
         return Promise.resolve();
       }
@@ -1507,13 +1510,11 @@ DynamicList.prototype.searchData = function(options) {
       $('#simple-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
-      _this.modifiedListItems = _this.Utils.Records.sortByField(
-        {
-          records: _this.modifiedListItems,
-          sortField: _this.sortField,
-          sortOrder: _this.sortOrder
-        }
-      );
+      _this.modifiedListItems = _this.Utils.Records.sortByField({
+        records: _this.modifiedListItems,
+        sortField: sortField,
+        sortOrder: sortOrder
+      });
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
         return records;

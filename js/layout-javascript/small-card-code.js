@@ -29,9 +29,6 @@ function DynamicList(id, data, container) {
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
 
-  this.sortOrder;
-  this.sortField;
-
   this.emailField = 'Email';
   this.myProfileData = [];
   this.modifiedProfileData;
@@ -164,6 +161,8 @@ DynamicList.prototype.attachObservers = function() {
 
       var $sortListItem = $(e.currentTarget);
       var oldSortOrder = $sortListItem.data('sortOrder');
+      var sortOrder;
+      var sortField = $sortListItem.data('sortField');;
       var $sortOrderIcon = $sortListItem.find('i');
       var removeClasses = {
         'no': 'fa-sort',
@@ -181,18 +180,17 @@ DynamicList.prototype.attachObservers = function() {
         'desc': 'asc'
       };
 
-      _this.sortField = $sortListItem.data('sortField');
-      _this.sortOrder = newSortOrder[oldSortOrder];
+      sortOrder = newSortOrder[oldSortOrder];
       _this.resetSortIcons();
       _this.data.forceRenderList = true;
 
       $sortOrderIcon.removeClass(removeClasses[oldSortOrder]).addClass(addClasses[oldSortOrder]);
       $sortListItem.data('sortOrder', newSortOrder[oldSortOrder]);
 
-      _this.searchData()
-        .then(function() {
-          _this.data.forceRenderList = false;
-        });
+      _this.searchData({
+        sortOrder,
+        sortField
+      });
     })
     .on('click', '.apply-filters', function() {
       _this.hideFilterOverlay();
@@ -1267,6 +1265,8 @@ DynamicList.prototype.searchData = function(options) {
 
   var _this = this;
   var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var sortField = options.sortField || '';
+  var sortOrder = options.sortOrder || 'asc';
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -1356,7 +1356,8 @@ DynamicList.prototype.searchData = function(options) {
 
       if (!_this.data.forceRenderList
         && searchedData.length
-        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
+        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length
+        && !sortField) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
         _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
@@ -1373,13 +1374,11 @@ DynamicList.prototype.searchData = function(options) {
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
-      _this.modifiedListItems = _this.Utils.Records.sortByField(
-        {
-          records: _this.modifiedListItems,
-          sortField: _this.sortField,
-          sortOrder: _this.sortOrder
-        }
-      );
+      _this.modifiedListItems = _this.Utils.Records.sortByField({
+        records: _this.modifiedListItems,
+        sortField: sortField,
+        sortOrder: sortOrder
+      });
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
 
