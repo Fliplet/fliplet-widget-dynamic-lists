@@ -989,39 +989,118 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     if (!options.sortField) {
       return options.records;
     }
-
-    var records = options.records;
-    var sortOrder = options.sortOrder;
+  
+    var records = JSON.parse(JSON.stringify(options.records));
+    var isSortAsc = options.sortOrder === 'asc';
     var sortField = options.sortField;
+    var startsWithLetter = /^[A-Z,a-z]/;
+    var sortType = getFieldType(records[0][sortField]);
   
     return records.sort(function(a, b) {
-      var fieldType = typeof a[sortField];
-      var aValue = sortOrder === 'asc' ? a[sortField] : b[sortField];
-      var bValue = sortOrder === 'asc' ? b[sortField] : a[sortField];
+      var aValue = a[sortField];
+      var bValue = b[sortField];
+      
+      switch (sortType) {
+        case 'string': 
+          /**
+           * By adding '{' to the start of the string we are pushing that string to the end the sort order,
+           * and when we are adding '}' we push it even further to the end
+          */
+          aValue = aValue ? aValue.toUpperCase() : '}';
+          bValue = bValue ? bValue.toUpperCase() : '}';
 
-      switch (fieldType) {
-        case 'string':
-          aValue = aValue.toUpperCase();
-          bValue = bValue.toUpperCase();
-
-          return aValue.localeCompare(bValue);
-        case 'date':
-          aValue = _this.Utils.Date.moment(aValue).valueOf;
-          bValue = _this.Utils.Date.moment(bValue).valueOf;
-  
-          return aValue - bValue;
-        case 'time':
-          if (aValue > bValue) {
-            return 1;
-          } else if (aValue < bValue) {
-            return -1;
-          } else if (aValue === bValue) {
-            return 0;
+          if (!startsWithLetter.test(bValue)) {
+            bValue = '{' + bValue;
           }
-        default:
-          return aValue - bValue;
+
+          if (!startsWithLetter.test(aValue)) {
+            aValue = '{' + aValue;
+          }
+          
+          if (aValue < bValue)
+            return isSortAsc ? -1 : 1;
+          if (aValue > bValue)
+            return isSortAsc ? 1 : -1;
+
+          return 0;
+        case 'number':
+          if (!parseInt(aValue, 10)) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          if (!parseInt(bValue, 10)) {
+            return isSortAsc ? -1 : 1;
+          }
+
+          if (isSortAsc) {
+            return aValue - bValue;
+          }
+
+          return bValue - aValue;
+        case 'time':
+          if (!aValue) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          if (!bValue) {
+            return isSortAsc ? -1 : 1;
+          }
+
+          if (aValue < bValue)
+            return isSortAsc ? -1 : 1;
+
+          if (aValue > bValue)
+            return isSortAsc ? 1 : -1;
+
+          return 0;
+        case 'date':
+          aValue = moment(aValue).valueOf();
+          bValue = moment(bValue).valueOf();
+
+          if (!aValue) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          if (!bValue) {
+            return isSortAsc ? -1 : 1;
+          }
+
+          if (isSortAsc) {
+            return aValue - bValue;
+          }
+
+          return bValue - aValue;
+         default: 
+          if (isSortAsc) {
+            return aValue - bValue;
+          }
+
+          return bValue - aValue;
       }
-    });
+    })
+  }
+  
+  function getFieldType(value) {
+    var valueType = typeof value;
+    var timeRegex = /^[0-9]{1,2}:[0-9]{1,2}$/
+    
+    if (valueType === 'string') {
+      if (timeRegex.test(value)) {
+        return 'time';
+      }
+        
+      if (moment(value).isValid()) {
+        return 'date';
+      }
+        
+      return 'string';
+    }
+    
+    if (valueType === 'undefined' || valueType === 'null') {
+      return 'string';
+    }
+    
+    return valueType;
   }
 
   function prepareRecordsData(options) {
@@ -1267,6 +1346,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function resetSortIcons(options) {
+    options.$sortList.each(function() {
+      var $listitem = $(this);
+      var listSortOrder = $listitem.data('sortOrder');
+      var $listIcon = $listitem.find('i');
+  
+      $listIcon.removeClass('fa-sort-'+ listSortOrder).addClass('fa-sort');
+      $listitem.data('sortOrder', 'none');
+    });
+  }
+
   function getUsersToMention(options) {
     options = options || {};
 
@@ -1343,7 +1433,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
-      $: getjQueryObjects
+      $: getjQueryObjects,
+      resetSortIcons: resetSortIcons
     },
     Page: {
       updateSearchContext: updateSearchContext,

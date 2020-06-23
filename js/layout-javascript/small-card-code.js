@@ -164,32 +164,27 @@ DynamicList.prototype.attachObservers = function() {
       var sortOrder;
       var sortField = $sortListItem.data('sortField');;
       var $sortOrderIcon = $sortListItem.find('i');
-      var removeClasses = {
-        'no': 'fa-sort',
+      var $sortList = _this.$container.find('.sort-list-directory li');
+      var sortClasses = {
+        'none': 'fa-sort',
         'asc': 'fa-sort-asc',
         'desc': 'fa-sort-desc'
       };
-      var addClasses = {
-        'no': 'fa-sort-asc',
-        'asc': 'fa-sort-desc',
-        'desc': 'fa-sort-asc'
-      }
       var newSortOrder = {
-        'no': 'asc',
+        'none': 'asc',
         'asc': 'desc',
         'desc': 'asc'
       };
 
       sortOrder = newSortOrder[oldSortOrder];
-      _this.resetSortIcons();
-      _this.data.forceRenderList = true;
+      _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
-      $sortOrderIcon.removeClass(removeClasses[oldSortOrder]).addClass(addClasses[oldSortOrder]);
-      $sortListItem.data('sortOrder', newSortOrder[oldSortOrder]);
+      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[sortOrder]);
+      $sortListItem.data('sortOrder', sortOrder);
 
       _this.searchData({
-        sortOrder,
-        sortField
+        sortOrder: sortOrder,
+        sortField: sortField
       });
     })
     .on('click', '.apply-filters', function() {
@@ -1335,7 +1330,10 @@ DynamicList.prototype.searchData = function(options) {
         .addClass('active')
         [searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      if (!_this.data.forceRenderList && searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      if (!_this.data.forceRenderList 
+        && searchedData.length 
+        && !_.xorBy(searchedData, _this.searchedListItems, 'id').length
+        && !sortField) {
         // Same results returned. Do nothing.
         return Promise.resolve();
       }

@@ -158,32 +158,27 @@ DynamicList.prototype.attachObservers = function() {
       var sortOrder;
       var sortField = $sortListItem.data('sortField');;
       var $sortOrderIcon = $sortListItem.find('i');
-      var removeClasses = {
-        'no': 'fa-sort',
+      var $sortList = _this.$container.find('.sort-list-simple li');
+      var sortClasses = {
+        'none': 'fa-sort',
         'asc': 'fa-sort-asc',
         'desc': 'fa-sort-desc'
       };
-      var addClasses = {
-        'no': 'fa-sort-asc',
-        'asc': 'fa-sort-desc',
-        'desc': 'fa-sort-asc'
-      }
       var newSortOrder = {
-        'no': 'asc',
+        'none': 'asc',
         'asc': 'desc',
         'desc': 'asc'
       };
 
       sortOrder = newSortOrder[oldSortOrder];
-      _this.resetSortIcons();
-      _this.data.forceRenderList = true;
+      _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
-      $sortOrderIcon.removeClass(removeClasses[oldSortOrder]).addClass(addClasses[oldSortOrder]);
-      $sortListItem.data('sortOrder', newSortOrder[oldSortOrder]);
+      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[sortOrder]);
+      $sortListItem.data('sortOrder', sortOrder);
 
       _this.searchData({
-        sortOrder,
-        sortField
+        sortOrder: sortOrder,
+        sortField: sortField
       });
     })
     .on('click', '.apply-filters', function() {
@@ -951,29 +946,6 @@ DynamicList.prototype.checkIsToOpen = function() {
   });
 }
 
-DynamicList.prototype.resetSortIcons = function() {
-  var $allListItems = $('#sort-list-simple').find('li');
-
-  $allListItems.each(function() {
-    var $listitem = $(this);
-    var $listSortOrder = $listitem.data('sortOrder');
-    var $listIcon = $listitem.find('i');
-
-    switch ($listSortOrder) {
-      case 'asc':
-        $listIcon.removeClass('fa-sort-asc').addClass('fa-sort');
-        break;
-      case 'desc':
-        $listIcon.removeClass('fa-sort-desc').addClass('fa-sort');
-        break;
-      default:
-        break;
-    }
-    
-    $listitem.data('sortOrder', 'no');
-  });
-}
-
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
@@ -1408,8 +1380,8 @@ DynamicList.prototype.searchData = function(options) {
 
   var _this = this;
   var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
-  var sortField = _.isUndefined(options.sortField) || '';
-  var sortOrder = _.isUndefined(options.sortOrder) || 'asc';
+  var sortField = options.sortField || '';
+  var sortOrder = options.sortOrder || 'asc';
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -1500,7 +1472,8 @@ DynamicList.prototype.searchData = function(options) {
 
       if (!_this.data.forceRenderList
         && searchedData.length
-        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
+        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length
+        && !sortField) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
         _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
