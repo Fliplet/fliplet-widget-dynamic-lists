@@ -866,29 +866,6 @@ DynamicList.prototype.removeListItemHTML = function (options) {
   this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').remove();
 }
 
-DynamicList.prototype.resetSortIcons = function() {
-  var $allListItems = $('#sort-list-news').find('li');
-
-  $allListItems.each(function() {
-    var $listitem = $(this);
-    var $listSortOrder = $listitem.data('sortOrder');
-    var $listIcon = $listitem.find('i');
-
-    switch ($listSortOrder) {
-      case 'asc':
-        $listIcon.removeClass('fa-sort-asc').addClass('fa-sort');
-        break;
-      case 'desc':
-        $listIcon.removeClass('fa-sort-desc').addClass('fa-sort');
-        break;
-      default:
-        break;
-    }
-    
-    $listitem.data('sortOrder', 'no');
-  });
-}
-
 DynamicList.prototype.initializeOverlaySocials = function (id) {
   var _this = this;
   var record = _.find(_this.listItems, { id: id });
