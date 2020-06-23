@@ -666,29 +666,6 @@ DynamicList.prototype.attachObservers = function() {
     });
 }
 
-DynamicList.prototype.resetSortIcons = function() {
-  var $allListItems = $('#sort-list-directory').find('li');
-
-  $allListItems.each(function() {
-    var $listitem = $(this);
-    var $listSortOrder = $listitem.data('sortOrder');
-    var $listIcon = $listitem.find('i');
-
-    switch ($listSortOrder) {
-      case 'asc':
-        $listIcon.removeClass('fa-sort-asc').addClass('fa-sort');
-        break;
-      case 'desc':
-        $listIcon.removeClass('fa-sort-desc').addClass('fa-sort');
-        break;
-      default:
-        break;
-    }
-    
-    $listitem.data('sortOrder', 'no');
-  });
-}
-
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 

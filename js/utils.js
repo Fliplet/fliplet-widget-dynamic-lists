@@ -990,10 +990,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return options.records;
     }
   
-    var records = JSON.parse(JSON.stringify(options.records));
+    var records = _.clone(options.records);
     var isSortAsc = options.sortOrder === 'asc';
     var sortField = options.sortField;
-    var startsWithLetter = /^[A-Z,a-z]/;
+    var startsWithAlphabet = /^[A-Z,a-z]/;
     var sortType = getFieldType(records[0][sortField]);
   
     return records.sort(function(a, b) {
@@ -1009,18 +1009,20 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           aValue = aValue ? aValue.toUpperCase() : '}';
           bValue = bValue ? bValue.toUpperCase() : '}';
 
-          if (!startsWithLetter.test(bValue)) {
+          if (!startsWithAlphabet.test(bValue)) {
             bValue = '{' + bValue;
           }
 
-          if (!startsWithLetter.test(aValue)) {
+          if (!startsWithAlphabet.test(aValue)) {
             aValue = '{' + aValue;
           }
           
-          if (aValue < bValue)
+          if (aValue < bValue) {
             return isSortAsc ? -1 : 1;
-          if (aValue > bValue)
+          }
+          if (aValue > bValue) {
             return isSortAsc ? 1 : -1;
+          }
 
           return 0;
         case 'number':
@@ -1046,11 +1048,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             return isSortAsc ? -1 : 1;
           }
 
-          if (aValue < bValue)
+          if (aValue < bValue) {
             return isSortAsc ? -1 : 1;
+          }
 
-          if (aValue > bValue)
+          if (aValue > bValue) {
             return isSortAsc ? 1 : -1;
+          }
 
           return 0;
         case 'date':
