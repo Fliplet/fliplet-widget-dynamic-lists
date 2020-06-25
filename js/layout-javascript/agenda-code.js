@@ -180,6 +180,11 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
+  _this.Utils.Hooks.activeFilters({
+    context: _this,
+    filterOverlayClass: '.new-agenda-search-filter-overlay'
+  });
+
   _this.$container
     .on('click', '.apply-filters', function() {
       _this.hideFilterOverlay();

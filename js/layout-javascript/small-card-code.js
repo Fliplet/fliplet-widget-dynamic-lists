@@ -124,6 +124,11 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
+  _this.Utils.Hooks.activeFilters({
+    context: _this,
+    filterOverlayClass: '.small-card-search-filter-overlay'
+  });
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
