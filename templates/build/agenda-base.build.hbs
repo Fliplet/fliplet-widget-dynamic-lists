@@ -40,6 +40,15 @@
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
+    <div class="active-filters hidden">
+      <div class="hidden-filter-controls-label">Filters applied</div>
+      <div class="hidden-filter-controls-filter-container" touch-action="pan-x pan-y">
+        <div class="hidden-filter-controls-filter-wrapper">
+          <fieldset data-filter-active-group>
+          </fieldset>
+        </div>
+      </div>
+    </div>
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
       \{{#ifCond bookmarksEnabled '&&' hasTopBar}}

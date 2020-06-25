@@ -125,6 +125,11 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
+  _this.Utils.Hooks.activeFilters({
+    context: _this,
+    filterOverlayClass: '.news-feed-search-filter-overlay'
+  });
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;

@@ -118,6 +118,11 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
+  _this.Utils.Hooks.activeFilters({
+    context: _this,
+    filterOverlayClass: '.simple-list-search-filter-overlay'
+  });
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
