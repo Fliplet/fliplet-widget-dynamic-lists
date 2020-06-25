@@ -348,6 +348,62 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return record.indexOf(value) > -1;
   }
 
+  function filterDOMItem (filter) {
+    var $filter = $(filter);
+  
+    return '<div class="btn hidden-filter-controls-filter mixitup-control-active"'
+      + 'data-toggle="'+ $filter.data('toggle') +'"'
+      + ' data-field="'+ $filter.data('field') +'"'
+      + ' data-value="'+ $filter.data('value') +'"'
+      + '>'+ $filter.data('value')
+      + '</div>';
+  }
+
+  function transferActiveFilterClick (event) {
+    var $target = $(this);
+    var context = event.data.context;
+    var filterOverlay = event.data.filterOverlayClass;
+    var redirectSelector = context.data.filtersInOverlay 
+      ? filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="'+ $target.data('value') +'"]'
+      : '.hidden-filter-controls [data-filter-group] .mixitup-control-active[data-value="'+ $target.data('value') +'"]';
+    var $redirectTarget = context.$container.find(redirectSelector);
+  
+    $redirectTarget.trigger('click');
+  
+    if (context.data.filtersInOverlay) {
+      var $applyBtn = context.$container.find('.filter-header-holder .filter-header-btn-controls .apply-filters');
+  
+      // Allow UI update before we click apply button
+      setTimeout(function() {
+        $applyBtn.trigger('click');
+      }, 0)
+    }
+  }
+
+  function attachActiveFiltersListener (options) {
+    Fliplet.Hooks.on('flListDataAfterRenderList', function toggleActiveFilters() {
+      var $container = options.context.$container;
+      var $selectedFilters = $container.find('[data-filter-group] .mixitup-control-active');
+      var $activeFiltersHolder = $container.find('.active-filters');
+      var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
+    
+      if (!$selectedFilters.length) {
+        $activeFiltersHolder.addClass('hidden');
+        return;
+      }
+    
+      $filtersGroup.html('');
+      $selectedFilters.each(function() {
+        var $activeFilter = $(filterDOMItem(this));
+    
+        $activeFilter.on('click', {context: options.context, filterOverlayClass: options.filterOverlayClass}, transferActiveFilterClick);
+        $filtersGroup.append($activeFilter);
+      });
+    
+      $activeFiltersHolder.removeClass('hidden');
+    });
+  }
+
   function recordIsEditable(record, config, userData) {
     if (_.isNil(config.editEntry) || _.isNil(config.editPermissions)) {
       return false;
@@ -1323,6 +1379,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
       $: getjQueryObjects
+    },
+    Hooks: {
+      activeFilters: attachActiveFiltersListener
     },
     Page: {
       updateSearchContext: updateSearchContext,
