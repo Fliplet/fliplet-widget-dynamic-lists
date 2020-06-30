@@ -632,6 +632,11 @@ DynamicList.prototype.attachObservers = function() {
 
       $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
+    })
+    .on('click', '#file-item', function(file) {
+      var url = $(file.currentTarget).find('input[type=hidden]').val();
+
+      Fliplet.Navigate.file(url);
     });
 }
 
