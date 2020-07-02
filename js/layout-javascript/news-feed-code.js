@@ -808,6 +808,11 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
       record.likeButton.like();
       $(this).find('.count').html(count);
+    })
+    .on('click', '#file-item', function(file) {
+      var url = $(file.currentTarget).find('input[type=hidden]').val();
+
+      Fliplet.Navigate.file(url);
     });
 }
 
@@ -2058,6 +2063,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
 }
 
 DynamicList.prototype.addDetailViewData = function (entry) {
+  debugger
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
