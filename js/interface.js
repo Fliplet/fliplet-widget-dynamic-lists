@@ -1612,10 +1612,7 @@ var DynamicLists = (function() {
           bundle: true,
           definition: {
             bundleImages: true
-          },
-          accessRules: [
-            { type: ['select'], allow: 'all' }
-          ]
+          }
         }).then(function(ds) {
           allDataSources.push(ds);
 
@@ -1668,10 +1665,7 @@ var DynamicLists = (function() {
           bundle: true,
           definition: {
             bundleImages: true
-          },
-          accessRules: [
-            { type: ['select'], allow: 'all' }
-          ]
+          }
         });
       }).then(function(ds) {
         allDataSources.push(ds);
