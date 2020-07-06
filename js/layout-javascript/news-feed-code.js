@@ -2063,7 +2063,6 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
 }
 
 DynamicList.prototype.addDetailViewData = function (entry) {
-  debugger
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
