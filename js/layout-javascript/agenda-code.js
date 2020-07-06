@@ -2273,7 +2273,6 @@ DynamicList.prototype.sliderGoTo = function(number) {
 }
 
 DynamicList.prototype.addDetailViewData = function (entry) {
-  debugger
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
