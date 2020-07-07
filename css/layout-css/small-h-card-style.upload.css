@@ -431,7 +431,6 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.8);
-  pointer-events: none;
 }
 
 .small-h-card-detail-overlay .small-h-card-detail-overlay-wrapper {
@@ -561,7 +560,7 @@
     right: auto;
     bottom: auto;
     border-radius: 20px;
-
+    z-index: 1;
   }
 
   .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper {
@@ -585,18 +584,6 @@
   .small-h-card-detail-wrapper .small-h-card-list-detail-content-scroll-wrapper {
     position: relative;
     padding: 40px;
-  }
-
-  .small-h-card-detail-overlay-wrapper .small-h-card-detail-overlay-close.tablet {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-  }
-
-  .small-h-card-detail-overlay-panel .small-h-card-detail-overlay-heading,
-  .small-h-card-detail-overlay-wrapper .small-h-card-detail-overlay-close {
-    display: none;
   }
 }
 

@@ -247,11 +247,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.news-feed-detail-overlay-close', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
