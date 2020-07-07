@@ -247,7 +247,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.news-feed-detail-overlay-close', function() {
+    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function() {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {

@@ -500,7 +500,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.agenda-detail-overlay-close', function() {
+    .on('click', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function() {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {

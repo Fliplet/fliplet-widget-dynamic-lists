@@ -223,7 +223,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.simple-list-detail-overlay-close', function() {
+    .on('click', '.simple-list-detail-overlay-close, .simple-list-detail-overlay-screen', function() {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {

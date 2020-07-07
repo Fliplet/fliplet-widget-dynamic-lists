@@ -1452,7 +1452,6 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.8);
-  pointer-events: none;
 }
 
 .agenda-detail-overlay .agenda-detail-overlay-wrapper {
@@ -1542,7 +1541,7 @@
     right: auto;
     bottom: auto;
     border-radius: 20px;
-
+    z-index: 1;
   }
 
   .agenda-detail-wrapper .agenda-list-detail-image-wrapper {
@@ -1567,18 +1566,6 @@
   .agenda-detail-wrapper .agenda-list-detail-content-scroll-wrapper {
     position: relative;
     padding: 40px;
-  }
-
-  .agenda-detail-overlay-wrapper .agenda-detail-overlay-close.tablet {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-  }
-
-  .agenda-detail-overlay-panel .agenda-detail-overlay-heading,
-  .agenda-detail-overlay-wrapper .agenda-detail-overlay-close {
-    display: none;
   }
 }
 
