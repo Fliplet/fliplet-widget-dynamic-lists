@@ -2173,7 +2173,7 @@ DynamicList.prototype.bindTouchEvents = function() {
 
     _this.isPanning = true;
     _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
-    _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
+    _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index('.agenda-list-day-holder.active');
     _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').addClass('is-panning');
     _this.scrollValue = -1 * e.deltaX;
     _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
