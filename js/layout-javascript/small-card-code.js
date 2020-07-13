@@ -640,7 +640,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     })
-    .on('click', '#small-card-photoswipe', function() {
+    .on('click', '.small-card-list-multiple-images-item', function() {
       _this.imagesData.options.index = $(this).index();
 
       var smallCardImageGallery = Fliplet.Navigate.previewImages( _this.imagesData);
