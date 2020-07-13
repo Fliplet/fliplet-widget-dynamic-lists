@@ -1220,7 +1220,6 @@ DynamicList.prototype.renderLoopHTML = function () {
     : _this.$container.find('.search-results-wrapper .search-results-holder');
 
   _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-  _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
 
   return new Promise(function (resolve) {
     function render() {
@@ -1240,6 +1239,10 @@ DynamicList.prototype.renderLoopHTML = function () {
 
       $renderFull.add($renderBatch);
       $agendaListHolder.append($renderBatch);
+
+      if (_this.isInLoopView() && renderLoopIndex === 0) {
+        _this.$container.find('.agenda-list-day-holder').eq(renderLoopIndex).addClass('active');
+      }
 
       renderLoopIndex++;
 
