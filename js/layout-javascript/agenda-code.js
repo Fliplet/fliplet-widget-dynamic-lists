@@ -1220,7 +1220,6 @@ DynamicList.prototype.renderLoopHTML = function () {
     : _this.$container.find('.search-results-wrapper .search-results-holder');
 
   _this.$container.find('.new-agenda-list-container').removeClass('loading').addClass('ready');
-  _this.$container.find('.agenda-list-day-holder').eq(0).addClass('active');
 
   return new Promise(function (resolve) {
     function render() {
@@ -1240,6 +1239,10 @@ DynamicList.prototype.renderLoopHTML = function () {
 
       $renderFull.add($renderBatch);
       $agendaListHolder.append($renderBatch);
+
+      if (_this.isInLoopView() && renderLoopIndex === 0) {
+        _this.$container.find('.agenda-list-day-holder').eq(renderLoopIndex).addClass('active');
+      }
 
       renderLoopIndex++;
 
@@ -2170,7 +2173,7 @@ DynamicList.prototype.bindTouchEvents = function() {
 
     _this.isPanning = true;
     _this.sliderCount = _this.$container.find('.agenda-list-day-holder').length;
-    _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
+    _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index('.agenda-list-day-holder.active');
     _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').addClass('is-panning');
     _this.scrollValue = -1 * e.deltaX;
     _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
