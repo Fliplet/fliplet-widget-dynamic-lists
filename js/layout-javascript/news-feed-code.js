@@ -43,6 +43,10 @@ function DynamicList(id, data, container) {
   this.fetchedAllBookmarks = false;
   this.searchValue = '';
   this.activeFilters = {};
+  this.imagesData = {
+    images: [],
+    options: { index: null }
+  };
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -62,6 +66,9 @@ function DynamicList(id, data, container) {
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
+
+  // this is used for calling photoswipe library, do not remove
+  var photoswipeTemplate = Fliplet.Widget.Templates['templates/photoswipe.photoswipe'];
 
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
@@ -808,6 +815,22 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
       record.likeButton.like();
       $(this).find('.count').html(count);
+    })
+    .on('click', '.news-feed-multiple-images-item', function() {
+      _this.imagesData.options.index = $(this).index();
+
+      var newsFeedImageGallery = Fliplet.Navigate.previewImages( _this.imagesData);
+
+      newsFeedImageGallery.listen('afterChange', function() {
+        Fliplet.Page.Context.update({
+          newsFeedImageGalleryId: _this.data.id,
+          newsFeedImageGalleryIdOpenIndex: this.getCurrentIndex()
+        });
+      });
+
+      newsFeedImageGallery.listen('close', function() {
+        Fliplet.Page.Context.remove(['newsFeedImageGalleryId', 'newsFeedImageGalleryIdOpenIndex']);
+      });
     });
 }
 
@@ -1972,6 +1995,14 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
     } else {
       content = entry.originalData[obj.column];
+    }
+    
+    if (obj.type == 'image') {
+      content = entry.originalData[obj.column].split(/\n/);
+
+      content.forEach(function(imageUrl) {
+        _this.imagesData.images.push({ url: imageUrl });
+      });
     }
 
     // Define data object

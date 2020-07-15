@@ -42,6 +42,10 @@ function DynamicList(id, data, container) {
   this.dataSourceColumns;
   this.searchValue = '';
   this.activeFilters = {};
+  this.imagesData = {
+    images: [],
+    options: { index: null }
+  };
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -61,6 +65,9 @@ function DynamicList(id, data, container) {
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
   this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
+
+  // this is used for calling photoswipe library, do not remove
+  var photoswipeTemplate = Fliplet.Widget.Templates['templates/photoswipe.photoswipe'];
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
@@ -783,6 +790,22 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.simple-list-like-holder').removeClass('not-liked').addClass('liked');
       record.likeButton.like();
       $(this).find('.count').html(count);
+    })
+    .on('click', '.simple-list-multiple-images-item', function() {
+      _this.imagesData.options.index = $(this).index();
+
+      var simpleListImageGallery = Fliplet.Navigate.previewImages( _this.imagesData);
+
+      simpleListImageGallery.listen('afterChange', function() {
+        Fliplet.Page.Context.update({
+          simpleListImageGalleryId: _this.data.id,
+          simpleListImageGalleryIdOpenIndex: this.getCurrentIndex()
+        });
+      });
+
+      simpleListImageGallery.listen('close', function() {
+        Fliplet.Page.Context.remove(['simpleListImageGalleryId', 'simpleListImageGalleryIdOpenIndex']);
+      });
     });
 }
 
@@ -1934,6 +1957,14 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
     } else {
       content = entry.originalData[obj.column];
+    }
+
+    if (obj.type == 'image') {
+      content = entry.originalData[obj.column].split(/\n/);
+
+      content.forEach(function(imageUrl) {
+        _this.imagesData.images.push({ url: imageUrl });
+      });
     }
 
     // Define data object

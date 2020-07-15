@@ -508,6 +508,20 @@
   margin-bottom: 25px;
 }
 
+.small-h-card-multiple-images-holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.small-h-card-multiple-images-item {
+  flex: 1 1 70px;
+  margin: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 .small-h-card-detail-overlay-close.tablet {
   display: none;
 }
