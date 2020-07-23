@@ -208,7 +208,11 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click', '.list-search-icon .fa-sliders', function() {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var $el = $(this);
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
@@ -226,6 +230,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.hidden-filter-controls').addClass('active');
       _this.$container.find('.list-search-cancel').addClass('active');
+      _this.$container.find('[data-filter-group]').prop('hidden', null);
       $el.addClass('active');
 
       _this.toggleListView();
@@ -274,6 +279,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.$container.find('[data-filter-group]').prop('hidden', null);
       _this.calculateFiltersHeight(true);
 
       // Clear filters
