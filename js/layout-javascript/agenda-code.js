@@ -217,6 +217,9 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
+      _this.$container.find('[data-filter-group]').prop('hidden', null);
+
+
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
         $('body').addClass('lock has-filter-overlay');
@@ -230,7 +233,6 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.hidden-filter-controls').addClass('active');
       _this.$container.find('.list-search-cancel').addClass('active');
-      _this.$container.find('[data-filter-group]').prop('hidden', null);
       $el.addClass('active');
 
       _this.toggleListView();
