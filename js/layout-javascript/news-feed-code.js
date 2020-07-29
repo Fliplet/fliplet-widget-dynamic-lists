@@ -294,6 +294,8 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
+      $parentElement.find('[data-filter-group]').show();
+
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
         $('body').addClass('lock has-filter-overlay');
@@ -307,7 +309,6 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
-      $parentElement.find('[data-filter-group]').prop('hidden', null);
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
@@ -362,7 +363,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-      _this.$container.find('[data-filter-group]').prop('hidden', true);
+      _this.$container.find('[data-filter-group]').hide();
 
       // Clear filters
       _this.clearFilters();
