@@ -584,6 +584,10 @@
   word-break: break-word;
 }
 
+html.ie11 .simple-list-item .list-item-description {
+  max-height: 4.2em;
+}
+
 .simple-list-item .list-item-title {
   font-size: 18px;
 }
