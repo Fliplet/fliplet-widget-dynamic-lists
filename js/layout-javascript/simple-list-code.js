@@ -1243,15 +1243,6 @@ DynamicList.prototype.renderLoopHTML = function () {
         $('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
         renderLoopIndex++;
 
-        if (Modernizr.ie11) {
-          // In case if there is no data-line-clamp attribute we should clamp .list-item-description selector with 3 lines
-          var $lineClamp = $('[data-line-clamp]');
-          var selector = $lineClamp.length ? '[data-line-clamp]' : '.list-item-description';
-          var linesToClamp = $lineClamp.length ? $lineClamp.data('line-clamp') : 3;
-
-          window.ellipsed.ellipsis(selector, linesToClamp, { delimiter: '' });
-        }
-
         // if the browser is ready, render
         requestAnimationFrame(render);
       } else{
