@@ -800,7 +800,7 @@
 
 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description {
   overflow: hidden;
-  max-height: 4.4em;
+  max-height: 4.2em;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
