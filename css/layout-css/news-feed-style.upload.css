@@ -810,6 +810,17 @@
 }
 
 html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description {
+  display: block;
+  max-height: 1.5em;
+}
+
+html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description:before {
+  content: "\f138";
+  font-family: FontAwesome;
+  display: inline-block;
+  float: right;
+  padding-left: 1px;
+  padding-right: 1px;
 }
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-item-description,
