@@ -125,6 +125,10 @@
   width: 40%;
 }
 
+.hidden-filter-controls {
+  max-width: 100%;
+}
+
 /*
   This part of the code is needed for supporting .fa-times-thin class in users who updated
   to use UNICODE icons instead of SVG icons.
