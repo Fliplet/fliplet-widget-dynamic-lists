@@ -12,7 +12,7 @@
     <div class="small-h-card-list-detail-buttons-wrapper">
       \{{#if [Email]}}
       <div class="small-h-card-list-detail-button">
-        <a href="mailto:\{{[Email]}}" target="_blank">
+        <a class="focus-outline" href="mailto:\{{[Email]}}" target="_blank">
           <div class="small-h-card-list-detail-button-image"><span class="fa fa-envelope-o"></span></div>
           <div class="small-h-card-list-detail-button-text">EMAIL</div>
         </a>
@@ -20,7 +20,7 @@
       \{{/if}}
       \{{#if [Telephone]}}
       <div class="small-h-card-list-detail-button">
-        <a href="tel:\{{[Telephone]}}" target="_blank">
+        <a class="focus-outline" href="tel:\{{[Telephone]}}" target="_blank">
           <div class="small-h-card-list-detail-button-image"><span class="fa fa-phone"></span></div>
           <div class="small-h-card-list-detail-button-text">CALL</div>
         </a>
@@ -28,7 +28,7 @@
       \{{/if}}
       \{{#if [Linkedin]}}
       <div class="small-h-card-list-detail-button">
-        <a href="\{{[Linkedin]}}" target="_blank">
+        <a class="focus-outline" href="\{{[Linkedin]}}" target="_blank">
           <div class="small-h-card-list-detail-button-image"><span class="fa fa-linkedin"></span></div>
           <div class="small-h-card-list-detail-button-text">LINKEDIN</div>
         </a>
@@ -81,7 +81,7 @@
             \{{/if}}
 
             <div class="small-h-card-list-detail-body-text">
-              <a href="\{{{auth content}}}" target="_blank">Tap to open</a>
+              <a class="focus-outline" href="\{{{auth content}}}" target="_blank">Tap to open</a>
             </div>
           \{{/if}}
         \{{/ifCond}}
@@ -94,7 +94,7 @@
             \{{/if}}
 
             <div class="small-h-card-list-detail-body-text">
-              <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
+              <a class="focus-outline" href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
             </div>
           \{{/if}}
         \{{/ifCond}}
@@ -107,7 +107,7 @@
             \{{/if}}
 
             <div class="small-h-card-list-detail-body-text">
-              <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
+              <a class="focus-outline" href="mailto:\{{content}}" target="_blank">\{{content}}</a>
             </div>
           \{{/if}}
         \{{/ifCond}}
@@ -129,10 +129,10 @@
     \{{#ifCond editEntry '||' deleteEntry}}
     <div class="dynamic-list-controls">
       \{{#if editEntry}}
-      <div class="btn btn-default dynamic-list-edit-item">Edit</div>
+      <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">Edit</div>
       \{{/if}}
       \{{#if deleteEntry}}
-      <div class="btn btn-danger dynamic-list-delete-item">Delete</div>
+      <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">Delete</div>
       \{{/if}}
     </div>
     \{{/ifCond}}

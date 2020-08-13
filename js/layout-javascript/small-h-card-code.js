@@ -100,9 +100,11 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.small-h-card-list-item', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
         return;
       }
+
+      _this.$container.find('.small-h-card-list-wrapper').hide();
 
       var _that = $(this);
       var entryId = $(this).data('entry-id');
@@ -156,9 +158,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('click keydown', '.small-h-card-detail-overlay-close', function(event) {
       event.stopPropagation();
 
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
         return;
       }
+
+      _this.$container.find('.small-h-card-list-wrapper').show();
 
       var result;
 
@@ -205,7 +209,11 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -237,7 +245,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click, keydown', '.dynamic-list-edit-item', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -271,7 +283,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
