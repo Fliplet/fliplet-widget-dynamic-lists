@@ -129,6 +129,10 @@
   max-width: 100%;
 }
 
+.filter-holder .panel-group .panel .panel-body {
+  background-color: transparent;
+}
+
 /*
   This part of the code is needed for supporting .fa-times-thin class in users who updated
   to use UNICODE icons instead of SVG icons.
