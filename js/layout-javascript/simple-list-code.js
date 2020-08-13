@@ -186,9 +186,11 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.simple-list-item', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
         return;
       }
+
+      _this.$container.find('.simple-list-wrapper').hide();
 
       if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
         return;
@@ -236,9 +238,11 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.simple-list-detail-overlay-close', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
         return;
       }
+
+      _this.$container.find('.simple-list-wrapper').show();
 
       var result;
 
@@ -298,6 +302,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
       $elementClicked.addClass('active');
+      $parentElement.find('[data-filter-group]').show();
 
       _this.calculateFiltersHeight($parentElement);
 
@@ -420,7 +425,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
+    .on('click keydown', '.clear-search', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       _this.$container.find('.simple-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -431,8 +440,12 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click', '.simple-list-comment-holder', function(e) {
-      e.stopPropagation();
+    .on('click keydown', '.simple-list-comment-holder', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
+      event.stopPropagation();
       var identifier;
       if (_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         identifier = $(this).parents('.simple-list-details-holder').data('entry-id');
@@ -447,14 +460,22 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click', '.simple-list-comment-close-panel', function() {
+    .on('click keydown', '.simple-list-comment-close-panel', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       _this.$container.find('.simple-list-comment-panel').removeClass('open');
       _this.$container.find('.simple-list-detail-overlay-content-holder').removeClass('lock');
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         $('body').removeClass('lock');
       }
     })
-    .on('click', '.simple-list-comment-input-holder .comment', function() {
+    .on('click keydown', '.simple-list-comment-input-holder .comment', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       var entryId = _this.entryClicked;
       var $commentArea = $(this).parents('.simple-list-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val().trim();
@@ -540,7 +561,11 @@ DynamicList.prototype.attachObservers = function() {
       $messageArea.val('').trigger('change');
       autosize.update($messageArea);
     })
-    .on('click', '.final .fl-comment-value', function(e) {
+    .on('click keydown', '.final .fl-comment-value', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       e.preventDefault();
       var _that = $(this);
       var commentId = $(this).parents('.fl-individual-comment').data('id');
@@ -638,7 +663,11 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comment_options'
       });
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+      debugger;
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -670,7 +699,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function() {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -704,7 +737,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
       var options = {
@@ -764,7 +801,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.toggle-bookmarks', function (event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
         return;
       }
 
@@ -773,7 +810,11 @@ DynamicList.prototype.attachObservers = function() {
       $toggle.toggleClass('mixitup-control-active');
       _this.searchData();
     })
-    .on('click', '.simple-list-detail-overlay .simple-list-bookmark-wrapper', function() {
+    .on('click keydown', '.simple-list-detail-overlay .simple-list-bookmark-wrapper', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       var id = $(this).parents('.simple-list-details-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -790,7 +831,11 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.simple-list-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     })
-    .on('click', '.simple-list-detail-overlay .simple-list-like-wrapper', function() {
+    .on('click keydown', '.simple-list-detail-overlay .simple-list-like-wrapper', function(event) {
+      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       var id = $(this).parents('.simple-list-details-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -1589,8 +1634,8 @@ DynamicList.prototype.setupLikeButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
           likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-          likeWrapper: '<div class="simple-list-like-wrapper btn-like"></div>',
-          likedWrapper: '<div class="simple-list-like-wrapper btn-liked"></div>',
+          likeWrapper: '<div class="simple-list-like-wrapper btn-like focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="simple-list-like-wrapper btn-liked focus-outline" tabindex="0"></div>',
           addType: 'html',
           liked: record.liked,
           count: record.likeCount
@@ -1771,8 +1816,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
           likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-          likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked

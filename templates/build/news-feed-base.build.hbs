@@ -40,7 +40,7 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required tabindex="0">
+      <input type="search" name="search-feed" class="form-control search-feed focus-outline" placeholder="Search..." required tabindex="0">
       <div class="btn btn-default search-btn">Search</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
@@ -48,14 +48,14 @@
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
-      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" tabindex="0">
+      <div class="toggle-bookmarks focus-outline" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" tabindex="0">
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/if}}
-      <div class="list-search-cancel" tabindex="0"><span class="fa fa-times"></span></div>
+      <div class="list-search-cancel focus-outline" tabindex="0"><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders" tabindex="0"></i>
+      <i class="fa fa-sliders focus-outline" tabindex="0"></i>
       \{{/if}}
     </div>
     \{{/ifCond}}
@@ -69,7 +69,7 @@
       <div class="hidden-filter-controls-search">
         <div class="search-query-holder">
           <div class="search-query">
-          Searching for <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search"><i class="fa fa-times"></i></span></span>
+          Searching for <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search focus-outline" tabindex="0"><i class="fa fa-times"></i></span></span>
           </div>
         </div>
       </div>
@@ -124,7 +124,7 @@
   <div class="news-feed-detail-overlay-screen"></div>
   <div class="news-feed-detail-overlay-wrapper">
     <div class="news-feed-detail-overlay-panel">
-      <div class="news-feed-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
+      <div class="news-feed-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="news-feed-detail-overlay-content">
@@ -133,14 +133,14 @@
         </div>
       </div>
     </div>
-    <div class="news-feed-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
+    <div class="news-feed-detail-overlay-close tablet focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
       <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>
 </div>
 
 \{{#if showAddEntry}}
-<div class="dynamic-list-add-item">
+<div class="dynamic-list-add-item focus-outline" tabindex="0">
   <i class="fa fa-plus"></i>
 </div>
 \{{/if}}
@@ -148,7 +148,7 @@
 <div class="new-news-feed-comment-panel">
   <div class="news-feed-comment-panel-header">
     <div class="news-feed-comment-panel-title">Comments</div>
-    <div class="news-feed-comment-close-panel"><i class="fa fa-times"></i></div>
+    <div class="news-feed-comment-close-panel focus-outline" tabindex="0"><i class="fa fa-times"></i></div>
   </div>
 
   <div class="comments-offline">You are offline</div>
@@ -162,12 +162,12 @@
 
   <div class="news-feed-comment-input-holder">
     <div class="input-first-row">
-      <textarea class="form-control" rows="1" placeholder="Type comment" data-comment-body></textarea>
+      <textarea class="form-control focus-outline" tabindex="0" rows="1" placeholder="Type comment" data-comment-body></textarea>
     </div>
     <div class="input-second-row">
-      <div class="btn btn-primary comment">Comment</div>
-      <div class="btn btn-link cancel">Cancel</div>
-      <div class="btn btn-primary save">Save</div>
+      <div class="btn btn-primary comment focus-outline" tabindex="0">Comment</div>
+      <div class="btn btn-link cancel focus-outline" tabindex="0">Cancel</div>
+      <div class="btn btn-primary save focus-outline" tabindex="0">Save</div>
     </div>
   </div>
 </div>
