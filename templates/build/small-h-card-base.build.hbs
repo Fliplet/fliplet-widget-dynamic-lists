@@ -1,5 +1,5 @@
 <div class="new-small-h-card-list-container">
-  <div class="small-h-card-list-wrapper" id="small-h-card-list-wrapper-\{{id}}">
+  <div class="small-h-card-list-wrapper" id="small-h-card-list-wrapper-\{{id}}" role="list">
       <!-- List items will appear here -->
   </div>
   <div class="loading-data">
@@ -12,7 +12,7 @@
   <div class="small-h-card-detail-overlay-screen"></div>
   <div class="small-h-card-detail-overlay-wrapper">
     <div class="small-h-card-detail-overlay-panel">
-      <div class="small-h-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
+      <div class="small-h-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="small-h-card-detail-overlay-content">
@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-    <div class="small-h-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
+    <div class="small-h-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
       <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>

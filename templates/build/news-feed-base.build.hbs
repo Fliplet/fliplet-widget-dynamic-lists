@@ -40,7 +40,7 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required>
+      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required tabindex="0">
       <div class="btn btn-default search-btn">Search</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
@@ -48,14 +48,14 @@
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
-      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
+      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" tabindex="0">
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/if}}
-      <div class="list-search-cancel"><span class="fa fa-times"></span></div>
+      <div class="list-search-cancel" tabindex="0"><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders"></i>
+      <i class="fa fa-sliders" tabindex="0"></i>
       \{{/if}}
     </div>
     \{{/ifCond}}
@@ -91,7 +91,7 @@
   \{{/if}}
   <!-- End of Inline Search and Filters -->
 
-  <div class="news-feed-list-wrapper" id="news-feed-list-wrapper-\{{id}}">
+  <div class="news-feed-list-wrapper" id="news-feed-list-wrapper-\{{id}}" role="list">
     <!-- List items will appear here -->
   </div>
 
@@ -124,7 +124,7 @@
   <div class="news-feed-detail-overlay-screen"></div>
   <div class="news-feed-detail-overlay-wrapper">
     <div class="news-feed-detail-overlay-panel">
-      <div class="news-feed-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
+      <div class="news-feed-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="news-feed-detail-overlay-content">
@@ -133,7 +133,7 @@
         </div>
       </div>
     </div>
-    <div class="news-feed-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
+    <div class="news-feed-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
       <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>
