@@ -126,7 +126,8 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.Utils.Hooks.activeFilters({
     context: _this,
-    filterOverlayClass: '.small-card-search-filter-overlay'
+    filterOverlayClass: '.small-card-search-filter-overlay',
+    filtersInOverlay: _this.data.filtersInOverlay 
   });
 
   _this.$container
