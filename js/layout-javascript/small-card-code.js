@@ -233,7 +233,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.small-card-list-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -296,7 +296,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click keydown', '.small-card-detail-overlay-close', function(event) {
       event.stopPropagation();
 
-      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -659,7 +659,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.toggle-bookmarks', function (event) {
-      if (event.type === 'keydown' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
