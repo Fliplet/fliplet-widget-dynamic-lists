@@ -66,9 +66,6 @@ function DynamicList(id, data, container) {
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
   this.ANIMATION_SPEED = 200;
 
-  // this is used for calling photoswipe library, do not remove
-  var photoswipeTemplate = Fliplet.Widget.Templates['templates/photoswipe.photoswipe'];
-
   this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
   this.data.hasTopBar = this.data.searchEnabled || this.data.filtersEnabled;
 
@@ -749,7 +746,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.agenda-multiple-images-item', function() {
       _this.imagesData.options.index = $(this).index();
 
-      var agendaImageGallery = Fliplet.Navigate.previewImages( _this.imagesData);
+      var agendaImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
 
       agendaImageGallery.listen('afterChange', function() {
         Fliplet.Page.Context.update({

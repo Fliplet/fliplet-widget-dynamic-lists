@@ -66,9 +66,6 @@ function DynamicList(id, data, container) {
 
   this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
 
-  // this is used for calling photoswipe library, do not remove
-  var photoswipeTemplate = Fliplet.Widget.Templates['templates/photoswipe.photoswipe'];
-
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
@@ -794,7 +791,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.simple-list-multiple-images-item', function() {
       _this.imagesData.options.index = $(this).index();
 
-      var simpleListImageGallery = Fliplet.Navigate.previewImages( _this.imagesData);
+      var simpleListImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
 
       simpleListImageGallery.listen('afterChange', function() {
         Fliplet.Page.Context.update({

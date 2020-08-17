@@ -65,9 +65,6 @@ function DynamicList(id, data, container) {
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
-  // this is used for calling photoswipe library, do not remove
-  var photoswipeTemplate = Fliplet.Widget.Templates['templates/photoswipe.photoswipe'];
-
   // Register handlebars helpers
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
@@ -643,7 +640,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.small-card-list-multiple-images-item', function() {
       _this.imagesData.options.index = $(this).index();
 
-      var smallCardImageGallery = Fliplet.Navigate.previewImages( _this.imagesData);
+      var smallCardImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
 
       smallCardImageGallery.listen('afterChange', function() {
         Fliplet.Page.Context.update({

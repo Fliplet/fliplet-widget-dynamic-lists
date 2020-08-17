@@ -47,9 +47,6 @@ function DynamicList(id, data, container) {
    */
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
-  // this is used for calling photoswipe library, do not remove
-  var photoswipeTemplate = Fliplet.Widget.Templates['templates/photoswipe.photoswipe'];
-
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
@@ -338,7 +335,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.small-h-card-multiple-images-item', function() {
       _this.imagesData.options.index = $(this).index();
 
-      var smallHCardImageGallery = Fliplet.Navigate.previewImages( _this.imagesData);
+      var smallHCardImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
 
       smallHCardImageGallery.listen('afterChange', function() {
         Fliplet.Page.Context.update({
