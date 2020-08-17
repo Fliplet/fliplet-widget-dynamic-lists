@@ -171,7 +171,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -208,7 +208,7 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.news-feed-list-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -451,7 +451,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData(value);
     })
     .on('click keydown', '.clear-search', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -466,7 +466,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
     .on('click keydown', '.news-feed-comment-holder', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -488,7 +488,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.news-feed-comment-close-panel', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -500,7 +500,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.news-feed-comment-input-holder .comment', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -562,7 +562,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.news-feed-comment-input-holder .save', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -586,7 +586,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.news-feed-comment-input-holder .cancel', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -598,7 +598,7 @@ DynamicList.prototype.attachObservers = function() {
       autosize.update($messageArea);
     })
     .on('click keydown', '.final .fl-comment-value', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -700,7 +700,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -736,7 +736,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function() {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -774,7 +774,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -838,7 +838,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.toggle-bookmarks', function (event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -848,7 +848,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData();
     })
     .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -869,7 +869,7 @@ DynamicList.prototype.attachObservers = function() {
       record.bookmarkButton.like();
     })
     .on('click keydown', '.news-feed-detail-overlay .news-feed-like-wrapper', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -1880,7 +1880,6 @@ DynamicList.prototype.setupLikeButton = function(options) {
         });
 
         btn.on('liked', function(data){
-          debugger
           var count = btn.getCount() > 0 ? btn.getCount() : '';
 
           record.liked = btn.isLiked();

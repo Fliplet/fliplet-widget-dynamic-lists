@@ -214,7 +214,7 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -249,8 +249,8 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click, keydown', '.dynamic-list-edit-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -288,7 +288,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 

@@ -195,7 +195,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -285,7 +285,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -364,7 +364,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData(value);
     })
     .on('click keydown', '.clear-search', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -373,7 +373,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData('');
     })
     .on('click keydown', '.go-to-poll', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -392,7 +392,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.go-to-survey', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -411,7 +411,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.go-to-questions', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -456,7 +456,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.toggle-agenda, .toggle-bookmarks', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -612,7 +612,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.agenda-date-selector li', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -645,7 +645,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
       
@@ -681,7 +681,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -719,7 +719,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -785,7 +785,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
