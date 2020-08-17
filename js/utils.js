@@ -355,7 +355,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return record.indexOf(value) > -1;
   }
 
-  function filterDOMItem (filter) {
+  function filterDOMItem(filter) {
     var $filter = $(filter);
   
     return '<div class="btn hidden-filter-controls-filter mixitup-control-active"'
@@ -366,7 +366,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       + '</div>';
   }
 
-  function transferActiveFilterClick (event) {
+  function transferActiveFilterClick(event) {
     var $target = $(this);
     var context = event.data.context;
     var filterOverlay = event.data.filterOverlayClass;
@@ -387,12 +387,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
-  function attachActiveFiltersListener (options) {
+  function attachActiveFiltersListener(options) {
+    if (!options.filtersInOverlay) {
+      return;
+    }
+
     Fliplet.Hooks.on('flListDataAfterRenderList', function toggleActiveFilters() {
       var $container = options.context.$container;
       var $selectedFilters = $container.find('[data-filter-group] .mixitup-control-active');
       var $activeFiltersHolder = $container.find('.active-filters');
       var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
+      var activeFiltersElemenst = [];
     
       if (!$selectedFilters.length) {
         $activeFiltersHolder.addClass('hidden');
@@ -403,10 +408,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       $selectedFilters.each(function() {
         var $activeFilter = $(filterDOMItem(this));
     
-        $activeFilter.on('click', {context: options.context, filterOverlayClass: options.filterOverlayClass}, transferActiveFilterClick);
-        $filtersGroup.append($activeFilter);
+        $activeFilter.on('click', options, transferActiveFilterClick);
+        activeFiltersElemenst.push($activeFilter);
       });
-    
+
+      $filtersGroup.append(activeFiltersElemenst);
       $activeFiltersHolder.removeClass('hidden');
     });
   }

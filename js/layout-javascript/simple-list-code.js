@@ -120,7 +120,8 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.Utils.Hooks.activeFilters({
     context: _this,
-    filterOverlayClass: '.simple-list-search-filter-overlay'
+    filterOverlayClass: '.simple-list-search-filter-overlay',
+    filtersInOverlay: _this.data.filtersInOverlay 
   });
 
   _this.$container
