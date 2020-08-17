@@ -182,7 +182,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.simple-list-item', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -231,8 +231,8 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click keydown', '.simple-list-detail-overlay-close, .simple-list-detail-overlay-screen', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+    .on('click keydown', '.simple-list-detail-overlay-close', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -793,7 +793,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.toggle-bookmarks', function (event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 

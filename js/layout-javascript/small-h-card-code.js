@@ -100,7 +100,7 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.small-h-card-list-item', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -156,7 +156,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click keydown', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
       event.stopPropagation();
 
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 

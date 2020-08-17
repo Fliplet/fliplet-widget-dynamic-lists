@@ -478,7 +478,11 @@ DynamicList.prototype.attachObservers = function() {
         allowClick = true;
       }, 100);
     })
-    .on('click', '.agenda-list-item', function(event) {
+    .on('click keydown', '.agenda-list-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
         return;
       }
