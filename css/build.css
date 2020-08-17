@@ -125,6 +125,10 @@
   width: 40%;
 }
 
+.hidden-filter-controls {
+  max-width: 100%;
+}
+
 .filter-holder .panel-group .panel .panel-body {
   background-color: transparent;
 }
