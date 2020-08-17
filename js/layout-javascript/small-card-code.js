@@ -491,7 +491,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
+    .on('click keydown', '.clear-search', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       _this.$container.find('.new-small-card-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -502,7 +506,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -534,7 +542,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -568,7 +580,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
