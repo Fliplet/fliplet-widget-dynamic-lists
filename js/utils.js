@@ -18,6 +18,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
 
+  // Keep date format in English until localisation is correctly rollded out
+  moment.locale('en');
+
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)

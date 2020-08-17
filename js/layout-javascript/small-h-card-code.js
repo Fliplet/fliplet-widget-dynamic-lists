@@ -103,7 +103,11 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click', '.small-h-card-list-item', function(event) {
+    .on('click keydown', '.small-h-card-list-item', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var _that = $(this);
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
@@ -153,8 +157,12 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.small-h-card-detail-overlay-close', function(event) {
+    .on('click keydown', '.small-h-card-detail-overlay-close', function(event) {
       event.stopPropagation();
+
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
 
       var result;
 

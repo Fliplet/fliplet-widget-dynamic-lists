@@ -2558,7 +2558,10 @@ var DynamicLists = (function() {
         likesPromise = Fliplet.DataSources.create({
           name: appName + ' - Likes',
           bundle: false,
-          organizationId: organizationId // optional
+          organizationId: organizationId, // optional
+          accessRules: [
+            { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
+          ]
         }).then(function (dataSource) {
           _this.config.likesDataSourceId = dataSource.id;
         });
@@ -2592,7 +2595,10 @@ var DynamicLists = (function() {
                 }
               }
             ]
-          }
+          },
+          accessRules: [
+            { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
+          ]
         }).then(function (dataSource) {
           _this.config.bookmarkDataSourceId = dataSource.id;
           _this.config.dataSourceViews = _this.config.dataSourceViews || [];
@@ -2614,7 +2620,10 @@ var DynamicLists = (function() {
         commentsPromise = Fliplet.DataSources.create({
           name: appName + ' - Comments',
           bundle: false,
-          organizationId: organizationId // optional
+          organizationId: organizationId, // optional
+          accessRules: [
+            { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
+          ]
         }).then(function (dataSource) {
           _this.config.commentsDataSourceId = dataSource.id;
         });

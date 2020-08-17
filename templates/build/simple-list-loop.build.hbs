@@ -1,5 +1,5 @@
 \{{#each this}}
-<div class="simple-list-item mix \{{[flClasses]}} \{{#unless [Image]}}no-image\{{/unless}}" data-entry-id="\{{id}}">
+<div class="simple-list-item mix \{{[flClasses]}} \{{#unless [Image]}}no-image\{{/unless}}" data-entry-id="\{{id}}" role="listitem" tabindex="0">
   \{{#if [Image]}}
   <div class="list-item-image" style="background-image: url('\{{auth [Image]}}')"></div>
   \{{/if}}
