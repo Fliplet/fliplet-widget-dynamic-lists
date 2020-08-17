@@ -496,7 +496,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData(value);
     })
     .on('click keydown', '.clear-search', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -511,7 +511,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -546,8 +546,8 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click keydown', '.dynamic-list-edit-item', function() {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -585,7 +585,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 

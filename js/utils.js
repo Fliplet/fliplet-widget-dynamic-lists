@@ -161,6 +161,14 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
+  function isExecute (event) {
+    if (event.type === 'click') {
+      return true;
+    }
+
+    return event.type === 'keydown' && (event.keyCode === 13 || event.keyCode === 32)
+  }
+
   function validateImageUrl(url) {
     if (_.isArray(url)) {
       return _.map(url, function (val) {
@@ -1335,6 +1343,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields
+    },
+    Event: {
+      isExecute: isExecute
     },
     User: {
       isAdmin: userIsAdmin,

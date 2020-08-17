@@ -422,7 +422,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData(value);
     })
     .on('click keydown', '.clear-search', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -437,7 +437,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
     .on('click keydown', '.simple-list-comment-holder', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -457,7 +457,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.simple-list-comment-close-panel', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -468,7 +468,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.simple-list-comment-input-holder .comment', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -558,7 +558,7 @@ DynamicList.prototype.attachObservers = function() {
       autosize.update($messageArea);
     })
     .on('click keydown', '.final .fl-comment-value', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -660,10 +660,10 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
-      debugger;
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -696,7 +696,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function() {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -734,7 +734,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -807,7 +807,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData();
     })
     .on('click keydown', '.simple-list-detail-overlay .simple-list-bookmark-wrapper', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -828,7 +828,7 @@ DynamicList.prototype.attachObservers = function() {
       record.bookmarkButton.like();
     })
     .on('click keydown', '.simple-list-detail-overlay .simple-list-like-wrapper', function(event) {
-      if (event.type === 'keydown' && event.keyCode !== 13 && event.keyCode !== 32) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
