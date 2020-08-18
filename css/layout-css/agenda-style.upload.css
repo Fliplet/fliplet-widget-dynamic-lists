@@ -1400,6 +1400,20 @@
   opacity: 0.5;
 }
 
+.agenda-multiple-images-holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.agenda-multiple-images-item {
+  flex: 1 1 70px;
+  margin: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 @media screen and (min-width: 640px) {
   .new-agenda-list-container .agenda-list-item.open .slide-over .agenda-item-inner-content {
     padding: 40px;
