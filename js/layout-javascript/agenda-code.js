@@ -38,10 +38,6 @@ function DynamicList(id, data, container) {
   this.fetchedAllBookmarks = false;
   this.searchValue = '';
   this.activeFilters = {};
-  this.imagesData = {
-    images: [],
-    options: { index: null }
-  };
 
   this.listItems = [];
   this.agendasByDay = [];
@@ -742,22 +738,6 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
 
       record.bookmarkButton.like();
-    })
-    .on('click', '.agenda-multiple-images-item', function() {
-      _this.imagesData.options.index = $(this).index();
-
-      var agendaImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
-
-      agendaImageGallery.listen('afterChange', function() {
-        Fliplet.Page.Context.update({
-          agendaImageGalleryId: _this.data.id,
-          agendaImageGalleryIdOpenIndex: this.getCurrentIndex()
-        });
-      });
-
-      agendaImageGallery.listen('close', function() {
-        Fliplet.Page.Context.remove(['agendaImageGalleryId', 'agendaImageGalleryIdOpenIndex']);
-      });
     });
 }
 
@@ -2345,14 +2325,6 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
     } else {
       content = entry.originalData[dynamicDataObj.column];
-    }
-
-    if (dynamicDataObj.type == 'image') {
-      content = entry.originalData[dynamicDataObj.column].split(/\n/);
-
-      content.forEach(function(imageUrl) {
-        _this.imagesData.images.push({ url: imageUrl });
-      });
     }
 
     // Define data object
