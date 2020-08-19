@@ -212,16 +212,10 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.list-search-icon .fa-sliders', function(event) {
       var $el = $(this);
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-
-      _this.$container.find('[data-filter-group]').show();
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
@@ -284,7 +278,6 @@ DynamicList.prototype.attachObservers = function() {
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
-      _this.$container.find('[data-filter-group]').hide();
       _this.calculateFiltersHeight(true);
 
       // Clear filters
@@ -511,11 +504,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click keydown', '.agenda-detail-overlay-close', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.agenda-detail-overlay-close', function(event) {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
