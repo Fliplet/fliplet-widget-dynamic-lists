@@ -159,11 +159,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.hidden-filter-controls-filter', function(event) {
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -181,11 +177,7 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click keydown', '.simple-list-item', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.simple-list-item', function(event) {
       if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
         return;
       }
@@ -231,11 +223,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click keydown', '.simple-list-detail-overlay-close', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.simple-list-detail-overlay-close', function(event) {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -268,11 +256,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.list-search-icon .fa-sliders', function(event) {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-container');
 
@@ -337,17 +321,12 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click keydown', '.list-search-cancel', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 13 && event.keyCode !== 32) {
-        return;
-      }
-
+    .on('click', '.list-search-cancel', function(event) {
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-      _this.$container.find('[data-filter-group]').hide();
 
       // Clear filters
       _this.clearFilters();
@@ -759,11 +738,7 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click keydown', '.toggle-bookmarks', function (event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
-        return;
-      }
-
+    .on('click', '.toggle-bookmarks', function (event) {
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
