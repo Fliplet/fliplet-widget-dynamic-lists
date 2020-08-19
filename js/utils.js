@@ -107,10 +107,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     Handlebars.registerHelper('validateImage', validateImageUrl);
 
-    Handlebars.registerHelper('isSingle', function(value) {
-      return value.length === 1;
-    });
-
     Handlebars.registerHelper('formatComment', function(text) {
       var res = text;
 
