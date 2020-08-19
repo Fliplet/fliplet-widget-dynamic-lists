@@ -1454,20 +1454,6 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
   margin-bottom: 4px;
 }
 
-.news-feed-multiple-images-holder {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-}
-
-.news-feed-multiple-images-item {
-  flex: 1 1 70px;
-  margin: 10px;
-  border-radius: 5px;
-  overflow: hidden;
-  cursor: pointer;
-}
-
 .news-feed-detail-overlay-close.tablet {
   display: none;
 }
