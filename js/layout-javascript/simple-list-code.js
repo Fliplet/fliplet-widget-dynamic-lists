@@ -1362,8 +1362,7 @@ DynamicList.prototype.searchData = function(options) {
   _this.Utils.Page.updateSearchContext({
     activeFilters: _this.activeFilters,
     searchValue: _this.searchValue,
-    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length,
-    filtersInOverlay: _this.data.filtersInOverlay
+    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length
   });
 
   return _this.Utils.Records.runSearch({
