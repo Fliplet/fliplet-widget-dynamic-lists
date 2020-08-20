@@ -129,6 +129,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
       return new Handlebars.SafeString(res);
     });
+
+    Handlebars.registerHelper('formatFilename', function(filename) {
+      var index = filename.indexOf('contents/');
+      var formattedName = filename.substring(index + 9);
+
+      return formattedName;
+    });
   }
 
   function splitByCommas(str) {
