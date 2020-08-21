@@ -781,6 +781,20 @@ html.ie11 .simple-list-item .list-item-description {
   color: #666;
 }
 
+.simple-list-multiple-images-holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.simple-list-multiple-images-item {
+  flex: 1 1 70px;
+  margin: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 /* COMMENTS */
 
 .simple-list-comment-panel {

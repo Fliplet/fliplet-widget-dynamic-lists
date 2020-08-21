@@ -38,6 +38,10 @@ function DynamicList(id, data, container) {
   this.fetchedAllBookmarks = false;
   this.searchValue = '';
   this.activeFilters = {};
+  this.imagesData = {
+    images: [],
+    options: { index: null }
+  };
 
   this.listItems = [];
   this.agendasByDay = [];
@@ -743,6 +747,22 @@ DynamicList.prototype.attachObservers = function() {
       var url = $(file.currentTarget).find('input[type=hidden]').val();
 
       Fliplet.Navigate.file(url);
+    })
+    .on('click', '.agenda-multiple-images-item', function() {
+      _this.imagesData.options.index = $(this).index();
+
+      var agendaImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
+
+      agendaImageGallery.listen('afterChange', function() {
+        Fliplet.Page.Context.update({
+          agendaImageGalleryId: _this.data.id,
+          agendaImageGalleryIdOpenIndex: this.getCurrentIndex()
+        });
+      });
+
+      agendaImageGallery.listen('close', function() {
+        Fliplet.Page.Context.remove(['agendaImageGalleryId', 'agendaImageGalleryIdOpenIndex']);
+      });
     });
 }
 
@@ -2313,6 +2333,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     var label = '';
     var labelEnabled = true;
     var content = '';
+    var field = entry.originalData[dynamicDataObj.column];
 
     // Define label
     if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
@@ -2329,9 +2350,17 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     if (dynamicDataObj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
     } else if (dynamicDataObj.type === 'file') {
-      content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]);
+      content = _this.Utils.String.splitByCommas(field);
     } else {
-      content = entry.originalData[dynamicDataObj.column];
+      content = field;
+    }
+
+    if (dynamicDataObj.type === 'image') {
+      content = Array.isArray(field) ? content : field.split(/\n/); 
+
+      content.forEach(function(imageUrl) {
+        _this.imagesData.images.push({ url: imageUrl });
+      });
     }
 
     // Define data object

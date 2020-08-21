@@ -41,6 +41,10 @@ function DynamicList(id, data, container) {
   this.directoryDetailWrapper;
   this.searchValue = '';
   this.activeFilters = {};
+  this.imagesData = {
+    images: [],
+    options: { index: null }
+  };
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -644,6 +648,22 @@ DynamicList.prototype.attachObservers = function() {
       var url = $(file.currentTarget).find('input[type=hidden]').val();
 
       Fliplet.Navigate.file(url);
+    })
+    .on('click', '.small-card-list-multiple-images-item', function() {
+      _this.imagesData.options.index = $(this).index();
+
+      var smallCardImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
+
+      smallCardImageGallery.listen('afterChange', function() {
+        Fliplet.Page.Context.update({
+          smallCardImageGalleryId: _this.data.id,
+          smallCardImageGalleryIdOpenIndex: this.getCurrentIndex()
+        });
+      });
+
+      smallCardImageGallery.listen('close', function() {
+        Fliplet.Page.Context.remove(['smallCardImageGalleryId', 'smallCardImageGalleryIdOpenIndex']);
+      });
     });
 }
 
@@ -1674,6 +1694,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     var label = '';
     var labelEnabled = true;
     var content = '';
+    var field = entry.originalData[dynamicDataObj.column];
 
     // Define label
     if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
@@ -1693,6 +1714,14 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]).join(', ');
     } else {
       content = entry.originalData[dynamicDataObj.column];
+    }
+
+    if (dynamicDataObj.type === 'image') {
+      content = Array.isArray(field) ? content : field.split(/\n/);
+
+      content.forEach(function(imageUrl) {
+        _this.imagesData.images.push({ url: imageUrl });
+      });
     }
 
     // Define data object

@@ -6,10 +6,21 @@
         \{{#if labelEnabled}}
         <div class="simple-list-detail-label">\{{label}}</div>
         \{{/if}}
-
-        <div class="simple-list-detail-value">
-          <img src="\{{validateImage content}}">
+        \{{#if (isSingle content)}}
+          \{{#each content}}  
+          <div class="simple-list-detail-value">
+            <img src="\{{validateImage this}}">
+          </div>
+          \{{/each}}
+        \{{else}}
+        <div class="simple-list-multiple-images-holder">
+          \{{#each content}}
+          <div class="simple-list-multiple-images-item">
+            <img src="\{{validateImage this}}">
+          </div>
+          \{{/each}}
         </div>
+        \{{/if}}
       \{{/if}}
     \{{/ifCond}}
 

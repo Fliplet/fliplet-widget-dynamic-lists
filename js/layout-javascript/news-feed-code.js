@@ -43,6 +43,10 @@ function DynamicList(id, data, container) {
   this.fetchedAllBookmarks = false;
   this.searchValue = '';
   this.activeFilters = {};
+  this.imagesData = {
+    images: [],
+    options: { index: null }
+  };
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -819,6 +823,22 @@ DynamicList.prototype.attachObservers = function() {
       var url = $(file.currentTarget).find('input[type=hidden]').val();
 
       Fliplet.Navigate.file(url);
+    })
+    .on('click', '.news-feed-multiple-images-item', function() {
+      _this.imagesData.options.index = $(this).index();
+
+      var newsFeedImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
+
+      newsFeedImageGallery.listen('afterChange', function() {
+        Fliplet.Page.Context.update({
+          newsFeedImageGalleryId: _this.data.id,
+          newsFeedImageGalleryIdOpenIndex: this.getCurrentIndex()
+        });
+      });
+
+      newsFeedImageGallery.listen('close', function() {
+        Fliplet.Page.Context.remove(['newsFeedImageGalleryId', 'newsFeedImageGalleryIdOpenIndex']);
+      });
     });
 }
 
@@ -2073,6 +2093,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     var label = '';
     var labelEnabled = true;
     var content = '';
+    var field = entry.originalData[obj.column];
 
     // Define label
     if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
@@ -2089,9 +2110,17 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     if (obj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
     } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
-      content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
+      content = _this.Utils.String.splitByCommas(field).join(', ');
     } else {
-      content = entry.originalData[obj.column];
+      content = field;
+    }
+
+    if (obj.type === 'image') {
+      content = Array.isArray(field) ? content : field.split(/\n/); 
+
+      content.forEach(function(imageUrl) {
+        _this.imagesData.images.push({ url: imageUrl });
+      });
     }
 
     // Define data object
