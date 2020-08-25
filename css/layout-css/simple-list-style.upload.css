@@ -752,35 +752,6 @@ html.ie11 .simple-list-item .list-item-description {
   display: none;
 }
 
-.simple-list-detail-overlay .file-holder {
-  padding: 0;
-  list-style-type: none;
-}
-
-.simple-list-detail-overlay .file-holder li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(51,51,51,0.2);
-  cursor: pointer;
-}
-
-.simple-list-detail-overlay .file-holder .file-title {
-  padding-top: 5px;
-  font-weight: bold;
-  color: #666;
-}
-
-.simple-list-detail-overlay .file-holder .file-icon {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  font-size: 34px;
-  min-width: 30px;
-  color: #666;
-}
-
 /* COMMENTS */
 
 .simple-list-comment-panel {
