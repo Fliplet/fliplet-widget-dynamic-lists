@@ -138,9 +138,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
-  function splitByCommas(str) {
+  function splitByCommas(str, returnNilAsArray) {
     if (str === undefined || str === null) {
-      return [];
+      return returnNilAsArray === false ? str : [];
     }
 
     if (_.isArray(str)) {
@@ -151,20 +151,33 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return [str];
     }
 
-    // Split a string by commas but ignore commas within double-quotes using Javascript
-    // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
-    var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
+    // Split a string by commas but ignore commas within double-quotes
+    // Turn values within square brackets into a nested array
+    // Adapted from: https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
+
+    var csvArrayPattern = /(".*?"|\[.*?\]|[^",\[\]]+)(?=\s*,|\s*$)/g;
+    var arrayPattern = /^(?:\[[\w\W]*\])$/;
     var arr = [];
-    var res = regexp.exec(str);
+    var res = csvArrayPattern.exec(str);
+
     while (res !== null) {
-      arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
-      res = regexp.exec(str);
+      if (arrayPattern.test(res[0])) {
+        arr.push(splitByCommas(res[0].replace(/(?:^\[)|(?:\]$)/g, '').trim()));
+      } else {
+        arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
+      }
+
+      res = csvArrayPattern.exec(str);
     }
 
-    return _.filter(_.map(arr, function (s) {
-      return ('' + s).trim();
+    return _.filter(_.map(arr, function (value) {
+      if (_.isArray(value)) {
+        return value;
+      }
+
+      return ('' + value).trim();
     }), function (value) {
-      return [undefined, null, '', NaN].indexOf(value) === -1;
+      return _.isArray(value) || [undefined, null, '', NaN].indexOf(value) === -1;
     });
   }
 

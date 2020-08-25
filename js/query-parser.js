@@ -14,24 +14,6 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     return false;
   }
 
-  function splitQueryValues(input) {
-    var testPattern = /^(?:\[[\w\W]*\])$/;
-
-    if (_.isNil(input)) {
-      return input;
-    }
-
-    return _.map(_this.Utils.String.splitByCommas('' + input), function (str) {
-      str = str.trim();
-
-      if (!testPattern.test(str)) {
-        return str;
-      }
-
-      return _.compact(splitQueryValues(str.substring(1, str.length-1)));
-    });
-  }
-
   // we do not execute previousScreen like in the PV case so we don't open ourselves up to an xss attack
   this.previousScreen = Fliplet.Navigate.query['dynamicListPreviousScreen'] === 'true';
 
@@ -58,9 +40,9 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   if (this.queryPreFilter) {
     // take the query parameters and parse them down to arrays
-    var prefilterColumnParts = splitQueryValues(this.pvPreFilterQuery.column) || [];
-    var prefilterLogicParts = splitQueryValues(this.pvPreFilterQuery.logic) || [];
-    var prefilterValueParts = splitQueryValues(this.pvPreFilterQuery.value) || [];
+    var prefilterColumnParts = _this.Utils.String.splitByCommas(this.pvPreFilterQuery.column);
+    var prefilterLogicParts = _this.Utils.String.splitByCommas(this.pvPreFilterQuery.logic);
+    var prefilterValueParts = _this.Utils.String.splitByCommas(this.pvPreFilterQuery.value);
 
     if (prefilterColumnParts.length !== prefilterLogicParts.length
       || prefilterLogicParts.length !== prefilterValueParts.length) {
@@ -110,7 +92,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   if (this.querySearch) {
     // check if a comma separated list of columns were passed as column
-    this.pvSearchQuery.column = splitQueryValues(this.pvSearchQuery.column);
+    this.pvSearchQuery.column = _this.Utils.String.splitByCommas(this.pvSearchQuery.column, false);
     this.pvSearchQuery.openSingleEntry = (this.pvSearchQuery.openSingleEntry || '').toLowerCase() === 'true';
     this.data.searchEnabled = this.querySearch;
   } else {
@@ -126,8 +108,8 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   if (this.queryFilter) {
     // check if a comma separated list of columns/values were passed as column/value
-    this.pvFilterQuery.column = splitQueryValues(this.pvFilterQuery.column) || [];
-    this.pvFilterQuery.value = splitQueryValues(this.pvFilterQuery.value) || [];
+    this.pvFilterQuery.column = _this.Utils.String.splitByCommas(this.pvFilterQuery.column);
+    this.pvFilterQuery.value = _this.Utils.String.splitByCommas(this.pvFilterQuery.value);
 
     if (!_.isEmpty(this.pvFilterQuery.column) && !_.isEmpty(this.pvFilterQuery.value)
       && this.pvFilterQuery.column.length !== this.pvFilterQuery.value.length) {
