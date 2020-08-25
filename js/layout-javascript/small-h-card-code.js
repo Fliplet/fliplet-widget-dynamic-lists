@@ -25,6 +25,10 @@ function DynamicList(id, data, container) {
   this.myProfileData;
   this.modifiedProfileData;
   this.myUserData = {};
+  this.imagesData = {
+    images: [],
+    options: { index: null }
+  };
 
   this.listItems;
   this.modifiedListItems
@@ -326,6 +330,22 @@ DynamicList.prototype.attachObservers = function() {
         container: _this.$container
       }).then(function() {
         Fliplet.UI.Actions(options);
+      });
+    })
+    .on('click', '.small-h-card-multiple-images-item', function() {
+      _this.imagesData.options.index = $(this).index();
+
+      var smallHCardImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
+
+      smallHCardImageGallery.listen('afterChange', function() {
+        Fliplet.Page.Context.update({
+          smallHCardImageGalleryId: _this.data.id,
+          smallHCardImageGalleryIdOpenIndex: this.getCurrentIndex()
+        });
+      });
+
+      smallHCardImageGallery.listen('close', function() {
+        Fliplet.Page.Context.remove(['smallHCardImageGalleryId', 'smallHCardImageGalleryIdOpenIndex']);
       });
     });
 }
@@ -715,6 +735,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     var label = '';
     var labelEnabled = true;
     var content = '';
+    var field = entry.originalData[dynamicDataObj.column];
 
     // Define label
     if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
@@ -731,7 +752,15 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     if (dynamicDataObj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
     } else {
-      content = entry.originalData[dynamicDataObj.column];
+      content = field;
+    }
+
+    if (dynamicDataObj.type === 'image') {
+      content = Array.isArray(field) ? content : field.split(/\n/);
+
+      content.forEach(function(imageUrl) {
+        _this.imagesData.images.push({ url: imageUrl });
+      });
     }
 
     // Define data object

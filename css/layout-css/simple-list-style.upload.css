@@ -1180,6 +1180,20 @@ html.ie11 .simple-list-item .list-item-description {
   margin-left: 5px;
 }
 
+.simple-list-multiple-images-holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.simple-list-multiple-images-item {
+  flex: 1 1 70px;
+  margin: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 @media screen and (min-width: 640px) {
   .simple-list-detail-overlay .simple-list-detail-overlay-wrapper {
     position: absolute;

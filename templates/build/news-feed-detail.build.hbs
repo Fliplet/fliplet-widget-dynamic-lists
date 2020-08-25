@@ -57,9 +57,21 @@
               <div class="news-feed-detail-label">\{{label}}</div>
               \{{/if}}
 
-              <div class="news-feed-detail-value">
-                <img src="\{{validateImage content}}">
+              \{{#if (isSingle content)}}
+                \{{#each content}}
+                <div class="news-feed-detail-value">
+                  <img src="\{{validateImage this}}">
+                </div>
+                \{{/each}}
+              \{{else}}
+              <div class="news-feed-multiple-images-holder">
+                \{{#each content}}
+                <div class="news-feed-multiple-images-item">
+                  <img src="\{{validateImage this}}">
+                </div>
+                \{{/each}}
               </div>
+              \{{/if}}
             \{{/if}}
           \{{/ifCond}}
 

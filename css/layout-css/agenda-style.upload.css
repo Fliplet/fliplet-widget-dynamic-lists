@@ -1522,6 +1522,20 @@
   display: none;
 }
 
+.agenda-multiple-images-holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.agenda-multiple-images-item {
+  flex: 1 1 70px;
+  margin: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 @media screen and (min-width: 640px) {
   .agenda-detail-overlay .agenda-detail-overlay-wrapper {
     position: absolute;
