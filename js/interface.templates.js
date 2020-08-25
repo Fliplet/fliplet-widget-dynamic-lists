@@ -49,7 +49,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.detail-view-panels"]
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.editable : depth0),{"name":"unless","hash":{},"fn":container.program(15, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + ">\n        <option value=\"image\">Image</option>\n        <option value=\"text\" selected>Plain text</option>\n        <option value=\"html\">HTML</option>\n        <option value=\"url\">URL</option>\n        <option value=\"tel\">Telephone</option>\n        <option value=\"mail\">Email</option>\n        <option value=\"date\">Date (e.g. "
     + alias4(((helper = (helper = helpers.date || (depth0 != null ? depth0.date : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"date","hash":{},"data":data}) : helper)))
-    + ")</option>\n        <option value=\"file\">File</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select type\">\n      <select name=\"select_field_label\" id=\"detail_select_label_"
+    + ")</option>\n      </select>\n    </div>\n    <div class=\"rTableCell select type\">\n      <select name=\"select_field_label\" id=\"detail_select_label_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"form-control\" "
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.editable : depth0),{"name":"unless","hash":{},"fn":container.program(15, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
@@ -133,7 +133,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n  \n    </div>\n  </div>\n</div>";
+    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.layouts"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
