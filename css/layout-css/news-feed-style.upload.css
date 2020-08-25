@@ -266,7 +266,6 @@
 
 .new-news-feed-list-container .list-search-icon .fa {
   display: inline-block;
-  opacity: 0.3;
   font-size: 20px;
   width: 35px;
   height: 35px;
@@ -800,13 +799,27 @@
 
 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description {
   overflow: hidden;
+  max-height: 4.2em;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  height: 4.4em;
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description {
+  display: block;
+  max-height: 1.5em;
+}
+
+html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-over .news-feed-item-inner-content .news-feed-item-description:before {
+  content: "\f138";
+  font-family: FontAwesome;
+  display: inline-block;
+  float: right;
+  padding-left: 1px;
+  padding-right: 1px;
 }
 
 .new-news-feed-list-container .slide-over .news-feed-item-inner-content .news-feed-item-description,
@@ -1422,6 +1435,35 @@
   cursor: pointer;
   transition: all 0.2s ease-out;
   z-index: 13;
+}
+
+.news-feed-detail-overlay-wrapper .file-holder {
+  padding: 0;
+  list-style-type: none;
+}
+
+.news-feed-detail-overlay-wrapper .file-holder li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(51,51,51,0.2);
+  cursor: pointer;
+}
+
+.news-feed-detail-overlay-wrapper .file-holder .file-title {
+  padding-top: 5px;
+  font-weight: bold;
+  color: #666;
+}
+
+.news-feed-detail-overlay-wrapper .file-holder .file-icon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 34px;
+  min-width: 30px;
+  color: #666;
 }
 
 .news-feed-detail-overlay-wrapper .news-feed-detail-overlay-close.go-previous-screen {

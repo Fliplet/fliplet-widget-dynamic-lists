@@ -25,21 +25,18 @@
     </div>
     <div class="rTableCell select type">
       <select name="detail_field_type" id="detail_select_type_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
-        <option value="none">-- Select a type</option>
-        <option disabled>------</option>
         <option value="image">Image</option>
-        <option value="text">Plain text</option>
+        <option value="text" selected>Plain text</option>
         <option value="html">HTML</option>
         <option value="url">URL</option>
         <option value="tel">Telephone</option>
         <option value="mail">Email</option>
         <option value="date">Date (e.g. {{date}})</option>
+        <option value="file">File</option>
       </select>
     </div>
     <div class="rTableCell select type">
       <select name="select_field_label" id="detail_select_label_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
-        <option value="none">-- Select an option</option>
-        <option disabled>------</option>
         <option value="column-name">Column name as label</option>
         <option value="custom-label">Custom label</option>
         <option value="no-label">No label</option>

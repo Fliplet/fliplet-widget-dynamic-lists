@@ -139,7 +139,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
     // cast to boolean
     this.pvFilterQuery.hideControls = (this.pvFilterQuery.hideControls || '').toLowerCase() === 'true';
-    this.data.filtersEnabled = this.queryFilter;
+    this.data.filtersEnabled = this.data.filtersEnabled || this.queryFilter;
   } else {
     this.queryFilter = null;
   }

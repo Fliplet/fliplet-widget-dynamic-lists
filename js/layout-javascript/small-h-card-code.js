@@ -327,6 +327,11 @@ DynamicList.prototype.attachObservers = function() {
       }).then(function() {
         Fliplet.UI.Actions(options);
       });
+    })
+    .on('click', '#file-item', function(file) {
+      var url = $(file.currentTarget).find('input[type=hidden]').val();
+
+      Fliplet.Navigate.file(url);
     });
 }
 
@@ -423,6 +428,9 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       _this.modifiedListItems = _this.addSummaryData(_this.listItems);
       _this.renderLoopHTML().then(function(){
+        // Update selected highlight size in Edit
+        Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
         _this.attachObservers();
       });
       return;

@@ -18,6 +18,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
 
+  // Keep date format in English until localisation is correctly rollded out
+  moment.locale('en');
+
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)
@@ -125,6 +128,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       res = res.replace(Static.RegExp.linebreak, '<br>');
 
       return new Handlebars.SafeString(res);
+    });
+
+    Handlebars.registerHelper('formatFilename', function(filename) {
+      var index = filename.indexOf('contents/');
+      var formattedName = filename.substring(index + 9);
+
+      return formattedName;
     });
   }
 
@@ -394,20 +404,33 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     return _.filter(records, function (record) {
       return _.every(filters, function (filter) {
-        if (filter.condition === 'none' || filter.column === 'none' || !filter.value) {
+        var condition = filter.condition;
+        var rowData = _.get(record, ['data', filter.column], null);
+
+        if (condition === 'none' || filter.column === 'none') {
           // Filter isn't configured correctly
           return true;
         }
 
-        var condition = filter.condition;
-        var rowData;
+        if (condition === 'empty') {
+          return _.isEmpty(rowData) && !_.isFinite(rowData) && typeof rowData !== 'boolean';
+        }
+
+        if (condition === 'notempty') {
+          return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
+        }
+
+        if (!filter.value) {
+          // Value is not configured
+          return true;
+        }
 
         // Case insensitive
         if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
         }
 
-        if (!_.isNull(_.get(record, 'data.' + filter.column, null))) {
+        if (!_.isNull(rowData)) {
           rowData = record.data[filter.column].toString().toLowerCase();
         }
 

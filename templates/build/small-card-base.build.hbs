@@ -45,21 +45,21 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required>
+      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required >
       <div class="btn btn-default search-btn">Search</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
-      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
+      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/if}}
-      <div class="list-search-cancel"><span class="fa fa-times"></span></div>
+      <div class="list-search-cancel" ><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders"></i>
+      <i class="fa fa-sliders" ></i>
       \{{/if}}
       \{{#if sortEnabled}}
       <div class="sort-group btn-group">
@@ -137,7 +137,7 @@
   <div class="small-card-detail-overlay-screen"></div>
   <div class="small-card-detail-overlay-wrapper">
     <div class="small-card-detail-overlay-panel">
-      <div class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}">
+      <div class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" >
         <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon">
       </div>
       <div class="small-card-detail-overlay-content">
@@ -146,7 +146,7 @@
         </div>
       </div>
     </div>
-    <div class="small-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}">
+    <div class="small-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" >
       <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon">
     </div>
   </div>
