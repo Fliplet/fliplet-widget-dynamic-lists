@@ -679,7 +679,6 @@ html.ie11 .simple-list-item .list-item-description {
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.8);
-  pointer-events: none;
 }
 
 .simple-list-detail-overlay .simple-list-detail-overlay-wrapper {
@@ -1199,30 +1198,11 @@ html.ie11 .simple-list-item .list-item-description {
     left: auto;
     right: auto;
     bottom: auto;
+    z-index: 1;
   }
 
   .simple-list-detail-overlay-panel .simple-list-detail-overlay-content {
     padding: 40px;
-  }
-
-  .simple-list-detail-overlay-close.tablet {
-    display: block;
-    position: fixed;
-    top: 0;
-    right: 0;
-    color: #fff;
-    width: 68px;
-    height: 68px;
-    padding: 15px;
-    font-size: 1.2em;
-    line-height: 36px;
-    text-align: center;
-    z-index: 1;
-    cursor: pointer;
-  }
-
-  .simple-list-detail-overlay-panel .simple-list-detail-overlay-heading {
-    display: none;
   }
 }
 

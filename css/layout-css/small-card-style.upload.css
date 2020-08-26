@@ -1110,7 +1110,6 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.8);
-  pointer-events: none;
 }
 
 .small-card-detail-overlay .small-card-detail-overlay-wrapper {
@@ -1211,6 +1210,7 @@
     right: auto;
     bottom: auto;
     border-radius: 20px;
+    z-index: 1;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
@@ -1236,18 +1236,6 @@
   .small-card-detail-wrapper .small-card-list-detail-content-scroll-wrapper {
     position: relative;
     padding: 40px;
-  }
-
-  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-  }
-
-  .small-card-detail-overlay-panel .small-card-detail-overlay-heading,
-  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close {
-    display: none;
   }
 }
 
