@@ -159,7 +159,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function(event) {
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -177,7 +181,11 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click', '.simple-list-item', function(event) {
+    .on('click keydown', '.simple-list-item', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
         return;
       }
@@ -223,7 +231,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.simple-list-detail-overlay-close, .simple-list-detail-overlay-screen', function(event) {
+    .on('click keydown', '.simple-list-detail-overlay-close, .simple-list-detail-overlay-screen', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -256,7 +268,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click', '.list-search-icon .fa-sliders', function(event) {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-container');
 
@@ -278,6 +294,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
       $elementClicked.addClass('active');
+      $parentElement.find('[data-filter-group]').prop('hidden', null);
 
       _this.calculateFiltersHeight($parentElement);
 
@@ -321,12 +338,17 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function(event) {
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 13 && event.keyCode !== 32) {
+        return;
+      }
+
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+      _this.$container.find('[data-filter-group]').prop('hidden', true);
 
       // Clear filters
       _this.clearFilters();
@@ -738,7 +760,11 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.toggle-bookmarks', function (event) {
+    .on('click keydown', '.toggle-bookmarks', function (event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');

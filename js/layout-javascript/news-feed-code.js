@@ -247,7 +247,11 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
+    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -280,7 +284,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click', '.list-search-icon .fa-sliders', function(event) {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
@@ -301,6 +309,7 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
+      $parentElement.find('[data-filter-group]').prop('hidden', null);
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
@@ -345,12 +354,17 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function(event) {
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+        return;
+      }
+
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+      _this.$container.find('[data-filter-group]').prop('hidden', true);
 
       // Clear filters
       _this.clearFilters();
