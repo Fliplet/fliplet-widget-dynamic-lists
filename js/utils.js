@@ -394,6 +394,36 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function moveAddbuttonPosition(instance) {
+    var $addButton = instance.$container.find('.dynamic-list-add-item');
+    var layout = instance.data.layout;
+    var listClasses = {
+      'agenda': '.agenda-list-card-holder',
+      'news-feed': '.news-feed-list-wrapper',
+      'simple-list': '.simple-list-wrapper',
+      'small-card': '.small-card-list-wrapper'
+    };
+    var elementSpace = 20;
+    var addButtonWidth = $addButton.innerWidth();
+    var halfListWrapperWidth = Math.floor(instance.$container.find(listClasses[layout]).innerWidth() / 2);
+    var screenCenter = Math.floor($('body').innerWidth() / 2);
+    var rightPosition = screenCenter - (halfListWrapperWidth + elementSpace + addButtonWidth);
+
+    $addButton.css('right', rightPosition);
+  }
+
+  function resetAddButtonPosition(instance) {
+    instance.$container.find('.dynamic-list-add-item').css('right', '');
+  }
+
+  function adjustAddButtonPosition(instance) {
+    if (instance.data.addEntry && Modernizr.tablet) {
+      moveAddbuttonPosition(instance);
+    } else if (instance.data.addEntry && !Modernizr.tablet) {
+      resetAddButtonPosition(instance)
+    }
+  }
+
   function runRecordFilters(records, filters) {
     if (!filters || _.isEmpty(filters)) {
       return records;
@@ -1322,7 +1352,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
-      $: getjQueryObjects
+      $: getjQueryObjects,
+      adjustAddButtonPosition: adjustAddButtonPosition
     },
     Page: {
       updateSearchContext: updateSearchContext,
