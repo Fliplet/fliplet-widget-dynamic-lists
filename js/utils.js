@@ -385,7 +385,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return;
     }
 
-    Fliplet.Hooks.on('flListDataAfterRenderList', function toggleActiveFilters() {
+    Fliplet.Hooks.on('flListDataBeforeRenderList', function toggleActiveFilters() {
       var $container = options.context.$container;
       var $selectedFilters = $container.find('[data-filter-group] .mixitup-control-active');
       var $activeFiltersHolder = $container.find('.active-filters');
