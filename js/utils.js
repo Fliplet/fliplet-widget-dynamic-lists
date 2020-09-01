@@ -394,9 +394,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
-  function moveAddbuttonPosition(instance) {
-    var $addButton = instance.$container.find('.dynamic-list-add-item');
-    var layout = instance.data.layout;
+  function moveAddbuttonPosition(options) {
+    var $addButton = options.$container.find('.dynamic-list-add-item');
+    var layout = options.data.layout;
     var listClasses = {
       'agenda': '.agenda-list-card-holder',
       'news-feed': '.news-feed-list-wrapper',
@@ -405,22 +405,22 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     };
     var elementSpace = 20;
     var addButtonWidth = $addButton.innerWidth();
-    var halfListWrapperWidth = Math.floor(instance.$container.find(listClasses[layout]).innerWidth() / 2);
+    var halfListWrapperWidth = Math.floor(options.$container.find(listClasses[layout]).innerWidth() / 2);
     var screenCenter = Math.floor($('body').innerWidth() / 2);
     var rightPosition = screenCenter - (halfListWrapperWidth + elementSpace + addButtonWidth);
 
     $addButton.css('right', rightPosition);
   }
 
-  function resetAddButtonPosition(instance) {
-    instance.$container.find('.dynamic-list-add-item').css('right', '');
+  function resetAddButtonPosition(options) {
+    options.$container.find('.dynamic-list-add-item').css('right', '');
   }
 
-  function adjustAddButtonPosition(instance) {
-    if (instance.data.addEntry && Modernizr.tablet) {
-      moveAddbuttonPosition(instance);
-    } else if (instance.data.addEntry && !Modernizr.tablet) {
-      resetAddButtonPosition(instance)
+  function adjustAddButtonPosition(options) {
+    if (options.data.addEntry && Modernizr.tablet) {
+      moveAddbuttonPosition(options);
+    } else if (options.data.addEntry && !Modernizr.tablet) {
+      resetAddButtonPosition(options)
     }
   }
 
