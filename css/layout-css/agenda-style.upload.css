@@ -1525,18 +1525,43 @@
 .agenda-multiple-images-holder {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
 }
 
 .agenda-multiple-images-item {
-  flex: 1 1 70px;
-  margin: 10px;
-  border-radius: 5px;
-  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: 149px;
+  height: 149px;
+  margin-top: 15px;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid rgba(127, 127, 127, 0.5);
   cursor: pointer;
 }
 
+.agenda-multiple-images-item:nth-of-type(2n+1) {
+  margin-right: 15px;
+}
+
+.agenda-multiple-images-item img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
 @media screen and (min-width: 640px) {
+  .agenda-multiple-images-item {
+    margin-right: 15px;
+    width: 163px;
+    height: 163px;
+  }
+  
+  .agenda-multiple-images-item:nth-of-type(3n) {
+    margin-right: 0;
+  }
+
   .agenda-detail-overlay .agenda-detail-overlay-wrapper {
     position: absolute;
     top: 0;
