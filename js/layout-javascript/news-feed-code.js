@@ -125,6 +125,14 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
+  $(window).resize(function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  });
+
+  Fliplet.Hooks.on('flListDataAfterRenderList', function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  })
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
