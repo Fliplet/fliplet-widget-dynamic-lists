@@ -242,21 +242,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       query.value = [query.value];
     }
 
-    // Select filters using on legacy class-based methods
-    query.value.forEach(function(values, index) {
-      if (!Array.isArray(values)) {
-        query.value[index] = [values];
-      }
-
-      query.value[index].forEach(function (value) {
-        var className = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-        selectors.push('[data-toggle="' + className + '"]');
-      });
-    });
-
     if (_.get(query, 'column', []).length) {
       // Select filters using on legacy column-specific methods
       query.column.forEach(function (field, index) {
+        if (!Array.isArray(query.value[index])) {
+          query.value[index] = [query.value[index]];
+        }
+
         query.value[index].forEach(function (value) {
           selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
         });
