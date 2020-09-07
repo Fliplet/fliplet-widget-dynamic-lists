@@ -511,6 +511,10 @@
   display: none;
 }
 
+.small-h-card-detail-overlay .small-h-card-detail-overlay-panel {
+  z-index: 1;
+}
+
 @media screen and (min-width: 640px) {
   .small-h-card-detail-overlay .small-h-card-detail-overlay-wrapper {
     position: absolute;
@@ -531,7 +535,6 @@
     right: auto;
     bottom: auto;
     border-radius: 20px;
-    z-index: 1;
   }
 
   .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper {

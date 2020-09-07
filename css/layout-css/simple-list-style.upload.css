@@ -1170,6 +1170,10 @@ html.ie11 .simple-list-item .list-item-description {
   margin-right: 4px;
 }
 
+.simple-list-detail-overlay .simple-list-detail-overlay-panel {
+  z-index: 1;
+}
+
 .simple-list-container .simple-list-comment-holder span.count,
 .simple-list-detail-overlay .simple-list-comment-holder span.count {
   margin-right: 0;
@@ -1198,7 +1202,6 @@ html.ie11 .simple-list-item .list-item-description {
     left: auto;
     right: auto;
     bottom: auto;
-    z-index: 1;
   }
 
   .simple-list-detail-overlay-panel .simple-list-detail-overlay-content {

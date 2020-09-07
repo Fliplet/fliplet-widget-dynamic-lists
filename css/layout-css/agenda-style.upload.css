@@ -1517,6 +1517,10 @@
   word-break: break-word;
 }
 
+.agenda-detail-overlay .agenda-detail-overlay-panel {
+  z-index: 1;
+}
+
 .agenda-detail-overlay-close.tablet {
   display: none;
 }
@@ -1541,7 +1545,6 @@
     right: auto;
     bottom: auto;
     border-radius: 20px;
-    z-index: 1;
   }
 
   .agenda-detail-wrapper .agenda-list-detail-image-wrapper {
