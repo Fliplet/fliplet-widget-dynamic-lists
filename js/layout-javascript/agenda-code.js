@@ -744,6 +744,11 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
 
       record.bookmarkButton.like();
+    })
+    .on('click', '#file-item', function(file) {
+      var url = $(file.currentTarget).find('input[type=hidden]').val();
+
+      Fliplet.Navigate.file(url);
     });
 }
 
@@ -2329,6 +2334,8 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     // Define content
     if (dynamicDataObj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
+    } else if (dynamicDataObj.type === 'file') {
+      content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]);
     } else {
       content = entry.originalData[dynamicDataObj.column];
     }
