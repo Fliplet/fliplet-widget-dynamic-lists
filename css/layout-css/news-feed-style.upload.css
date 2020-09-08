@@ -1520,12 +1520,7 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
 }
 
 .news-feed-multiple-images-item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  width: 149px;
-  height: 149px;
+  width: calc(50% - 7.5px);
   margin-top: 15px;
   border-radius: 12px;
   padding: 10px;
@@ -1537,17 +1532,18 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
   margin-right: 15px;
 }
 
-.news-feed-multiple-images-item img {
-  object-fit: contain;
+.news-feed-multiple-images-item .image {
   width: 100%;
-  height: 100%;
+  padding-top: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 @media screen and (min-width: 640px) {
   .news-feed-multiple-images-item {
+    width: calc(33.33% - 10px);
     margin-right: 15px;
-    width: 163px;
-    height: 163px;
   }
   
   .news-feed-multiple-images-item:nth-of-type(3n) {
