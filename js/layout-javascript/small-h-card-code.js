@@ -153,7 +153,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.small-h-card-detail-overlay-close', function(event) {
+    .on('click', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
       event.stopPropagation();
 
       var result;
