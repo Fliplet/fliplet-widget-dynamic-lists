@@ -176,7 +176,13 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
+
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
   });
+
+  Fliplet.Hooks.on('flListDataAfterRenderList', function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  })
 
   Fliplet.Hooks.on('beforePageView', function (options) {
     if (options.addToHistory === false) {
@@ -504,7 +510,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.agenda-detail-overlay-close', function(event) {
+    .on('click', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function(event) {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {

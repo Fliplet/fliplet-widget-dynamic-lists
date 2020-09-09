@@ -122,6 +122,14 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
+  $(window).resize(function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  });
+
+  Fliplet.Hooks.on('flListDataAfterRenderList', function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  })
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
@@ -227,7 +235,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.simple-list-detail-overlay-close', function(event) {
+    .on('click', '.simple-list-detail-overlay-close, .simple-list-detail-overlay-screen', function(event) {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
