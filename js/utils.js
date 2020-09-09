@@ -242,21 +242,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       query.value = [query.value];
     }
 
-    // Select filters using on legacy class-based methods
-    query.value.forEach(function(values, index) {
-      if (!Array.isArray(values)) {
-        query.value[index] = [values];
-      }
-
-      query.value[index].forEach(function (value) {
-        var className = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-        selectors.push('[data-toggle="' + className + '"]');
-      });
-    });
-
     if (_.get(query, 'column', []).length) {
       // Select filters using on legacy column-specific methods
       query.column.forEach(function (field, index) {
+        if (!Array.isArray(query.value[index])) {
+          query.value[index] = [query.value[index]];
+        }
+
         query.value[index].forEach(function (value) {
           selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
         });
@@ -451,6 +443,36 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         return userIsAdmin(config, userData);
       default:
         return false;
+    }
+  }
+
+  function moveAddbuttonPosition(options) {
+    var $addButton = options.$container.find('.dynamic-list-add-item');
+    var layout = options.data.layout;
+    var listClasses = {
+      'agenda': '.agenda-list-card-holder',
+      'news-feed': '.news-feed-list-wrapper',
+      'simple-list': '.simple-list-wrapper',
+      'small-card': '.small-card-list-wrapper'
+    };
+    var elementSpace = 20;
+    var addButtonWidth = $addButton.innerWidth();
+    var halfListWrapperWidth = Math.floor(options.$container.find(listClasses[layout]).innerWidth() / 2);
+    var screenCenter = Math.floor($('body').innerWidth() / 2);
+    var rightPosition = screenCenter - (halfListWrapperWidth + elementSpace + addButtonWidth);
+
+    $addButton.css('right', rightPosition);
+  }
+
+  function resetAddButtonPosition(options) {
+    options.$container.find('.dynamic-list-add-item').css('right', '');
+  }
+
+  function adjustAddButtonPosition(options) {
+    if (options.data.addEntry && Modernizr.tablet) {
+      moveAddbuttonPosition(options);
+    } else if (options.data.addEntry && !Modernizr.tablet) {
+      resetAddButtonPosition(options)
     }
   }
 
@@ -1382,7 +1404,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
-      $: getjQueryObjects
+      $: getjQueryObjects,
+      adjustAddButtonPosition: adjustAddButtonPosition
     },
     Hooks: {
       activeFilters: addActiveFilters
