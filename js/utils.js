@@ -380,34 +380,32 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
-  function attachActiveFiltersListener(options) {
+  function addActiveFilters(options) {
     if (!options.filtersInOverlay) {
       return;
     }
 
-    Fliplet.Hooks.on('flListDataBeforeRenderList', function toggleActiveFilters() {
-      var $container = options.context.$container;
-      var $selectedFilters = $container.find('[data-filter-group] .mixitup-control-active');
-      var $activeFiltersHolder = $container.find('.active-filters');
-      var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
-      var activeFiltersElemenst = [];
-    
-      if (!$selectedFilters.length) {
-        $activeFiltersHolder.addClass('hidden');
-        return;
-      }
-    
-      $filtersGroup.html('');
-      $selectedFilters.each(function() {
-        var $activeFilter = $(filterDOMItem(this));
-    
-        $activeFilter.on('click', options, transferActiveFilterClick);
-        activeFiltersElemenst.push($activeFilter);
-      });
-
-      $filtersGroup.append(activeFiltersElemenst);
-      $activeFiltersHolder.removeClass('hidden');
+    var $container = options.context.$container;
+    var $selectedFilters = $container.find('[data-filter-group] .mixitup-control-active');
+    var $activeFiltersHolder = $container.find('.active-filters');
+    var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
+    var activeFiltersElemenst = [];
+  
+    if (!$selectedFilters.length) {
+      $activeFiltersHolder.addClass('hidden');
+      return;
+    }
+  
+    $filtersGroup.html('');
+    $selectedFilters.each(function() {
+      var $activeFilter = $(filterDOMItem(this));
+  
+      $activeFilter.on('click', options, transferActiveFilterClick);
+      activeFiltersElemenst.push($activeFilter);
     });
+
+    $filtersGroup.append(activeFiltersElemenst);
+    $activeFiltersHolder.removeClass('hidden');
   }
 
   function recordIsEditable(record, config, userData) {
@@ -1387,11 +1385,12 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       $: getjQueryObjects
     },
     Hooks: {
-      activeFilters: attachActiveFiltersListener
+      activeFilters: addActiveFilters
     },
     Page: {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
+      addActiveFilters: addActiveFilters
     },
     String: {
       splitByCommas: splitByCommas,

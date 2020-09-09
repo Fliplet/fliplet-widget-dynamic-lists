@@ -124,12 +124,6 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
-  _this.Utils.Hooks.activeFilters({
-    context: _this,
-    filterOverlayClass: '.small-card-search-filter-overlay',
-    filtersInOverlay: _this.data.filtersInOverlay 
-  });
-
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
@@ -1354,6 +1348,12 @@ DynamicList.prototype.searchData = function(options) {
 
       // Update selected highlight size in Edit
       Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
+      _this.Utils.Page.addActiveFilters({
+        context: _this,
+        filterOverlayClass: '.small-card-search-filter-overlay',
+        filtersInOverlay: _this.data.filtersInOverlay 
+      });
 
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         instance: _this,

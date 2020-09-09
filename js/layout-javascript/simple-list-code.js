@@ -118,12 +118,6 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
-  _this.Utils.Hooks.activeFilters({
-    context: _this,
-    filterOverlayClass: '.simple-list-search-filter-overlay',
-    filtersInOverlay: _this.data.filtersInOverlay 
-  });
-
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
@@ -1470,6 +1464,12 @@ DynamicList.prototype.searchData = function(options) {
           container: _this.$container,
           initialRender: !!options.initialRender
         });
+      });
+
+      _this.Utils.Page.addActiveFilters({
+        context: _this,
+        filterOverlayClass: '.simple-list-search-filter-overlay',
+        filtersInOverlay: _this.data.filtersInOverlay 
       });
 
       // Update selected highlight size in Edit
