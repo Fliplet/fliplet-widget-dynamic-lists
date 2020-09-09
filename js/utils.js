@@ -1018,7 +1018,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     if (!options.sortField) {
       return options.records;
     }
-  
+
     var records = _.clone(options.records);
     var isSortAsc = options.sortOrder === 'asc';
     var sortField = options.sortField;
@@ -1026,8 +1026,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var sortType = getFieldType(records[0][sortField]);
   
     return records.sort(function(a, b) {
-      var aValue = a[sortField];
-      var bValue = b[sortField];
+      var aValue = a.data[sortField];
+      var bValue = b.data[sortField];
       
       switch (sortType) {
         case 'string': 
@@ -1110,7 +1110,40 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
           return bValue - aValue;
       }
-    })
+    });
+  }
+
+  function sortItems(options) {
+    var records = sortByField(options);
+
+    sortHTMLElements({
+      $layoutContainer: options.$container,
+      listContainer: options.listContainer,
+      records: records
+    });
+  }
+
+  function sortHTMLElements(options) {
+    var sortedItemsList = [];
+    var $list = options.$layoutContainer.find(options.listContainer);
+    var listItems = $list.children();
+
+    listItems.each(function(index) {
+      var $listItem = $(listItems[index]);
+      var itemId = $listItem.data('entry-id');
+      var itemSortedIndex = options.records.findIndex(function(record) {
+        return record.id === itemId;
+      });
+
+      $listItem.detach();
+
+      if (itemSortedIndex !== -1) {
+        sortedItemsList[itemSortedIndex] = $listItem;
+      }
+      
+    });
+
+    $list.html(sortedItemsList);
   }
   
   function getFieldType(value) {
@@ -1506,7 +1539,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortByField
+      sortByField: sortItems
     },
     User: {
       isAdmin: userIsAdmin,

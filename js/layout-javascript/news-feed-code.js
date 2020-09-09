@@ -183,7 +183,10 @@ DynamicList.prototype.attachObservers = function() {
       $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[sortOrder]);
       $sortListItem.data('sortOrder', sortOrder);
 
-      _this.searchData({
+      _this.Utils.Records.sortByField({
+        $container: _this.$container,
+        listContainer: '#simple-list-wrapper-' + _this.data.id,
+        records: _this.searchedListItems,
         sortOrder: sortOrder,
         sortField: sortField
       });
@@ -1699,11 +1702,6 @@ DynamicList.prototype.searchData = function(options) {
       $('#news-feed-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
-      _this.modifiedListItems = _this.Utils.Records.sortByField({
-        records: _this.modifiedListItems,
-        sortField: sortField,
-        sortOrder: sortOrder
-      });
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
         return records;
