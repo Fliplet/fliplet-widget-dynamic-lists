@@ -35,7 +35,7 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required >
+      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required tabindex="0">
       <div class="btn btn-default search-btn">Search</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
@@ -43,14 +43,14 @@
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
       \{{#ifCond bookmarksEnabled '&&' hasTopBar}}
-      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
+      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" tabindex="0">
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/ifCond}}
-      <div class="list-search-cancel" ><span class="fa fa-times"></span></div>
+      <div class="list-search-cancel" tabindex="0"><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders" ></i>
+      <i class="fa fa-sliders" tabindex="0"></i>
       \{{/if}}
     </div>
     \{{/ifCond}}
@@ -129,7 +129,7 @@
 <div class="agenda-detail-overlay" id="agenda-detail-overlay-\{{id}}">
   <div class="agenda-detail-overlay-wrapper">
     <div class="agenda-detail-overlay-panel">
-      <div class="agenda-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+      <div class="agenda-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="agenda-detail-overlay-content">
@@ -137,6 +137,9 @@
           <!-- Details will be added here -->
         </div>
       </div>
+    </div>
+    <div class="agenda-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
+      <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>
   <div class="agenda-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
