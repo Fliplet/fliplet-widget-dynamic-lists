@@ -127,7 +127,6 @@
 
 <!-- Detail view overlay -->
 <div class="agenda-detail-overlay" id="agenda-detail-overlay-\{{id}}">
-  <div class="agenda-detail-overlay-screen"></div>
   <div class="agenda-detail-overlay-wrapper">
     <div class="agenda-detail-overlay-panel">
       <div class="agenda-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
@@ -143,6 +142,7 @@
       <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>
+  <div class="agenda-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
 
 \{{#if showAddEntry}}

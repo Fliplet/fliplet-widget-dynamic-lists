@@ -43,10 +43,6 @@ function DynamicList(id, data, container) {
   this.fetchedAllBookmarks = false;
   this.searchValue = '';
   this.activeFilters = {};
-  this.imagesData = {
-    images: [],
-    options: { index: null }
-  };
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -128,6 +124,14 @@ DynamicList.prototype.attachObservers = function() {
       _this.closeDetails();
     }
   });
+
+  $(window).resize(function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  });
+
+  Fliplet.Hooks.on('flListDataAfterRenderList', function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  })
 
   _this.$container
     .on('click', '[data-lfd-back]', function() {
@@ -262,8 +266,8 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click keydown', '.news-feed-detail-overlay-close', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -302,7 +306,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.closeDetails();
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -372,7 +376,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -381,7 +385,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-      _this.$container.find('[data-filter-group]').hide();
+      _this.$container.find('[data-filter-group]').prop('hidden', true);
 
       // Clear filters
       _this.clearFilters();
@@ -896,22 +900,6 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
       record.likeButton.like();
       $(this).find('.count').html(count);
-    })
-    .on('click', '.news-feed-multiple-images-item', function() {
-      _this.imagesData.options.index = $(this).index();
-
-      var newsFeedImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
-
-      newsFeedImageGallery.listen('afterChange', function() {
-        Fliplet.Page.Context.update({
-          newsFeedImageGalleryId: _this.data.id,
-          newsFeedImageGalleryIdOpenIndex: this.getCurrentIndex()
-        });
-      });
-
-      newsFeedImageGallery.listen('close', function() {
-        Fliplet.Page.Context.remove(['newsFeedImageGalleryId', 'newsFeedImageGalleryIdOpenIndex']);
-      });
     });
 }
 
@@ -1680,7 +1668,7 @@ DynamicList.prototype.searchData = function(options) {
   _this.Utils.Page.updateSearchContext({
     activeFilters: _this.activeFilters,
     searchValue: _this.searchValue,
-    filterControlsActive: _this.$container.find('.hidden-filter-controls.active').length
+    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length
   });
 
   return _this.Utils.Records.runSearch({
@@ -2185,14 +2173,6 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
     } else {
       content = entry.originalData[obj.column];
-    }
-    
-    if (obj.type == 'image') {
-      content = entry.originalData[obj.column].split(/\n/);
-
-      content.forEach(function(imageUrl) {
-        _this.imagesData.images.push({ url: imageUrl });
-      });
     }
 
     // Define data object

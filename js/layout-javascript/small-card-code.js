@@ -41,10 +41,6 @@ function DynamicList(id, data, container) {
   this.directoryDetailWrapper;
   this.searchValue = '';
   this.activeFilters = {};
-  this.imagesData = {
-    images: [],
-    options: { index: null }
-  };
 
   this.queryOpen = false;
   this.querySearch = false;
@@ -128,6 +124,14 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
+  $(window).resize(function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  });
+
+  Fliplet.Hooks.on('flListDataAfterRenderList', function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  })
+
   _this.$container
     .on('click', '[data-lfd-back]', function() {
       var result;
@@ -170,7 +174,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click keydown', '.hidden-filter-controls-filter', function() {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -293,7 +297,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click keydown', '.small-card-detail-overlay-close', function(event) {
+    .on('click keydown', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
       event.stopPropagation();
 
       if (!_this.Utils.Event.isExecute(event)) {
@@ -348,7 +352,7 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
@@ -422,7 +426,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
       // Hide filters
@@ -430,7 +434,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-      _this.$container.find('[data-filter-group]').hide();
+      _this.$container.find('[data-filter-group]').prop('hidden', true);
 
       // Clear filters
       _this.clearFilters();
@@ -684,22 +688,6 @@ DynamicList.prototype.attachObservers = function() {
 
       $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
-    })
-    .on('click', '.small-card-list-multiple-images-item', function() {
-      _this.imagesData.options.index = $(this).index();
-
-      var smallCardImageGallery = Fliplet.Navigate.previewImages(_this.imagesData);
-
-      smallCardImageGallery.listen('afterChange', function() {
-        Fliplet.Page.Context.update({
-          smallCardImageGalleryId: _this.data.id,
-          smallCardImageGalleryIdOpenIndex: this.getCurrentIndex()
-        });
-      });
-
-      smallCardImageGallery.listen('close', function() {
-        Fliplet.Page.Context.remove(['smallCardImageGalleryId', 'smallCardImageGalleryIdOpenIndex']);
-      });
     });
 }
 
@@ -1287,7 +1275,7 @@ DynamicList.prototype.searchData = function(options) {
   _this.Utils.Page.updateSearchContext({
     activeFilters: _this.activeFilters,
     searchValue: _this.searchValue,
-    filterControlsActive: _this.$container.find('.hidden-filter-controls.active').length
+    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length
   });
 
   return _this.Utils.Records.runSearch({
@@ -1749,14 +1737,6 @@ DynamicList.prototype.addDetailViewData = function (entry) {
       content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]).join(', ');
     } else {
       content = entry.originalData[dynamicDataObj.column];
-    }
-
-    if (dynamicDataObj.type == 'image') {
-      content = entry.originalData[dynamicDataObj.column].split(/\n/);
-
-      content.forEach(function(imageUrl) {
-        _this.imagesData.images.push({ url: imageUrl });
-      });
     }
 
     // Define data object

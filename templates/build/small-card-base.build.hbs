@@ -124,7 +124,6 @@
 
 <!-- Detail view overlay -->
 <div class="small-card-detail-overlay" id="small-card-detail-overlay-\{{id}}">
-  <div class="small-card-detail-overlay-screen"></div>
   <div class="small-card-detail-overlay-wrapper">
     <div class="small-card-detail-overlay-panel">
       <div class="small-card-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
@@ -140,6 +139,7 @@
       <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon">
     </div>
   </div>
+  <div class="small-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
 
 \{{#if showAddEntry}}

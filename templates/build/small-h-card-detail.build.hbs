@@ -42,23 +42,12 @@
         \{{#ifCond type '==' 'image'}}
           \{{#if content}}
             \{{#if labelEnabled}}
-              <div class="small-h-card-detail-label">\{{label}}</div>
+            <div class="small-h-card-list-detail-label">\{{label}}</div>
             \{{/if}}
-            \{{#if (isSingle content)}}
-              \{{#each content}}
-                <div class="small-h-card-detail-value">
-                  <img src="\{{validateImage this}}">
-                </div>
-              \{{/each}}
-            \{{else}}
-              <div class="small-h-card-multiple-images-holder">
-                \{{#each content}}
-                  <div class="small-h-card-multiple-images-item">
-                    <img src="\{{validateImage this}}">
-                  </div>
-                \{{/each}}
-              </div>
-            \{{/if}}
+
+            <div class="small-h-card-list-detail-body-text">
+              <img src="\{{validateImage content}}">
+            </div>
           \{{/if}}
         \{{/ifCond}}
 
@@ -133,6 +122,7 @@
             <div class="small-h-card-list-detail-body-text">\{{formatDate content}}</div>
           \{{/if}}
         \{{/ifCond}}
+
       \{{/each}}
     </div>
 

@@ -107,10 +107,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     Handlebars.registerHelper('validateImage', validateImageUrl);
 
-    Handlebars.registerHelper('isSingle', function(value) {
-      return value.length === 1;
-    });
-
     Handlebars.registerHelper('formatComment', function(text) {
       var res = text;
 
@@ -135,9 +131,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
-  function splitByCommas(str) {
+  function splitByCommas(str, returnNilAsArray) {
     if (str === undefined || str === null) {
-      return [];
+      return returnNilAsArray === false ? str : [];
     }
 
     if (_.isArray(str)) {
@@ -148,20 +144,33 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return [str];
     }
 
-    // Split a string by commas but ignore commas within double-quotes using Javascript
-    // https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
-    var regexp = /(".*?"|[^",]+)(?=\s*,|\s*$)/g;
+    // Split a string by commas but ignore commas within double-quotes
+    // Turn values within square brackets into a nested array
+    // Adapted from: https://stackoverflow.com/questions/11456850/split-a-string-by-commas-but-ignore-commas-within-double-quotes-using-javascript
+
+    var csvArrayPattern = /(".*?"|\[.*?\]|[^",\[\]]+)(?=\s*,|\s*$)/g;
+    var arrayPattern = /^(?:\[[\w\W]*\])$/;
     var arr = [];
-    var res = regexp.exec(str);
+    var res = csvArrayPattern.exec(str);
+
     while (res !== null) {
-      arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
-      res = regexp.exec(str);
+      if (arrayPattern.test(res[0])) {
+        arr.push(splitByCommas(res[0].replace(/(?:^\[)|(?:\]$)/g, '').trim()));
+      } else {
+        arr.push(res[0].replace(/(?:^")|(?:"$)/g, '').trim());
+      }
+
+      res = csvArrayPattern.exec(str);
     }
 
-    return _.filter(_.map(arr, function (s) {
-      return ('' + s).trim();
+    return _.filter(_.map(arr, function (value) {
+      if (_.isArray(value)) {
+        return value;
+      }
+
+      return ('' + value).trim();
     }), function (value) {
-      return [undefined, null, '', NaN].indexOf(value) === -1;
+      return _.isArray(value) || [undefined, null, '', NaN].indexOf(value) === -1;
     });
   }
 
@@ -241,21 +250,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       query.value = [query.value];
     }
 
-    // Select filters using on legacy class-based methods
-    query.value.forEach(function(values, index) {
-      if (!Array.isArray(values)) {
-        query.value[index] = [values];
-      }
-
-      query.value[index].forEach(function (value) {
-        var className = value.toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
-        selectors.push('[data-toggle="' + className + '"]');
-      });
-    });
-
     if (_.get(query, 'column', []).length) {
       // Select filters using on legacy column-specific methods
       query.column.forEach(function (field, index) {
+        if (!Array.isArray(query.value[index])) {
+          query.value[index] = [query.value[index]];
+        }
+
         query.value[index].forEach(function (value) {
           selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
         });
@@ -393,6 +394,36 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function moveAddbuttonPosition(options) {
+    var $addButton = options.$container.find('.dynamic-list-add-item');
+    var layout = options.data.layout;
+    var listClasses = {
+      'agenda': '.agenda-list-card-holder',
+      'news-feed': '.news-feed-list-wrapper',
+      'simple-list': '.simple-list-wrapper',
+      'small-card': '.small-card-list-wrapper'
+    };
+    var elementSpace = 20;
+    var addButtonWidth = $addButton.innerWidth();
+    var halfListWrapperWidth = Math.floor(options.$container.find(listClasses[layout]).innerWidth() / 2);
+    var screenCenter = Math.floor($('body').innerWidth() / 2);
+    var rightPosition = screenCenter - (halfListWrapperWidth + elementSpace + addButtonWidth);
+
+    $addButton.css('right', rightPosition);
+  }
+
+  function resetAddButtonPosition(options) {
+    options.$container.find('.dynamic-list-add-item').css('right', '');
+  }
+
+  function adjustAddButtonPosition(options) {
+    if (options.data.addEntry && Modernizr.tablet) {
+      moveAddbuttonPosition(options);
+    } else if (options.data.addEntry && !Modernizr.tablet) {
+      resetAddButtonPosition(options)
+    }
+  }
+
   function runRecordFilters(records, filters) {
     if (!filters || _.isEmpty(filters)) {
       return records;
@@ -409,20 +440,33 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     return _.filter(records, function (record) {
       return _.every(filters, function (filter) {
-        if (filter.condition === 'none' || filter.column === 'none' || !filter.value) {
+        var condition = filter.condition;
+        var rowData = _.get(record, ['data', filter.column], null);
+
+        if (condition === 'none' || filter.column === 'none') {
           // Filter isn't configured correctly
           return true;
         }
 
-        var condition = filter.condition;
-        var rowData;
+        if (condition === 'empty') {
+          return _.isEmpty(rowData) && !_.isFinite(rowData) && typeof rowData !== 'boolean';
+        }
+
+        if (condition === 'notempty') {
+          return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
+        }
+
+        if (!filter.value) {
+          // Value is not configured
+          return true;
+        }
 
         // Case insensitive
         if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
         }
 
-        if (!_.isNull(_.get(record, 'data.' + filter.column, null))) {
+        if (!_.isNull(rowData)) {
           rowData = record.data[filter.column].toString().toLowerCase();
         }
 
@@ -1308,7 +1352,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
-      $: getjQueryObjects
+      $: getjQueryObjects,
+      adjustAddButtonPosition: adjustAddButtonPosition
     },
     Page: {
       updateSearchContext: updateSearchContext,

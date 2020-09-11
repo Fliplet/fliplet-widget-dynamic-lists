@@ -121,7 +121,6 @@
 
 <!-- Detail view overlay -->
 <div class="simple-list-detail-overlay" id="simple-list-detail-overlay-\{{id}}" data-entry-id="\{{id}}">
-  <div class="simple-list-detail-overlay-screen"></div>
   <div class="simple-list-detail-overlay-wrapper">
     <div class="simple-list-detail-overlay-panel">
       <div class="simple-list-detail-overlay-heading">
@@ -139,6 +138,7 @@
       <img src="\{{closeIcon.white.url}}" alt="close icon" class="close-icon">
     </div>
   </div>
+  <div class="simple-list-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
 
 \{{#if showAddEntry}}
