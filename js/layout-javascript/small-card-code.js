@@ -173,7 +173,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on('click keydown', '.hidden-filter-controls-filter', function() {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -232,7 +236,11 @@ DynamicList.prototype.attachObservers = function() {
         action: 'profile_open'
       });
     })
-    .on('click', '.small-card-list-item', function(event) {
+    .on('click keydown', '.small-card-list-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
 
       if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
@@ -287,8 +295,12 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
+    .on('click keydown', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
       event.stopPropagation();
+
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
 
       var result;
 
@@ -335,7 +347,11 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
-    .on('click', '.list-search-icon .fa-sliders', function(event) {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-small-card-list-container');
 
@@ -357,6 +373,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
       $elementClicked.addClass('active');
+      $parentElement.find('[data-filter-group]').prop('hidden', null);
 
       _this.calculateFiltersHeight($parentElement);
 
@@ -404,12 +421,16 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function(event) {
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+      _this.$container.find('[data-filter-group]').prop('hidden', true);
 
       // Clear filters
       _this.clearFilters();
@@ -478,7 +499,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
+    .on('click keydown', '.clear-search', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       _this.$container.find('.new-small-card-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -489,7 +514,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -521,7 +550,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -555,7 +588,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
@@ -621,8 +658,8 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.toggle-bookmarks', function (event) {
-      if (event.type !== 'click' && event.keyCode !== 32 && event.keyCode !== 13) {
+    .on('click keydown', '.toggle-bookmarks', function (event) {
+      if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 

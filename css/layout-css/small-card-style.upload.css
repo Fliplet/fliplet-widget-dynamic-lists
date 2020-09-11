@@ -1186,6 +1186,10 @@
   margin-bottom: 25px;
 }
 
+.small-card-detail-overlay .small-card-detail-overlay-panel {
+  z-index: 1;
+}
+
 .small-card-detail-overlay-close.tablet {
   display: none;
 }
@@ -1239,7 +1243,6 @@
     right: auto;
     bottom: auto;
     border-radius: 20px;
-    z-index: 1;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
