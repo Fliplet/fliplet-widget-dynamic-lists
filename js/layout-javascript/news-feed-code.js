@@ -221,6 +221,8 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.news-feed-list-wrapper').hide();
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -268,6 +270,8 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
+
+      _this.$container.find('.news-feed-list-wrapper').show();
 
       var result;
 
@@ -326,7 +330,7 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
-      $parentElement.find('[data-filter-group]').prop('hidden', null);
+      $parentElement.find('[data-filter-group]').show();
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
@@ -1849,8 +1853,8 @@ DynamicList.prototype.setupLikeButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
           likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-          likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
-          likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+          likeWrapper: '<div class="news-feed-like-wrapper btn-like focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="news-feed-like-wrapper btn-liked focus-outline" tabindex="0"></div>',
           addType: 'html',
           liked: record.liked,
           count: record.likeCount
@@ -2032,8 +2036,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
           likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-          likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked

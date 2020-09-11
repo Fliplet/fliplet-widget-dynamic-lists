@@ -104,6 +104,8 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.small-h-card-list-wrapper').hide();
+
       var _that = $(this);
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
@@ -159,6 +161,8 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
+
+      _this.$container.find('.small-h-card-list-wrapper').show();
 
       var result;
 

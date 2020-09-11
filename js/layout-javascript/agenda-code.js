@@ -236,6 +236,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.hidden-filter-controls').addClass('active');
       _this.$container.find('.list-search-cancel').addClass('active');
+      _this.$container.find('[data-filter-group]').show();
       $el.addClass('active');
 
       _this.toggleListView();
@@ -449,14 +450,14 @@ DynamicList.prototype.attachObservers = function() {
           : 'bookmarks_hide'
       });
     })
-    .on('click', '.toggle-agenda, .toggle-bookmarks', function(event) {
-      e.stopPropagation();
-
+    .on('click keydown', '.toggle-agenda, .toggle-bookmarks', function(event) {
       if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
-      var $toggle = _this.$container.find(e.handleObj.selector);
+      event.stopPropagation();
+
+      var $toggle = _this.$container.find(event.handleObj.selector);
 
       $toggle.toggleClass('mixitup-control-active');
       _this.$container.find('.new-agenda-list-container').toggleClass('show-bookmarks');
@@ -1827,8 +1828,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="fa fa-bookmark-o"></span>',
           likedLabel: '<span class="fa fa-bookmark"></span>',
-          likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'prepend',
           getAllCounts: false,
           liked: record.bookmarked,

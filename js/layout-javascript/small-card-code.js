@@ -247,6 +247,8 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.small-card-list-wrapper').hide();
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
@@ -301,6 +303,8 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
+
+      _this.$container.find('.small-card-list-wrapper').show();
 
       var result;
 
@@ -373,7 +377,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
       $elementClicked.addClass('active');
-      $parentElement.find('[data-filter-group]').prop('hidden', null);
+      $parentElement.find('[data-filter-group]').show();
 
       _this.calculateFiltersHeight($parentElement);
 
@@ -1471,8 +1475,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o"></i>',
           likedLabel: '<i class="fa fa-bookmark animated fadeIn"></i>',
-          likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked
