@@ -218,8 +218,14 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click', '.list-search-icon .fa-sliders', function(event) {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (!_this.Utils.Event.isExecute(event)) {
+        return;
+      }
+
       var $el = $(this);
+
+      _this.$container.find('[data-filter-group]').prop('hidden', null);
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
@@ -289,6 +295,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.calculateFiltersHeight(true);
+      _this.$container.find('[data-filter-group]').prop('hidden', true);
 
       // Clear filters
       _this.clearFilters();
