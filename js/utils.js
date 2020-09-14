@@ -174,6 +174,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
+  Handlebars.registerHelper('formatFilename', function(filename) {
+    var index = filename.indexOf('contents/');
+    var formattedName = filename.substring(index + 9);
+
+    return formattedName;
+  });
+  
   function isExecute (event) {
     if (event.type === 'click') {
       return true;
