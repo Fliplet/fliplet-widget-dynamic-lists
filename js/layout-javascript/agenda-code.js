@@ -450,13 +450,13 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click', '.toggle-agenda, .toggle-bookmarks', function(event) {
-      e.stopPropagation();
+      event.stopPropagation();
 
       if (!_this.Utils.Event.isExecute(event)) {
         return;
       }
 
-      var $toggle = _this.$container.find(e.handleObj.selector);
+      var $toggle = _this.$container.find(event.handleObj.selector);
 
       $toggle.toggleClass('mixitup-control-active');
       _this.$container.find('.new-agenda-list-container').toggleClass('show-bookmarks');
