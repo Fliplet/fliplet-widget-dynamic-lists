@@ -639,26 +639,26 @@ DynamicList.prototype.attachObservers = function() {
             },
             {
               label: 'Delete',
-              action: function (i) {
+              action: function () {
                 var options = {
                   title: 'Delete comment',
                   message: 'Are you sure you want to delete this comment?',
-                  labels: ['Delete','Cancel'] // Native only (defaults to [OK,Cancel])
-                };
-
-                Fliplet.Navigate.confirm(options)
-                  .then(function(result) {
-                    Fliplet.Analytics.trackEvent({
-                      category: 'list_dynamic_' + _this.data.layout,
-                      action: 'comment_delete'
-                    });
-
-                    if (!result) {
-                      return;
+                  labels: [
+                    {
+                      label: 'Delete',
+                      action: function(i) {
+                        Fliplet.Analytics.trackEvent({
+                          category: 'list_dynamic_' + _this.data.layout,
+                          action: 'comment_delete'
+                        });
+    
+                        _this.deleteComment(commentId);
+                      }
                     }
-
-                    _this.deleteComment(commentId);
-                  });
+                  ]
+                };
+                
+                Fliplet.UI.Actions(options);
               }
             }
           ],
