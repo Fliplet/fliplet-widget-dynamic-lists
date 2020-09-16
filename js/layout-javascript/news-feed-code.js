@@ -174,10 +174,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
+    .on('click', '.hidden-filter-controls-filter', function() {
 
       var $filter = $(this);
 
@@ -211,12 +208,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click keydown', '.news-feed-list-item', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
-
+    .on('click', '.news-feed-list-item', function(event) {
       if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
         return;
       }
@@ -264,11 +256,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function() {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -301,17 +289,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-
-      $parentElement.find('[data-filter-group]').show();
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
@@ -326,7 +308,6 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.find('.hidden-filter-controls').addClass('active');
       $parentElement.find('.list-search-cancel').addClass('active');
-      $parentElement.find('[data-filter-group]').prop('hidden', null);
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
@@ -371,11 +352,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click keydown', '.list-search-cancel', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.list-search-cancel', function() {
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
@@ -450,11 +427,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click keydown', '.clear-search', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.clear-search', function() {
       _this.$container.find('.new-news-feed-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -465,11 +438,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click keydown', '.news-feed-comment-holder', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-comment-holder', function(event) {
       _this.$container.find('.news-feed-list-wrapper').hide();
 
       event.stopPropagation();
@@ -487,23 +456,14 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click keydown', '.news-feed-comment-close-panel', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
-      _this.$container.find('.news-feed-list-wrapper').show();
+    .on('click ', '.news-feed-comment-close-panel', function() {
       _this.$container.find('.new-news-feed-comment-panel').removeClass('open');
       _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
       if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
         $('body').removeClass('lock');
       }
     })
-    .on('click keydown', '.news-feed-comment-input-holder .comment', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-comment-input-holder .comment', function() {
       var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val().trim();
@@ -561,11 +521,7 @@ DynamicList.prototype.attachObservers = function() {
         $(this).parents('.news-feed-comment-input-holder').removeClass('ready');
       }
     })
-    .on('click keydown', '.news-feed-comment-input-holder .save', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-comment-input-holder .save', function() {
       var commentId = _this.$container.find('.fl-individual-comment.editing').data('id');
       var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
@@ -585,11 +541,7 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comment_save_edit'
       });
     })
-    .on('click keydown', '.news-feed-comment-input-holder .cancel', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-comment-input-holder .cancel', function() {
       _this.$container.find('.fl-individual-comment').removeClass('editing');
       _this.$container.find('.news-feed-comment-input-holder').removeClass('editing');
 
@@ -597,11 +549,7 @@ DynamicList.prototype.attachObservers = function() {
       $messageArea.val('').trigger('change');
       autosize.update($messageArea);
     })
-    .on('click keydown', '.final .fl-comment-value', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.final .fl-comment-value', function(event) {
       event.preventDefault();
       var _that = $(this);
       var commentId = $(this).parents('.fl-individual-comment').data('id');
@@ -699,11 +647,7 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comment_options'
       });
     })
-    .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.dynamic-list-add-item', function() {
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -735,11 +679,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click keydown', '.dynamic-list-edit-item', function() {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.dynamic-list-edit-item', function() {
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -773,10 +713,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
+    .on('click', '.dynamic-list-delete-item', function() {
 
       var _that = $(this);
       var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
@@ -837,21 +774,13 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click keydown', '.toggle-bookmarks', function (event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.toggle-bookmarks', function () {
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
       _this.searchData();
     })
-    .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function() {
       var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -868,11 +797,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     })
-    .on('click keydown', '.news-feed-detail-overlay .news-feed-like-wrapper', function(event) {
-      if (!_this.Utils.Event.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-detail-overlay .news-feed-like-wrapper', function() {
       var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
