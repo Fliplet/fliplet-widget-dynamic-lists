@@ -186,7 +186,7 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('clicks', '.simple-list-item', function(event) {
+    .on('click', '.simple-list-item', function(event) {
       if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
         return;
       }
