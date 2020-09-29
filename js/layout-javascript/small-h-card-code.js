@@ -230,6 +230,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -264,6 +265,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
+
       var _that = $(this);
       var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
