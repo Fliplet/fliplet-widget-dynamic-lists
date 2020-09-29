@@ -1048,8 +1048,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var sortType = getFieldType(records[0][sortField]);
   
     return records.sort(function(a, b) {
-      var aValue = a.data[sortField];
-      var bValue = b.data[sortField];
+      var aValue = a.data ? a.data[sortField] : a[sortField];
+      var bValue = b.data ? b.data[sortField] : b[sortField];
       
       switch (sortType) {
         case 'string': 
@@ -1135,29 +1135,34 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
   }
 
-  function sortItems(options) {
-    var records = sortByField(options);
+  function sortRecordsByField(options) {
+    var sortedRecords = sortByField(options);
+
+    if (options.onlyRecords) {
+      return sortedRecords;
+    }
 
     sortHTMLElements({
       $layoutContainer: options.$container,
       listContainer: options.listContainer,
-      records: records
+      listHolder: options.listHolder,
+      sortedRecords: sortedRecords
     });
   }
 
   function sortHTMLElements(options) {
     var sortedItemsList = [];
-    var $list = options.$layoutContainer.find(options.listContainer);
-    var listItems = $list.children();
+    var $list = $(options.listContainer);
+    var $prevElement = $list.prev();
+    var $detachedList = $list.detach();
+    var $listItems = $detachedList.find('.small-card-list-item').detach();
 
-    listItems.each(function(index) {
-      var $listItem = $(listItems[index]);
-      var itemId = $listItem.data('entry-id');
-      var itemSortedIndex = options.records.findIndex(function(record) {
+    $listItems.each(function() {
+      var $listItem = $(this);
+      var itemId = parseInt($listItem.data('entry-id'), 10);
+      var itemSortedIndex = options.sortedRecords.findIndex(function(record) {
         return record.id === itemId;
       });
-
-      $listItem.detach();
 
       if (itemSortedIndex !== -1) {
         sortedItemsList[itemSortedIndex] = $listItem;
@@ -1166,6 +1171,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     });
 
     $list.html(sortedItemsList);
+    $list.insertAfter($prevElement);
   }
   
   function getFieldType(value) {
@@ -1562,7 +1568,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortItems
+      sortByField: sortRecordsByField
     },
     User: {
       isAdmin: userIsAdmin,

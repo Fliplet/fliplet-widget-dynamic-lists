@@ -54,6 +54,8 @@ function DynamicList(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
+  this.sortOrder = 'asc';
+  this.sortField = null;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -163,8 +165,6 @@ DynamicList.prototype.attachObservers = function() {
 
       var $sortListItem = $(e.currentTarget);
       var oldSortOrder = $sortListItem.data('sortOrder');
-      var sortOrder;
-      var sortField = $sortListItem.data('sortField');;
       var $sortOrderIcon = $sortListItem.find('i');
       var $sortList = _this.$container.find('.sort-list-simple li');
       var sortClasses = {
@@ -178,18 +178,19 @@ DynamicList.prototype.attachObservers = function() {
         'desc': 'asc'
       };
 
-      sortOrder = newSortOrder[oldSortOrder];
+      _this.sortOrder = newSortOrder[oldSortOrder];
+      _this.sortField = $sortListItem.data('sortField');;
       _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
-      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[sortOrder]);
-      $sortListItem.data('sortOrder', sortOrder);
+      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[_this.sortOrder]);
+      $sortListItem.data('sortOrder', _this.sortOrder);
 
       _this.Utils.Records.sortByField({
         $container: _this.$container,
         listContainer: '#simple-list-wrapper-' + _this.data.id,
         records: _this.searchedListItems,
-        sortOrder: sortOrder,
-        sortField: sortField
+        sortOrder: _this.sortOrder,
+        sortField: _this.sortField
       });
     })
     .on('click', '.apply-filters', function() {
@@ -1384,8 +1385,6 @@ DynamicList.prototype.searchData = function(options) {
 
   var _this = this;
   var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
-  var sortField = options.sortField || '';
-  var sortOrder = options.sortOrder || 'asc';
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -1461,8 +1460,7 @@ DynamicList.prototype.searchData = function(options) {
 
       if (!_this.data.forceRenderList 
         && searchedData.length 
-        && !_.xorBy(searchedData, _this.searchedListItems, 'id').length 
-        && !sortField) {
+        && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
         // Same results returned. Do nothing.
         return Promise.resolve();
       }
@@ -1476,8 +1474,7 @@ DynamicList.prototype.searchData = function(options) {
 
       if (!_this.data.forceRenderList
         && searchedData.length
-        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length
-        && !sortField) {
+        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
         _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
@@ -1494,6 +1491,13 @@ DynamicList.prototype.searchData = function(options) {
       $('#simple-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
+      _this.modifiedListItems = _this.Utils.Records.sortByField({
+        records: _this.modifiedListItems,
+        sortOrder: _this.sortOrder,
+        sortField: _this.sortField,
+        onlyRecords: true
+      });
+
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
         return records;
