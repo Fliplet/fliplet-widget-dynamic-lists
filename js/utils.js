@@ -340,19 +340,24 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return record.indexOf(value) > -1;
   }
 
-  function filterDOMItem(filter) {
-    var $filter = $(filter);
-  
+  function filterDOMItem(options) {
     return '<div class="btn hidden-filter-controls-filter mixitup-control-active"'
-      + 'data-toggle="'+ $filter.data('toggle') +'"'
-      + ' data-field="'+ $filter.data('field') +'"'
-      + ' data-value="'+ $filter.data('value') +'"'
-      + '>'+ $filter.data('value')
+      + 'data-toggle="'+ options.toggle +'"'
+      + ' data-field="'+ options.field +'"'
+      + ' data-value="'+ options.value +'"'
+      + '>'+ options.value
       + '</div>';
   }
 
   function transferActiveFilterClick(event) {
     var $target = $(this);
+
+    // To deal with error when element clicked twice
+    if (window.prevClickedElement === $target.data('value')) {
+      return;
+    }
+
+    window.prevClickedElement = $target.data('value');
     var context = event.data.context;
     var filterOverlay = event.data.filterOverlayClass;
     var redirectSelector = context.data.filtersInOverlay 
@@ -388,15 +393,18 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return;
     }
   
-    $filtersGroup.html('');
     $selectedFilters.each(function() {
-      var $activeFilter = $(filterDOMItem(this));
+      var activeFilter = filterDOMItem({
+        toggle: this.dataset.toggle,
+        field: this.dataset.field,
+        value: this.dataset.value
+      });
   
-      $activeFilter.on('click', options, transferActiveFilterClick);
-      activeFiltersElemenst.push($activeFilter);
+      activeFiltersElemenst.push(activeFilter);
     });
 
-    $filtersGroup.append(activeFiltersElemenst);
+    $filtersGroup.html(activeFiltersElemenst);
+    $filtersGroup.on('click', '.hidden-filter-controls-filter.mixitup-control-active', options, transferActiveFilterClick);
     $activeFiltersHolder.removeClass('hidden');
   }
 
