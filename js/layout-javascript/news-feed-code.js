@@ -174,23 +174,24 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
-
-      var $filter = $(this);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter',
-        label: $filter.text().trim()
-      });
-
-      _this.toggleFilterElement($filter);
-
-      if ($filter.parents('.inline-filter-holder').length) {
-        // @HACK Skip an execution loop to allow custom handlers to update the filters
-        setTimeout(function () {
-          _this.searchData();
-        }, 0);
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
+      if(event.key === 'Enter' || event.type === 'click') {
+        var $filter = $(this);
+  
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter',
+          label: $filter.text().trim()
+        });
+  
+        _this.toggleFilterElement($filter);
+  
+        if ($filter.parents('.inline-filter-holder').length) {
+          // @HACK Skip an execution loop to allow custom handlers to update the filters
+          setTimeout(function () {
+            _this.searchData();
+          }, 0);
+        }
       }
     })
     .on('touchstart', '.news-feed-list-item', function(event) {
@@ -208,114 +209,125 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click', '.news-feed-list-item', function(event) {
-      if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
-        return;
-      }
-
-      var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.news-feed-item-title').text().trim();
-      var beforeOpen = Promise.resolve();
-
-      if (typeof _this.data.beforeOpen === 'function') {
-        beforeOpen = _this.data.beforeOpen({
-          config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
-          entryId: entryId,
-          entryTitle: entryTitle,
-          event: event
-        });
-
-        if (!(beforeOpen instanceof Promise)) {
-          beforeOpen = Promise.resolve(beforeOpen);
-        }
-      }
-
-      beforeOpen.then(function () {
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_open',
-          label: entryTitle
-        });
-
-        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-          _this.Utils.Navigate.openLinkAction({
-            records: _this.listItems,
-            recordId: entryId,
-            summaryLinkAction: _this.data.summaryLinkAction
-          });
-
-          return;
-        }
-        // find the element to expand and expand it
-        if (_this.allowClick) {
-          _this.showDetails(entryId);
-          Fliplet.Page.Context.update({
-            dynamicListOpenId: entryId
-          });
-        }
-      });
-    })
-    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function() {
-      var result;
-
-      if ($(this).hasClass('go-previous-screen')) {
-        if (!_this.pvPreviousScreen) {
+    .on('click keydown', '.news-feed-list-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $('.new-news-feed-list-container').hide();
+        if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
           return;
         }
 
-        try {
-          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
-        } catch (error) {
-          console.error('Your custom function contains a syntax error: ' + error);
+        var entryId = $(this).data('entry-id');
+        var entryTitle = $(this).find('.news-feed-item-title').text().trim();
+        var beforeOpen = Promise.resolve();
+
+        if (typeof _this.data.beforeOpen === 'function') {
+          beforeOpen = _this.data.beforeOpen({
+            config: _this.data,
+            entry: _.find(_this.listItems, { id: entryId }),
+            entryId: entryId,
+            entryTitle: entryTitle,
+            event: event
+          });
+
+          if (!(beforeOpen instanceof Promise)) {
+            beforeOpen = Promise.resolve(beforeOpen);
+          }
         }
 
-        try {
-          result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
-        } catch (error) {
-          console.error('Your custom function thrown an error: ' + error);
-        }
+        beforeOpen.then(function () {
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_open',
+            label: entryTitle
+          });
 
-        if (!(result instanceof Promise)) {
-          result = Promise.resolve();
-        }
+          if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+            _this.Utils.Navigate.openLinkAction({
+              records: _this.listItems,
+              recordId: entryId,
+              summaryLinkAction: _this.data.summaryLinkAction
+            });
 
-        return result.then(function () {
-          return Fliplet.Navigate.back();
-        }).catch(function (error) {
-          console.error(error);
+            return;
+          }
+          // find the element to expand and expand it
+          if (_this.allowClick) {
+            _this.showDetails(entryId);
+            Fliplet.Page.Context.update({
+              dynamicListOpenId: entryId
+            });
+          }
         });
       }
-
-      _this.closeDetails();
     })
-    .on('click', '.list-search-icon .fa-sliders', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
+    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $('.new-news-feed-list-container').show();
+        var result;
 
-      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+        if ($(this).hasClass('go-previous-screen')) {
+          if (!_this.pvPreviousScreen) {
+            return;
+          }
 
-      if (_this.data.filtersInOverlay) {
-        $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-        $('body').addClass('lock has-filter-overlay');
+          try {
+            _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+          } catch (error) {
+            console.error('Your custom function contains a syntax error: ' + error);
+          }
 
+          try {
+            result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+          } catch (error) {
+            console.error('Your custom function thrown an error: ' + error);
+          }
+
+          if (!(result instanceof Promise)) {
+            result = Promise.resolve();
+          }
+
+          return result.then(function () {
+            return Fliplet.Navigate.back();
+          }).catch(function (error) {
+            console.error(error);
+          });
+        }
+
+        _this.closeDetails();
+      }
+    })
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $elementClicked = $(this);
+        var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
+        
+        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+        
+        if (_this.data.filtersInOverlay) {
+          $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
+          $('body').addClass('lock has-filter-overlay');
+          
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'search_filter_controls_overlay_activate'
+          });
+          return;
+        }
+        $('.hidden-filter-controls').show();
+        $parentElement.find('.hidden-filter-controls').addClass('active');
+        $parentElement.find('.list-search-cancel').addClass('active');
+        if(event.type !== 'click') {
+          $parentElement.find('.list-search-cancel').focus();
+        }
+        $elementClicked.addClass('active');
+  
+        _this.calculateFiltersHeight($parentElement);
+  
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
-          action: 'search_filter_controls_overlay_activate'
+          action: 'search_filter_controls_activate'
         });
-        return;
       }
-
-      $parentElement.find('.hidden-filter-controls').addClass('active');
-      $parentElement.find('.list-search-cancel').addClass('active');
-      $elementClicked.addClass('active');
-
-      _this.calculateFiltersHeight($parentElement);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'search_filter_controls_activate'
-      });
     })
     .on('click', '.news-feed-overlay-close', function() {
       var $elementClicked = $(this);
@@ -352,16 +364,21 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function() {
-      // Hide filters
-      $(this).removeClass('active');
-      _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
-      _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-      _this.$container.find('[data-filter-group]').prop('hidden', true);
-
-      // Clear filters
-      _this.clearFilters();
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        // Hide filters
+        $(this).removeClass('active');
+        _this.$container.find('.hidden-filter-controls').removeClass('active');
+        _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+        _this.$container.find('.list-search-icon .fa-sliders').focus();
+        _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+        _this.$container.find('[data-filter-group]').prop('hidden', true);
+        $('.fa-sliders').focus();
+        $('.hidden-filter-controls').hide();
+        
+        // Clear filters
+        _this.clearFilters();
+      }
     })
     .on('keyup input', '.search-holder input', function(e) {
       var $inputField = $(this);
@@ -774,53 +791,59 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.toggle-bookmarks', function () {
-      var $toggle = $(this);
-
-      $toggle.toggleClass('mixitup-control-active');
-      _this.searchData();
+    .on('click keydown', '.toggle-bookmarks', function (event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $toggle = $(this);
+  
+        $toggle.toggleClass('mixitup-control-active');
+        _this.searchData();
+      }
     })
-    .on('click', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function() {
-      var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+    .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+        var record = _.find(_this.listItems, { id: id });
 
-      if (!record || !record.bookmarkButton) {
-        return;
+        if (!record || !record.bookmarkButton) {
+          return;
+        }
+
+        if (record.bookmarked) {
+          $(this).parents('.news-feed-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+          record.bookmarkButton.unlike();
+          return;
+        }
+
+        $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+        record.bookmarkButton.like();
       }
-
-      if (record.bookmarked) {
-        $(this).parents('.news-feed-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
-        record.bookmarkButton.unlike();
-        return;
-      }
-
-      $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
-      record.bookmarkButton.like();
     })
-    .on('click', '.news-feed-detail-overlay .news-feed-like-wrapper', function() {
-      var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
-
-      if (!record || !record.likeButton) {
-        return;
-      }
-
-      var count = record.likeButton.getCount();
-
-      if (count < 1) {
-        count = '';
-      }
-
-      if (record.liked) {
-        $(this).parents('.news-feed-like-holder').removeClass('liked').addClass('not-liked');
-        record.likeButton.unlike();
+    .on('click keydown', '.news-feed-detail-overlay  .news-feed-like-wrapper', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+        var record = _.find(_this.listItems, { id: id });
+  
+        if (!record || !record.likeButton) {
+          return;
+        }
+  
+        var count = record.likeButton.getCount();
+  
+        if (count < 1) {
+          count = '';
+        }
+  
+        if (record.liked) {
+          $(this).parents('.news-feed-like-holder').removeClass('liked').addClass('not-liked');
+          record.likeButton.unlike();
+          $(this).find('.count').html(count);
+          return;
+        }
+  
+        $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
+        record.likeButton.like();
         $(this).find('.count').html(count);
-        return;
       }
-
-      $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
-      record.likeButton.like();
-      $(this).find('.count').html(count);
     });
 }
 

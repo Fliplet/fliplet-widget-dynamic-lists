@@ -48,14 +48,14 @@
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
-      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
+      <div class="toggle-bookmarks focus-outline" tabindex="0" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/if}}
-      <div class="list-search-cancel" ><span class="fa fa-times"></span></div>
+      <div class="list-search-cancel focus-outline" tabindex="0" ><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders" ></i>
+      <i class="fa fa-sliders focus-outline" tabindex="0" ></i>
       \{{/if}}
     </div>
     \{{/ifCond}}
@@ -123,7 +123,7 @@
 <div class="news-feed-detail-overlay" id="news-feed-detail-overlay-\{{id}}">
   <div class="news-feed-detail-overlay-wrapper">
     <div class="news-feed-detail-overlay-panel">
-      <div class="news-feed-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+      <div class="news-feed-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="news-feed-detail-overlay-content">
@@ -132,7 +132,7 @@
         </div>
       </div>
     </div>
-    <div class="news-feed-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+    <div class="news-feed-detail-overlay-close focus-outline tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
       <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>

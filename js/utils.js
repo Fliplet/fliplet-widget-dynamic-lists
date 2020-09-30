@@ -363,6 +363,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function accesabilityDetails(event, item) {
+    if(event.key === 'Enter' || event.type === 'click') {
+      if(event.type === 'click') {
+        item.removeClass('focus-outline');
+      }
+      return true
+    } else {
+      return false
+    }
+  }
+
   function recordIsDeletable(record, config, userData) {
     if (_.isNil(config.deleteEntry) || _.isNil(config.deletePermissions)) {
       return false;
@@ -1350,6 +1361,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Page: {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
+    },
+    Accessability: {
+      accesabilityDetails: accesabilityDetails,
     },
     String: {
       splitByCommas: splitByCommas,

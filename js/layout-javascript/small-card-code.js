@@ -335,33 +335,38 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
-    .on('click', '.list-search-icon .fa-sliders', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.new-small-card-list-container');
-
-      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-
-      if (_this.data.filtersInOverlay) {
-        $parentElement.find('.small-card-search-filter-overlay').addClass('display');
-        $('body').addClass('lock has-filter-overlay');
-
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $elementClicked = $(this);
+        var $parentElement = $elementClicked.parents('.new-small-card-list-container');
+        
+        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+        
+        if (_this.data.filtersInOverlay) {
+          $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+          $('body').addClass('lock has-filter-overlay');
+          
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'search_filter_controls_overlay_activate'
+          });
+          return;
+        }
+        
+        $parentElement.find('.hidden-filter-controls').addClass('active');
+        $parentElement.find('.list-search-cancel').addClass('active');
+        if(event.type !== 'click') {
+          $parentElement.find('.list-search-cancel').focus();
+        }
+        $elementClicked.addClass('active');
+  
+        _this.calculateFiltersHeight($parentElement);
+  
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
-          action: 'search_filter_controls_overlay_activate'
+          action: 'search_filter_controls_activate'
         });
-        return;
       }
-
-      $parentElement.find('.hidden-filter-controls').addClass('active');
-      $parentElement.find('.list-search-cancel').addClass('active');
-      $elementClicked.addClass('active');
-
-      _this.calculateFiltersHeight($parentElement);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'search_filter_controls_activate'
-      });
     })
     .on('click', '.small-card-overlay-close', function() {
       var $elementClicked = $(this);
@@ -402,15 +407,18 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function() {
-      // Hide filters
-      $(this).removeClass('active');
-      _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
-      _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-
-      // Clear filters
-      _this.clearFilters();
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        // Hide filters
+        $(this).removeClass('active');
+        _this.$container.find('.hidden-filter-controls').removeClass('active');
+        _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+        _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+        $('.fa-sliders').focus();
+  
+        // Clear filters
+        _this.clearFilters();
+      }
     })
     .on('keyup input', '.search-holder input', function(e) {
       var $inputField = $(this);
