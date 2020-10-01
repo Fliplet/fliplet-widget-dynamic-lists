@@ -174,23 +174,24 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
-
-      var $filter = $(this);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter',
-        label: $filter.text().trim()
-      });
-
-      _this.toggleFilterElement($filter);
-
-      if ($filter.parents('.inline-filter-holder').length) {
-        // @HACK Skip an execution loop to allow custom handlers to update the filters
-        setTimeout(function () {
-          _this.searchData();
-        }, 0);
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $filter = $(this);
+  
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter',
+          label: $filter.text().trim()
+        });
+  
+        _this.toggleFilterElement($filter);
+  
+        if ($filter.parents('.inline-filter-holder').length) {
+          // @HACK Skip an execution loop to allow custom handlers to update the filters
+          setTimeout(function () {
+            _this.searchData();
+          }, 0);
+        }
       }
     })
     .on('touchstart', '.news-feed-list-item', function(event) {
@@ -208,10 +209,12 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click', '.news-feed-list-item', function(event) {
-      if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
-        return;
-      }
+    .on('click keydown', '.news-feed-list-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $('.news-feed-list-wrapper').hide();
+        if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
+          return;
+        }
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
@@ -256,8 +259,15 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function() {
-      var result;
+    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $('.news-feed-list-wrapper').show();
+        var result;
+
+        if ($(this).hasClass('go-previous-screen')) {
+          if (!_this.pvPreviousScreen) {
+            return;
+          }
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -289,16 +299,34 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click', '.list-search-icon .fa-sliders', function() {
-      var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
-
-      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-
-      if (_this.data.filtersInOverlay) {
-        $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-        $('body').addClass('lock has-filter-overlay');
-
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $elementClicked = $(this);
+        var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
+        _this.$container.find('[data-filter-group]').prop('hidden', null);
+        
+        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+        
+        if (_this.data.filtersInOverlay) {
+          $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
+          $('body').addClass('lock has-filter-overlay');
+          
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'search_filter_controls_overlay_activate'
+          });
+          return;
+        }
+        $('.hidden-filter-controls').show();
+        $parentElement.find('.hidden-filter-controls').addClass('active');
+        $parentElement.find('.list-search-cancel').addClass('active');
+        if(event.type !== 'click') {
+          $parentElement.find('.list-search-cancel').focus();
+        }
+        $elementClicked.addClass('active');
+  
+        _this.calculateFiltersHeight($parentElement);
+  
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'search_filter_controls_overlay_activate'
@@ -645,132 +673,138 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comment_options'
       });
     })
-    .on('click', '.dynamic-list-add-item', function() {
-      if (!_this.data.addEntryLinkAction) {
-        return;
-      }
-
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
-        });
-        return;
-      }
-
-      _this.data.addEntryLinkAction.query = '?mode=add';
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
-              });
-            });
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        if (!_this.data.addEntryLinkAction) {
+          return;
         }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
-        });
-      }
-    })
-    .on('click', '.dynamic-list-edit-item', function() {
-      if (!_this.data.editEntryLinkAction) {
-        return;
-      }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
-        });
-        return;
-      }
-
-      var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
-              });
-            });
+        if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+          Fliplet.UI.Toast({
+            title: 'Link not configured',
+            message: 'Form not found. Please check the component\'s configuration.',
+          });
+          return;
         }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
-        });
-      }
-    })
-    .on('click', '.dynamic-list-delete-item', function() {
 
-      var _that = $(this);
-      var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-      var options = {
-        title: 'Are you sure you want to delete the list entry?',
-        labels: [
-          {
-            label: 'Delete',
-            action: function (i) {
-              _that.text('Deleting...').addClass('disabled');
+        _this.data.addEntryLinkAction.query = '?mode=add';
 
-              // Run Hook
-              Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
-                instance: _this,
-                entryId: entryID,
-                config: _this.data,
-                id: _this.data.id,
-                uuid: _this.data.uuid,
-                container: _this.$container
-              })
-                .then(function() {
-                  if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
-                    return _this.data.deleteData(entryID);
-                  }
+        try {
+          var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
 
-                  return _this.deleteEntry(entryID);
-                })
-                .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
-                    return entry.id === parseInt(entryId, 10);
-                  });
-
-                  _that.text('Delete').removeClass('disabled');
-                  _this.closeDetails();
-                  _this.removeListItemHTML({
-                    id: entryId
-                  });
-                })
-                .catch(function(error) {
-                  Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
-                  });
+          if (navigate instanceof Promise) {
+            navigate
+              .catch(function(error) {
+                Fliplet.UI.Toast(error, {
+                  message: 'Error adding entry'
                 });
-            }
+              });
           }
-        ],
-        cancel: true
+        } catch (error) {
+          Fliplet.UI.Toast(error, {
+            message: 'Error adding entry'
+          });
+        }
       }
+    })
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        if (!_this.data.editEntryLinkAction) {
+          return;
+        }
 
-      Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
-        instance: _this,
-        entryId: entryID,
-        config: _this.data,
-        id: _this.data.id,
-        uuid: _this.data.uuid,
-        container: _this.$container
-      }).then(function() {
-        Fliplet.UI.Actions(options);
-      });
+        if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+          Fliplet.UI.Toast({
+            title: 'Link not configured',
+            message: 'Form not found. Please check the component\'s configuration.',
+          });
+          return;
+        }
+
+        var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+
+        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+
+        try {
+          var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
+
+          if (navigate instanceof Promise) {
+            navigate
+              .catch(function(error) {
+                Fliplet.UI.Toast(error, {
+                  message: 'Error editing entry'
+                });
+              });
+          }
+        } catch (error) {
+          Fliplet.UI.Toast(error, {
+            message: 'Error editing entry'
+          });
+        }
+      }
+    })
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+
+        var _that = $(this);
+        var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+        var options = {
+          title: 'Are you sure you want to delete the list entry?',
+          labels: [
+            {
+              label: 'Delete',
+              action: function (i) {
+                _that.text('Deleting...').addClass('disabled');
+
+                // Run Hook
+                Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                  instance: _this,
+                  entryId: entryID,
+                  config: _this.data,
+                  id: _this.data.id,
+                  uuid: _this.data.uuid,
+                  container: _this.$container
+                })
+                  .then(function() {
+                    if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                      return _this.data.deleteData(entryID);
+                    }
+
+                    return _this.deleteEntry(entryID);
+                  })
+                  .then(function onRemove(entryId) {
+                    _.remove(_this.listItems, function(entry) {
+                      return entry.id === parseInt(entryId, 10);
+                    });
+
+                    _that.text('Delete').removeClass('disabled');
+                    _this.closeDetails();
+                    _this.removeListItemHTML({
+                      id: entryId
+                    });
+                  })
+                  .catch(function(error) {
+                    Fliplet.UI.Toast.error(error, {
+                      message: 'Error deleting entry'
+                    });
+                  });
+              }
+            }
+          ],
+          cancel: true
+        }
+
+        Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+          instance: _this,
+          entryId: entryID,
+          config: _this.data,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container
+        }).then(function() {
+          Fliplet.UI.Actions(options);
+        });
+      }
     })
     .on('click', '.toggle-bookmarks', function () {
       var $toggle = $(this);
@@ -795,23 +829,55 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     })
-    .on('click', '.news-feed-detail-overlay .news-feed-like-wrapper', function() {
-      var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+    .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $parent = $(this).parents('.news-feed-bookmark-holder');
+        var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+        var record = _.find(_this.listItems, { id: id });
 
       if (!record || !record.likeButton) {
         return;
       }
 
-      var count = record.likeButton.getCount();
+        if (record.bookmarked) {
+          $parent.removeClass('bookmarked').addClass('not-bookmarked');
+          $parent.find('.btn-bookmark').focus();
+          record.bookmarkButton.unlike();
+          return;
+        }
 
-      if (count < 1) {
-        count = '';
+        $parent.removeClass('not-bookmarked').addClass('bookmarked');
+        $parent.find('.btn-bookmarked').focus();
+        record.bookmarkButton.like();
       }
+    })
+    .on('click keydown', '.news-feed-detail-overlay  .news-feed-like-wrapper', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $parent = $(this).parents('.news-feed-like-holder');
+        var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+        var record = _.find(_this.listItems, { id: id });
 
-      if (record.liked) {
-        $(this).parents('.news-feed-like-holder').removeClass('liked').addClass('not-liked');
-        record.likeButton.unlike();
+        if (!record || !record.likeButton) {
+          return;
+        }
+
+        var count = record.likeButton.getCount();
+
+        if (count < 1) {
+          count = '';
+        }
+
+        if (record.liked) {
+          $parent.removeClass('liked').addClass('not-liked');
+          $(this).find('.count').html(count);
+          $parent.find('.btn-like').focus();
+          record.likeButton.unlike();
+          return;
+        }
+
+        $parent.removeClass('not-liked').addClass('liked');
+        $parent.find('.btn-liked').focus();
+        record.likeButton.like();
         $(this).find('.count').html(count);
         return;
       }
@@ -1772,8 +1838,8 @@ DynamicList.prototype.setupLikeButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
           likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-          likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
-          likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
+          likeWrapper: '<div class="news-feed-like-wrapper focus-outline btn-like" tabindex="0"></div>',
+          likedWrapper: '<div class="news-feed-like-wrapper focus-outline btn-liked" tabindex="0"></div>',
           addType: 'html',
           liked: record.liked,
           count: record.likeCount
@@ -1955,8 +2021,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
           likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-          likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="news-feed-bookmark-wrapper focus-outline btn-bookmark" tabindex="0"></div>',
+          likedWrapper: '<div class="news-feed-bookmark-wrapper focus-outline btn-bookmarked" tabindex="0"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked

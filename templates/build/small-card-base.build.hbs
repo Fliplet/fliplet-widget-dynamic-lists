@@ -30,6 +30,12 @@
   \{{/if}}
   <!-- End of Filter Overlay -->
 
+  \{{#if showAddEntry}}
+  <div class="dynamic-list-add-item focus-outline" tabindex="0">
+    <i class="fa fa-plus"></i>
+  </div>
+  \{{/if}}
+
   <!-- Developer back button -->
   <div class="back-button-holder \{{#unless goBackButton}}hidden\{{/unless}}">
     <div class="btn small-card-back-button" data-lfd-back>Go back</div>
@@ -126,7 +132,7 @@
 <div class="small-card-detail-overlay" id="small-card-detail-overlay-\{{id}}">
   <div class="small-card-detail-overlay-wrapper">
     <div class="small-card-detail-overlay-panel">
-      <div class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+      <div class="small-card-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon">
       </div>
       <div class="small-card-detail-overlay-content">
@@ -135,15 +141,9 @@
         </div>
       </div>
     </div>
-    <div class="small-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+    <div class="small-card-detail-overlay-close focus-outline tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
       <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon">
     </div>
   </div>
   <div class="small-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
-
-\{{#if showAddEntry}}
-<div class="dynamic-list-add-item">
-  <i class="fa fa-plus"></i>
-</div>
-\{{/if}}

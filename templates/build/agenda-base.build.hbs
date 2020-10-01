@@ -30,6 +30,12 @@
   \{{/if}}
   <!-- End of Filter Overlay -->
 
+  \{{#if showAddEntry}}
+  <div class="dynamic-list-add-item focus-outline" tabindex="0">
+    <i class="fa fa-plus"></i>
+  </div>
+  \{{/if}}
+
   <!-- Top bar with profile and search icons -->
   <div class="section-top-wrapper">
     \{{#if searchEnabled}}
@@ -144,9 +150,3 @@
   </div>
   <div class="agenda-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
-
-\{{#if showAddEntry}}
-<div class="dynamic-list-add-item">
-  <i class="fa fa-plus"></i>
-</div>
-\{{/if}}
