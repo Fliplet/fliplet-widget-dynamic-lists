@@ -629,131 +629,137 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comment_options'
       });
     })
-    .on('click', '.dynamic-list-add-item', function() {
-      if (!_this.data.addEntryLinkAction) {
-        return;
-      }
-
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
-        });
-        return;
-      }
-
-      _this.data.addEntryLinkAction.query = '?mode=add';
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
-              });
-            });
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        if (!_this.data.addEntryLinkAction) {
+          return;
         }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
-        });
-      }
-    })
-    .on('click', '.dynamic-list-edit-item', function() {
-      if (!_this.data.editEntryLinkAction) {
-        return;
-      }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
-        });
-        return;
-      }
-
-      var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
-
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
-              });
-            });
+        if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+          Fliplet.UI.Toast({
+            title: 'Link not configured',
+            message: 'Form not found. Please check the component\'s configuration.',
+          });
+          return;
         }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
-        });
-      }
-    })
-    .on('click', '.dynamic-list-delete-item', function() {
 
-      var _that = $(this);
-      var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
-      var options = {
-        title: 'Are you sure you want to delete the list entry?',
-        labels: [
-          {
-            label: 'Delete',
-            action: function (i) {
-              _that.text('Deleting...').addClass('disabled');
+        _this.data.addEntryLinkAction.query = '?mode=add';
 
-              // Run Hook
-              Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
-                instance: _this,
-                entryId: entryID,
-                config: _this.data,
-                id: _this.data.id,
-                uuid: _this.data.uuid,
-                container: _this.$container
-              })
-                .then(function() {
-                  if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
-                    return _this.data.deleteData(entryID);
-                  }
+        try {
+          var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
 
-                  return _this.deleteEntry(entryID);
-                })
-                .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
-                    return entry.id === parseInt(entryId, 10);
-                  });
-                  _that.text('Delete').removeClass('disabled');
-                  _this.closeDetails();
-                  _this.removeListItemHTML({
-                    id: entryId
-                  });
-                })
-                .catch(function(error) {
-                  Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
-                  });
+          if (navigate instanceof Promise) {
+            navigate
+              .catch(function(error) {
+                Fliplet.UI.Toast(error, {
+                  message: 'Error adding entry'
                 });
-            }
+              });
           }
-        ],
-        cancel: true
+        } catch (error) {
+          Fliplet.UI.Toast(error, {
+            message: 'Error adding entry'
+          });
+        }
       }
+    })
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        if (!_this.data.editEntryLinkAction) {
+          return;
+        }
 
-      Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
-        instance: _this,
-        entryId: entryID,
-        config: _this.data,
-        id: _this.data.id,
-        uuid: _this.data.uuid,
-        container: _this.$container
-      }).then(function() {
-        Fliplet.UI.Actions(options);
-      });
+        if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+          Fliplet.UI.Toast({
+            title: 'Link not configured',
+            message: 'Form not found. Please check the component\'s configuration.',
+          });
+          return;
+        }
+
+        var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
+
+        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+
+        try {
+          var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
+
+          if (navigate instanceof Promise) {
+            navigate
+              .catch(function(error) {
+                Fliplet.UI.Toast(error, {
+                  message: 'Error editing entry'
+                });
+              });
+          }
+        } catch (error) {
+          Fliplet.UI.Toast(error, {
+            message: 'Error editing entry'
+          });
+        }
+      }
+    })
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+
+        var _that = $(this);
+        var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
+        var options = {
+          title: 'Are you sure you want to delete the list entry?',
+          labels: [
+            {
+              label: 'Delete',
+              action: function (i) {
+                _that.text('Deleting...').addClass('disabled');
+
+                // Run Hook
+                Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                  instance: _this,
+                  entryId: entryID,
+                  config: _this.data,
+                  id: _this.data.id,
+                  uuid: _this.data.uuid,
+                  container: _this.$container
+                })
+                  .then(function() {
+                    if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                      return _this.data.deleteData(entryID);
+                    }
+
+                    return _this.deleteEntry(entryID);
+                  })
+                  .then(function onRemove(entryId) {
+                    _.remove(_this.listItems, function(entry) {
+                      return entry.id === parseInt(entryId, 10);
+                    });
+                    _that.text('Delete').removeClass('disabled');
+                    _this.closeDetails();
+                    _this.removeListItemHTML({
+                      id: entryId
+                    });
+                  })
+                  .catch(function(error) {
+                    Fliplet.UI.Toast.error(error, {
+                      message: 'Error deleting entry'
+                    });
+                  });
+              }
+            }
+          ],
+          cancel: true
+        }
+
+        Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+          instance: _this,
+          entryId: entryID,
+          config: _this.data,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container
+        }).then(function() {
+          Fliplet.UI.Actions(options);
+        });
+      }
     })
     .on('click', '.toggle-bookmarks', function () {
       var $toggle = $(this);

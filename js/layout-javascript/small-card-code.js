@@ -173,31 +173,35 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
-      var $filter = $(this);
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $filter = $(this);
 
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter',
-        label: $filter.text()
-      });
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter',
+          label: $filter.text()
+        });
 
-      _this.toggleFilterElement(this);
+        _this.toggleFilterElement(this);
 
-      if ($filter.parents('.inline-filter-holder').length) {
-        // @HACK Skip an execution loop to allow custom handlers to update the filters
-        setTimeout(function () {
-          _this.searchData();
-        }, 0);
+        if ($filter.parents('.inline-filter-holder').length) {
+          // @HACK Skip an execution loop to allow custom handlers to update the filters
+          setTimeout(function () {
+            _this.searchData();
+          }, 0);
+        }
       }
     })
-    .on('click', '.small-card-list-detail-button a', function() {
-      var _that = $(this);
-       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'profile_buttons',
-        label: _that.find('.small-card-list-detail-button-text').text()
-      });
+    .on('click keydown', '.small-card-list-detail-button a', function() {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var _that = $(this);
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'profile_buttons',
+          label: _that.find('.small-card-list-detail-button-text').text()
+        });
+      }
     })
     .on('touchstart', '.small-card-list-item', function(event) {
       event.stopPropagation();
@@ -232,113 +236,120 @@ DynamicList.prototype.attachObservers = function() {
         action: 'profile_open'
       });
     })
-    .on('click', '.small-card-list-item', function(event) {
-      var _that = $(this);
+    .on('click keydown', '.small-card-list-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $('.small-card-list-wrapper').hide();
+        var _that = $(this);
 
-      if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
-        return;
-      }
-
-      var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.small-card-list-name').text().trim();
-      var beforeOpen = Promise.resolve();
-
-      if (typeof _this.data.beforeOpen === 'function') {
-        beforeOpen = _this.data.beforeOpen({
-          config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
-          entryId: entryId,
-          entryTitle: entryTitle,
-          event: event
-        });
-
-        if (!(beforeOpen instanceof Promise)) {
-          beforeOpen = Promise.resolve(beforeOpen);
+        if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
+          return;
         }
-      }
 
-      beforeOpen.then(function () {
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_open',
-          label: entryTitle
-        });
+        var entryId = $(this).data('entry-id');
+        var entryTitle = $(this).find('.small-card-list-name').text().trim();
+        var beforeOpen = Promise.resolve();
 
-        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-          _this.Utils.Navigate.openLinkAction({
-            records: _this.listItems,
-            recordId: entryId,
-            summaryLinkAction: _this.data.summaryLinkAction
+        if (typeof _this.data.beforeOpen === 'function') {
+          beforeOpen = _this.data.beforeOpen({
+            config: _this.data,
+            entry: _.find(_this.listItems, { id: entryId }),
+            entryId: entryId,
+            entryTitle: entryTitle,
+            event: event
           });
 
-          return;
+          if (!(beforeOpen instanceof Promise)) {
+            beforeOpen = Promise.resolve(beforeOpen);
+          }
         }
 
-        // find the element to expand and expand it
-        if (_this.allowClick && $(window).width() < 640) {
-          _this.directoryDetailWrapper = _that.find('.small-card-list-detail-wrapper');
-          _this.expandElement(_this.directoryDetailWrapper, entryId);
-        } else if (_this.allowClick && $(window).width() >= 640) {
-          _this.showDetails(entryId);
-        }
+        beforeOpen.then(function () {
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_open',
+            label: entryTitle
+          });
 
-        Fliplet.Page.Context.update({
-          dynamicListOpenId: entryId
+          if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+            _this.Utils.Navigate.openLinkAction({
+              records: _this.listItems,
+              recordId: entryId,
+              summaryLinkAction: _this.data.summaryLinkAction
+            });
+
+            return;
+          }
+
+          // find the element to expand and expand it
+          if (_this.allowClick && $(window).width() < 640) {
+            _this.directoryDetailWrapper = _that.find('.small-card-list-detail-wrapper');
+            _this.expandElement(_this.directoryDetailWrapper, entryId);
+          } else if (_this.allowClick && $(window).width() >= 640) {
+            _this.showDetails(entryId);
+          }
+
+          Fliplet.Page.Context.update({
+            dynamicListOpenId: entryId
+          });
         });
-      });
+      }
     })
-    .on('click', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
-      event.stopPropagation();
+    .on('click keydown', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
+      $('.small-card-list-wrapper').show();
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        event.stopPropagation();
 
-      var result;
+        var result;
 
-      if ($(this).hasClass('go-previous-screen')) {
-        if (!_this.pvPreviousScreen) {
-          return;
+        if ($(this).hasClass('go-previous-screen')) {
+          if (!_this.pvPreviousScreen) {
+            return;
+          }
+
+          try {
+            _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+          } catch (error) {
+            console.error('Your custom function contains a syntax error: ' + error);
+          }
+
+          try {
+            result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+          } catch (error) {
+            console.error('Your custom function thrown an error: ' + error);
+          }
+
+          if (!(result instanceof Promise)) {
+            result = Promise.resolve();
+          }
+
+          return result.then(function () {
+            return Fliplet.Navigate.back();
+          }).catch(function (error) {
+            console.error(error);
+          });
         }
 
-        try {
-          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
-        } catch (error) {
-          console.error('Your custom function contains a syntax error: ' + error);
+        if ($(window).width() < 640) {
+          if (typeof _this.directoryDetailWrapper === 'undefined') {
+            var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
+
+            _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
+          }
+
+          _this.collapseElement(_this.directoryDetailWrapper);
+          _this.directoryDetailWrapper = undefined;
+        } else {
+          _this.closeDetails();
         }
 
-        try {
-          result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
-        } catch (error) {
-          console.error('Your custom function thrown an error: ' + error);
-        }
-
-        if (!(result instanceof Promise)) {
-          result = Promise.resolve();
-        }
-
-        return result.then(function () {
-          return Fliplet.Navigate.back();
-        }).catch(function (error) {
-          console.error(error);
-        });
+        Fliplet.Page.Context.remove('dynamicListOpenId');
       }
-
-      if ($(window).width() < 640) {
-        if (typeof _this.directoryDetailWrapper === 'undefined') {
-          var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
-
-          _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
-        }
-
-        _this.collapseElement(_this.directoryDetailWrapper);
-        _this.directoryDetailWrapper = undefined;
-      } else {
-        _this.closeDetails();
-      }
-
-      Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
       if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $elementClicked = $(this);
         var $parentElement = $elementClicked.parents('.new-small-card-list-container');
+        _this.$container.find('[data-filter-group]').prop('hidden', null);
         
         Fliplet.Page.Context.remove('dynamicListFilterHideControls');
         
@@ -414,6 +425,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.$container.find('.hidden-filter-controls').removeClass('active');
         _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
         _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
+        _this.$container.find('[data-filter-group]').prop('hidden', true);
         $('.fa-sliders').focus();
   
         // Clear filters
@@ -527,107 +539,111 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
 
-      if (!_this.data.editEntryLinkAction) {
-        return;
-      }
-
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
-        });
-        return;
-      }
-
-      var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
-
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
-              });
-            });
+        if (!_this.data.editEntryLinkAction) {
+          return;
         }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
-        });
+
+        if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+          Fliplet.UI.Toast({
+            title: 'Link not configured',
+            message: 'Form not found. Please check the component\'s configuration.',
+          });
+          return;
+        }
+
+        var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
+
+        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+
+        try {
+          var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
+
+          if (navigate instanceof Promise) {
+            navigate
+              .catch(function(error) {
+                Fliplet.UI.Toast(error, {
+                  message: 'Error editing entry'
+                });
+              });
+          }
+        } catch (error) {
+          Fliplet.UI.Toast(error, {
+            message: 'Error editing entry'
+          });
+        }
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
 
-      var _that = $(this);
-      var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
-      var options = {
-        title: 'Are you sure you want to delete the list entry?',
-        labels: [
-          {
-            label: 'Delete',
-            action: function (i) {
-              _that.text('Deleting...').addClass('disabled');
+        var _that = $(this);
+        var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
+        var options = {
+          title: 'Are you sure you want to delete the list entry?',
+          labels: [
+            {
+              label: 'Delete',
+              action: function (i) {
+                _that.text('Deleting...').addClass('disabled');
 
-              // Run Hook
-              Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
-                instance: _this,
-                entryId: entryID,
-                config: _this.data,
-                id: _this.data.id,
-                uuid: _this.data.uuid,
-                container: _this.$container
-              })
-                .then(function() {
-                  if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
-                    return _this.data.deleteData(entryID);
-                  }
-
-                  return _this.deleteEntry(entryID);
+                // Run Hook
+                Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                  instance: _this,
+                  entryId: entryID,
+                  config: _this.data,
+                  id: _this.data.id,
+                  uuid: _this.data.uuid,
+                  container: _this.$container
                 })
-                .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
-                    return entry.id === parseInt(entryId, 10);
-                  });
+                  .then(function() {
+                    if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                      return _this.data.deleteData(entryID);
+                    }
 
-                  _that.text('Delete').removeClass('disabled');
+                    return _this.deleteEntry(entryID);
+                  })
+                  .then(function onRemove(entryId) {
+                    _.remove(_this.listItems, function(entry) {
+                      return entry.id === parseInt(entryId, 10);
+                    });
 
-                  if ($(window).width() < 640) {
-                    _this.collapseElement(_this.directoryDetailWrapper);
-                    _this.directoryDetailWrapper = undefined;
-                  } else {
-                    _this.closeDetails();
-                  }
-                  _this.removeListItemHTML({
-                    id: entryId
+                    _that.text('Delete').removeClass('disabled');
+
+                    if ($(window).width() < 640) {
+                      _this.collapseElement(_this.directoryDetailWrapper);
+                      _this.directoryDetailWrapper = undefined;
+                    } else {
+                      _this.closeDetails();
+                    }
+                    _this.removeListItemHTML({
+                      id: entryId
+                    });
+                  })
+                  .catch(function(error) {
+                    Fliplet.UI.Toast.error(error, {
+                      message: 'Error deleting entry'
+                    });
                   });
-                })
-                .catch(function(error) {
-                  Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
-                  });
-                });
+              }
             }
-          }
-        ],
-        cancel: true
-      }
+          ],
+          cancel: true
+        }
 
-      Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
-        instance: _this,
-        entryId: entryID,
-        config: _this.data,
-        id: _this.data.id,
-        uuid: _this.data.uuid,
-        container: _this.$container
-      }).then(function() {
-        Fliplet.UI.Actions(options);
-      });
+        Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+          instance: _this,
+          entryId: entryID,
+          config: _this.data,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container
+        }).then(function() {
+          Fliplet.UI.Actions(options);
+        });
+      }
     })
     .on('click', '.toggle-bookmarks', function () {
       var $toggle = $(this);

@@ -30,6 +30,12 @@
   \{{/if}}
   <!-- End of Filter Overlay -->
 
+  \{{#if showAddEntry}}
+  <div class="dynamic-list-add-item focus-outline" tabindex="0">
+    <i class="fa fa-plus"></i>
+  </div>
+  \{{/if}}
+
   <!-- Developer back button -->
   <div class="back-button-holder \{{#unless goBackButton}}hidden\{{/unless}}">
     <div class="btn news-feed-back-button" data-lfd-back>Go back</div>
@@ -138,12 +144,6 @@
   </div>
   <div class="news-feed-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
-
-\{{#if showAddEntry}}
-<div class="dynamic-list-add-item">
-  <i class="fa fa-plus"></i>
-</div>
-\{{/if}}
 
 <div class="new-news-feed-comment-panel">
   <div class="news-feed-comment-panel-header">

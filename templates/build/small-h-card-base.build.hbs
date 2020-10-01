@@ -7,11 +7,17 @@
   </div>
 </div>
 
+\{{#if showAddEntry}}
+<div class="dynamic-list-add-item focus-outline" tabindex="0">
+  <i class="fa fa-plus"></i>
+</div>
+\{{/if}}
+
 <!-- Detail view overlay -->
 <div class="small-h-card-detail-overlay" id="small-h-card-detail-overlay-\{{id}}">
   <div class="small-h-card-detail-overlay-wrapper">
     <div class="small-h-card-detail-overlay-panel">
-      <div class="small-h-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+      <div class="small-h-card-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="small-h-card-detail-overlay-content">
@@ -20,15 +26,9 @@
         </div>
       </div>
     </div>
-    <div class="small-h-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+    <div class="small-h-card-detail-overlay-close focus-outline tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
       <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
     </div>
   </div>
   <div class="small-h-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
-
-\{{#if showAddEntry}}
-<div class="dynamic-list-add-item">
-  <i class="fa fa-plus"></i>
-</div>
-\{{/if}}
