@@ -266,35 +266,37 @@ DynamicList.prototype.attachObservers = function() {
       _this.closeDetails();
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $elementClicked = $(this);
-        var $parentElement = $elementClicked.parents('.simple-list-container');
-        
-        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-        
+        var $parentElement = $elementClicked.parents(".simple-list-container");
+
+        Fliplet.Page.Context.remove("dynamicListFilterHideControls");
+
         if (_this.data.filtersInOverlay) {
-          $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
-          $('body').addClass('lock has-filter-overlay');
-          
+          $parentElement
+            .find(".simple-list-search-filter-overlay")
+            .addClass("display");
+          $("body").addClass("lock has-filter-overlay");
+
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'search_filter_controls_overlay_activate'
+            category: "list_dynamic_" + _this.data.layout,
+            action: "search_filter_controls_overlay_activate",
           });
           return;
         }
-        
-        $parentElement.find('.hidden-filter-controls').addClass('active');
-        $parentElement.find('.list-search-cancel').addClass('active');
-        if(event.type !== 'click') {
-          $parentElement.find('.list-search-cancel').focus();
+
+        $parentElement.find(".hidden-filter-controls").addClass("active");
+        $parentElement.find(".list-search-cancel").addClass("active");
+        if (event.type !== "click") {
+          $parentElement.find(".list-search-cancel").focus();
         }
-        $elementClicked.addClass('active');
-  
+        $elementClicked.addClass("active");
+
         _this.calculateFiltersHeight($parentElement);
-  
+
         Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'search_filter_controls_activate'
+          category: "list_dynamic_" + _this.data.layout,
+          action: "search_filter_controls_activate",
         });
       }
     })
@@ -334,15 +336,19 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         // Hide filters
-        $(this).removeClass('active');
-        _this.$container.find('.hidden-filter-controls').removeClass('active');
-        _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
-        _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-        _this.$container.find('[data-filter-group]').prop('hidden', true);
-        $('.fa-sliders').focus();
-  
+        $(this).removeClass("active");
+        _this.$container.find(".hidden-filter-controls").removeClass("active");
+        _this.$container
+          .find(".list-search-icon .fa-sliders")
+          .removeClass("active");
+        _this.$container
+          .find(".hidden-filter-controls")
+          .animate({ height: 0 }, 200);
+        _this.$container.find("[data-filter-group]").prop("hidden", true);
+        $(".fa-sliders").focus();
+
         // Clear filters
         _this.clearFilters();
       }
@@ -630,133 +636,141 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
         }
 
-        if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+        if (!_.get(_this, "data.addEntryLinkAction.page")) {
           Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.',
+            title: "Link not configured",
+            message:
+              "Form not found. Please check the component's configuration.",
           });
           return;
         }
 
-        _this.data.addEntryLinkAction.query = '?mode=add';
+        _this.data.addEntryLinkAction.query = "?mode=add";
 
         try {
           var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
 
           if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error adding entry'
-                });
+            navigate.catch(function (error) {
+              Fliplet.UI.Toast(error, {
+                message: "Error adding entry",
               });
+            });
           }
         } catch (error) {
           Fliplet.UI.Toast(error, {
-            message: 'Error adding entry'
+            message: "Error adding entry",
           });
         }
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
         }
 
-        if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+        if (!_.get(_this, "data.editEntryLinkAction.page")) {
           Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.',
+            title: "Link not configured",
+            message:
+              "Form not found. Please check the component's configuration.",
           });
           return;
         }
 
-        var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
+        var entryID = $(this)
+          .parents(".simple-list-detail-overlay-content")
+          .find(".simple-list-detail-wrapper")
+          .data("entry-id");
 
-        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+        _this.data.editEntryLinkAction.query = "?dataSourceEntryId=" + entryID;
 
         try {
           var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
 
           if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error editing entry'
-                });
+            navigate.catch(function (error) {
+              Fliplet.UI.Toast(error, {
+                message: "Error editing entry",
               });
+            });
           }
         } catch (error) {
           Fliplet.UI.Toast(error, {
-            message: 'Error editing entry'
+            message: "Error editing entry",
           });
         }
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var _that = $(this);
-        var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
+        var entryID = $(this)
+          .parents(".simple-list-detail-overlay-content")
+          .find(".simple-list-detail-wrapper")
+          .data("entry-id");
         var options = {
-          title: 'Are you sure you want to delete the list entry?',
+          title: "Are you sure you want to delete the list entry?",
           labels: [
             {
-              label: 'Delete',
+              label: "Delete",
               action: function (i) {
-                _that.text('Deleting...').addClass('disabled');
+                _that.text("Deleting...").addClass("disabled");
 
                 // Run Hook
-                Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                Fliplet.Hooks.run("flListDataBeforeDeleteEntry", {
                   instance: _this,
                   entryId: entryID,
                   config: _this.data,
                   id: _this.data.id,
                   uuid: _this.data.uuid,
-                  container: _this.$container
+                  container: _this.$container,
                 })
-                  .then(function() {
-                    if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                  .then(function () {
+                    if (
+                      _this.data.deleteData &&
+                      typeof _this.data.deleteData === "function"
+                    ) {
                       return _this.data.deleteData(entryID);
                     }
 
                     return _this.deleteEntry(entryID);
                   })
                   .then(function onRemove(entryId) {
-                    _.remove(_this.listItems, function(entry) {
+                    _.remove(_this.listItems, function (entry) {
                       return entry.id === parseInt(entryId, 10);
                     });
-                    _that.text('Delete').removeClass('disabled');
+                    _that.text("Delete").removeClass("disabled");
                     _this.closeDetails();
                     _this.removeListItemHTML({
-                      id: entryId
+                      id: entryId,
                     });
                   })
-                  .catch(function(error) {
+                  .catch(function (error) {
                     Fliplet.UI.Toast.error(error, {
-                      message: 'Error deleting entry'
+                      message: "Error deleting entry",
                     });
                   });
-              }
-            }
+              },
+            },
           ],
-          cancel: true
-        }
+          cancel: true,
+        };
 
-        Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        Fliplet.Hooks.run("flListDataBeforeDeleteConfirmation", {
           instance: _this,
           entryId: entryID,
           config: _this.data,
           id: _this.data.id,
           uuid: _this.data.uuid,
-          container: _this.$container
-        }).then(function() {
+          container: _this.$container,
+        }).then(function () {
           Fliplet.UI.Actions(options);
         });
       }

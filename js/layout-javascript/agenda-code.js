@@ -187,379 +187,445 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
-    .on('click', '.apply-filters', function() {
+    .on("click", ".apply-filters", function () {
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click', '.clear-filters', function() {
-      $(this).addClass('hidden');
+    .on("click", ".clear-filters", function () {
+      $(this).addClass("hidden");
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on("click", ".hidden-filter-controls-filter", function () {
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter',
-        label: $filter.text().trim()
+        category: "list_dynamic_" + _this.data.layout,
+        action: "filter",
+        label: $filter.text().trim(),
       });
 
       _this.toggleFilterElement($filter);
 
-      if ($filter.parents('.inline-filter-holder').length) {
+      if ($filter.parents(".inline-filter-holder").length) {
         // @HACK Skip an execution loop to allow custom handlers to update the filters
         setTimeout(function () {
           _this.searchData();
         }, 0);
       }
     })
-    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".list-search-icon .fa-sliders", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $el = $(this);
-        
-        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-        
+
+        Fliplet.Page.Context.remove("dynamicListFilterHideControls");
+
         if (_this.data.filtersInOverlay) {
-          _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-          $('body').addClass('lock has-filter-overlay');
-          
+          _this.$container
+            .find(".new-agenda-search-filter-overlay")
+            .addClass("display");
+          $("body").addClass("lock has-filter-overlay");
+
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'search_filter_controls_overlay_activate'
+            category: "list_dynamic_" + _this.data.layout,
+            action: "search_filter_controls_overlay_activate",
           });
           return;
         }
-        
-        $('.list-search-cancel').focus();
-        _this.$container.find('.hidden-filter-controls').addClass('active');
-        _this.$container.find('.list-search-cancel').addClass('active');
-        $el.addClass('active');
+
+        $(".list-search-cancel").focus();
+        _this.$container.find(".hidden-filter-controls").addClass("active");
+        _this.$container.find(".list-search-cancel").addClass("active");
+        $el.addClass("active");
 
         _this.toggleListView();
         _this.calculateFiltersHeight();
 
         Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'search_filter_controls_activate'
+          category: "list_dynamic_" + _this.data.layout,
+          action: "search_filter_controls_activate",
         });
       }
     })
-    .on('click', '.agenda-overlay-close', function() {
-      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('body').removeClass('lock has-filter-overlay');
+    .on("click", ".agenda-overlay-close", function () {
+      $(this)
+        .parents(".new-agenda-search-filter-overlay")
+        .removeClass("display");
+      $("body").removeClass("lock has-filter-overlay");
 
       // Clear all selected filters
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
+      _this.toggleFilterElement(
+        _this.$container.find(".mixitup-control-active:not(.toggle-bookmarks)"),
+        false
+      );
 
       // No filters selected
       if (_.isEmpty(_this.activeFilters)) {
-        _this.$container.find('.clear-filters').addClass('hidden');
+        _this.$container.find(".clear-filters").addClass("hidden");
         return;
       }
 
-      if (!_.has(_this.activeFilters, 'undefined')) {
+      if (!_.has(_this.activeFilters, "undefined")) {
         // Select filters based on existing settings
-        var selectors = _.flatten(_.map(_this.activeFilters, function (values, field) {
-          return _.map(values, function (value) {
-            return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
-          });
-        })).join(',');
+        var selectors = _.flatten(
+          _.map(_this.activeFilters, function (values, field) {
+            return _.map(values, function (value) {
+              return (
+                '.hidden-filter-controls-filter[data-field="' +
+                field +
+                '"][data-value="' +
+                value +
+                '"]'
+              );
+            });
+          })
+        ).join(",");
         _this.toggleFilterElement(_this.$container.find(selectors), true);
 
-        _this.$container.find('.clear-filters').removeClass('hidden');
+        _this.$container.find(".clear-filters").removeClass("hidden");
         return;
       }
 
       // Legacy class-based settings
-      _this.activeFilters['undefined'].forEach(function(filter) {
-        _this.toggleFilterElement(_this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]'), true);
+      _this.activeFilters["undefined"].forEach(function (filter) {
+        _this.toggleFilterElement(
+          _this.$container.find(
+            '.hidden-filter-controls-filter[data-toggle="' + filter + '"]'
+          ),
+          true
+        );
       });
 
-      _this.$container.find('.clear-filters').removeClass('hidden');
+      _this.$container.find(".clear-filters").removeClass("hidden");
     })
-    .on('click keydown', '.list-search-cancel', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".list-search-cancel", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         // Hide filters
-        $(this).removeClass('active');
-        _this.$container.find('.hidden-filter-controls').removeClass('active');
-        _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+        $(this).removeClass("active");
+        _this.$container.find(".hidden-filter-controls").removeClass("active");
+        _this.$container
+          .find(".list-search-icon .fa-sliders")
+          .removeClass("active");
         _this.calculateFiltersHeight(true);
-        $('.fa-sliders').focus();
+        $(".fa-sliders").focus();
 
         // Clear filters
         _this.clearFilters();
       }
     })
-    .on('keyup input', '.search-holder input', function(e) {
+    .on("keyup input", ".search-holder input", function (e) {
       var $inputField = $(this);
       var value = $inputField.val();
 
-      Fliplet.Hooks.run(e.type === 'keyup' ? 'flListDataSearchKeyUp' : 'flListDataSearchInput', {
-        instance: _this,
-        config: _this.data,
-        id: _this.data.id,
-        uuid: _this.data.uuid,
-        container: _this.$container,
-        input: $inputField,
-        value: value,
-        event: e
-      }).then(function () {
+      Fliplet.Hooks.run(
+        e.type === "keyup" ? "flListDataSearchKeyUp" : "flListDataSearchInput",
+        {
+          instance: _this,
+          config: _this.data,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container,
+          input: $inputField,
+          value: value,
+          event: e,
+        }
+      ).then(function () {
         // In case the value has been changed via hooks
         value = $inputField.val();
 
         if (value.length) {
-          $inputField.addClass('not-empty');
+          $inputField.addClass("not-empty");
         } else {
-          $inputField.removeClass('not-empty');
+          $inputField.removeClass("not-empty");
         }
 
-        if (e.type === 'keyup' && (e.which === 13 || e.keyCode === 13)) {
-          if (value === '') {
-            _this.$container.find('.new-agenda-list-container').removeClass('searching');
+        if (e.type === "keyup" && (e.which === 13 || e.keyCode === 13)) {
+          if (value === "") {
+            _this.$container
+              .find(".new-agenda-list-container")
+              .removeClass("searching");
             _this.isSearching = false;
-            _this.searchData('');
+            _this.searchData("");
             return;
           }
 
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'search',
-            label: value
+            category: "list_dynamic_" + _this.data.layout,
+            action: "search",
+            label: value,
           });
 
-          _this.$container.find('.new-agenda-list-container').addClass('searching');
+          _this.$container
+            .find(".new-agenda-list-container")
+            .addClass("searching");
           _this.isSearching = true;
           _this.searchData(value);
         }
       });
     })
-    .on('click', '.search-holder .search-btn', function(e) {
-      var $inputField = $(this).parents('.search-holder').find('.search-feed');
+    .on("click", ".search-holder .search-btn", function (e) {
+      var $inputField = $(this).parents(".search-holder").find(".search-feed");
       var value = $inputField.val();
 
-      if (value === '') {
-        _this.$container.find('.new-agenda-list-container').removeClass('searching');
+      if (value === "") {
+        _this.$container
+          .find(".new-agenda-list-container")
+          .removeClass("searching");
         _this.isSearching = false;
-        _this.searchData('');
+        _this.searchData("");
         return;
       }
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'search',
-        label: value
+        category: "list_dynamic_" + _this.data.layout,
+        action: "search",
+        label: value,
       });
 
-      _this.$container.find('.new-agenda-list-container').addClass('searching');
+      _this.$container.find(".new-agenda-list-container").addClass("searching");
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
-      _this.$container.find('.new-agenda-list-container').removeClass('searching');
+    .on("click", ".clear-search", function () {
+      _this.$container
+        .find(".new-agenda-list-container")
+        .removeClass("searching");
       _this.isSearching = false;
-      _this.searchData('');
+      _this.searchData("");
     })
-    .on('click', '.go-to-poll', function() {
+    .on("click", ".go-to-poll", function () {
       if (!_this.data.pollEnabled || !_this.data.pollColumn) {
         return;
       }
 
-      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
+      var entryId = $(this)
+        .parents(".agenda-item-inner-content")
+        .data("entry-id");
+      var entry = _.find(_this.listItems, function (entry) {
         return entry.id === entryId;
       });
 
       _this.goToAgendaFeature({
-        type: 'poll',
-        entry: entry
+        type: "poll",
+        entry: entry,
       });
     })
-    .on('click', '.go-to-survey', function() {
+    .on("click", ".go-to-survey", function () {
       if (!_this.data.surveyEnabled || !_this.data.surveyColumn) {
         return;
       }
 
-      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
+      var entryId = $(this)
+        .parents(".agenda-item-inner-content")
+        .data("entry-id");
+      var entry = _.find(_this.listItems, function (entry) {
         return entry.id === entryId;
       });
 
       _this.goToAgendaFeature({
-        type: 'survey',
-        entry: entry
+        type: "survey",
+        entry: entry,
       });
     })
-    .on('click', '.go-to-questions', function() {
+    .on("click", ".go-to-questions", function () {
       if (!_this.data.questionsEnabled || !_this.data.questionsColumn) {
         return;
       }
 
-      var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
+      var entryId = $(this)
+        .parents(".agenda-item-inner-content")
+        .data("entry-id");
+      var entry = _.find(_this.listItems, function (entry) {
         return entry.id === entryId;
       });
 
       _this.goToAgendaFeature({
-        type: 'questions',
-        entry: entry
+        type: "questions",
+        entry: entry,
       });
     })
-    .on('touchstart', '.agenda-list-controls', function(event) {
-      $(this).addClass('hover');
+    .on("touchstart", ".agenda-list-controls", function (event) {
+      $(this).addClass("hover");
     })
-    .on('touchmove', '.agenda-list-controls', function(e) {
-      $(this).removeClass('hover');
+    .on("touchmove", ".agenda-list-controls", function (e) {
+      $(this).removeClass("hover");
     })
-    .on('touchend touchcancel', '.agenda-list-controls', function() {
-      $(this).removeClass('hover');
+    .on("touchend touchcancel", ".agenda-list-controls", function () {
+      $(this).removeClass("hover");
     })
-    .on('click', '.agenda-list-controls', function () {
-      var $toggle = $(this).find('.toggle-agenda');
+    .on("click", ".agenda-list-controls", function () {
+      var $toggle = $(this).find(".toggle-agenda");
 
       if (!$toggle.length) {
         return;
       }
 
-      $toggle.toggleClass('mixitup-control-active');
+      $toggle.toggleClass("mixitup-control-active");
       _this.searchData();
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: $toggle.hasClass('mixitup-control-active')
-          ? 'bookmarks_show'
-          : 'bookmarks_hide'
+        category: "list_dynamic_" + _this.data.layout,
+        action: $toggle.hasClass("mixitup-control-active")
+          ? "bookmarks_show"
+          : "bookmarks_hide",
       });
     })
-    .on('click keydown', '.toggle-agenda, .toggle-bookmarks', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".toggle-agenda, .toggle-bookmarks", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         event.stopPropagation();
-  
+
         var $toggle = _this.$container.find(event.handleObj.selector);
-  
-        $toggle.toggleClass('mixitup-control-active');
-        _this.$container.find('.new-agenda-list-container').toggleClass('show-bookmarks');
+
+        $toggle.toggleClass("mixitup-control-active");
+        _this.$container
+          .find(".new-agenda-list-container")
+          .toggleClass("show-bookmarks");
         _this.searchData();
-  
+
         Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: $toggle.hasClass('mixitup-control-active')
-            ? 'bookmarks_show'
-            : 'bookmarks_hide'
+          category: "list_dynamic_" + _this.data.layout,
+          action: $toggle.hasClass("mixitup-control-active")
+            ? "bookmarks_show"
+            : "bookmarks_hide",
         });
       }
     })
-    .on('touchstart', '.agenda-list-item', function(event) {
+    .on("touchstart", ".agenda-list-item", function (event) {
       event.stopPropagation();
-      $(this).addClass('hover');
+      $(this).addClass("hover");
     })
-    .on('touchmove', '.agenda-list-item', function(e) {
+    .on("touchmove", ".agenda-list-item", function (e) {
       allowClick = false;
-      $(this).removeClass('hover');
+      $(this).removeClass("hover");
     })
-    .on('touchend touchcancel', '.agenda-list-item', function() {
-      $(this).removeClass('hover');
+    .on("touchend touchcancel", ".agenda-list-item", function () {
+      $(this).removeClass("hover");
       // Delay to compensate for the fast click event
-      setTimeout(function() {
+      setTimeout(function () {
         allowClick = true;
       }, 100);
     })
-    .on('click keydown', '.agenda-list-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-        $('.new-agenda-list-container').hide();
-        if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
+    .on("click keydown", ".agenda-list-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $(".new-agenda-list-container").hide();
+        if (_this.isPanning && !_this.allowClick && $(this).hasClass("open")) {
           return;
         }
-  
-        if ($(event.target).hasClass('agenda-item-bookmark-holder') || $(event.target).parents('.agenda-item-bookmark-holder').length) {
+
+        if (
+          $(event.target).hasClass("agenda-item-bookmark-holder") ||
+          $(event.target).parents(".agenda-item-bookmark-holder").length
+        ) {
           return;
         }
-  
-        var entryId = $(this).data('entry-id');
-        var entryTitle = $(this).find('.agenda-item-title').text().trim();
+
+        var entryId = $(this).data("entry-id");
+        var entryTitle = $(this).find(".agenda-item-title").text().trim();
         var beforeOpen = Promise.resolve();
-  
-        if (typeof _this.data.beforeOpen === 'function') {
+
+        if (typeof _this.data.beforeOpen === "function") {
           beforeOpen = _this.data.beforeOpen({
             config: _this.data,
             entry: _.find(_this.listItems, { id: entryId }),
             entryId: entryId,
             entryTitle: entryTitle,
-            event: event
+            event: event,
           });
-  
+
           if (!(beforeOpen instanceof Promise)) {
             beforeOpen = Promise.resolve(beforeOpen);
           }
         }
-  
+
         beforeOpen.then(function () {
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'entry_open',
-            label: entryTitle
+            category: "list_dynamic_" + _this.data.layout,
+            action: "entry_open",
+            label: entryTitle,
           });
-  
-          if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+
+          if (
+            _this.data.summaryLinkOption === "link" &&
+            _this.data.summaryLinkAction
+          ) {
             _this.Utils.Navigate.openLinkAction({
               records: _this.listItems,
               recordId: entryId,
-              summaryLinkAction: _this.data.summaryLinkAction
+              summaryLinkAction: _this.data.summaryLinkAction,
             });
-  
+
             return;
           }
-  
+
           _this.showDetails(entryId);
           Fliplet.Page.Context.update({
-            dynamicListOpenId: entryId
+            dynamicListOpenId: entryId,
           });
-      });
+        });
       }
     })
-    .on('click keydown', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".agenda-detail-overlay-close, .agenda-detail-overlay-screen", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var result;
-        $('.new-agenda-list-container').show();
-        if ($(this).hasClass('go-previous-screen')) {
+        $(".new-agenda-list-container").show();
+        if ($(this).hasClass("go-previous-screen")) {
           if (!_this.pvPreviousScreen) {
             return;
           }
-  
+
           try {
             _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
           } catch (error) {
-            console.error('Your custom function contains a syntax error: ' + error);
+            console.error(
+              "Your custom function contains a syntax error: " + error
+            );
           }
-  
+
           try {
-            result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+            result =
+              typeof _this.pvPreviousScreen === "function" &&
+              _this.pvPreviousScreen();
           } catch (error) {
-            console.error('Your custom function contains an error: ' + error);
+            console.error("Your custom function contains an error: " + error);
           }
-  
+
           if (!(result instanceof Promise)) {
             result = Promise.resolve();
           }
-  
-          return result.then(function () {
-            return Fliplet.Navigate.back();
-          }).catch(function (error) {
-            console.error(error);
-          });
+
+          return result
+            .then(function () {
+              return Fliplet.Navigate.back();
+            })
+            .catch(function (error) {
+              console.error(error);
+            });
         }
-  
+
         _this.closeDetails();
       }
     })
-    .on('keydown', function(e) {
+    .on("keydown", function(e) {
       if (e.keyCode === 39) {
-        if (_this.$container.find('.agenda-date-selector li.active').next().hasClass('.placeholder')) {
+        if (
+          _this.$container
+            .find(".agenda-date-selector li.active")
+            .next()
+            .hasClass(".placeholder")
+        ) {
           return;
         }
 
-        var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
-        var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').next());
+        var indexOfActiveDate = _this.$container
+          .find(".agenda-date-selector li")
+          .not(".placeholder")
+          .index(_this.$container.find(".agenda-date-selector li.active"));
+        var indexOfClickedDate = _this.$container
+          .find(".agenda-date-selector li")
+          .not(".placeholder")
+          .index(
+            _this.$container.find(".agenda-date-selector li.active").next()
+          );
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
         _this.updateDateIndexContext(indexOfClickedDate);
@@ -568,12 +634,25 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
       if (e.keyCode === 37) {
-        if (_this.$container.find('.agenda-date-selector li.active').prev().hasClass('.placeholder')) {
+        if (
+          _this.$container
+            .find(".agenda-date-selector li.active")
+            .prev()
+            .hasClass(".placeholder")
+        ) {
           return;
         }
 
-        var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
-        var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active').prev());
+        var indexOfActiveDate = _this.$container
+          .find(".agenda-date-selector li")
+          .not(".placeholder")
+          .index(_this.$container.find(".agenda-date-selector li.active"));
+        var indexOfClickedDate = _this.$container
+          .find(".agenda-date-selector li")
+          .not(".placeholder")
+          .index(
+            _this.$container.find(".agenda-date-selector li.active").prev()
+          );
         var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
         _this.updateDateIndexContext(indexOfClickedDate);
@@ -582,30 +661,41 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
     })
-    .on('keydown', '.agenda-date-selector li', function(event) {
-      if(!$(this).hasClass('placeholder')) {
-        if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-          if ($(this).hasClass('active') || $(this).hasClass('placeholder')) {
+    .on("keydown", ".agenda-date-selector li", function(event) {
+      if (!$(this).hasClass("placeholder")) {
+        if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+          if ($(this).hasClass("active") || $(this).hasClass("placeholder")) {
             return;
           }
-    
-          var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
-          var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(this);
+
+          var indexOfActiveDate = _this.$container
+            .find(".agenda-date-selector li")
+            .not(".placeholder")
+            .index(_this.$container.find(".agenda-date-selector li.active"));
+          var indexOfClickedDate = _this.$container
+            .find(".agenda-date-selector li")
+            .not(".placeholder")
+            .index(this);
           var indexDifference = indexOfClickedDate - indexOfActiveDate;
-    
+
           _this.updateDateIndexContext(indexOfClickedDate);
-    
+
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'filter_date',
-            label: $(this).find('.week').text().trim() + ' ' + $(this).find('.day').text().trim() + ' ' + $(this).find('.month').text().trim()
+            category: "list_dynamic_" + _this.data.layout,
+            action: "filter_date",
+            label:
+              $(this).find(".week").text().trim() +
+              " " +
+              $(this).find(".day").text().trim() +
+              " " +
+              $(this).find(".month").text().trim(),
           });
-    
+
           if (indexDifference < indexOfActiveDate) {
             _this.moveBackDate(indexOfClickedDate, indexDifference);
             return;
           }
-    
+
           if (indexDifference >= indexOfActiveDate) {
             _this.moveForwardDate(indexOfClickedDate, indexDifference);
             return;
@@ -613,23 +703,34 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
     })
-    .on('click', '.agenda-date-selector li', function() {
+    .on("click", ".agenda-date-selector li", function () {
       // prevents clicking the active one
       // prevents clicking the placeholder
-      if ($(this).hasClass('active') || $(this).hasClass('placeholder')) {
+      if ($(this).hasClass("active") || $(this).hasClass("placeholder")) {
         return;
       }
 
-      var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
-      var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(this);
+      var indexOfActiveDate = _this.$container
+        .find(".agenda-date-selector li")
+        .not(".placeholder")
+        .index(_this.$container.find(".agenda-date-selector li.active"));
+      var indexOfClickedDate = _this.$container
+        .find(".agenda-date-selector li")
+        .not(".placeholder")
+        .index(this);
       var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
       _this.updateDateIndexContext(indexOfClickedDate);
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'filter_date',
-        label: $(this).find('.week').text().trim() + ' ' + $(this).find('.day').text().trim() + ' ' + $(this).find('.month').text().trim()
+        category: "list_dynamic_" + _this.data.layout,
+        action: "filter_date",
+        label:
+          $(this).find(".week").text().trim() +
+          " " +
+          $(this).find(".day").text().trim() +
+          " " +
+          $(this).find(".month").text().trim(),
       });
 
       if (indexDifference < indexOfActiveDate) {
@@ -642,163 +743,175 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
     })
-    .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".dynamic-list-add-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
         }
 
-        if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+        if (!_.get(_this, "data.addEntryLinkAction.page")) {
           Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.',
+            title: "Link not configured",
+            message:
+              "Form not found. Please check the component's configuration.",
           });
           return;
         }
 
-        _this.data.addEntryLinkAction.query = '?mode=add';
+        _this.data.addEntryLinkAction.query = "?mode=add";
 
         try {
           var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
 
           if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error adding entry'
-                });
+            navigate.catch(function (error) {
+              Fliplet.UI.Toast(error, {
+                message: "Error adding entry",
               });
+            });
           }
         } catch (error) {
           Fliplet.UI.Toast(error, {
-            message: 'Error adding entry'
+            message: "Error adding entry",
           });
         }
       }
     })
-    .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-
+    .on("click keydown", ".dynamic-list-edit-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
         }
 
-        if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+        if (!_.get(_this, "data.editEntryLinkAction.page")) {
           Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.',
+            title: "Link not configured",
+            message:
+              "Form not found. Please check the component's configuration.",
           });
           return;
         }
 
-        var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
+        var entryID = $(this)
+          .parents(".agenda-item-inner-content")
+          .data("entry-id");
 
-        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+        _this.data.editEntryLinkAction.query = "?dataSourceEntryId=" + entryID;
 
         try {
           var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
 
           if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error editing entry'
-                });
+            navigate.catch(function (error) {
+              Fliplet.UI.Toast(error, {
+                message: "Error editing entry",
               });
+            });
           }
         } catch (error) {
           Fliplet.UI.Toast(error, {
-            message: 'Error editing entry'
+            message: "Error editing entry",
           });
         }
       }
     })
-    .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-
+    .on("click keydown", ".dynamic-list-delete-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var _that = $(this);
-        var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
+        var entryID = $(this)
+          .parents(".agenda-item-inner-content")
+          .data("entry-id");
         var options = {
-          title: 'Are you sure you want to delete the list entry?',
+          title: "Are you sure you want to delete the list entry?",
           labels: [
             {
-              label: 'Delete',
+              label: "Delete",
               action: function (i) {
-                _that.text('Deleting...').addClass('disabled');
+                _that.text("Deleting...").addClass("disabled");
 
                 // Run Hook
-                Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                Fliplet.Hooks.run("flListDataBeforeDeleteEntry", {
                   instance: _this,
                   entryId: entryID,
                   config: _this.data,
                   id: _this.data.id,
                   uuid: _this.data.uuid,
-                  container: _this.$container
+                  container: _this.$container,
                 })
-                  .then(function() {
-                    if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                  .then(function () {
+                    if (
+                      _this.data.deleteData &&
+                      typeof _this.data.deleteData === "function"
+                    ) {
                       return _this.data.deleteData(entryID);
                     }
 
                     return _this.deleteEntry(entryID);
                   })
                   .then(function onRemove(entryId) {
-                    _.remove(_this.listItems, function(entry) {
+                    _.remove(_this.listItems, function (entry) {
                       return entry.id === parseInt(entryId, 10);
                     });
 
-                    _that.text('Delete').removeClass('disabled');
+                    _that.text("Delete").removeClass("disabled");
                     _this.closeDetails();
 
-                    var selectedIndex = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
+                    var selectedIndex = _this.$container
+                      .find(".agenda-date-selector li")
+                      .not(".placeholder")
+                      .index(
+                        _this.$container.find(".agenda-date-selector li.active")
+                      );
                     _this.removeListItemHTML({
-                      id: entryId
+                      id: entryId,
                     });
                   })
-                  .catch(function(error) {
+                  .catch(function (error) {
                     Fliplet.UI.Toast.error(error, {
-                      message: 'Error deleting entry'
+                      message: "Error deleting entry",
                     });
                   });
-              }
-            }
+              },
+            },
           ],
-          cancel: true
-        }
+          cancel: true,
+        };
 
-        Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        Fliplet.Hooks.run("flListDataBeforeDeleteConfirmation", {
           instance: _this,
           entryId: entryID,
           config: _this.data,
           id: _this.data.id,
           uuid: _this.data.uuid,
-          container: _this.$container
-        }).then(function() {
+          container: _this.$container,
+        }).then(function () {
           Fliplet.UI.Actions(options);
         });
       }
     })
-    .on('click keydown', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-        var $parent = $(this).parents('.agenda-item-bookmark-holder');
-        var id = $(this).parents('.agenda-detail-wrapper, .agenda-list-item').data('entry-id');
+    .on("click keydown", ".agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $parent = $(this).parents(".agenda-item-bookmark-holder");
+        var id = $(this)
+          .parents(".agenda-detail-wrapper, .agenda-list-item")
+          .data("entry-id");
         var record = _.find(_this.listItems, { id: id });
 
         if (!record || !record.bookmarkButton) {
           return;
         }
-  
+
         if (record.bookmarked) {
-          $parent.removeClass('bookmarked').addClass('not-bookmarked');
-          $parent.find('.btn-bookmark').focus();
-  
+          $parent.removeClass("bookmarked").addClass("not-bookmarked");
+          $parent.find(".btn-bookmark").focus();
+
           record.bookmarkButton.unlike();
           return;
         }
-  
-        $parent.removeClass('not-bookmarked').addClass('bookmarked');
-        $parent.find('.btn-bookmarked').focus();
-  
+
+        $parent.removeClass("not-bookmarked").addClass("bookmarked");
+        $parent.find(".btn-bookmarked").focus();
+
         record.bookmarkButton.like();
       }
     });

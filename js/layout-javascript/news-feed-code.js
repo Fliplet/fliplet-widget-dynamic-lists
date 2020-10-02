@@ -134,7 +134,7 @@ DynamicList.prototype.attachObservers = function() {
   })
 
   _this.$container
-    .on('click', '[data-lfd-back]', function() {
+    .on("click", "[data-lfd-back]", function () {
       var result;
 
       if (!_this.pvGoBack && !_this.pvGoBack.enableButton) {
@@ -145,48 +145,57 @@ DynamicList.prototype.attachObservers = function() {
         try {
           _this.pvGoBack.action = eval(_this.pvGoBack.action);
         } catch (error) {
-          console.error('Your custom function for the back button contains a syntax error: ' + error);
+          console.error(
+            "Your custom function for the back button contains a syntax error: " +
+              error
+          );
         }
       }
 
       try {
-        result = (typeof _this.pvGoBack.action === 'function') && _this.pvGoBack.action();
+        result =
+          typeof _this.pvGoBack.action === "function" &&
+          _this.pvGoBack.action();
       } catch (error) {
-        console.error('Your custom function for the back button thrown an error: ' + error);
+        console.error(
+          "Your custom function for the back button thrown an error: " + error
+        );
       }
 
       if (!(result instanceof Promise)) {
         result = Promise.resolve();
       }
 
-      return result.then(function () {
-        return Fliplet.Navigate.back();
-      }).catch(function (error) {
-        console.error(error);
-      });
+      return result
+        .then(function () {
+          return Fliplet.Navigate.back();
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
     })
-    .on('click', '.apply-filters', function() {
+    .on("click", ".apply-filters", function () {
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click', '.clear-filters', function() {
-      $(this).addClass('hidden');
+    .on("click", ".clear-filters", function () {
+      $(this).addClass("hidden");
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".hidden-filter-controls-filter", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $filter = $(this);
-  
+
         Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'filter',
-          label: $filter.text().trim()
+          category: "list_dynamic_" + _this.data.layout,
+          action: "filter",
+          label: $filter.text().trim(),
         });
-  
+
         _this.toggleFilterElement($filter);
-  
-        if ($filter.parents('.inline-filter-holder').length) {
+
+        if ($filter.parents(".inline-filter-holder").length) {
           // @HACK Skip an execution loop to allow custom handlers to update the filters
           setTimeout(function () {
             _this.searchData();
@@ -194,39 +203,42 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
     })
-    .on('touchstart', '.news-feed-list-item', function(event) {
+    .on("touchstart", ".news-feed-list-item", function (event) {
       event.stopPropagation();
-      $(this).addClass('hover');
+      $(this).addClass("hover");
     })
-    .on('touchmove', '.news-feed-list-item', function() {
+    .on("touchmove", ".news-feed-list-item", function () {
       _this.allowClick = false;
-      $(this).removeClass('hover');
+      $(this).removeClass("hover");
     })
-    .on('touchend touchcancel', '.news-feed-list-item', function() {
-      $(this).removeClass('hover');
+    .on("touchend touchcancel", ".news-feed-list-item", function () {
+      $(this).removeClass("hover");
       // Delay to compensate for the fast click event
-      setTimeout(function() {
+      setTimeout(function () {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click keydown', '.news-feed-list-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-        $('.news-feed-list-wrapper').hide();
-        if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
+    .on("click keydown", ".news-feed-list-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $(".news-feed-list-wrapper").hide();
+        if (
+          $(event.target).hasClass("news-feed-info-holder") ||
+          $(event.target).parents(".news-feed-info-holder").length
+        ) {
           return;
         }
 
-        var entryId = $(this).data('entry-id');
-        var entryTitle = $(this).find('.news-feed-item-title').text().trim();
+        var entryId = $(this).data("entry-id");
+        var entryTitle = $(this).find(".news-feed-item-title").text().trim();
         var beforeOpen = Promise.resolve();
 
-        if (typeof _this.data.beforeOpen === 'function') {
+        if (typeof _this.data.beforeOpen === "function") {
           beforeOpen = _this.data.beforeOpen({
             config: _this.data,
             entry: _.find(_this.listItems, { id: entryId }),
             entryId: entryId,
             entryTitle: entryTitle,
-            event: event
+            event: event,
           });
 
           if (!(beforeOpen instanceof Promise)) {
@@ -236,16 +248,19 @@ DynamicList.prototype.attachObservers = function() {
 
         beforeOpen.then(function () {
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'entry_open',
-            label: entryTitle
+            category: "list_dynamic_" + _this.data.layout,
+            action: "entry_open",
+            label: entryTitle,
           });
 
-          if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          if (
+            _this.data.summaryLinkOption === "link" &&
+            _this.data.summaryLinkAction
+          ) {
             _this.Utils.Navigate.openLinkAction({
               records: _this.listItems,
               recordId: entryId,
-              summaryLinkAction: _this.data.summaryLinkAction
+              summaryLinkAction: _this.data.summaryLinkAction,
             });
 
             return;
@@ -254,18 +269,18 @@ DynamicList.prototype.attachObservers = function() {
           if (_this.allowClick) {
             _this.showDetails(entryId);
             Fliplet.Page.Context.update({
-              dynamicListOpenId: entryId
+              dynamicListOpenId: entryId,
             });
           }
         });
       }
     })
-    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-        $('.news-feed-list-wrapper').show();
+    .on("click keydown", ".news-feed-detail-overlay-close, .news-feed-detail-overlay-screen", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        $(".news-feed-list-wrapper").show();
         var result;
 
-        if ($(this).hasClass('go-previous-screen')) {
+        if ($(this).hasClass("go-previous-screen")) {
           if (!_this.pvPreviousScreen) {
             return;
           }
@@ -273,220 +288,289 @@ DynamicList.prototype.attachObservers = function() {
           try {
             _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
           } catch (error) {
-            console.error('Your custom function contains a syntax error: ' + error);
+            console.error(
+              "Your custom function contains a syntax error: " + error
+            );
           }
 
           try {
-            result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+            result =
+              typeof _this.pvPreviousScreen === "function" &&
+              _this.pvPreviousScreen();
           } catch (error) {
-            console.error('Your custom function thrown an error: ' + error);
+            console.error("Your custom function thrown an error: " + error);
           }
 
           if (!(result instanceof Promise)) {
             result = Promise.resolve();
           }
 
-          return result.then(function () {
-            return Fliplet.Navigate.back();
-          }).catch(function (error) {
-            console.error(error);
-          });
+          return result
+            .then(function () {
+              return Fliplet.Navigate.back();
+            })
+            .catch(function (error) {
+              console.error(error);
+            });
         }
 
         _this.closeDetails();
       }
     })
-    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".list-search-icon .fa-sliders", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $elementClicked = $(this);
-        var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
-        _this.$container.find('[data-filter-group]').prop('hidden', null);
-        
-        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-        
+        var $parentElement = $elementClicked.parents(
+          ".new-news-feed-list-container"
+        );
+        _this.$container.find("[data-filter-group]").prop("hidden", null);
+
+        Fliplet.Page.Context.remove("dynamicListFilterHideControls");
+
         if (_this.data.filtersInOverlay) {
-          $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-          $('body').addClass('lock has-filter-overlay');
-          
+          $parentElement
+            .find(".news-feed-search-filter-overlay")
+            .addClass("display");
+          $("body").addClass("lock has-filter-overlay");
+
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'search_filter_controls_overlay_activate'
+            category: "list_dynamic_" + _this.data.layout,
+            action: "search_filter_controls_overlay_activate",
           });
           return;
         }
-        $('.hidden-filter-controls').show();
-        $parentElement.find('.hidden-filter-controls').addClass('active');
-        $parentElement.find('.list-search-cancel').addClass('active');
-        if(event.type !== 'click') {
-          $parentElement.find('.list-search-cancel').focus();
+        $(".hidden-filter-controls").show();
+        $parentElement.find(".hidden-filter-controls").addClass("active");
+        $parentElement.find(".list-search-cancel").addClass("active");
+        if (event.type !== "click") {
+          $parentElement.find(".list-search-cancel").focus();
         }
-        $elementClicked.addClass('active');
-  
+        $elementClicked.addClass("active");
+
         _this.calculateFiltersHeight($parentElement);
-  
+
         Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'search_filter_controls_activate'
+          category: "list_dynamic_" + _this.data.layout,
+          action: "search_filter_controls_activate",
         });
       }
     })
-    .on('click', '.news-feed-overlay-close', function() {
+    .on("click", ".news-feed-overlay-close", function () {
       var $elementClicked = $(this);
-      var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
-      $parentElement.removeClass('display');
-      $('body').removeClass('lock has-filter-overlay');
+      var $parentElement = $elementClicked.parents(
+        ".news-feed-search-filter-overlay"
+      );
+      $parentElement.removeClass("display");
+      $("body").removeClass("lock has-filter-overlay");
 
       // Clear all selected filters
-      _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
+      _this.toggleFilterElement(
+        _this.$container.find(".mixitup-control-active:not(.toggle-bookmarks)"),
+        false
+      );
 
       // No filters selected
       if (_.isEmpty(_this.activeFilters)) {
-        _this.$container.find('.clear-filters').addClass('hidden');
+        _this.$container.find(".clear-filters").addClass("hidden");
         return;
       }
 
-      if (!_.has(_this.activeFilters, 'undefined')) {
+      if (!_.has(_this.activeFilters, "undefined")) {
         // Select filters based on existing settings
-        var selectors = _.flatten(_.map(_this.activeFilters, function (values, field) {
-          return _.map(values, function (value) {
-            return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
-          });
-        })).join(',');
+        var selectors = _.flatten(
+          _.map(_this.activeFilters, function (values, field) {
+            return _.map(values, function (value) {
+              return (
+                '.hidden-filter-controls-filter[data-field="' +
+                field +
+                '"][data-value="' +
+                value +
+                '"]'
+              );
+            });
+          })
+        ).join(",");
         _this.toggleFilterElement(_this.$container.find(selectors), true);
 
-        _this.$container.find('.clear-filters').removeClass('hidden');
+        _this.$container.find(".clear-filters").removeClass("hidden");
         return;
       }
 
       // Legacy class-based settings
-      _this.activeFilters['undefined'].forEach(function(filter) {
-        _this.toggleFilterElement(_this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]'), true);
+      _this.activeFilters["undefined"].forEach(function (filter) {
+        _this.toggleFilterElement(
+          _this.$container.find(
+            '.hidden-filter-controls-filter[data-toggle="' + filter + '"]'
+          ),
+          true
+        );
       });
 
-      _this.$container.find('.clear-filters').removeClass('hidden');
+      _this.$container.find(".clear-filters").removeClass("hidden");
     })
-    .on('click keydown', '.list-search-cancel', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".list-search-cancel", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         // Hide filters
-        $(this).removeClass('active');
-        _this.$container.find('.hidden-filter-controls').removeClass('active');
-        _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
-        _this.$container.find('.list-search-icon .fa-sliders').focus();
-        _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
-        _this.$container.find('[data-filter-group]').prop('hidden', true);
-        $('.fa-sliders').focus();
-        $('.hidden-filter-controls').hide();
-        
+        $(this).removeClass("active");
+        _this.$container.find(".hidden-filter-controls").removeClass("active");
+        _this.$container
+          .find(".list-search-icon .fa-sliders")
+          .removeClass("active");
+        _this.$container.find(".list-search-icon .fa-sliders").focus();
+        _this.$container
+          .find(".hidden-filter-controls")
+          .animate({ height: 0 }, 200);
+        _this.$container.find("[data-filter-group]").prop("hidden", true);
+        $(".fa-sliders").focus();
+        $(".hidden-filter-controls").hide();
+
         // Clear filters
         _this.clearFilters();
       }
     })
-    .on('keyup input', '.search-holder input', function(e) {
+    .on("keyup input", ".search-holder input", function (e) {
       var $inputField = $(this);
       var value = $inputField.val();
 
-      Fliplet.Hooks.run(e.type === 'keyup' ? 'flListDataSearchKeyUp' : 'flListDataSearchInput', {
-        instance: _this,
-        config: _this.data,
-        id: _this.data.id,
-        uuid: _this.data.uuid,
-        container: _this.$container,
-        input: $inputField,
-        value: value,
-        event: e
-      }).then(function () {
+      Fliplet.Hooks.run(
+        e.type === "keyup" ? "flListDataSearchKeyUp" : "flListDataSearchInput",
+        {
+          instance: _this,
+          config: _this.data,
+          id: _this.data.id,
+          uuid: _this.data.uuid,
+          container: _this.$container,
+          input: $inputField,
+          value: value,
+          event: e,
+        }
+      ).then(function () {
         // In case the value has been changed via hooks
         value = $inputField.val();
 
         if (value.length) {
-          $inputField.addClass('not-empty');
+          $inputField.addClass("not-empty");
         } else {
-          $inputField.removeClass('not-empty');
+          $inputField.removeClass("not-empty");
         }
 
-        if (e.type === 'keyup' && (e.which === 13 || e.keyCode === 13)) {
-          if (value === '') {
-            _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+        if (e.type === "keyup" && (e.which === 13 || e.keyCode === 13)) {
+          if (value === "") {
+            _this.$container
+              .find(".new-news-feed-list-container")
+              .removeClass("searching");
             _this.isSearching = false;
-            _this.searchData('');
+            _this.searchData("");
             return;
           }
 
           Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'search',
-            label: value
+            category: "list_dynamic_" + _this.data.layout,
+            action: "search",
+            label: value,
           });
 
-          _this.$container.find('.new-news-feed-list-container').addClass('searching');
+          _this.$container
+            .find(".new-news-feed-list-container")
+            .addClass("searching");
           _this.isSearching = true;
           _this.searchData(value);
         }
       });
     })
-    .on('click', '.search-holder .search-btn', function(e) {
-      var $inputField = $(this).parents('.search-holder').find('.search-feed');
+    .on("click", ".search-holder .search-btn", function (e) {
+      var $inputField = $(this).parents(".search-holder").find(".search-feed");
       var value = $inputField.val();
 
-      if (value === '') {
-        _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+      if (value === "") {
+        _this.$container
+          .find(".new-news-feed-list-container")
+          .removeClass("searching");
         _this.isSearching = false;
-        _this.searchData('');
+        _this.searchData("");
         return;
       }
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'search',
-        label: value
+        category: "list_dynamic_" + _this.data.layout,
+        action: "search",
+        label: value,
       });
 
-      _this.$container.find('.new-news-feed-list-container').addClass('searching');
+      _this.$container
+        .find(".new-news-feed-list-container")
+        .addClass("searching");
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
-      _this.$container.find('.new-news-feed-list-container').removeClass('searching');
+    .on("click", ".clear-search", function () {
+      _this.$container
+        .find(".new-news-feed-list-container")
+        .removeClass("searching");
       _this.isSearching = false;
-      _this.searchData('');
+      _this.searchData("");
     })
-    .on('show.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
-      $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
-    })
-    .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
-      $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
-    })
-    .on('click', '.news-feed-comment-holder', function(event) {
-      _this.$container.find('.news-feed-list-wrapper').hide();
+    .on("show.bs.collapse", ".news-feed-filters-panel .panel-collapse", function() {
+      $(this)
+        .siblings(".panel-heading")
+        .find(".fa-angle-down")
+        .removeClass("fa-angle-down")
+        .addClass("fa-angle-up");
+      }
+    )
+    .on("hide.bs.collapse", ".news-feed-filters-panel .panel-collapse", function() {
+      $(this)
+        .siblings(".panel-heading")
+        .find(".fa-angle-up")
+        .removeClass("fa-angle-up")
+        .addClass("fa-angle-down");
+      }
+    )
+    .on("click", ".news-feed-comment-holder", function (event) {
+      _this.$container.find(".news-feed-list-wrapper").hide();
 
       event.stopPropagation();
       var identifier;
-      if (_this.$container.find('.new-news-feed-list-container').hasClass('overlay-open')) {
-        identifier = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+      if (
+        _this.$container
+          .find(".new-news-feed-list-container")
+          .hasClass("overlay-open")
+      ) {
+        identifier = $(this)
+          .parents(".news-feed-details-content-holder")
+          .data("entry-id");
       } else {
-        identifier = $(this).parents('.news-feed-list-item').data('entry-id');
+        identifier = $(this).parents(".news-feed-list-item").data("entry-id");
       }
       _this.entryClicked = identifier;
       _this.showComments(identifier);
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'comments_open'
+        category: "list_dynamic_" + _this.data.layout,
+        action: "comments_open",
       });
     })
-    .on('click ', '.news-feed-comment-close-panel', function() {
-      _this.$container.find('.new-news-feed-comment-panel').removeClass('open');
-      _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
-      if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
-        $('body').removeClass('lock');
+    .on("click ", ".news-feed-comment-close-panel", function () {
+      _this.$container.find(".new-news-feed-comment-panel").removeClass("open");
+      _this.$container
+        .find(".news-feed-list-item.open .slide-over")
+        .removeClass("lock");
+      if (
+        !_this.$container.find(".news-feed-detail-overlay").hasClass("open")
+      ) {
+        $("body").removeClass("lock");
       }
     })
-    .on('click', '.news-feed-comment-input-holder .comment', function() {
-      var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
-      var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
+    .on("click", ".news-feed-comment-input-holder .comment", function () {
+      var entryId =
+        _this.$container.find(".news-feed-list-item.open").data("entry-id") ||
+        _this.entryClicked;
+      var $commentArea = $(this)
+        .parents(".news-feed-comment-input-holder")
+        .find("[data-comment-body]");
       var comment = $commentArea.val().trim();
 
-      $commentArea.val('').trigger('change');
+      $commentArea.val("").trigger("change");
       autosize.update($commentArea);
 
       if (comment) {
@@ -494,322 +578,342 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'comment_send'
+        category: "list_dynamic_" + _this.data.layout,
+        action: "comment_send",
       });
     })
-    .on('focus', '[data-comment-body]', function() {
+    .on("focus", "[data-comment-body]", function () {
       var _that = $(this);
 
       if (Modernizr.ios) {
-        setTimeout(function() {
-          _that.parents('.new-news-feed-comment-panel').addClass('typing');
+        setTimeout(function () {
+          _that.parents(".new-news-feed-comment-panel").addClass("typing");
 
           // Adds binding
-          $(document).on('touchstart', '[data-comment-body]', function() {
+          $(document).on("touchstart", "[data-comment-body]", function () {
             $(this).focus();
           });
         }, 0);
       }
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'comment_entered'
+        category: "list_dynamic_" + _this.data.layout,
+        action: "comment_entered",
       });
     })
-    .on('blur', '[data-comment-body]', function() {
+    .on("blur", "[data-comment-body]", function () {
       var _that = $(this);
 
       if (Modernizr.ios) {
-        setTimeout(function() {
-          _that.parents('.new-news-feed-comment-panel').removeClass('typing');
+        setTimeout(function () {
+          _that.parents(".new-news-feed-comment-panel").removeClass("typing");
           window.scrollTo(0, 0);
 
           // Removes binding
-          $(document).off('touchstart', '[data-comment-body]');
+          $(document).off("touchstart", "[data-comment-body]");
         }, 0);
       }
     })
-    .on('keyup change', '[data-comment-body]', function() {
+    .on("keyup change", "[data-comment-body]", function () {
       var value = $(this).val().trim();
 
       if (value.length) {
-        $(this).parents('.news-feed-comment-input-holder').addClass('ready');
+        $(this).parents(".news-feed-comment-input-holder").addClass("ready");
       } else {
-        $(this).parents('.news-feed-comment-input-holder').removeClass('ready');
+        $(this).parents(".news-feed-comment-input-holder").removeClass("ready");
       }
     })
-    .on('click', '.news-feed-comment-input-holder .save', function() {
-      var commentId = _this.$container.find('.fl-individual-comment.editing').data('id');
-      var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
-      var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
+    .on("click", ".news-feed-comment-input-holder .save", function () {
+      var commentId = _this.$container
+        .find(".fl-individual-comment.editing")
+        .data("id");
+      var entryId =
+        _this.$container.find(".news-feed-list-item.open").data("entry-id") ||
+        _this.entryClicked;
+      var $commentArea = $(this)
+        .parents(".news-feed-comment-input-holder")
+        .find("[data-comment-body]");
       var comment = $commentArea.val();
 
-      _this.$container.find('.fl-individual-comment').removeClass('editing');
-      _this.$container.find('.news-feed-comment-input-holder').removeClass('editing');
-      $commentArea.val('').trigger('change');
+      _this.$container.find(".fl-individual-comment").removeClass("editing");
+      _this.$container
+        .find(".news-feed-comment-input-holder")
+        .removeClass("editing");
+      $commentArea.val("").trigger("change");
       autosize.update($commentArea);
 
-      if (comment !== '') {
+      if (comment !== "") {
         _this.saveComment(entryId, commentId, comment);
       }
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'comment_save_edit'
+        category: "list_dynamic_" + _this.data.layout,
+        action: "comment_save_edit",
       });
     })
-    .on('click', '.news-feed-comment-input-holder .cancel', function() {
-      _this.$container.find('.fl-individual-comment').removeClass('editing');
-      _this.$container.find('.news-feed-comment-input-holder').removeClass('editing');
+    .on("click", ".news-feed-comment-input-holder .cancel", function () {
+      _this.$container.find(".fl-individual-comment").removeClass("editing");
+      _this.$container
+        .find(".news-feed-comment-input-holder")
+        .removeClass("editing");
 
-      var $messageArea = _this.$container.find('[data-comment-body]');
-      $messageArea.val('').trigger('change');
+      var $messageArea = _this.$container.find("[data-comment-body]");
+      $messageArea.val("").trigger("change");
       autosize.update($messageArea);
     })
-    .on('click', '.final .fl-comment-value', function(event) {
+    .on("click", ".final .fl-comment-value", function (event) {
       event.preventDefault();
       var _that = $(this);
-      var commentId = $(this).parents('.fl-individual-comment').data('id');
-      var $parentContainer = $(this).parents('.fl-individual-comment');
+      var commentId = $(this).parents(".fl-individual-comment").data("id");
+      var $parentContainer = $(this).parents(".fl-individual-comment");
       var textToCopy = $(this).text().trim();
 
-      if ($parentContainer.hasClass('current-user')) {
+      if ($parentContainer.hasClass("current-user")) {
         Fliplet.UI.Actions({
-          title: 'What do you want to do?',
+          title: "What do you want to do?",
           labels: [
             {
-              label: 'Copy',
+              label: "Copy",
               action: {
-                type: 'copyText',
-                text: textToCopy
-              }
+                type: "copyText",
+                text: textToCopy,
+              },
             },
             {
-              label: 'Edit',
+              label: "Edit",
               action: function (i) {
-                var $messageArea = _this.$container.find('[data-comment-body]');
-                _that.parents('.fl-individual-comment').addClass('editing');
-                _this.$container.find('.news-feed-comment-input-holder').addClass('editing');
+                var $messageArea = _this.$container.find("[data-comment-body]");
+                _that.parents(".fl-individual-comment").addClass("editing");
+                _this.$container
+                  .find(".news-feed-comment-input-holder")
+                  .addClass("editing");
 
                 $messageArea.val(textToCopy);
                 autosize.update($messageArea);
                 $messageArea.focus();
-                $messageArea.trigger('change');
+                $messageArea.trigger("change");
 
                 Fliplet.Analytics.trackEvent({
-                  category: 'list_dynamic_' + _this.data.layout,
-                  action: 'comment_edit'
+                  category: "list_dynamic_" + _this.data.layout,
+                  action: "comment_edit",
                 });
-              }
+              },
             },
             {
-              label: 'Delete',
+              label: "Delete",
               action: function () {
                 var options = {
-                  title: 'Delete comment',
-                  message: 'Are you sure you want to delete this comment?',
+                  title: "Delete comment",
+                  message: "Are you sure you want to delete this comment?",
                   labels: [
                     {
-                      label: 'Delete',
-                      action: function(i) {
+                      label: "Delete",
+                      action: function (i) {
                         Fliplet.Analytics.trackEvent({
-                          category: 'list_dynamic_' + _this.data.layout,
-                          action: 'comment_delete'
+                          category: "list_dynamic_" + _this.data.layout,
+                          action: "comment_delete",
                         });
-    
+
                         _this.deleteComment(commentId);
-                      }
-                    }
-                  ]
+                      },
+                    },
+                  ],
                 };
-                
+
                 Fliplet.UI.Actions(options);
-              }
-            }
+              },
+            },
           ],
-          cancel: 'Cancel'
-        }).then(function(i){
+          cancel: "Cancel",
+        }).then(function (i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
-              category: 'list_dynamic_' + _this.data.layout,
-              action: 'comment_copy'
+              category: "list_dynamic_" + _this.data.layout,
+              action: "comment_copy",
             });
           }
         });
       } else {
         Fliplet.UI.Actions({
-          title: 'What do you want to do?',
+          title: "What do you want to do?",
           labels: [
             {
-              label: 'Copy',
+              label: "Copy",
               action: {
-                type: 'copyText',
-                text: textToCopy
-              }
-            }
+                type: "copyText",
+                text: textToCopy,
+              },
+            },
           ],
-          cancel: 'Cancel'
-        }).then(function(i){
+          cancel: "Cancel",
+        }).then(function (i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
-              category: 'list_dynamic_' + _this.data.layout,
-              action: 'comment_copy'
+              category: "list_dynamic_" + _this.data.layout,
+              action: "comment_copy",
             });
           }
         });
       }
 
       Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'comment_options'
+        category: "list_dynamic_" + _this.data.layout,
+        action: "comment_options",
       });
     })
-    .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".dynamic-list-add-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
         }
 
-        if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+        if (!_.get(_this, "data.addEntryLinkAction.page")) {
           Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.',
+            title: "Link not configured",
+            message:
+              "Form not found. Please check the component's configuration.",
           });
           return;
         }
 
-        _this.data.addEntryLinkAction.query = '?mode=add';
+        _this.data.addEntryLinkAction.query = "?mode=add";
 
         try {
           var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
 
           if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error adding entry'
-                });
+            navigate.catch(function (error) {
+              Fliplet.UI.Toast(error, {
+                message: "Error adding entry",
               });
+            });
           }
         } catch (error) {
           Fliplet.UI.Toast(error, {
-            message: 'Error adding entry'
+            message: "Error adding entry",
           });
         }
       }
     })
-    .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".dynamic-list-edit-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
         }
 
-        if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+        if (!_.get(_this, "data.editEntryLinkAction.page")) {
           Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.',
+            title: "Link not configured",
+            message:
+              "Form not found. Please check the component's configuration.",
           });
           return;
         }
 
-        var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+        var entryID = $(this)
+          .parents(".news-feed-details-content-holder")
+          .data("entry-id");
 
-        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+        _this.data.editEntryLinkAction.query = "?dataSourceEntryId=" + entryID;
 
         try {
           var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
 
           if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error editing entry'
-                });
+            navigate.catch(function (error) {
+              Fliplet.UI.Toast(error, {
+                message: "Error editing entry",
               });
+            });
           }
         } catch (error) {
           Fliplet.UI.Toast(error, {
-            message: 'Error editing entry'
+            message: "Error editing entry",
           });
         }
       }
     })
-    .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-
+    .on("click keydown", ".dynamic-list-delete-item", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var _that = $(this);
-        var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+        var entryID = $(this)
+          .parents(".news-feed-details-content-holder")
+          .data("entry-id");
         var options = {
-          title: 'Are you sure you want to delete the list entry?',
+          title: "Are you sure you want to delete the list entry?",
           labels: [
             {
-              label: 'Delete',
+              label: "Delete",
               action: function (i) {
-                _that.text('Deleting...').addClass('disabled');
+                _that.text("Deleting...").addClass("disabled");
 
                 // Run Hook
-                Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                Fliplet.Hooks.run("flListDataBeforeDeleteEntry", {
                   instance: _this,
                   entryId: entryID,
                   config: _this.data,
                   id: _this.data.id,
                   uuid: _this.data.uuid,
-                  container: _this.$container
+                  container: _this.$container,
                 })
-                  .then(function() {
-                    if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                  .then(function () {
+                    if (
+                      _this.data.deleteData &&
+                      typeof _this.data.deleteData === "function"
+                    ) {
                       return _this.data.deleteData(entryID);
                     }
 
                     return _this.deleteEntry(entryID);
                   })
                   .then(function onRemove(entryId) {
-                    _.remove(_this.listItems, function(entry) {
+                    _.remove(_this.listItems, function (entry) {
                       return entry.id === parseInt(entryId, 10);
                     });
 
-                    _that.text('Delete').removeClass('disabled');
+                    _that.text("Delete").removeClass("disabled");
                     _this.closeDetails();
                     _this.removeListItemHTML({
-                      id: entryId
+                      id: entryId,
                     });
                   })
-                  .catch(function(error) {
+                  .catch(function (error) {
                     Fliplet.UI.Toast.error(error, {
-                      message: 'Error deleting entry'
+                      message: "Error deleting entry",
                     });
                   });
-              }
-            }
+              },
+            },
           ],
-          cancel: true
-        }
+          cancel: true,
+        };
 
-        Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        Fliplet.Hooks.run("flListDataBeforeDeleteConfirmation", {
           instance: _this,
           entryId: entryID,
           config: _this.data,
           id: _this.data.id,
           uuid: _this.data.uuid,
-          container: _this.$container
-        }).then(function() {
+          container: _this.$container,
+        }).then(function () {
           Fliplet.UI.Actions(options);
         });
       }
     })
-    .on('click keydown', '.toggle-bookmarks', function (event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+    .on("click keydown", ".toggle-bookmarks", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $toggle = $(this);
-  
-        $toggle.toggleClass('mixitup-control-active');
+
+        $toggle.toggleClass("mixitup-control-active");
         _this.searchData();
       }
     })
-    .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-        var $parent = $(this).parents('.news-feed-bookmark-holder');
-        var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+    .on("click keydown", ".news-feed-detail-overlay .news-feed-bookmark-wrapper", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $parent = $(this).parents(".news-feed-bookmark-holder");
+        var id = $(this)
+          .parents(".news-feed-details-content-holder")
+          .data("entry-id");
         var record = _.find(_this.listItems, { id: id });
 
         if (!record || !record.bookmarkButton) {
@@ -817,21 +921,23 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         if (record.bookmarked) {
-          $parent.removeClass('bookmarked').addClass('not-bookmarked');
-          $parent.find('.btn-bookmark').focus();
+          $parent.removeClass("bookmarked").addClass("not-bookmarked");
+          $parent.find(".btn-bookmark").focus();
           record.bookmarkButton.unlike();
           return;
         }
 
-        $parent.removeClass('not-bookmarked').addClass('bookmarked');
-        $parent.find('.btn-bookmarked').focus();
+        $parent.removeClass("not-bookmarked").addClass("bookmarked");
+        $parent.find(".btn-bookmarked").focus();
         record.bookmarkButton.like();
       }
     })
-    .on('click keydown', '.news-feed-detail-overlay  .news-feed-like-wrapper', function(event) {
-      if(_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
-        var $parent = $(this).parents('.news-feed-like-holder');
-        var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
+    .on("click keydown", ".news-feed-detail-overlay  .news-feed-like-wrapper", function(event) {
+      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+        var $parent = $(this).parents(".news-feed-like-holder");
+        var id = $(this)
+          .parents(".news-feed-details-content-holder")
+          .data("entry-id");
         var record = _.find(_this.listItems, { id: id });
 
         if (!record || !record.likeButton) {
@@ -841,21 +947,21 @@ DynamicList.prototype.attachObservers = function() {
         var count = record.likeButton.getCount();
 
         if (count < 1) {
-          count = '';
+          count = "";
         }
 
         if (record.liked) {
-          $parent.removeClass('liked').addClass('not-liked');
-          $(this).find('.count').html(count);
-          $parent.find('.btn-like').focus();
+          $parent.removeClass("liked").addClass("not-liked");
+          $(this).find(".count").html(count);
+          $parent.find(".btn-like").focus();
           record.likeButton.unlike();
           return;
         }
 
-        $parent.removeClass('not-liked').addClass('liked');
-        $parent.find('.btn-liked').focus();
+        $parent.removeClass("not-liked").addClass("liked");
+        $parent.find(".btn-liked").focus();
         record.likeButton.like();
-        $(this).find('.count').html(count);
+        $(this).find(".count").html(count);
       }
     });
 }
