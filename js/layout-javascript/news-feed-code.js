@@ -175,7 +175,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $filter = $(this);
   
         Fliplet.Analytics.trackEvent({
@@ -210,7 +210,7 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.news-feed-list-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         $(".news-feed-list-wrapper").hide();
         if (
           $(event.target).hasClass("news-feed-info-holder") ||
@@ -263,7 +263,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         $(".news-feed-list-wrapper").show();
         var result;
 
@@ -303,7 +303,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.closeDetails();
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $elementClicked = $(this);
         var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
         _this.$container.find('[data-filter-group]').prop('hidden', null);
@@ -384,7 +384,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         // Hide filters
         $(this).removeClass("active");
         _this.$container.find(".hidden-filter-controls").removeClass("active");
@@ -687,7 +687,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
         }
@@ -721,7 +721,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
         }
@@ -757,7 +757,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var _that = $(this);
         var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
         var options = {
@@ -819,7 +819,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.toggle-bookmarks', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
@@ -843,7 +843,7 @@ DynamicList.prototype.attachObservers = function() {
       record.bookmarkButton.like();
     })
     .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $parent = $(this).parents(".news-feed-bookmark-holder");
         var id = $(this)
           .parents(".news-feed-details-content-holder")
@@ -867,7 +867,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.news-feed-detail-overlay  .news-feed-like-wrapper', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $parent = $(this).parents(".news-feed-like-holder");
         var id = $(this)
           .parents(".news-feed-details-content-holder")

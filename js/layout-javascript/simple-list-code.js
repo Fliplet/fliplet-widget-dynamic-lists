@@ -265,7 +265,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.closeDetails();
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $elementClicked = $(this);
         var $parentElement = $elementClicked.parents(".simple-list-container");
 
@@ -344,7 +344,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         // Hide filters
         $(this).removeClass("active");
         _this.$container.find(".hidden-filter-controls").removeClass("active");
@@ -644,7 +644,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
         }
@@ -678,7 +678,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
         }
@@ -714,7 +714,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var _that = $(this);
         var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
         var options = {
