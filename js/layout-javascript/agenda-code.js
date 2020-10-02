@@ -214,7 +214,7 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on("click keydown", ".list-search-icon .fa-sliders", function(event) {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $el = $(this);
 
@@ -298,7 +298,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find(".clear-filters").removeClass("hidden");
     })
-    .on("click keydown", ".list-search-cancel", function(event) {
+    .on('click keydown', '.list-search-cancel', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         // Hide filters
         $(this).removeClass("active");
@@ -470,7 +470,7 @@ DynamicList.prototype.attachObservers = function() {
           : "bookmarks_hide",
       });
     })
-    .on("click keydown", ".toggle-agenda, .toggle-bookmarks", function(event) {
+    .on('click keydown', '.toggle-agenda, .toggle-bookmarks', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         event.stopPropagation();
 
@@ -505,7 +505,7 @@ DynamicList.prototype.attachObservers = function() {
         allowClick = true;
       }, 100);
     })
-    .on("click keydown", ".agenda-list-item", function(event) {
+    .on('click keydown', '.agenda-list-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         $(".new-agenda-list-container").hide();
         if (_this.isPanning && !_this.allowClick && $(this).hasClass("open")) {
@@ -564,7 +564,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on("click keydown", ".agenda-detail-overlay-close, .agenda-detail-overlay-screen", function(event) {
+    .on('click keydown', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var result;
         $(".new-agenda-list-container").show();
@@ -605,7 +605,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.closeDetails();
       }
     })
-    .on("keydown", function(e) {
+    .on('keydown', function(e) {
       if (e.keyCode === 39) {
         if (
           _this.$container
@@ -661,7 +661,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
     })
-    .on("keydown", ".agenda-date-selector li", function(event) {
+    .on('keydown', '.agenda-date-selector li', function(event) {
       if (!$(this).hasClass("placeholder")) {
         if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
           if ($(this).hasClass("active") || $(this).hasClass("placeholder")) {
@@ -743,7 +743,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
     })
-    .on("click keydown", ".dynamic-list-add-item", function(event) {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
@@ -777,7 +777,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
     })
-    .on("click keydown", ".dynamic-list-edit-item", function(event) {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
@@ -815,7 +815,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
     })
-    .on("click keydown", ".dynamic-list-delete-item", function(event) {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var _that = $(this);
         var entryID = $(this)
@@ -889,7 +889,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on("click keydown", ".agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper", function(event) {
+    .on('click keydown', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $parent = $(this).parents(".agenda-item-bookmark-holder");
         var id = $(this)

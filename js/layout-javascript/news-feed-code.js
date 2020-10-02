@@ -183,7 +183,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on("click keydown", ".hidden-filter-controls-filter", function(event) {
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $filter = $(this);
 
@@ -218,7 +218,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on("click keydown", ".news-feed-list-item", function(event) {
+    .on('click keydown', '.news-feed-list-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         $(".news-feed-list-wrapper").hide();
         if (
@@ -275,7 +275,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on("click keydown", ".news-feed-detail-overlay-close, .news-feed-detail-overlay-screen", function(event) {
+    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         $(".news-feed-list-wrapper").show();
         var result;
@@ -317,7 +317,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.closeDetails();
       }
     })
-    .on("click keydown", ".list-search-icon .fa-sliders", function(event) {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $elementClicked = $(this);
         var $parentElement = $elementClicked.parents(
@@ -408,7 +408,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find(".clear-filters").removeClass("hidden");
     })
-    .on("click keydown", ".list-search-cancel", function(event) {
+    .on('click keydown', '.list-search-cancel', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         // Hide filters
         $(this).removeClass("active");
@@ -761,7 +761,7 @@ DynamicList.prototype.attachObservers = function() {
         action: "comment_options",
       });
     })
-    .on("click keydown", ".dynamic-list-add-item", function(event) {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
@@ -795,7 +795,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
     })
-    .on("click keydown", ".dynamic-list-edit-item", function(event) {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
@@ -833,7 +833,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
     })
-    .on("click keydown", ".dynamic-list-delete-item", function(event) {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var _that = $(this);
         var entryID = $(this)
@@ -900,7 +900,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on("click keydown", ".toggle-bookmarks", function(event) {
+    .on('click keydown', '.toggle-bookmarks', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $toggle = $(this);
 
@@ -908,7 +908,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.searchData();
       }
     })
-    .on("click keydown", ".news-feed-detail-overlay .news-feed-bookmark-wrapper", function(event) {
+    .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $parent = $(this).parents(".news-feed-bookmark-holder");
         var id = $(this)
@@ -932,7 +932,7 @@ DynamicList.prototype.attachObservers = function() {
         record.bookmarkButton.like();
       }
     })
-    .on("click keydown", ".news-feed-detail-overlay  .news-feed-like-wrapper", function(event) {
+    .on('click keydown', '.news-feed-detail-overlay  .news-feed-like-wrapper', function(event) {
       if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
         var $parent = $(this).parents(".news-feed-like-holder");
         var id = $(this)
