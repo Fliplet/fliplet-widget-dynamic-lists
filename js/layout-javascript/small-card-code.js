@@ -174,7 +174,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $filter = $(this);
 
         Fliplet.Analytics.trackEvent({
@@ -194,7 +194,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.small-card-list-detail-button a', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var _that = $(this);
         Fliplet.Analytics.trackEvent({
           category: "list_dynamic_" + _this.data.layout,
@@ -237,7 +237,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.small-card-list-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         $(".small-card-list-wrapper").hide();
         var _that = $(this);
 
@@ -304,7 +304,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click keydown', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
       $(".small-card-list-wrapper").show();
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         event.stopPropagation();
 
         var result;
@@ -366,7 +366,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $elementClicked = $(this);
         var $parentElement = $elementClicked.parents(
           ".new-small-card-list-container"
@@ -443,7 +443,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         // Hide filters
         $(this).removeClass("active");
         _this.$container.find(".hidden-filter-controls").removeClass("active");
@@ -568,7 +568,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
         }
@@ -607,7 +607,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
+      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var _that = $(this);
         var entryID = $(this)
           .parents(".small-card-detail-overlay")

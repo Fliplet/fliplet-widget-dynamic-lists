@@ -1362,7 +1362,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
     },
-    Accessability: {
+    Accessibility: {
       accessibilityDetails: accessibilityDetails,
     },
     String: {
