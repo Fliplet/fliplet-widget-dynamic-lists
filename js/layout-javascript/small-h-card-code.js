@@ -75,7 +75,7 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('click keydown', '.small-h-card-list-detail-button a', function(event) {
-      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
         var _that = $(this);
         Fliplet.Analytics.trackEvent({
           category: "list_dynamic_" + _this.data.layout,
@@ -105,7 +105,7 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.small-h-card-list-item', function(event) {
-      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
         $(".new-small-h-card-list-container").hide();
         var _that = $(this);
         var entryId = $(this).data("entry-id");
@@ -166,7 +166,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
-      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
         $(".new-small-h-card-list-container").show();
         event.stopPropagation();
 
@@ -229,7 +229,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
         if (!_this.data.addEntryLinkAction) {
           return;
         }
@@ -263,7 +263,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
         if (!_this.data.editEntryLinkAction) {
           return;
         }
@@ -302,7 +302,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (_this.Utils.Accessability.accesabilityDetails(event, $(this))) {
+      if (_this.Utils.Accessability.accessibilityDetails(event, $(this))) {
         var _that = $(this);
         var entryID = $(this)
           .parents(".small-h-card-detail-overlay")

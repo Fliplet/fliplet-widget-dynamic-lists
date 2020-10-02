@@ -363,7 +363,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
-  function accesabilityDetails(event, item) {
+  function accessibilityDetails(event, item) {
     if(event.key === 'Enter' || event.type === 'click') {
       if(event.type === 'click') {
         item.removeClass('focus-outline');
@@ -1363,7 +1363,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       updateFilterControlsContext: updateFilterControlsContext,
     },
     Accessability: {
-      accesabilityDetails: accesabilityDetails,
+      accessibilityDetails: accessibilityDetails,
     },
     String: {
       splitByCommas: splitByCommas,
