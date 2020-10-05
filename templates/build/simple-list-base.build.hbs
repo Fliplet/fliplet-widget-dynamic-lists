@@ -54,7 +54,7 @@
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
-      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
+      <div class="toggle-bookmarks focus-outline" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" tabindex="0">
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
@@ -130,7 +130,7 @@
   <div class="simple-list-detail-overlay-wrapper">
     <div class="simple-list-detail-overlay-panel">
       <div class="simple-list-detail-overlay-heading">
-        <div class="simple-list-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+        <div class="simple-list-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
           <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
         </div>
       </div>

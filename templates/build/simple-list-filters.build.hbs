@@ -12,9 +12,9 @@
         </div>
         <div id="collapse-\{{id}}-\{{@index}}" class="panel-collapse collapse">
           <div class="panel-body">
-            <fieldset data-filter-group>
+            <fieldset hidden data-filter-group>
               \{{#each [data]}}
-              <div class="btn hidden-filter-controls-filter" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+              <div class="btn hidden-filter-controls-filter focus-outline" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" tabindex="0">\{{[name]}}</div>
               \{{/each}}
             </fieldset>
           </div>
@@ -28,9 +28,9 @@
     <div class="hidden-filter-controls-label">Filter by <span>\{{[name]}}</span></div>
     <div class="hidden-filter-controls-filter-container" touch-action="pan-x pan-y">
       <div class="hidden-filter-controls-filter-wrapper">
-        <fieldset data-filter-group>
+        <fieldset hidden data-filter-group>
           \{{#each [data]}}
-          <div class="btn hidden-filter-controls-filter" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+          <div class="btn hidden-filter-controls-filter focus-outline" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" tabindex="0">\{{[name]}}</div>
           \{{/each}}
         </fieldset>
       </div>
