@@ -1354,6 +1354,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
+    Accessibility: {
+      accessibilityDetails: accessibilityDetails,
+    },
     DOM: {
       $: getjQueryObjects,
       adjustAddButtonPosition: adjustAddButtonPosition
@@ -1361,9 +1364,6 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     Page: {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
-    },
-    Accessibility: {
-      accessibilityDetails: accessibilityDetails,
     },
     String: {
       splitByCommas: splitByCommas,
