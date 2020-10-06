@@ -438,9 +438,8 @@ DynamicList.prototype.attachObservers = function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
     .on('click', '.news-feed-comment-holder', function(event) {
-      _this.$container.find('.news-feed-list-wrapper').hide();
-
       event.stopPropagation();
+
       var identifier;
       if (_this.$container.find('.new-news-feed-list-container').hasClass('overlay-open')) {
         identifier = $(this).parents('.news-feed-details-content-holder').data('entry-id');
