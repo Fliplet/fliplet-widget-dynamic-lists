@@ -12,10 +12,10 @@
         \{{/ifCond}}
         \{{#if likesEnabled}}
         <div class="news-feed-like-holder news-feed-like-holder-\{{id}}">
-          <div class="news-feed-like-wrapper btn-like">
+          <div class="news-feed-like-wrapper focus-outline btn-like" tabindex="0">
             <span class="count"></span><i class="fa fa-heart-o fa-lg"></i>
           </div>
-          <div class="news-feed-like-wrapper btn-liked">
+          <div class="news-feed-like-wrapper focus-outline btn-liked" tabindex="0">
             <span class="count"></span><i class="fa fa-heart fa-lg animated bounceIn"></i>
           </div>
         </div>
@@ -23,14 +23,10 @@
 
         \{{#if bookmarksEnabled}}
         <div class="news-feed-bookmark-holder news-feed-bookmark-holder-\{{id}}">
-<<<<<<< HEAD
-          <div class="news-feed-bookmark-wrapper btn-bookmark">
-=======
           <div class="news-feed-bookmark-wrapper focus-outline btn-bookmark" tabindex="0">
->>>>>>> 74f0e64... added accesability to components
             <i class="fa fa-bookmark-o fa-lg"></i>
           </div>
-          <div class="news-feed-bookmark-wrapper btn-bookmarked">
+          <div class="news-feed-bookmark-wrapper focus-outline btn-bookmarked" tabindex="0">
             <i class="fa fa-bookmark fa-lg animated fadeIn"></i>
           </div>
         </div>

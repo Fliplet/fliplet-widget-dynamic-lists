@@ -172,14 +172,14 @@ DynamicList.prototype.attachObservers = function() {
         var $filter = $(this);
 
         Fliplet.Analytics.trackEvent({
-          category: "list_dynamic_" + _this.data.layout,
-          action: "filter",
-          label: $filter.text().trim(),
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter',
+          label: $filter.text().trim()
         });
 
         _this.toggleFilterElement($filter);
 
-        if ($filter.parents(".inline-filter-holder").length) {
+        if ($filter.parents('.inline-filter-holder').length) {
           // @HACK Skip an execution loop to allow custom handlers to update the filters
           setTimeout(function () {
             _this.searchData();
@@ -189,25 +189,25 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click keydown', '.simple-list-item', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        $(".simple-list-wrapper").hide();
+        $('.simple-list-wrapper').hide();
         if (
-          $(event.target).hasClass("simple-list-social-holder") ||
-          $(event.target).parents(".simple-list-social-holder").length
+          $(event.target).hasClass('simple-list-social-holder') ||
+          $(event.target).parents('.simple-list-social-holder').length
         ) {
           return;
         }
 
-        var entryId = $(this).data("entry-id");
-        var entryTitle = $(this).find(".list-item-title").text().trim();
+        var entryId = $(this).data('entry-id');
+        var entryTitle = $(this).find('.list-item-title').text().trim();
         var beforeOpen = Promise.resolve();
 
-        if (typeof _this.data.beforeOpen === "function") {
+        if (typeof _this.data.beforeOpen === 'function') {
           beforeOpen = _this.data.beforeOpen({
             config: _this.data,
             entry: _.find(_this.listItems, { id: entryId }),
             entryId: entryId,
             entryTitle: entryTitle,
-            event: event,
+            event: event
           });
 
           if (!(beforeOpen instanceof Promise)) {
@@ -217,19 +217,19 @@ DynamicList.prototype.attachObservers = function() {
 
         beforeOpen.then(function () {
           Fliplet.Analytics.trackEvent({
-            category: "list_dynamic_" + _this.data.layout,
-            action: "entry_open",
-            label: entryTitle,
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_open',
+            label: entryTitle
           });
 
           if (
-            _this.data.summaryLinkOption === "link" &&
+            _this.data.summaryLinkOption === 'link' &&
             _this.data.summaryLinkAction
           ) {
             _this.Utils.Navigate.openLinkAction({
               records: _this.listItems,
               recordId: entryId,
-              summaryLinkAction: _this.data.summaryLinkAction,
+              summaryLinkAction: _this.data.summaryLinkAction
             });
 
             return;
@@ -237,17 +237,17 @@ DynamicList.prototype.attachObservers = function() {
 
           _this.showDetails(entryId);
           Fliplet.Page.Context.update({
-            dynamicListOpenId: entryId,
+            dynamicListOpenId: entryId
           });
         });
       }
     })
     .on('click keydown', '.simple-list-detail-overlay-close', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        $(".simple-list-wrapper").show();
+        $('.simple-list-wrapper').show();
         var result;
 
-        if ($(this).hasClass("go-previous-screen")) {
+        if ($(this).hasClass('go-previous-screen')) {
           if (!_this.pvPreviousScreen) {
             return;
           }
@@ -256,16 +256,16 @@ DynamicList.prototype.attachObservers = function() {
             _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
           } catch (error) {
             console.error(
-              "Your custom function contains a syntax error: " + error
+              'Your custom function contains a syntax error: ' + error
             );
           }
 
           try {
             result =
-              typeof _this.pvPreviousScreen === "function" &&
+              typeof _this.pvPreviousScreen === 'function' &&
               _this.pvPreviousScreen();
           } catch (error) {
-            console.error("Your custom function thrown an error: " + error);
+            console.error('Your custom function thrown an error: ' + error);
           }
 
           if (!(result instanceof Promise)) {
@@ -287,47 +287,48 @@ DynamicList.prototype.attachObservers = function() {
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $elementClicked = $(this);
-        var $parentElement = $elementClicked.parents(".simple-list-container");
-        _this.$container.find("[data-filter-group]").prop("hidden", null);
+        var $parentElement = $elementClicked.parents('.simple-list-container');
+        _this.$container.find('[data-filter-group]').prop('hidden', null);
 
-        Fliplet.Page.Context.remove("dynamicListFilterHideControls");
+        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
         if (_this.data.filtersInOverlay) {
           $parentElement
-            .find(".simple-list-search-filter-overlay")
-            .addClass("display");
-          $("body").addClass("lock has-filter-overlay");
+            .find('.simple-list-search-filter-overlay')
+            .addClass('display');
+          $('body').addClass('lock has-filter-overlay');
 
           Fliplet.Analytics.trackEvent({
-            category: "list_dynamic_" + _this.data.layout,
-            action: "search_filter_controls_overlay_activate",
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'search_filter_controls_overlay_activate'
           });
           return;
         }
 
-      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+        Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
-      if (_this.data.filtersInOverlay) {
-        $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
-        $('body').addClass('lock has-filter-overlay');
+        if (_this.data.filtersInOverlay) {
+          $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
+          $('body').addClass('lock has-filter-overlay');
+
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'search_filter_controls_overlay_activate'
+          });
+          return;
+        }
+
+        $parentElement.find('.hidden-filter-controls').addClass('active');
+        $parentElement.find('.list-search-cancel').addClass('active');
+        $elementClicked.addClass('active');
+
+        _this.calculateFiltersHeight($parentElement);
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
-          action: 'search_filter_controls_overlay_activate'
+          action: 'search_filter_controls_activate'
         });
-        return;
       }
-
-      $parentElement.find('.hidden-filter-controls').addClass('active');
-      $parentElement.find('.list-search-cancel').addClass('active');
-      $elementClicked.addClass('active');
-
-      _this.calculateFiltersHeight($parentElement);
-
-      Fliplet.Analytics.trackEvent({
-        category: 'list_dynamic_' + _this.data.layout,
-        action: 'search_filter_controls_activate'
-      });
     })
     .on('click', '.simple-list-overlay-close', function() {
       var $elementClicked = $(this);
@@ -367,17 +368,17 @@ DynamicList.prototype.attachObservers = function() {
     .on('click keydown', '.list-search-cancel', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         // Hide filters
-        $(this).removeClass("active");
-        _this.$container.find(".hidden-filter-controls").removeClass("active");
+        $(this).removeClass('active');
+        _this.$container.find('.hidden-filter-controls').removeClass('active');
         _this.$container
-          .find(".list-search-icon .fa-sliders")
-          .removeClass("active");
+          .find('.list-search-icon .fa-sliders')
+          .removeClass('active');
         _this.$container
-          .find(".hidden-filter-controls")
+          .find('.hidden-filter-controls')
           .animate({ height: 0 }, 200);
-        _this.$container.find("[data-filter-group]").prop("hidden", true);
-        $(".fa-sliders").focus();
-        $(".hidden-filter-controls").hide();
+        _this.$container.find('[data-filter-group]').prop('hidden', true);
+        $('.fa-sliders').focus();
+        $('.hidden-filter-controls').hide();
 
         // Clear filters
         _this.clearFilters();
@@ -800,16 +801,16 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $toggle = $(this);
 
-        $toggle.toggleClass("mixitup-control-active");
+        $toggle.toggleClass('mixitup-control-active');
         _this.searchData();
       }
     })
     .on('click keydown', '.simple-list-detail-overlay .simple-list-bookmark-wrapper', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var $parent = $(this).parents(".simple-list-bookmark-holder");
+        var $parent = $(this).parents('.simple-list-bookmark-holder');
         var id = $(this)
-          .parents(".simple-list-details-holder")
-          .data("entry-id");
+          .parents('.simple-list-details-holder')
+          .data('entry-id');
         var record = _.find(_this.listItems, { id: id });
 
         if (!record || !record.bookmarkButton) {
@@ -817,23 +818,23 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         if (record.bookmarked) {
-          $parent.removeClass("bookmarked").addClass("not-bookmarked");
-          $parent.find(".btn-bookmark").focus();
+          $parent.removeClass('bookmarked').addClass('not-bookmarked');
+          $parent.find('.btn-bookmark').focus();
           record.bookmarkButton.unlike();
           return;
         }
 
-        $parent.removeClass("not-bookmarked").addClass("bookmarked");
-        $parent.find(".btn-bookmarked").focus();
+        $parent.removeClass('not-bookmarked').addClass('bookmarked');
+        $parent.find('.btn-bookmarked').focus();
         record.bookmarkButton.like();
       }
     })
     .on('click keydown', '.simple-list-detail-overlay .simple-list-like-wrapper', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var $parent = $(this).parents(".simple-list-like-holder");
+        var $parent = $(this).parents('.simple-list-like-holder');
         var id = $(this)
-          .parents(".simple-list-details-holder")
-          .data("entry-id");
+          .parents('.simple-list-details-holder')
+          .data('entry-id');
         var record = _.find(_this.listItems, { id: id });
 
         if (!record || !record.likeButton) {
@@ -843,21 +844,21 @@ DynamicList.prototype.attachObservers = function() {
         var count = record.likeButton.getCount();
 
         if (count < 1) {
-          count = "";
+          count = '';
         }
 
         if (record.liked) {
-          $parent.removeClass("liked").addClass("not-liked");
-          $(this).find(".count").html(count);
-          $parent.find(".btn-like").focus();
+          $parent.removeClass('liked').addClass('not-liked');
+          $(this).find('.count').html(count);
+          $parent.find('.btn-like').focus();
           record.likeButton.unlike();
           return;
         }
 
-        $parent.removeClass("not-liked").addClass("liked");
-        $parent.find(".btn-liked").focus();
+        $parent.removeClass('not-liked').addClass('liked');
+        $parent.find('.btn-liked').focus();
         record.likeButton.like();
-        $(this).find(".count").html(count);
+        $(this).find('.count').html(count);
       }
     });
 };

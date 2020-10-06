@@ -211,96 +211,99 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click keydown', '.news-feed-list-item', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        $(".news-feed-list-wrapper").hide();
+        $('.news-feed-list-wrapper').hide();
         if (
-          $(event.target).hasClass("news-feed-info-holder") ||
-          $(event.target).parents(".news-feed-info-holder").length
+          $(event.target).hasClass('news-feed-info-holder') ||
+          $(event.target).parents('.news-feed-info-holder').length
         ) {
           return;
         }
 
-      var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.news-feed-item-title').text().trim();
-      var beforeOpen = Promise.resolve();
+        var entryId = $(this).data('entry-id');
+        var entryTitle = $(this).find('.news-feed-item-title').text().trim();
+        var beforeOpen = Promise.resolve();
 
-      if (typeof _this.data.beforeOpen === 'function') {
-        beforeOpen = _this.data.beforeOpen({
-          config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
-          entryId: entryId,
-          entryTitle: entryTitle,
-          event: event
-        });
+        if (typeof _this.data.beforeOpen === 'function') {
+          beforeOpen = _this.data.beforeOpen({
+            config: _this.data,
+            entry: _.find(_this.listItems, { id: entryId }),
+            entryId: entryId,
+            entryTitle: entryTitle,
+            event: event
+          });
 
-        if (!(beforeOpen instanceof Promise)) {
-          beforeOpen = Promise.resolve(beforeOpen);
+          if (!(beforeOpen instanceof Promise)) {
+            beforeOpen = Promise.resolve(beforeOpen);
+          }
         }
+
+        beforeOpen.then(function () {
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + _this.data.layout,
+            action: 'entry_open',
+            label: entryTitle
+          });
+
+          if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+            _this.Utils.Navigate.openLinkAction({
+              records: _this.listItems,
+              recordId: entryId,
+              summaryLinkAction: _this.data.summaryLinkAction
+            });
+
+            return;
+          }
+          // find the element to expand and expand it
+          if (_this.allowClick) {
+            _this.showDetails(entryId);
+            Fliplet.Page.Context.update({
+              dynamicListOpenId: entryId
+            });
+          }
+        });
       }
-
-      beforeOpen.then(function () {
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'entry_open',
-          label: entryTitle
-        });
-
-        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-          _this.Utils.Navigate.openLinkAction({
-            records: _this.listItems,
-            recordId: entryId,
-            summaryLinkAction: _this.data.summaryLinkAction
-          });
-
-          return;
-        }
-        // find the element to expand and expand it
-        if (_this.allowClick) {
-          _this.showDetails(entryId);
-          Fliplet.Page.Context.update({
-            dynamicListOpenId: entryId
-          });
-        }
-      });
     })
     .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        $(".news-feed-list-wrapper").show();
+        $('.news-feed-list-wrapper').show();
         var result;
 
         if ($(this).hasClass('go-previous-screen')) {
           if (!_this.pvPreviousScreen) {
             return;
           }
-
-      if ($(this).hasClass('go-previous-screen')) {
-        if (!_this.pvPreviousScreen) {
-          return;
         }
 
-        try {
-          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
-        } catch (error) {
-          console.error('Your custom function contains a syntax error: ' + error);
+        if ($(this).hasClass('go-previous-screen')) {
+          if (!_this.pvPreviousScreen) {
+            return;
+          }
+
+          try {
+            _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+          } catch (error) {
+            console.error('Your custom function contains a syntax error: ' + error);
+          }
+
+          try {
+            result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+          } catch (error) {
+            console.error('Your custom function thrown an error: ' + error);
+          }
+
+          if (!(result instanceof Promise)) {
+            result = Promise.resolve();
+          }
+
+          return result.then(function () {
+            return Fliplet.Navigate.back();
+          }).catch(function (error) {
+            console.error(error);
+          });
         }
 
-        try {
-          result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
-        } catch (error) {
-          console.error('Your custom function thrown an error: ' + error);
-        }
-
-        if (!(result instanceof Promise)) {
-          result = Promise.resolve();
-        }
-
-        return result.then(function () {
-          return Fliplet.Navigate.back();
-        }).catch(function (error) {
-          console.error(error);
-        });
+        _this.closeDetails();
       }
-
-      _this.closeDetails();
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
@@ -386,18 +389,18 @@ DynamicList.prototype.attachObservers = function() {
     .on('click keydown', '.list-search-cancel', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         // Hide filters
-        $(this).removeClass("active");
-        _this.$container.find(".hidden-filter-controls").removeClass("active");
+        $(this).removeClass('active');
+        _this.$container.find('.hidden-filter-controls').removeClass('active');
         _this.$container
-          .find(".list-search-icon .fa-sliders")
-          .removeClass("active");
-        _this.$container.find(".list-search-icon .fa-sliders").focus();
+          .find('.list-search-icon .fa-sliders')
+          .removeClass('active');
+        _this.$container.find('.list-search-icon .fa-sliders').focus();
         _this.$container
-          .find(".hidden-filter-controls")
+          .find('.hidden-filter-controls')
           .animate({ height: 0 }, 200);
-        _this.$container.find("[data-filter-group]").prop("hidden", true);
-        $(".fa-sliders").focus();
-        $(".hidden-filter-controls").hide();
+        _this.$container.find('[data-filter-group]').prop('hidden', true);
+        $('.fa-sliders').focus();
+        $('.hidden-filter-controls').hide();
 
         // Clear filters
         _this.clearFilters();
@@ -638,19 +641,19 @@ DynamicList.prototype.attachObservers = function() {
                           category: 'list_dynamic_' + _this.data.layout,
                           action: 'comment_delete'
                         });
-    
+
                         _this.deleteComment(commentId);
                       }
                     }
                   ]
                 };
-                
+
                 Fliplet.UI.Actions(options);
               }
             }
           ],
           cancel: 'Cancel'
-        }).then(function(i){
+        }).then(function(i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
               category: 'list_dynamic_' + _this.data.layout,
@@ -671,7 +674,7 @@ DynamicList.prototype.attachObservers = function() {
             }
           ],
           cancel: 'Cancel'
-        }).then(function(i){
+        }).then(function(i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
               category: 'list_dynamic_' + _this.data.layout,
@@ -822,8 +825,9 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
         var $toggle = $(this);
 
-      $toggle.toggleClass('mixitup-control-active');
-      _this.searchData();
+        $toggle.toggleClass('mixitup-control-active');
+        _this.searchData();
+      }
     })
     .on('click', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function() {
       var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
@@ -844,15 +848,15 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var $parent = $(this).parents(".news-feed-bookmark-holder");
+        var $parent = $(this).parents('.news-feed-bookmark-holder');
         var id = $(this)
-          .parents(".news-feed-details-content-holder")
-          .data("entry-id");
+          .parents('.news-feed-details-content-holder')
+          .data('entry-id');
         var record = _.find(_this.listItems, { id: id });
 
-      if (!record || !record.likeButton) {
-        return;
-      }
+        if (!record || !record.likeButton) {
+          return;
+        }
 
         if (record.bookmarked) {
           $parent.removeClass('bookmarked').addClass('not-bookmarked');
@@ -868,10 +872,10 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click keydown', '.news-feed-detail-overlay  .news-feed-like-wrapper', function(event) {
       if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var $parent = $(this).parents(".news-feed-like-holder");
+        var $parent = $(this).parents('.news-feed-like-holder');
         var id = $(this)
-          .parents(".news-feed-details-content-holder")
-          .data("entry-id");
+          .parents('.news-feed-details-content-holder')
+          .data('entry-id');
         var record = _.find(_this.listItems, { id: id });
 
         if (!record || !record.likeButton) {
@@ -903,7 +907,7 @@ DynamicList.prototype.attachObservers = function() {
       record.likeButton.like();
       $(this).find('.count').html(count);
     });
-}
+};
 
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
