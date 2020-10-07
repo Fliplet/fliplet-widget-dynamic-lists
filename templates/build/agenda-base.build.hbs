@@ -49,14 +49,14 @@
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
       \{{#ifCond bookmarksEnabled '&&' hasTopBar}}
-      <div class="toggle-bookmarks focus-outline" tabindex="0" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
+      <div class="toggle-bookmarks focus-outline" tabindex="0" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/ifCond}}
-      <div class="list-search-cancel focus-outline" tabindex="0" ><span class="fa fa-times"></span></div>
+      <div class="list-search-cancel focus-outline" tabindex="0"><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders focus-outline" tabindex="0" ></i>
+      <i class="fa fa-sliders focus-outline" tabindex="0"></i>
       \{{/if}}
     </div>
     \{{/ifCond}}
@@ -135,7 +135,7 @@
 <div class="agenda-detail-overlay" id="agenda-detail-overlay-\{{id}}">
   <div class="agenda-detail-overlay-wrapper">
     <div class="agenda-detail-overlay-panel">
-      <div class="agenda-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0" >
+      <div class="agenda-detail-overlay-close focus-outline \{{#if previousScreen}}go-previous-screen\{{/if}}" tabindex="0">
         <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
       </div>
       <div class="agenda-detail-overlay-content">

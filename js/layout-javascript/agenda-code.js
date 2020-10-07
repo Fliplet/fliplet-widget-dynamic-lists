@@ -94,7 +94,7 @@ function DynamicList(id, data, container) {
         message: 'Error loading agenda'
       });
     });
-}
+};
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
