@@ -368,8 +368,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       if (event.type === 'click') {
         item.removeClass('focus-outline');
       }
+
       return true;
     }
+
     return false;
   }
 

@@ -84,7 +84,7 @@ function DynamicList(id, data, container) {
     // Start running the Public functions
     _this.initialize();
   });
-}
+};
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 

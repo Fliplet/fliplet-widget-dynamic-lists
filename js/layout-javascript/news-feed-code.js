@@ -103,7 +103,7 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
   } else {
     this.$container.find('.clear-filters').addClass('hidden');
   }
-}
+};
 
 DynamicList.prototype.clearFilters = function () {
   this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
@@ -917,7 +917,7 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   }).then(function () {
     return Promise.resolve(entryID);
   });
-}
+};
 
 DynamicList.prototype.removeListItemHTML = function (options) {
   options = options || {};
@@ -929,7 +929,7 @@ DynamicList.prototype.removeListItemHTML = function (options) {
   }
 
   this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').remove();
-}
+};
 
 DynamicList.prototype.initializeOverlaySocials = function (id) {
   var _this = this;
@@ -1189,7 +1189,7 @@ DynamicList.prototype.initialize = function() {
       _this.parseFilterQueries();
       _this.parseSearchQueries();
     });
-}
+};
 
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
@@ -1221,7 +1221,7 @@ DynamicList.prototype.checkIsToOpen = function() {
       _this.showComments(entry.id, _this.pvOpenQuery.commentId);
     }
   });
-}
+};
 
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
@@ -1252,7 +1252,7 @@ DynamicList.prototype.parseSearchQueries = function() {
     openSingleEntry: _this.pvSearchQuery.openSingleEntry,
     initialRender: true
   });
-}
+};
 
 DynamicList.prototype.parseFilterQueries = function() {
   var _this = this;
@@ -1280,7 +1280,7 @@ DynamicList.prototype.parseFilterQueries = function() {
 
     _this.calculateFiltersHeight(_this.$container.find('.new-news-feed-list-container'));
   }
-}
+};
 
 DynamicList.prototype.navigateBackEvent = function() {
   var _this = this;
@@ -1317,7 +1317,7 @@ DynamicList.prototype.navigateBackEvent = function() {
       console.error(error);
     });
   });
-}
+};
 
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
@@ -1372,7 +1372,7 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       return;
     });
-}
+};
 
 DynamicList.prototype.connectToDataSource = function() {
   var _this = this;
@@ -1426,7 +1426,7 @@ DynamicList.prototype.connectToDataSource = function() {
       message: 'Error loading data'
     });
   });
-}
+};
 
 DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
@@ -1451,7 +1451,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 
   _this.$container.html(template(data));
   _this.$overlay = $('#news-feed-detail-overlay-' + _this.data.id);
-}
+};
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
@@ -1492,7 +1492,7 @@ DynamicList.prototype.addSummaryData = function(records) {
   });
 
   return loopData;
-}
+};
 
 DynamicList.prototype.renderLoopHTML = function () {
   // Function that renders the List template
@@ -1545,7 +1545,7 @@ DynamicList.prototype.renderLoopHTML = function () {
     // start the initial render
     requestAnimationFrame(render);
   });
-}
+};
 
 DynamicList.prototype.getAddPermission = function(data) {
   data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
@@ -1795,7 +1795,7 @@ DynamicList.prototype.searchData = function(options) {
       initialRender: !!options.initialRender
     });
   });
-}
+};
 
 DynamicList.prototype.getLikeIdentifier = function (record) {
   var uniqueId = this.Utils.Record.getUniqueId({
@@ -1978,7 +1978,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
         });
       });
     });
-}
+};
 
 DynamicList.prototype.getBookmarkIdentifier = function (record) {
   var uniqueId = this.Utils.Record.getUniqueId({
@@ -2144,7 +2144,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
         });
       });
     });
-}
+};
 
 DynamicList.prototype.addDetailViewData = function (entry) {
   var _this = this;
@@ -2283,7 +2283,7 @@ DynamicList.prototype.showDetails = function (id, listData) {
       });
     }
   });
-}
+};
 
 DynamicList.prototype.closeDetails = function() {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
@@ -2308,7 +2308,7 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
   }, 300);
-}
+};
 
 /******************/
 /**** COMMENTS ****/
@@ -2397,7 +2397,7 @@ DynamicList.prototype.getEntryComments = function(options) {
         record: record
       });
     });
-}
+};
 
 DynamicList.prototype.connectToUsersDataSource = function() {
   var _this = this;
@@ -2409,7 +2409,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
     .then(function(connection) {
       return connection.find();
     });
-}
+};
 
 DynamicList.prototype.updateCommentCounter = function(options) {
   if (!_.get(this.data, 'social.comments')) {
@@ -2435,7 +2435,7 @@ DynamicList.prototype.updateCommentCounter = function(options) {
 
   // Updates both main list and overlay comment counters
   _this.$container.find('.news-feed-comemnt-holder-' + id).html(html);
-}
+};
 
 DynamicList.prototype.showComments = function(id, commentId) {
   var _this = this;
@@ -2567,7 +2567,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       message: 'Unable to load comments'
     });
   });
-}
+};
 
 DynamicList.prototype.sendComment = function(id, value) {
   var record = _.find(this.listItems, { id: id });
@@ -2737,7 +2737,7 @@ DynamicList.prototype.sendComment = function(id, value) {
       record: record
     });
   });
-}
+};
 
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
@@ -2771,7 +2771,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
   _this.$container.find('.news-feed-comment-area').stop().animate({
     scrollTop: _this.$container.find('.news-feed-comment-area')[0].scrollHeight
   }, 250);
-}
+};
 
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
@@ -2830,7 +2830,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
     var commentHTML = commentTemplateCompiled(commentInfo);
   }
   _this.$container.find('.fl-individual-comment[data-id="' + guid + '"]').replaceWith(commentHTML);
-}
+};
 
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
@@ -2869,7 +2869,7 @@ DynamicList.prototype.deleteComment = function(id) {
       message: 'Error deleting comment'
     });
   });
-}
+};
 
 DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   var _this = this;
@@ -2938,4 +2938,4 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
         message: 'Error updating comment'
       });
     });
-}
+};
