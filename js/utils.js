@@ -236,24 +236,28 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return [];
     }
 
-    var selectors = [];
-
     if (!Array.isArray(query.value)) {
       query.value = [query.value];
     }
 
-    if (_.get(query, 'column', []).length) {
-      // Select filters using on legacy column-specific methods
-      query.column.forEach(function (field, index) {
-        if (!Array.isArray(query.value[index])) {
-          query.value[index] = [query.value[index]];
-        }
-
-        query.value[index].forEach(function (value) {
-          selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
-        });
+   if (!_.get(query, 'column', []).length) {
+      return _.map(_.flatten(query.value), function (value) {
+        return '[data-value="' + value + '"]';
       });
     }
+
+    var selectors = [];
+
+     // Select filters using column-specific methods
+    query.column.forEach(function (field, index) {
+      if (!Array.isArray(query.value[index])) {
+        query.value[index] = [query.value[index]];
+      }
+
+      query.value[index].forEach(function (value) {
+        selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
+      });
+    });
 
     return selectors;
   }
