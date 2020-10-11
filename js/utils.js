@@ -367,12 +367,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function accessibilityDetails(event, item) {
+  function accessibilityDetails(event) {
     if (event.key === 'Enter' || event.type === 'click') {
-      if (event.type === 'click') {
-        item.removeClass('focus-outline');
-      }
-
       return true;
     }
 

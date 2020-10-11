@@ -7,12 +7,6 @@
   </div>
 </div>
 
-\{{#if showAddEntry}}
-<div class="dynamic-list-add-item focus-outline" tabindex="0">
-  <i class="fa fa-plus"></i>
-</div>
-\{{/if}}
-
 <!-- Detail view overlay -->
 <div class="small-h-card-detail-overlay" id="small-h-card-detail-overlay-\{{id}}">
   <div class="small-h-card-detail-overlay-wrapper">
@@ -32,3 +26,9 @@
   </div>
   <div class="small-h-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
 </div>
+
+\{{#if showAddEntry}}
+<div class="dynamic-list-add-item focus-outline" tabindex="0">
+  <i class="fa fa-plus"></i>
+</div>
+\{{/if}}
