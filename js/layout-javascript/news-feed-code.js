@@ -211,6 +211,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
+
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -291,7 +292,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
+    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function() {
       var result;
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -324,13 +325,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click', '.list-search-icon .fa-sliders', function(event) {
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-
-      $parentElement.find('[data-filter-group]').show();
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
@@ -389,7 +388,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function(event) {
+    .on('click', '.list-search-cancel', function() {
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
@@ -474,8 +473,10 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click', '.news-feed-comment-holder', function(e) {
-      e.stopPropagation();
+    .on('click', '.news-feed-comment-holder', function(event) {
+      _this.$container.find('.news-feed-list-wrapper').hide();
+
+      event.stopPropagation();
       var identifier;
       if (_this.$container.find('.new-news-feed-list-container').hasClass('overlay-open')) {
         identifier = $(this).parents('.news-feed-details-content-holder').data('entry-id');
@@ -490,7 +491,7 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click', '.news-feed-comment-close-panel', function() {
+    .on('click ', '.news-feed-comment-close-panel', function() {
       _this.$container.find('.new-news-feed-comment-panel').removeClass('open');
       _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
       if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
@@ -583,8 +584,8 @@ DynamicList.prototype.attachObservers = function() {
       $messageArea.val('').trigger('change');
       autosize.update($messageArea);
     })
-    .on('click', '.final .fl-comment-value', function(e) {
-      e.preventDefault();
+    .on('click', '.final .fl-comment-value', function(event) {
+      event.preventDefault();
       var _that = $(this);
       var commentId = $(this).parents('.fl-individual-comment').data('id');
       var $parentContainer = $(this).parents('.fl-individual-comment');
@@ -621,26 +622,26 @@ DynamicList.prototype.attachObservers = function() {
             },
             {
               label: 'Delete',
-              action: function (i) {
+              action: function () {
                 var options = {
                   title: 'Delete comment',
                   message: 'Are you sure you want to delete this comment?',
-                  labels: ['Delete','Cancel'] // Native only (defaults to [OK,Cancel])
-                };
-
-                Fliplet.Navigate.confirm(options)
-                  .then(function(result) {
-                    Fliplet.Analytics.trackEvent({
-                      category: 'list_dynamic_' + _this.data.layout,
-                      action: 'comment_delete'
-                    });
-
-                    if (!result) {
-                      return;
+                  labels: [
+                    {
+                      label: 'Delete',
+                      action: function(i) {
+                        Fliplet.Analytics.trackEvent({
+                          category: 'list_dynamic_' + _this.data.layout,
+                          action: 'comment_delete'
+                        });
+    
+                        _this.deleteComment(commentId);
+                      }
                     }
-
-                    _this.deleteComment(commentId);
-                  });
+                  ]
+                };
+                
+                Fliplet.UI.Actions(options);
               }
             }
           ],
@@ -748,6 +749,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
+
       var _that = $(this);
       var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       var options = {

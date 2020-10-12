@@ -214,7 +214,7 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click', '.list-search-icon .fa-sliders', function(event) {
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $el = $(this);
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
@@ -425,10 +425,10 @@ DynamicList.prototype.attachObservers = function() {
           : 'bookmarks_hide'
       });
     })
-    .on('click', '.toggle-agenda, .toggle-bookmarks', function(e) {
-      e.stopPropagation();
+    .on('click', '.toggle-agenda, .toggle-bookmarks', function(event) {
+      event.stopPropagation();
 
-      var $toggle = _this.$container.find(e.handleObj.selector);
+      var $toggle = _this.$container.find(event.handleObj.selector);
 
       $toggle.toggleClass('mixitup-control-active');
       _this.$container.find('.new-agenda-list-container').toggleClass('show-bookmarks');
@@ -631,6 +631,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -665,6 +666,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
+
       var _that = $(this);
       var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
       var options = {
