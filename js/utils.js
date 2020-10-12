@@ -1162,7 +1162,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     $listItems.each(function() {
       var $listItem = $(this);
       var itemId = parseInt($listItem.data('entry-id'), 10);
-      var itemSortedIndex = options.sortedRecords.findIndex(function(record) {
+      var itemSortedIndex = _.findIndex(options.sortedRecords, function(record) {
         return record.id === itemId;
       });
 
