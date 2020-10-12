@@ -114,8 +114,8 @@ var DynamicLists = (function() {
       onEvent: function(event, dataSource) {
         if (event === 'dataSourceSelect' && dataSource.columns) {
           dataSourceColumns = dataSource.columns;
-          _this.renderSortFieldsColumn();
-          _this.renderFilterFieldsColumn();
+          _this.renderSortColumns();
+          _this.renderFilterColumns();
         }
       }
     });
@@ -676,7 +676,7 @@ var DynamicLists = (function() {
         }
       });
     },
-    renderFilterFieldsColumn() {
+    renderFilterColumns() {
       $filterAccordionContainer.empty();
       _.forEach(_this.config.filterOptions, function(item) {
         item.fromLoading = true; // Flag to close accordions
@@ -687,7 +687,7 @@ var DynamicLists = (function() {
         $('#value-field-' + item.id).val(item.value);
       });
     },
-    renderSortFieldsColumn: function() {
+    renderSortColumns: function() {
       dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
       $sortAccordionContainer.empty();
       _.forEach(_this.config.sortOptions, function(item) {
@@ -784,11 +784,11 @@ var DynamicLists = (function() {
       return loadingPromise
         .then(function() {
           // Load sort options
-          _this.renderSortFieldsColumn();
+          _this.renderSortColumns();
           _this.checkSortPanelLength();
 
           // Load filter options
-          _this.renderFilterFieldsColumn();
+          _this.renderFilterColumns();
           _this.checkFilterPanelLength();
 
           $('#items-number').val(_this.config.limitEntries);
