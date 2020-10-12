@@ -30,28 +30,7 @@
     <div class="state-wrapper">
       <form class="settings-form">
         <div class="form-group clearfix">
-          <div class="col-sm-4 control-label">
-            <label>Your list data</label>
-          </div>
-          <div class="col-sm-8">
-            <div class="create-holder">
-              <div class="btn btn-default" data-create-datasource>Create list data</div>
-              <div class="btn btn-secondary select-new-data-source">Use existing data</div>
-            </div>
-            <div class="edit-holder hidden">
-              <div class="btn btn-default" data-edit-datasource>Edit list data</div>
-              <div class="btn btn-secondary select-new-data-source">Change data source</div>
-              <p class="text-helper selected-datasource hidden"><strong>Data selected:</strong> <span></span></p>
-            </div>
-            <div class="select-datasource-holder hidden">
-              <select name="select_datasource" id="select_datasource" data-label="select" class="form-control">
-                <option value="none">-- Select a data source</option>
-                <option disabled>------</option>
-                <option value="new">Create a new data source</option>
-                <option disabled>------</option>
-              </select>
-            </div>
-          </div>
+          <div id="dataSourceProvider" class="col-sm-8 ui-sortable"></div>
         </div>
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
