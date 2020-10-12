@@ -115,7 +115,7 @@ var DynamicLists = (function() {
         if (event === 'dataSourceSelect' && dataSource.columns) {
           dataSourceColumns = dataSource.columns;
           _this.renderSortFieldsColumn();
-          _this.renderFilterFieldColumn();
+          _this.renderFilterFieldsColumn();
         }
       }
     });
@@ -676,7 +676,7 @@ var DynamicLists = (function() {
         }
       });
     },
-    renderFilterFieldColumn() {
+    renderFilterFieldsColumn() {
       $filterAccordionContainer.empty();
       _.forEach(_this.config.filterOptions, function(item) {
         item.fromLoading = true; // Flag to close accordions
@@ -788,7 +788,7 @@ var DynamicLists = (function() {
           _this.checkSortPanelLength();
 
           // Load filter options
-          _this.renderFilterFieldColumn();
+          _this.renderFilterFieldsColumn();
           _this.checkFilterPanelLength();
 
           $('#items-number').val(_this.config.limitEntries);
