@@ -194,7 +194,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.Utils.Records.sortByField({
         $container: _this.$container,
         listContainer: '#small-card-list-wrapper-' + _this.data.id,
-        listHolder: '.small-card-list-wrapper',
+        listItem: '.small-card-list-item',
         records: _this.searchedListItems,
         sortOrder: _this.sortOrder,
         sortField: _this.sortField
@@ -1362,7 +1362,7 @@ DynamicList.prototype.searchData = function(options) {
         records: _this.modifiedListItems,
         sortOrder: _this.sortOrder,
         sortField: _this.sortField,
-        onlyRecords: true
+        sortHTMLElements: false
       });
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;

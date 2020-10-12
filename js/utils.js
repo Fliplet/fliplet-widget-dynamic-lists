@@ -1138,16 +1138,18 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
   function sortRecordsByField(options) {
     var sortedRecords = sortByField(options);
 
-    if (options.onlyRecords) {
+    if (options.sortHTMLElements === false) {
       return sortedRecords;
     }
 
     sortHTMLElements({
       $layoutContainer: options.$container,
       listContainer: options.listContainer,
-      listHolder: options.listHolder,
+      listItem: options.listItem,
       sortedRecords: sortedRecords
     });
+
+    return sortedRecords;
   }
 
   function sortHTMLElements(options) {
@@ -1155,7 +1157,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var $list = $(options.listContainer);
     var $prevElement = $list.prev();
     var $detachedList = $list.detach();
-    var $listItems = $detachedList.find('.small-card-list-item').detach();
+    var $listItems = $detachedList.find(options.listItem).detach();
 
     $listItems.each(function() {
       var $listItem = $(this);
