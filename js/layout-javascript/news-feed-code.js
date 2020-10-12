@@ -173,7 +173,7 @@ DynamicList.prototype.attachObservers = function() {
       var $sortListItem = $(e.currentTarget);
       var oldSortOrder = $sortListItem.data('sortOrder');
       var $sortOrderIcon = $sortListItem.find('i');
-      var $sortList = _this.$container.find('.sort-list-news li');
+      var $sortList = _this.$container.find('.list-sort li');
       var sortClasses = {
         'none': 'fa-sort',
         'asc': 'fa-sort-asc',
