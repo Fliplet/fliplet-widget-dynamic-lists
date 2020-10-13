@@ -367,12 +367,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function accessibilityDetails(event) {
-    if (event.key === 'Enter' || event.type === 'click') {
-      return true;
-    }
-
-    return false;
+  function accessibilityValidation(event) {
+    return event.key === 'Enter' || event.type === 'click';
   }
 
   function recordIsDeletable(record, config, userData) {
@@ -1355,8 +1351,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
-    Accessibility: {
-      accessibilityDetails: accessibilityDetails
+    accessibilityHelpers: {
+      accessibilityValidation: accessibilityValidation
     },
     DOM: {
       $: getjQueryObjects,

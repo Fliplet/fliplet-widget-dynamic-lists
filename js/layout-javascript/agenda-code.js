@@ -215,42 +215,43 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var $el = $(this);
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
+      }
+      var $el = $(this);
+
+      Fliplet.Page.Context.remove('dynamicListFilterHideControls');
+
+      if (_this.data.filtersInOverlay) {
+        _this.$container
+          .find('.new-agenda-search-filter-overlay')
+          .addClass('display');
+        $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
         if (_this.data.filtersInOverlay) {
-          _this.$container
-            .find('.new-agenda-search-filter-overlay')
-            .addClass('display');
+          _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
           $('body').addClass('lock has-filter-overlay');
-
-          Fliplet.Page.Context.remove('dynamicListFilterHideControls');
-
-          if (_this.data.filtersInOverlay) {
-            _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-            $('body').addClass('lock has-filter-overlay');
-
-            Fliplet.Analytics.trackEvent({
-              category: 'list_dynamic_' + _this.data.layout,
-              action: 'search_filter_controls_overlay_activate'
-            });
-            return;
-          }
-
-          _this.$container.find('.hidden-filter-controls').addClass('active');
-          _this.$container.find('.list-search-cancel').addClass('active');
-          $el.addClass('active');
-
-          _this.toggleListView();
-          _this.calculateFiltersHeight();
 
           Fliplet.Analytics.trackEvent({
             category: 'list_dynamic_' + _this.data.layout,
-            action: 'search_filter_controls_activate'
+            action: 'search_filter_controls_overlay_activate'
           });
+          return;
         }
+
+        _this.$container.find('.hidden-filter-controls').addClass('active');
+        _this.$container.find('.list-search-cancel').addClass('active');
+        $el.addClass('active');
+
+        _this.toggleListView();
+        _this.calculateFiltersHeight();
+
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'search_filter_controls_activate'
+        });
       }
     })
     .on('click', '.agenda-overlay-close', function() {
@@ -287,19 +288,20 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        // Hide filters
-        $(this).removeClass('active');
-        _this.$container.find('.hidden-filter-controls').removeClass('active');
-        _this.$container
-          .find('.list-search-icon .fa-sliders')
-          .removeClass('active');
-        _this.calculateFiltersHeight(true);
-        $('.fa-sliders').focus();
-
-        // Clear filters
-        _this.clearFilters();
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
       }
+      // Hide filters
+      $(this).removeClass('active');
+      _this.$container.find('.hidden-filter-controls').removeClass('active');
+      _this.$container
+        .find('.list-search-icon .fa-sliders')
+        .removeClass('active');
+      _this.calculateFiltersHeight(true);
+      $('.fa-sliders').focus();
+
+      // Clear filters
+      _this.clearFilters();
     })
     .on('keyup input', '.search-holder input', function(e) {
       var $inputField = $(this);
@@ -442,22 +444,23 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.toggle-agenda, .toggle-bookmarks', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        event.stopPropagation();
-
-        var $toggle = _this.$container.find(event.handleObj.selector);
-
-        $toggle.toggleClass('mixitup-control-active');
-        _this.$container.find('.new-agenda-list-container').toggleClass('show-bookmarks');
-        _this.searchData();
-
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: $toggle.hasClass('mixitup-control-active')
-            ? 'bookmarks_show'
-            : 'bookmarks_hide'
-        });
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
       }
+      event.stopPropagation();
+
+      var $toggle = _this.$container.find(event.handleObj.selector);
+
+      $toggle.toggleClass('mixitup-control-active');
+      _this.$container.find('.new-agenda-list-container').toggleClass('show-bookmarks');
+      _this.searchData();
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: $toggle.hasClass('mixitup-control-active')
+          ? 'bookmarks_show'
+          : 'bookmarks_hide'
+      });
     })
     .on('touchstart', '.agenda-list-item', function(event) {
       event.stopPropagation();
@@ -475,98 +478,100 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.agenda-list-item', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
         $('.new-agenda-list-container').hide();
-        if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
-          return;
-        }
-
-        if ($(event.target).hasClass('agenda-item-bookmark-holder') || $(event.target).parents('.agenda-item-bookmark-holder').length) {
-          return;
-        }
-
-        var entryId = $(this).data('entry-id');
-        var entryTitle = $(this).find('.agenda-item-title').text().trim();
-        var beforeOpen = Promise.resolve();
-
-        if (typeof _this.data.beforeOpen === 'function') {
-          beforeOpen = _this.data.beforeOpen({
-            config: _this.data,
-            entry: _.find(_this.listItems, { id: entryId }),
-            entryId: entryId,
-            entryTitle: entryTitle,
-            event: event
-          });
-
-          if (!(beforeOpen instanceof Promise)) {
-            beforeOpen = Promise.resolve(beforeOpen);
-          }
-        }
-
-        beforeOpen.then(function() {
-          Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'entry_open',
-            label: entryTitle
-          });
-
-          if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
-            _this.Utils.Navigate.openLinkAction({
-              records: _this.listItems,
-              recordId: entryId,
-              summaryLinkAction: _this.data.summaryLinkAction
-            });
-
-            return;
-          }
-
-          _this.showDetails(entryId);
-          Fliplet.Page.Context.update({
-            dynamicListOpenId: entryId
-          });
-        });
+        return;
       }
+      if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
+        return;
+      }
+
+      if ($(event.target).hasClass('agenda-item-bookmark-holder') || $(event.target).parents('.agenda-item-bookmark-holder').length) {
+        return;
+      }
+
+      var entryId = $(this).data('entry-id');
+      var entryTitle = $(this).find('.agenda-item-title').text().trim();
+      var beforeOpen = Promise.resolve();
+
+      if (typeof _this.data.beforeOpen === 'function') {
+        beforeOpen = _this.data.beforeOpen({
+          config: _this.data,
+          entry: _.find(_this.listItems, { id: entryId }),
+          entryId: entryId,
+          entryTitle: entryTitle,
+          event: event
+        });
+
+        if (!(beforeOpen instanceof Promise)) {
+          beforeOpen = Promise.resolve(beforeOpen);
+        }
+      }
+
+      beforeOpen.then(function() {
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'entry_open',
+          label: entryTitle
+        });
+
+        if (_this.data.summaryLinkOption === 'link' && _this.data.summaryLinkAction) {
+          _this.Utils.Navigate.openLinkAction({
+            records: _this.listItems,
+            recordId: entryId,
+            summaryLinkAction: _this.data.summaryLinkAction
+          });
+
+          return;
+        }
+
+        _this.showDetails(entryId);
+        Fliplet.Page.Context.update({
+          dynamicListOpenId: entryId
+        });
+      });
     })
     .on('click keydown', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var result;
-        $('.new-agenda-list-container').show();
-        if ($(this).hasClass('go-previous-screen')) {
-          if (!_this.pvPreviousScreen) {
-            return;
-          }
-        }
-
-        if ($(this).hasClass('go-previous-screen')) {
-          if (!_this.pvPreviousScreen) {
-            return;
-          }
-
-          try {
-            _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
-          } catch (error) {
-            console.error('Your custom function contains a syntax error: ' + error);
-          }
-
-          try {
-            result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
-          } catch (error) {
-            console.error('Your custom function contains an error: ' + error);
-          }
-
-          if (!(result instanceof Promise)) {
-            result = Promise.resolve();
-          }
-
-          return result.then(function() {
-            return Fliplet.Navigate.back();
-          }).catch(function(error) {
-            console.error(error);
-          });
-        }
-
-        _this.closeDetails();
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
       }
+      var result;
+      $('.new-agenda-list-container').show();
+      if ($(this).hasClass('go-previous-screen')) {
+        if (!_this.pvPreviousScreen) {
+          return;
+        }
+      }
+
+      if ($(this).hasClass('go-previous-screen')) {
+        if (!_this.pvPreviousScreen) {
+          return;
+        }
+
+        try {
+          _this.pvPreviousScreen = eval(_this.pvPreviousScreen);
+        } catch (error) {
+          console.error('Your custom function contains a syntax error: ' + error);
+        }
+
+        try {
+          result = (typeof _this.pvPreviousScreen === 'function') && _this.pvPreviousScreen();
+        } catch (error) {
+          console.error('Your custom function contains an error: ' + error);
+        }
+
+        if (!(result instanceof Promise)) {
+          result = Promise.resolve();
+        }
+
+        return result.then(function() {
+          return Fliplet.Navigate.back();
+        }).catch(function(error) {
+          console.error(error);
+        });
+      }
+
+      _this.closeDetails();
     })
     .on('keydown', function(e) {
       if (e.keyCode === 39) {
@@ -600,43 +605,44 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('keydown', '.agenda-date-selector li', function(event) {
       if (!$(this).hasClass('placeholder')) {
-        if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-          if ($(this).hasClass('active') || $(this).hasClass('placeholder')) {
-            return;
-          }
+        if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+          return;
+        }
+        if ($(this).hasClass('active') || $(this).hasClass('placeholder')) {
+          return;
+        }
 
-          var indexOfActiveDate = _this.$container
-            .find('.agenda-date-selector li')
-            .not('.placeholder')
-            .index(_this.$container.find('.agenda-date-selector li.active'));
-          var indexOfClickedDate = _this.$container
-            .find('.agenda-date-selector li')
-            .not('.placeholder')
-            .index(this);
-          var indexDifference = indexOfClickedDate - indexOfActiveDate;
+        var indexOfActiveDate = _this.$container
+          .find('.agenda-date-selector li')
+          .not('.placeholder')
+          .index(_this.$container.find('.agenda-date-selector li.active'));
+        var indexOfClickedDate = _this.$container
+          .find('.agenda-date-selector li')
+          .not('.placeholder')
+          .index(this);
+        var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-          _this.updateDateIndexContext(indexOfClickedDate);
+        _this.updateDateIndexContext(indexOfClickedDate);
 
-          Fliplet.Analytics.trackEvent({
-            category: 'list_dynamic_' + _this.data.layout,
-            action: 'filter_date',
-            label:
-              $(this).find('.week').text().trim() +
-              ' ' +
-              $(this).find('.day').text().trim() +
-              ' ' +
-              $(this).find('.month').text().trim(),
-          });
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic_' + _this.data.layout,
+          action: 'filter_date',
+          label:
+            $(this).find('.week').text().trim() +
+            ' ' +
+            $(this).find('.day').text().trim() +
+            ' ' +
+            $(this).find('.month').text().trim(),
+        });
 
-          if (indexDifference < indexOfActiveDate) {
-            _this.moveBackDate(indexOfClickedDate, indexDifference);
-            return;
-          }
+        if (indexDifference < indexOfActiveDate) {
+          _this.moveBackDate(indexOfClickedDate, indexDifference);
+          return;
+        }
 
-          if (indexDifference >= indexOfActiveDate) {
-            _this.moveForwardDate(indexOfClickedDate, indexDifference);
-            return;
-          }
+        if (indexDifference >= indexOfActiveDate) {
+          _this.moveForwardDate(indexOfClickedDate, indexDifference);
+          return;
         }
       }
     })
@@ -670,164 +676,168 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        if (!_this.data.addEntryLinkAction) {
-          return;
-        }
-
-        if (!_.get(_this, 'data.addEntryLinkAction.page')) {
-          Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.'
-          });
-          return;
-        }
-
-        _this.data.addEntryLinkAction.query = '?mode=add';
-
-        try {
-          var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
-
-          if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error adding entry'
-                });
-              });
-          }
-        } catch (error) {
-          Fliplet.UI.Toast(error, {
-            message: 'Error adding entry'
-          });
-        }
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
       }
-    })
-    .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        if (!_this.data.editEntryLinkAction) {
-          return;
-        }
-
-        if (!_.get(_this, 'data.editEntryLinkAction.page')) {
-          Fliplet.UI.Toast({
-            title: 'Link not configured',
-            message: 'Form not found. Please check the component\'s configuration.'
-          });
-          return;
-        }
-
-        var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
-
-        _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
-
-        try {
-          var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
-
-          if (navigate instanceof Promise) {
-            navigate
-              .catch(function(error) {
-                Fliplet.UI.Toast(error, {
-                  message: 'Error editing entry'
-                });
-              });
-          }
-        } catch (error) {
-          Fliplet.UI.Toast(error, {
-            message: 'Error editing entry'
-          });
-        }
+      if (!_this.data.addEntryLinkAction) {
+        return;
       }
-    })
-    .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var _that = $(this);
-        var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
-        var options = {
-          title: 'Are you sure you want to delete the list entry?',
-          labels: [
-            {
-              label: 'Delete',
-              action: function(i) {
-                _that.text('Deleting...').addClass('disabled');
 
-                // Run Hook
-                Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
-                  instance: _this,
-                  entryId: entryID,
-                  config: _this.data,
-                  id: _this.data.id,
-                  uuid: _this.data.uuid,
-                  container: _this.$container
-                })
-                  .then(function() {
-                    if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
-                      return _this.data.deleteData(entryID);
-                    }
+      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.'
+        });
+        return;
+      }
 
-                    return _this.deleteEntry(entryID);
-                  })
-                  .then(function onRemove(entryId) {
-                    _.remove(_this.listItems, function(entry) {
-                      return entry.id === parseInt(entryId, 10);
-                    });
+      _this.data.addEntryLinkAction.query = '?mode=add';
 
-                    _that.text('Delete').removeClass('disabled');
-                    _this.closeDetails();
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
 
-                    var selectedIndex = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
-                    _this.removeListItemHTML({
-                      id: entryId
-                    });
-                  })
-                  .catch(function(error) {
-                    Fliplet.UI.Toast.error(error, {
-                      message: 'Error deleting entry'
-                    });
-                  });
-              }
-            }
-          ],
-          cancel: true
-        };
-
-        Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
-          instance: _this,
-          entryId: entryID,
-          config: _this.data,
-          id: _this.data.id,
-          uuid: _this.data.uuid,
-          container: _this.$container
-        }).then(function() {
-          Fliplet.UI.Actions(options);
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error adding entry'
+              });
+            });
+        }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error adding entry'
         });
       }
     })
-    .on('click keydown', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function(event) {
-      if (_this.Utils.Accessibility.accessibilityDetails(event, $(this))) {
-        var $parent = $(this).parents('.agenda-item-bookmark-holder');
-        var id = $(this)
-          .parents('.agenda-detail-wrapper, .agenda-list-item')
-          .data('entry-id');
-        var record = _.find(_this.listItems, { id: id });
-
-        if (!record || !record.bookmarkButton) {
-          return;
-        }
-
-        if (record.bookmarked) {
-          $parent.removeClass('bookmarked').addClass('not-bookmarked');
-          $parent.find('.btn-bookmark').focus();
-
-          record.bookmarkButton.unlike();
-          return;
-        }
-
-        $parent.removeClass('not-bookmarked').addClass('bookmarked');
-        $parent.find('.btn-bookmarked').focus();
-
-        record.bookmarkButton.like();
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
       }
+      if (!_this.data.editEntryLinkAction) {
+        return;
+      }
+
+      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.'
+        });
+        return;
+      }
+
+      var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
+
+      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
+
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error editing entry'
+              });
+            });
+        }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error editing entry'
+        });
+      }
+    })
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
+      }
+      var _that = $(this);
+      var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var options = {
+        title: 'Are you sure you want to delete the list entry?',
+        labels: [
+          {
+            label: 'Delete',
+            action: function(i) {
+              _that.text('Deleting...').addClass('disabled');
+
+              // Run Hook
+              Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
+                instance: _this,
+                entryId: entryID,
+                config: _this.data,
+                id: _this.data.id,
+                uuid: _this.data.uuid,
+                container: _this.$container
+              })
+                .then(function() {
+                  if (_this.data.deleteData && typeof _this.data.deleteData === 'function') {
+                    return _this.data.deleteData(entryID);
+                  }
+
+                  return _this.deleteEntry(entryID);
+                })
+                .then(function onRemove(entryId) {
+                  _.remove(_this.listItems, function(entry) {
+                    return entry.id === parseInt(entryId, 10);
+                  });
+
+                  _that.text('Delete').removeClass('disabled');
+                  _this.closeDetails();
+
+                  var selectedIndex = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
+                  _this.removeListItemHTML({
+                    id: entryId
+                  });
+                })
+                .catch(function(error) {
+                  Fliplet.UI.Toast.error(error, {
+                    message: 'Error deleting entry'
+                  });
+                });
+            }
+          }
+        ],
+        cancel: true
+      };
+
+      Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
+        instance: _this,
+        entryId: entryID,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
+      }).then(function() {
+        Fliplet.UI.Actions(options);
+      });
+    })
+    .on('click keydown', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function(event) {
+      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+        return;
+      }
+      var $parent = $(this).parents('.agenda-item-bookmark-holder');
+      var id = $(this)
+        .parents('.agenda-detail-wrapper, .agenda-list-item')
+        .data('entry-id');
+      var record = _.find(_this.listItems, { id: id });
+
+      if (!record || !record.bookmarkButton) {
+        return;
+      }
+
+      if (record.bookmarked) {
+        $parent.removeClass('bookmarked').addClass('not-bookmarked');
+        $parent.find('.btn-bookmark').focus();
+
+        record.bookmarkButton.unlike();
+        return;
+      }
+
+      $parent.removeClass('not-bookmarked').addClass('bookmarked');
+      $parent.find('.btn-bookmarked').focus();
+
+      record.bookmarkButton.like();
 
       if (record.bookmarked) {
         $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
