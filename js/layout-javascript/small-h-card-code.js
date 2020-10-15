@@ -75,7 +75,7 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('click keydown', '.small-h-card-list-detail-button a', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var _that = $(this);
@@ -103,7 +103,7 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.small-h-card-list-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       $(".new-small-h-card-list-container").hide();
@@ -157,7 +157,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       $(".new-small-h-card-list-container").show();
@@ -209,7 +209,7 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       if (!_this.data.addEntryLinkAction) {
@@ -244,7 +244,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       if (!_this.data.editEntryLinkAction) {
@@ -281,7 +281,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var _that = $(this);

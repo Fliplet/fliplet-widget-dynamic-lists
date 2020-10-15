@@ -175,7 +175,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var $filter = $(this);
@@ -211,7 +211,7 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click keydown', '.news-feed-list-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       $('.news-feed-list-wrapper').hide();
@@ -266,7 +266,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       $('.news-feed-list-wrapper').show();
@@ -309,7 +309,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.closeDetails();
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var $elementClicked = $(this);
@@ -377,7 +377,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
     .on('click keydown', '.list-search-cancel', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       // Hide filters
@@ -681,7 +681,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       if (!_this.data.addEntryLinkAction) {
@@ -716,7 +716,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       if (!_this.data.editEntryLinkAction) {
@@ -753,7 +753,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var _that = $(this);
@@ -816,7 +816,7 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.toggle-bookmarks', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var $toggle = $(this);
@@ -842,7 +842,7 @@ DynamicList.prototype.attachObservers = function() {
       record.bookmarkButton.like();
     })
     .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var $parent = $(this).parents('.news-feed-bookmark-holder');
@@ -867,7 +867,7 @@ DynamicList.prototype.attachObservers = function() {
       record.bookmarkButton.like();
     })
     .on('click keydown', '.news-feed-detail-overlay  .news-feed-like-wrapper', function(event) {
-      if (!_this.Utils.accessibilityHelpers.accessibilityValidation(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
       var $parent = $(this).parents('.news-feed-like-holder');

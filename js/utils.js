@@ -367,7 +367,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function accessibilityValidation(event) {
+  function isExecute(event) {
     return event.key === 'Enter' || event.type === 'click';
   }
 
@@ -1352,7 +1352,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     accessibilityHelpers: {
-      accessibilityValidation: accessibilityValidation
+      isExecute: isExecute
     },
     DOM: {
       $: getjQueryObjects,
