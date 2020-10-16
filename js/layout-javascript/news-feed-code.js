@@ -167,26 +167,20 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click', '.sort-group .list-sort li', function (e) {
+    .on('click', '.sort-group .list-sort li', function(e) {
       e.stopPropagation();
 
       var $sortListItem = $(e.currentTarget);
-      var oldSortOrder = $sortListItem.data('sortOrder');
       var $sortOrderIcon = $sortListItem.find('i');
       var $sortList = _this.$container.find('.list-sort li');
       var sortClasses = {
-        'none': 'fa-sort',
-        'asc': 'fa-sort-asc',
-        'desc': 'fa-sort-desc'
-      };
-      var newSortOrder = {
-        'none': 'asc',
-        'asc': 'desc',
-        'desc': 'asc'
+        none: 'fa-sort',
+        asc: 'fa-sort-asc',
+        desc: 'fa-sort-desc'
       };
 
-      _this.sortOrder = newSortOrder[oldSortOrder];
-      _this.sortField = $sortListItem.data('sortField');;
+      _this.sortOrder = $sortListItem.data('sortOrder') === 'asc' ? 'desc' : 'asc';
+      _this.sortField = $sortListItem.data('sortField');
       _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
       $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[_this.sortOrder]);
