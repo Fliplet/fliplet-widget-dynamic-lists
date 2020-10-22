@@ -1144,7 +1144,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     sortHTMLElements({
       $layoutContainer: options.$container,
-      listContainer: options.listContainer,
+      $listContainer: options.$listContainer,
       listItem: options.listItem,
       sortedRecords: sortedRecords
     });
@@ -1154,9 +1154,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
   function sortHTMLElements(options) {
     var sortedItemsList = [];
-    var $list = $(options.listContainer);
-    var $prevElement = $list.prev();
-    var $detachedList = $list.detach();
+    var $prevElement = options.$listContainer.prev();
+    var $detachedList = options.$listContainer.detach();
     var $listItems = $detachedList.find(options.listItem).detach();
 
     $listItems.each(function() {
@@ -1172,8 +1171,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       
     });
 
-    $list.html(sortedItemsList);
-    $list.insertAfter($prevElement);
+    options.$listContainer.html(sortedItemsList);
+    options.$listContainer.insertAfter($prevElement);
   }
   
   function getFieldType(value) {

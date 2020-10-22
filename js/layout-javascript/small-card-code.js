@@ -187,7 +187,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.Utils.Records.sortByField({
         $container: _this.$container,
-        listContainer: '#small-card-list-wrapper-' + _this.data.id,
+        $listContainer: $('#small-card-list-wrapper-' + _this.data.id),
         listItem: '.small-card-list-item',
         records: _this.searchedListItems,
         sortOrder: _this.sortOrder,
