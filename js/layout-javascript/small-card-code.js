@@ -53,6 +53,8 @@ function DynamicList(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
+  this.sortField = null;
+  this.sortOrder = 'asc';
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -162,6 +164,34 @@ DynamicList.prototype.attachObservers = function() {
         return Fliplet.Navigate.back();
       }).catch(function (error) {
         console.error(error);
+      });
+    })
+    .on('click', '.sort-group .list-sort li', function(e) {
+      e.stopPropagation();
+
+      var $sortListItem = $(e.currentTarget);
+      var $sortOrderIcon = $sortListItem.find('i');
+      var $sortList = _this.$container.find('.list-sort li');
+      var sortClasses = {
+        none: 'fa-sort',
+        asc: 'fa-sort-asc',
+        desc: 'fa-sort-desc'
+      };
+
+      _this.sortOrder = $sortListItem.data('sortOrder') === 'asc' ? 'desc' : 'asc';
+      _this.sortField = $sortListItem.data('sortField');;
+      _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
+
+      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[_this.sortOrder]);
+      $sortListItem.data('sortOrder', _this.sortOrder);
+
+      _this.Utils.Records.sortByField({
+        $container: _this.$container,
+        $listContainer: $('#small-card-list-wrapper-' + _this.data.id),
+        listItem: '.small-card-list-item',
+        records: _this.searchedListItems,
+        sortOrder: _this.sortOrder,
+        sortField: _this.sortField
       });
     })
     .on('click', '.apply-filters', function() {
@@ -1285,7 +1315,9 @@ DynamicList.prototype.searchData = function(options) {
         .addClass('active')
         [searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      if (!_this.data.forceRenderList && searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      if (!_this.data.forceRenderList 
+        && searchedData.length 
+        && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
         // Same results returned. Do nothing.
         return Promise.resolve();
       }
@@ -1316,6 +1348,12 @@ DynamicList.prototype.searchData = function(options) {
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
+      _this.modifiedListItems = _this.Utils.Records.sortByField({
+        records: _this.modifiedListItems,
+        sortOrder: _this.sortOrder,
+        sortField: _this.sortField,
+        sortHTMLElements: false
+      });
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
 

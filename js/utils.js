@@ -1029,6 +1029,179 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     return Promise.resolve(records);
   }
 
+  /**
+   * Sort items by field witch user have selected
+   * 
+   * @param {Object} options - object with settings for sort list items
+   *        keys: 
+   *          sortField {String} - name of the field to sort
+   *          sortOrder {String} - sort order of
+   *          records {Array} - array of records to sort
+   * @return {Array} - sorted by field array
+   */
+  function sortByField(options) {
+    // If user doesn't set sorting do nothing
+    if (!options.sortField) {
+      return options.records;
+    }
+
+    var records = _.clone(options.records);
+    var isSortAsc = options.sortOrder === 'asc';
+    var sortField = options.sortField;
+    var startsWithAlphabet = /^[A-Z,a-z]/;
+    var sortType = getFieldType(records[0][sortField]);
+  
+    return records.sort(function(a, b) {
+      var aValue = a.data ? a.data[sortField] : a[sortField];
+      var bValue = b.data ? b.data[sortField] : b[sortField];
+      
+      switch (sortType) {
+        case 'string': 
+          /**
+           * By adding '{' to the start of the string we are pushing that string to the end the sort order,
+           * and when we are adding '}' we push it even further to the end
+          */
+          aValue = aValue ? aValue.toUpperCase() : '}';
+          bValue = bValue ? bValue.toUpperCase() : '}';
+
+          if (!startsWithAlphabet.test(bValue)) {
+            bValue = '{' + bValue;
+          }
+
+          if (!startsWithAlphabet.test(aValue)) {
+            aValue = '{' + aValue;
+          }
+          
+          if (aValue < bValue) {
+            return isSortAsc ? -1 : 1;
+          }
+          if (aValue > bValue) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          return 0;
+        case 'number':
+          if (!parseInt(aValue, 10)) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          if (!parseInt(bValue, 10)) {
+            return isSortAsc ? -1 : 1;
+          }
+
+          if (isSortAsc) {
+            return aValue - bValue;
+          }
+
+          return bValue - aValue;
+        case 'time':
+          if (!aValue) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          if (!bValue) {
+            return isSortAsc ? -1 : 1;
+          }
+
+          if (aValue < bValue) {
+            return isSortAsc ? -1 : 1;
+          }
+
+          if (aValue > bValue) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          return 0;
+        case 'date':
+          aValue = moment(aValue).valueOf();
+          bValue = moment(bValue).valueOf();
+
+          if (!aValue) {
+            return isSortAsc ? 1 : -1;
+          }
+
+          if (!bValue) {
+            return isSortAsc ? -1 : 1;
+          }
+
+          if (isSortAsc) {
+            return aValue - bValue;
+          }
+
+          return bValue - aValue;
+         default: 
+          if (isSortAsc) {
+            return aValue - bValue;
+          }
+
+          return bValue - aValue;
+      }
+    });
+  }
+
+  function sortRecordsByField(options) {
+    var sortedRecords = sortByField(options);
+
+    if (options.sortHTMLElements === false) {
+      return sortedRecords;
+    }
+
+    sortHTMLElements({
+      $layoutContainer: options.$container,
+      $listContainer: options.$listContainer,
+      listItem: options.listItem,
+      sortedRecords: sortedRecords
+    });
+
+    return sortedRecords;
+  }
+
+  function sortHTMLElements(options) {
+    var sortedItemsList = [];
+    var $prevElement = options.$listContainer.prev();
+    var $detachedList = options.$listContainer.detach();
+    var $listItems = $detachedList.find(options.listItem).detach();
+
+    $listItems.each(function() {
+      var $listItem = $(this);
+      var itemId = parseInt($listItem.data('entry-id'), 10);
+      var itemSortedIndex = _.findIndex(options.sortedRecords, function(record) {
+        return record.id === itemId;
+      });
+
+      if (itemSortedIndex !== -1) {
+        sortedItemsList[itemSortedIndex] = $listItem;
+      }
+      
+    });
+
+    options.$listContainer.html(sortedItemsList);
+    options.$listContainer.insertAfter($prevElement);
+  }
+  
+  function getFieldType(value) {
+    var valueType = typeof value;
+    var timeRegex = /^[0-9]{1,2}:[0-9]{1,2}$/
+    
+    if (valueType === 'string') {
+      if (timeRegex.test(value)) {
+        return 'time';
+      }
+        
+      if (moment(value).isValid()) {
+        return 'date';
+      }
+        
+      return 'string';
+    }
+    
+    if (valueType === 'undefined' || valueType === 'null') {
+      return 'string';
+    }
+    
+    return valueType;
+  }
+
   function prepareRecordsData(options) {
     options = options || {};
 
@@ -1272,6 +1445,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
   }
 
+  function resetSortIcons(options) {
+    options.$sortList.each(function() {
+      var $listitem = $(this);
+      var listSortOrder = $listitem.data('sortOrder');
+      var $listIcon = $listitem.find('i');
+  
+      $listIcon.removeClass('fa-sort-'+ listSortOrder).addClass('fa-sort');
+      $listitem.data('sortOrder', 'none');
+    });
+  }
+
   function getUsersToMention(options) {
     options = options || {};
 
@@ -1349,6 +1533,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     DOM: {
       $: getjQueryObjects,
+      resetSortIcons: resetSortIcons,
       adjustAddButtonPosition: adjustAddButtonPosition
     },
     Page: {
@@ -1387,7 +1572,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
-      addComputedFields: addRecordsComputedFields
+      addComputedFields: addRecordsComputedFields,
+      sortByField: sortRecordsByField
     },
     User: {
       isAdmin: userIsAdmin,
