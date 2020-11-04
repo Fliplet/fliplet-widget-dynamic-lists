@@ -1693,6 +1693,7 @@ var DynamicLists = (function() {
         return Fliplet.DataSources.create({
           name: name,
           organizationId: organizationId,
+          appId: Fliplet.Env.get('appId'),
           entries: defaultEntries[listLayout],
           columns: defaultColumns[listLayout],
           bundle: true,
