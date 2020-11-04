@@ -17,20 +17,6 @@
 }
 
 header {
-  padding-bottom: 0.5em;
-}
-
-.header-wrapper p {
-  flex: none;
-  margin: 0;
-} 
-
-.container-link {
-  display: flex;
-  align-items: center;
-}
-
-header {
   display: block;
 }
 
