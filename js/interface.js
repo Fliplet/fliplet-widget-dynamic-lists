@@ -102,8 +102,11 @@ var DynamicLists = (function() {
       appId: Fliplet.Env.get('appId'),
       default: {
         name: 'Login data for ' + Fliplet.Env.get('appName'),
-        entries: [],
-        columns: []
+        definition: {
+          bundleImages: true
+        },
+        entries: defaultEntries[listLayout],
+        columns: defaultColumns[listLayout]
       },
       accessRules: []
     };
