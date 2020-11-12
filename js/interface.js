@@ -101,7 +101,7 @@ var DynamicLists = (function() {
       dataSourceId: currentDataSourceId,
       appId: Fliplet.Env.get('appId'),
       default: {
-        name: 'Login data for ' + Fliplet.Env.get('appName'),
+        name: 'LFD 0000',
         definition: {
           bundleImages: true
         },
