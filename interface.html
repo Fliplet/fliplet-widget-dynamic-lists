@@ -2,7 +2,12 @@
   <div class="layouts-tab state present loading">
     <header>
       <div class="first-row">
-        <p>Select a layout</p>
+        <p>
+          Select layout
+          <a href="https://help.fliplet.com/list-from-data-source-lfd-component/" class="help-icon" target="_blank">
+            <i class="fa fa-question-circle-o"></i>
+          </a>
+        </p>
         <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
@@ -22,7 +27,12 @@
   <div class="settings-tab state future">
     <header>
       <div class="first-row">
-        <p>Configure your list</p>
+        <p>
+          Configure your list
+          <a href="https://help.fliplet.com/list-from-data-source-lfd-component/" class="help-icon" target="_blank">
+            <i class="fa fa-question-circle-o"></i>
+          </a>
+        </p>
         <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
@@ -118,6 +128,25 @@
                 <span class="check"><i class="fa fa-check"></i></span> Display filters as a full screen overlay - <em>This is recommended if you have a long list of filters</em>
               </label>
             </div>
+          </div>
+        </div>
+
+        <div class="form-group clearfix list-sort disabled hidden">
+          <div class="col-sm-4 control-label">
+            <label>List sorting</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-sort">
+              <label for="enable-sort">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to sort the list
+              </label>
+            </div>
+
+            <div class="sort-fields hidden">
+              <!-- field will be added here -->
+            </div>
+
           </div>
         </div>
 
