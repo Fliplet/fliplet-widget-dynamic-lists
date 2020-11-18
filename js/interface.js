@@ -101,7 +101,7 @@ var DynamicLists = (function() {
       dataSourceId: currentDataSourceId,
       appId: Fliplet.Env.get('appId'),
       default: {
-        name: 'List from data source - ' + Fliplet.Env.get('appName'),
+        name: appName + ' - ' + layoutMapping[listLayout].name,
         definition: {
           bundleImages: true
         },
