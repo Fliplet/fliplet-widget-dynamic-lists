@@ -15,6 +15,15 @@ var DynamicLists = (function() {
   var userDataSourceColumns;
   var resetToDefaults = false;
   var fromStart;
+  var accessRules = [
+    {
+      allow: 'all',
+      enabled: true,
+      type: [
+        'select'
+      ]
+    }
+  ];
 
   var $filterAccordionContainer = $('#filter-accordion');
   var $sortAccordionContainer = $('#sort-accordion');
@@ -108,7 +117,7 @@ var DynamicLists = (function() {
         entries: defaultEntries[listLayout],
         columns: defaultColumns[listLayout]
       },
-      accessRules: []
+      accessRules: accessRules
     };
 
     dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
@@ -406,6 +415,12 @@ var DynamicLists = (function() {
             || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
             || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
+
+            _this.updateRuleType('insert', values.indexOf('add-entry') !== -1);
+            _this.updateRuleType('update', values.indexOf('edit-entry') !== -1);
+            _this.updateRuleType('delete', values.indexOf('delete-entry') !== -1);
+
+            dataSourceProvider.emit('update-security-rules', { accessRules: accessRules })
         })
         .on('change', '[name="add-permissions"]', function() {
           addRadioValues = [];
@@ -686,6 +701,18 @@ var DynamicLists = (function() {
           }
         }
       });
+    },
+    updateRuleType: function(type ,add) {
+      var accessTypes = JSON.parse(JSON.stringify(accessRules[0].type));
+      var typeIndex = accessTypes.indexOf(type);
+
+      if (add && typeIndex === -1) {
+        accessTypes.push(type);
+      } else if (typeIndex > -1) {
+        accessTypes.splice(typeIndex, 1);
+      }
+
+      accessRules[0].type = accessTypes;
     },
     renderFilterColumns() {
       $filterAccordionContainer.empty();
