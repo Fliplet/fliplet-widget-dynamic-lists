@@ -388,37 +388,43 @@ var DynamicLists = (function() {
             values.push($(this).val());
           });
 
-          $('.add-entry-checkbox').find('.hidden-settings')[values.indexOf('add-entry') !== -1 ? 'addClass' : 'removeClass']('active');
-          $('.edit-entry-checkbox').find('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
-          $('.delete-entry-checkbox').find('.hidden-settings')[values.indexOf('delete-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+          var addEntry = values.indexOf('add-entry') !== -1;
+          var editEntry = values.indexOf('edit-entry') !== -1;
+          var deleteEntry = values.indexOf('delete-entry') !== -1;
+
+          $('.add-entry-checkbox').find('.hidden-settings')[addEntry ? 'addClass' : 'removeClass']('active');
+          $('.edit-entry-checkbox').find('.hidden-settings')[editEntry ? 'addClass' : 'removeClass']('active');
+          $('.delete-entry-checkbox').find('.hidden-settings')[deleteEntry ? 'addClass' : 'removeClass']('active');
+
+          console.log($('.select-user-email-list-holder').val());
 
           $('.select-user-email-list-holder')[
-            (editRadioValues.indexOf('user') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            (editRadioValues.indexOf('user') !== -1 && editEntry)
+            || (editRadioValues.indexOf('users-admins') !== -1 && editEntry)
+            || (deleteRadioValues.indexOf('user') !== -1 && deleteEntry)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && deleteEntry)
             ? 'removeClass' : 'addClass']('hidden');
           $('.select-user-admin-holder')[
-            (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
-            || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            (addRadioValues.indexOf('admins') !== -1 && addEntry)
+            || (editRadioValues.indexOf('admins') !== -1 && editEntry)
+            || (editRadioValues.indexOf('users-admins') !== -1 && editEntry)
+            || (deleteRadioValues.indexOf('admins') !== -1 && deleteEntry)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && deleteEntry)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
-            || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('user') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            (addRadioValues.indexOf('admins') !== -1 && addEntry)
+            || (editRadioValues.indexOf('admins') !== -1 && editEntry)
+            || (editRadioValues.indexOf('user') !== -1 && editEntry)
+            || (editRadioValues.indexOf('users-admins') !== -1 && editEntry)
+            || (deleteRadioValues.indexOf('admins') !== -1 && deleteEntry)
+            || (deleteRadioValues.indexOf('user') !== -1 && deleteEntry)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && deleteEntry)
             || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
 
-            _this.updateRuleType('insert', values.indexOf('add-entry') !== -1);
-            _this.updateRuleType('update', values.indexOf('edit-entry') !== -1);
-            _this.updateRuleType('delete', values.indexOf('delete-entry') !== -1);
+            _this.updateRuleType('insert', addEntry);
+            _this.updateRuleType('update', editEntry);
+            _this.updateRuleType('delete', deleteEntry);
 
             dataSourceProvider.emit('update-security-rules', { accessRules: accessRules })
         })
@@ -462,6 +468,7 @@ var DynamicLists = (function() {
 
           $('[name="edit-permissions"]:checked').each(function(){
             editRadioValues.push($(this).val());
+            console.log(editRadioValues);
           });
 
           $('.select-user-email-list-holder')[
@@ -702,7 +709,7 @@ var DynamicLists = (function() {
         }
       });
     },
-    updateRuleType: function(type ,add) {
+    updateRuleType: function(type, add) {
       var accessTypes = JSON.parse(JSON.stringify(accessRules[0].type));
       var typeIndex = accessTypes.indexOf(type);
 
