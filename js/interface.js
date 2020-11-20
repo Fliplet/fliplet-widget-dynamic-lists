@@ -120,7 +120,7 @@ var DynamicLists = (function() {
       accessRules: accessRules
     };
 
-    dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
+    dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider-yaroslav', {
       selector: '#dataSourceProvider',
       data: dataSourceData,
       onEvent: function(event, dataSource) {
@@ -396,8 +396,6 @@ var DynamicLists = (function() {
           $('.edit-entry-checkbox').find('.hidden-settings')[isEditEntryActive ? 'addClass' : 'removeClass']('active');
           $('.delete-entry-checkbox').find('.hidden-settings')[isDeleteEntryActive ? 'addClass' : 'removeClass']('active');
 
-          console.log($('.select-user-email-list-holder').val());
-
           $('.select-user-email-list-holder')[
             (editRadioValues.indexOf('user') !== -1 && isEditEntryActive)
             || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
@@ -422,9 +420,11 @@ var DynamicLists = (function() {
             || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
 
-            _this.updateRuleType('insert', isAddEntryActive);
-            _this.updateRuleType('update', isEditEntryActive);
-            _this.updateRuleType('delete', isDeleteEntryActive);
+            _this.toggleRuleType('insert', isAddEntryActive);
+            _this.toggleRuleType('update', isEditEntryActive);
+            _this.toggleRuleType('delete', isDeleteEntryActive);
+
+            console.log(accessRules);
 
             dataSourceProvider.emit('update-security-rules', { accessRules: accessRules })
         })
@@ -709,17 +709,17 @@ var DynamicLists = (function() {
         }
       });
     },
-    updateRuleType: function(type, add) {
-      var accessTypes = JSON.parse(JSON.stringify(accessRules[0].type));
-      var typeIndex = accessTypes.indexOf(type);
+    toggleRuleType: function(type, isTypeActive) {
+      var typeIndex = accessRules[0].type.indexOf(type);
+      console.log(type, isTypeActive, typeIndex);
 
-      if (add && typeIndex === -1) {
-        accessTypes.push(type);
-      } else if (typeIndex > -1) {
-        accessTypes.splice(typeIndex, 1);
+      if (isTypeActive && typeIndex === -1) {
+        accessRules[0].type.push(type);
+      } else if (!isTypeActive && typeIndex > -1) {
+        accessRules[0].type.splice(typeIndex, 1);
+      } else if (isTypeActive && typeIndex > -1) {
+        return;
       }
-
-      accessRules[0].type = accessTypes;
     },
     renderFilterColumns() {
       $filterAccordionContainer.empty();
