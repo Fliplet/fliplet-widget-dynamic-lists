@@ -388,43 +388,43 @@ var DynamicLists = (function() {
             values.push($(this).val());
           });
 
-          var addEntry = values.indexOf('add-entry') !== -1;
-          var editEntry = values.indexOf('edit-entry') !== -1;
-          var deleteEntry = values.indexOf('delete-entry') !== -1;
+          var isAddEntryActive = values.indexOf('add-entry') !== -1;
+          var isEditEntryActive = values.indexOf('edit-entry') !== -1;
+          var isDeleteEntryActive = values.indexOf('delete-entry') !== -1;
 
-          $('.add-entry-checkbox').find('.hidden-settings')[addEntry ? 'addClass' : 'removeClass']('active');
-          $('.edit-entry-checkbox').find('.hidden-settings')[editEntry ? 'addClass' : 'removeClass']('active');
-          $('.delete-entry-checkbox').find('.hidden-settings')[deleteEntry ? 'addClass' : 'removeClass']('active');
+          $('.add-entry-checkbox').find('.hidden-settings')[isAddEntryActive ? 'addClass' : 'removeClass']('active');
+          $('.edit-entry-checkbox').find('.hidden-settings')[isEditEntryActive ? 'addClass' : 'removeClass']('active');
+          $('.delete-entry-checkbox').find('.hidden-settings')[isDeleteEntryActive ? 'addClass' : 'removeClass']('active');
 
           console.log($('.select-user-email-list-holder').val());
 
           $('.select-user-email-list-holder')[
-            (editRadioValues.indexOf('user') !== -1 && editEntry)
-            || (editRadioValues.indexOf('users-admins') !== -1 && editEntry)
-            || (deleteRadioValues.indexOf('user') !== -1 && deleteEntry)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && deleteEntry)
+            (editRadioValues.indexOf('user') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
+            || (deleteRadioValues.indexOf('user') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
             ? 'removeClass' : 'addClass']('hidden');
           $('.select-user-admin-holder')[
-            (addRadioValues.indexOf('admins') !== -1 && addEntry)
-            || (editRadioValues.indexOf('admins') !== -1 && editEntry)
-            || (editRadioValues.indexOf('users-admins') !== -1 && editEntry)
-            || (deleteRadioValues.indexOf('admins') !== -1 && deleteEntry)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && deleteEntry)
+            (addRadioValues.indexOf('admins') !== -1 && isAddEntryActive)
+            || (editRadioValues.indexOf('admins') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
+            || (deleteRadioValues.indexOf('admins') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            (addRadioValues.indexOf('admins') !== -1 && addEntry)
-            || (editRadioValues.indexOf('admins') !== -1 && editEntry)
-            || (editRadioValues.indexOf('user') !== -1 && editEntry)
-            || (editRadioValues.indexOf('users-admins') !== -1 && editEntry)
-            || (deleteRadioValues.indexOf('admins') !== -1 && deleteEntry)
-            || (deleteRadioValues.indexOf('user') !== -1 && deleteEntry)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && deleteEntry)
+            (addRadioValues.indexOf('admins') !== -1 && isAddEntryActive)
+            || (editRadioValues.indexOf('admins') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('user') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
+            || (deleteRadioValues.indexOf('admins') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('user') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
             || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
 
-            _this.updateRuleType('insert', addEntry);
-            _this.updateRuleType('update', editEntry);
-            _this.updateRuleType('delete', deleteEntry);
+            _this.updateRuleType('insert', isAddEntryActive);
+            _this.updateRuleType('update', isEditEntryActive);
+            _this.updateRuleType('delete', isDeleteEntryActive);
 
             dataSourceProvider.emit('update-security-rules', { accessRules: accessRules })
         })
