@@ -120,7 +120,7 @@ var DynamicLists = (function() {
       accessRules: accessRules
     };
 
-    dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider-yaroslav', {
+    dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
       selector: '#dataSourceProvider',
       data: dataSourceData,
       onEvent: function(event, dataSource) {
@@ -424,8 +424,6 @@ var DynamicLists = (function() {
             _this.toggleRuleType('update', isEditEntryActive);
             _this.toggleRuleType('delete', isDeleteEntryActive);
 
-            console.log(accessRules);
-
             dataSourceProvider.emit('update-security-rules', { accessRules: accessRules })
         })
         .on('change', '[name="add-permissions"]', function() {
@@ -468,7 +466,6 @@ var DynamicLists = (function() {
 
           $('[name="edit-permissions"]:checked').each(function(){
             editRadioValues.push($(this).val());
-            console.log(editRadioValues);
           });
 
           $('.select-user-email-list-holder')[
@@ -711,14 +708,11 @@ var DynamicLists = (function() {
     },
     toggleRuleType: function(type, isTypeActive) {
       var typeIndex = accessRules[0].type.indexOf(type);
-      console.log(type, isTypeActive, typeIndex);
 
       if (isTypeActive && typeIndex === -1) {
         accessRules[0].type.push(type);
       } else if (!isTypeActive && typeIndex > -1) {
         accessRules[0].type.splice(typeIndex, 1);
-      } else if (isTypeActive && typeIndex > -1) {
-        return;
       }
     },
     renderFilterColumns() {
