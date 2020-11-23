@@ -5,6 +5,7 @@ var DynamicLists = (function() {
   var appId = Fliplet.Env.get('appId');
   var appName = Fliplet.Env.get('appName');
   var pageTitle = Fliplet.Env.get('pageTitle');
+  var dataSourceProvider = null;
   var listLayout;
   var isLayoutSelected = false;
   var allDataSources = [];
@@ -93,6 +94,43 @@ var DynamicLists = (function() {
     _this.attachListeners();
     _this.init();
   }
+
+  function initDataSourceProvider(currentDataSourceId) {
+    var dataSourceData = {
+      dataSourceTitle: 'Your list data',
+      dataSourceId: currentDataSourceId,
+      appId: Fliplet.Env.get('appId'),
+      default: {
+        name: appName + ' - ' + layoutMapping[listLayout].name,
+        definition: {
+          bundleImages: true
+        },
+        entries: defaultEntries[listLayout],
+        columns: defaultColumns[listLayout]
+      },
+      accessRules: []
+    };
+
+    dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
+      selector: '#dataSourceProvider',
+      data: dataSourceData,
+      onEvent: function(event, dataSource) {
+        if (event === 'dataSourceSelect' && dataSource.columns) {
+          dataSourceColumns = dataSource.columns;
+          _this.renderSortColumns();
+          _this.renderFilterColumns();
+        }
+      }
+    });
+
+    dataSourceProvider.then(function(dataSource) {
+      _this.config.dataSourceId = dataSource.data.id;
+    });
+  }
+
+  Fliplet.Widget.onSaveRequest(function() {
+    dataSourceProvider.forwardSaveRequest();
+  });
 
   DynamicLists.prototype = {
     // Public functions
@@ -298,18 +336,6 @@ var DynamicLists = (function() {
             $('.filter-in-overlay').addClass('hidden');
           }
         })
-        .on('click', '.select-new-data-source', function() {
-          Fliplet.Modal.confirm({
-            title: 'Changing data source',
-            message: '<p>If you select a different data source you will need to map which fields you want to be displayed or hidden in the <strong>Data view settings</strong>.</p><p>Are you sure you want to continue?</p>'
-          }).then(function (result) {
-            if (!result) {
-              return;
-            }
-            $('.create-holder, .edit-holder').addClass('hidden');
-            $('.select-datasource-holder').removeClass('hidden');
-          });
-        })
         .on('change', '#enable-poll', function() {
           $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
         })
@@ -349,7 +375,7 @@ var DynamicLists = (function() {
         .on('change', '[name="list-control"]', function() {
           var values = [];
 
-          $('[name="list-control"]:checked').each(function(){
+          $('[name="list-control"]:checked').each(function() {
             values.push($(this).val());
           });
 
@@ -661,7 +687,30 @@ var DynamicLists = (function() {
         }
       });
     },
-    validateImageFieldOption: function (value) {
+    renderFilterColumns() {
+      $filterAccordionContainer.empty();
+      _.forEach(_this.config.filterOptions, function(item) {
+        item.fromLoading = true; // Flag to close accordions
+        item.columns = dataSourceColumns;
+        _this.addFilterItem(item);
+        $('#select-data-field-' + item.id).val(item.column);
+        $('#logic-field-' + item.id).val(item.logic);
+        $('#value-field-' + item.id).val(item.value);
+      });
+    },
+    renderSortColumns: function() {
+      dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
+      $sortAccordionContainer.empty();
+      _.forEach(_this.config.sortOptions, function(item) {
+        item.fromLoading = true; // Flag to close accordions
+        item.columns = dataSourceColumns;
+        _this.addSortItem(item);
+        $('#select-data-field-' + item.id).val(item.column);
+        $('#sort-by-field-' + item.id).val(item.sortBy);
+        $('#order-by-field-' + item.id).val(item.orderBy);
+      });
+    },
+    validateImageFieldOption: function(value) {
       if (!value) {
         return 'url';
       }
@@ -695,6 +744,7 @@ var DynamicLists = (function() {
           _this.initializeFilterSortable();
           _this.initializeSortSortable();
           _this.initializeDetailViewSortable();
+          initDataSourceProvider(_this.config.dataSourceId);
         });
     },
     loadData: function() {
@@ -745,28 +795,11 @@ var DynamicLists = (function() {
       return loadingPromise
         .then(function() {
           // Load sort options
-          dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
-          $sortAccordionContainer.empty();
-          _.forEach(_this.config.sortOptions, function(item) {
-            item.fromLoading = true; // Flag to close accordions
-            item.columns = dataSourceColumns
-            _this.addSortItem(item);
-            $('#select-data-field-' + item.id).val(item.column);
-            $('#sort-by-field-' + item.id).val(item.sortBy);
-            $('#order-by-field-' + item.id).val(item.orderBy);
-          });
+          _this.renderSortColumns();
           _this.checkSortPanelLength();
 
           // Load filter options
-          $filterAccordionContainer.empty();
-          _.forEach(_this.config.filterOptions, function(item) {
-            item.fromLoading = true; // Flag to close accordions
-            item.columns = dataSourceColumns;
-            _this.addFilterItem(item);
-            $('#select-data-field-' + item.id).val(item.column);
-            $('#logic-field-' + item.id).val(item.logic);
-            $('#value-field-' + item.id).val(item.value);
-          });
+          _this.renderFilterColumns();
           _this.checkFilterPanelLength();
 
           $('#items-number').val(_this.config.limitEntries);
@@ -964,7 +997,7 @@ var DynamicLists = (function() {
             // Duplicates are removed from detail view because all summary view fields
             // are rendered at the top of the detail view by default - Only on first load
             _this.config['summary-fields'].forEach(function(field) {
-               if (!field.column || field.column === 'none' || field.column === 'custom') {
+              if (!field.column || field.column === 'none' || field.column === 'custom') {
                 return;
               }
 
@@ -1613,7 +1646,7 @@ var DynamicLists = (function() {
         type: null
       }, {
         cache: false
-      }).then(function (dataSources) {
+      }).then(function(dataSources) {
         var options = [];
         allDataSources = dataSources;
         _this.initSelect2(allDataSources);
@@ -1662,7 +1695,7 @@ var DynamicLists = (function() {
         type: null
       }, {
         cache: false
-      }).then(function(dataSources) {
+      }).then(function() {
         _this.config.layout = listLayout;
         _this.config.dataSourceId = undefined;
         _this.config.defaultEntries = [];
@@ -2603,7 +2636,7 @@ var DynamicLists = (function() {
           accessRules: [
             { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
           ]
-        }).then(function (dataSource) {
+        }).then(function(dataSource) {
           _this.config.likesDataSourceId = dataSource.id;
         });
       } else if (!_this.config.social.likes && _this.config.likesDataSourceId) {
@@ -2640,7 +2673,7 @@ var DynamicLists = (function() {
           accessRules: [
             { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
           ]
-        }).then(function (dataSource) {
+        }).then(function(dataSource) {
           _this.config.bookmarkDataSourceId = dataSource.id;
           _this.config.dataSourceViews = _this.config.dataSourceViews || [];
 
@@ -2674,7 +2707,7 @@ var DynamicLists = (function() {
 
       // Add, edit, delete options
       var profileValues = [];
-      $('[name="list-control"]:checked').each(function(){
+      $('[name="list-control"]:checked').each(function() {
         profileValues.push($(this).val());
       });
       data.addEntry = profileValues.indexOf('add-entry') !== -1
@@ -2701,7 +2734,7 @@ var DynamicLists = (function() {
       _this.config = data;
       return Promise.all([likesPromise, bookmarksPromise, commentsPromise]);
     }
-  }
+  };
 
   return DynamicLists;
 })();
