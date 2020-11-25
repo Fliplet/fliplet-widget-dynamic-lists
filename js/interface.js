@@ -106,11 +106,11 @@ var DynamicLists = (function() {
 
   function initDataSourceProvider(currentDataSourceId) {
     var dataSourceData = {
-      dataSourceTitle: 'Profile data source',
+      dataSourceTitle: 'Your list data',
       dataSourceId: currentDataSourceId,
       appId: Fliplet.Env.get('appId'),
       default: {
-        name: 'LFD 0000',
+        name: appName + ' - ' + layoutMapping[listLayout].name,
         definition: {
           bundleImages: true
         },
