@@ -744,6 +744,11 @@ var DynamicLists = (function() {
           _this.initializeFilterSortable();
           _this.initializeSortSortable();
           _this.initializeDetailViewSortable();
+
+          if(!listLayout) {
+            listLayout = $('.layout-holder').data('layout');
+          }
+
           initDataSourceProvider(_this.config.dataSourceId);
         });
     },
