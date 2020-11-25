@@ -55,6 +55,8 @@ function DynamicList(id, data, container) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
+  this.sortOrder = 'asc';
+  this.sortField = null;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -163,6 +165,34 @@ DynamicList.prototype.attachObservers = function() {
         return Fliplet.Navigate.back();
       }).catch(function (error) {
         console.error(error);
+      });
+    })
+    .on('click', '.sort-group .list-sort li', function(e) {
+      e.stopPropagation();
+
+      var $sortListItem = $(e.currentTarget);
+      var $sortOrderIcon = $sortListItem.find('i');
+      var $sortList = _this.$container.find('.list-sort li');
+      var sortClasses = {
+        none: 'fa-sort',
+        asc: 'fa-sort-asc',
+        desc: 'fa-sort-desc'
+      };
+
+      _this.sortOrder = $sortListItem.data('sortOrder') === 'asc' ? 'desc' : 'asc';
+      _this.sortField = $sortListItem.data('sortField');
+      _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
+
+      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[_this.sortOrder]);
+      $sortListItem.data('sortOrder', _this.sortOrder);
+
+      _this.Utils.Records.sortByField({
+        $container: _this.$container,
+        $listContainer: $('#news-feed-wrapper-' + _this.data.id),
+        listItem: '.news-feed-list-item',
+        records: _this.searchedListItems,
+        sortOrder: _this.sortOrder,
+        sortField: _this.sortField
       });
     })
     .on('click', '.apply-filters', function() {
@@ -438,9 +468,8 @@ DynamicList.prototype.attachObservers = function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
     .on('click', '.news-feed-comment-holder', function(event) {
-      _this.$container.find('.news-feed-list-wrapper').hide();
-
       event.stopPropagation();
+
       var identifier;
       if (_this.$container.find('.new-news-feed-list-container').hasClass('overlay-open')) {
         identifier = $(this).parents('.news-feed-details-content-holder').data('entry-id');
@@ -1641,7 +1670,9 @@ DynamicList.prototype.searchData = function(options) {
       _this.$container.find('.hidden-search-controls').addClass('active');
       _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      if (!_this.data.forceRenderList && searchedData.length && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
+      if (!_this.data.forceRenderList 
+        && searchedData.length 
+        && !_.xorBy(searchedData, _this.searchedListItems, 'id').length ) {
         // Same results returned. Do nothing.
         return Promise.resolve();
       }
@@ -1672,6 +1703,13 @@ DynamicList.prototype.searchData = function(options) {
       $('#news-feed-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
+      _this.modifiedListItems = _this.Utils.Records.sortByField({
+        records: _this.modifiedListItems,
+        sortOrder: _this.sortOrder,
+        sortField: _this.sortField,
+        sortHTMLElements: false
+      });
+
       return _this.renderLoopHTML().then(function (records) {
         _this.searchedListItems = searchedData;
         return records;
