@@ -828,7 +828,7 @@ var DynamicLists = (function() {
           isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
-          // Add Data Source Provider
+          // init Data Source Provider
           initDataSourceProvider(_this.config.dataSourceId);
 
           // Load Add. Edit, Delete
