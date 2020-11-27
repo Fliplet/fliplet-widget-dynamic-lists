@@ -744,7 +744,6 @@ var DynamicLists = (function() {
           _this.initializeFilterSortable();
           _this.initializeSortSortable();
           _this.initializeDetailViewSortable();
-          initDataSourceProvider(_this.config.dataSourceId);
         });
     },
     loadData: function() {
@@ -828,6 +827,9 @@ var DynamicLists = (function() {
           listLayout = _this.config.layout;
           isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
+
+          // init Data Source Provider
+          initDataSourceProvider(_this.config.dataSourceId);
 
           // Load Add. Edit, Delete
           $('#add_entry').prop('checked', _this.config.addEntry).trigger('change');
