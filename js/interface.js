@@ -828,7 +828,7 @@ var DynamicLists = (function() {
           isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
-          // init Data Source Provider
+          // Add Data Source Provider
           initDataSourceProvider(_this.config.dataSourceId);
 
           // Load Add. Edit, Delete
@@ -1202,6 +1202,7 @@ var DynamicLists = (function() {
       }
       if (context === 'relations') {
         $('.relations-tab').removeClass('present').addClass('future');
+        initDataSourceProvider(_this.config.dataSourceId);
       }
       if (context === 'layouts') {
         $('.settings-tab').removeClass('future').addClass('present');
