@@ -18,7 +18,6 @@ var DynamicLists = (function() {
   var accessRules = [
     {
       allow: 'all',
-      enabled: true,
       type: [
         'select'
       ]
@@ -707,12 +706,24 @@ var DynamicLists = (function() {
       });
     },
     toggleRuleType: function(type, isTypeActive) {
-      var typeIndex = accessRules[0].type.indexOf(type);
+      var accessRuleIndex = -1;
+      var defaultRule = {
+        allow: 'all',
+        type: type.split()
+      };
 
-      if (isTypeActive && typeIndex === -1) {
-        accessRules[0].type.push(type);
-      } else if (!isTypeActive && typeIndex > -1) {
-        accessRules[0].type.splice(typeIndex, 1);
+      accessRules.forEach(function(item, index) {
+        var typeIndex = item.type.indexOf(type);
+
+        if (typeIndex !== -1) {
+          accessRuleIndex = index;
+        }
+      });
+
+      if (isTypeActive && accessRuleIndex === -1) {
+        accessRules.push(defaultRule);
+      } else if (!isTypeActive && accessRuleIndex > -1) {
+        accessRules.splice(accessRuleIndex, 1);
       }
     },
     renderFilterColumns() {
