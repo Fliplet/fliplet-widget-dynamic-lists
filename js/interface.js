@@ -15,6 +15,14 @@ var DynamicLists = (function() {
   var userDataSourceColumns;
   var resetToDefaults = false;
   var fromStart;
+  var accessRules = [
+    {
+      allow: 'all',
+      type: [
+        'select'
+      ]
+    }
+  ];
 
   var $filterAccordionContainer = $('#filter-accordion');
   var $sortAccordionContainer = $('#sort-accordion');
@@ -108,7 +116,7 @@ var DynamicLists = (function() {
         entries: defaultEntries[listLayout],
         columns: defaultColumns[listLayout]
       },
-      accessRules: []
+      accessRules: accessRules
     };
 
     dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
@@ -379,33 +387,43 @@ var DynamicLists = (function() {
             values.push($(this).val());
           });
 
-          $('.add-entry-checkbox').find('.hidden-settings')[values.indexOf('add-entry') !== -1 ? 'addClass' : 'removeClass']('active');
-          $('.edit-entry-checkbox').find('.hidden-settings')[values.indexOf('edit-entry') !== -1 ? 'addClass' : 'removeClass']('active');
-          $('.delete-entry-checkbox').find('.hidden-settings')[values.indexOf('delete-entry') !== -1 ? 'addClass' : 'removeClass']('active');
+          var isAddEntryActive = values.indexOf('add-entry') !== -1;
+          var isEditEntryActive = values.indexOf('edit-entry') !== -1;
+          var isDeleteEntryActive = values.indexOf('delete-entry') !== -1;
+
+          $('.add-entry-checkbox').find('.hidden-settings')[isAddEntryActive ? 'addClass' : 'removeClass']('active');
+          $('.edit-entry-checkbox').find('.hidden-settings')[isEditEntryActive ? 'addClass' : 'removeClass']('active');
+          $('.delete-entry-checkbox').find('.hidden-settings')[isDeleteEntryActive ? 'addClass' : 'removeClass']('active');
 
           $('.select-user-email-list-holder')[
-            (editRadioValues.indexOf('user') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            (editRadioValues.indexOf('user') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
+            || (deleteRadioValues.indexOf('user') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
             ? 'removeClass' : 'addClass']('hidden');
           $('.select-user-admin-holder')[
-            (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
-            || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            (addRadioValues.indexOf('admins') !== -1 && isAddEntryActive)
+            || (editRadioValues.indexOf('admins') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
+            || (deleteRadioValues.indexOf('admins') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
             ? 'removeClass' : 'addClass']('hidden');
           $('.user-datasource-options')[
-            (addRadioValues.indexOf('admins') !== -1 && values.indexOf('add-entry') !== -1)
-            || (editRadioValues.indexOf('admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('user') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && values.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && values.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && values.indexOf('delete-entry') !== -1)
+            (addRadioValues.indexOf('admins') !== -1 && isAddEntryActive)
+            || (editRadioValues.indexOf('admins') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('user') !== -1 && isEditEntryActive)
+            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
+            || (deleteRadioValues.indexOf('admins') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('user') !== -1 && isDeleteEntryActive)
+            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
             || (_this.config.social && _this.config.social.comments)
             ? 'removeClass' : 'addClass']('hidden');
+
+            _this.toggleRuleType('insert', isAddEntryActive);
+            _this.toggleRuleType('update', isEditEntryActive);
+            _this.toggleRuleType('delete', isDeleteEntryActive);
+
+            dataSourceProvider.emit('update-security-rules', { accessRules: accessRules })
         })
         .on('change', '[name="add-permissions"]', function() {
           addRadioValues = [];
@@ -686,6 +704,27 @@ var DynamicLists = (function() {
           }
         }
       });
+    },
+    toggleRuleType: function(type, isTypeActive) {
+      var accessRuleIndex = -1;
+      var defaultRule = {
+        allow: 'all',
+        type: type.split()
+      };
+
+      accessRules.forEach(function(item, index) {
+        var typeIndex = item.type.indexOf(type);
+
+        if (typeIndex !== -1) {
+          accessRuleIndex = index;
+        }
+      });
+
+      if (isTypeActive && accessRuleIndex === -1) {
+        accessRules.push(defaultRule);
+      } else if (!isTypeActive && accessRuleIndex > -1) {
+        accessRules.splice(accessRuleIndex, 1);
+      }
     },
     renderFilterColumns() {
       $filterAccordionContainer.empty();
