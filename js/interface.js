@@ -1836,7 +1836,7 @@ var DynamicLists = (function() {
     },
     addFilterItem: function(data) {
       data.columnLabel = data.column === 'none'
-        ? ''
+        ? '(Field)'
         : data.column;
       data.logicLabel = logicMap[data.logic]
         ? logicMap[data.logic]
