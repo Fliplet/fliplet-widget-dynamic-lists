@@ -2518,6 +2518,7 @@ var DynamicLists = (function() {
 
         if (item.logic === 'empty' || item.logic === 'notempty') {
           item.valueType = null;
+          item.value = '';
         }
       });
 
