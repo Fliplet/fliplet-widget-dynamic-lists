@@ -225,7 +225,7 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
-          item.valueType = 'Entry value';
+          item.valueType = 'enter-value';
           item.value = '';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
@@ -2515,6 +2515,10 @@ var DynamicLists = (function() {
         item.logic = $('#logic-field-' + item.id).val();
         item.valueType = $('#value-type-field-' + item.id).val();
         item.value = $('#value-field-' + item.id).val();
+
+        if (item.logic === 'emtpy' || item.logic === 'notempty') {
+          item.valueType = null;
+        }
       });
 
       data.sortOptions = _this.config.sortOptions;
