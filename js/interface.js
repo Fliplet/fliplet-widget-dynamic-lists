@@ -2516,7 +2516,7 @@ var DynamicLists = (function() {
         item.valueType = $('#value-type-field-' + item.id).val();
         item.value = $('#value-field-' + item.id).val();
 
-        if (item.logic === 'emtpy' || item.logic === 'notempty') {
+        if (item.logic === 'empty' || item.logic === 'notempty') {
           item.valueType = null;
         }
       });
