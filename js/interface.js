@@ -249,6 +249,10 @@ var DynamicLists = (function() {
             $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
             $selector.find('.panel-title-text .logic').html(logicMap[value]);
           }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+          }
         })
         .on('keyup', '.filter-panels-holder input', function() {
           var value = $(this).val();
@@ -1847,6 +1851,8 @@ var DynamicLists = (function() {
       data.valueLabel = data.value === ''
         ? '(Value)'
         : data.value;
+
+      data.valueField = 'Value';
 
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
