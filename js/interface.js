@@ -407,7 +407,9 @@ var DynamicLists = (function() {
             _this.toggleRuleType('update', isEditEntryActive);
             _this.toggleRuleType('delete', isDeleteEntryActive);
 
-            dataSourceProvider.emit('update-security-rules', { accessRules: accessRules })
+            if (dataSourceProvider) {
+              dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
+            }
         })
         .on('change', '[name="add-permissions"]', function() {
           addRadioValues = [];
