@@ -852,6 +852,20 @@ var DynamicLists = (function() {
           $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
           $('#enable-comments').prop('checked', _this.config.social.comments);
 
+          switch(true) {
+            case (_this.config.deleteEntry):
+              _this.toggleRuleType('delete', true)
+              break;
+
+            case (_this.config.editEntry):
+              _this.toggleRuleType('update', true)
+              break;
+
+            case (_this.config.addEntry):
+              _this.toggleRuleType('insert', true)
+              break; 
+          }
+
           // Select layout
           listLayout = _this.config.layout;
           isLayoutSelected = true;
