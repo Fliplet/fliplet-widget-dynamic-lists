@@ -1362,6 +1362,10 @@ var DynamicLists = (function() {
       return Promise.resolve();
     },
     updateFieldsWithColumns: function(dataSourceColumns) {
+      if (!dataSourceColumns) {
+        return;
+      }
+
       $('[data-field="field"]').each(function(index, obj) {
         var oldValue = $(obj).val();
         var options = [];
