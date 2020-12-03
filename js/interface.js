@@ -1377,7 +1377,7 @@ var DynamicLists = (function() {
     },
     updateFieldsWithColumns: function(dataSourceColumns) {
       if (!dataSourceColumns) {
-        return
+        return;
       }
 
       $('[data-field="field"]').each(function(index, obj) {
