@@ -69,21 +69,6 @@ var DynamicLists = (function() {
 
   var filePickerPromises = [];
 
-  var logicMap = {
-    'empty': 'Is empty',
-    'notempty': 'Is not empty',
-    '==': 'Equals',
-    '!=': 'Doesn\'t equal',
-    'contains': 'Contains',
-    'notcontain': 'Doesn\'t contain',
-    'regex': 'Regex',
-    '>': 'Greater than',
-    '>=': 'Greater or equal to',
-    '<': 'Less than',
-    '<=': 'Less or equal to',
-    'none': '(Logic)'
-  };
-
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -249,7 +234,6 @@ var DynamicLists = (function() {
             var hideValueFields = value === 'empty' || value === 'notempty';
 
             $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
-            $selector.find('.panel-title-text .logic').html(logicMap[value]);
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -1382,6 +1366,10 @@ var DynamicLists = (function() {
       return Promise.resolve();
     },
     updateFieldsWithColumns: function(dataSourceColumns) {
+      if (!dataSourceColumns) {
+        return;
+      }
+
       $('[data-field="field"]').each(function(index, obj) {
         var oldValue = $(obj).val();
         var options = [];
@@ -1844,12 +1832,6 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
-      data.logicLabel = logicMap[data.logic]
-        ? logicMap[data.logic]
-        : data.logic;
-      data.valueLabel = data.value === ''
-        ? '(Value)'
-        : data.value;
 
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
