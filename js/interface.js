@@ -856,9 +856,6 @@ var DynamicLists = (function() {
           _this.toggleRuleType('update', _this.config.editEntry)
           _this.toggleRuleType('delete', _this.config.deleteEntry)
 
-          console.log(accessRules)
-
-
           // Select layout
           listLayout = _this.config.layout;
           isLayoutSelected = true;
