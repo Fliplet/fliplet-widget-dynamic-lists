@@ -89,6 +89,10 @@ var DynamicLists = (function() {
   }
 
   function initDataSourceProvider(currentDataSourceId) {
+    if (dataSourceProvider) {
+      return;
+    }
+
     var dataSourceData = {
       dataSourceTitle: 'Your list data',
       dataSourceId: currentDataSourceId,
