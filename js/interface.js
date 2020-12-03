@@ -104,6 +104,10 @@ var DynamicLists = (function() {
   }
 
   function initDataSourceProvider(currentDataSourceId) {
+    if (dataSourceProvider) {
+      return;
+    }
+
     var dataSourceData = {
       dataSourceTitle: 'Your list data',
       dataSourceId: currentDataSourceId,
@@ -1242,9 +1246,7 @@ var DynamicLists = (function() {
       if (context === 'relations') {
         $('.relations-tab').removeClass('present').addClass('future');
         
-        if (!dataSourceProvider) {
-          initDataSourceProvider(_this.config.dataSourceId);
-        }
+        initDataSourceProvider(_this.config.dataSourceId);
       }
       if (context === 'layouts') {
         $('.settings-tab').removeClass('future').addClass('present');
