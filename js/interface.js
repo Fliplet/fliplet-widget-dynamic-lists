@@ -227,6 +227,7 @@ var DynamicLists = (function() {
           item.logic = 'none';
           item.valueType = 'enter-value';
           item.value = '';
+          item.valueField = 'none';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -742,7 +743,7 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-for-field' + item.id).val(item.valueType);
+        $('#value-type-field-' + item.id).val(item.valueType);
         $('#value-field-' + item.id).val(item.value);
       });
     },
@@ -1853,8 +1854,9 @@ var DynamicLists = (function() {
       data.valueLabel = data.value === ''
         ? '(Value)'
         : data.value;
-
-      data.valueField = 'Value';
+      data.valueField = data.valueType === 'enter-value'
+        ? 'Value'
+        : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
