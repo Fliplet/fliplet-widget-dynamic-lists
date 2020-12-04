@@ -114,10 +114,10 @@ var DynamicLists = (function() {
       onEvent: function(event, dataSource) {
         if (event === 'dataSourceSelect' && dataSource.columns) {
           dataSourceColumns = dataSource.columns;
-          _this.renderSortColumns();
-          _this.renderFilterColumns();
           _this.updateSummaryRowContainer();
           _this.updateDetailsRowContainer();
+          _this.renderSortColumns();
+          _this.renderFilterColumns();
         }
       }
     });
@@ -1176,8 +1176,10 @@ var DynamicLists = (function() {
         }
 
         item.columns = dataSourceColumns || _this.config.defaultColumns;
+        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
         item = _this.updateWithFoldersInfo(item, 'summary');
         _this.addSummaryItem(item);
+
         $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
         $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
         $('#summary_custom_field_' + item.id).val(item.customField || '');
@@ -1196,6 +1198,7 @@ var DynamicLists = (function() {
       $detailsRowContainer.empty();
       _.forEach(_this.config.detailViewOptions, function(item) {
         item.columns = dataSourceColumns;
+        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
         item = _this.updateWithFoldersInfo(item, 'details');
         _this.addDetailItem(item);
 
