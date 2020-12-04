@@ -1840,12 +1840,6 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
-      data.logicLabel = logicMap[data.logic]
-        ? logicMap[data.logic]
-        : data.logic;
-      data.valueLabel = data.value === ''
-        ? '(Value)'
-        : data.value;
       data.valueField = data.valueType === 'enter-value'
         ? 'Value'
         : 'Value for';
