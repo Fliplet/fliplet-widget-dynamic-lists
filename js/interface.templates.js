@@ -103,17 +103,13 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n      <div class=\"screen-reorder-handle\">\n        <i class=\"fa fa-ellipsis-v\"></i><i class=\"fa fa-ellipsis-v\"></i>\n      </div>\n      <span class=\"panel-title-text\">\n        <span class=\"column\">"
     + alias4(((helper = (helper = helpers.columnLabel || (depth0 != null ? depth0.columnLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"columnLabel","hash":{},"data":data}) : helper)))
-    + "</span>\n        <span> - </span> \n        <span class=\"logic\">"
-    + alias4(((helper = (helper = helpers.logicLabel || (depth0 != null ? depth0.logicLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"logicLabel","hash":{},"data":data}) : helper)))
-    + "</span>\n        <span id=\"value-dash\"> - </span>\n        <span class=\"value\">"
-    + alias4(((helper = (helper = helpers.valueLabel || (depth0 != null ? depth0.valueLabel : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"valueLabel","hash":{},"data":data}) : helper)))
     + "</span>\n      </span>\n      <span class=\"fa fa-chevron-"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.fromLoading : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
     + " panel-chevron\"></span>\n    </h4>\n    <a href=\"#\"><span class=\"icon-delete fa fa-trash\"></span></a>\n  </div>\n  <div id=\"collapse-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"panel-collapse collapse "
     + ((stack1 = helpers.unless.call(alias1,(depth0 != null ? depth0.fromLoading : depth0),{"name":"unless","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "\">\n    <div class=\"panel-body\">\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Data field name</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"select-data-field-"
+    + "\">\n    <div class=\"panel-body\">\n\n      <div class=\"form-group clearfix\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Data field</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"select-proxy-display\">\n            <select name=\"select-data-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
