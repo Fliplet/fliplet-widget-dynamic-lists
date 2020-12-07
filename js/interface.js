@@ -216,7 +216,7 @@ var DynamicLists = (function() {
           item.logic = 'none';
           item.valueType = 'enter-value';
           item.value = '';
-          item.valueField = 'none';
+          item.valueField = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
