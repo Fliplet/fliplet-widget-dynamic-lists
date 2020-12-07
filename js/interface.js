@@ -1236,6 +1236,9 @@ var DynamicLists = (function() {
       if (context === 'relations') {
         $('.relations-tab').removeClass('present').addClass('future');
 
+        dataSourceProvider.close();
+        dataSourceProvider = null;
+
         initDataSourceProvider(_this.config.dataSourceId);
       }
       if (context === 'layouts') {
