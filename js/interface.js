@@ -114,6 +114,8 @@ var DynamicLists = (function() {
       onEvent: function(event, dataSource) {
         if (event === 'dataSourceSelect' && dataSource.columns) {
           dataSourceColumns = dataSource.columns;
+          _this.updateSummaryRowContainer();
+          _this.updateDetailsRowContainer();
           _this.renderSortColumns();
           _this.renderFilterColumns();
         }
@@ -933,33 +935,7 @@ var DynamicLists = (function() {
           $('#select_field_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.column || 'none');
           $('#select_type_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.type || 'url');
 
-          $summaryRowContainer.empty();
-          _.forEach(_this.config['summary-fields'], function(item) {
-            // Backwards compatability
-            if (typeof item.interfaceName === 'undefined') {
-              var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
-                return defaultItem.location === item.location;
-              });
-
-              item.interfaceName = defaultInterfaceName.interfaceName;
-            }
-
-            item.columns = dataSourceColumns || _this.config.defaultColumns;
-            item = _this.updateWithFoldersInfo(item, 'summary');
-            _this.addSummaryItem(item);
-            $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
-            $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
-            $('#summary_custom_field_' + item.id).val(item.customField || '');
-            item.imageField = _this.validateImageFieldOption(item.imageField);
-            $('#summary_image_field_type_' + item.id).val(item.imageField).trigger('change');
-
-            if (item.imageField === 'all-folders' && item.folder) {
-              $summaryRowContainer.find('[data-id="' + item.id + '"]')
-                .find('.file-picker-btn').text('Replace folder').end()
-                .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
-                .find('.selected-folder').removeClass('hidden');
-            }
-          });
+          _this.updateSummaryRowContainer();
 
           if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
             fromStart = true;
@@ -1094,27 +1070,7 @@ var DynamicLists = (function() {
             }
           }
 
-          $detailsRowContainer.empty();
-          _.forEach(_this.config.detailViewOptions, function(item) {
-            item.columns = dataSourceColumns;
-            item = _this.updateWithFoldersInfo(item, 'details');
-            _this.addDetailItem(item);
-
-            $('#detail_select_field_' + item.id).val(item.column || 'none').trigger('change');
-            $('#detail_select_type_' + item.id).val(item.type || 'text').trigger('change');
-            $('#detail_select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
-            $('#detail_custom_field_' + item.id).val(item.customField || '');
-            $('#detail_custom_field_name_' + item.id).val(item.customFieldLabel || '');
-            item.imageField = _this.validateImageFieldOption(item.imageField);
-            $('#detail_image_field_type_' + item.id).val(item.imageField).trigger('change');
-
-            if (item.imageField === 'all-folders' && item.folder) {
-              $detailsRowContainer.find('[data-id="' + item.id + '"]')
-                .find('.file-picker-btn').text('Replace folder').end()
-                .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
-                .find('.selected-folder').removeClass('hidden');
-            }
-          });
+          _this.updateDetailsRowContainer();
 
           $('input#enable-auto-update').prop('checked', _this.config.detailViewAutoUpdate);
 
@@ -1218,6 +1174,61 @@ var DynamicLists = (function() {
           _this.setupCodeEditors(listLayout);
           _this.goToSettings('layouts');
         });
+    },
+    updateSummaryRowContainer: function() {
+      $summaryRowContainer.empty();
+      _.forEach(_this.config['summary-fields'], function(item) {
+        // Backwards compatability
+        if (typeof item.interfaceName === 'undefined') {
+          var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
+            return defaultItem.location === item.location;
+          });
+
+          item.interfaceName = defaultInterfaceName.interfaceName;
+        }
+
+        item.columns = dataSourceColumns || _this.config.defaultColumns;
+        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item = _this.updateWithFoldersInfo(item, 'summary');
+        _this.addSummaryItem(item);
+
+        $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
+        $('#summary_custom_field_' + item.id).val(item.customField || '');
+        item.imageField = _this.validateImageFieldOption(item.imageField);
+        $('#summary_image_field_type_' + item.id).val(item.imageField).trigger('change');
+
+        if (item.imageField === 'all-folders' && item.folder) {
+          $summaryRowContainer.find('[data-id="' + item.id + '"]')
+            .find('.file-picker-btn').text('Replace folder').end()
+            .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+            .find('.selected-folder').removeClass('hidden');
+        }
+      });
+    },
+    updateDetailsRowContainer: function() {
+      $detailsRowContainer.empty();
+      _.forEach(_this.config.detailViewOptions, function(item) {
+        item.columns = dataSourceColumns;
+        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item = _this.updateWithFoldersInfo(item, 'details');
+        _this.addDetailItem(item);
+
+        $('#detail_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#detail_select_type_' + item.id).val(item.type || 'text').trigger('change');
+        $('#detail_select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
+        $('#detail_custom_field_' + item.id).val(item.customField || '');
+        $('#detail_custom_field_name_' + item.id).val(item.customFieldLabel || '');
+        item.imageField = _this.validateImageFieldOption(item.imageField);
+        $('#detail_image_field_type_' + item.id).val(item.imageField).trigger('change');
+
+        if (item.imageField === 'all-folders' && item.folder) {
+          $detailsRowContainer.find('[data-id="' + item.id + '"]')
+            .find('.file-picker-btn').text('Replace folder').end()
+            .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+            .find('.selected-folder').removeClass('hidden');
+        }
+      });
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
