@@ -854,6 +854,10 @@ var DynamicLists = (function() {
           $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
           $('#enable-comments').prop('checked', _this.config.social.comments);
 
+          _this.toggleRuleType('insert', _this.config.addEntry)
+          _this.toggleRuleType('update', _this.config.editEntry)
+          _this.toggleRuleType('delete', _this.config.deleteEntry)
+
           // Select layout
           listLayout = _this.config.layout;
           isLayoutSelected = true;
@@ -1242,6 +1246,9 @@ var DynamicLists = (function() {
       }
       if (context === 'relations') {
         $('.relations-tab').removeClass('present').addClass('future');
+
+        dataSourceProvider.close();
+        dataSourceProvider = null;
 
         initDataSourceProvider(_this.config.dataSourceId);
       }
