@@ -6,6 +6,7 @@ var DynamicLists = (function() {
   var appName = Fliplet.Env.get('appName');
   var pageTitle = Fliplet.Env.get('pageTitle');
   var dataSourceProvider = null;
+  var userDataSourceProvider = null;
   var listLayout;
   var isLayoutSelected = false;
   var allDataSources = [];
@@ -371,155 +372,16 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '[name="list-control"]', function() {
-          var values = [];
-
-          $('[name="list-control"]:checked').each(function() {
-            values.push($(this).val());
-          });
-
-          var isAddEntryActive = values.indexOf('add-entry') !== -1;
-          var isEditEntryActive = values.indexOf('edit-entry') !== -1;
-          var isDeleteEntryActive = values.indexOf('delete-entry') !== -1;
-
-          $('.add-entry-checkbox').find('.hidden-settings')[isAddEntryActive ? 'addClass' : 'removeClass']('active');
-          $('.edit-entry-checkbox').find('.hidden-settings')[isEditEntryActive ? 'addClass' : 'removeClass']('active');
-          $('.delete-entry-checkbox').find('.hidden-settings')[isDeleteEntryActive ? 'addClass' : 'removeClass']('active');
-
-          $('.select-user-email-list-holder')[
-            (editRadioValues.indexOf('user') !== -1 && isEditEntryActive)
-            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
-            || (deleteRadioValues.indexOf('user') !== -1 && isDeleteEntryActive)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
-            ? 'removeClass' : 'addClass']('hidden');
-          $('.select-user-admin-holder')[
-            (addRadioValues.indexOf('admins') !== -1 && isAddEntryActive)
-            || (editRadioValues.indexOf('admins') !== -1 && isEditEntryActive)
-            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
-            || (deleteRadioValues.indexOf('admins') !== -1 && isDeleteEntryActive)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
-            ? 'removeClass' : 'addClass']('hidden');
-          $('.user-datasource-options')[
-            (addRadioValues.indexOf('admins') !== -1 && isAddEntryActive)
-            || (editRadioValues.indexOf('admins') !== -1 && isEditEntryActive)
-            || (editRadioValues.indexOf('user') !== -1 && isEditEntryActive)
-            || (editRadioValues.indexOf('users-admins') !== -1 && isEditEntryActive)
-            || (deleteRadioValues.indexOf('admins') !== -1 && isDeleteEntryActive)
-            || (deleteRadioValues.indexOf('user') !== -1 && isDeleteEntryActive)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && isDeleteEntryActive)
-            || (_this.config.social && _this.config.social.comments)
-            ? 'removeClass' : 'addClass']('hidden');
-
-            _this.toggleRuleType('insert', isAddEntryActive);
-            _this.toggleRuleType('update', isEditEntryActive);
-            _this.toggleRuleType('delete', isDeleteEntryActive);
-
-            if (dataSourceProvider) {
-              dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
-            }
+          _this.updatePermission('list');
         })
         .on('change', '[name="add-permissions"]', function() {
-          addRadioValues = [];
-          var controlsValues = [];
-
-          $('[name="list-control"]:checked').each(function(){
-            controlsValues.push($(this).val());
-          });
-
-          $('[name="add-permissions"]:checked').each(function(){
-            addRadioValues.push($(this).val());
-          });
-
-          $('.select-user-admin-holder')[
-            (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
-            || (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            ? 'removeClass' : 'addClass']('hidden');
-          $('.user-datasource-options')[
-            (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
-            || (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (_this.config.social && _this.config.social.comments)
-            ? 'removeClass' : 'addClass']('hidden');
+          _this.updatePermission('add');
         })
         .on('change', '[name="edit-permissions"]', function() {
-          editRadioValues = [];
-          var controlsValues = [];
-
-          $('[name="list-control"]:checked').each(function(){
-            controlsValues.push($(this).val());
-          });
-
-          $('[name="edit-permissions"]:checked').each(function(){
-            editRadioValues.push($(this).val());
-          });
-
-          $('.select-user-email-list-holder')[
-            (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            ? 'removeClass' : 'addClass']('hidden');
-
-          $('.select-user-admin-holder')[
-            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
-            ? 'removeClass' : 'addClass']('hidden');
-          $('.user-datasource-options')[
-            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
-            || (_this.config.social && _this.config.social.comments)
-            ? 'removeClass' : 'addClass']('hidden');
+          _this.updatePermission('edit');
         })
         .on('change', '[name="delete-permissions"]', function() {
-          deleteRadioValues = [];
-          var controlsValues = [];
-
-          $('[name="list-control"]:checked').each(function(){
-            controlsValues.push($(this).val());
-          });
-
-          $('[name="delete-permissions"]:checked').each(function(){
-            deleteRadioValues.push($(this).val());
-          });
-
-          $('.select-user-email-list-holder')[
-            (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            ? 'removeClass' : 'addClass']('hidden');
-
-          $('.select-user-admin-holder')[
-            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
-            ? 'removeClass' : 'addClass']('hidden');
-          $('.user-datasource-options')[
-            (editRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (editRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('edit-entry') !== -1)
-            || (deleteRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('user') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (deleteRadioValues.indexOf('users-admins') !== -1 && controlsValues.indexOf('delete-entry') !== -1)
-            || (addRadioValues.indexOf('admins') !== -1 && controlsValues.indexOf('add-entry') !== -1)
-            || (_this.config.social && _this.config.social.comments)
-            ? 'removeClass' : 'addClass']('hidden');
+          _this.updatePermission('delete');
         })
         .on('change', '[name="detail-view-action"]', function() {
           var value = $('[name="detail-view-action"]:checked').val();
@@ -696,6 +558,129 @@ var DynamicLists = (function() {
           }
         }
       });
+    },
+    managePermissionList: function(isAddEntryActive, isEditEntryActive, isDeleteEntryActive) {
+      $('.add-entry-checkbox').find('.hidden-settings').toggleClass('active', isAddEntryActive);
+      $('.edit-entry-checkbox').find('.hidden-settings').toggleClass('active', isEditEntryActive);
+      $('.delete-entry-checkbox').find('.hidden-settings').toggleClass('active', isDeleteEntryActive);
+
+      this.toggleRuleType('insert', isAddEntryActive);
+      this.toggleRuleType('update', isEditEntryActive);
+      this.toggleRuleType('delete', isDeleteEntryActive);
+
+      if (dataSourceProvider) {
+        dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
+      }
+    },
+    toggleUserEmail: function(showUserEmailList) {
+      $('.select-user-email-list-holder').toggleClass('hidden', !showUserEmailList);
+    },
+    toggleAdminIndetification: function(showUserAdminHolder) {
+      $('.select-user-admin-holder').toggleClass('hidden', !showUserAdminHolder);
+    },
+    updatePermission: function(permissionType) {
+      var controlValues = [];
+
+      $('[name="list-control"]:checked').each(function() {
+        controlValues.push($(this).val());
+      });
+
+      var isAddEntryActive = controlValues.indexOf('add-entry') !== -1;
+      var isEditEntryActive = controlValues.indexOf('edit-entry') !== -1;
+      var isDeleteEntryActive = controlValues.indexOf('delete-entry') !== -1;
+      var canAddEntry = $('[name="add-permissions"]:checked').val();
+      var canEditEntry = $('[name="edit-permissions"]:checked').val();
+      var canDeleteEntry = $('[name="delete-permissions"]:checked').val();
+      var isAdminsCanAddEntry = canAddEntry === 'admins' && isAddEntryActive;
+      var isAdminsCanEditEntry = (canEditEntry === 'admins' || canEditEntry === 'users-admins') && isEditEntryActive;
+      var isAdminsCanDeleteEntry =
+        (canDeleteEntry === 'admins' || canDeleteEntry === 'users-admins') && isDeleteEntryActive;
+      var isUsersCanEditEntry = (canEditEntry === 'user' || canEditEntry === 'users-admins') && isEditEntryActive;
+      var isUsersCanDeleteEntry =
+        (canDeleteEntry === 'user' || canDeleteEntry === 'users-admins') && isDeleteEntryActive;
+      var showUserEmailList = isUsersCanEditEntry || isUsersCanDeleteEntry;
+      var showUserAdminHolder = isAdminsCanAddEntry
+        || isAdminsCanEditEntry
+        || isAdminsCanDeleteEntry;
+      var showUsersDataSource = isAdminsCanAddEntry
+        || isAdminsCanEditEntry
+        || isAdminsCanDeleteEntry
+        || isUsersCanEditEntry
+        || isUsersCanDeleteEntry
+        || (this.config.social && this.config.social.comments);
+
+      switch (permissionType) {
+        case 'list':
+          this.processPermissionsList(isAddEntryActive, isEditEntryActive, isDeleteEntryActive);
+        case 'edit':
+        case 'delete':
+          this.toggleAdminIndetification(showUserAdminHolder);
+          this.toggleUserEmail(showUserEmailList);
+          this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
+          break;
+        case 'add':
+          this.toggleUserEmail(showUserEmailList);
+          this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
+          break;
+        default:
+          break;
+      }
+    },
+    initUserDatasourceProvider: function(dataSourceId, showUsersDataSource) {
+      $('.user-datasource-options').toggleClass('hidden', !showUsersDataSource);
+
+      if (showUsersDataSource && !userDataSourceProvider) {
+        var dataSourceData = {
+          dataSourceTitle: 'User data (required)',
+          dataSourceId: dataSourceId === 'none' ? null : dataSourceId,
+          appId: Fliplet.Env.get('appId'),
+          default: {
+            name: appName + ' - ' + layoutMapping[listLayout].name,
+            definition: {
+              bundleImages: true
+            },
+            entries: defaultEntries[listLayout],
+            columns: defaultColumns[listLayout]
+          },
+          accessRules: []
+        };
+        var _this = this;
+  
+        userDataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
+          selector: '#user_data_source_provider',
+          data: dataSourceData,
+          onEvent: function(event, dataSource) {
+            switch (event) {
+              case 'dataSourceSelect':
+                _this.config.userDataSourceId = dataSource && dataSource.id;
+  
+                if (_this.config.userDataSourceId === 'none' || _this.config.userDataSourceId === '') {
+                  $('.select-user-firstname-holder').addClass('hidden');
+                  $('.select-user-lastname-holder').addClass('hidden');
+                  $('.select-user-email-holder').addClass('hidden');
+                  $('.select-user-photo-holder').addClass('hidden');
+                  $('.select-photo-folder-type').addClass('hidden');
+                  $('.select-user-admin-holder').addClass('hidden');
+    
+                  return;
+                }
+                
+                if (dataSource.columns && dataSource.columns.length) {
+                  userDataSourceColumns = dataSource.columns;
+                  _this.setUpUserTokenFields();
+                  _this.updateUserFieldsWithColumns(dataSource.columns);
+                }
+                break;
+              default:
+                break;
+            }
+          }
+        });
+      } else if (userDataSourceProvider) {
+        userDataSourceProvider.close();
+
+        userDataSourceProvider = null;
+      }
     },
     toggleRuleType: function(type, isTypeActive) {
       var accessRuleIndex = -1;
@@ -2665,7 +2650,7 @@ var DynamicLists = (function() {
 
       data.social = _this.config.social;
 
-      data.userDataSourceId = newUserDataSource ? newUserDataSource.id : $newUserDataSource.val();
+      data.userDataSourceId = _this.config.userDataSourceId;
       data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
       $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
       data.userEmailColumn = $('#select_user_email').val();
