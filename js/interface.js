@@ -559,14 +559,16 @@ var DynamicLists = (function() {
         }
       });
     },
-    managePermissionList: function(isAddEntryActive, isEditEntryActive, isDeleteEntryActive) {
-      $('.add-entry-checkbox').find('.hidden-settings').toggleClass('active', isAddEntryActive);
-      $('.edit-entry-checkbox').find('.hidden-settings').toggleClass('active', isEditEntryActive);
-      $('.delete-entry-checkbox').find('.hidden-settings').toggleClass('active', isDeleteEntryActive);
+    managePermissionList: function(options) {
+      $('.add-entry-checkbox').find('.hidden-settings').toggleClass('active', options.isAddEntryActive);
+      $('.edit-entry-checkbox').find('.hidden-settings').toggleClass('active', options.isEditEntryActive);
+      $('.delete-entry-checkbox').find('.hidden-settings').toggleClass('active', options.isDeleteEntryActive);
 
-      this.toggleRuleType('insert', isAddEntryActive);
-      this.toggleRuleType('update', isEditEntryActive);
-      this.toggleRuleType('delete', isDeleteEntryActive);
+      this.toggleRuleType({
+        insert: options.isAddEntryActive,
+        update: options.isEditEntryActive,
+        delete: options.isDeleteEntryActive
+      });
 
       if (dataSourceProvider) {
         dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
@@ -611,7 +613,11 @@ var DynamicLists = (function() {
 
       switch (permissionType) {
         case 'list':
-          this.processPermissionsList(isAddEntryActive, isEditEntryActive, isDeleteEntryActive);
+          this.managePermissionList({
+            isAddEntryActive: isAddEntryActive,
+            isEditEntryActive: isEditEntryActive,
+            isDeleteEntryActive: isDeleteEntryActive
+          });
         case 'edit':
         case 'delete':
           this.toggleAdminIndetification(showUserAdminHolder);
@@ -655,13 +661,10 @@ var DynamicLists = (function() {
                 _this.config.userDataSourceId = dataSource && dataSource.id;
   
                 if (_this.config.userDataSourceId === 'none' || _this.config.userDataSourceId === '') {
-                  $('.select-user-firstname-holder').addClass('hidden');
-                  $('.select-user-lastname-holder').addClass('hidden');
-                  $('.select-user-email-holder').addClass('hidden');
-                  $('.select-user-photo-holder').addClass('hidden');
-                  $('.select-photo-folder-type').addClass('hidden');
-                  $('.select-user-admin-holder').addClass('hidden');
-    
+                  $(
+                    '.select-user-firstname-holder, .select-user-lastname-holder, .select-user-email-holder, .select-user-photo-holder, .select-photo-folder-type, .select-user-admin-holder'
+                  ).addClass('hidden');
+
                   return;
                 }
                 
@@ -682,25 +685,34 @@ var DynamicLists = (function() {
         userDataSourceProvider = null;
       }
     },
-    toggleRuleType: function(type, isTypeActive) {
-      var accessRuleIndex = -1;
+    toggleRuleType: function(options) { 
       var defaultRule = {
         allow: 'all',
-        type: type.split()
+        type: []
       };
 
-      accessRules.forEach(function(item, index) {
-        var typeIndex = item.type.indexOf(type);
-
-        if (typeIndex !== -1) {
-          accessRuleIndex = index;
+      for ( var type in options ) {
+        if (!options[type]) {
+          continue;
         }
-      });
 
-      if (isTypeActive && accessRuleIndex === -1) {
-        accessRules.push(defaultRule);
-      } else if (!isTypeActive && accessRuleIndex > -1) {
-        accessRules.splice(accessRuleIndex, 1);
+        var accessRuleIndex = -1;
+
+        defaultRule.type = [type];
+
+        accessRules.forEach(function(item, index) {
+          var typeIndex = item.type.indexOf(type);
+  
+          if (typeIndex !== -1) {
+            accessRuleIndex = index;
+          }
+        });
+  
+        if (options[type] && accessRuleIndex === -1) {
+          accessRules.push(defaultRule);
+        } else if (!options[type] && accessRuleIndex > -1) {
+          accessRules.splice(accessRuleIndex, 1);
+        }
       }
     },
     renderFilterColumns() {
@@ -839,9 +851,11 @@ var DynamicLists = (function() {
           $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
           $('#enable-comments').prop('checked', _this.config.social.comments);
 
-          _this.toggleRuleType('insert', _this.config.addEntry)
-          _this.toggleRuleType('update', _this.config.editEntry)
-          _this.toggleRuleType('delete', _this.config.deleteEntry)
+          _this.toggleRuleType({
+            insert: _this.config.addEntry,
+            update: _this.config.editEntry,
+            delete: _this.config.deleteEntry
+          });
 
           // Select layout
           listLayout = _this.config.layout;
