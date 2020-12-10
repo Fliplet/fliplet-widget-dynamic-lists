@@ -1095,13 +1095,12 @@ header .btn,
 }
 
 .error-holder {
-  padding: 10px;
+  padding: 15px;
   position: absolute;
-  width: 88%;
+  width: 95%;
   bottom: 1%;
   z-index: 10;
   border-radius: 4px;
-  left: 4%;
   -webkit-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
   -moz-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
   box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
