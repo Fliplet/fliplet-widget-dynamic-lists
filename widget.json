@@ -1,6 +1,6 @@
 {
-  "name": "List (from data source)-yaroslav",
-  "package": "com.fliplet.dynamic-lists-yaroslav",
+  "name": "List (from data source)",
+  "package": "com.fliplet.dynamic-lists",
   "version": "1.4.0",
   "icon": "img/icon.png",
   "tags": ["type:component", "category:list"],
