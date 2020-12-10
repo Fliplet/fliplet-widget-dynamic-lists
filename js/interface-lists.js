@@ -438,6 +438,37 @@ function attahObservers() {
 
         toggleError(false);
 
+        if (widgetData.filterOptions.length) {
+          var errors = [];
+          var values = [];
+
+          widgetData.filterOptions.forEach(function(item) {
+            values.push({
+              field: '#value-field-' + item.id,
+              value: item.value,
+            })
+          })
+
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          })
+
+          if (errors.length) {
+            errors.forEach(function(item) {
+              $(item).addClass('has-error');
+              $('#filter-value > .control-label > label').addClass('has-error-text')
+              $('.error-holder').removeClass('hidden');
+            })
+            return;
+          } else {
+            toggleError(false);
+            $('#filter-value > .control-label > label').removeClass('has-error-text')
+            $('.error-holder').addClass('hidden');
+          }
+        }
+
         if (widgetData.social && widgetData.social.comments) {
           var errors = [];
           var values = [];
