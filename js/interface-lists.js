@@ -456,14 +456,14 @@ function attahObservers() {
           })
 
           if (errors.length) {
-            var labelError = $('#filter-value > .control-label > label');
+            var $errorLabels = $('#filter-value > .control-label > label');
 
             $('.error-holder').removeClass('hidden');
 
             errors.forEach(function(item, index) {
               $(item).addClass('has-error');
 
-              labelError.each(function(field) {
+              $errorLabels.each(function(field) {
                 if (field === index) {
                   $(this).addClass('has-error-text');
                 }
