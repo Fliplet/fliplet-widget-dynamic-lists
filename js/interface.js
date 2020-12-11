@@ -564,7 +564,7 @@ var DynamicLists = (function() {
       $('.edit-entry-checkbox').find('.hidden-settings').toggleClass('active', options.isEditEntryActive);
       $('.delete-entry-checkbox').find('.hidden-settings').toggleClass('active', options.isDeleteEntryActive);
 
-      this.toggleRuleType({
+      this.toggleRuleTypes({
         insert: options.isAddEntryActive,
         update: options.isEditEntryActive,
         delete: options.isDeleteEntryActive
@@ -685,7 +685,7 @@ var DynamicLists = (function() {
         userDataSourceProvider = null;
       }
     },
-    toggleRuleType: function(options) { 
+    toggleRuleTypes: function(options) { 
       var defaultRule = {
         allow: 'all',
         type: []
@@ -851,7 +851,7 @@ var DynamicLists = (function() {
           $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
           $('#enable-comments').prop('checked', _this.config.social.comments);
 
-          _this.toggleRuleType({
+          _this.toggleRuleTypes({
             insert: _this.config.addEntry,
             update: _this.config.editEntry,
             delete: _this.config.deleteEntry
