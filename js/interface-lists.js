@@ -456,16 +456,25 @@ function attahObservers() {
           })
 
           if (errors.length) {
-            errors.forEach(function(item) {
+            var labelError = $('#filter-value > .control-label > label');
+
+            $('.error-holder').removeClass('hidden');
+
+            errors.forEach(function(item, index) {
               $(item).addClass('has-error');
-              $('#filter-value > .control-label > label').addClass('has-error-text')
-              $('.error-holder').removeClass('hidden');
+
+              labelError.each(function(field) {
+                if (field === index) {
+                  $(this).addClass('has-error-text');
+                }
+              })
             })
             return;
           } else {
-            toggleError(false);
             $('#filter-value > .control-label > label').removeClass('has-error-text')
             $('.error-holder').addClass('hidden');
+
+            toggleError(false);
           }
         }
 
