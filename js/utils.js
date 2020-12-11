@@ -1049,8 +1049,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var isSortAsc = options.sortOrder === 'asc';
     var sortField = options.sortField;
     var startsWithAlphabet = /^[A-Z,a-z]/;
-    var sortType = getFieldType(records[0][sortField]);
-  
+    var sortType = getFieldType(records[0].data ? records[0].data[sortField]: records[0][sortField]);
+      
     return records.sort(function(a, b) {
       var aValue = a.data ? a.data[sortField] : a[sortField];
       var bValue = b.data ? b.data[sortField] : b[sortField];
@@ -1081,11 +1081,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
           return 0;
         case 'number':
-          if (!parseInt(aValue, 10)) {
+          if (+aValue !== 0 && !parseFloat(aValue, 10)) {
             return isSortAsc ? 1 : -1;
           }
-
-          if (!parseInt(bValue, 10)) {
+          
+          if (+bValue !== 0 && !parseFloat(bValue, 10)) {
             return isSortAsc ? -1 : 1;
           }
 
@@ -1184,6 +1184,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var timeRegex = /^[0-9]{1,2}:[0-9]{1,2}$/
     
     if (valueType === 'string') {
+      if (!isNaN(value)) {
+        return 'number';
+      }
+
       if (timeRegex.test(value)) {
         return 'time';
       }
