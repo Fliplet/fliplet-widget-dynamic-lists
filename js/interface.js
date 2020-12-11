@@ -114,6 +114,8 @@ var DynamicLists = (function() {
       onEvent: function(event, dataSource) {
         if (event === 'dataSourceSelect' && dataSource.columns) {
           dataSourceColumns = dataSource.columns;
+          _this.updateSummaryRowContainer();
+          _this.updateDetailsRowContainer();
           _this.renderSortColumns();
           _this.renderFilterColumns();
         }
@@ -214,7 +216,9 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
+          item.valueType = 'enter-value';
           item.value = '';
+          item.valueField = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -233,7 +237,12 @@ var DynamicLists = (function() {
           if (type === 'logic') {
             var hideValueFields = value === 'empty' || value === 'notempty';
 
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
             $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+          }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -724,6 +733,7 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
+        $('#value-type-field-' + item.id).val(item.valueType);
         $('#value-field-' + item.id).val(item.value);
       });
     },
@@ -852,6 +862,10 @@ var DynamicLists = (function() {
           $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
           $('#enable-comments').prop('checked', _this.config.social.comments);
 
+          _this.toggleRuleType('insert', _this.config.addEntry)
+          _this.toggleRuleType('update', _this.config.editEntry)
+          _this.toggleRuleType('delete', _this.config.deleteEntry)
+
           // Select layout
           listLayout = _this.config.layout;
           isLayoutSelected = true;
@@ -921,33 +935,7 @@ var DynamicLists = (function() {
           $('#select_field_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.column || 'none');
           $('#select_type_link').val(_this.config.summaryLinkAction && _this.config.summaryLinkAction.type || 'url');
 
-          $summaryRowContainer.empty();
-          _.forEach(_this.config['summary-fields'], function(item) {
-            // Backwards compatability
-            if (typeof item.interfaceName === 'undefined') {
-              var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
-                return defaultItem.location === item.location;
-              });
-
-              item.interfaceName = defaultInterfaceName.interfaceName;
-            }
-
-            item.columns = dataSourceColumns || _this.config.defaultColumns;
-            item = _this.updateWithFoldersInfo(item, 'summary');
-            _this.addSummaryItem(item);
-            $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
-            $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
-            $('#summary_custom_field_' + item.id).val(item.customField || '');
-            item.imageField = _this.validateImageFieldOption(item.imageField);
-            $('#summary_image_field_type_' + item.id).val(item.imageField).trigger('change');
-
-            if (item.imageField === 'all-folders' && item.folder) {
-              $summaryRowContainer.find('[data-id="' + item.id + '"]')
-                .find('.file-picker-btn').text('Replace folder').end()
-                .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
-                .find('.selected-folder').removeClass('hidden');
-            }
-          });
+          _this.updateSummaryRowContainer();
 
           if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
             fromStart = true;
@@ -1082,27 +1070,7 @@ var DynamicLists = (function() {
             }
           }
 
-          $detailsRowContainer.empty();
-          _.forEach(_this.config.detailViewOptions, function(item) {
-            item.columns = dataSourceColumns;
-            item = _this.updateWithFoldersInfo(item, 'details');
-            _this.addDetailItem(item);
-
-            $('#detail_select_field_' + item.id).val(item.column || 'none').trigger('change');
-            $('#detail_select_type_' + item.id).val(item.type || 'text').trigger('change');
-            $('#detail_select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
-            $('#detail_custom_field_' + item.id).val(item.customField || '');
-            $('#detail_custom_field_name_' + item.id).val(item.customFieldLabel || '');
-            item.imageField = _this.validateImageFieldOption(item.imageField);
-            $('#detail_image_field_type_' + item.id).val(item.imageField).trigger('change');
-
-            if (item.imageField === 'all-folders' && item.folder) {
-              $detailsRowContainer.find('[data-id="' + item.id + '"]')
-                .find('.file-picker-btn').text('Replace folder').end()
-                .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
-                .find('.selected-folder').removeClass('hidden');
-            }
-          });
+          _this.updateDetailsRowContainer();
 
           $('input#enable-auto-update').prop('checked', _this.config.detailViewAutoUpdate);
 
@@ -1207,6 +1175,61 @@ var DynamicLists = (function() {
           _this.goToSettings('layouts');
         });
     },
+    updateSummaryRowContainer: function() {
+      $summaryRowContainer.empty();
+      _.forEach(_this.config['summary-fields'], function(item) {
+        // Backwards compatability
+        if (typeof item.interfaceName === 'undefined') {
+          var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
+            return defaultItem.location === item.location;
+          });
+
+          item.interfaceName = defaultInterfaceName.interfaceName;
+        }
+
+        item.columns = dataSourceColumns || _this.config.defaultColumns;
+        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item = _this.updateWithFoldersInfo(item, 'summary');
+        _this.addSummaryItem(item);
+
+        $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
+        $('#summary_custom_field_' + item.id).val(item.customField || '');
+        item.imageField = _this.validateImageFieldOption(item.imageField);
+        $('#summary_image_field_type_' + item.id).val(item.imageField).trigger('change');
+
+        if (item.imageField === 'all-folders' && item.folder) {
+          $summaryRowContainer.find('[data-id="' + item.id + '"]')
+            .find('.file-picker-btn').text('Replace folder').end()
+            .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+            .find('.selected-folder').removeClass('hidden');
+        }
+      });
+    },
+    updateDetailsRowContainer: function() {
+      $detailsRowContainer.empty();
+      _.forEach(_this.config.detailViewOptions, function(item) {
+        item.columns = dataSourceColumns;
+        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item = _this.updateWithFoldersInfo(item, 'details');
+        _this.addDetailItem(item);
+
+        $('#detail_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#detail_select_type_' + item.id).val(item.type || 'text').trigger('change');
+        $('#detail_select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
+        $('#detail_custom_field_' + item.id).val(item.customField || '');
+        $('#detail_custom_field_name_' + item.id).val(item.customFieldLabel || '');
+        item.imageField = _this.validateImageFieldOption(item.imageField);
+        $('#detail_image_field_type_' + item.id).val(item.imageField).trigger('change');
+
+        if (item.imageField === 'all-folders' && item.folder) {
+          $detailsRowContainer.find('[data-id="' + item.id + '"]')
+            .find('.file-picker-btn').text('Replace folder').end()
+            .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+            .find('.selected-folder').removeClass('hidden');
+        }
+      });
+    },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
         $('#search-column-fields-tokenfield').tokenfield('setTokens', _this.config.searchFields );
@@ -1231,6 +1254,9 @@ var DynamicLists = (function() {
       }
       if (context === 'relations') {
         $('.relations-tab').removeClass('present').addClass('future');
+
+        dataSourceProvider.close();
+        dataSourceProvider = null;
 
         initDataSourceProvider(_this.config.dataSourceId);
       }
@@ -1832,11 +1858,15 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
+      data.valueField = data.valueType === 'enter-value'
+        ? 'Value'
+        : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
+        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
       }
     },
@@ -2497,7 +2527,13 @@ var DynamicLists = (function() {
       _.forEach(_this.config.filterOptions, function(item) {
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
+        item.valueType = $('#value-type-field-' + item.id).val();
         item.value = $('#value-field-' + item.id).val();
+
+        if (item.logic === 'empty' || item.logic === 'notempty') {
+          item.valueType = null;
+          item.value = '';
+        }
       });
 
       data.sortOptions = _this.config.sortOptions;
