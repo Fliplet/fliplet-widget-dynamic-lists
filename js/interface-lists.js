@@ -456,8 +456,6 @@ function attahObservers() {
           })
 
           if (errors.length) {
-            var $errorLabels = $('#filter-value > .control-label > label');
-
             $('.error-holder').removeClass('hidden');
 
             errors.forEach(function(item) {
