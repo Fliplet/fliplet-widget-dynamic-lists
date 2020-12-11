@@ -460,18 +460,19 @@ function attahObservers() {
 
             $('.error-holder').removeClass('hidden');
 
-            errors.forEach(function(item, index) {
+            errors.forEach(function(item) {
               $(item).addClass('has-error');
+              $(item).parents('#filter-value').find('label').addClass('has-error-text');
 
-              $errorLabels.each(function(field) {
-                if (field === index) {
-                  $(this).addClass('has-error-text');
+              values.forEach(function(field) {
+                if (validate(field.value)) {
+                  $(field.field).parents('#filter-value').find('label').removeClass('has-error-text');
                 }
               })
             })
             return;
           } else {
-            $('#filter-value > .control-label > label').removeClass('has-error-text')
+            $('#filter-value > .control-label > label').removeClass('has-error-text');
             $('.error-holder').addClass('hidden');
 
             toggleError(false);
