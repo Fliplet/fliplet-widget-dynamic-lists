@@ -1,10 +1,9 @@
+// eslint-disable-next-line no-unused-vars
 var DynamicLists = (function() {
   var _this;
 
   var organizationId = Fliplet.Env.get('organizationId');
-  var appId = Fliplet.Env.get('appId');
   var appName = Fliplet.Env.get('appName');
-  var pageTitle = Fliplet.Env.get('pageTitle');
   var dataSourceProvider = null;
   var userDataSourceProvider = null;
   var listLayout;
@@ -67,8 +66,6 @@ var DynamicLists = (function() {
   var addRadioValues = [];
   var editRadioValues = [];
   var deleteRadioValues = [];
-
-  var filePickerPromises = [];
 
   // Constructor
   function DynamicLists(configuration) {
@@ -176,6 +173,7 @@ var DynamicLists = (function() {
         })
         .on('click', '.go-back', function() {
           var context = $(this).data('back-settings');
+
           _this.goToSettings(context);
         })
         .on('click', '[data-create-datasource]', _this.createDataSourceData)
@@ -187,6 +185,7 @@ var DynamicLists = (function() {
         })
         .on('click', '[data-add-sort-panel]', function() {
           var item = {};
+
           item.id = _this.makeid(8);
           item.title = 'Sort condition ' + ($('#sort-accordion .panel').length + 1);
           item.column = 'none';
@@ -205,15 +204,18 @@ var DynamicLists = (function() {
           if (type === 'field') {
             $(this).parents('.sort-panel').find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
           }
+
           if (type === 'sort') {
             $(this).parents('.sort-panel').find('.panel-title-text .sort-by').html(value === 'none' ? '(Sort)' : value);
           }
+
           if (type === 'order') {
             $(this).parents('.sort-panel').find('.panel-title-text .order-by').html(value === 'none' ? '(Order)' : value);
           }
         })
         .on('click', '[data-add-filter-panel]', function() {
           var item = {};
+
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
@@ -255,7 +257,7 @@ var DynamicLists = (function() {
           }
         })
         .on('click', '.sort-panel .icon-delete', function() {
-          var $item = $(this).closest("[data-id], .panel");
+          var $item = $(this).closest('[data-id], .panel');
           var id = $item.data('id');
 
           _.remove(_this.config.sortOptions, {
@@ -266,7 +268,7 @@ var DynamicLists = (function() {
           _this.checkSortPanelLength();
         })
         .on('click', '.filter-panel .icon-delete', function() {
-          var $item = $(this).closest("[data-id], .panel");
+          var $item = $(this).closest('[data-id], .panel');
           var id = $item.data('id');
 
           _.remove(_this.config.filterOptions, {
@@ -287,36 +289,40 @@ var DynamicLists = (function() {
           var inputId = $(this).attr('id');
           var activateWarning = '<p>With this option enabled you will take responsability for maintaining the code. If Fliplet updates the component, those changes might not be applied to your component.<br><strong>You can always revert back to the original components code.</strong></p><p>Are you sure you want to continue?</p>';
 
-          if ( $(this).is(":checked") && !resetToDefaults) {
+          if ( $(this).is(':checked') && !resetToDefaults) {
             Fliplet.Modal.confirm({
               title: 'Important',
               message: activateWarning
-            }).then(function (result) {
+            }).then(function(result) {
               if (!result) {
                 $input.prop('checked', false);
+
                 return;
               }
 
               $('.btn[data-id="' + inputId + '"]').removeClass('hidden');
               $('.editor-holder.' + inputId).removeClass('disabled');
+
               return;
             });
           }
 
-          if ( $(this).is(":checked") && resetToDefaults ) {
+          if ( $(this).is(':checked') && resetToDefaults ) {
             $('.btn[data-id="' + inputId + '"]').removeClass('hidden');
             $('.editor-holder.' + inputId).removeClass('disabled');
+
             return;
           }
 
-          if ( !$(this).is(":checked") ) {
+          if ( !$(this).is(':checked') ) {
             $('.btn[data-id="' + inputId + '"]').addClass('hidden');
             $('.editor-holder.' + inputId).addClass('disabled');
+
             return;
           }
         })
         .on('change', '#enable-search', function() {
-          if ( $(this).is(":checked") ) {
+          if ( $(this).is(':checked') ) {
             $('.search-fields').removeClass('hidden');
             $('#search-column-fields-tokenfield').tokenfield('update');
           } else {
@@ -324,7 +330,7 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '#enable-sort', function() {
-          if ( $(this).is(":checked") ) {
+          if ( $(this).is(':checked') ) {
             $('.sort-fields').removeClass('hidden');
             $('#sort-column-fields-tokenfield').tokenfield('update');
           } else {
@@ -332,7 +338,7 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '#enable-filters', function() {
-          if ( $(this).is(":checked") ) {
+          if ( $(this).is(':checked') ) {
             $('.filter-fields').removeClass('hidden');
             $('.filter-in-overlay').removeClass('hidden');
             $('#filter-column-fields-tokenfield').tokenfield('update');
@@ -352,7 +358,7 @@ var DynamicLists = (function() {
           $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
         })
         .on('change', '#enable-comments', function() {
-          if ( $(this).is(":checked") ) {
+          if ( $(this).is(':checked') ) {
             $('.user-datasource-options').removeClass('hidden');
             $('.select-user-photo-holder').removeClass('hidden');
           } else {
@@ -448,10 +454,6 @@ var DynamicLists = (function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
 
-          _.remove(selectedFieldId, function(item) {
-            return item === fieldId;
-          });
-
           _.remove(_this.config.detailViewOptions, function(option) {
             return option.id === fieldId;
           });
@@ -479,13 +481,16 @@ var DynamicLists = (function() {
         if (selectedDataSourceId === 'none') {
           return;
         }
+
         if (selectedDataSourceId === 'new') {
           $('.create-holder').addClass('hidden');
           $('.edit-holder').removeClass('hidden');
           $('.select-datasource-holder').addClass('hidden');
           _this.createDataSource();
+
           return;
         }
+
         $('.create-holder').addClass('hidden');
         $('.edit-holder').removeClass('hidden');
         $('.select-datasource-holder').addClass('hidden');
@@ -502,6 +507,7 @@ var DynamicLists = (function() {
           $('.select-user-photo-holder').addClass('hidden');
           $('.select-photo-folder-type').addClass('hidden');
           $('.select-user-admin-holder').addClass('hidden');
+
           return;
         }
 
@@ -527,7 +533,7 @@ var DynamicLists = (function() {
                     className: 'btn-secondary'
                   }
                 }
-              }).then(function (result) {
+              }).then(function(result) {
                 if (!result) {
                   _this.config.dataAlertSeen = true;
                 }
@@ -722,7 +728,7 @@ var DynamicLists = (function() {
         }
       }
     },
-    renderFilterColumns() {
+    renderFilterColumns: function() {
       $filterAccordionContainer.empty();
       _.forEach(_this.config.filterOptions, function(item) {
         item.fromLoading = true; // Flag to close accordions
@@ -757,7 +763,7 @@ var DynamicLists = (function() {
 
       return value;
     },
-    setupLayoutSelector: function () {
+    setupLayoutSelector: function() {
       if (_this.config.layout) {
         return;
       }
@@ -768,6 +774,7 @@ var DynamicLists = (function() {
     },
     init: function() {
       _this.setupLayoutSelector();
+
       return _this.getDataSources()
         .then(function() {
           return _this.setupCodeEditors();
@@ -801,6 +808,8 @@ var DynamicLists = (function() {
           case 'list-agenda-options':
             $('#agenda-accordion').removeClass('hidden');
             break;
+          default:
+            break;
         }
       });
 
@@ -815,7 +824,7 @@ var DynamicLists = (function() {
       var loadingPromise;
 
       if (!_this.config.dataSourceId) {
-        loadingPromise = new Promise(function(resolve, reject) {
+        loadingPromise = new Promise(function(resolve) {
           _this.updateFieldsWithColumns(_this.config.defaultColumns);
           $('.form-group').removeClass('disabled');
           resolve();
@@ -823,7 +832,7 @@ var DynamicLists = (function() {
       } else {
         loadingPromise = _this.getDataSourceById(_this.config.dataSourceId)
           .then(function(datasource) {
-            return _this.changeCreateDsButton(datasource)
+            return _this.changeCreateDsButton(datasource);
           });
       }
 
@@ -867,6 +876,7 @@ var DynamicLists = (function() {
 
           // Select layout
           listLayout = _this.config.layout;
+          // eslint-disable-next-line no-unused-vars
           isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
@@ -887,7 +897,7 @@ var DynamicLists = (function() {
           $('[name="delete-permissions"][value="' + deletePermission + '"]').prop('checked', true).trigger('change');
 
           // Load code editor tabs
-          switch(listLayout) {
+          switch (listLayout) {
             case 'small-card':
             case 'news-feed':
             case 'simple-list':
@@ -963,7 +973,7 @@ var DynamicLists = (function() {
                 location: field.location,
                 editable: !field.paranoid,
                 helper: field.helper
-              }
+              };
 
               var foundMatch = _.find(_this.config.detailViewOptions, function(detailField) {
                 return detailField.column === item.column;
@@ -982,9 +992,9 @@ var DynamicLists = (function() {
           }
 
           if (_this.config.detailViewAutoUpdate) {
-            _.forEach(dataSourceColumns, function(column, index) {
+            _.forEach(dataSourceColumns, function(column) {
               var foundColumn = _.find(_this.config.detailViewOptions, function(item) {
-                return column === item.column
+                return column === item.column;
               });
 
               if (foundColumn) {
@@ -998,7 +1008,7 @@ var DynamicLists = (function() {
                 type: 'text',
                 fieldLabel: 'column-name',
                 editable: true
-              }
+              };
 
               _this.config.detailViewOptions.push(item);
             });
@@ -1019,7 +1029,7 @@ var DynamicLists = (function() {
                 return;
               }
 
-              _.remove(_this.config.detailViewOptions, function (option) {
+              _.remove(_this.config.detailViewOptions, function(option) {
                 return !option.paranoid && field.column === option.column;
               });
             });
@@ -1041,6 +1051,7 @@ var DynamicLists = (function() {
 
                 foundLockedFields.push(option);
                 foundLockedFieldsIndices.push(index);
+
                 return true;
               });
             });
@@ -1056,13 +1067,13 @@ var DynamicLists = (function() {
 
               // We extend the found fields with the missing defaults
               foundLockedFields = _.map(defaultLockedFields, function(field) {
-                return _.merge(field, _.find(foundLockedFields, { location : field.location }));
+                return _.merge(field, _.find(foundLockedFields, { location: field.location }));
               });
 
               // Prepend locked fields in the beginning
               _this.config.detailViewOptions = _.concat(
                 foundLockedFields,
-                _.filter(_this.config.detailViewOptions, function (option, index) {
+                _.filter(_this.config.detailViewOptions, function(option, index) {
                   return foundLockedFieldsIndices.indexOf(index) === -1;
                 })
               );
@@ -1091,8 +1102,8 @@ var DynamicLists = (function() {
                 : '');
             $('.select-photo-folder .selected-user-folder')[
               _this.config.userFolder && _this.config.userFolder.folder
-              ? 'removeClass'
-              : 'addClass']('hidden');
+                ? 'removeClass'
+                : 'addClass']('hidden');
             $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
 
             if (_this.config.social.comments) {
@@ -1127,11 +1138,10 @@ var DynamicLists = (function() {
 
           // Select layout
           listLayout = _this.config.layout;
-          isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
           // Load code editor tabs
-          switch(listLayout) {
+          switch (listLayout) {
             case 'small-card':
               $('.filter-loop-item').removeClass('hidden');
               $('.detail-view-item').removeClass('hidden');
@@ -1156,7 +1166,7 @@ var DynamicLists = (function() {
               break;
           }
 
-           // Load advanced settings
+          // Load advanced settings
           if (_this.config.advancedSettings.htmlEnabled || _this.config.advancedSettings.cssEnabled || _this.config.advancedSettings.jsEnabled) {
             resetToDefaults = true;
             $('input#enable-templates').prop('checked', _this.config.advancedSettings.htmlEnabled).trigger('change');
@@ -1169,7 +1179,7 @@ var DynamicLists = (function() {
           $('.edit-holder').removeClass('hidden');
           $('.form-group').removeClass('disabled');
 
-           // Continue
+          // Continue
           _this.setupCodeEditors(listLayout);
           _this.goToSettings('layouts');
         });
@@ -1251,6 +1261,7 @@ var DynamicLists = (function() {
       if (context === 'advanced') {
         $('.advanced-tab').removeClass('present').addClass('future');
       }
+
       if (context === 'relations') {
         $('.relations-tab').removeClass('present').addClass('future');
 
@@ -1259,6 +1270,7 @@ var DynamicLists = (function() {
 
         initDataSourceProvider(_this.config.dataSourceId);
       }
+
       if (context === 'layouts') {
         $('.settings-tab').removeClass('future').addClass('present');
       }
@@ -1317,28 +1329,28 @@ var DynamicLists = (function() {
       _this.handleTokensSelection();
       _this.loadTokenFields();
     },
-    removeFocusFromTokenInput: function () {
+    removeFocusFromTokenInput: function() {
       $('input.token-input.ui-autocomplete-input').blur();
     },
-    handleTokensSelection: function () {
-      $('input.tokenfield').on('tokenfield:createdtoken tokenfield:removedtoken', function () {
+    handleTokensSelection: function() {
+      $('input.tokenfield').on('tokenfield:createdtoken tokenfield:removedtoken', function() {
         var field = $(this);
         var currentTokens = field.tokenfield('getTokens');
         var originalSource = field.data('bs.tokenfield').options.autocomplete.source;
 
         // Remove the token from the newSource
-        var newSource = _.xorBy(originalSource, currentTokens, function (item) {
+        var newSource = _.xorBy(originalSource, currentTokens, function(item) {
           return item.label || item;
         });
 
         // Update source
-        field.data('bs.tokenfield').$input.autocomplete({source: newSource});
+        field.data('bs.tokenfield').$input.autocomplete({ source: newSource });
         _this.removeFocusFromTokenInput();
       });
 
-      $('input.tokenfield').on('tokenfield:createtoken', function (event) {
+      $('input.tokenfield').on('tokenfield:createtoken', function(event) {
         var currentTokens = $(this).tokenfield('getTokens');
-        var tokenExists = _.some(currentTokens, function (item) {
+        var tokenExists = _.some(currentTokens, function(item) {
           return item.label === event.attrs.label;
         });
 
@@ -1369,10 +1381,11 @@ var DynamicLists = (function() {
       if (dataSourceId && dataSourceId !== '') {
         return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
-        }).then(function (dataSource) {
+        }).then(function(dataSource) {
           newDataSource = dataSource;
           dataSourceColumns = dataSource.columns;
           _this.updateFieldsWithColumns(dataSourceColumns);
+
           return;
         });
       }
@@ -1381,7 +1394,7 @@ var DynamicLists = (function() {
       if (dataSourceId && dataSourceId !== '' && dataSourceId !== 'none') {
         return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
-        }).then(function (dataSource) {
+        }).then(function(dataSource) {
           newUserDataSource = dataSource;
           userDataSourceColumns = dataSource.columns;
           _this.updateUserFieldsWithColumns(userDataSourceColumns);
@@ -1398,13 +1411,15 @@ var DynamicLists = (function() {
       $('[data-field="field"]').each(function(index, obj) {
         var oldValue = $(obj).val();
         var options = [];
+
         $(obj).html('');
         $(obj).append('<option value="none">-- Select a data field</option>');
 
-        dataSourceColumns.forEach(function(value, index) {
-          options.push('<option value="'+ value +'">'+ value +'</option>');
+        dataSourceColumns.forEach(function(value) {
+          options.push('<option value="' + value + '">' + value + '</option>');
         });
         $(obj).append(options.join(''));
+
         if (oldValue && oldValue.length) {
           $(obj).val(oldValue);
         }
@@ -1412,12 +1427,14 @@ var DynamicLists = (function() {
 
       var emailOldValue = $('#select_user_email_data').val();
       var options = [];
+
       $('#select_user_email_data').html('');
       $('#select_user_email_data').append('<option value="none">-- Select a data field</option>');
-      dataSourceColumns.forEach(function(value, index) {
-        options.push('<option value="'+ value +'">'+ value +'</option>');
+      dataSourceColumns.forEach(function(value) {
+        options.push('<option value="' + value + '">' + value + '</option>');
       });
       $('#select_user_email_data').append(options.join(''));
+
       if (emailOldValue && emailOldValue.length) {
         $('#select_user_email_data').val(emailOldValue);
       }
@@ -1425,13 +1442,15 @@ var DynamicLists = (function() {
       // Summary link field
       var linkFieldValue = $('#select_field_link').val();
       var linkOptions = [];
+
       $('#select_field_link').html('');
       linkOptions.push('<option value="none">-- Select a data field</option>');
       linkOptions.push('<option disabled>------</option>');
-      dataSourceColumns.forEach(function(value, index) {
-        linkOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      dataSourceColumns.forEach(function(value) {
+        linkOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('#select_field_link').append(options.join(''));
+
       if (linkFieldValue && linkFieldValue.length) {
         $('#select_field_link').val(linkFieldValue);
       }
@@ -1451,6 +1470,7 @@ var DynamicLists = (function() {
         }));
 
         $(this).html(options.join(''));
+
         if (oldValue && oldValue.length) {
           $(this).val(oldValue);
         }
@@ -1470,6 +1490,7 @@ var DynamicLists = (function() {
         }));
 
         $(this).html(options.join(''));
+
         if (oldValue && oldValue.length) {
           $(this).val(oldValue);
         }
@@ -1478,13 +1499,15 @@ var DynamicLists = (function() {
       // Pool data field
       var poolFieldValue = $('#select_poll_data').val();
       var poolFieldOptions = [];
+
       $('#select_poll_data').html('');
       poolFieldOptions.push('<option value="none">-- Select a field</option>');
       poolFieldOptions.push('<option disabled>------</option>');
-      dataSourceColumns.forEach(function(value, index) {
-        poolFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      dataSourceColumns.forEach(function(value) {
+        poolFieldOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('#select_poll_data').append(poolFieldOptions.join(''));
+
       if (poolFieldValue && poolFieldValue.length) {
         $('#select_poll_data').val(poolFieldValue);
       } else {
@@ -1494,13 +1517,15 @@ var DynamicLists = (function() {
       // Survey data field
       var surveyFieldValue = $('#select_survey_data').val();
       var surveyFieldOptions = [];
+
       $('#select_survey_data').html('');
       surveyFieldOptions.push('<option value="none">-- Select a field</option>');
       surveyFieldOptions.push('<option disabled>------</option>');
-      dataSourceColumns.forEach(function(value, index) {
-        surveyFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      dataSourceColumns.forEach(function(value) {
+        surveyFieldOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('#select_survey_data').append(surveyFieldOptions.join(''));
+
       if (surveyFieldValue && surveyFieldValue.length) {
         $('#select_survey_data').val(surveyFieldValue);
       } else {
@@ -1510,13 +1535,15 @@ var DynamicLists = (function() {
       // Questions data field
       var questionsFieldValue = $('#select_questions_data').val();
       var questionsFieldOptions = [];
+
       $('#select_questions_data').html('');
       questionsFieldOptions.push('<option value="none">-- Select a field</option>');
       questionsFieldOptions.push('<option disabled>------</option>');
-      dataSourceColumns.forEach(function(value, index) {
-        questionsFieldOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      dataSourceColumns.forEach(function(value) {
+        questionsFieldOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('#select_questions_data').append(questionsFieldOptions.join(''));
+
       if (questionsFieldValue && questionsFieldValue.length) {
         $('#select_questions_data').val(questionsFieldValue);
       } else {
@@ -1552,8 +1579,8 @@ var DynamicLists = (function() {
       // First Name
       $('.select-user-firstname-holder select').append('<option value="none">-- Select the first name data field</option>');
       $('.select-user-firstname-holder select').append('<option disabled>------</option>');
-      userDataSourceColumns.forEach(function(value, index) {
-        fOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      userDataSourceColumns.forEach(function(value) {
+        fOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('.select-user-firstname-holder select').append(fOptions.join(''));
       $('.select-user-firstname-holder select').val(oldFirstNameValue);
@@ -1561,8 +1588,8 @@ var DynamicLists = (function() {
       // Last Name
       $('.select-user-lastname-holder select').append('<option value="none">-- Select the last name data field</option>');
       $('.select-user-lastname-holder select').append('<option disabled>------</option>');
-      userDataSourceColumns.forEach(function(value, index) {
-        lOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      userDataSourceColumns.forEach(function(value) {
+        lOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('.select-user-lastname-holder select').append(lOptions.join(''));
       $('.select-user-lastname-holder select').val(oldLastNameValue);
@@ -1570,8 +1597,8 @@ var DynamicLists = (function() {
       // Email
       $('.select-user-email-holder select').append('<option value="none">-- Select the email data field</option>');
       $('.select-user-email-holder select').append('<option disabled>------</option>');
-      userDataSourceColumns.forEach(function(value, index) {
-        eOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      userDataSourceColumns.forEach(function(value) {
+        eOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('.select-user-email-holder select').append(eOptions.join(''));
       $('.select-user-email-holder select').val(oldEmailValue);
@@ -1579,8 +1606,8 @@ var DynamicLists = (function() {
       // Photo
       $('.select-user-photo-holder select').append('<option value="none">Don\'t show user photos</option>');
       $('.select-user-photo-holder select').append('<option disabled>-- Select user photo data field</option>');
-      userDataSourceColumns.forEach(function(value, index) {
-        pOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      userDataSourceColumns.forEach(function(value) {
+        pOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('.select-user-photo-holder select').append(pOptions.join(''));
       $('.select-user-photo-holder select').val(oldPhotoValue);
@@ -1588,8 +1615,8 @@ var DynamicLists = (function() {
       // Admin
       $('.select-user-admin-holder select').append('<option value="none">-- Select the admin field</option>');
       $('.select-user-admin-holder select').append('<option disabled>------</option>');
-      userDataSourceColumns.forEach(function(value, index) {
-        aOptions.push('<option value="'+ value +'">'+ value +'</option>');
+      userDataSourceColumns.forEach(function(value) {
+        aOptions.push('<option value="' + value + '">' + value + '</option>');
       });
       $('.select-user-admin-holder select').append(aOptions.join(''));
       $('.select-user-admin-holder select').val(oldAdminValue);
@@ -1615,9 +1642,10 @@ var DynamicLists = (function() {
     },
     updateWithFoldersInfo: function(item, from) {
       item.from = from;
+
       return item;
     },
-    reloadDataSources: function(dataSourceId) {
+    reloadDataSources: function() {
       return Fliplet.DataSources.get({
         roles: 'publisher,editor',
         type: null
@@ -1631,16 +1659,19 @@ var DynamicLists = (function() {
           '<span class="select2-value-holder">' + state.text + '</span>'
         );
       }
+
       if (state.id === 'new') {
         return $(
           '<span class="select2-value-holder">' + state.text + '</span>'
         );
       }
+
       if (state.id === '------') {
         return $(
           '<span class="select2-value-holder">' + state.text + '</span>'
         );
       }
+
       if (typeof state.name === 'undefined' && typeof state.text !== 'undefined') {
         return $(
           '<span class="select2-value-holder">' + state.text + ' <small>ID: ' + state.id + '</small></span>'
@@ -1665,6 +1696,7 @@ var DynamicLists = (function() {
       var name = data.name.toLowerCase();
       var id = data.id.toString();
       var term = params.term.toLowerCase();
+
       if (name.indexOf(term) > -1 || id.indexOf(term) > -1) {
         var modifiedData = $.extend({}, data, true);
 
@@ -1699,7 +1731,7 @@ var DynamicLists = (function() {
       });
     },
     getDataSourceById: function(id) {
-      return Fliplet.DataSources.getById(id)
+      return Fliplet.DataSources.getById(id);
     },
     getDataSources: function() {
       // Load the data source
@@ -1709,7 +1741,6 @@ var DynamicLists = (function() {
       }, {
         cache: false
       }).then(function(dataSources) {
-        var options = [];
         allDataSources = dataSources;
         _this.initSelect2(allDataSources);
         _this.initSecondSelect2(allDataSources);
@@ -1720,15 +1751,17 @@ var DynamicLists = (function() {
       Fliplet.Modal.prompt({
         title: 'Please type a name for your data source:',
         value: appName + ' - ' + layoutMapping[listLayout].name
-      }).then(function (name) {
+      }).then(function(name) {
         if (name === null) {
           $dataSources.val('none').trigger('change');
+
           return;
         }
 
         if (name === '') {
           $dataSources.val('none').trigger('change');
           alert('You must enter a data source name');
+
           return;
         }
 
@@ -1745,6 +1778,7 @@ var DynamicLists = (function() {
           allDataSources.push(ds);
 
           var newOption = new Option(ds.name, ds.id, true, true);
+
           $dataSources.append(newOption).trigger('change');
           _this.config.dataSourceId = ds.id;
           _this.getColumns(ds.id);
@@ -1775,10 +1809,11 @@ var DynamicLists = (function() {
     },
     createDataSourceData: function() {
       var name = appName + ' - List - ' + layoutMapping[listLayout].name;
+
       Fliplet.Modal.prompt({
         title: 'Please type a name for your data source:',
         value: name
-      }).then(function (name) {
+      }).then(function(name) {
         if (name === null || name === '') {
           return Promise.reject();
         }
@@ -1802,12 +1837,13 @@ var DynamicLists = (function() {
       }).then(function() {
         return _this.loadData();
       })
-      .then(function() {
-        _this.saveLists(true);
-      });
+        .then(function() {
+          _this.saveLists(true);
+        });
     },
     changeCreateDsButton: function(dataSource) {
       newDataSource = dataSource;
+
       return _this.getColumns(dataSource.id)
         .then(function() {
           $('.selected-datasource span').html(dataSource.name);
@@ -1831,11 +1867,10 @@ var DynamicLists = (function() {
       }
     },
     makeid: function(length) {
-      var text = "";
-      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      var text = '';
+      var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-      for (var i = 0; i < length; i++)
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
+      for (var i = 0; i < length; i++) {text += possible.charAt(Math.floor(Math.random() * possible.length));}
 
       return text;
     },
@@ -1851,6 +1886,7 @@ var DynamicLists = (function() {
         : data.orderBy;
 
       var $newPanel = $(sortPanelTemplate(data));
+
       $sortAccordionContainer.append($newPanel);
     },
     addFilterItem: function(data) {
@@ -1862,6 +1898,7 @@ var DynamicLists = (function() {
         : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
+
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
@@ -1872,15 +1909,19 @@ var DynamicLists = (function() {
     addSummaryItem: function(data) {
       data.date = moment().format('MMM Do YYYY');
       data.time = moment().format('h:mm A');
+
       var $newPanel = $(summaryRowTemplate(data));
+
       $summaryRowContainer.append($newPanel);
     },
     addDetailItem: function(data) {
       data.date = moment().format('MMM Do YYYY');
+
       var $newPanel = $(detailsRowTemplate(data));
+
       $detailsRowContainer.append($newPanel);
     },
-    initializeDetailViewSortable: function () {
+    initializeDetailViewSortable: function() {
       $detailsRowContainer.sortable({
         items: '.rTableRow.editable',
         handle: '.reorder-handle',
@@ -1899,17 +1940,17 @@ var DynamicLists = (function() {
 
           ui.item.parents('.detail-table-panels-holder').removeClass('sorting');
           _this.config.detailViewOptions = _.concat.apply(this, _(_this.config.detailViewOptions)
-            .partition(function (option) {
+            .partition(function(option) {
               return !option.editable;
             })
-            .map(function (items, i) {
+            .map(function(items, i) {
               if (i === 0) {
                 // Keep non-editable items as is
                 return items;
               }
 
               // Sort editable items by sorted IDs
-              return _.sortBy(items, function (item) {
+              return _.sortBy(items, function(item) {
                 return sortedIds.indexOf(item.id.toString());
               });
             })
@@ -1919,72 +1960,60 @@ var DynamicLists = (function() {
     },
     initializeSortSortable: function() {
       $('#sort-accordion').sortable({
-        handle: ".panel-heading",
-        cancel: ".icon-delete",
+        handle: '.panel-heading',
+        cancel: '.icon-delete',
         tolerance: 'pointer',
         placeholder: 'panel panel-default placeholder tile',
         cursor: '-webkit-grabbing; -moz-grabbing;',
         axis: 'y',
         start: function(event, ui) {
-          var itemId = $(ui.item).data('id');
-
           $('.panel-collapse.in').collapse('hide');
           ui.item.addClass('focus').css('height', ui.helper.find('.panel-heading').outerHeight() + 2);
           $('.panel').not(ui.item).addClass('faded');
         },
         stop: function(event, ui) {
-          var itemId = $(ui.item).data('id');
-          var movedItem = _.find(_this.config.sortOptions, function(item) {
-            return item.id === itemId;
-          });
-
           ui.item.removeClass('focus');
 
-          var sortedIds = $("#sort-accordion").sortable("toArray", {
+          var sortedIds = $('#sort-accordion').sortable('toArray', {
             attribute: 'data-id'
           });
+
           _this.config.sortOptions = _.sortBy(_this.config.sortOptions, function(item) {
             return sortedIds.indexOf(item.id);
           });
           $('.panel').not(ui.item).removeClass('faded');
         },
-        sort: function(event, ui) {
+        sort: function() {
           $('#sort-accordion').sortable('refresh');
         }
       });
     },
     initializeFilterSortable: function() {
       $('#filter-accordion').sortable({
-        handle: ".panel-heading",
-        cancel: ".icon-delete",
+        handle: '.panel-heading',
+        cancel: '.icon-delete',
         tolerance: 'pointer',
         placeholder: 'panel panel-default placeholder tile',
         cursor: '-webkit-grabbing; -moz-grabbing;',
         axis: 'y',
         start: function(event, ui) {
-          var itemId = $(ui.item).data('id');
-
           $('.panel-collapse.in').collapse('hide');
           ui.item.addClass('focus').css('height', ui.helper.find('.panel-heading').outerHeight() + 2);
           $('.panel').not(ui.item).addClass('faded');
         },
         stop: function(event, ui) {
-          var itemId = $(ui.item).data('id');
-          var movedItem = _.find(_this.config.filterOptions, function(item) {
-            return item.id === itemId;
-          });
-
           ui.item.removeClass('focus');
 
-          var sortedIds = $("#filter-accordion").sortable("toArray", {
+          var sortedIds = $('#filter-accordion').sortable('toArray', {
             attribute: 'data-id'
           });
+
           _this.config.filterOptions = _.sortBy(_this.config.filterOptions, function(item) {
             return sortedIds.indexOf(item.id);
           });
           $('.panel').not(ui.item).removeClass('faded');
         },
-        sort: function(event, ui) {
+        sort: function() {
           $('#filter-accordion').sortable('refresh');
         }
       });
@@ -1993,139 +2022,151 @@ var DynamicLists = (function() {
       return {
         from: editor.getCursor(true),
         to: editor.getCursor(false)
-      }
+      };
     },
     autoFormatSelection: function(editor) {
       if (editor && typeof editor === 'boolean') {
         if (baseTemplateEditor) {
-          var totalLinesBaseTemplateEditor = baseTemplateEditor.lineCount()
-          var totalCharsBaseTemplateEditor = baseTemplateEditor.getTextArea().value.length
+          var totalLinesBaseTemplateEditor = baseTemplateEditor.lineCount();
+          var totalCharsBaseTemplateEditor = baseTemplateEditor.getTextArea().value.length;
+
           baseTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesBaseTemplateEditor, ch: totalCharsBaseTemplateEditor }
-          )
+          );
           // Remove selection
           baseTemplateEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
 
         if (loopTemplateEditor) {
-          var totalLinesLoopTemplateEditor = loopTemplateEditor.lineCount()
-          var totalCharsLoopTemplateEditor = loopTemplateEditor.getTextArea().value.length
+          var totalLinesLoopTemplateEditor = loopTemplateEditor.lineCount();
+          var totalCharsLoopTemplateEditor = loopTemplateEditor.getTextArea().value.length;
+
           loopTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesLoopTemplateEditor, ch: totalCharsLoopTemplateEditor }
-          )
+          );
           // Remove selection
           loopTemplateEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
 
         if (searchResultsTemplateEditor) {
-          var totalLinesSearchResultsTemplateEditor = searchResultsTemplateEditor.lineCount()
-          var totalCharsSearchResultsTemplateEditor = searchResultsTemplateEditor.getTextArea().value.length
+          var totalLinesSearchResultsTemplateEditor = searchResultsTemplateEditor.lineCount();
+          var totalCharsSearchResultsTemplateEditor = searchResultsTemplateEditor.getTextArea().value.length;
+
           searchResultsTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesSearchResultsTemplateEditor, ch: totalCharsSearchResultsTemplateEditor }
-          )
+          );
           // Remove selection
           searchResultsTemplateEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
 
         if (detailTemplateEditor) {
-          var totalLinesDetailTemplateEditor = detailTemplateEditor.lineCount()
-          var totalCharsDetailTemplateEditor = detailTemplateEditor.getTextArea().value.length
+          var totalLinesDetailTemplateEditor = detailTemplateEditor.lineCount();
+          var totalCharsDetailTemplateEditor = detailTemplateEditor.getTextArea().value.length;
+
           detailTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesDetailTemplateEditor, ch: totalCharsDetailTemplateEditor }
-          )
+          );
           // Remove selection
           detailTemplateEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
 
         if (filterLoopTemplateEditor) {
-          var totalLinesFilterLoopTemplateEditor = filterLoopTemplateEditor.lineCount()
-          var totalCharsFilterLoopTemplateEditor = filterLoopTemplateEditor.getTextArea().value.length
+          var totalLinesFilterLoopTemplateEditor = filterLoopTemplateEditor.lineCount();
+          var totalCharsFilterLoopTemplateEditor = filterLoopTemplateEditor.getTextArea().value.length;
+
           filterLoopTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesFilterLoopTemplateEditor, ch: totalCharsFilterLoopTemplateEditor }
-          )
+          );
           // Remove selection
           filterLoopTemplateEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
 
         if (otherLoopTemplateEditor) {
-          var totalLinesOtherLoopTemplateEditor = otherLoopTemplateEditor.lineCount()
-          var totalCharsOtherLoopTemplateEditor = otherLoopTemplateEditor.getTextArea().value.length
+          var totalLinesOtherLoopTemplateEditor = otherLoopTemplateEditor.lineCount();
+          var totalCharsOtherLoopTemplateEditor = otherLoopTemplateEditor.getTextArea().value.length;
+
           otherLoopTemplateEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesOtherLoopTemplateEditor, ch: totalCharsOtherLoopTemplateEditor }
-          )
+          );
           // Remove selection
           otherLoopTemplateEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
 
         if (cssStyleEditor) {
-          var totalLinesCssStyleEditor = cssStyleEditor.lineCount()
-          var totalCharsCssStyleEditor = cssStyleEditor.getTextArea().value.length
+          var totalLinesCssStyleEditor = cssStyleEditor.lineCount();
+          var totalCharsCssStyleEditor = cssStyleEditor.getTextArea().value.length;
+
           cssStyleEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesCssStyleEditor, ch: totalCharsCssStyleEditor }
-          )
+          );
           // Remove selection
           cssStyleEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
 
         if (javascriptEditor) {
-          var totalLinesJavascriptEditor = javascriptEditor.lineCount()
-          var totalCharsJavascriptEditor = javascriptEditor.getTextArea().value.length
+          var totalLinesJavascriptEditor = javascriptEditor.lineCount();
+          var totalCharsJavascriptEditor = javascriptEditor.getTextArea().value.length;
+
           javascriptEditor.autoFormatRange(
             { line: 0, ch: 0 },
             { line: totalLinesJavascriptEditor, ch: totalCharsJavascriptEditor }
-          )
+          );
           // Remove selection
           javascriptEditor.setSelection(
             { line: 0, ch: 0 },
             { line: 0, ch: 0 }
-          )
+          );
         }
-        return
+
+        return;
       }
 
-      const range = _this.getSelectedRange(editor)
-      editor.autoFormatRange(range.from, range.to)
+      var range = _this.getSelectedRange(editor);
+
+      editor.autoFormatRange(range.from, range.to);
       // Remove selection
       editor.setSelection(
         { line: 0, ch: 0 },
         { line: 0, ch: 0 }
-      )
+      );
     },
     commentSelection: function(editor) {
-      var range = _this.getSelectedRange(editor)
-      editor.commentRange(true, range.from, range.to)
+      var range = _this.getSelectedRange(editor);
+
+      editor.commentRange(true, range.from, range.to);
     },
     removeCommentSelection: function(editor) {
-      var range = _this.getSelectedRange(editor)
-      editor.commentRange(false, range.from, range.to)
+      var range = _this.getSelectedRange(editor);
+
+      editor.commentRange(false, range.from, range.to);
     },
     codeMirrorConfig: function(mode) {
       return {
@@ -2147,7 +2188,7 @@ var DynamicLists = (function() {
           'Ctrl-/': _this.commentSelection,
           'Ctrl-;': _this.removeCommentSelection
         }
-      }
+      };
     },
     getCodeEditorData: function(selectedLayout, fromReset) {
       var basePromise = new Promise(function(resolve) {
@@ -2181,24 +2222,6 @@ var DynamicLists = (function() {
           loopTemplateCode = loopTemplateCompiler();
         } else {
           loopTemplateCode = '';
-        }
-
-        resolve();
-      });
-
-      var searchResultsPromise = new Promise(function(resolve) {
-        var searchResultsTemplateCompiler;
-
-        if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout]['search-results']) {
-          searchResultsTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout]['search-results']];
-        }
-
-        if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.searchResultsHTML !== 'undefined') {
-          searchResultsTemplateCode = !fromReset ? _this.config.advancedSettings.searchResultsHTML : searchResultsTemplateEditor.getValue();
-        } else if (typeof searchResultsTemplateCompiler !== 'undefined') {
-          searchResultsTemplateCode = searchResultsTemplateCompiler();
-        } else {
-          searchResultsTemplateCode = '';
         }
 
         resolve();
@@ -2264,6 +2287,7 @@ var DynamicLists = (function() {
         var cssUrl = $('[data-' + layoutMapping[selectedLayout].css + '-css-url]').data(layoutMapping[selectedLayout].css + '-css-url');
         var cssPromise = Fliplet.API.request('v1/communicate/proxy/' + cssUrl).then(function(response) {
           cssCode = response;
+
           return;
         });
       }
@@ -2449,7 +2473,7 @@ var DynamicLists = (function() {
       Fliplet.Modal.confirm({
         title: 'Reset to default',
         message: '<p>You will lose all the changes you made.<p>Are you sure you want to continue?</p>'
-      }).then(function (result) {
+      }).then(function(result) {
         if (!result) {
           return;
         }
@@ -2457,12 +2481,13 @@ var DynamicLists = (function() {
         resetToDefaults = true;
         // Uncheck checkbox
         $('input#' + id).prop('checked', false).trigger('change');
+
         // Reset settings
         if (id === 'enable-templates') {
           _this.config.advancedSettings.baseHTML = undefined;
           _this.config.advancedSettings.loopHTML = undefined;
 
-          switch(listLayout) {
+          switch (listLayout) {
             case 'small-card':
               _this.config.advancedSettings.filterHTML = undefined;
               _this.config.advancedSettings.detailHTML = undefined;
@@ -2490,14 +2515,17 @@ var DynamicLists = (function() {
 
           _this.config.advancedSettings.htmlEnabled = false;
         }
+
         if (id === 'enable-css') {
           _this.config.advancedSettings.cssCode = undefined;
           _this.config.advancedSettings.cssEnabled = false;
         }
+
         if (id === 'enable-javascript') {
           _this.config.advancedSettings.jsCode = undefined;
           _this.config.advancedSettings.jsEnabled = false;
         }
+
         // Update codeeditor
         _this.setupCodeEditors(listLayout, true);
         resetToDefaults = false;
@@ -2508,6 +2536,7 @@ var DynamicLists = (function() {
       var bookmarksPromise;
       var commentsPromise;
       var data = _this.config;
+
       data.advancedSettings = {};
 
       data.layout = listLayout;
@@ -2561,6 +2590,7 @@ var DynamicLists = (function() {
 
         if (item.type !== 'image') {
           delete item.folder;
+
           return;
         }
 
@@ -2592,6 +2622,7 @@ var DynamicLists = (function() {
 
         if (item.type !== 'image') {
           delete item.folder;
+
           return;
         }
 
@@ -2602,22 +2633,23 @@ var DynamicLists = (function() {
         }
       });
 
-      data.detailViewAutoUpdate = $('input#enable-auto-update').is(":checked");
+      data.detailViewAutoUpdate = $('input#enable-auto-update').is(':checked');
 
       // Get search and filter
-      data.searchEnabled = $('#enable-search').is(":checked");
-      data.filtersEnabled = $('#enable-filters').is(":checked");
-      data.sortEnabled = $('#enable-sort').is(":checked");
+      data.searchEnabled = $('#enable-search').is(':checked');
+      data.filtersEnabled = $('#enable-filters').is(':checked');
+      data.sortEnabled = $('#enable-sort').is(':checked');
       data.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined' ?
-        $('#search-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
+        $('#search-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
       data.sortFields = typeof $('#sort-column-fields-tokenfield').val() !== 'undefined' ?
-        $('#sort-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
+        $('#sort-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
       data.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
-        $('#filter-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
-      data.filtersInOverlay = $('#enable-filter-overlay').is(":checked");
+        $('#filter-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      data.filtersInOverlay = $('#enable-filter-overlay').is(':checked');
 
       // Number of list items
       var limit = $('#items-number').val().trim();
+
       if (limit && limit.length && /^\d+$/.test(limit)) {
         data.enabledLimitEntries = true;
         data.limitEntries = parseInt(limit, 10);
@@ -2627,16 +2659,16 @@ var DynamicLists = (function() {
       }
 
       // Advanced Settings
-      var advancedInUse;
-      data.advancedSettings.htmlEnabled = $('input#enable-templates').is(":checked");
-      data.advancedSettings.cssEnabled = $('input#enable-css').is(":checked");
-      data.advancedSettings.jsEnabled = $('input#enable-javascript').is(":checked");
+
+      data.advancedSettings.htmlEnabled = $('input#enable-templates').is(':checked');
+      data.advancedSettings.cssEnabled = $('input#enable-css').is(':checked');
+      data.advancedSettings.jsEnabled = $('input#enable-javascript').is(':checked');
 
       if (data.advancedSettings.htmlEnabled) {
         data.advancedSettings.loopHTML = loopTemplateEditor.getValue();
         data.advancedSettings.baseHTML = baseTemplateEditor.getValue();
 
-        switch(listLayout) {
+        switch (listLayout) {
           case 'small-card':
           case 'news-feed':
           case 'simple-list':
@@ -2666,9 +2698,9 @@ var DynamicLists = (function() {
       }
 
       // Get agenda feature
-      _this.config.pollEnabled = $('#enable-poll').is(":checked");
-      _this.config.surveyEnabled = $('#enable-survey').is(":checked");
-      _this.config.questionsEnabled = $('#enable-questions').is(":checked");
+      _this.config.pollEnabled = $('#enable-poll').is(':checked');
+      _this.config.surveyEnabled = $('#enable-survey').is(':checked');
+      _this.config.questionsEnabled = $('#enable-questions').is(':checked');
       _this.config.pollColumn = $('#select_poll_data').val();
       _this.config.surveyColumn = $('#select_survey_data').val();
       _this.config.questionsColumn = $('#select_questions_data').val();
@@ -2676,15 +2708,15 @@ var DynamicLists = (function() {
       _this.config.agendaButtonsEnabled = _this.config.pollEnabled || _this.config.surveyEnabled || _this.config.questionsEnabled;
 
       // Get social feature
-      _this.config.social.bookmark = $('#enable-bookmarks').is(":checked");
-      _this.config.social.comments = $('#enable-comments').is(":checked");
-      _this.config.social.likes = $('#enable-likes').is(":checked");
+      _this.config.social.bookmark = $('#enable-bookmarks').is(':checked');
+      _this.config.social.comments = $('#enable-comments').is(':checked');
+      _this.config.social.likes = $('#enable-likes').is(':checked');
 
       data.social = _this.config.social;
 
       data.userDataSourceId = _this.config.userDataSourceId;
       data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
-      $('#user-name-column-fields-tokenfield').val().split(',').map(function(x){ return x.trim(); }) : [];
+        $('#user-name-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
       data.userEmailColumn = $('#select_user_email').val();
       data.userPhotoColumn = $('#select_user_photo').val();
       data.userFolderOption = $('#select_user_folder_type').val();
@@ -2708,6 +2740,7 @@ var DynamicLists = (function() {
       } else if (!_this.config.social.likes && _this.config.likesDataSourceId) {
         _this.config.likesDataSourceId = '';
       }
+
       if (_this.config.social.bookmark && (!_this.config.bookmarkDataSourceId || _this.config.bookmarkDataSourceId === '')) {
         // Create bookmarks data source
         bookmarksPromise = Fliplet.DataSources.create({
@@ -2755,6 +2788,7 @@ var DynamicLists = (function() {
       } else if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
         _this.config.bookmarkDataSourceId = '';
       }
+
       if (_this.config.social.comments && (!_this.config.commentsDataSourceId || _this.config.commentsDataSourceId === '')) {
         // Create likes data source
         commentsPromise = Fliplet.DataSources.create({
@@ -2764,7 +2798,7 @@ var DynamicLists = (function() {
           accessRules: [
             { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
           ]
-        }).then(function (dataSource) {
+        }).then(function(dataSource) {
           _this.config.commentsDataSourceId = dataSource.id;
         });
       } else if (!_this.config.social.comments && _this.config.commentsDataSourceId) {
@@ -2773,12 +2807,13 @@ var DynamicLists = (function() {
 
       // Add, edit, delete options
       var profileValues = [];
+
       $('[name="list-control"]:checked').each(function() {
         profileValues.push($(this).val());
       });
-      data.addEntry = profileValues.indexOf('add-entry') !== -1
-      data.editEntry = profileValues.indexOf('edit-entry') !== -1
-      data.deleteEntry = profileValues.indexOf('delete-entry') !== -1
+      data.addEntry = profileValues.indexOf('add-entry') !== -1;
+      data.editEntry = profileValues.indexOf('edit-entry') !== -1;
+      data.deleteEntry = profileValues.indexOf('delete-entry') !== -1;
 
       data.addPermissions = $('[name="add-permissions"]:checked').val();
       data.editPermissions = $('[name="edit-permissions"]:checked').val();
@@ -2789,7 +2824,7 @@ var DynamicLists = (function() {
           .then(function() {
             _this.config = data;
 
-            Fliplet.Widget.save(_this.config).then(function () {
+            Fliplet.Widget.save(_this.config).then(function() {
               Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
             });
 
@@ -2798,6 +2833,7 @@ var DynamicLists = (function() {
       }
 
       _this.config = data;
+
       return Promise.all([likesPromise, bookmarksPromise, commentsPromise]);
     }
   };
