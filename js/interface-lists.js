@@ -445,7 +445,7 @@ function attahObservers() {
           widgetData.filterOptions.forEach(function(item) {
             values.push({
               field: '#value-field-' + item.id,
-              value: item.valueForValue,
+              value: item.fieldValue,
             })
           })
 
