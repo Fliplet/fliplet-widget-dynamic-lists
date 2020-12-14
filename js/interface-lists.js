@@ -114,10 +114,6 @@ function initUserFilePickerProvider(userFolder) {
     userFolder.folder.selectFiles = data.data.length ? data.data : [];
     widgetData.userFolder = userFolder;
 
-    var itemProvider = _.find(filePickerPromises, { id: userFolder.folder.provId });
-
-    // eslint-disable-next-line no-unused-vars
-    itemProvider = null;
     _.remove(filePickerPromises, { id: userFolder.folder.provId });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
@@ -189,10 +185,6 @@ function initFilePickerProvider(field) {
       });
     }
 
-    var itemProvider = _.find(filePickerPromises, { id: field.folder.provId });
-
-    // eslint-disable-next-line no-unused-vars
-    itemProvider = null;
     _.remove(filePickerPromises, { id: field.folder.provId });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
@@ -458,9 +450,6 @@ function attahObservers() {
         var values = [];
 
         if (widgetData.social && widgetData.social.comments) {
-          errors = [];
-          values = [];
-
           values.push({
             value: widgetData.userDataSourceId,
             field: '#select_user_datasource'
@@ -521,9 +510,6 @@ function attahObservers() {
         }
 
         if (widgetData.pollEnabled && widgetData.pollColumn) {
-          errors = [];
-          values = [];
-
           values.push({
             value: widgetData.pollColumn,
             field: '#select_poll_data'
@@ -557,9 +543,6 @@ function attahObservers() {
         }
 
         if (widgetData.surveyEnabled && widgetData.surveyColumn) {
-          errors = [];
-          values = [];
-
           values.push({
             value: widgetData.surveyColumn,
             field: '#select_survey_data'
@@ -593,9 +576,6 @@ function attahObservers() {
         }
 
         if (widgetData.questionsEnabled && widgetData.questionsColumn) {
-          errors = [];
-          values = [];
-
           values.push({
             value: widgetData.questionsColumn,
             field: '#select_questions_data'
