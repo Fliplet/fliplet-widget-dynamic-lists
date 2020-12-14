@@ -110,12 +110,16 @@ var DynamicLists = (function() {
       selector: '#dataSourceProvider',
       data: dataSourceData,
       onEvent: function(event, dataSource) {
-        if (event === 'dataSourceSelect' && dataSource.columns) {
-          dataSourceColumns = dataSource.columns;
-          _this.updateSummaryRowContainer();
-          _this.updateDetailsRowContainer();
-          _this.renderSortColumns();
-          _this.renderFilterColumns();
+        if (event === 'dataSourceSelect') {
+          _this.config.dataSourceId = dataSource.id;
+
+          if (dataSource.columns) {
+            dataSourceColumns = dataSource.columns;
+            _this.updateSummaryRowContainer();
+            _this.updateDetailsRowContainer();
+            _this.renderSortColumns();
+            _this.renderFilterColumns();
+          }
         }
       }
     });
