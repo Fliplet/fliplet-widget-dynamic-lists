@@ -1,5 +1,5 @@
 // Constructor
-function DynamicList(id, data, container) {
+function DynamicList(id, data) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
@@ -27,7 +27,7 @@ function DynamicList(id, data, container) {
   this.myUserData = {};
 
   this.listItems;
-  this.modifiedListItems
+  this.modifiedListItems;
   this.dataSourceColumns;
   this.directoryDetailWrapper;
 
@@ -53,13 +53,13 @@ function DynamicList(id, data, container) {
     }
 
     if (_.get(session, 'entries.dataSource.data')) {
-       _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+      _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
     _this.initialize();
   });
-};
+}
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
@@ -67,7 +67,7 @@ DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
   // Attach your event listeners here
-  Fliplet.Hooks.on('beforePageView', function (options) {
+  Fliplet.Hooks.on('beforePageView', function(options) {
     if (options.addToHistory === false) {
       _this.closeDetails();
     }
@@ -76,7 +76,8 @@ DynamicList.prototype.attachObservers = function() {
   _this.$container
     .on('click', '.small-h-card-list-detail-button a', function() {
       var _that = $(this);
-       Fliplet.Analytics.trackEvent({
+
+      Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'profile_buttons',
         label: _that.find('.small-h-card-list-detail-button-text').text().trim()
@@ -84,6 +85,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('touchstart', '.small-h-card-list-item', function(event) {
       event.stopPropagation();
+
       if (!$(this).hasClass('open')) {
         $(this).addClass('hover');
       }
@@ -119,7 +121,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
 
-      beforeOpen.then(function () {
+      beforeOpen.then(function() {
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
@@ -175,9 +177,9 @@ DynamicList.prototype.attachObservers = function() {
           result = Promise.resolve();
         }
 
-        return result.then(function () {
+        return result.then(function() {
           return Fliplet.Navigate.back();
-        }).catch(function (error) {
+        }).catch(function(error) {
           console.error(error);
         });
       }
@@ -205,8 +207,9 @@ DynamicList.prototype.attachObservers = function() {
       if (!_.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
+          message: 'Form not found. Please check the component\'s configuration.'
         });
+
         return;
       }
 
@@ -230,7 +233,6 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-edit-item', function() {
-
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -238,8 +240,9 @@ DynamicList.prototype.attachObservers = function() {
       if (!_.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
+          message: 'Form not found. Please check the component\'s configuration.'
         });
+
         return;
       }
 
@@ -265,7 +268,6 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
-
       var _that = $(this);
       var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
@@ -273,7 +275,7 @@ DynamicList.prototype.attachObservers = function() {
         labels: [
           {
             label: 'Delete',
-            action: function (i) {
+            action: function() {
               _that.text('Deleting...').addClass('disabled');
 
               // Run Hook
@@ -305,6 +307,7 @@ DynamicList.prototype.attachObservers = function() {
                   } else {
                     _this.closeDetails();
                   }
+
                   _this.addSummaryData(_this.listItems);
                   _this.renderLoopHTML();
                 })
@@ -317,7 +320,7 @@ DynamicList.prototype.attachObservers = function() {
           }
         ],
         cancel: true
-      }
+      };
 
       Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
         instance: _this,
@@ -330,17 +333,17 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     });
-}
+};
 
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
-  return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
+  return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function(connection) {
     return connection.removeById(entryID, { ack: true });
-  }).then(function () {
+  }).then(function() {
     return Promise.resolve(entryID);
   });
-}
+};
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
@@ -350,16 +353,17 @@ DynamicList.prototype.initialize = function() {
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
   if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
-  };
+  }
 
   // Check if there is a query or PV for search/filter queries
   return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
+
       return _this.connectToDataSource();
     })
-    .then(function (records) {
+    .then(function(records) {
       _this.Utils.Records.addComputedFields({
         records: records,
         config: _this.data
@@ -372,7 +376,7 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
-      }).then(function () {
+      }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
         }
@@ -384,7 +388,7 @@ DynamicList.prototype.initialize = function() {
         });
       });
     })
-    .then(function (records) {
+    .then(function(records) {
       records = _this.getPermissions(records);
 
       // Get user profile
@@ -406,7 +410,7 @@ DynamicList.prototype.initialize = function() {
         return Promise.resolve();
       }
 
-      return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function (columns) {
+      return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function(columns) {
         _this.dataSourceColumns = columns;
       });
     })
@@ -417,22 +421,23 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, function (item) {
+      _this.listItems = _.uniqBy(response, function(item) {
         return item.id;
       });
 
       // Render Loop HTML
       _this.checkIsToOpen();
       _this.modifiedListItems = _this.addSummaryData(_this.listItems);
-      _this.renderLoopHTML().then(function(){
+      _this.renderLoopHTML().then(function() {
         // Update selected highlight size in Edit
         Fliplet.Widget.updateHighlightDimensions(_this.data.id);
 
         _this.attachObservers();
       });
+
       return;
     });
-}
+};
 
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
@@ -452,15 +457,16 @@ DynamicList.prototype.checkIsToOpen = function() {
 
   if (!entry) {
     Fliplet.UI.Toast('Entry not found');
+
     return;
   }
 
   var modifiedData = _this.addSummaryData([entry]);
 
-  _this.showDetails(entry.id, modifiedData).then(function () {
+  _this.showDetails(entry.id, modifiedData).then(function() {
     _this.openedEntryOnQuery = true;
   });
-}
+};
 
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
@@ -474,6 +480,7 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       if (typeof value === 'undefined') {
         Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+
         return;
       }
 
@@ -498,20 +505,21 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       return;
     });
-}
+};
 
 DynamicList.prototype.connectToDataSource = function() {
   var _this = this;
   var cache = { offline: true };
 
-  function getData (options) {
+  function getData(options) {
     if (_this.data.defaultData && !_this.data.dataSourceId) {
       return Promise.resolve(_this.data.defaultEntries);
     }
 
     options = options || cache;
+
     return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
-      .then(function (connection) {
+      .then(function(connection) {
         // If you want to do specific queries to return your rows
         // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
         var query = {};
@@ -539,6 +547,7 @@ DynamicList.prototype.connectToDataSource = function() {
     container: _this.$container
   }).then(function() {
     if (_this.data.getData) {
+      // eslint-disable-next-line no-func-assign
       getData = _this.data.getData;
 
       if (_this.data.hasOwnProperty('cache')) {
@@ -547,12 +556,12 @@ DynamicList.prototype.connectToDataSource = function() {
     }
 
     return getData(cache);
-  }).catch(function (error) {
+  }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
       message: 'Error loading data'
     });
   });
-}
+};
 
 DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
@@ -573,7 +582,7 @@ DynamicList.prototype.renderBaseHTML = function() {
     : Handlebars.compile(baseHTML());
 
   _this.$container.html(template(data));
-}
+};
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
@@ -604,9 +613,9 @@ DynamicList.prototype.addSummaryData = function(records) {
   });
 
   return loopData;
-}
+};
 
-DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
+DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
@@ -622,22 +631,26 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
     instance: _this,
     records: data,
     config: _this.data
-  }).then(function () {
-    return new Promise(function (resolve) {
+  }).then(function() {
+    return new Promise(function(resolve) {
       function render() {
         // get the next batch of items to render
         var nextBatch = data.slice(
           renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
           renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
         );
+
         if (nextBatch.length) {
           $('#small-h-card-list-wrapper-' + _this.data.id).append(template(nextBatch));
-          if (iterateeCb && typeof iterateeCb === 'function'){
-            if (renderLoopIndex === 0){
+
+          if (iterateeCb && typeof iterateeCb === 'function') {
+            if (renderLoopIndex === 0) {
               _this.$container.find('.new-small-h-card-list-container').addClass('ready');
             }
+
             iterateeCb(renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE, renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE);
           }
+
           renderLoopIndex++;
           // if the browser is ready, render
           requestAnimationFrame(render);
@@ -662,26 +675,27 @@ DynamicList.prototype.renderLoopHTML = function (iterateeCb) {
       requestAnimationFrame(render);
     });
   });
-}
+};
 
 DynamicList.prototype.getAddPermission = function(data) {
   data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
+
   return data;
-}
+};
 
 DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function (entry) {
+  _.forEach(entries, function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
 
   return entries;
-}
+};
 
-DynamicList.prototype.addDetailViewData = function (entry) {
+DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
@@ -722,9 +736,11 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
       label = dynamicDataObj.column;
     }
+
     if (dynamicDataObj.fieldLabel === 'custom-label') {
       label = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customFieldLabel)(entry.originalData));
     }
+
     if (dynamicDataObj.fieldLabel === 'no-label') {
       labelEnabled = false;
     }
@@ -768,7 +784,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
   return entry;
 };
 
-DynamicList.prototype.showDetails = function (id, listData) {
+DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
   var entryData = _.find(listData || _this.modifiedListItems, { id: id });
@@ -799,8 +815,9 @@ DynamicList.prototype.showDetails = function (id, listData) {
     }
   }
 
-  return beforeShowDetails.then(function (data) {
+  return beforeShowDetails.then(function(data) {
     data = data || {};
+
     var template = Handlebars.compile(data.src || src);
     var wrapperTemplate = Handlebars.compile(wrapper);
 
@@ -827,16 +844,17 @@ DynamicList.prototype.showDetails = function (id, listData) {
         _this.data.afterShowDetails({
           config: _this.data,
           src: data.src || src,
-          data: data.data || entryData,
+          data: data.data || entryData
         });
       }
     }, 0);
   });
-}
+};
 
 DynamicList.prototype.closeDetails = function() {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
+
     return Fliplet.Navigate.back();
   }
 
@@ -858,7 +876,7 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
   }, 300);
-}
+};
 
 DynamicList.prototype.expandElement = function(elementToExpand, id) {
   // Function called when a list item is tapped to expand
@@ -869,7 +887,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
     elementToExpand.parents('.panel-group').addClass('remove-transform');
   }
 
-  //check to see if element is already expanded
+  // check to see if element is already expanded
   if (!elementToExpand.hasClass('open')) {
     // freeze the current scroll position of the background content
     $('body').addClass('lock');
@@ -895,7 +913,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
       'width': elementToExpand.width(),
       'max-width': expandWidth,
       'position': 'fixed',
-      'z-index': 1010,
+      'z-index': 1010
     });
 
     elementToExpand.animate({
@@ -933,7 +951,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id) {
       height: '70vh'
     }, 200, 'linear');
   }
-}
+};
 
 DynamicList.prototype.collapseElement = function(elementToCollapse) {
   // Function called when a list item is tapped to close
@@ -970,7 +988,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
       'top': 0,
       'left': 0,
       'height': '100%',
-      'width': '100%',
+      'width': '100%'
     });
   });
 
@@ -982,7 +1000,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
     height: targetCollapseHeight
   }, 200, 'linear',
   function() {
-    elementToCollapse.css({ height: '100%', });
+    elementToCollapse.css({ height: '100%' });
     _this.closeDetails();
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
@@ -995,4 +1013,4 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   elementToCollapse.removeClass('open');
   elementToCollapse.parents('.small-h-card-list-item').removeClass('open');
   elementToCollapse.find('.small-h-card-list-detail-content-scroll-wrapper').removeClass('open');
-}
+};
