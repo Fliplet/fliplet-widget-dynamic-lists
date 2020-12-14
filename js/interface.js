@@ -9,6 +9,7 @@ var DynamicLists = (function() {
   var listLayout;
   var isLayoutSelected = false;
   var allDataSources = [];
+  var sourceValue;
   var newDataSource;
   var newUserDataSource;
   var dataSourceColumns;
@@ -734,7 +735,7 @@ var DynamicLists = (function() {
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
         $('#value-type-field-' + item.id).val(item.valueType);
-        $('#value-field-' + item.id).val(item.value);
+        $('#value-field-' + item.id).val(item.fieldValue);
       });
     },
     renderSortColumns: function() {
@@ -784,6 +785,39 @@ var DynamicLists = (function() {
           _this.initializeSortSortable();
           _this.initializeDetailViewSortable();
         });
+    },
+    setSourceValue: function(data) {
+      var result;
+      result = Fliplet.User.getCachedSession()
+        .then(function(session) {
+          if (session && session.entries) {
+            if (session.entries.dataSource) {
+              return session.entries.dataSource.data[data.key];
+            }
+
+            if (session.entries.saml2) {
+              return session.entries.saml2.data[data.key];
+            }
+
+            if (session.entries.flipletLogin) {
+              return session.entries.flipletLogin.data[data.key];
+            }
+          }
+
+          return Fliplet.Profile.get(data.key);
+        })
+
+      if (!(result instanceof Promise)) {
+        result = Promise.resolve(result);
+      }
+
+      return result.then(function (value) {
+        if (typeof value === 'undefined') {
+          value = '';
+        }
+
+        return value;
+      })
     },
     loadData: function() {
       if (!_this.config.layout) {
@@ -2525,10 +2559,18 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
         item.valueType = $('#value-type-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+
+        if (item.valueType !== 'enter-value') {
+          _this.setSourceValue({ key: item.fieldValue }).then(function(value) {
+            item.value = value;
+          })
+        } else {
+          item.value = item.fieldValue;
+        }
 
         if (item.logic === 'empty' || item.logic === 'notempty') {
           item.valueType = null;
