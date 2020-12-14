@@ -453,9 +453,9 @@ function attahObservers() {
           widgetData.filterOptions.forEach(function(item) {
             filterFieldValues.push({
               field: '#value-field-' + item.id,
-              value: item.fieldValue,
-            })
-          })
+              value: item.fieldValue
+            });
+          });
 
           filterFieldValues.forEach(function(field) {
             if (!validate(field.value)) {
@@ -463,7 +463,7 @@ function attahObservers() {
             } else {
               $(field.field).parents('#filter-value').find('label').removeClass('has-error-text');
             }
-          })
+          });
 
           if (filterError.length) {
             $('.error-holder').removeClass('hidden');
@@ -471,21 +471,20 @@ function attahObservers() {
             filterError.forEach(function(item) {
               $(item).addClass('has-error');
               $(item).parents('#filter-value').find('label').addClass('has-error-text');
-            })
+            });
             return;
-          } else {
-            $('#filter-value > .control-label > label').removeClass('has-error-text');
-            $('.error-holder').addClass('hidden');
-
-            toggleError(false);
           }
+
+          $('#filter-value > .control-label > label').removeClass('has-error-text');
+          $('.error-holder').addClass('hidden');
+
+          toggleError(false);
         }
 
         if (widgetData.social && widgetData.social.comments) {
           var errors = [];
           var values = [];
 
-        if (widgetData.social && widgetData.social.comments) {
           values.push({
             value: widgetData.userDataSourceId,
             field: '#user_data_source_provider'

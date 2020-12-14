@@ -9,7 +9,6 @@ var DynamicLists = (function() {
   var listLayout;
   var isLayoutSelected = false;
   var allDataSources = [];
-  var sourceValue;
   var newDataSource;
   var newUserDataSource;
   var dataSourceColumns;
@@ -669,7 +668,7 @@ var DynamicLists = (function() {
           accessRules: []
         };
         var _this = this;
-  
+
         userDataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
           selector: '#user_data_source_provider',
           data: dataSourceData,
@@ -677,7 +676,7 @@ var DynamicLists = (function() {
             switch (event) {
               case 'dataSourceSelect':
                 _this.config.userDataSourceId = dataSource && dataSource.id;
-  
+
                 if (_this.config.userDataSourceId === 'none' || _this.config.userDataSourceId === '') {
                   $(
                     '.select-user-firstname-holder, .select-user-lastname-holder, .select-user-email-holder, .select-user-photo-holder, .select-photo-folder-type, .select-user-admin-holder'
@@ -685,7 +684,7 @@ var DynamicLists = (function() {
 
                   return;
                 }
-                
+
                 if (dataSource.columns && dataSource.columns.length) {
                   userDataSourceColumns = dataSource.columns;
                   _this.setUpUserTokenFields();
@@ -703,7 +702,7 @@ var DynamicLists = (function() {
         userDataSourceProvider = null;
       }
     },
-    toggleRuleTypes: function(options) { 
+    toggleRuleTypes: function(options) {
       var defaultRule = {
         allow: 'all',
         type: []
@@ -720,12 +719,12 @@ var DynamicLists = (function() {
 
         accessRules.forEach(function(item, index) {
           var typeIndex = item.type.indexOf(type);
-  
+
           if (typeIndex !== -1) {
             accessRuleIndex = index;
           }
         });
-  
+
         if (options[type] && accessRuleIndex === -1) {
           accessRules.push(defaultRule);
         } else if (!options[type] && accessRuleIndex > -1) {
@@ -813,19 +812,19 @@ var DynamicLists = (function() {
           }
 
           return Fliplet.Profile.get(data.key);
-        })
+        });
 
       if (!(result instanceof Promise)) {
         result = Promise.resolve(result);
       }
 
-      return result.then(function (value) {
+      return result.then(function(value) {
         if (typeof value === 'undefined') {
           value = '';
         }
 
         return value;
-      })
+      });
     },
     loadData: function() {
       if (!_this.config.layout) {
