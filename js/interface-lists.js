@@ -337,7 +337,7 @@ function attahObservers() {
           admins:[
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -351,7 +351,7 @@ function attahObservers() {
           "users-admins": [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -373,7 +373,7 @@ function attahObservers() {
           user: [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -444,7 +444,7 @@ function attahObservers() {
 
           values.push({
             value: widgetData.userDataSourceId,
-            field: '#select_user_datasource'
+            field: '#user_data_source_provider'
           });
           values.push({
             value: widgetData.userEmailColumn,
