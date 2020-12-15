@@ -1059,7 +1059,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var isSortAsc = options.sortOrder === 'asc';
     var sortField = options.sortField;
     var startsWithAlphabet = /^[A-Z,a-z]/;
-    var sortType = getFieldType(records[0].data ? records[0].data[sortField]: records[0][sortField]);
+    var sortType = getFieldType(records[0].data ? records[0].data[sortField] : records[0][sortField]);
 
     return records.sort(function(a, b) {
       var aValue = a.data ? a.data[sortField] : a[sortField];
