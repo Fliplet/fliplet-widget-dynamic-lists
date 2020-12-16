@@ -799,9 +799,11 @@ var DynamicLists = (function() {
           if (session.entries.dataSource) {
             return session.entries.dataSource.data[data.key];
           }
+
           if (session.entries.saml2) {
             return session.entries.saml2.data[data.key];
           }
+
           if (session.entries.flipletLogin) {
             return session.entries.flipletLogin.data[data.key];
           }
@@ -2583,13 +2585,13 @@ var DynamicLists = (function() {
           var result = _this.setSourceValue({ key: item.fieldValue });
 
           if (result instanceof Promise) {
-            result.then(function(res) {
-              if (typeof res === 'undefined') {
-                item.value = res;
+            result.then(function(result) {
+              if (!result) {
+                item.value = '';
 
                 return;
               }
-              item.value = res;
+              item.value = result;
             });
           }
         } else {
