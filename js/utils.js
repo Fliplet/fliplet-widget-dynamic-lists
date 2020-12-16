@@ -1212,41 +1212,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return valueType;
   }
 
-  function setSourceValue(options, data) {
-    new Promise(function(resolve) {
-      data.filterOptions.forEach(function(item) {
-        if (options && options.entries) {
-          if (options.entries.dataSource) {
-            item.value = options.entries.dataSource.data[item.fieldValue];
-            return;
-          }
-
-          if (options.entries.saml2) {
-            item.value = options.entries.saml2.data[item.fieldValue];
-            return;
-          }
-
-          if (options.entries.flipletLogin) {
-            item.value = options.entries.flipletLogin.data[item.fieldValue];
-            return;
-          }
-        }
-
-        Fliplet.Profile.get(item.fieldValue)
-          .then(function(result) {
-            if (typeof result === 'undefined') {
-              item.value = '';
-              return;
-            }
-
-            item.value = result;
-          });
-      });
-
-      resolve(data);
-    });
-  }
-
   function prepareRecordsData(options) {
     options = options || {};
 
@@ -1622,7 +1587,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
-      setSource: setSourceValue,
       addComputedFields: addRecordsComputedFields,
       sortByField: sortRecordsByField
     },
