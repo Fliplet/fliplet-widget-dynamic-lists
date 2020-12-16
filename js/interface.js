@@ -794,36 +794,20 @@ var DynamicLists = (function() {
         });
     },
     setSourceValue: function(data) {
-      var result;
-      result = Fliplet.User.getCachedSession()
-        .then(function(session) {
-          if (session && session.entries) {
-            if (session.entries.dataSource) {
-              return session.entries.dataSource.data[data.key];
-            }
-
-            if (session.entries.saml2) {
-              return session.entries.saml2.data[data.key];
-            }
-
-            if (session.entries.flipletLogin) {
-              return session.entries.flipletLogin.data[data.key];
-            }
+      return Fliplet.User.getCachedSession().then(function(session) {
+        if (session && session.entries) {
+          if (session.entries.dataSource) {
+            return session.entries.dataSource.data[data.key];
+          }
+          if (session.entries.saml2) {
+            return session.entries.saml2.data[data.key];
+          }
+          if (session.entries.flipletLogin) {
+            return session.entries.flipletLogin.data[data.key];
           }
 
           return Fliplet.Profile.get(data.key);
-        });
-
-      if (!(result instanceof Promise)) {
-        result = Promise.resolve(result);
-      }
-
-      return result.then(function(value) {
-        if (typeof value === 'undefined') {
-          value = '';
         }
-
-        return value;
       });
     },
     loadData: function() {
@@ -2596,9 +2580,18 @@ var DynamicLists = (function() {
         item.valueType = $('#value-type-field-' + item.id).val();
 
         if (item.valueType !== 'enter-value') {
-          _this.setSourceValue({ key: item.fieldValue }).then(function(value) {
-            item.value = value;
-          })
+          var result = _this.setSourceValue({ key: item.fieldValue });
+
+          if (result instanceof Promise) {
+            result.then(function(res) {
+              if (typeof res === 'undefined') {
+                item.value = res;
+
+                return;
+              }
+              item.value = res;
+            });
+          }
         } else {
           item.value = item.fieldValue;
         }

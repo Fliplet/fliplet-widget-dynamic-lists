@@ -899,9 +899,15 @@ DynamicList.prototype.initialize = function() {
         container: _this.$container,
         records: records
       }).then(function() {
+        return Fliplet.User.getCachedSession();
+      }).then(function(session) {
+        _this.Utils.Records.setSource(session, _this.data);
+      }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
         }
+
+        console.log(_this.data);
 
         return _this.Utils.Records.prepareData({
           records: records,
