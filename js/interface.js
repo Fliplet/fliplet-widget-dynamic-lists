@@ -124,14 +124,8 @@ var DynamicLists = (function() {
       }
     });
 
-    dataSourceProvider.then(function(dataSource) {
-      _this.config.dataSourceId = dataSource.data.id;
-    });
+    _this.config.dataSourceProvider = dataSourceProvider;
   }
-
-  Fliplet.Widget.onSaveRequest(function() {
-    dataSourceProvider.forwardSaveRequest();
-  });
 
   DynamicLists.prototype = {
     // Public functions

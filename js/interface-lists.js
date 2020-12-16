@@ -66,10 +66,7 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
-
-    if (!withError) {
-      save(true);
-    }
+    dynamicLists.config.dataSourceProvider.forwardSaveRequest();
   });
 }
 
@@ -205,6 +202,15 @@ function initialize() {
   linkProviderInit();
   attahObservers();
   dynamicLists = new DynamicLists(widgetData);
+  setTimeout(function() {
+    dynamicLists.config.dataSourceProvider.then(function(dataSource) {
+      dynamicLists.config.dataSourceId = dataSource.data.id;
+      
+      if (!withError) {
+        save(true);
+      }
+    });
+  }, 1000);
 }
 
 function validate(value) {
