@@ -907,8 +907,6 @@ DynamicList.prototype.initialize = function() {
           records = [records];
         }
 
-        console.log(_this.data);
-
         return _this.Utils.Records.prepareData({
           records: records,
           config: _this.data,
