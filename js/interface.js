@@ -793,25 +793,6 @@ var DynamicLists = (function() {
           _this.initializeDetailViewSortable();
         });
     },
-    setSourceValue: function(data) {
-      return Fliplet.User.getCachedSession().then(function(session) {
-        if (session && session.entries) {
-          if (session.entries.dataSource) {
-            return session.entries.dataSource.data[data.key];
-          }
-
-          if (session.entries.saml2) {
-            return session.entries.saml2.data[data.key];
-          }
-
-          if (session.entries.flipletLogin) {
-            return session.entries.flipletLogin.data[data.key];
-          }
-
-          return Fliplet.Profile.get(data.key);
-        }
-      });
-    },
     loadData: function() {
       if (!_this.config.layout) {
         return Promise.resolve();
@@ -2581,20 +2562,7 @@ var DynamicLists = (function() {
         item.logic = $('#logic-field-' + item.id).val();
         item.valueType = $('#value-type-field-' + item.id).val();
 
-        if (item.valueType !== 'enter-value') {
-          var result = _this.setSourceValue({ key: item.fieldValue });
-
-          if (result instanceof Promise) {
-            result.then(function(result) {
-              if (!result) {
-                item.value = '';
-
-                return;
-              }
-              item.value = result;
-            });
-          }
-        } else {
+        if (item.valueType === 'enter-value') {
           item.value = item.fieldValue;
         }
 
