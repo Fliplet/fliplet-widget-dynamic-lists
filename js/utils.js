@@ -1508,20 +1508,25 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function setSourceValue(options, data) {
+    if (!data.filterOptions.length) {
+      return;
+    }
+
     data.filterOptions.forEach(function(item) {
       if (options && options.entries) {
-        if (options.entries.dataSource) {
-          item.value = options.entries.dataSource.data[item.fieldValue];
+        var entries = options.entries;
+        if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
+          item.value = entries.dataSource.data[item.fieldValue];
           return;
         }
 
-        if (options.entries.saml2) {
-          item.value = options.entries.saml2.data[item.fieldValue];
+        if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
+          item.value = entries.saml2.data[item.fieldValue];
           return;
         }
 
-        if (options.entries.flipletLogin) {
-          item.value = options.entries.flipletLogin.data[item.fieldValue];
+        if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
+          item.value = entries.flipletLogin.data[item.fieldValue];
           return;
         }
       }
