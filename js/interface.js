@@ -2846,7 +2846,7 @@ var DynamicLists = (function() {
           delete item.folder;
         }
       });
-    },
+    }
   };
 
   return DynamicLists;
