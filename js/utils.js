@@ -1538,16 +1538,18 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             }
           }
 
-          Fliplet.Profile.get(item.fieldValue)
-            .then(function(result) {
-              if (!result) {
-                item.value = '';
-                return;
-              }
+          return new Promise(function(resolve) {
+            Fliplet.Profile.get(item.fieldValue)
+              .then(function(result) {
+                if (!result) {
+                  item.value = '';
+                  return;
+                }
 
-              item.value = result;
-            });
-          break;
+                item.value = result;
+              });
+            resolve();
+          });
 
         default:
           break;
