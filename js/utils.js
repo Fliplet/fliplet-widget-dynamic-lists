@@ -1519,25 +1519,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       var entries = options.entries;
 
-      debugger;
-
       data.filterOptions.forEach(function(item) {
         switch (item.valueType) {
           case 'user-profile-data':
             if (options && options.entries) {
               if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
                 item.value = entries.dataSource.data[item.fieldValue];
-                return resolve();
+                resolve();
               }
 
               if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
                 item.value = entries.saml2.data[item.fieldValue];
-                return resolve();
+                resolve();
               }
 
               if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
                 item.value = entries.flipletLogin.data[item.fieldValue];
-                return resolve();
+                resolve();
               }
             }
 
@@ -1545,7 +1543,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               .then(function(result) {
                 if (!result) {
                   item.value = '';
-                  return resolve();
+                  resolve();
                 }
 
                 item.value = result;
@@ -1553,7 +1551,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             break;
 
           default:
-            return resolve();
+            resolve();
+            break;
         }
       });
     });
