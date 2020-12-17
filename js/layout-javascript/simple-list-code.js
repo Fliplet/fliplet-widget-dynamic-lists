@@ -900,6 +900,10 @@ DynamicList.prototype.initialize = function() {
         container: _this.$container,
         records: records
       }).then(function() {
+        return Fliplet.User.getCachedSession();
+      }).then(function(session) {
+        _this.Utils.Records.setSource(session, _this.data);
+
         if (records && !Array.isArray(records)) {
           records = [records];
         }

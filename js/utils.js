@@ -1511,6 +1511,50 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  function setSourceValue(options, data) {
+    if (!data.filterOptions.length) {
+      return;
+    }
+
+    var entries = options.entries;
+
+    data.filterOptions.forEach(function(item) {
+      switch (item.valueType) {
+        case 'user-profile-data':
+          if (options && options.entries) {
+            if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
+              item.value = entries.dataSource.data[item.fieldValue];
+              return;
+            }
+
+            if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
+              item.value = entries.saml2.data[item.fieldValue];
+              return;
+            }
+
+            if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
+              item.value = entries.flipletLogin.data[item.fieldValue];
+              return;
+            }
+          }
+
+          Fliplet.Profile.get(item.fieldValue)
+            .then(function(result) {
+              if (!result) {
+                item.value = '';
+                return;
+              }
+
+              item.value = result;
+            });
+          break;
+
+        default:
+          break;
+      }
+    });
+  }
+
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;
@@ -1588,6 +1632,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       getFields: getRecordFields,
       getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
+      setSource: setSourceValue,
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
