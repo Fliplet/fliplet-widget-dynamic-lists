@@ -202,15 +202,6 @@ function initialize() {
   linkProviderInit();
   attahObservers();
   dynamicLists = new DynamicLists(widgetData);
-  setTimeout(function() {
-    dynamicLists.config.dataSourceProvider.then(function(dataSource) {
-      dynamicLists.config.dataSourceId = dataSource.data.id;
-      
-      if (!withError) {
-        save(true);
-      }
-    });
-  }, 1000);
 }
 
 function validate(value) {
@@ -329,6 +320,15 @@ function attahObservers() {
       } else if ($('#detail_image_field_type_' + fieldId).val() === 'all-folders') {
         selectedFieldId.push(fieldId);
       }
+    })
+    .on('datasource-init', function() {
+      dynamicLists.config.dataSourceProvider.then(function(dataSource) {
+        dynamicLists.config.dataSourceId = dataSource.data.id;
+        
+        if (!withError) {
+          save(true);
+        }
+      });
     });
 
   $('[data-toggle="tooltip"]').tooltip();
