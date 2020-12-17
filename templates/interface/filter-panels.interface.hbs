@@ -6,10 +6,6 @@
       </div>
       <span class="panel-title-text">
         <span class="column">{{columnLabel}}</span>
-        <span> - </span> 
-        <span class="logic">{{logicLabel}}</span>
-        <span id="value-dash"> - </span>
-        <span class="value">{{valueLabel}}</span>
       </span>
       <span class="fa fa-chevron-{{#if fromLoading}}down{{else}}up{{/if}} panel-chevron"></span>
     </h4>
@@ -20,7 +16,7 @@
 
       <div class="form-group clearfix">
         <div class="col-sm-4 control-label">
-          <label>Data field name</label>
+          <label>Data field</label>
         </div>
         <div class="col-sm-8">
           <label for="select-data-field-{{id}}" class="select-proxy-display">
@@ -62,9 +58,23 @@
         </div>
       </div>
 
+      <div class="form-group clearfix" id="filter-value-type">
+        <div class="col-sm-4 control-label">
+          <label>Value type</label>
+        </div>
+        <div class="col-sm-8">
+          <label for="value-type-field-{{id}}" class="select-proxy-display">
+            <select name="value-type-field-{{id}}" id="value-type-field-{{id}}" data-field="valueType" class="hidden-select form-control">
+              <option value="enter-value">Enter a value</option>
+            </select>
+            <span class="icon fa fa-chevron-down"></span>
+          </label>
+        </div>
+      </div>
+
       <div class="form-group clearfix" id="filter-value">
         <div class="col-sm-4 control-label">
-          <label for="value-field-{{id}}">Value</label>
+          <label for="value-field-{{id}}">{{valueField}}</label>
         </div>
         <div class="col-sm-8">
           <input type="text" name="value-field-{{id}}" id="value-field-{{id}}" data-field="value" class="form-control">
