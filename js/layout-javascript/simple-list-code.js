@@ -1,5 +1,5 @@
 // Constructor
-function DynamicList(id, data, container) {
+function DynamicList(id, data) {
   var _this = this;
 
   this.flListLayoutConfig = window.flListLayoutConfig;
@@ -75,17 +75,17 @@ function DynamicList(id, data, container) {
     }
 
     if (_.get(session, 'entries.dataSource.data')) {
-       _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+      _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
     _this.initialize();
   });
-};
+}
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
-DynamicList.prototype.toggleFilterElement = function (target, toggle) {
+DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
 
   if (typeof toggle === 'undefined') {
@@ -99,14 +99,15 @@ DynamicList.prototype.toggleFilterElement = function (target, toggle) {
   } else {
     this.$container.find('.clear-filters').addClass('hidden');
   }
-}
+};
 
-DynamicList.prototype.clearFilters = function () {
+DynamicList.prototype.clearFilters = function() {
   this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
+
   return this.searchData();
 };
 
-DynamicList.prototype.hideFilterOverlay = function () {
+DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.simple-list-search-filter-overlay').removeClass('display');
   $('body').removeClass('lock has-filter-overlay');
 };
@@ -114,7 +115,7 @@ DynamicList.prototype.hideFilterOverlay = function () {
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
-  Fliplet.Hooks.on('beforePageView', function (options) {
+  Fliplet.Hooks.on('beforePageView', function(options) {
     if (options.addToHistory === false) {
       _this.closeDetails();
     }
@@ -126,7 +127,7 @@ DynamicList.prototype.attachObservers = function() {
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
     _this.Utils.DOM.adjustAddButtonPosition(_this);
-  })
+  });
 
   _this.$container
     .on('click', '[data-lfd-back]', function() {
@@ -154,9 +155,9 @@ DynamicList.prototype.attachObservers = function() {
         result = Promise.resolve();
       }
 
-      return result.then(function () {
+      return result.then(function() {
         return Fliplet.Navigate.back();
-      }).catch(function (error) {
+      }).catch(function(error) {
         console.error(error);
       });
     })
@@ -173,7 +174,7 @@ DynamicList.prototype.attachObservers = function() {
       };
 
       _this.sortOrder = $sortListItem.data('sortOrder') === 'asc' ? 'desc' : 'asc';
-      _this.sortField = $sortListItem.data('sortField');;
+      _this.sortField = $sortListItem.data('sortField');
       _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
       $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[_this.sortOrder]);
@@ -198,7 +199,6 @@ DynamicList.prototype.attachObservers = function() {
       _this.clearFilters();
     })
     .on('click', '.hidden-filter-controls-filter', function() {
-
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -211,7 +211,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if ($filter.parents('.inline-filter-holder').length) {
         // @HACK Skip an execution loop to allow custom handlers to update the filters
-        setTimeout(function () {
+        setTimeout(function() {
           _this.searchData();
         }, 0);
       }
@@ -239,7 +239,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       }
 
-      beforeOpen.then(function () {
+      beforeOpen.then(function() {
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
@@ -286,9 +286,9 @@ DynamicList.prototype.attachObservers = function() {
           result = Promise.resolve();
         }
 
-        return result.then(function () {
+        return result.then(function() {
           return Fliplet.Navigate.back();
-        }).catch(function (error) {
+        }).catch(function(error) {
           console.error(error);
         });
       }
@@ -309,6 +309,7 @@ DynamicList.prototype.attachObservers = function() {
           category: 'list_dynamic_' + _this.data.layout,
           action: 'search_filter_controls_overlay_activate'
         });
+
         return;
       }
 
@@ -326,6 +327,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.simple-list-overlay-close', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-search-filter-overlay');
+
       $parentElement.removeClass('display');
       $('body').removeClass('lock has-filter-overlay');
 
@@ -335,19 +337,22 @@ DynamicList.prototype.attachObservers = function() {
       // No filters selected
       if (_.isEmpty(_this.activeFilters)) {
         _this.$container.find('.clear-filters').addClass('hidden');
+
         return;
       }
 
       if (!_.has(_this.activeFilters, 'undefined')) {
         // Select filters based on existing settings
-        var selectors = _.flatten(_.map(_this.activeFilters, function (values, field) {
-          return _.map(values, function (value) {
+        var selectors = _.flatten(_.map(_this.activeFilters, function(values, field) {
+          return _.map(values, function(value) {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
         })).join(',');
+
         _this.toggleFilterElement(_this.$container.find(selectors), true);
 
         _this.$container.find('.clear-filters').removeClass('hidden');
+
         return;
       }
 
@@ -381,7 +386,7 @@ DynamicList.prototype.attachObservers = function() {
         input: $inputField,
         value: value,
         event: e
-      }).then(function () {
+      }).then(function() {
         // In case the value has been changed via hooks
         value = $inputField.val();
 
@@ -396,6 +401,7 @@ DynamicList.prototype.attachObservers = function() {
             _this.$container.find('.simple-list-container').removeClass('searching');
             _this.isSearching = false;
             _this.searchData('');
+
             return;
           }
 
@@ -411,7 +417,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.search-holder .search-btn', function(e) {
+    .on('click', '.search-holder .search-btn', function() {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
       var value = $inputField.val();
 
@@ -419,6 +425,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.$container.find('.simple-list-container').removeClass('searching');
         _this.isSearching = false;
         _this.searchData('');
+
         return;
       }
 
@@ -437,7 +444,8 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = false;
       _this.searchData('');
     })
-    .on('show.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
+    .on('show.bs.collapse', '.simple-list-filters-panel .panel-collapse', function(event) {
+      event.stopPropagation();
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
     })
     .on('hide.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
@@ -445,12 +453,15 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.simple-list-comment-holder', function(event) {
       event.stopPropagation();
+
       var identifier;
+
       if (_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         identifier = $(this).parents('.simple-list-details-holder').data('entry-id');
       } else {
         identifier = $(this).parents('.simple-list-item').data('entry-id');
       }
+
       _this.entryClicked = identifier;
       _this.showComments(identifier);
 
@@ -462,6 +473,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.simple-list-comment-close-panel', function() {
       _this.$container.find('.simple-list-comment-panel').removeClass('open');
       _this.$container.find('.simple-list-detail-overlay-content-holder').removeClass('lock');
+
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         $('body').removeClass('lock');
       }
@@ -549,11 +561,13 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.simple-list-comment-input-holder').removeClass('editing');
 
       var $messageArea = _this.$container.find('[data-comment-body]');
+
       $messageArea.val('').trigger('change');
       autosize.update($messageArea);
     })
     .on('click', '.final .fl-comment-value', function(e) {
       e.preventDefault();
+
       var _that = $(this);
       var commentId = $(this).parents('.fl-individual-comment').data('id');
       var $parentContainer = $(this).parents('.fl-individual-comment');
@@ -572,8 +586,9 @@ DynamicList.prototype.attachObservers = function() {
             },
             {
               label: 'Edit',
-              action: function (i) {
+              action: function() {
                 var $messageArea = _this.$container.find('[data-comment-body]');
+
                 _that.parents('.fl-individual-comment').addClass('editing');
                 _this.$container.find('.simple-list-comment-input-holder').addClass('editing');
 
@@ -590,11 +605,11 @@ DynamicList.prototype.attachObservers = function() {
             },
             {
               label: 'Delete',
-              action: function (i) {
+              action: function() {
                 var options = {
                   title: 'Delete comment',
                   message: 'Are you sure you want to delete this comment?',
-                  labels: ['Delete','Cancel'] // Native only (defaults to [OK,Cancel])
+                  labels: ['Delete', 'Cancel'] // Native only (defaults to [OK,Cancel])
                 };
 
                 Fliplet.Navigate.confirm(options)
@@ -614,7 +629,7 @@ DynamicList.prototype.attachObservers = function() {
             }
           ],
           cancel: 'Cancel'
-        }).then(function(i){
+        }).then(function(i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
               category: 'list_dynamic_' + _this.data.layout,
@@ -635,7 +650,7 @@ DynamicList.prototype.attachObservers = function() {
             }
           ],
           cancel: 'Cancel'
-        }).then(function(i){
+        }).then(function(i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
               category: 'list_dynamic_' + _this.data.layout,
@@ -658,8 +673,9 @@ DynamicList.prototype.attachObservers = function() {
       if (!_.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
+          message: 'Form not found. Please check the component\'s configuration.'
         });
+
         return;
       }
 
@@ -690,8 +706,9 @@ DynamicList.prototype.attachObservers = function() {
       if (!_.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.',
+          message: 'Form not found. Please check the component\'s configuration.'
         });
+
         return;
       }
 
@@ -717,7 +734,6 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click', '.dynamic-list-delete-item', function() {
-
       var _that = $(this);
       var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
       var options = {
@@ -725,7 +741,7 @@ DynamicList.prototype.attachObservers = function() {
         labels: [
           {
             label: 'Delete',
-            action: function (i) {
+            action: function() {
               _that.text('Deleting...').addClass('disabled');
 
               // Run Hook
@@ -763,7 +779,7 @@ DynamicList.prototype.attachObservers = function() {
           }
         ],
         cancel: true
-      }
+      };
 
       Fliplet.Hooks.run('flListDataBeforeDeleteConfirmation', {
         instance: _this,
@@ -776,7 +792,7 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.toggle-bookmarks', function () {
+    .on('click', '.toggle-bookmarks', function() {
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
@@ -793,6 +809,7 @@ DynamicList.prototype.attachObservers = function() {
       if (record.bookmarked) {
         $(this).parents('.simple-list-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
         record.bookmarkButton.unlike();
+
         return;
       }
 
@@ -817,6 +834,7 @@ DynamicList.prototype.attachObservers = function() {
         $(this).parents('.simple-list-like-holder').removeClass('liked').addClass('not-liked');
         record.likeButton.unlike();
         $(this).find('.count').html(count);
+
         return;
       }
 
@@ -824,19 +842,19 @@ DynamicList.prototype.attachObservers = function() {
       record.likeButton.like();
       $(this).find('.count').html(count);
     });
-}
+};
 
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
-  return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function (connection) {
+  return Fliplet.DataSources.connect(_this.data.dataSourceId).then(function(connection) {
     return connection.removeById(entryID, { ack: true });
-  }).then(function () {
+  }).then(function() {
     return Promise.resolve(entryID);
   });
-}
+};
 
-DynamicList.prototype.removeListItemHTML = function (options) {
+DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
 
   var id = options.id;
@@ -846,7 +864,7 @@ DynamicList.prototype.removeListItemHTML = function (options) {
   }
 
   this.$container.find('.simple-list-item[data-entry-id="' + id + '"]').remove();
-}
+};
 
 DynamicList.prototype.initialize = function() {
   var _this = this;
@@ -856,17 +874,19 @@ DynamicList.prototype.initialize = function() {
   // if we find relevant terms in the query, delete the storage so the filters do not mix and produce side-effects
   if (shouldInitFromQuery) {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
-  };
+  }
 
   _this.attachObservers();
+
   // Check if there is a query or PV for search/filter queries
   return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
+
       return _this.connectToDataSource();
     })
-    .then(function (records) {
+    .then(function(records) {
       _this.Utils.Records.addComputedFields({
         records: records,
         config: _this.data
@@ -879,7 +899,7 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
-      }).then(function () {
+      }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
         }
@@ -891,14 +911,14 @@ DynamicList.prototype.initialize = function() {
         });
       });
     })
-    .then(function (records) {
+    .then(function(records) {
       _this.listItems = _this.getPermissions(records);
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }
 
-      return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function (columns) {
+      return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function(columns) {
         _this.dataSourceColumns = columns;
       });
     })
@@ -915,13 +935,15 @@ DynamicList.prototype.initialize = function() {
         records: _this.listItems,
         config: _this.data
       });
+
       return _this.addFilters(_this.modifiedListItems);
     })
-    .then(function () {
+    .then(function() {
       _this.parseFilterQueries();
+
       return _this.parseSearchQueries();
     });
-}
+};
 
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
@@ -935,25 +957,27 @@ DynamicList.prototype.checkIsToOpen = function() {
     entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
   } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
     entry = _.find(_this.listItems, function(row) {
+      // eslint-disable-next-line eqeqeq
       return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
   }
 
   if (!entry) {
     Fliplet.UI.Toast('Entry not found');
+
     return;
   }
 
   var modifiedData = _this.addSummaryData([entry]);
 
-  _this.showDetails(entry.id, modifiedData).then(function () {
+  _this.showDetails(entry.id, modifiedData).then(function() {
     _this.openedEntryOnQuery = true;
 
     if (_this.pvOpenQuery.openComments || _this.pvOpenQuery.commentId) {
       _this.showComments(entry.id, _this.pvOpenQuery.commentId);
     }
   });
-}
+};
 
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
@@ -981,7 +1005,7 @@ DynamicList.prototype.parseSearchQueries = function() {
     openSingleEntry: _this.pvSearchQuery.openSingleEntry,
     initialRender: true
   });
-}
+};
 
 DynamicList.prototype.parseFilterQueries = function() {
   var _this = this;
@@ -992,7 +1016,7 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
 
-  var $filters = _this.$container.find(_.map(filterSelectors, function (selector) {
+  var $filters = _this.$container.find(_.map(filterSelectors, function(selector) {
     return '.hidden-filter-controls-filter' + selector;
   }).join(','));
 
@@ -1009,7 +1033,7 @@ DynamicList.prototype.parseFilterQueries = function() {
 
     _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
   }
-}
+};
 
 DynamicList.prototype.navigateBackEvent = function() {
   var _this = this;
@@ -1029,9 +1053,9 @@ DynamicList.prototype.navigateBackEvent = function() {
     }
   }
 
-  $('[data-fl-navigate-back]').on('click', function (event) {
+  $('[data-fl-navigate-back]').on('click', function() {
     try {
-      result = (typeof _this.pvGoBack.action === 'function') && _this.pvGoBack.action()
+      result = (typeof _this.pvGoBack.action === 'function') && _this.pvGoBack.action();
     } catch (error) {
       console.error('Your custom function for the back button thrown an error: ' + error);
     }
@@ -1041,13 +1065,13 @@ DynamicList.prototype.navigateBackEvent = function() {
     }
 
 
-    return result.then(function () {
+    return result.then(function() {
       return Fliplet.Navigate.back();
-    }).catch(function (error) {
+    }).catch(function(error) {
       console.error(error);
     });
   });
-}
+};
 
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
@@ -1061,6 +1085,7 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       if (typeof value === 'undefined') {
         Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
+
         return;
       }
 
@@ -1102,20 +1127,21 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       return;
     });
-}
+};
 
 DynamicList.prototype.connectToDataSource = function() {
   var _this = this;
   var cache = { offline: true };
 
-  function getData (options) {
+  function getData(options) {
     if (_this.data.defaultData && !_this.data.dataSourceId) {
       return Promise.resolve(_this.data.defaultEntries);
     }
 
     options = options || cache;
+
     return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
-      .then(function (connection) {
+      .then(function(connection) {
         // If you want to do specific queries to return your rows
         // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
         var query = {};
@@ -1143,6 +1169,7 @@ DynamicList.prototype.connectToDataSource = function() {
     container: _this.$container
   }).then(function() {
     if (_this.data.getData) {
+      // eslint-disable-next-line no-func-assign
       getData = _this.data.getData;
 
       if (_this.data.hasOwnProperty('cache')) {
@@ -1151,12 +1178,12 @@ DynamicList.prototype.connectToDataSource = function() {
     }
 
     return getData(cache);
-  }).catch(function (error) {
+  }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
       message: 'Error loading data'
     });
   });
-}
+};
 
 DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
@@ -1179,7 +1206,7 @@ DynamicList.prototype.renderBaseHTML = function() {
     : Handlebars.compile(baseHTML());
 
   _this.$container.html(template(data));
-}
+};
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
@@ -1219,9 +1246,9 @@ DynamicList.prototype.addSummaryData = function(records) {
   });
 
   return loopData;
-}
+};
 
-DynamicList.prototype.renderLoopHTML = function () {
+DynamicList.prototype.renderLoopHTML = function() {
   // Function that renders the List template
   var _this = this;
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
@@ -1244,7 +1271,7 @@ DynamicList.prototype.renderLoopHTML = function () {
   var renderLoopIndex = 0;
   var data = limitedList || _this.modifiedListItems;
 
-  return new Promise(function (resolve) {
+  return new Promise(function(resolve) {
     function render() {
       // get the next batch of items to render
       var nextBatch = data.slice(
@@ -1258,7 +1285,7 @@ DynamicList.prototype.renderLoopHTML = function () {
 
         // if the browser is ready, render
         requestAnimationFrame(render);
-      } else{
+      } else {
         _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
 
         // Changing close icon in the fa-times-thin class for windows 7 IE11
@@ -1269,27 +1296,29 @@ DynamicList.prototype.renderLoopHTML = function () {
         resolve(data);
       }
     }
+
     // start the initial render
     requestAnimationFrame(render);
   });
-}
+};
 
 DynamicList.prototype.getAddPermission = function(data) {
   data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
+
   return data;
-}
+};
 
 DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function (entry) {
+  _.forEach(entries, function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
 
   return entries;
-}
+};
 
 DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
@@ -1305,8 +1334,8 @@ DynamicList.prototype.addFilters = function(records) {
     filters: filters,
     records: records,
     config: _this.data
-  }).then(function () {
-    filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
+  }).then(function() {
+    var filtersTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['filter']];
 
     var filtersData = {
       filtersInOverlay: _this.data.filtersInOverlay,
@@ -1316,7 +1345,7 @@ DynamicList.prototype.addFilters = function(records) {
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
 
-    _.remove(filters, function (filter) {
+    _.remove(filters, function(filter) {
       return _.isEmpty(filter.data);
     });
     _this.$container.find('.filter-holder').html(template(filtersData));
@@ -1329,9 +1358,9 @@ DynamicList.prototype.addFilters = function(records) {
   });
 };
 
-DynamicList.prototype.getActiveFilters = function () {
+DynamicList.prototype.getActiveFilters = function() {
   return _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'))
-    .map(function (el) {
+    .map(function(el) {
       return _.pickBy({
         class: el.dataset.toggle,
         field: el.dataset.field,
@@ -1339,8 +1368,8 @@ DynamicList.prototype.getActiveFilters = function () {
       });
     })
     .groupBy('field')
-    .mapValues(function (filters) {
-      return _.map(filters, function (filter) {
+    .mapValues(function(filters) {
+      return _.map(filters, function(filter) {
         return _.has(filter, 'field') && _.has(filter, 'value')
           ? filter.value
           : filter.class;
@@ -1350,12 +1379,12 @@ DynamicList.prototype.getActiveFilters = function () {
 };
 
 DynamicList.prototype.calculateFiltersHeight = function($el) {
-  $el.find('.hidden-filter-controls').each(function () {
+  $el.find('.hidden-filter-controls').each(function() {
     $(this).animate({
-      height: '100%',
+      height: '100%'
     }, 200);
   });
-}
+};
 
 DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   var totalHeight = element.find('.hidden-search-controls-content').height();
@@ -1365,9 +1394,9 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   }
 
   element.find('.hidden-search-controls').animate({
-    height: totalHeight,
+    height: totalHeight
   }, 200);
-}
+};
 
 DynamicList.prototype.searchData = function(options) {
   if (typeof options === 'string') {
@@ -1411,7 +1440,7 @@ DynamicList.prototype.searchData = function(options) {
     activeFilters: _this.activeFilters,
     showBookmarks: _this.showBookmarks,
     limit: limit
-  }).then(function (results) {
+  }).then(function(results) {
     results = results || {};
 
     if (Array.isArray(results)) {
@@ -1421,6 +1450,7 @@ DynamicList.prototype.searchData = function(options) {
     }
 
     var searchedData = results.records;
+
     return Fliplet.Hooks.run('flListDataBeforeRenderList', {
       instance: _this,
       value: value,
@@ -1430,7 +1460,7 @@ DynamicList.prototype.searchData = function(options) {
       activeFilters: _this.activeFilters,
       showBookmarks: _this.showBookmarks,
       limit: limit
-    }).then(function () {
+    }).then(function() {
       searchedData = searchedData || [];
 
       var truncated = results.truncated || searchedData.length < _this.listItems.length;
@@ -1453,8 +1483,8 @@ DynamicList.prototype.searchData = function(options) {
       _this.$container.find('.hidden-search-controls').addClass('active');
       _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      if (!_this.data.forceRenderList 
-        && searchedData.length 
+      if (!_this.data.forceRenderList
+        && searchedData.length
         && !_.xorBy(searchedData, _this.searchedListItems, 'id').length) {
         // Same results returned. Do nothing.
         return Promise.resolve();
@@ -1472,10 +1502,11 @@ DynamicList.prototype.searchData = function(options) {
         && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
-        _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function (record) {
+        _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function(record) {
           return '.simple-list-item[data-entry-id="' + record.id + '"]';
         }).join(',')).remove();
         _this.searchedListItems = searchedData;
+
         return Promise.resolve();
       }
 
@@ -1493,12 +1524,13 @@ DynamicList.prototype.searchData = function(options) {
         sortHTMLElements: false
       });
 
-      return _this.renderLoopHTML().then(function (records) {
+      return _this.renderLoopHTML().then(function(records) {
         _this.searchedListItems = searchedData;
+
         return records;
       });
-    }).then(function (renderedRecords) {
-      _this.initializeSocials(renderedRecords).then(function () {
+    }).then(function(renderedRecords) {
+      _this.initializeSocials(renderedRecords).then(function() {
         return Fliplet.Hooks.run('flListDataAfterRenderListSocial', {
           instance: _this,
           value: value,
@@ -1530,9 +1562,9 @@ DynamicList.prototype.searchData = function(options) {
       });
     });
   });
-}
+};
 
-DynamicList.prototype.getLikeIdentifier = function (record) {
+DynamicList.prototype.getLikeIdentifier = function(record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
     config: this.data
@@ -1556,7 +1588,7 @@ DynamicList.prototype.getLikeIdentifier = function (record) {
     }
   }
 
-  return customIdentifier.then(function (identifier) {
+  return customIdentifier.then(function(identifier) {
     if (!identifier) {
       identifier = defaultIdentifier;
     }
@@ -1582,8 +1614,8 @@ DynamicList.prototype.setupLikeButton = function(options) {
   }
 
   return _this.getLikeIdentifier(record)
-    .then(function (identifier) {
-      return new Promise(function (resolve) {
+    .then(function(identifier) {
+      return new Promise(function(resolve) {
         var btn = LikeButton({
           target: '.simple-list-like-holder-' + id,
           dataSourceId: _this.data.likesDataSourceId,
@@ -1597,15 +1629,16 @@ DynamicList.prototype.setupLikeButton = function(options) {
           liked: record.liked,
           count: record.likeCount
         });
+
         record.likeButton = btn;
 
-        btn.on('like.status', function (liked, count) {
+        btn.on('like.status', function(liked, count) {
           record.liked = liked;
           record.likeCount = count;
           resolve(btn);
         });
 
-        btn.on('liked', function(data){
+        btn.on('liked', function() {
           var count = btn.getCount() > 0 ? btn.getCount() : '';
 
           record.liked = btn.isLiked();
@@ -1628,7 +1661,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
           });
         });
 
-        btn.on('liked.success', function () {
+        btn.on('liked.success', function() {
           Fliplet.Hooks.run('flListDataEntryLikeSuccess', {
             instance: _this,
             config: _this.data,
@@ -1639,7 +1672,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
           });
         });
 
-        btn.on('liked.fail', function(data){
+        btn.on('liked.fail', function() {
           var count = btn.getCount() > 0 ? btn.getCount() : '';
 
           record.liked = btn.isLiked();
@@ -1657,7 +1690,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
           });
         });
 
-        btn.on('unliked', function(data){
+        btn.on('unliked', function() {
           var count = btn.getCount() > 0 ? btn.getCount() : '';
 
 
@@ -1681,7 +1714,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
           });
         });
 
-        btn.on('unliked.success', function () {
+        btn.on('unliked.success', function() {
           Fliplet.Hooks.run('flListDataEntryUnlikeSuccess', {
             instance: _this,
             config: _this.data,
@@ -1692,7 +1725,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
           });
         });
 
-        btn.on('unliked.fail', function(data){
+        btn.on('unliked.fail', function() {
           var count = btn.getCount() > 0 ? btn.getCount() : '';
 
           record.liked = btn.isLiked();
@@ -1711,9 +1744,9 @@ DynamicList.prototype.setupLikeButton = function(options) {
         });
       });
     });
-}
+};
 
-DynamicList.prototype.getBookmarkIdentifier = function (record) {
+DynamicList.prototype.getBookmarkIdentifier = function(record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
     config: this.data
@@ -1737,7 +1770,7 @@ DynamicList.prototype.getBookmarkIdentifier = function (record) {
     }
   }
 
-  return customIdentifier.then(function (identifier) {
+  return customIdentifier.then(function(identifier) {
     if (!identifier) {
       identifier = defaultIdentifier;
     }
@@ -1763,8 +1796,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
   }
 
   return _this.getBookmarkIdentifier(record)
-    .then(function (identifier) {
-      return new Promise(function (resolve) {
+    .then(function(identifier) {
+      return new Promise(function(resolve) {
         var btn = LikeButton({
           target: '.simple-list-bookmark-holder-' + id,
           dataSourceId: _this.data.bookmarkDataSourceId,
@@ -1779,14 +1812,15 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           getAllCounts: false,
           liked: record.bookmarked
         });
+
         record.bookmarkButton = btn;
 
-        btn.on('like.status', function (liked) {
+        btn.on('like.status', function(liked) {
           record.bookmarked = liked;
           resolve(btn);
         });
 
-        btn.on('liked', function(data){
+        btn.on('liked', function() {
           record.bookmarked = btn.isLiked();
 
           Fliplet.Hooks.run('flListDataEntryBookmark', {
@@ -1805,7 +1839,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           });
         });
 
-        btn.on('liked.success', function () {
+        btn.on('liked.success', function() {
           Fliplet.Hooks.run('flListDataEntryBookmarkSuccess', {
             instance: _this,
             config: _this.data,
@@ -1816,7 +1850,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           });
         });
 
-        btn.on('liked.fail', function(data){
+        btn.on('liked.fail', function() {
           record.bookmarked = btn.isLiked();
           _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('bookmarked').addClass('not-bookmarked');
 
@@ -1830,7 +1864,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           });
         });
 
-        btn.on('unliked', function(data){
+        btn.on('unliked', function() {
           record.bookmarked = btn.isLiked();
 
           Fliplet.Hooks.run('flListDataEntryUnbookmark', {
@@ -1849,7 +1883,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           });
         });
 
-        btn.on('unliked.success', function () {
+        btn.on('unliked.success', function() {
           Fliplet.Hooks.run('flListDataEntryUnbookmarkSuccess', {
             instance: _this,
             config: _this.data,
@@ -1860,7 +1894,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           });
         });
 
-        btn.on('unliked.fail', function(data){
+        btn.on('unliked.fail', function() {
           record.bookmarked = btn.isLiked();
           _this.$container.find('.simple-list-detail-overlay .simple-list-bookmark-holder-' + id).removeClass('not-bookmarked').addClass('bookmarked');
 
@@ -1875,9 +1909,9 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
         });
       });
     });
-}
+};
 
-DynamicList.prototype.initializeOverlaySocials = function (id) {
+DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
   var record = _.find(_this.listItems, { id: id });
 
@@ -1894,7 +1928,7 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
     bookmarkPromise = _this.setupBookmarkButton({
       id: id,
       record: record
-    }).then(function (btn) {
+    }).then(function(btn) {
       if (!btn) {
         return;
       }
@@ -1913,7 +1947,7 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
     likePromise = _this.setupLikeButton({
       id: id,
       record: record
-    }).then(function (btn) {
+    }).then(function(btn) {
       if (!btn) {
         return;
       }
@@ -1934,7 +1968,7 @@ DynamicList.prototype.initializeOverlaySocials = function (id) {
   ]);
 };
 
-DynamicList.prototype.getAllBookmarks = function () {
+DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
   if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
@@ -1951,7 +1985,7 @@ DynamicList.prototype.getAllBookmarks = function () {
     request: Fliplet.Profile.Content({
       dataSourceId: _this.data.bookmarkDataSourceId,
       view: 'userBookmarks'
-    }).then(function (instance) {
+    }).then(function(instance) {
       return instance.query({
         where: {
           content: {
@@ -1961,14 +1995,15 @@ DynamicList.prototype.getAllBookmarks = function () {
         exact: false
       });
     })
-  }).then(function (results) {
-    var bookmarkedIds = _.compact(_.map(results.data, function (record) {
+  }).then(function(results) {
+    var bookmarkedIds = _.compact(_.map(results.data, function(record) {
       var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+
       return match ? parseInt(match[1], 10) : '';
     }));
 
     if (results.fromCache) {
-      _.forEach(_this.listItems, function (record) {
+      _.forEach(_this.listItems, function(record) {
         if (bookmarkedIds.indexOf(record.id) === -1) {
           return;
         }
@@ -1976,7 +2011,7 @@ DynamicList.prototype.getAllBookmarks = function () {
         record.bookmarked = true;
       });
     } else {
-      _.forEach(_this.listItems, function (record) {
+      _.forEach(_this.listItems, function(record) {
         record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
       });
     }
@@ -1985,11 +2020,11 @@ DynamicList.prototype.getAllBookmarks = function () {
   });
 };
 
-DynamicList.prototype.initializeSocials = function (records) {
+DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
-  return _this.getAllBookmarks().then(function () {
-    return Promise.all(_.flatten(_.map(records, function (record) {
+  return _this.getAllBookmarks().then(function() {
+    return Promise.all(_.flatten(_.map(records, function(record) {
       var title = _this.$container.find('.simple-list-item[data-entry-id="' + record.id + '"] .list-item-title').text().trim();
       var masterRecord = _.find(_this.listItems, { id: record.id });
 
@@ -2015,7 +2050,7 @@ DynamicList.prototype.initializeSocials = function (records) {
   });
 };
 
-DynamicList.prototype.getCommentUsers = function () {
+DynamicList.prototype.getCommentUsers = function() {
   if (!_.get(this.data, 'social.comments')) {
     return Promise.resolve();
   }
@@ -2054,12 +2089,12 @@ DynamicList.prototype.getCommentUsers = function () {
         config: _this.data
       });
     })
-    .then(function (usersToMention) {
+    .then(function(usersToMention) {
       _this.usersToMention = usersToMention;
     });
 };
 
-DynamicList.prototype.addDetailViewData = function (entry) {
+DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
   if (_.isArray(entry.data) && entry.data.length) {
@@ -2078,9 +2113,11 @@ DynamicList.prototype.addDetailViewData = function (entry) {
     if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
       label = obj.column;
     }
+
     if (obj.fieldLabel === 'custom-label') {
       label = new Handlebars.SafeString(Handlebars.compile(obj.customFieldLabel)(entry.originalData));
     }
+
     if (obj.fieldLabel === 'no-label') {
       labelEnabled = false;
     }
@@ -2126,7 +2163,7 @@ DynamicList.prototype.addDetailViewData = function (entry) {
   return entry;
 };
 
-DynamicList.prototype.showDetails = function (id, listData) {
+DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
   var entryData = _.find(listData || _this.modifiedListItems, { id: id });
@@ -2157,7 +2194,7 @@ DynamicList.prototype.showDetails = function (id, listData) {
     }
   }
 
-  return beforeShowDetails.then(function (data) {
+  return beforeShowDetails.then(function(data) {
     data = data || {};
 
     var template = Handlebars.compile(data.src || src);
@@ -2187,11 +2224,12 @@ DynamicList.prototype.showDetails = function (id, listData) {
       });
     }
   });
-}
+};
 
 DynamicList.prototype.closeDetails = function() {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
+
     return Fliplet.Navigate.back();
   }
 
@@ -2213,13 +2251,13 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
   }, 300);
-}
+};
 
-/******************/
-/**** COMMENTS ****/
-/******************/
+/** ****************/
+/** ** COMMENTS ****/
+/** ****************/
 
-DynamicList.prototype.getCommentIdentifier = function (record) {
+DynamicList.prototype.getCommentIdentifier = function(record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
     config: this.data
@@ -2245,7 +2283,7 @@ DynamicList.prototype.getCommentIdentifier = function (record) {
     }
   }
 
-  return customIdentifier.then(function (identifier) {
+  return customIdentifier.then(function(identifier) {
     if (!identifier) {
       identifier = defaultIdentifier;
     }
@@ -2272,7 +2310,7 @@ DynamicList.prototype.getEntryComments = function(options) {
   var count = record.commentCount;
 
   return _this.getCommentIdentifier(record)
-    .then(function (identifier) {
+    .then(function(identifier) {
       var getComments = Promise.resolve();
 
       if (typeof count === 'undefined' || options.force) {
@@ -2296,25 +2334,25 @@ DynamicList.prototype.getEntryComments = function(options) {
 
       return getComments;
     })
-    .then(function () {
+    .then(function() {
       _this.updateCommentCounter({
         id: id,
         record: record
       });
     });
-}
+};
 
 DynamicList.prototype.connectToUsersDataSource = function() {
   var _this = this;
   var options = {
     offline: true // By default on native platform it connects to offline DB. Set this option to false to connect to api's
-  }
+  };
 
   return Fliplet.DataSources.connect(_this.data.userDataSourceId, options)
     .then(function(connection) {
       return connection.find();
     });
-}
+};
 
 DynamicList.prototype.updateCommentCounter = function(options) {
   if (!_.get(this.data, 'social.comments')) {
@@ -2340,7 +2378,7 @@ DynamicList.prototype.updateCommentCounter = function(options) {
 
   // Updates both main list and overlay comment counters
   _this.$container.find('.simple-list-comemnt-holder-' + id).html(html);
-}
+};
 
 DynamicList.prototype.showComments = function(id, commentId) {
   var _this = this;
@@ -2362,7 +2400,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
 
   Fliplet.Page.Context.update(context);
 
-  return _this.getCommentUsers().then(function () {
+  return _this.getCommentUsers().then(function() {
     return _this.getEntryComments({
       id: id,
       force: true
@@ -2377,7 +2415,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       // Convert data/time
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
-      var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+      var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
         return _.get(entry, 'data.settings.user.' + name);
       })).join(' ').trim();
 
@@ -2395,11 +2433,13 @@ DynamicList.prototype.showComments = function(id, commentId) {
       entryComments[index].text = entry.data.settings.text || '';
 
       var myEmail = '';
+
       if (!_.isEmpty(_this.myUserData)) {
         myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
       }
 
       var dataSourceEmail = '';
+
       if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
         dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
       }
@@ -2442,8 +2482,9 @@ DynamicList.prototype.showComments = function(id, commentId) {
       record: entry
     };
 
-    return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function () {
+    return Fliplet.Hooks.run('flListDataBeforeShowComments', hookData).then(function() {
       $commentArea.html(hookData.html);
+
       return Fliplet.Hooks.run('flListDataAfterShowComments', {
         instance: _this,
         config: _this.data,
@@ -2454,7 +2495,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
         comments: entryComments,
         entryId: id,
         record: entry
-      }).then(function () {
+      }).then(function() {
         var scrollTop = $commentArea[0].scrollHeight;
 
         if (commentId) {
@@ -2468,12 +2509,12 @@ DynamicList.prototype.showComments = function(id, commentId) {
         $commentArea.scrollTop(scrollTop);
       });
     });
-  }).catch(function (error) {
+  }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
       message: 'Unable to load comments'
     });
   });
-}
+};
 
 DynamicList.prototype.sendComment = function(id, value) {
   var record = _.find(this.listItems, { id: id });
@@ -2509,6 +2550,7 @@ DynamicList.prototype.sendComment = function(id, value) {
      */
     var toCompareDataEmailPart = user.data[_this.data.userEmailColumn] ? user.data[_this.data.userEmailColumn].match(/[^\@]+[^\.]+/) : null;
     var toCompareEmailPart = myEmail.match(/[^\@]+[^\.]+/);
+
     /**
      * the regexp match could return null
      */
@@ -2532,7 +2574,7 @@ DynamicList.prototype.sendComment = function(id, value) {
     commentGuid: guid
   };
 
-  return Fliplet.Hooks.run('flListDataBeforeNewComment', options).then(function () {
+  return Fliplet.Hooks.run('flListDataBeforeNewComment', options).then(function() {
     value = options.comment;
     guid = options.commentGuid;
 
@@ -2551,7 +2593,7 @@ DynamicList.prototype.sendComment = function(id, value) {
       record: record
     });
 
-    userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+    userName = _.compact(_.map(_this.data.userNameFields, function(name) {
       return _this.myUserData.isSaml2
         ? _.get(userFromDataSource, 'data.' + name)
         : _this.myUserData[name];
@@ -2590,6 +2632,7 @@ DynamicList.prototype.sendComment = function(id, value) {
     }
 
     comment.mentions = [];
+
     if (usersMentioned && usersMentioned.length) {
       usersMentioned.forEach(function(user) {
         comment.mentions.push(user.id);
@@ -2602,7 +2645,7 @@ DynamicList.prototype.sendComment = function(id, value) {
     comment.contentDataSourceEntryId = id;
 
     return _this.getCommentIdentifier(record)
-      .then(function (identifier) {
+      .then(function(identifier) {
         return Fliplet.Profile.Content({ dataSourceId: _this.data.commentsDataSourceId })
           .then(function(instance) {
             return instance.create(identifier, {
@@ -2621,8 +2664,9 @@ DynamicList.prototype.sendComment = function(id, value) {
           commentEntry: comment,
           commentGuid: guid
         };
+
         return Fliplet.Hooks.run('flListDataAfterNewComment', options)
-          .then(function () {
+          .then(function() {
             comment = options.commentEntry || comment;
             record.comments.push(comment);
             _this.replaceComment(guid, comment, 'final');
@@ -2630,7 +2674,7 @@ DynamicList.prototype.sendComment = function(id, value) {
             Fliplet.Hooks.run('flListDataAfterNewCommentShown', options);
           });
       });
-  }).catch(function (error) {
+  }).catch(function(error) {
     // Reverses count if error occurs
     console.error(error);
 
@@ -2643,12 +2687,12 @@ DynamicList.prototype.sendComment = function(id, value) {
       record: record
     });
   });
-}
+};
 
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
-  var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+  var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
     return _this.myUserData.isSaml2
       ? _.get(userFromDataSource, 'data.' + name)
       : _this.myUserData[name];
@@ -2673,15 +2717,16 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
   var tempCommentTemplateCompiled = Handlebars.compile(tempCommentTemplate());
   var tempCommentHTML = tempCommentTemplateCompiled(commentInfo);
   var $commentArea = _this.$container.find('.simple-list-comment-area');
+
   $commentArea.append(tempCommentHTML);
   $commentArea.stop().animate({
     scrollTop: $commentArea[0].scrollHeight
   }, 250);
-}
+};
 
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
-  var userName = _.compact(_.map(_this.data.userNameFields, function (name) {
+  var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
     return _.get(commentData, 'data.settings.user.' + name);
   })).join(' ').trim();
 
@@ -2698,9 +2743,11 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
   var commentEmail = '';
+
   if (commentData.data.settings.user[_this.data.userEmailColumn]) {
     commentEmail = commentData.data.settings.user[_this.data.userEmailColumn];
   }
+
   var commentInfo = {
     id: commentData.id,
     literalDate: commentData.literalDate,
@@ -2708,6 +2755,10 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
     photo: commentData.data.settings.user[_this.data.userPhotoColumn] || '',
     text: commentData.data.settings.text
   };
+
+  var commentTemplate;
+  var commentTemplateCompiled;
+  var commentHTML;
 
   if (context === 'final') {
     // Check if comment is from current user
@@ -2720,23 +2771,23 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
       if (toComparePart.toLowerCase() === toComparePart2.toLowerCase()) {
         commentInfo.currentUser = true;
       }
-    } else {
-      if (commentEmail === myEmail) {
-        commentInfo.currentUser = true;
-      }
+    } else if (commentEmail === myEmail) {
+      commentInfo.currentUser = true;
     }
 
-    var commentTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['single-comment']];
-    var commentTemplateCompiled = Handlebars.compile(commentTemplate());
-    var commentHTML = commentTemplateCompiled(commentInfo);
+    commentTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['single-comment']];
+    commentTemplateCompiled = Handlebars.compile(commentTemplate());
+    commentHTML = commentTemplateCompiled(commentInfo);
   }
+
   if (context === 'temp') {
-    var commentTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['temp-comment']];
-    var commentTemplateCompiled = Handlebars.compile(commentTemplate());
-    var commentHTML = commentTemplateCompiled(commentInfo);
+    commentTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['temp-comment']];
+    commentTemplateCompiled = Handlebars.compile(commentTemplate());
+    commentHTML = commentTemplateCompiled(commentInfo);
   }
+
   _this.$container.find('.fl-individual-comment[data-id="' + guid + '"]').replaceWith(commentHTML);
-}
+};
 
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
@@ -2756,8 +2807,8 @@ DynamicList.prototype.deleteComment = function(id) {
 
   commentHolder.hide();
 
-  return Fliplet.Hooks.run('flListDataBeforeDeleteComment', options).then(function () {
-    return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function (connection) {
+  return Fliplet.Hooks.run('flListDataBeforeDeleteComment', options).then(function() {
+    return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function(connection) {
       return connection.removeById(id, { ack: true });
     }).then(function onRemove() {
       _.remove(entry.comments, { id: id });
@@ -2769,13 +2820,13 @@ DynamicList.prototype.deleteComment = function(id) {
       commentHolder.remove();
       Fliplet.Hooks.run('flListDataAfterDeleteComment', options);
     });
-  }).catch(function (error) {
+  }).catch(function(error) {
     commentHolder.show();
     Fliplet.UI.Toast.error(error, {
       message: 'Error deleting comment'
     });
   });
-}
+};
 
 DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   var _this = this;
@@ -2800,7 +2851,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   };
 
   return Fliplet.Hooks.run('flListDataBeforeUpdateComment', options)
-    .then(function () {
+    .then(function() {
       newComment = options.newComment;
 
       if (!newComment) {
@@ -2829,8 +2880,9 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
             oldCommentData: oldCommentData,
             newCommentData: newCommentData
           };
+
           return Fliplet.Hooks.run('flListDataAfterUpdateComment', options)
-            .then(function () {
+            .then(function() {
               newCommentData = options.newCommentData;
               _this.replaceComment(commentId, newCommentData, 'final');
               options.commentContainer = _this.$container.find('.fl-individual-comment[data-id="' + newCommentData.id + '"]');
@@ -2838,10 +2890,10 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
             });
         });
     })
-    .catch(function (error) {
+    .catch(function(error) {
       _this.replaceComment(commentId, oldCommentData, 'final');
       Fliplet.UI.Toast.error(error, {
         message: 'Error updating comment'
       });
     });
-}
+};
