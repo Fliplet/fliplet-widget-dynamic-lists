@@ -1514,7 +1514,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function setSourceValue(options, data) {
     return new Promise(function(resolve) {
       if (!data.filterOptions.length) {
-        resolve();
+        return resolve();
       }
 
       var entries = options.entries;
@@ -1541,12 +1541,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
             Fliplet.Profile.get(item.fieldValue)
               .then(function(result) {
-                if (!result) {
-                  item.value = '';
-                  return resolve();
-                }
-
-                item.value = result;
+                item.value = result || '';
+                return resolve();
               });
             break;
 
