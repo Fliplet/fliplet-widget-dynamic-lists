@@ -522,7 +522,8 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = false;
       _this.searchData('');
     })
-    .on('show.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
+    .on('show.bs.collapse', '.small-card-filters-panel .panel-collapse', function(event) {
+      event.stopPropagation();
       $(this).siblings('.panel-heading').find('.fa-angle-down').removeClass('fa-angle-down').addClass('fa-angle-up');
     })
     .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
