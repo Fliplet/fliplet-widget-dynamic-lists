@@ -1551,6 +1551,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             break;
 
           default:
+            resolve();
             break;
         }
       });
