@@ -2788,7 +2788,6 @@ var DynamicLists = (function() {
       return Promise.all([likesPromise, bookmarksPromise, commentsPromise]);
     },
     saveSummaryViewOptions: function() {
-        // Get summary view options
       _.forEach(_this.config['summary-fields'], function(item) {
         item.column = $('#summary_select_field_' + item.id).val();
         item.type = $('#summary_select_type_' + item.id).val();
@@ -2817,7 +2816,6 @@ var DynamicLists = (function() {
       });
     },
     saveDetailedViewOptions: function() {
-      // Get detail view options
       _.forEach(_this.config.detailViewOptions, function(item) {
         item.column = $('#detail_select_field_' + item.id).val();
         item.type = $('#detail_select_type_' + item.id).val();
