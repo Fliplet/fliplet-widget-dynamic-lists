@@ -324,7 +324,7 @@ function attahObservers() {
     .on('datasource-init', function() {
       dynamicLists.config.dataSourceProvider.then(function(dataSource) {
         dynamicLists.config.dataSourceId = dataSource.data.id;
-        
+
         if (!withError) {
           save(true);
         }

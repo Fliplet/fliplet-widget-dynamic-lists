@@ -125,6 +125,7 @@ var DynamicLists = (function() {
     });
 
     _this.config.dataSourceProvider = dataSourceProvider;
+
     $(document).trigger('datasource-init');
   }
 
