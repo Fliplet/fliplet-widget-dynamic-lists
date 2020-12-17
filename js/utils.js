@@ -1512,34 +1512,37 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return;
     }
 
+    var entries = options.entries;
+
     data.filterOptions.forEach(function(item) {
-      if (options && options.entries) {
-        var entries = options.entries;
-        if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
-          item.value = entries.dataSource.data[item.fieldValue];
-          return;
-        }
-
-        if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
-          item.value = entries.saml2.data[item.fieldValue];
-          return;
-        }
-
-        if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
-          item.value = entries.flipletLogin.data[item.fieldValue];
-          return;
-        }
-      }
-
-      Fliplet.Profile.get(item.fieldValue)
-        .then(function(result) {
-          if (!result) {
-            item.value = '';
+      if (item.valueType !== 'enter-value') {
+        if (options && options.entries) {
+          if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
+            item.value = entries.dataSource.data[item.fieldValue];
             return;
           }
 
-          item.value = result;
-        });
+          if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
+            item.value = entries.saml2.data[item.fieldValue];
+            return;
+          }
+
+          if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
+            item.value = entries.flipletLogin.data[item.fieldValue];
+            return;
+          }
+        }
+
+        Fliplet.Profile.get(item.fieldValue)
+          .then(function(result) {
+            if (!result) {
+              item.value = '';
+              return;
+            }
+
+            item.value = result;
+          });
+      }
     });
   }
 
