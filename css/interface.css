@@ -1090,6 +1090,26 @@ header .btn,
   border-color: #a94442;
 }
 
+.has-error {
+  border-color: #a94442;
+}
+
+.error-holder {
+  padding: 15px;
+  position: absolute;
+  width: 95%;
+  bottom: 1%;
+  z-index: 10;
+  border-radius: 4px;
+  -webkit-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+  -moz-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+  box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+}
+
+.has-error-text {
+  color: #a94442 !important;
+}
+
 .select-user-email-list-holder {
   margin-top: 25px;
 }

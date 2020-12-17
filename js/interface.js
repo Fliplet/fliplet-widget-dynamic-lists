@@ -668,7 +668,7 @@ var DynamicLists = (function() {
           accessRules: []
         };
         var _this = this;
-  
+
         userDataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
           selector: '#user_data_source_provider',
           data: dataSourceData,
@@ -676,7 +676,7 @@ var DynamicLists = (function() {
             switch (event) {
               case 'dataSourceSelect':
                 _this.config.userDataSourceId = dataSource && dataSource.id;
-  
+
                 if (_this.config.userDataSourceId === 'none' || _this.config.userDataSourceId === '') {
                   $(
                     '.select-user-firstname-holder, .select-user-lastname-holder, .select-user-email-holder, .select-user-photo-holder, .select-photo-folder-type, .select-user-admin-holder'
@@ -684,7 +684,7 @@ var DynamicLists = (function() {
 
                   return;
                 }
-                
+
                 if (dataSource.columns && dataSource.columns.length) {
                   userDataSourceColumns = dataSource.columns;
                   _this.setUpUserTokenFields();
@@ -702,7 +702,7 @@ var DynamicLists = (function() {
         userDataSourceProvider = null;
       }
     },
-    toggleRuleTypes: function(options) { 
+    toggleRuleTypes: function(options) {
       var defaultRule = {
         allow: 'all',
         type: []
@@ -719,12 +719,12 @@ var DynamicLists = (function() {
 
         accessRules.forEach(function(item, index) {
           var typeIndex = item.type.indexOf(type);
-  
+
           if (typeIndex !== -1) {
             accessRuleIndex = index;
           }
         });
-  
+
         if (options[type] && accessRuleIndex === -1) {
           accessRules.push(defaultRule);
         } else if (!options[type] && accessRuleIndex > -1) {
@@ -741,7 +741,7 @@ var DynamicLists = (function() {
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
         $('#value-type-field-' + item.id).val(item.valueType);
-        $('#value-field-' + item.id).val(item.value);
+        $('#value-field-' + item.id).val(item.fieldValue);
       });
     },
     renderSortColumns: function() {
@@ -2557,10 +2557,14 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
         item.valueType = $('#value-type-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+
+        if (item.valueType === 'enter-value') {
+          item.value = item.fieldValue;
+        }
 
         if (item.logic === 'empty' || item.logic === 'notempty') {
           item.valueType = null;
