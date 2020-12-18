@@ -1269,6 +1269,9 @@ var DynamicLists = (function() {
       if (context === 'relations') {
         $('.relations-tab').removeClass('present').addClass('future');
 
+        _this.saveSummaryViewOptions();
+        _this.saveDetailedViewOptions();
+
         dataSourceProvider.close();
         dataSourceProvider = null;
 
@@ -2581,65 +2584,9 @@ var DynamicLists = (function() {
         type: $('#select_type_link').val()
       };
 
-      // Get summary view options
-      _.forEach(_this.config['summary-fields'], function(item) {
-        item.column = $('#summary_select_field_' + item.id).val();
-        item.type = $('#summary_select_type_' + item.id).val();
-        item.customFieldEnabled = item.column === 'custom';
-        item.customField = $('#summary_custom_field_' + item.id).val();
+      _this.saveSummaryViewOptions();
 
-        // Delete unnecessary attributes before saving each item
-        // ...including some legacy settings that are no longer supported
-        delete item.currentApp;
-        delete item.userOrganization;
-        delete item.organizationFolderId;
-        delete item.appFolderId;
-        delete item.imageField;
-
-        if (item.type !== 'image') {
-          delete item.folder;
-
-          return;
-        }
-
-        item.imageField = $('#summary_image_field_type_' + item.id).val();
-
-        if (item.imageField !== 'all-folders') {
-          delete item.folder;
-        }
-      });
-
-      // Get detail view options
-      _.forEach(_this.config.detailViewOptions, function(item) {
-        item.column = $('#detail_select_field_' + item.id).val();
-        item.type = $('#detail_select_type_' + item.id).val();
-        item.fieldLabel = $('#detail_select_label_' + item.id).val();
-        item.customField = $('#detail_custom_field_' + item.id).val();
-        item.customFieldEnabled = item.column === 'custom';
-        item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
-        item.customFieldLabel = $('#detail_custom_field_name_' + item.id).val();
-        item.fieldLabelDisabled = item.fieldLabel === 'no-label';
-
-        // Delete unnecessary attributes before saving each item
-        // ...including some legacy settings that are no longer supported
-        delete item.currentApp;
-        delete item.userOrganization;
-        delete item.organizationFolderId;
-        delete item.appFolderId;
-        delete item.imageField;
-
-        if (item.type !== 'image') {
-          delete item.folder;
-
-          return;
-        }
-
-        item.imageField = $('#detail_image_field_type_' + item.id).val();
-
-        if (item.imageField !== 'all-folders') {
-          delete item.folder;
-        }
-      });
+      _this.saveDetailedViewOptions();
 
       data.detailViewAutoUpdate = $('input#enable-auto-update').is(':checked');
 
@@ -2843,6 +2790,66 @@ var DynamicLists = (function() {
       _this.config = data;
 
       return Promise.all([likesPromise, bookmarksPromise, commentsPromise]);
+    },
+    saveSummaryViewOptions: function() {
+      _.forEach(_this.config['summary-fields'], function(item) {
+        item.column = $('#summary_select_field_' + item.id).val();
+        item.type = $('#summary_select_type_' + item.id).val();
+        item.customFieldEnabled = item.column === 'custom';
+        item.customField = $('#summary_custom_field_' + item.id).val();
+
+        // Delete unnecessary attributes before saving each item
+        // ...including some legacy settings that are no longer supported
+        delete item.currentApp;
+        delete item.userOrganization;
+        delete item.organizationFolderId;
+        delete item.appFolderId;
+        delete item.imageField;
+
+        if (item.type !== 'image') {
+          delete item.folder;
+
+          return;
+        }
+
+        item.imageField = $('#summary_image_field_type_' + item.id).val();
+
+        if (item.imageField !== 'all-folders') {
+          delete item.folder;
+        }
+      });
+    },
+    saveDetailedViewOptions: function() {
+      _.forEach(_this.config.detailViewOptions, function(item) {
+        item.column = $('#detail_select_field_' + item.id).val();
+        item.type = $('#detail_select_type_' + item.id).val();
+        item.fieldLabel = $('#detail_select_label_' + item.id).val();
+        item.customField = $('#detail_custom_field_' + item.id).val();
+        item.customFieldEnabled = item.column === 'custom';
+        item.customFieldLabelEnabled = item.fieldLabel === 'custom-label';
+        item.customFieldLabel = $('#detail_custom_field_name_' + item.id).val();
+        item.fieldLabelDisabled = item.fieldLabel === 'no-label';
+
+        // Delete unnecessary attributes before saving each item
+        // ...including some legacy settings that are no longer supported
+        delete item.currentApp;
+        delete item.userOrganization;
+        delete item.organizationFolderId;
+        delete item.appFolderId;
+        delete item.imageField;
+
+        if (item.type !== 'image') {
+          delete item.folder;
+
+          return;
+        }
+
+        item.imageField = $('#detail_image_field_type_' + item.id).val();
+
+        if (item.imageField !== 'all-folders') {
+          delete item.folder;
+        }
+      });
     }
   };
 
