@@ -1244,10 +1244,10 @@ var DynamicLists = (function() {
       });
     },
     getRowColumnValue: function(item) {
-      return item.columns.indexOf(item.column) !== -1
-        || (item.column === 'empty' || item.column === 'custom')
-        ? item.column
-        : null;
+      if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
+        return item.column;
+      }
+      return null;
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
