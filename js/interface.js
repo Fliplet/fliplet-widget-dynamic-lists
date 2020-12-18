@@ -1201,7 +1201,7 @@ var DynamicLists = (function() {
         }
 
         item.columns = dataSourceColumns || _this.config.defaultColumns;
-        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item.column = _this.getRowColumnValue(item);
         item = _this.updateWithFoldersInfo(item, 'summary');
         _this.addSummaryItem(item);
 
@@ -1223,7 +1223,7 @@ var DynamicLists = (function() {
       $detailsRowContainer.empty();
       _.forEach(_this.config.detailViewOptions, function(item) {
         item.columns = dataSourceColumns;
-        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item.column =_this.getRowColumnValue(item);
         item = _this.updateWithFoldersInfo(item, 'details');
         _this.addDetailItem(item);
 
@@ -1242,6 +1242,12 @@ var DynamicLists = (function() {
             .find('.selected-folder').removeClass('hidden');
         }
       });
+    },
+    getRowColumnValue: function(item) {
+      return item.columns.indexOf(item.column) !== -1
+        || (item.column === 'empty' || item.column === 'custom')
+        ? item.column
+        : null;
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
