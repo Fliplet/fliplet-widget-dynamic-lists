@@ -2,6 +2,7 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
 var page = Fliplet.Widget.getPage();
 var dynamicLists;
+var dataSourceProvider;
 
 var omitPages = page ? [page.id] : [];
 var addEntryLinkAction;
@@ -66,7 +67,7 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
-    dynamicLists.config.dataSourceProvider.forwardSaveRequest();
+    dataSourceProvider().forwardSaveRequest();
   });
 }
 
@@ -202,6 +203,7 @@ function initialize() {
   linkProviderInit();
   attahObservers();
   dynamicLists = new DynamicLists(widgetData);
+  dataSourceProvider = Fliplet.Registry.get('datasource-provider');
 }
 
 function validate(value) {
@@ -321,8 +323,8 @@ function attahObservers() {
         selectedFieldId.push(fieldId);
       }
     })
-    .on('datasource-init', function() {
-      dynamicLists.config.dataSourceProvider.then(function(dataSource) {
+    .on('datasource-initialized', function() {
+      dataSourceProvider().then(function(dataSource) {
         dynamicLists.config.dataSourceId = dataSource.data.id;
 
         if (!withError) {
