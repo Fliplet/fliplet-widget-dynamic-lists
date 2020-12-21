@@ -1511,47 +1511,58 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
-  function setFilterValues(data) {
+  function setFilterValues(options) {
     return new Promise(function(resolve) {
-      if (!data.filterOptions.length) {
+      if (!(options.config.filterOptions || []).length) {
         return resolve();
       }
 
-      data.filterOptions.forEach(function(item) {
-        switch (item.valueType) {
-          case 'user-profile-data':
-            Fliplet.User.getCachedSession()
-              .then(function(options) {
-                var entries = options.entries;
+      var promises = [];
 
-                if (options && options.entries) {
-                  if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
-                    item.value = entries.dataSource.data[item.fieldValue];
-                    return resolve();
-                  }
+      options.config.filterOptions.forEach(function(item, index) {
+        promises.push(
+          new Promise(function(res) {
+            switch (item.valueType) {
+              case 'user-profile-data':
+                Fliplet.User.getCachedSession()
+                  .then(function(data) {
+                    var entries = data.entries;
 
-                  if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
-                    item.value = entries.saml2.data[item.fieldValue];
-                    return resolve();
-                  }
+                    if (data && entries) {
+                      if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
+                        item.value = entries.dataSource.data[item.fieldValue];
+                        res();
+                      }
 
-                  if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
-                    item.value = entries.flipletLogin.data[item.fieldValue];
-                    return resolve();
-                  }
-                }
+                      if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
+                        item.value = entries.saml2.data[item.fieldValue];
+                        res();
+                      }
 
-                Fliplet.Profile.get(item.fieldValue)
-                  .then(function(result) {
-                    item.value = result || '';
-                    return resolve();
+                      if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
+                        item.value = entries.flipletLogin.data[item.fieldValue];
+                        res();
+                      }
+                    }
+
+                    if (!item.value) {
+                      Fliplet.Profile.get(item.fieldValue)
+                        .then(function(result) {
+                          item.value = result || '';
+                          res();
+                        });
+                    }
                   });
-              });
-            break;
+                break;
 
-          default:
-            return resolve();
-        }
+              default:
+                return;
+            }
+          })
+        );
+      });
+      Promise.all(promises).then(function() {
+        return resolve();
       });
     });
   }
