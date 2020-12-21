@@ -1223,7 +1223,7 @@ var DynamicLists = (function() {
       $detailsRowContainer.empty();
       _.forEach(_this.config.detailViewOptions, function(item) {
         item.columns = dataSourceColumns;
-        item.column =_this.getRowColumnValue(item);
+        item.column = _this.getRowColumnValue(item);
         item = _this.updateWithFoldersInfo(item, 'details');
         _this.addDetailItem(item);
 
@@ -1247,6 +1247,7 @@ var DynamicLists = (function() {
       if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
         return item.column;
       }
+
       return null;
     },
     loadTokenFields: function() {
