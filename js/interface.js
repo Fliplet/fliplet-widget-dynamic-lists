@@ -119,7 +119,7 @@ var DynamicLists = (function() {
             _this.updateDetailsRowContainer();
             _this.renderSortColumns();
             _this.renderFilterColumns();
-            _this.updateFieldsWithColumns(dataSource.columns);
+            _this.updateFieldsWithColumns(dataSourceColumns);
           }
         }
       }
