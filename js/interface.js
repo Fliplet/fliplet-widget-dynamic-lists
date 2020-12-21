@@ -1243,6 +1243,10 @@ var DynamicLists = (function() {
         }
       });
     },
+    // If selected data field may be used by new selected datasource
+    // returns item.column value
+    // otherwise returns null to show '-- Select a data field' in options
+    // instead of an empty string
     getRowColumnValue: function(item) {
       if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
         return item.column;
