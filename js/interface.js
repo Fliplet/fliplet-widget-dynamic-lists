@@ -709,23 +709,25 @@ var DynamicLists = (function() {
       };
 
       for (var type in options) {
-        if (options.hasOwnProperty(type)) {
-          var accessRuleIndex = -1;
-  
-          accessRules.forEach(function(item, index) {
-            var typeIndex = item.type.indexOf(type);
-  
-            if (typeIndex !== -1) {
-              accessRuleIndex = index;
-            }
-          });
-  
-          if (options[type] && accessRuleIndex === -1) {
-            defaultRule.type = [type];
-            accessRules.push(defaultRule);
-          } else if (!options[type] && accessRuleIndex > -1) {
-            accessRules.splice(accessRuleIndex, 1);
+        if (!options.hasOwnProperty(type)) {
+          continue;
+        }
+
+        var accessRuleIndex = -1;
+
+        accessRules.forEach(function(item, index) {
+          var typeIndex = item.type.indexOf(type);
+
+          if (typeIndex !== -1) {
+            accessRuleIndex = index;
           }
+        });
+
+        if (options[type] && accessRuleIndex === -1) {
+          defaultRule.type = [type];
+          accessRules.push(defaultRule);
+        } else if (!options[type] && accessRuleIndex > -1) {
+          accessRules.splice(accessRuleIndex, 1);
         }
       }
     },
