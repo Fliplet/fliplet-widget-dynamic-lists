@@ -2,6 +2,7 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
 var page = Fliplet.Widget.getPage();
 var dynamicLists;
+var dataSourceProvider;
 
 var omitPages = page ? [page.id] : [];
 var addEntryLinkAction;
@@ -66,10 +67,7 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
-
-    if (!withError) {
-      save(true);
-    }
+    dataSourceProvider().forwardSaveRequest();
   });
 }
 
@@ -205,6 +203,7 @@ function initialize() {
   linkProviderInit();
   attahObservers();
   dynamicLists = new DynamicLists(widgetData);
+  dataSourceProvider = Fliplet.Registry.get('datasource-provider');
 }
 
 function validate(value) {
@@ -323,6 +322,15 @@ function attahObservers() {
       } else if ($('#detail_image_field_type_' + fieldId).val() === 'all-folders') {
         selectedFieldId.push(fieldId);
       }
+    })
+    .on('datasource-initialized', function() {
+      dataSourceProvider().then(function(dataSource) {
+        dynamicLists.config.dataSourceId = dataSource.data.id;
+
+        if (!withError) {
+          save(true);
+        }
+      });
     });
 
   $('[data-toggle="tooltip"]').tooltip();
