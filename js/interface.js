@@ -1249,6 +1249,7 @@ var DynamicLists = (function() {
     },
     /**
      * Validates a column name from field settings
+     * @returns {String} column name
      */
     validateColumn: function(item) {
       if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
