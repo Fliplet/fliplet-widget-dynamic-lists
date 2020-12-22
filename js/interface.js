@@ -1199,11 +1199,14 @@ var DynamicLists = (function() {
         }
 
         item.columns = dataSourceColumns || _this.config.defaultColumns;
-        item.column = _this.getRowColumnValue(item);
+        item.column = _this.validateColumn({
+          column: item.column,
+          columns: item.columns
+        });
         item = _this.updateWithFoldersInfo(item, 'summary');
         _this.addSummaryItem(item);
 
-        $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#summary_select_field_' + item.id).val(item.column).trigger('change');
         $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
         $('#summary_custom_field_' + item.id).val(item.customField || '');
         item.imageField = _this.validateImageFieldOption(item.imageField);
@@ -1221,11 +1224,14 @@ var DynamicLists = (function() {
       $detailsRowContainer.empty();
       _.forEach(_this.config.detailViewOptions, function(item) {
         item.columns = dataSourceColumns;
-        item.column = _this.getRowColumnValue(item);
+        item.column = _this.validateColumn({
+          column: item.column,
+          columns: item.columns
+        });
         item = _this.updateWithFoldersInfo(item, 'details');
         _this.addDetailItem(item);
 
-        $('#detail_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#detail_select_field_' + item.id).val(item.column).trigger('change');
         $('#detail_select_type_' + item.id).val(item.type || 'text').trigger('change');
         $('#detail_select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
         $('#detail_custom_field_' + item.id).val(item.customField || '');
@@ -1241,16 +1247,15 @@ var DynamicLists = (function() {
         }
       });
     },
-    // If selected data field may be used by new selected datasource
-    // returns item.column value
-    // otherwise returns null to show '-- Select a data field' in options
-    // instead of an empty string
-    getRowColumnValue: function(item) {
+    /**
+     * Validates a column name from field settings
+     */
+    validateColumn: function(item) {
       if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
         return item.column;
       }
 
-      return null;
+      return 'none';
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
