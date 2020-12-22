@@ -1512,16 +1512,18 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function setFilterValues(options) {
-    return new Promise(function(resolve) {
-      if (!(options.config.filterOptions || []).length) {
-        return resolve();
-      }
+    options = options || {};
 
-      var promises = [];
+    if (options.config) {
+      return new Promise(function(resolve) {
+        if (!(options.config.filterOptions || []).length) {
+          return resolve();
+        }
 
-      options.config.filterOptions.forEach(function(item, index) {
-        promises.push(
-          new Promise(function(res) {
+        var promises = [];
+
+        options.config.filterOptions.forEach(function(item) {
+          var promise = new Promise(function(res) {
             switch (item.valueType) {
               case 'user-profile-data':
                 Fliplet.User.getCachedSession()
@@ -1558,13 +1560,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               default:
                 return;
             }
-          })
-        );
+          });
+          promises.push(promise);
+        });
+        Promise.all(promises).then(function() {
+          return resolve();
+        });
       });
-      Promise.all(promises).then(function() {
-        return resolve();
-      });
-    });
+    }
   }
 
   function openLinkAction(options) {
