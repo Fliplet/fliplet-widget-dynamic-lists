@@ -1515,58 +1515,30 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     if (options.config) {
-      return new Promise(function(resolve) {
-        if (!(options.config.filterOptions || []).length) {
-          return resolve();
-        }
+      // Set options default in case it's undefined
+      options = options || {};
 
-        var promises = [];
+      if (!options.config) {
+        return Promise.resolve();
+      }
 
-        options.config.filterOptions.forEach(function(item) {
-          var promise = new Promise(function(res) {
-            switch (item.valueType) {
-              case 'user-profile-data':
-                Fliplet.User.getCachedSession()
-                  .then(function(data) {
-                    var entries = data.entries;
-
-                    if (data && entries) {
-                      if (entries.dataSource && entries.dataSource.data.hasOwnProperty(item.fieldValue)) {
-                        item.value = entries.dataSource.data[item.fieldValue];
-                        res();
-                      }
-
-                      if (entries.saml2 && entries.saml2.data.hasOwnProperty(item.fieldValue)) {
-                        item.value = entries.saml2.data[item.fieldValue];
-                        res();
-                      }
-
-                      if (entries.flipletLogin && entries.flipletLogin.data.hasOwnProperty(item.fieldValue)) {
-                        item.value = entries.flipletLogin.data[item.fieldValue];
-                        res();
-                      }
-                    }
-
-                    if (!item.value) {
-                      Fliplet.Profile.get(item.fieldValue)
-                        .then(function(result) {
-                          item.value = result || '';
-                          res();
-                        });
-                    }
-                  });
-                break;
-
-              default:
-                return;
-            }
-          });
-          promises.push(promise);
+      // Using lodash function so the IF clause above doesn't need to check for options.config.filterOptions
+      return Promise.all(_.map(options.config.filterOptions, function(item) {
+        return new Promise(function(resolve) {
+          switch (item.valueType) {
+            // Simplified summary of your current code (excl. other recommended changes)
+            case 'user-profile-data':
+              Fliplet.User.getCachedSession()
+                .then(function(session) {
+                  item.value = session.entries ? session.entries.dataSource.data[item.fieldValue] : '';
+                  resolve();
+                });
+              break;
+            default:
+              break;
+          }
         });
-        Promise.all(promises).then(function() {
-          return resolve();
-        });
-      });
+      }));
     }
   }
 
