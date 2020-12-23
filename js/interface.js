@@ -1249,6 +1249,11 @@ var DynamicLists = (function() {
     },
     /**
      * Validates a column name from field settings
+     *
+     * @param {Object} options - object with settings for sort list items
+     *        keys:
+     *          column {String} - selected column name
+     *          columns {Array} - array datasource or default columns
      * @returns {String} column name
      */
     validateColumn: function(item) {
