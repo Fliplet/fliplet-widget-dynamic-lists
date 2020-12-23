@@ -1512,14 +1512,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function setFilterValues(options) {
-    // Set options default in case it's undefined
     options = options || {};
 
     if (!options.config) {
       return Promise.resolve();
     }
 
-    // Using lodash function so the IF clause above doesn't need to check for options.config.filterOptions
     return Promise.all(_.map(options.config.filterOptions, function(item) {
       return new Promise(function(resolve) {
         switch (item.valueType) {
