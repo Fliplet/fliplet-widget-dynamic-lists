@@ -1521,7 +1521,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return Promise.all(_.map(options.config.filterOptions, function(item) {
       return new Promise(function(resolve) {
         switch (item.valueType) {
-          // Simplified summary of your current code (excl. other recommended changes)
           case 'user-profile-data':
             Fliplet.User.getCachedSession()
               .then(function(session) {
