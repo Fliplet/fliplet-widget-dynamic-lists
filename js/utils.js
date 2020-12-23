@@ -1518,22 +1518,25 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return Promise.resolve();
     }
 
-    return Promise.all(_.map(options.config.filterOptions, function(item) {
-      return new Promise(function(resolve) {
-        switch (item.valueType) {
-          // Simplified summary of your current code (excl. other recommended changes)
-          case 'user-profile-data':
-            Fliplet.User.getCachedSession()
-              .then(function(session) {
-                item.value = session.entries ? session.entries.dataSource.data[item.fieldValue] : '';
-                resolve();
-              });
-            break;
-          default:
-            resolve();
-        }
-      });
-    }));
+    return new Promise(function(resolve) {
+      Fliplet.User.getCachedSession()
+        .then(function(session) {
+          debugger;
+          if (options.config.filterOptions.length) {
+            return Promise.all(_.map(options.config.filterOptions, function(item) {
+              switch (item.valueType) {
+                case 'user-profile-data':
+                  item.value = session.entries ? session.entries.dataSource.data[item.fieldValue] : '';
+                  resolve();
+                  break;
+                default:
+                  resolve();
+              }
+            }));
+          }
+          resolve();
+        });
+    });
   }
 
   function openLinkAction(options) {
