@@ -1521,6 +1521,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return new Promise(function(resolve) {
       Fliplet.User.getCachedSession()
         .then(function(session) {
+          debugger;
           if (options.config.filterOptions.length) {
             return Promise.all(_.map(options.config.filterOptions, function(item) {
               switch (item.valueType) {
