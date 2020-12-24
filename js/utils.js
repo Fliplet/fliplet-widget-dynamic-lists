@@ -1538,7 +1538,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
                 }
 
                 if (entries.saml2) {
-                  item.value = entries.saml2 .data[item.fieldValue];
+                  item.value = entries.saml2.data[item.fieldValue];
                   resolve();
                 }
 
