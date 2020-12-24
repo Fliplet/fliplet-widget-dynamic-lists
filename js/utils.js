@@ -1513,6 +1513,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function setFilterValues(options) {
     var sessionData;
+
     options = options || {};
 
     if (!options.config) {
