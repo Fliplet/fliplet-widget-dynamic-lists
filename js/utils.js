@@ -1547,6 +1547,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
                   resolve();
                 }
               }
+
+              if (!item.value) {
+                Fliplet.Profile.get(item.fieldValue)
+                  .then(function(result) {
+                    item.value = result || '';
+                    resolve();
+                  });
+              }
             });
             break;
           default:
