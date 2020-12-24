@@ -1512,6 +1512,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function setFilterValues(options) {
+    var sessionData;
     options = options || {};
 
     if (!options.config) {
@@ -1522,11 +1523,30 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return new Promise(function(resolve) {
         switch (item.valueType) {
           case 'user-profile-data':
-            Fliplet.User.getCachedSession()
-              .then(function(session) {
-                item.value = session.entries ? session.entries.dataSource.data[item.fieldValue] : '';
-                resolve();
-              });
+            if (!sessionData) {
+              sessionData = Fliplet.User.getCachedSession();
+            }
+
+            sessionData.then(function(session) {
+              var entries = session.entries;
+
+              if (session && entries) {
+                if (entries.dataSource) {
+                  item.value = entries.dataSource.data[item.fieldValue];
+                  resolve();
+                }
+
+                if (entries.saml2 ) {
+                  item.value = entries.saml2 .data[item.fieldValue];
+                  resolve();
+                }
+
+                if (entries.flipletLogin ) {
+                  item.value = entries.flipletLogin.data[item.fieldValue];
+                  resolve();
+                }
+              }
+            });
             break;
           default:
             resolve();
