@@ -1541,7 +1541,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
                   resolve();
                 }
 
-                if (entries.flipletLogin ) {
+                if (entries.flipletLogin) {
                   item.value = entries.flipletLogin.data[item.fieldValue];
                   resolve();
                 }
