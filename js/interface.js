@@ -236,19 +236,27 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
 
-          if (type === 'field') {
-            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
-          }
+          switch (type) {
+            case 'field':
+              $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+              break;
 
-          if (type === 'logic') {
-            var hideValueFields = value === 'empty' || value === 'notempty';
+            case 'logic':
+              var hideValueFields = value === 'empty' || value === 'notempty' || value === 'between';
+              var isLogicComparasion = value === 'between';
 
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
-          }
+              $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
+              $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
 
-          if (type === 'valueType') {
-            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              $selector.find('.panel-title-text .value, #value-dash, #logic-comparasion').toggleClass('hidden', !isLogicComparasion);
+              break;
+
+            case 'valueType':
+              $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              break;
+
+            default:
+              break;
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -738,8 +746,16 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-type-field-' + item.id).val(item.valueType);
-        $('#value-field-' + item.id).val(item.value);
+        if (item.logic !== 'between') {
+          $('#value-type-field-' + item.id).val(item.valueType);
+          $('#value-field-' + item.id).val(item.value);
+        } else {
+          $('#value-type-field-from-' + item.id).val(item.valueType.from);
+          $('#value-type-field-to-' + item.id).val(item.valueType.to);
+
+          $('#value-field-from-' + item.id).val(item.value.from);
+          $('#value-field-to-' + item.id).val(item.value.to);
+        }
       });
     },
     renderSortColumns: function() {
@@ -1906,9 +1922,13 @@ var DynamicLists = (function() {
 
       $filterAccordionContainer.append($newPanel);
 
-      if (data.logic === 'empty' || data.logic === 'notempty') {
+      if (data.logic === 'empty' || data.logic === 'notempty' || data.logic === 'between') {
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
+      }
+
+      if (data.logic !== 'between') {
+        $newPanel.find('.panel-title-text .value, #value-dash, #logic-comparasion').addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
@@ -2566,6 +2586,16 @@ var DynamicLists = (function() {
         if (item.logic === 'empty' || item.logic === 'notempty') {
           item.valueType = null;
           item.value = '';
+        }
+
+        if (item.logic === 'between') {
+          var valueTypeFrom = $('#value-type-field-from-' + item.id).val();
+          var valueTypeTo = $('#value-type-field-to-' + item.id).val();
+          var valueFrom = $('#value-field-from-' + item.id).val();
+          var valueTo = $('#value-field-to-' + item.id).val();
+
+          item.valueType = { from: valueTypeFrom, to: valueTypeTo };
+          item.value = { from: valueFrom, to: valueTo };
         }
       });
 

@@ -469,6 +469,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         switch (condition) {
           case 'contains':
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1;
+          case 'between':
+            if (filter.value.from !== '' &&  filter.value.to !== '') {
+              return smartParseFloat(rowData) >= smartParseFloat(filter.value.from) && smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
+            } else if (filter.value.from !== '' && filter.value.to === '') {
+              return smartParseFloat(rowData) >= smartParseFloat(filter.value.from);
+            } else if (filter.value.to !== '' && filter.value.from === '') {
+              return smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
+            }
+            break;
           case 'notcontain':
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1;
           case 'regex':
