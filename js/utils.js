@@ -452,6 +452,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
+        if (condition === 'oneof') {
+          return splitByCommas(filter.value).includes(rowData);
+        }
+
         if (!filter.value) {
           // Value is not configured
           return true;
