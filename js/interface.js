@@ -84,6 +84,10 @@ var DynamicLists = (function() {
 
     _this.attachListeners();
     _this.init();
+
+    Fliplet.Registry.set('datasource-provider', function() {
+      return dataSourceProvider;
+    });
   }
 
   function initDataSourceProvider(currentDataSourceId) {
@@ -119,19 +123,14 @@ var DynamicLists = (function() {
             _this.updateDetailsRowContainer();
             _this.renderSortColumns();
             _this.renderFilterColumns();
+            _this.updateFieldsWithColumns(dataSourceColumns);
           }
         }
       }
     });
 
-    dataSourceProvider.then(function(dataSource) {
-      _this.config.dataSourceId = dataSource.data.id;
-    });
+    $(document).trigger('datasource-initialized');
   }
-
-  Fliplet.Widget.onSaveRequest(function() {
-    dataSourceProvider.forwardSaveRequest();
-  });
 
   DynamicLists.prototype = {
     // Public functions
@@ -708,24 +707,23 @@ var DynamicLists = (function() {
         type: []
       };
 
-      for ( var type in options ) {
-        if (!options[type]) {
+      for (var type in options) {
+        if (!options.hasOwnProperty(type)) {
           continue;
         }
 
         var accessRuleIndex = -1;
 
-        defaultRule.type = [type];
-
         accessRules.forEach(function(item, index) {
           var typeIndex = item.type.indexOf(type);
-  
+
           if (typeIndex !== -1) {
             accessRuleIndex = index;
           }
         });
-  
+
         if (options[type] && accessRuleIndex === -1) {
+          defaultRule.type = [type];
           accessRules.push(defaultRule);
         } else if (!options[type] && accessRuleIndex > -1) {
           accessRules.splice(accessRuleIndex, 1);
