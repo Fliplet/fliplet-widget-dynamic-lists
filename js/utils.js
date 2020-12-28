@@ -470,7 +470,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           case 'contains':
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1;
           case 'between':
-            if (!isNaN(filter.value.from) && !isNaN(filter.value.to)) {
+            if (!!filter.value.from.trim() && !!filter.value.to.trim()) {
               return smartParseFloat(rowData) >= smartParseFloat(filter.value.from) && smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
             }
 
