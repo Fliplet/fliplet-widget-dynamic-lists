@@ -470,14 +470,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           case 'contains':
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1;
           case 'between':
-            if (filter.value.from !== '' &&  filter.value.to !== '') {
+            if (!isNaN(filter.value.from) && !isNaN(filter.value.to)) {
               return smartParseFloat(rowData) >= smartParseFloat(filter.value.from) && smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
-            } else if (filter.value.from !== '' && filter.value.to === '') {
-              return smartParseFloat(rowData) >= smartParseFloat(filter.value.from);
-            } else if (filter.value.to !== '' && filter.value.from === '') {
-              return smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
             }
-            break;
+
+            return smartParseFloat(rowData) >= smartParseFloat(filter.value.from) || smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
           case 'notcontain':
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1;
           case 'regex':
