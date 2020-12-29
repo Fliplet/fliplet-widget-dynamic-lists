@@ -1055,6 +1055,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return options.records;
     }
 
+    // Saving sort parametrs so when users comes back to the page through a BACK navigation, the sort order is restored
+    Fliplet.Page.Context.update({
+      dynamicListFilterColumn: options.sortField,
+      dynamicListFilterOrder: options.sortOrder
+    });
+
     var records = _.clone(options.records);
     var isSortAsc = options.sortOrder === 'asc';
     var sortField = options.sortField;
