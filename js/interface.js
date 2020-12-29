@@ -746,6 +746,7 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
+
         if (item.logic !== 'between') {
           $('#value-type-field-' + item.id).val(item.valueType);
           $('#value-field-' + item.id).val(item.value);
