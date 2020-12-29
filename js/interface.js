@@ -248,7 +248,7 @@ var DynamicLists = (function() {
               $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
               $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
 
-              $selector.find('.panel-title-text .value, #value-dash, #logic-comparasion').toggleClass('hidden', !isLogicComparasion);
+              $selector.find('.panel-title-text .value, #value-dash, #logic-comparison').toggleClass('hidden', !isLogicComparasion);
               break;
 
             case 'valueType':
@@ -1951,7 +1951,7 @@ var DynamicLists = (function() {
       }
 
       if (data.logic !== 'between') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #logic-comparasion').addClass('hidden');
+        $newPanel.find('.panel-title-text .value, #value-dash, #logic-comparison').addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
