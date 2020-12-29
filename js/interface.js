@@ -242,7 +242,7 @@ var DynamicLists = (function() {
               break;
 
             case 'logic':
-              var hideValueFields = value === 'empty' || value === 'notempty' || value === 'between';
+              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
               var isLogicComparasion = value === 'between';
 
               $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
