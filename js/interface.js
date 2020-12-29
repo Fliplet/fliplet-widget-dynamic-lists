@@ -667,7 +667,7 @@ var DynamicLists = (function() {
           accessRules: []
         };
         var _this = this;
-  
+
         userDataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
           selector: '#user_data_source_provider',
           data: dataSourceData,
@@ -675,7 +675,7 @@ var DynamicLists = (function() {
             switch (event) {
               case 'dataSourceSelect':
                 _this.config.userDataSourceId = dataSource && dataSource.id;
-  
+
                 if (_this.config.userDataSourceId === 'none' || _this.config.userDataSourceId === '') {
                   $(
                     '.select-user-firstname-holder, .select-user-lastname-holder, .select-user-email-holder, .select-user-photo-holder, .select-photo-folder-type, .select-user-admin-holder'
@@ -683,12 +683,13 @@ var DynamicLists = (function() {
 
                   return;
                 }
-                
+
                 if (dataSource.columns && dataSource.columns.length) {
                   userDataSourceColumns = dataSource.columns;
                   _this.setUpUserTokenFields();
                   _this.updateUserFieldsWithColumns(dataSource.columns);
                 }
+
                 break;
               default:
                 break;
@@ -701,17 +702,16 @@ var DynamicLists = (function() {
         userDataSourceProvider = null;
       }
     },
-    toggleRuleTypes: function(options) { 
-      var defaultRule = {
-        allow: 'all',
-        type: []
-      };
-
+    toggleRuleTypes: function(options) {
       for (var type in options) {
         if (!options.hasOwnProperty(type)) {
           continue;
         }
 
+        var defaultRule = {
+          allow: 'all',
+          type: []
+        };
         var accessRuleIndex = -1;
 
         accessRules.forEach(function(item, index) {
@@ -1199,11 +1199,14 @@ var DynamicLists = (function() {
         }
 
         item.columns = dataSourceColumns || _this.config.defaultColumns;
-        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item.column = _this.validateColumn({
+          column: item.column,
+          columns: item.columns
+        });
         item = _this.updateWithFoldersInfo(item, 'summary');
         _this.addSummaryItem(item);
 
-        $('#summary_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#summary_select_field_' + item.id).val(item.column).trigger('change');
         $('#summary_select_type_' + item.id).val(item.type || 'text').trigger('change');
         $('#summary_custom_field_' + item.id).val(item.customField || '');
         item.imageField = _this.validateImageFieldOption(item.imageField);
@@ -1221,11 +1224,14 @@ var DynamicLists = (function() {
       $detailsRowContainer.empty();
       _.forEach(_this.config.detailViewOptions, function(item) {
         item.columns = dataSourceColumns;
-        item.column = item.columns.indexOf(item.column) !== -1 ? item.column : null;
+        item.column = _this.validateColumn({
+          column: item.column,
+          columns: item.columns
+        });
         item = _this.updateWithFoldersInfo(item, 'details');
         _this.addDetailItem(item);
 
-        $('#detail_select_field_' + item.id).val(item.column || 'none').trigger('change');
+        $('#detail_select_field_' + item.id).val(item.column).trigger('change');
         $('#detail_select_type_' + item.id).val(item.type || 'text').trigger('change');
         $('#detail_select_label_' + item.id).val(item.fieldLabel || 'column-name').trigger('change');
         $('#detail_custom_field_' + item.id).val(item.customField || '');
@@ -1240,6 +1246,22 @@ var DynamicLists = (function() {
             .find('.selected-folder').removeClass('hidden');
         }
       });
+    },
+    /**
+     * Validates a column name from field settings
+     *
+     * @param {Object} item - object with settings for sort list items
+     *        keys:
+     *          column {String} - selected column name
+     *          columns {Array} - array datasource or default columns
+     * @returns {String} column name
+     */
+    validateColumn: function(item) {
+      if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
+        return item.column;
+      }
+
+      return 'none';
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
