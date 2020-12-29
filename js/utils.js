@@ -457,6 +457,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return true;
         }
 
+        if (condition === 'between') {
+          return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
+        }
+
         // Case insensitive
         if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
@@ -469,12 +473,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         switch (condition) {
           case 'contains':
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) > -1;
-          case 'between':
-            if (!!filter.value.from.trim() && !!filter.value.to.trim()) {
-              return smartParseFloat(rowData) >= smartParseFloat(filter.value.from) && smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
-            }
-
-            return smartParseFloat(rowData) >= smartParseFloat(filter.value.from) || smartParseFloat(rowData) <= smartParseFloat(filter.value.to);
           case 'notcontain':
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1;
           case 'regex':
