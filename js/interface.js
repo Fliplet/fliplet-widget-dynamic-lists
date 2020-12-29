@@ -243,12 +243,12 @@ var DynamicLists = (function() {
 
             case 'logic':
               var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
-              var isLogicComparasion = value === 'between';
+              var isLogicComparison = value === 'between';
 
               $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
               $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
 
-              $selector.find('.panel-title-text .value, #value-dash, #logic-comparison').toggleClass('hidden', !isLogicComparasion);
+              $selector.find('.panel-title-text .value, #value-dash, #logic-comparison').toggleClass('hidden', !isLogicComparison);
               break;
 
             case 'valueType':
