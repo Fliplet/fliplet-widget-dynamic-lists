@@ -38,7 +38,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   });
   this.queryPreFilter = _(this.pvPreFilterQuery).size() > 0;
 
-  // We can sort only by one column that is why this syntax dosn't supports
+  // We can sort only by one column that is why this syntax doesn't support
   // ?dynamicListFilterColumn=Name,Age&dynamicListFilterOrder=asc
   // Correct example is
   // ?dynamicListFilterColumn=Name&dynamicListFilterOrder=asc
