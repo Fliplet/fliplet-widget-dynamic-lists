@@ -235,6 +235,7 @@ var DynamicLists = (function() {
           var value = $(this).val();
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
+          var id = $(this).attr('filter-item-id');
 
           switch (type) {
             case 'field':
@@ -245,10 +246,9 @@ var DynamicLists = (function() {
               var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
               var isLogicComparison = value === 'between';
 
-              $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
-              $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+              $selector.find('.panel-title-text .value, #value-dash, #filter-value-type, #filter-value').toggleClass('hidden', hideValueFields);
 
-              $selector.find('.panel-title-text .value, #value-dash, #logic-comparison').toggleClass('hidden', !isLogicComparison);
+              $selector.find('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
               break;
 
             case 'valueType':
@@ -750,13 +750,15 @@ var DynamicLists = (function() {
         if (item.logic !== 'between') {
           $('#value-type-field-' + item.id).val(item.valueType);
           $('#value-field-' + item.id).val(item.value);
-        } else {
-          $('#value-type-field-from-' + item.id).val(item.valueType.from);
-          $('#value-type-field-to-' + item.id).val(item.valueType.to);
 
-          $('#value-field-from-' + item.id).val(item.value.from);
-          $('#value-field-to-' + item.id).val(item.value.to);
+          return;
         }
+
+        $('#value-type-field-from-' + item.id).val(item.valueType.from);
+        $('#value-type-field-to-' + item.id).val(item.valueType.to);
+
+        $('#value-field-from-' + item.id).val(item.value.from);
+        $('#value-field-to-' + item.id).val(item.value.to);
       });
     },
     renderSortColumns: function() {
@@ -1946,12 +1948,11 @@ var DynamicLists = (function() {
       $filterAccordionContainer.append($newPanel);
 
       if (['empty', 'notempty', 'between'].indexOf(data.logic) !== -1) {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
+        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type, #filter-value').addClass('hidden');
       }
 
       if (data.logic !== 'between') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #logic-comparison').addClass('hidden');
+        $newPanel.find('#logic-comparison-' + data.id).addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
