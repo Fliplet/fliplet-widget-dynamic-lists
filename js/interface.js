@@ -1352,6 +1352,19 @@ var DynamicLists = (function() {
         showAutocompleteOnFocus: true,
         createTokensOnBlur: false
       });
+      $('.sort-fields').html(tokenField({
+        name: 'sort-column-fields',
+        id: 'sort-column-fields-tokenfield',
+        createTokensOnBlur: false
+      }));
+      $('#sort-column-fields-tokenfield').tokenfield('destroy').tokenfield({
+        autocomplete: {
+          source: dataSourceColumns || _this.config.defaultColumns,
+          delay: 100
+        },
+        showAutocompleteOnFocus: true,
+        createTokensOnBlur: false
+      });
 
       _this.handleTokensSelection();
       _this.loadTokenFields();
