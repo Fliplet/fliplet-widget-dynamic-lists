@@ -248,7 +248,7 @@ var DynamicLists = (function() {
 
               $selector.find('.panel-title-text .value, #value-dash, #filter-value-type, #filter-value').toggleClass('hidden', hideValueFields);
 
-              $selector.find('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+              $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
               break;
 
             case 'valueType':
@@ -1952,7 +1952,7 @@ var DynamicLists = (function() {
       }
 
       if (data.logic !== 'between') {
-        $newPanel.find('#logic-comparison-' + data.id).addClass('hidden');
+        $('#logic-comparison-' + data.id).addClass('hidden');
       }
     },
     addSummaryItem: function(data) {

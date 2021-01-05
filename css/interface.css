@@ -482,6 +482,10 @@ header .btn,
   opacity: 0;
 }
 
+.panel-collapse label {
+  font-weight: normal;
+}
+
 .panel-collapse.in {
   opacity: 1;
   -webkit-transition: opacity 0.1s linear;
