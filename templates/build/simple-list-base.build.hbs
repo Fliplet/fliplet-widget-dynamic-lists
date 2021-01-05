@@ -62,12 +62,26 @@
         <i class="fa fa-sort-amount-desc" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
         <ul class="dropdown-menu list-sort">
           \{{#each sortFields}}
-          <li data-sort-order="none" data-sort-field="\{{ this }}"><span>\{{ this }} \{{#if this}}<i class="fa fa-sort" aria-hidden="true"></i>\{{/if}}</span></li>
+            <li data-sort-order="none" data-sort-field="\{{ this }}"><span>\{{ this }} \{{#if this}}<i class="fa fa-sort" aria-hidden="true"></i>\{{/if}}</span></li>
           \{{/each}}
         </ul>
       </div>
       \{{/if}}
     </div>
+    \{{/ifCond}}
+    \{{#ifCond filtersEnabled '!!' bookmarksEnabled }}
+      \{{#if sortEnabled}}
+      <div class="list-search-icon">
+        <div class="sort-group btn-group">
+          <i class="fa fa-sort-amount-desc" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
+          <ul class="dropdown-menu list-sort">
+            \{{#each sortFields}}
+              <li data-sort-order="none" data-sort-field="\{{ this }}"><span>\{{ this }} \{{#if this}}<i class="fa fa-sort" aria-hidden="true"></i>\{{/if}}</span></li>
+            \{{/each}}
+          </ul>
+        </div>
+      </div>
+      \{{/if}}
     \{{/ifCond}}
   </div>
   <!-- End of Top bar -->
