@@ -45,7 +45,7 @@
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
-    \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
+    \{{#if areSearchIconsEnabled}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
       <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
@@ -68,21 +68,7 @@
       </div>
       \{{/if}}
     </div>
-    \{{/ifCond}}
-    \{{#ifCond filtersEnabled '!!' bookmarksEnabled }}
-      \{{#if sortEnabled}}
-      <div class="list-search-icon">
-        <div class="sort-group btn-group">
-          <i class="fa fa-sort-amount-desc" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
-          <ul class="dropdown-menu list-sort">
-            \{{#each sortFields}}
-              <li data-sort-order="none" data-sort-field="\{{ this }}"><span>\{{ this }} \{{#if this}}<i class="fa fa-sort" aria-hidden="true"></i>\{{/if}}</span></li>
-            \{{/each}}
-          </ul>
-        </div>
-      </div>
-      \{{/if}}
-    \{{/ifCond}}
+    \{{/if}}
   </div>
   <!-- End of Top bar -->
 
