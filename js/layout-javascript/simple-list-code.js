@@ -64,7 +64,7 @@ function DynamicList(id, data) {
 
   this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
 
-  this.data.areSearchIconsEnabled = this.data.filtersEnabled || this.data.bookmarksEnabled || this.data.sortEnabled;
+  this.data.searchIconsEnabled = this.data.filtersEnabled || this.data.bookmarksEnabled || this.data.sortEnabled;
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
