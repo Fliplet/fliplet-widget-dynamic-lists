@@ -246,8 +246,8 @@ var DynamicLists = (function() {
               var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
               var isLogicComparison = value === 'between';
 
-              $selector.find('.panel-title-text .value, #value-dash, #filter-value-type, #filter-value').toggleClass('hidden', hideValueFields);
-
+              $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
+              $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
               $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
               break;
 
@@ -1948,7 +1948,8 @@ var DynamicLists = (function() {
       $filterAccordionContainer.append($newPanel);
 
       if (['empty', 'notempty', 'between'].indexOf(data.logic) !== -1) {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type, #filter-value').addClass('hidden');
+        $('#filter-value-type-' + data.id).addClass('hidden');
+        $('#filter-value-' + data.id).addClass('hidden');
       }
 
       if (data.logic !== 'between') {
