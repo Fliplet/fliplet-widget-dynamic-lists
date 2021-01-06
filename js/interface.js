@@ -63,10 +63,6 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  var addRadioValues = [];
-  var editRadioValues = [];
-  var deleteRadioValues = [];
-
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -250,7 +246,7 @@ var DynamicLists = (function() {
               break;
 
             case 'valueType':
-              $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
               break;
 
             default:

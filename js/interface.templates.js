@@ -123,6 +123,8 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"logic-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\" filter-item-id=\""
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" data-field=\"logic\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\n              <option value=\"none\">-- Select an option</option>\n              <option value=\"empty\">Is empty</option>\n              <option value=\"notempty\">Is not empty</option>\n              <option value=\"==\">Equals</option>\n              <option value=\"!=\">Doesn't equal</option>\n              <option value=\"contains\">Contains</option>\n              <option value=\"notcontain\">Doesn't contain</option>\n              <option value=\"regex\">Regex</option>\n              <option value=\">\">Greater than</option>\n              <option value=\">=\">Greater or equal to</option>\n              <option value=\"<\">Less than</option>\n              <option value=\"<=\">Less or equal to</option>\n              <option value=\"between\">Is between</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n            <span class=\"select-value-proxy\">-- Please wait</span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"filter-value-type-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Value type</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"value-type-field-"
@@ -141,31 +143,35 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n    </div>\n\n    <div id=\"logic-comparison-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n      <div class=\"form-group clearfix\" id=\"filter-value-type-from\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Value type (from)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"value-type-field-"
+    + "\">\n      <div class=\"form-group clearfix\" id=\"filter-value-type-from-"
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Value type (from)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"value-type-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"select-proxy-display\">\n            <select name=\"value-type-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-type-field-from-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"valueType\" class=\"hidden-select form-control\">\n              <option value=\"enter-value\">Enter a value</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"filter-value-from\">\n        <div class=\"col-sm-4 control-label\">\n          <label for=\"value-field-"
+    + "\" data-field=\"valueType\" class=\"hidden-select form-control\">\n              <option value=\"enter-value\">Enter a value</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"filter-value-from-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = helpers.valueField || (depth0 != null ? depth0.valueField : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"valueField","hash":{},"data":data}) : helper)))
-    + " (from)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <input type=\"text\" name=\"value-field-from-"
+    + "\">\n        <div class=\"col-sm-4 control-label\">\n          <label for=\"value-field-"
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\">Value (from)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <input type=\"text\" name=\"value-field-from-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-field-from-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n      <div class=\"form-group clearfix\" id=\"filter-value-type-to\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Value type (to)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"value-type-field-"
+    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n      <div class=\"form-group clearfix\" id=\"filter-value-type-to-"
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\">\n        <div class=\"col-sm-4 control-label\">\n          <label>Value type (to)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <label for=\"value-type-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" class=\"select-proxy-display\">\n            <select name=\"value-type-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-type-field-to-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"valueType\" class=\"hidden-select form-control\">\n              <option value=\"enter-value\">Enter a value</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"filter-value-to\">\n        <div class=\"col-sm-4 control-label\">\n          <label for=\"value-field-"
+    + "\" data-field=\"valueType\" class=\"hidden-select form-control\">\n              <option value=\"enter-value\">Enter a value</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"filter-value-to-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = helpers.valueField || (depth0 != null ? depth0.valueField : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"valueField","hash":{},"data":data}) : helper)))
-    + " (to)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <input type=\"text\" name=\"value-field-"
+    + "\">\n        <div class=\"col-sm-4 control-label\">\n          <label for=\"value-field-"
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\">Val (to)</label>\n        </div>\n        <div class=\"col-sm-8\">\n          <input type=\"text\" name=\"value-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-field-to-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
