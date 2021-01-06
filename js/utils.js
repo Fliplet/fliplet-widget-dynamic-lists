@@ -457,10 +457,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return true;
         }
 
-        if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData);
-        }
-
         // Case insensitive
         if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
