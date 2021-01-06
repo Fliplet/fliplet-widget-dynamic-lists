@@ -126,6 +126,21 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     this.queryFilter = null;
   }
 
+  // We can sort only by one column that is why this syntax doesn't support
+  // ?dynamicListSortColumn=Name,Age&dynamicListSortOrder=asc
+  // Correct example is
+  // ?dynamicListSortColumn=Name&dynamicListSortOrder=asc
+  this.pvPreSortQuery = _.pickBy({
+    column: Fliplet.Navigate.query['dynamicListSortColumn'],
+    order: Fliplet.Navigate.query['dynamicListSortOrder'],
+  });
+  this.querySort = _(this.pvPreSortQuery).size() > 0;
+
+  if (this.querySort) {
+    this.sortOrder = this.pvPreSortQuery.order || 'asc';
+    this.sortField = this.pvPreSortQuery.column;
+  }
+
   return this.previousScreen
     || this.queryGoBack
     || this.queryPreFilter
