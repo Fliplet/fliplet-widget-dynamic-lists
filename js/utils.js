@@ -1098,11 +1098,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
           return 0;
         case 'number':
-          if (+aValue !== 0 && !parseFloat(aValue, 10)) {
+          if (!parseFloat(aValue, 10) && parseFloat(aValue, 10) !== 0) {
             return isSortAsc ? 1 : -1;
           }
 
-          if (+bValue !== 0 && !parseFloat(bValue, 10)) {
+          if (!parseFloat(bValue, 10) && parseFloat(bValue, 10) !== 0) {
             return isSortAsc ? -1 : 1;
           }
 
