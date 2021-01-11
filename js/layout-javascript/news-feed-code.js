@@ -65,6 +65,8 @@ function DynamicList(id, data) {
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
+  this.data.searchIconsEnabled = this.data.filtersEnabled || this.data.bookmarksEnabled || this.data.sortEnabled;
+
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
@@ -189,7 +191,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.Utils.Records.sortByField({
         $container: _this.$container,
-        $listContainer: $('#news-feed-wrapper-' + _this.data.id),
+        $listContainer: $('#news-feed-list-wrapper-' + _this.data.id),
         listItem: '.news-feed-list-item',
         records: _this.searchedListItems,
         sortOrder: _this.sortOrder,
