@@ -420,6 +420,30 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function filterRecordByDate(rowData, date, dateNumber) {
+    const today = new Date();
+    const formatedRowData = new Date(rowData);
+
+    switch (date) {
+      case 'today':
+        // console.log(new Date(rowData).toLocaleString());
+        return formatedRowData.toLocaleDateString() === today.toLocaleDateString();
+
+      case 'now':
+        return formatedRowData.toLocaleString() === today.toLocaleString();
+
+      case 'nowaddminutes':
+        let updatedDate = new Date(formatedRowData.getTime() + dateNumber * 60000);
+        return updatedDate.toLocaleString() === today.toLocaleString();
+
+      case 'nowaddhours':
+        return (formatedRowData.setHours(formatedRowData.getHours() + dateNumber)).toLocaleString() === today.toLocaleString();
+
+      default:
+        break;
+    }
+  }
+
   function runRecordFilters(records, filters) {
     if (!filters || _.isEmpty(filters)) {
       return records;
@@ -437,6 +461,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return _.filter(records, function(record) {
       return _.every(filters, function(filter) {
         var condition = filter.condition;
+        var date = filter.date;
+        var dateNumber = filter.dateNumber;
         var rowData = _.get(record, ['data', filter.column], null);
 
         if (condition === 'none' || filter.column === 'none') {
@@ -468,6 +494,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         if (!_.isNull(rowData)) {
           rowData = record.data[filter.column].toString().toLowerCase();
+        }
+
+        if (condition === 'dateis') {
+          return filterRecordByDate(rowData, date, dateNumber);
         }
 
         switch (condition) {
@@ -1243,6 +1273,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return {
         column: option.column,
         condition: option.logic,
+        date: option.date,
+        dateNumber: option.dateNumber,
         value: option.value
       };
     }));
@@ -1602,7 +1634,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortRecordsByField
+      sortByField: sortRecordsByField,
     },
     User: {
       isAdmin: userIsAdmin,

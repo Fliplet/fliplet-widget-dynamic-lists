@@ -52,10 +52,57 @@
               <option value="<">Less than</option>
               <option value="<=">Less or equal to</option>
               <option value="between">Is between</option>
+              <option value="dateis">Date is</option>
+              <option value="datebefore">Date is before</option>
+              <option value="dateafter">Date is after</option>
+              <option value="datebetween">Date is between</option>
             </select>
             <span class="icon fa fa-chevron-down"></span>
             <span class="select-value-proxy">-- Please wait</span>
           </label>
+        </div>
+      </div>
+
+      <div id="date-logic-{{id}}">
+        <div class="form-group clearfix">
+          <div class="col-sm-4 control-label">
+            <label>Date</label>
+          </div>
+          <div class="col-sm-8">
+            <label for="date-field-{{id}}" class="select-proxy-display">
+              <select name="date-field-{{id}}" id="date-field-{{id}}" data-field="date" filter-item-id="{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+                <optgroup>
+                  <option value="today">Current date (Today)</option>
+                  <option value="now">Current date &amp; time (Now)</option>
+                </optgroup>
+                <optgroup label="&mdash;">
+                  <option value="nowaddminutes">Now + number of minutes</option>
+                  <option value="nowaddhours">Now + number of hours</option>
+                  <option value="todayadddays">Today + number of days</option>
+                  <option value="todayaddmonths">Today + number of months</option>
+                  <option value="todayaddyears">Today + number of years</option>
+                </optgroup>
+                <optgroup label="&mdash;">
+                  <option value="nowsubtractminutes">Now - number of minutes</option>
+                  <option value="nowsubtracthours">Now - number of hours</option>
+                  <option value="todayminusdays">Today - number of days</option>
+                  <option value="todayminusmonths">Today - number of months</option>
+                  <option value="todayminusyears">Today - number of years</option>
+                </optgroup>
+              </select>
+              <span class="icon fa fa-chevron-down"></span>
+              <span class="select-value-proxy">-- Please wait</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group clearfix" id="date-number-default-{{id}}">
+          <div class="col-sm-4 control-label">
+            <label for="number-field-{{id}}">Number</label>
+          </div>
+          <div class="col-sm-8">
+            <input type="text" placeholder="Enter positive integer" name="number-field-{{id}}" id="number-field-{{id}}" data-field="number" class="form-control">
+          </div>
         </div>
       </div>
 
@@ -129,6 +176,90 @@
         </div>
       </div>
 
+    </div>
+
+    <div id="date-between-{{id}}">
+      <div class="form-group clearfix">
+        <div class="col-sm-4 control-label">
+          <label>From date</label>
+        </div>
+        <div class="col-sm-8">
+          <label for="date-from-{{id}}" class="select-proxy-display">
+            <select name="date-from-{{id}}" id="date-from-{{id}}" data-field="date-from" filter-item-id="{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+              <optgroup>
+                <option value="today">Current date (Today)</option>
+                <option value="now">Current date &amp; time (Now)</option>
+              </optgroup>
+              <optgroup label="&mdash;">
+                <option value="nowaddminutes">Now + number of minutes</option>
+                <option value="nowaddhours">Now + number of hours</option>
+                <option value="todayadddays">Today + number of days</option>
+                <option value="todayaddmonths">Today + number of months</option>
+                <option value="todayaddyears">Today + number of years</option>
+              </optgroup>
+              <optgroup label="&mdash;">
+                <option value="nowsubtractminutes">Now - number of minutes</option>
+                <option value="nowsubtracthours">Now - number of hours</option>
+                <option value="todayminusdays">Today - number of days</option>
+                <option value="todayminusmonths">Today - number of months</option>
+                <option value="todayminusyears">Today - number of years</option>
+              </optgroup>
+            </select>
+            <span class="icon fa fa-chevron-down"></span>
+            <span class="select-value-proxy">-- Please wait</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group clearfix" id="date-number-from-{{id}}">
+        <div class="col-sm-4 control-label">
+          <label for="number-field-{{id}}">Number</label>
+        </div>
+        <div class="col-sm-8">
+          <input type="text" placeholder="Enter positive integer" name="number-field-from-{{id}}" id="number-field-from-{{id}}" data-field="number" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group clearfix">
+        <div class="col-sm-4 control-label">
+          <label>To date</label>
+        </div>
+        <div class="col-sm-8">
+          <label for="date-to-{{id}}" class="select-proxy-display">
+            <select name="date-to-{{id}}" id="date-to-{{id}}" data-field="date-to" filter-item-id="{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+              <optgroup>
+                <option value="today">Current date (Today)</option>
+                <option value="now">Current date &amp; time (Now)</option>
+              </optgroup>
+              <optgroup label="&mdash;">
+                <option value="nowaddminutes">Now + number of minutes</option>
+                <option value="nowaddhours">Now + number of hours</option>
+                <option value="todayadddays">Today + number of days</option>
+                <option value="todayaddmonths">Today + number of months</option>
+                <option value="todayaddyears">Today + number of years</option>
+              </optgroup>
+              <optgroup label="&mdash;">
+                <option value="nowsubtractminutes">Now - number of minutes</option>
+                <option value="nowsubtracthours">Now - number of hours</option>
+                <option value="todayminusdays">Today - number of days</option>
+                <option value="todayminusmonths">Today - number of months</option>
+                <option value="todayminusyears">Today - number of years</option>
+              </optgroup>
+            </select>
+            <span class="icon fa fa-chevron-down"></span>
+            <span class="select-value-proxy">-- Please wait</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group clearfix" id="date-number-to-{{id}}">
+        <div class="col-sm-4 control-label">
+          <label for="number-field-{{id}}">Number</label>
+        </div>
+        <div class="col-sm-8">
+          <input type="text" placeholder="Enter positive integer" name="number-field-to-{{id}}" id="number-field-to-{{id}}" data-field="number" class="form-control">
+        </div>
+      </div>
     </div>
   </div>
 </div>
