@@ -1,5 +1,6 @@
 var dynamicLists = dynamicLists || {};
-Fliplet.Widget.instance('dynamic-lists', function(data){
+
+Fliplet.Widget.instance('dynamic-lists', function(data) {
   var container = this;
   var id = data.id;
 

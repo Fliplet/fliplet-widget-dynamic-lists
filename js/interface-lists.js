@@ -2,6 +2,7 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
 var page = Fliplet.Widget.getPage();
 var dynamicLists;
+var dataSourceProvider;
 
 var omitPages = page ? [page.id] : [];
 var addEntryLinkAction;
@@ -66,9 +67,7 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
-    if (!withError) {
-      save(true);
-    }
+    dataSourceProvider().forwardSaveRequest();
   });
 }
 
@@ -94,7 +93,9 @@ function initUserFilePickerProvider(userFolder) {
           break;
         case 'widget-set-info':
           Fliplet.Widget.toggleSaveButton(!!data.length);
+
           var msg = data.length ? data.length + ' files selected' : 'no selected files';
+
           Fliplet.Widget.info(msg);
           break;
         default:
@@ -111,12 +112,11 @@ function initUserFilePickerProvider(userFolder) {
     userFolder.folder.selectFiles = data.data.length ? data.data : [];
     widgetData.userFolder = userFolder;
 
-    var itemProvider = _.find(filePickerPromises, { id: userFolder.folder.provId });
-    itemProvider = null;
     _.remove(filePickerPromises, { id: userFolder.folder.provId });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
+
     if (userFolder.folder.selectFiles.length) {
       $('.select-photo-folder .file-picker-btn').text('Replace folder');
       $('.select-photo-folder .selected-user-folder span').text(userFolder.folder.selectFiles[0].name);
@@ -151,7 +151,9 @@ function initFilePickerProvider(field) {
           break;
         case 'widget-set-info':
           Fliplet.Widget.toggleSaveButton(!!data.length);
+
           var msg = data.length ? data.length + ' files selected' : 'no selected files';
+
           Fliplet.Widget.info(msg);
           break;
         default:
@@ -181,12 +183,11 @@ function initFilePickerProvider(field) {
       });
     }
 
-    var itemProvider = _.find(filePickerPromises, { id: field.folder.provId });
-    itemProvider = null;
     _.remove(filePickerPromises, { id: field.folder.provId });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
+
     if (field.folder.selectFiles.length) {
       $('[data-field-id="' + field.id + '"] .file-picker-btn').text('Replace folder');
       $('[data-field-id="' + field.id + '"] .selected-folder').removeClass('hidden');
@@ -202,6 +203,7 @@ function initialize() {
   linkProviderInit();
   attahObservers();
   dynamicLists = new DynamicLists(widgetData);
+  dataSourceProvider = Fliplet.Registry.get('datasource-provider');
 }
 
 function validate(value) {
@@ -218,7 +220,7 @@ function validate(value) {
   return false;
 }
 
-function toggleError (showError, element) {
+function toggleError(showError, element) {
   if (showError) {
     var $element = $(element);
 
@@ -249,6 +251,7 @@ function attahObservers() {
         id: idAttr,
         folder: {}
       };
+
       initUserFilePickerProvider(userFolder);
     })
     .on('click', '[data-file-picker-summary]', function() {
@@ -301,6 +304,8 @@ function attahObservers() {
             return item !== fieldId;
           });
           break;
+        default:
+          break;
       }
     })
     .on('change', '[name="detail_field_type"]', function() {
@@ -311,11 +316,21 @@ function attahObservers() {
 
       if (fieldName !== 'image' && fieldIdInSelectedFields) {
         selectedFieldId = _.filter(selectedFieldId, function(item) {
+          // eslint-disable-next-line eqeqeq
           return item != fieldId;
         });
       } else if ($('#detail_image_field_type_' + fieldId).val() === 'all-folders') {
         selectedFieldId.push(fieldId);
       }
+    })
+    .on('datasource-initialized', function() {
+      dataSourceProvider().then(function(dataSource) {
+        dynamicLists.config.dataSourceId = dataSource.data.id;
+
+        if (!withError) {
+          save(true);
+        }
+      });
     });
 
   $('[data-toggle="tooltip"]').tooltip();
@@ -329,15 +344,16 @@ function attahObservers() {
           filePickerPromises.forEach(function(promise) {
             promise.forwardSaveRequest();
           });
+
           return;
         }
 
         // Validation for required fields
         var requiredFields = {
-          admins:[
+          admins: [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -348,10 +364,10 @@ function attahObservers() {
               field: '#select_user_admin'
             }
           ],
-          "users-admins": [
+          'users-admins': [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -373,7 +389,7 @@ function attahObservers() {
           user: [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -438,13 +454,13 @@ function attahObservers() {
 
         toggleError(false);
 
-        if (widgetData.social && widgetData.social.comments) {
-          var errors = [];
-          var values = [];
+        var errors = [];
+        var values = [];
 
+        if (widgetData.social && widgetData.social.comments) {
           values.push({
             value: widgetData.userDataSourceId,
-            field: '#select_user_datasource'
+            field: '#user_data_source_provider'
           });
           values.push({
             value: widgetData.userEmailColumn,
@@ -466,17 +482,20 @@ function attahObservers() {
             errors.forEach(function(field) {
               toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false)
           }
+
+          toggleError(false);
         }
 
         var imageFolderSelected = validateImageFoldersSelection();
@@ -499,9 +518,6 @@ function attahObservers() {
         }
 
         if (widgetData.pollEnabled && widgetData.pollColumn) {
-          var errors = [];
-          var values = [];
-
           values.push({
             value: widgetData.pollColumn,
             field: '#select_poll_data'
@@ -516,25 +532,25 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-              toggleError(true, field)
+              toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false);
           }
+
+          toggleError(false);
         }
 
         if (widgetData.surveyEnabled && widgetData.surveyColumn) {
-          var errors = [];
-          var values = [];
-
           values.push({
             value: widgetData.surveyColumn,
             field: '#select_survey_data'
@@ -551,23 +567,23 @@ function attahObservers() {
             errors.forEach(function(field) {
               toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false);
           }
+
+          toggleError(false);
         }
 
         if (widgetData.questionsEnabled && widgetData.questionsColumn) {
-          var errors = [];
-          var values = [];
-
           values.push({
             value: widgetData.questionsColumn,
             field: '#select_questions_data'
@@ -584,17 +600,20 @@ function attahObservers() {
             errors.forEach(function(field) {
               toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false);
           }
+
+          toggleError(false);
         }
 
         return linkAddEntryProvider.forwardSaveRequest();
@@ -602,7 +621,8 @@ function attahObservers() {
   });
 
   function highlightError(fieldIds, showError) {
-    var action = showError ? 'removeClass': 'addClass';
+    var action = showError ? 'removeClass' : 'addClass';
+
     _.each(fieldIds, function(id) {
       $('[data-field-id="' + id + '"] .text-danger')[action]('hidden');
     });
@@ -611,6 +631,7 @@ function attahObservers() {
   function validateImageFoldersSelection() {
     if (!widgetData['summary-fields']) {
       highlightError(selectedFieldId, true);
+
       return selectedFieldId.length === 0;
     }
 
@@ -620,13 +641,16 @@ function attahObservers() {
         return item.id === id && item.folder;
       });
     });
+
     highlightError(errorInputIds, true);
+
     return errorInputIds.length === 0;
   }
 
-  Fliplet.Widget.onSaveRequest(function () {
+  Fliplet.Widget.onSaveRequest(function() {
     if (!dynamicLists.isLoaded) {
       Fliplet.Widget.complete();
+
       return;
     }
 
@@ -636,6 +660,7 @@ function attahObservers() {
     if (imageFolderSelectionIsValid || filePickerPromises.length || !dataViewWindowIsOpen) {
       highlightError(selectedFieldId, false);
       $('form').submit();
+
       return;
     }
 
@@ -650,7 +675,7 @@ function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
 
-  Fliplet.Widget.save(widgetData).then(function () {
+  Fliplet.Widget.save(widgetData).then(function() {
     if (notifyComplete) {
       Fliplet.Widget.complete();
       window.location.reload();

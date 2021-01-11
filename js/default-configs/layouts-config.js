@@ -351,4 +351,4 @@ window.flListLayoutConfig = {
       }
     ]
   }
-}
+};

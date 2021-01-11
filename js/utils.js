@@ -1,4 +1,4 @@
-Fliplet.Registry.set('dynamicListUtils', (function () {
+Fliplet.Registry.set('dynamicListUtils', (function() {
   var isoDateWarningIssued = false;
   var cachedFiles = {};
   var Static = {
@@ -54,11 +54,11 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return $('<div></div>').html(context).text();
     });
 
-    Handlebars.registerHelper('removeSpaces', function (context) {
+    Handlebars.registerHelper('removeSpaces', function(context) {
       return context.replace(/\s+/g, '');
     });
 
-    Handlebars.registerHelper('formatDate', function (date) {
+    Handlebars.registerHelper('formatDate', function(date) {
       if (!date) {
         return;
       }
@@ -66,7 +66,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return getMomentDate(date).format('DD MMMM YYYY');
     });
 
-    Handlebars.registerHelper('formatCSV', function (context) {
+    Handlebars.registerHelper('formatCSV', function(context) {
       if (!context) {
         return '';
       }
@@ -74,7 +74,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return splitByCommas(context).join(', ');
     });
 
-    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+    Handlebars.registerHelper('ifCond', function(v1, operator, v2, options) {
       switch (operator) {
         case '==':
           return (v1 == v2) // eslint-disable-line eqeqeq
@@ -118,8 +118,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
       /* capture URLs and turn into links */
       res = res.replace(Static.RegExp.url, function(match, p1, p2, p3, p4, p5, offset, string) {
-        return Static.RegExp.linebreak.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>' :
-          ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
+        return Static.RegExp.linebreak.test(string) ? ' <a href="' + (typeof p1 !== 'undefined' ? p1 : 'http://') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '">' + (typeof p1 !== 'undefined' ? p1 : '') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '</a><br>' :
+          ' <a href="' + (typeof p1 !== 'undefined' ? p1 : 'http://') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '">' + (typeof p1 !== 'undefined' ? p1 : '') + p3 + (typeof p5 !== 'undefined' ? p5 : '') + '</a>';
       });
 
       res = res.replace(Static.RegExp.mention, '<strong>$&</strong>');
@@ -163,20 +163,20 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       res = csvArrayPattern.exec(str);
     }
 
-    return _.filter(_.map(arr, function (value) {
+    return _.filter(_.map(arr, function(value) {
       if (_.isArray(value)) {
         return value;
       }
 
       return ('' + value).trim();
-    }), function (value) {
+    }), function(value) {
       return _.isArray(value) || [undefined, null, '', NaN].indexOf(value) === -1;
     });
   }
 
   function validateImageUrl(url) {
     if (_.isArray(url)) {
-      return _.map(url, function (val) {
+      return _.map(url, function(val) {
         return validateImageUrl(val);
       });
     }
@@ -240,21 +240,21 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       query.value = [query.value];
     }
 
-   if (!_.get(query, 'column', []).length) {
-      return _.map(_.flatten(query.value), function (value) {
+    if (!_.get(query, 'column', []).length) {
+      return _.map(_.flatten(query.value), function(value) {
         return '[data-value="' + value + '"]';
       });
     }
 
     var selectors = [];
 
-     // Select filters using column-specific methods
-    query.column.forEach(function (field, index) {
+    // Select filters using column-specific methods
+    query.column.forEach(function(field, index) {
       if (!Array.isArray(query.value[index])) {
         query.value[index] = [query.value[index]];
       }
 
-      query.value[index].forEach(function (value) {
+      query.value[index].forEach(function(value) {
         selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
       });
     });
@@ -279,8 +279,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       request = Promise.resolve(request);
     }
 
-    return new Promise(function (resolve, reject) {
-      request.then(function (results) {
+    return new Promise(function(resolve, reject) {
+      request.then(function(results) {
         Fliplet.App.Storage.set(options.key, results);
 
         resolve({
@@ -293,8 +293,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         return;
       }
 
-      setTimeout(function () {
-        Fliplet.App.Storage.get(options.key).then(function (results) {
+      setTimeout(function() {
+        Fliplet.App.Storage.get(options.key).then(function(results) {
           if (!results) {
             return;
           }
@@ -318,13 +318,13 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     if (_.isArray(record)) {
-      return _.some(record, function (el) {
+      return _.some(record, function(el) {
         return recordContains(el, value);
       });
     }
 
     if (_.isObject(record)) {
-      return _.some(_.values(record), function (el) {
+      return _.some(_.values(record), function(el) {
         return recordContains(el, value);
       });
     }
@@ -416,7 +416,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     if (options.data.addEntry && Modernizr.tablet) {
       moveAddbuttonPosition(options);
     } else if (options.data.addEntry && !Modernizr.tablet) {
-      resetAddButtonPosition(options)
+      resetAddButtonPosition(options);
     }
   }
 
@@ -426,16 +426,16 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     var operators = {
-      '==': function (a, b) { return a == b }, // eslint-disable-line eqeqeq
-      '!=': function (a, b) { return a != b }, // eslint-disable-line eqeqeq
-      '>': function (a, b) { return smartParseFloat(a) > smartParseFloat(b) },
-      '>=': function (a, b) { return smartParseFloat(a) >= smartParseFloat(b) },
-      '<': function (a, b) { return smartParseFloat(a) < smartParseFloat(b) },
-      '<=': function (a, b) { return smartParseFloat(a) <= smartParseFloat(b) }
+      '==': function(a, b) { return a == b; }, // eslint-disable-line eqeqeq
+      '!=': function(a, b) { return a != b; }, // eslint-disable-line eqeqeq
+      '>': function(a, b) { return smartParseFloat(a) > smartParseFloat(b); },
+      '>=': function(a, b) { return smartParseFloat(a) >= smartParseFloat(b); },
+      '<': function(a, b) { return smartParseFloat(a) < smartParseFloat(b); },
+      '<=': function(a, b) { return smartParseFloat(a) <= smartParseFloat(b); }
     };
 
-    return _.filter(records, function (record) {
-      return _.every(filters, function (filter) {
+    return _.filter(records, function(record) {
+      return _.every(filters, function(filter) {
         var condition = filter.condition;
         var rowData = _.get(record, ['data', filter.column], null);
 
@@ -473,6 +473,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             return rowData !== null && typeof rowData !== 'undefined' && rowData.indexOf(filter.value) === -1;
           case 'regex':
             var pattern = new RegExp(filter.value, 'gi');
+
             return pattern.test(rowData);
           default:
             return _.isFunction(operators[condition])
@@ -499,9 +500,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return _.filter(records, { bookmarked: true });
     }
 
-    var filteredData = [];
-
-    return _.filter(records, function (record) {
+    return _.filter(records, function(record) {
       return (!showBookmarks || record.bookmarked) && recordMatchesFilters({
         record: record,
         filters: filters,
@@ -543,7 +542,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }
 
     var searchResults = [];
-    var truncated = _.some(records, function (record) {
+    var truncated = _.some(records, function(record) {
       if (limit > -1 && searchResults.length >= limit) {
         // Search results reached limit
         return true;
@@ -566,6 +565,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       // No string
       if (value === '') {
         searchResults.push(record);
+
         return;
       }
 
@@ -582,11 +582,12 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         }
 
         searchResults.push(record);
+
         return;
       }
 
       // Check if record contains value in the search fields
-      var containsSearch = _.some(fields, function (field) {
+      var containsSearch = _.some(fields, function(field) {
         return recordContains(record.data[field], value);
       });
 
@@ -665,7 +666,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var filters = options.filters;
     var config = options.config || {};
 
-    var recordFieldValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function (field) {
+    var recordFieldValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function(field) {
       return _.map(_.uniq(getRecordField({
         record: record,
         field: field,
@@ -674,16 +675,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     }));
 
     // Returns true if record matches all of provided filters and values
-    return _.every(_.keys(filters), function (field) {
-      return _[config.filterMatch === 'all' ? 'every' : 'some'](filters[field], function (value) {
+    return _.every(_.keys(filters), function(field) {
+      return _[config.filterMatch === 'all' ? 'every' : 'some'](filters[field], function(value) {
         if (field === 'undefined') {
           // Legacy class-based filters
           return _.includes(_.map(_.get(record, 'data.flFilters'), 'data.class'), value);
         }
 
         // Filter UI contains data-field, i.e. uses new field-based filters
-        return _.some(_.get(recordFieldValues, field), function (recordFieldValue) {
+        return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
           // Loosely typed comparison is used to make filtering more predictable for users
+          // eslint-disable-next-line eqeqeq
           return recordFieldValue == value;
         });
       });
@@ -719,7 +721,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       fields = [fields];
     }
 
-    return _.zipObject(fields, _.map(fields, function (field) {
+    return _.zipObject(fields, _.map(fields, function(field) {
       return _.sortBy(_.uniq(splitByCommas(_.map(records, 'data.' + field))));
     }));
   }
@@ -733,17 +735,17 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Parse legacy flFilters from records to generate a list of filter values
     return _(records)
-      .map(function (record) {
+      .map(function(record) {
         return (record.data && record.data.flFilters) || record.flFilters;
       })
       .flatten()
-      .uniqBy(function (filter) {
+      .uniqBy(function(filter) {
         // _.uniqBy iteratee
         return JSON.stringify(filter);
       })
       .orderBy('data.name')
       .groupBy('type')
-      .map(function (values, field) {
+      .map(function(values, field) {
         // _.map iteratee for defining of each filter value
         return {
           id: id,
@@ -751,10 +753,10 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           data: _.map(values, 'data')
         };
       })
-      .filter(function (filter) {
+      .filter(function(filter) {
         return filter.name && _.size(filter.data);
       })
-      .orderBy(function (filter) {
+      .orderBy(function(filter) {
         // _.orderBy iteratee
         return _.indexOf(filters, filter.name);
       })
@@ -781,7 +783,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
       if (field.length) {
         var arr = _.get(record, (useData ? 'data.' : '') + path);
-        return _.map(arr, function (item) {
+
+        return _.map(arr, function(item) {
           return getRecordField({
             record: item,
             field: _.clone(field),
@@ -811,21 +814,22 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var config = options.config || {};
 
     // Function that get and converts the categories for the filters to work
-    records.forEach(function (record) {
+    records.forEach(function(record) {
       if (_.isArray(_.get(record, 'data.flFilters')) && !options.force) {
         // If filters are alredy present, skip unless it's forced
         return;
       }
 
       var classes = [];
+
       record.data['flFilters'] = [];
-      _.forEach(config.filterFields, function (field) {
+      _.forEach(config.filterFields, function(field) {
         _.forEach(getRecordField({
           record: record,
           field: field,
           useData: true
-        }), function (item, index) {
-          var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g,"-");
+        }), function(item) {
+          var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g, '-');
           var newObj = {
             type: field,
             data: {
@@ -857,8 +861,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     if (!cachedFiles[cacheKey]) {
       cachedFiles[cacheKey] = Fliplet.Media.Folders.get(data.query)
-        .then(function (response) {
-          response.files.forEach(function (file) {
+        .then(function(response) {
+          response.files.forEach(function(file) {
             if (file.isEncrypted) {
               file.url = Fliplet.Media.authenticate(file.url);
             }
@@ -866,8 +870,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
           return response;
         })
-        .catch(function (error) {
+        .catch(function(error) {
           console.warn('Error retrieving files', error, data);
+
           return Promise.resolve({ files: [], folders: [] });
         });
     }
@@ -896,10 +901,12 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           if (image && (file.name === image || fileName === image)) {
             // File found
             _.set(data, ['record', 'data', data.field.column], file.url);
+
             return true;
           } else if (Static.RegExp.number.test(image)
             && parseInt(image, 10) === file.id) {
             _.set(data, ['record', 'data', data.field.column], file.url);
+
             return true;
           }
         });
@@ -933,7 +940,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       };
 
       if (!forComments) {
-        _.forEach([config['summary-fields'], config.detailViewOptions], function (fields) {
+        _.forEach([config['summary-fields'], config.detailViewOptions], function(fields) {
           _.forEach(fields, function(field) {
             if (field.type !== 'image') {
               return;
@@ -958,6 +965,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
                 break;
               case 'all-folders':
                 var folderId = _.get(field, 'folder.selectFiles.0.id');
+
                 if (!folderId) {
                   return;
                 }
@@ -973,6 +981,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
                 if (!isValidImageUrl(record.data[field.column])) {
                   record.data[field.column] = '';
                 }
+
                 break;
               default:
                 break;
@@ -1015,6 +1024,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             if (!isValidImageUrl(record.data[config.userPhotoColumn])) {
               record.data[config.userPhotoColumn] = '';
             }
+
             break;
           default:
             break;
@@ -1031,9 +1041,9 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
   /**
    * Sort items by field witch user have selected
-   * 
+   *
    * @param {Object} options - object with settings for sort list items
-   *        keys: 
+   *        keys:
    *          sortField {String} - name of the field to sort
    *          sortOrder {String} - sort order of
    *          records {Array} - array of records to sort
@@ -1045,18 +1055,24 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       return options.records;
     }
 
+    // Saving sort parameters so when users come back to the page through BACK navigation, the sort order is restored
+    Fliplet.Page.Context.update({
+      dynamicListSortColumn: options.sortField,
+      dynamicListSortOrder: options.sortOrder
+    });
+
     var records = _.clone(options.records);
     var isSortAsc = options.sortOrder === 'asc';
     var sortField = options.sortField;
     var startsWithAlphabet = /^[A-Z,a-z]/;
-    var sortType = getFieldType(records[0][sortField]);
-  
+    var sortType = getFieldType(records[0].data ? records[0].data[sortField] : records[0][sortField]);
+
     return records.sort(function(a, b) {
       var aValue = a.data ? a.data[sortField] : a[sortField];
       var bValue = b.data ? b.data[sortField] : b[sortField];
-      
+
       switch (sortType) {
-        case 'string': 
+        case 'string':
           /**
            * By adding '{' to the start of the string we are pushing that string to the end the sort order,
            * and when we are adding '}' we push it even further to the end
@@ -1071,21 +1087,22 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           if (!startsWithAlphabet.test(aValue)) {
             aValue = '{' + aValue;
           }
-          
+
           if (aValue < bValue) {
             return isSortAsc ? -1 : 1;
           }
+
           if (aValue > bValue) {
             return isSortAsc ? 1 : -1;
           }
 
           return 0;
         case 'number':
-          if (!parseInt(aValue, 10)) {
+          if (+aValue !== 0 && !parseFloat(aValue, 10)) {
             return isSortAsc ? 1 : -1;
           }
 
-          if (!parseInt(bValue, 10)) {
+          if (+bValue !== 0 && !parseFloat(bValue, 10)) {
             return isSortAsc ? -1 : 1;
           }
 
@@ -1129,7 +1146,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
           }
 
           return bValue - aValue;
-         default: 
+        default:
           if (isSortAsc) {
             return aValue - bValue;
           }
@@ -1172,33 +1189,36 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       if (itemSortedIndex !== -1) {
         sortedItemsList[itemSortedIndex] = $listItem;
       }
-      
     });
 
     options.$listContainer.html(sortedItemsList);
     options.$listContainer.insertAfter($prevElement);
   }
-  
+
   function getFieldType(value) {
     var valueType = typeof value;
-    var timeRegex = /^[0-9]{1,2}:[0-9]{1,2}$/
-    
+    var timeRegex = /^[0-9]{1,2}:[0-9]{1,2}$/;
+
     if (valueType === 'string') {
+      if (!isNaN(value)) {
+        return 'number';
+      }
+
       if (timeRegex.test(value)) {
         return 'time';
       }
-        
+
       if (moment(value).isValid()) {
         return 'date';
       }
-        
+
       return 'string';
     }
-    
+
     if (valueType === 'undefined' || valueType === 'null') {
       return 'string';
     }
-    
+
     return valueType;
   }
 
@@ -1214,6 +1234,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
 
     // Filter data based on filter options, filter queries and PV storage values (deprecated)
     var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
+
     records = runRecordFilters(records, _.map(filters, function(option) {
       return {
         column: option.column,
@@ -1234,6 +1255,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       var modifiedRecords = _.map(_.clone(records), function(record) {
         sortFields.forEach(function(field) {
           var sortField = 'modified_' + field.column;
+
           record.data[sortField] = (record.data[field.column] || '').toString().toUpperCase();
 
           // Modify field values based on sort types
@@ -1255,17 +1277,19 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
             case 'time':
               record.data[sortField] = record.data[sortField];
               break;
+            default:
+              break;
           }
         });
 
         return record;
       });
 
-      var sortColumns = _.map(sortFields, function (field) {
+      var sortColumns = _.map(sortFields, function(field) {
         return 'data[modified_' + field.column + ']';
       });
 
-      var sortOrders = _.map(config.sortOptions, function (option) {
+      var sortOrders = _.map(config.sortOptions, function(option) {
         switch (option.orderBy) {
           case 'descending':
             return 'desc';
@@ -1300,7 +1324,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var record = options.record || {};
     var computedFields = options.computedFields || {};
 
-    _.forIn(computedFields, function (getter, field) {
+    _.forIn(computedFields, function(getter, field) {
       if (_.has(record, ['data', field]) && computedFieldClashes.indexOf(field) === -1) {
         computedFieldClashes.push(field);
       }
@@ -1319,15 +1343,16 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     var records = options.records || [];
     var config = options.config;
 
-    _.forEach(records, function (record) {
+    _.forEach(records, function(record) {
       addRecordComputedFields({
         record: record,
         computedFields: config.computedFields
-      })
+      });
     });
 
     if (computedFieldClashes.length) {
       var clashedFields = computedFieldClashes.sort().join(', ');
+
       console.warn('Computed field(s) "' + clashedFields + '" are already defined as a property for one or more records. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten.');
     }
   }
@@ -1390,7 +1415,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     // target is expected as an array of DOM elements
     if (target instanceof NodeList || target instanceof Array) {
       // Non-DOM elements in the array are removed
-      target = _.filter(target, function (element) {
+      target = _.filter(target, function(element) {
         return element.tagName;
       });
 
@@ -1406,7 +1431,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     // Update page context for navigation
     var pageCtx = {};
     var filterColumns = _.map(_.toPairs(options.activeFilters), 0).join(',');
-    var filterValues = _.map(_.toPairs(options.activeFilters), function (filter) {
+    var filterValues = _.map(_.toPairs(options.activeFilters), function(filter) {
       return filter[1].length > 1 ? '[' + filter[1].join(',') + ']' : filter[1].join(',');
     }).join(',');
 
@@ -1450,8 +1475,8 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       var $listitem = $(this);
       var listSortOrder = $listitem.data('sortOrder');
       var $listIcon = $listitem.find('i');
-  
-      $listIcon.removeClass('fa-sort-'+ listSortOrder).addClass('fa-sort');
+
+      $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
       $listitem.data('sortOrder', 'none');
     });
   }
@@ -1468,7 +1493,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
       var counter = 1;
 
       if (config.userNameFields && config.userNameFields.length > 1) {
-        config.userNameFields.forEach(function(name, i) {
+        config.userNameFields.forEach(function(name) {
           userName += user.data[name] + ' ';
           userNickname += counter === 1
             ? (user.data[name] || '').toLowerCase().charAt(0) + ' '
@@ -1480,7 +1505,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
         counter++;
       } else {
         userName = user.data[config.userNameFields[0]] || '';
-        userNickname = (user.data[config.userNameFields[0]] || '').toLowerCase().replace(/\s/g, '')
+        userNickname = (user.data[config.userNameFields[0]] || '').toLowerCase().replace(/\s/g, '');
       }
 
       return {
@@ -1538,7 +1563,7 @@ Fliplet.Registry.set('dynamicListUtils', (function () {
     },
     Page: {
       updateSearchContext: updateSearchContext,
-      updateFilterControlsContext: updateFilterControlsContext,
+      updateFilterControlsContext: updateFilterControlsContext
     },
     String: {
       splitByCommas: splitByCommas,
