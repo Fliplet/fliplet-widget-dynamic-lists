@@ -65,6 +65,8 @@ function DynamicList(id, data) {
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
+  this.data.searchIconsEnabled = this.data.filtersEnabled || this.data.bookmarksEnabled || this.data.sortEnabled;
+
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
