@@ -2683,6 +2683,7 @@ var DynamicLists = (function() {
           var valueNumberFrom = $('#number-field-from-' + item.id).val();
           var valueNumberTo = $('#number-field-to-' + item.id).val();
 
+
           item.valueType = {
             from: valueDateFrom,
             to: valueDateTo
