@@ -1346,7 +1346,7 @@ var DynamicLists = (function() {
       }));
       $('#sort-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
-          source: _this.config.dataSourceColumns || _this.config.defaultColumns,
+          source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
         showAutocompleteOnFocus: true,
