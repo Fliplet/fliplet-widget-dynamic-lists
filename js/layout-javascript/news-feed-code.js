@@ -1114,6 +1114,10 @@ DynamicList.prototype.initialize = function() {
         container: _this.$container,
         records: records
       }).then(function() {
+        return _this.Utils.Records.setFilterValues({
+          config: _this.data
+        });
+      }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
         }

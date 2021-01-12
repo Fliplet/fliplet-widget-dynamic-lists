@@ -740,19 +740,8 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-
-        if (item.logic !== 'between') {
-          $('#value-type-field-' + item.id).val(item.valueType);
-          $('#value-field-' + item.id).val(item.value);
-
-          return;
-        }
-
-        $('#value-type-field-from-' + item.id).val(item.valueType.from);
-        $('#value-type-field-to-' + item.id).val(item.valueType.to);
-
-        $('#value-field-from-' + item.id).val(item.value.from);
-        $('#value-field-to-' + item.id).val(item.value.to);
+        $('#value-type-field-' + item.id).val(item.valueType);
+        $('#value-field-' + item.id).val(item.fieldValue);
       });
     },
     renderSortColumns: function() {
@@ -2594,23 +2583,18 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+        item.valueType = $('#value-type-field-' + item.id).val();
+
+        if (item.valueType === 'enter-value') {
+          item.value = item.fieldValue;
+        }
 
         if (item.logic === 'empty' || item.logic === 'notempty') {
           item.valueType = null;
           item.value = '';
-        }
-
-        if (item.logic === 'between') {
-          var valueTypeFrom = $('#value-type-field-from-' + item.id).val();
-          var valueTypeTo = $('#value-type-field-to-' + item.id).val();
-          var valueFrom = $('#value-field-from-' + item.id).val();
-          var valueTo = $('#value-field-to-' + item.id).val();
-
-          item.valueType = { from: valueTypeFrom, to: valueTypeTo };
-          item.value = { from: valueFrom, to: valueTo };
         }
       });
 
