@@ -777,7 +777,7 @@ var DynamicLists = (function() {
         item.fromLoading = true; // Flag to close accordions
         item.columns = dataSourceColumns;
         _this.addFilterItem(item);
-        debugger;
+
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
         $('#number-field-' + item.id).val(item.dateNumber);
@@ -793,8 +793,8 @@ var DynamicLists = (function() {
         $('#date-from-' + item.id).val(item.valueType.from);
         $('#date-to-' + item.id).val(item.valueType.to);
 
-        $('#number-field-from-' + item.id).val(item.dateNumber.from);
-        $('#number-field-to-' + item.id).val(item.dateNumber.to);
+        $('#number-field-from-' + item.id).val(item.dateNumberBetween.from);
+        $('#number-field-to-' + item.id).val(item.dateNumberBetween.to);
 
         $('#value-type-field-from-' + item.id).val(item.valueType.from);
         $('#value-type-field-to-' + item.id).val(item.valueType.to);
@@ -2688,7 +2688,7 @@ var DynamicLists = (function() {
             to: valueDateTo
           };
 
-          item.dateNumber = {
+          item.dateNumberBetween = {
             from: valueNumberFrom,
             to: valueNumberTo
           };
