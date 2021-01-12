@@ -457,6 +457,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return true;
         }
 
+        if (condition === 'between') {
+          return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
+        }
+
         if (condition === 'oneof') {
           return splitByCommas(filter.value).includes(rowData);
         }

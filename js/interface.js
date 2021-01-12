@@ -63,10 +63,6 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  var addRadioValues = [];
-  var editRadioValues = [];
-  var deleteRadioValues = [];
-
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -235,13 +231,25 @@ var DynamicLists = (function() {
           var value = $(this).val();
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
+          var id = $(this).attr('filter-item-id');
 
-          if (type === 'field') {
-            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
-          }
+          switch (type) {
+            case 'field':
+              $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+              break;
 
-          if (type === 'logic') {
-            var hideValueFields = value === 'empty' || value === 'notempty';
+            case 'logic':
+              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
+              var isLogicComparison = value === 'between';
+
+              $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
+              $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
+              $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+              break;
+
+            case 'valueType':
+              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              break;
 
             $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
             $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
