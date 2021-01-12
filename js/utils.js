@@ -426,18 +426,58 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     switch (date) {
       case 'today':
-        // console.log(new Date(rowData).toLocaleString());
         return formatedRowData.toLocaleDateString() === today.toLocaleDateString();
 
       case 'now':
         return formatedRowData.toLocaleString() === today.toLocaleString();
 
       case 'nowaddminutes':
-        let updatedDate = new Date(formatedRowData.getTime() + dateNumber * 60000);
-        return updatedDate.toLocaleString() === today.toLocaleString();
+        const updatedAddMinutes = new Date(formatedRowData.getTime() + dateNumber * 60000);
+        return (
+          (updatedAddMinutes.toLocaleDateString() === today.toLocaleDateString()) &&
+          (updatedAddMinutes.getMinutes() === today.getMinutes()));
 
       case 'nowaddhours':
-        return (formatedRowData.setHours(formatedRowData.getHours() + dateNumber)).toLocaleString() === today.toLocaleString();
+        const updatedAddHours = new Date(formatedRowData.setHours(formatedRowData.getHours() + dateNumber));
+        return (
+          (updatedAddHours.toLocaleDateString() === today.toLocaleDateString()) &&
+          (updatedAddHours.getHours() === today.getHours()));
+
+      case 'todayadddays':
+        const updatedAddDays = new Date(formatedRowData.setDate(formatedRowData.getDate() + dateNumber));
+        return updatedAddDays.toLocaleDateString() === today.toLocaleDateString();
+
+      case 'todayaddmonths':
+        const updatedAddMonth = new Date(formatedRowData.setMonth(formatedRowData.getMonth() + dateNumber));
+        return updatedAddMonth.toLocaleDateString() === today.toLocaleDateString();
+
+      case 'todayaddyears':
+        const updatedAddYears = new Date(formatedRowData.setFullYear(formatedRowData.getFullYear() + dateNumber));
+        return updatedAddYears.toLocaleDateString() === today.toLocaleDateString();
+
+      case 'nowsubtractminutes':
+        const updatedSubstractMinutes = new Date(formatedRowData.getTime() - dateNumber * 60000);
+        return (
+          (updatedSubstractMinutes.toLocaleDateString() === today.toLocaleDateString()) &&
+          (updatedSubstractMinutes.getMinutes() === today.getMinutes()));
+
+      case 'nowsubtracthours':
+        const updatedSubstractHours = new Date(formatedRowData.setHours(formatedRowData.getHours() - dateNumber));
+        return (
+          (updatedSubstractHours.toLocaleDateString() === today.toLocaleDateString()) &&
+          (updatedSubstractHours.getHours() === today.getHours()));
+
+      case 'todayminusdays':
+        const updatedSubstractDays = new Date(formatedRowData.setDate(formatedRowData.getDate() - dateNumber));
+        return updatedSubstractDays.toLocaleDateString() === today.toLocaleDateString();
+
+      case 'todayminusmonths':
+        const updatedSubstractMonth = new Date(formatedRowData.setMonth(formatedRowData.getMonth() - dateNumber));
+        return updatedSubstractMonth.toLocaleDateString() === today.toLocaleDateString();
+
+      case 'todayminusyears':
+        const updatedSubstractYears = new Date(formatedRowData.setFullYear(formatedRowData.getFullYear() - dateNumber));
+        return updatedSubstractYears.toLocaleDateString() === today.toLocaleDateString();
 
       default:
         break;
@@ -478,6 +518,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
+        if (condition === 'dateis') {
+          return filterRecordByDate(rowData, date, dateNumber);
+        }
+
         if (!filter.value) {
           // Value is not configured
           return true;
@@ -494,10 +538,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         if (!_.isNull(rowData)) {
           rowData = record.data[filter.column].toString().toLowerCase();
-        }
-
-        if (condition === 'dateis') {
-          return filterRecordByDate(rowData, date, dateNumber);
         }
 
         switch (condition) {
@@ -1634,7 +1674,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortRecordsByField,
+      sortByField: sortRecordsByField
     },
     User: {
       isAdmin: userIsAdmin,
