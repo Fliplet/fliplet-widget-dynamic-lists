@@ -45,7 +45,7 @@
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
-    \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
+    \{{#if searchIconsEnabled}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
       <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
@@ -68,7 +68,7 @@
       </div>
       \{{/if}}
     </div>
-    \{{/ifCond}}
+    \{{/if}}
   </div>
   <!-- End of Top bar -->
 
