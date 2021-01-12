@@ -777,6 +777,7 @@ var DynamicLists = (function() {
         item.fromLoading = true; // Flag to close accordions
         item.columns = dataSourceColumns;
         _this.addFilterItem(item);
+
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
         $('#number-field-' + item.id).val(item.dateNumber);
