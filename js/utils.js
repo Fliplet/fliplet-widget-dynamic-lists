@@ -421,6 +421,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function comparisonType(options) {
+    debugger;
     switch (options.type) {
       case 'dateis':
         return options.formatedDate === options.today;
@@ -439,127 +440,131 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     const today = new Date();
     const formatedRowData = new Date(options.rowData);
 
-    // if (options.condition === 'datebetween') {
-      
-    // }
-
     switch (options.date) {
       case 'today':
-        return comparisonType({
+        return {
           formatedDate: formatedRowData.toLocaleDateString(),
           today: today.toLocaleDateString(),
           type: options.condition
-        });
+        };
 
       case 'now':
-        return comparisonType({
+        return {
           formatedDate: formatedRowData.toLocaleString(),
-          today: today.toLocaleString(), type: options.condition
-        });
+          today: today.toLocaleString(),
+          type: options.condition
+        };
 
       case 'nowaddminutes':
-        const updatedAddMinutes = new Date(today.getTime() + options.dateNumber * 60000);
-        return (
-          (comparisonType({
-            formatedDate: formatedRowData.toLocaleDateString(),
-            today: updatedAddMinutes.toLocaleDateString(),
+        if (comparisonType({
+          formatedDate: formatedRowData.toLocaleDateString(),
+          today: today.toLocaleDateString(),
+          type: options.condition
+        })) {
+          const updatedAddMinutes = new Date(today.getTime() + smartParseFloat(options.dateNumber) * 60000);
+          return {
+            formatedDate: formatedRowData.getMinutes(),
+            today: updatedAddMinutes.getMinutes(),
             type: options.condition
-          })) &&
-          (comparisonType({
-            formatedDate: updatedAddMinutes.getMinutes(),
-            today: today.getMinutes(),
-            type: options.condition
-          })));
+          };
+        }
+        return false;
 
       case 'nowaddhours':
-        const updatedAddHours = new Date(today.setHours(today.getHours() + options.dateNumber));
-        return (
-          (comparisonType({
-            formatedDate: formatedRowData.toLocaleDateString(),
-            today: updatedAddHours.toLocaleDateString(),
-            type: options.condition
-          })) &&
-          (comparisonType({
+        const updatedAddHours = new Date(today.setHours(today.getHours() + smartParseFloat(options.dateNumber)));
+        if (comparisonType({
+          formatedDate: formatedRowData.toLocaleDateString(),
+          today: updatedAddHours.toLocaleDateString(),
+          type: options.condition
+        })) {
+          return {
             formatedDate: formatedRowData.getHours(),
             today: updatedAddHours.getHours(),
             type: options.condition
-          })));
+          };
+        }
+
+        return false;
 
       case 'todayadddays':
-        const updatedAddDays = new Date(today.setDate(today.getDate() + options.dateNumber));
-        return comparisonType({
+        const updatedAddDays = new Date(today.setDate(today.getDate() + smartParseFloat(options.dateNumber)));
+        return {
           formatedDate: formatedRowData.toLocaleDateString(),
           today: updatedAddDays.toLocaleDateString(),
           type: options.condition
-        });
+        };
 
       case 'todayaddmonths':
-        const updatedAddMonth = new Date(today.setMonth(today.getMonth() + options.dateNumber));
-        return comparisonType({
+        const updatedAddMonth = new Date(today.setMonth(today.getMonth() + smartParseFloat(options.dateNumber)));
+        return {
           formatedDate: formatedRowData.toLocaleDateString(),
           today: updatedAddMonth.toLocaleDateString(),
           type: options.condition
-        });
+        };
 
       case 'todayaddyears':
-        const updatedAddYears = new Date(today.setFullYear(today.getFullYear() + options.dateNumber));
-        return comparisonType({
+        const updatedAddYears = new Date(today.setFullYear(today.getFullYear() + smartParseFloat(options.dateNumber)));
+        return {
           formatedDate: formatedRowData.toLocaleDateString(),
           today: updatedAddYears.toLocaleDateString(),
           type: options.condition
-        });
+        };
 
       case 'nowsubtractminutes':
-        const updatedSubstractMinutes = new Date(today.getTime() - options.dateNumber * 60000);
-        return (
-          (comparisonType({
-            formatedDate: formatedRowData.toLocaleDateString(),
-            today: updatedSubstractMinutes.toLocaleDateString(),
-            type: options.condition
-          })) &&
-          (comparisonType({
+        const updatedSubstractMinutes = new Date(today.getTime() - smartParseFloat(options.dateNumber) * 60000);
+        if (comparisonType({
+          formatedDate: formatedRowData.toLocaleDateString(),
+          today: updatedSubstractMinutes.toLocaleDateString(),
+          type: options.condition
+        })) {
+          return {
             formatedDate: formatedRowData.getMinutes(),
             today: updatedSubstractMinutes.getMinutes(),
             type: options.condition
-          })));
+          };
+        }
+
+        return false;
 
       case 'nowsubtracthours':
-        const updatedSubstractHours = new Date(today.setHours(today.getHours() - options.dateNumber));
-        return (
-          (comparisonType({
-            formatedDate: formatedRowData.toLocaleDateString(),
-            today: updatedSubstractHours.toLocaleDateString(),
-            type: options.condition
-          })) &&
-          (comparisonType({
+        if (comparisonType({
+          formatedDate: formatedRowData.toLocaleDateString(),
+          today: today.toLocaleDateString(),
+          type: options.condition
+        })) {
+          const updatedSubstractHours = new Date(today.setHours(today.getHours() - smartParseFloat(options.dateNumber)));
+          return {
             formatedDate: formatedRowData.getHours(),
             today: updatedSubstractHours.getHours(),
             type: options.condition
-          })));
+          };
+        }
+
+        return false;
 
       case 'todayminusdays':
-        const updatedSubstractDays = new Date(today.setDate(today.getDate() - options.dateNumber));
-        return comparisonType({
+        const updatedSubstractDays = new Date(today.setDate(today.getDate() - smartParseFloat(options.dateNumber)));
+        return {
           formatedDate: formatedRowData.toLocaleDateString(),
           today: updatedSubstractDays.toLocaleDateString(),
           type: options.condition
-        });
+        };
 
       case 'todayminusmonths':
-        const updatedSubstractMonth = new Date(today.setMonth(today.getMonth() - options.dateNumber));
-        return comparisonType({
+        const updatedSubstractMonth = new Date(today.setMonth(today.getMonth() - smartParseFloat(options.dateNumber)));
+        return {
           formatedDate: formatedRowData.toLocaleDateString(),
           today: updatedSubstractMonth.toLocaleDateString(),
           type: options.condition
-        });
+        };
 
       case 'todayminusyears':
-        const updatedSubstractYears = new Date(today.setFullYear(today.getFullYear() - options.dateNumber));
-        return comparisonType({
+        const updatedSubstractYears = new Date(today.setFullYear(today.getFullYear() - smartParseFloat(options.dateNumber)));
+        return {
           formatedDate: formatedRowData.toLocaleDateString(),
           today: updatedSubstractYears.toLocaleDateString(),
           type: options.condition
-        });
+        };
 
       default:
         break;
@@ -603,14 +608,32 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (date) {
-          return filterRecordByDate({
+          if (condition === 'datebetween') {
+            var fromValue = filterRecordByDate({
+              rowData: rowData,
+              date: valueType.from,
+              condition: 'dateis',
+              dateNumber: dateNumberBetween.from
+            });
+
+            var toValue = filterRecordByDate({
+              rowData: rowData,
+              date: valueType.to,
+              condition: 'dateis',
+              dateNumber: dateNumberBetween.to
+            });
+
+            return (fromValue.formatedDate >= fromValue.today) && (fromValue.formatedDate <= toValue.today);
+          }
+
+          return comparisonType(filterRecordByDate({
             rowData: rowData,
             condition: condition,
             date: date,
             dateNumber: dateNumber,
             dateNumberBetween: dateNumberBetween,
             valueType: valueType
-          });
+          }));
         }
 
         if (!filter.value) {
