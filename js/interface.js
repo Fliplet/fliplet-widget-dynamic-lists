@@ -731,7 +731,8 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-field-' + item.id).val(item.value);
+        $('#value-type-field-' + item.id).val(item.valueType);
+        $('#value-field-' + item.id).val(item.fieldValue);
       });
     },
     renderSortColumns: function() {
@@ -2568,9 +2569,19 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+        item.valueType = $('#value-type-field-' + item.id).val();
+
+        if (item.valueType === 'enter-value') {
+          item.value = item.fieldValue;
+        }
+
+        if (item.logic === 'empty' || item.logic === 'notempty') {
+          item.valueType = null;
+          item.value = '';
+        }
       });
 
       data.sortOptions = _this.config.sortOptions;
