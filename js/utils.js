@@ -1051,7 +1051,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    */
   function sortByField(options) {
     // If user doesn't set sorting do nothing
-    if (!options.sortField) {
+    // Or if we have no records (empty search results)
+    if (!options.sortField || !options.records.length) {
       return options.records;
     }
 
