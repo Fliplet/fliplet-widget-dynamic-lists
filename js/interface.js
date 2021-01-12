@@ -1333,7 +1333,7 @@ var DynamicLists = (function() {
       }));
       $('#sort-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
-          source: _this.config.dataSourceColumns || _this.config.defaultColumns,
+          source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
         showAutocompleteOnFocus: true,
@@ -1345,19 +1345,6 @@ var DynamicLists = (function() {
         createTokensOnBlur: false
       }));
       $('#filter-column-fields-tokenfield').tokenfield('destroy').tokenfield({
-        autocomplete: {
-          source: dataSourceColumns || _this.config.defaultColumns,
-          delay: 100
-        },
-        showAutocompleteOnFocus: true,
-        createTokensOnBlur: false
-      });
-      $('.sort-fields').html(tokenField({
-        name: 'sort-column-fields',
-        id: 'sort-column-fields-tokenfield',
-        createTokensOnBlur: false
-      }));
-      $('#sort-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
           source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
