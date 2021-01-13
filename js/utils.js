@@ -542,38 +542,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           break;
       }
     }
-    // if (condition === 'datebetween') {
-    //   var today = new Date();
-    //   console.log(filter);
-
-    //   return valueType.from >= today && valueType.to <= today;
-
-
-    //   var fromValue = getFormatedRecord({
-    //     rowData: rowData,
-    //     date: valueType.from,
-    //     condition: 'dateis',
-    //     dateNumber: dateNumberBetween.from
-    //   });
-
-    //   var toValue = getFormatedRecord({
-    //     rowData: rowData,
-    //     date: valueType.to,
-    //     condition: 'dateis',
-    //     dateNumber: dateNumberBetween.to
-    //   });
-
-    //   return (fromValue.formatedDate >= fromValue.today) && (fromValue.formatedDate <= toValue.today);
-    // }
-
-    // return getComparisonResult(getFormatedRecord({
-    //   rowData: rowData,
-    //   condition: condition,
-    //   date: date,
-    //   dateNumber: dateNumber,
-    //   dateNumberBetween: dateNumberBetween,
-    //   valueType: valueType
-    // }));
   }
 
   function runRecordFilters(records, filters) {
