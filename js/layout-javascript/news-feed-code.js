@@ -1771,6 +1771,13 @@ DynamicList.prototype.searchData = function(options) {
     // Update selected highlight size in Edit
     Fliplet.Widget.updateHighlightDimensions(_this.data.id);
 
+    _this.Utils.Page.addActiveFilters({
+      context: _this,
+      filterOverlayClass: '.news-feed-search-filter-overlay',
+      filtersInOverlay: _this.data.filtersInOverlay
+    });
+
+
     return Fliplet.Hooks.run('flListDataAfterRenderList', {
       instance: _this,
       value: value,
