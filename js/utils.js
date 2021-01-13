@@ -420,155 +420,160 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function comparisonType(options) {
-    debugger;
-    switch (options.type) {
-      case 'dateis':
-        return options.formatedDate === options.today;
+  function getDateModifiedValues(options) {
+    switch (options.filterModifier) {
+      case 'today':
+        return {
+          today: moment().format('DD/MM/YYYY'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY')
+        };
 
-      case 'datebefore':
-        return options.formatedDate < options.today;
+      case 'now':
+        return {
+          today: moment().format('DD/MM/YYYY, h:mm'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY, h:mm')
+        };
 
-      case 'dateafter':
-        return options.formatedDate > options.today;
+      case 'nowaddminutes':
+        return {
+          today: moment().add('minute', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h:mm'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY, h:mm')
+        };
+
+      case 'nowaddhours':
+        return {
+          today: moment().add('hour', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY, h')
+        };
+
+      case 'todayadddays':
+        return {
+          today: moment().add('days', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY')
+        };
+
+      case 'todayaddmonths':
+        return {
+          today: moment().add('month', smartParseFloat(options.modifierValue)).format('MM/YYYY'),
+          formatedDate: moment(options.date).format('MM/YYYY')
+        };
+
+      case 'todayaddyears':
+        return {
+          today: moment().add('year', smartParseFloat(options.modifierValue)).format('YYYY'),
+          formatedDate: moment(options.date).format('YYYY')
+        };
+
+      case 'nowsubtractminutes':
+        return {
+          today: moment().subtract('minute', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h:mm'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY, h:mm')
+        };
+
+      case 'nowsubtracthours':
+        return {
+          today: moment().subtract('hour', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY, h')
+        };
+
+      case 'todayminusdays':
+        return {
+          today: moment().subtract('days', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY'),
+          formatedDate: moment(options.date).format('DD/MM/YYYY')
+        };
+
+      case 'todayminusmonths':
+        return {
+          today: moment().subtract('month', smartParseFloat(options.modifierValue)).format('MM/YYYY'),
+          formatedDate: moment(options.date).format('MM/YYYY')
+        };
+
+      case 'todayminusyears':
+        return {
+          today: moment().subtract('year', smartParseFloat(options.modifierValue)).format('YYYY'),
+          formatedDate: moment(options.date).format('YYYY')
+        };
+
       default:
         break;
     }
   }
 
-  function filterRecordByDate(options) {
-    const today = new Date();
-    const formatedRowData = new Date(options.rowData);
 
-    switch (options.date) {
-      case 'today':
-        return {
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: today.toLocaleDateString(),
-          type: options.condition
-        };
+  function isDateMatches(options) {
+    if (options) {
+      var result = getDateModifiedValues({
+        date: options.date,
+        filterModifier: options.filterModifier.default,
+        modifierValue: options.modifierValue.default
+      });
 
-      case 'now':
-        return {
-          formatedDate: formatedRowData.toLocaleString(),
-          today: today.toLocaleString(),
-          type: options.condition
-        };
+      switch (options.condition) {
+        case 'dateis':
+          return result.formatedDate === result.today;
 
-      case 'nowaddminutes':
-        if (comparisonType({
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: today.toLocaleDateString(),
-          type: options.condition
-        })) {
-          const updatedAddMinutes = new Date(today.getTime() + smartParseFloat(options.dateNumber) * 60000);
-          return {
-            formatedDate: formatedRowData.getMinutes(),
-            today: updatedAddMinutes.getMinutes(),
-            type: options.condition
-          };
-        }
-        return false;
+        case 'datebefore':
+          return result.formatedDate < result.today;
 
-      case 'nowaddhours':
-        const updatedAddHours = new Date(today.setHours(today.getHours() + smartParseFloat(options.dateNumber)));
-        if (comparisonType({
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedAddHours.toLocaleDateString(),
-          type: options.condition
-        })) {
-          return {
-            formatedDate: formatedRowData.getHours(),
-            today: updatedAddHours.getHours(),
-            type: options.condition
-          };
-        }
+        case 'dateafter':
+          return result.formatedDate > result.today;
 
-        return false;
+        case 'datebetween':
+          var fromDate = getDateModifiedValues({
+            date: options.date,
+            filterModifier: options.filterModifier.from,
+            modifierValue: options.modifierValue.from
+          }).today;
 
-      case 'todayadddays':
-        const updatedAddDays = new Date(today.setDate(today.getDate() + smartParseFloat(options.dateNumber)));
-        return {
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedAddDays.toLocaleDateString(),
-          type: options.condition
-        };
+          var toDate = getDateModifiedValues({
+            date: options.date,
+            filterModifier: options.filterModifier.to,
+            modifierValue: options.modifierValue.to
+          }).today;
 
-      case 'todayaddmonths':
-        const updatedAddMonth = new Date(today.setMonth(today.getMonth() + smartParseFloat(options.dateNumber)));
-        return {
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedAddMonth.toLocaleDateString(),
-          type: options.condition
-        };
+          var formatedValue = getDateModifiedValues({
+            date: options.date,
+            filterModifier: options.filterModifier.from,
+            modifierValue: options.modifierValue.from
+          }).formatedDate;
 
-      case 'todayaddyears':
-        const updatedAddYears = new Date(today.setFullYear(today.getFullYear() + smartParseFloat(options.dateNumber)));
-        return {
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedAddYears.toLocaleDateString(),
-          type: options.condition
-        };
-
-      case 'nowsubtractminutes':
-        const updatedSubstractMinutes = new Date(today.getTime() - smartParseFloat(options.dateNumber) * 60000);
-        if (comparisonType({
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedSubstractMinutes.toLocaleDateString(),
-          type: options.condition
-        })) {
-          return {
-            formatedDate: formatedRowData.getMinutes(),
-            today: updatedSubstractMinutes.getMinutes(),
-            type: options.condition
-          };
-        }
-
-        return false;
-
-      case 'nowsubtracthours':
-        if (comparisonType({
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: today.toLocaleDateString(),
-          type: options.condition
-        })) {
-          const updatedSubstractHours = new Date(today.setHours(today.getHours() - smartParseFloat(options.dateNumber)));
-          return {
-            formatedDate: formatedRowData.getHours(),
-            today: updatedSubstractHours.getHours(),
-            type: options.condition
-          };
-        }
-
-        return false;
-
-      case 'todayminusdays':
-        const updatedSubstractDays = new Date(today.setDate(today.getDate() - smartParseFloat(options.dateNumber)));
-        return {
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedSubstractDays.toLocaleDateString(),
-          type: options.condition
-        };
-
-      case 'todayminusmonths':
-        const updatedSubstractMonth = new Date(today.setMonth(today.getMonth() - smartParseFloat(options.dateNumber)));
-        return {
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedSubstractMonth.toLocaleDateString(),
-          type: options.condition
-        };
-
-      case 'todayminusyears':
-        const updatedSubstractYears = new Date(today.setFullYear(today.getFullYear() - smartParseFloat(options.dateNumber)));
-        return {
-          formatedDate: formatedRowData.toLocaleDateString(),
-          today: updatedSubstractYears.toLocaleDateString(),
-          type: options.condition
-        };
-
-      default:
-        break;
+          return formatedValue >= fromDate && formatedValue <= toDate;
+        default:
+          break;
+      }
     }
+    // if (condition === 'datebetween') {
+    //   var today = new Date();
+    //   console.log(filter);
+
+    //   return valueType.from >= today && valueType.to <= today;
+
+
+    //   var fromValue = getFormatedRecord({
+    //     rowData: rowData,
+    //     date: valueType.from,
+    //     condition: 'dateis',
+    //     dateNumber: dateNumberBetween.from
+    //   });
+
+    //   var toValue = getFormatedRecord({
+    //     rowData: rowData,
+    //     date: valueType.to,
+    //     condition: 'dateis',
+    //     dateNumber: dateNumberBetween.to
+    //   });
+
+    //   return (fromValue.formatedDate >= fromValue.today) && (fromValue.formatedDate <= toValue.today);
+    // }
+
+    // return getComparisonResult(getFormatedRecord({
+    //   rowData: rowData,
+    //   condition: condition,
+    //   date: date,
+    //   dateNumber: dateNumber,
+    //   dateNumberBetween: dateNumberBetween,
+    //   valueType: valueType
+    // }));
   }
 
   function runRecordFilters(records, filters) {
@@ -588,10 +593,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return _.filter(records, function(record) {
       return _.every(filters, function(filter) {
         var condition = filter.condition;
-        var date = filter.date;
-        var dateNumber = filter.dateNumber;
-        var dateNumberBetween = filter.dateNumberBetween;
-        var valueType = filter.valueType;
+        // var filterModifier = filter.date;
+        // var dateNumber = filter.dateNumber;
+        // var dateNumberBetween = filter.dateNumberBetween;
+        // var valueType = filter.valueType;
         var rowData = _.get(record, ['data', filter.column], null);
 
         if (condition === 'none' || filter.column === 'none') {
@@ -607,33 +612,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
-        if (date) {
-          if (condition === 'datebetween') {
-            var fromValue = filterRecordByDate({
-              rowData: rowData,
-              date: valueType.from,
-              condition: 'dateis',
-              dateNumber: dateNumberBetween.from
-            });
-
-            var toValue = filterRecordByDate({
-              rowData: rowData,
-              date: valueType.to,
-              condition: 'dateis',
-              dateNumber: dateNumberBetween.to
-            });
-
-            return (fromValue.formatedDate >= fromValue.today) && (fromValue.formatedDate <= toValue.today);
-          }
-
-          return comparisonType(filterRecordByDate({
-            rowData: rowData,
+        if (filter.filterModifier) {
+          return isDateMatches({
+            date: rowData,
             condition: condition,
-            date: date,
-            dateNumber: dateNumber,
-            dateNumberBetween: dateNumberBetween,
-            valueType: valueType
-          }));
+            filterModifier: filter.filterModifier,
+            modifierValue: filter.modifierValue
+          });
         }
 
         if (!filter.value) {
@@ -1422,14 +1407,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     // Filter data based on filter options, filter queries and PV storage values (deprecated)
     var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
-
     records = runRecordFilters(records, _.map(filters, function(option) {
       return {
         column: option.column,
         condition: option.logic,
-        date: option.date,
-        dateNumber: option.dateNumber,
-        dateNumberBetween: option.dateNumberBetween,
+        filterModifier: option.filterModifier,
+        modifierValue: option.modifierValue,
         valueType: option.valueType,
         value: option.value
       };
