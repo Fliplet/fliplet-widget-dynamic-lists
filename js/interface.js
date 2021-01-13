@@ -219,7 +219,6 @@ var DynamicLists = (function() {
           item.column = 'none';
           item.logic = 'none';
           item.value = '';
-          item.date = 'today';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -232,27 +231,23 @@ var DynamicLists = (function() {
           var $selector = $(this).parents('.filter-panel');
           var id = $(this).attr('filter-item-id');
 
+          const isAddNumberFieldDefault = ['today', 'now'].includes(value);
+
           switch (type) {
             case 'field':
               $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
               break;
 
             case 'date':
-              var isAddNumberFieldDefault = ['today', 'now'].includes(value);
-
               $('#date-number-default-' + id).toggleClass('hidden', isAddNumberFieldDefault);
               break;
 
             case 'date-from':
-              var isAddNumberFieldFrom = ['today', 'now'].includes(value);
-
-              $('#date-number-from-' + id).toggleClass('hidden', isAddNumberFieldFrom);
+              $('#date-number-from-' + id).toggleClass('hidden', isAddNumberFieldDefault);
               break;
 
             case 'date-to':
-              var isAddNumberFieldTo = ['today', 'now'].includes(value);
-
-              $('#date-number-to-' + id).toggleClass('hidden', isAddNumberFieldTo);
+              $('#date-number-to-' + id).toggleClass('hidden', isAddNumberFieldDefault);
               break;
 
             case 'logic':
@@ -274,11 +269,8 @@ var DynamicLists = (function() {
 
               $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
               $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
-
               $('#date-logic-' + id).toggleClass('hidden', !areLogicDate);
-
               $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
-
               $('#date-between-' + id).toggleClass('hidden', !isDateBetweenLogic);
               $('#date-number-default-' + id).toggleClass('hidden', isDateBetweenLogic || isAddNumberField);
 
@@ -780,27 +772,29 @@ var DynamicLists = (function() {
 
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#number-field-' + item.id).val(item.dateNumber);
 
         if (item.logic !== 'between' && item.logic !== 'datebetween') {
-          $('#date-field-' + item.id).val(item.date);
+          $('#date-field-' + item.id).val(item.filterModifier.default);
+          $('#number-field-' + item.id).val(item.modifierValue.default);
           $('#value-type-field-' + item.id).val(item.valueType);
           $('#value-field-' + item.id).val(item.value);
 
           return;
         }
 
-        $('#date-from-' + item.id).val(item.valueType.from);
-        $('#date-to-' + item.id).val(item.valueType.to);
+        if (item.logic === 'datebetween') {
+          $('#date-from-' + item.id).val(item.filterModifier.from);
+          $('#date-to-' + item.id).val(item.filterModifier.to);
+          $('#number-field-from-' + item.id).val(item.modifierValue.from);
+          $('#number-field-to-' + item.id).val(item.modifierValue.to);
+        }
 
-        $('#number-field-from-' + item.id).val(item.dateNumberBetween.from);
-        $('#number-field-to-' + item.id).val(item.dateNumberBetween.to);
-
-        $('#value-type-field-from-' + item.id).val(item.valueType.from);
-        $('#value-type-field-to-' + item.id).val(item.valueType.to);
-
-        $('#value-field-from-' + item.id).val(item.value.from);
-        $('#value-field-to-' + item.id).val(item.value.to);
+        if (item.logic === 'between') {
+          $('#value-type-field-from-' + item.id).val(item.valueType.from);
+          $('#value-type-field-to-' + item.id).val(item.valueType.to);
+          $('#value-field-from-' + item.id).val(item.value.from);
+          $('#value-field-to-' + item.id).val(item.value.to);
+        }
       });
     },
     renderSortColumns: function() {
@@ -2009,7 +2003,7 @@ var DynamicLists = (function() {
         $('#date-between-' + data.id).addClass('hidden');
       }
 
-      if (['today', 'now'].includes(data.date)) {
+      if (data.filterModifier && ['today', 'now'].includes(data.filterModifier.default)) {
         $('#date-number-default-' + data.id).addClass('hidden');
         $('#date-number-from-' + data.id).addClass('hidden');
         $('#date-number-to-' + data.id).addClass('hidden');
@@ -2668,12 +2662,18 @@ var DynamicLists = (function() {
       _.forEach(_this.config.filterOptions, function(item) {
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.date = $('#date-field-' + item.id).val();
         item.value = $('#value-field-' + item.id).val();
-        item.dateNumber = $('#number-field-' + item.id).val();
+
+        item.filterModifier = {
+          default: $('#date-field-' + item.id).val()
+        };
+
+        item.modifierValue = {
+          default: $('#number-field-' + item.id).val()
+        };
 
         if (item.logic === 'empty' || item.logic === 'notempty') {
-          item.valueType = null;
+          item.valueType = '';
           item.value = '';
         }
 
@@ -2683,16 +2683,11 @@ var DynamicLists = (function() {
           var valueNumberFrom = $('#number-field-from-' + item.id).val();
           var valueNumberTo = $('#number-field-to-' + item.id).val();
 
+          item.filterModifier.to = valueDateTo;
+          item.filterModifier.from = valueDateFrom;
 
-          item.valueType = {
-            from: valueDateFrom,
-            to: valueDateTo
-          };
-
-          item.dateNumberBetween = {
-            from: valueNumberFrom,
-            to: valueNumberTo
-          };
+          item.modifierValue.from = valueNumberFrom;
+          item.modifierValue.to =  valueNumberTo;
         }
 
         if (item.logic === 'between') {
