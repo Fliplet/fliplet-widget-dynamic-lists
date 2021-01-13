@@ -63,10 +63,6 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  var addRadioValues = [];
-  var editRadioValues = [];
-  var deleteRadioValues = [];
-
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -222,7 +218,9 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
+          item.valueType = 'enter-value';
           item.value = '';
+          item.valueField = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -233,15 +231,32 @@ var DynamicLists = (function() {
           var value = $(this).val();
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
+          var id = $(this).attr('filter-item-id');
 
-          if (type === 'field') {
-            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+          switch (type) {
+            case 'field':
+              $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+              break;
+
+            case 'logic':
+              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
+              var isLogicComparison = value === 'between';
+
+              $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
+              $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
+              $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+              break;
+
+            case 'valueType':
+              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              break;
+
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
           }
 
-          if (type === 'logic') {
-            var hideValueFields = value === 'empty' || value === 'notempty';
-
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -731,7 +746,8 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-field-' + item.id).val(item.value);
+        $('#value-type-field-' + item.id).val(item.valueType);
+        $('#value-field-' + item.id).val(item.fieldValue);
       });
     },
     renderSortColumns: function() {
@@ -1325,7 +1341,7 @@ var DynamicLists = (function() {
       }));
       $('#sort-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
-          source: _this.config.dataSourceColumns || _this.config.defaultColumns,
+          source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
         showAutocompleteOnFocus: true,
@@ -1912,12 +1928,16 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
+      data.valueField = data.valueType === 'enter-value'
+        ? 'Value'
+        : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
 
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
+        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
       }
     },
@@ -2568,9 +2588,19 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+        item.valueType = $('#value-type-field-' + item.id).val();
+
+        if (item.valueType === 'enter-value') {
+          item.value = item.fieldValue;
+        }
+
+        if (item.logic === 'empty' || item.logic === 'notempty') {
+          item.valueType = null;
+          item.value = '';
+        }
       });
 
       data.sortOptions = _this.config.sortOptions;
