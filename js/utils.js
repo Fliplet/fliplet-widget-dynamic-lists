@@ -531,13 +531,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             modifierValue: options.modifierValue.to
           }).today;
 
-          var formatedValue = getDateModifiedValues({
+          var inputDate = getDateModifiedValues({
             date: options.date,
             filterModifier: options.filterModifier.from,
             modifierValue: options.modifierValue.from
           }).formatedDate;
 
-          return formatedValue >= fromDate && formatedValue <= toDate;
+          return inputDate >= fromDate && inputDate <= toDate;
         default:
           break;
       }
@@ -561,10 +561,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return _.filter(records, function(record) {
       return _.every(filters, function(filter) {
         var condition = filter.condition;
-        // var filterModifier = filter.date;
-        // var dateNumber = filter.dateNumber;
-        // var dateNumberBetween = filter.dateNumberBetween;
-        // var valueType = filter.valueType;
         var rowData = _.get(record, ['data', filter.column], null);
 
         if (condition === 'none' || filter.column === 'none') {
