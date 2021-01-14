@@ -38,7 +38,7 @@
         </div>
         <div class="col-sm-8">
           <label for="logic-field-{{id}}" class="select-proxy-display">
-            <select name="logic-field-{{id}}" id="logic-field-{{id}}" data-field="logic" data-label="-- Select an option" class="hidden-select form-control">
+            <select name="logic-field-{{id}}" id="logic-field-{{id}}" filter-item-id="{{id}}" data-field="logic" data-label="-- Select an option" class="hidden-select form-control">
               <optgroup>
                 <option value="empty">Is empty</option>
                 <option value="notempty">Is not empty</option>
@@ -65,7 +65,7 @@
         </div>
       </div>
 
-      <div class="form-group clearfix" id="filter-value-type">
+      <div class="form-group clearfix" id="filter-value-type-{{id}}">
         <div class="col-sm-4 control-label">
           <label>Value type</label>
         </div>
@@ -80,7 +80,7 @@
         </div>
       </div>
 
-      <div class="form-group clearfix" id="filter-value">
+      <div class="form-group clearfix" id="filter-value-{{id}}">
         <div class="col-sm-4 control-label">
           <label for="value-field-{{id}}">{{valueField}}</label>
         </div>
@@ -99,6 +99,7 @@
           <label for="value-type-field-{{id}}" class="select-proxy-display">
             <select name="value-type-field-{{id}}" id="value-type-field-from-{{id}}" data-field="valueType" class="hidden-select form-control">
               <option value="enter-value">Enter a value</option>
+              <option value="user-profile-data">User profile data</option>
             </select>
             <span class="icon fa fa-chevron-down"></span>
           </label>
@@ -121,6 +122,7 @@
           <label for="value-type-field-{{id}}" class="select-proxy-display">
             <select name="value-type-field-{{id}}" id="value-type-field-to-{{id}}" data-field="valueType" class="hidden-select form-control">
               <option value="enter-value">Enter a value</option>
+              <option value="user-profile-data">User profile data</option>
             </select>
             <span class="icon fa fa-chevron-down"></span>
           </label>

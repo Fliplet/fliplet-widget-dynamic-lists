@@ -251,8 +251,8 @@ var DynamicLists = (function() {
               $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
               break;
 
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+            default:
+              break;
           }
 
           if (type === 'valueType') {
@@ -1936,9 +1936,13 @@ var DynamicLists = (function() {
 
       $filterAccordionContainer.append($newPanel);
 
-      if (data.logic === 'empty' || data.logic === 'notempty') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
+      if (['empty', 'notempty', 'between'].indexOf(data.logic) !== -1) {
+        $('#filter-value-type-' + data.id).addClass('hidden');
+        $('#filter-value-' + data.id).addClass('hidden');
+      }
+
+      if (data.logic !== 'between') {
+        $('#logic-comparison-' + data.id).addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
