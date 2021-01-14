@@ -262,6 +262,28 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return selectors;
   }
 
+  /**
+   * This function is used to show amount of the selected by users filters
+   *
+   * @param {Object} options - incoming object with keys:
+   *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
+   *  $target { Jquery instance } - Jq instance on which user have pressed
+   *
+   * @return {void} this funtion doesn't return anything it add changes directly to the DOM
+   */
+  function showSelectedFiltersAmount(options) {
+    if (!options.filtersInOverlay || !options.$target.length) {
+      return;
+    }
+
+    var $filterPanel = options.$target.parents('.panel');
+    var activeFiltersAmount = $filterPanel.find('[data-filter-group] .mixitup-control-active').length;
+    var $filtersAmount = $filterPanel.find('.panel-heading .panel-title .panel-title-amount');
+    var filtersAmountText = activeFiltersAmount ? '(' + activeFiltersAmount + ')' : '';
+
+    $filtersAmount.text(filtersAmountText);
+  }
+
   function fetchAndCache(options) {
     options = options || {};
 
@@ -1625,7 +1647,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Page: {
       updateSearchContext: updateSearchContext,
-      updateFilterControlsContext: updateFilterControlsContext
+      updateFilterControlsContext: updateFilterControlsContext,
+      showSelectedFiltersAmount: showSelectedFiltersAmount
     },
     String: {
       splitByCommas: splitByCommas,
