@@ -458,8 +458,6 @@ function attahObservers() {
           var filterError = [];
           var filterFieldValues = [];
 
-          debugger;
-
           widgetData.filterOptions.forEach(function(item) {
             if (item.logic === 'between') {
               filterFieldValues.push({
@@ -489,7 +487,7 @@ function attahObservers() {
           });
 
           filterFieldValues.forEach(function(field) {
-            if (field.valueType === 'user-profile-data') {
+            if (field.valueType !== 'enter-value') {
               if (!validate(field.value)) {
                 filterError.push({
                   item: field.field,
