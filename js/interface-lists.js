@@ -487,22 +487,22 @@ function attahObservers() {
           });
 
           filterFieldValues.forEach(function(field) {
-            if (field.valueType === 'user-profile-data') {
-              if (!validate(field.value)) {
-                filterError.push({
-                  item: field.field,
-                  id: field.id
-                });
-              } else {
-                $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
-                $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
-              }
+            if (field.valueType === 'enter-value') {
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
 
               return;
             }
 
-            $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
-            $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
+            if (!validate(field.value)) {
+              filterError.push({
+                item: field.field,
+                id: field.id
+              });
+            } else {
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
+            }
           });
 
           if (filterError.length) {
