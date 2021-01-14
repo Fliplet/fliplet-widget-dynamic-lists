@@ -242,8 +242,7 @@ var DynamicLists = (function() {
               var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
               var isLogicComparison = value === 'between';
 
-              $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
-              $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
+              $selector.find('.panel-title-text .value, #value-dash, #filter-value-type, #filter-value').toggleClass('hidden', hideValueFields);
               $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
               break;
 
@@ -251,8 +250,8 @@ var DynamicLists = (function() {
               $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
               break;
 
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+            default:
+              break;
           }
 
           if (type === 'valueType') {
@@ -1936,9 +1935,13 @@ var DynamicLists = (function() {
 
       $filterAccordionContainer.append($newPanel);
 
-      if (data.logic === 'empty' || data.logic === 'notempty') {
+      if (['empty', 'notempty', 'between'].indexOf(data.logic) !== -1) {
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
+      }
+
+      if (data.logic !== 'between') {
+        $('#logic-comparison-' + data.id).addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
