@@ -458,45 +458,53 @@ function attahObservers() {
           var filterError = [];
           var filterFieldValues = [];
 
+          debugger;
+
           widgetData.filterOptions.forEach(function(item) {
             if (item.logic === 'between') {
-              if (item.valueType.from === 'user-profile-data') {
-                filterFieldValues.push({
-                  field: '#value-field-from-' + item.id,
-                  value: item.value.from,
-                  id: item.id
-                });
-              }
+              filterFieldValues.push({
+                field: '#value-field-from-' + item.id,
+                value: item.value.from,
+                id: item.id,
+                valueType: item.valueType.from
+              });
 
-              if (item.valueType.to === 'user-profile-data') {
-                filterFieldValues.push({
-                  field: '#value-field-to-' + item.id,
-                  value: item.value.to,
-                  id: item.id
-                });
-              }
+
+              filterFieldValues.push({
+                field: '#value-field-to-' + item.id,
+                value: item.value.to,
+                id: item.id,
+                valueType: item.valueType.to
+              });
+
               return;
             }
 
-            if (item.valueType === 'user-profile-data') {
-              filterFieldValues.push({
-                field: '#value-field-' + item.id,
-                value: item.fieldValue,
-                id: item.id
-              });
-            }
+            filterFieldValues.push({
+              field: '#value-field-' + item.id,
+              value: item.fieldValue,
+              id: item.id,
+              valueType: item.valueType
+            });
           });
 
           filterFieldValues.forEach(function(field) {
-            if (!validate(field.value)) {
-              filterError.push({
-                item: field.field,
-                id: field.id
-              });
-            } else {
-              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
-              $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
+            if (field.valueType === 'user-profile-data') {
+              if (!validate(field.value)) {
+                filterError.push({
+                  item: field.field,
+                  id: field.id
+                });
+              } else {
+                $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+                $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
+              }
+
+              return;
             }
+
+            $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+            $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
           });
 
           if (filterError.length) {
@@ -510,7 +518,7 @@ function attahObservers() {
             return;
           }
 
-          $('#filter-value > .control-label > label').removeClass('has-error-text');
+          $('#filter-value- > .control-label > label').removeClass('has-error-text');
           $('.error-holder').addClass('hidden');
 
           toggleError(false);
