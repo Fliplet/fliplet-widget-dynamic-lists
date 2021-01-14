@@ -1571,7 +1571,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
                   });
               }
             });
-
             break;
 
           case 'app-storage-data':
