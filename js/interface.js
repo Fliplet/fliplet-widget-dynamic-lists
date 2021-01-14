@@ -750,7 +750,6 @@ var DynamicLists = (function() {
         if (item.logic !== 'between') {
           $('#value-field-' + item.id).val(item.fieldValue);
           $('#value-type-field-' + item.id).val(item.valueType);
-          $('#value-field-' + item.id).val(item.value);
 
           return;
         }
