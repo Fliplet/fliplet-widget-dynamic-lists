@@ -263,16 +263,24 @@ var DynamicLists = (function() {
 
               var hideValueFields = optionsValue.indexOf(value) !== -1;
               var areLogicDate = ['dateis', 'datebefore', 'dateafter'].includes(value);
+
               var isAddNumberField = ['today', 'now'].includes($('#date-field-' + id).val());
+              var isAddNumberFieldFrom = ['today', 'now'].includes($('#date-field-from-' + id).val());
+              var isAddNumberFieldTo = ['today', 'now'].includes($('#date-field-to-' + id).val());
+
               var isLogicComparison = value === 'between';
               var isDateBetweenLogic = value === 'datebetween';
 
               $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
               $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
-              $('#date-logic-' + id).toggleClass('hidden', !areLogicDate);
+
               $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+              $('#date-logic-' + id).toggleClass('hidden', !areLogicDate);
               $('#date-between-' + id).toggleClass('hidden', !isDateBetweenLogic);
+
               $('#date-number-default-' + id).toggleClass('hidden', isDateBetweenLogic || isAddNumberField);
+              $('#date-number-from-' + id).toggleClass('hidden', isDateBetweenLogic || isAddNumberFieldFrom);
+              $('#date-number-to-' + id).toggleClass('hidden', isDateBetweenLogic || isAddNumberFieldTo);
 
               break;
 
