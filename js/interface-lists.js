@@ -466,7 +466,9 @@ function attahObservers() {
                   value: item.value.from,
                   id: item.id
                 });
+              }
 
+              if (item.valueType.to === 'user-profile-data') {
                 filterFieldValues.push({
                   field: '#value-field-to-' + item.id,
                   value: item.value.to,
