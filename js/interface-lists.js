@@ -458,8 +458,6 @@ function attahObservers() {
           var filterError = [];
           var filterFieldValues = [];
 
-          debugger;
-
           widgetData.filterOptions.forEach(function(item) {
             if (item.logic === 'between') {
               filterFieldValues.push({
