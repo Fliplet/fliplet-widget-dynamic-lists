@@ -1571,7 +1571,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
                   });
               }
             });
+
             break;
+
+          case 'app-storage-data':
+            Fliplet.App.Storage.get(item.fieldValue)
+              .then(function(result) {
+                item.value = result;
+                resolve();
+              });
+            break;
+
           default:
             resolve();
         }
