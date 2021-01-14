@@ -459,26 +459,51 @@ function attahObservers() {
           var filterFieldValues = [];
 
           widgetData.filterOptions.forEach(function(item) {
-            filterFieldValues.push({
-              field: '#value-field-' + item.id,
-              value: item.fieldValue
-            });
+            if (item.logic === 'between') {
+              if (item.valueType.from === 'user-profile-data') {
+                filterFieldValues.push({
+                  field: '#value-field-from-' + item.id,
+                  value: item.value.from,
+                  id: item.id
+                });
+
+                filterFieldValues.push({
+                  field: '#value-field-to-' + item.id,
+                  value: item.value.to,
+                  id: item.id
+                });
+              }
+              return;
+            }
+
+            if (item.valueType === 'user-profile-data') {
+              filterFieldValues.push({
+                field: '#value-field-' + item.id,
+                value: item.fieldValue,
+                id: item.id
+              });
+            }
           });
 
           filterFieldValues.forEach(function(field) {
             if (!validate(field.value)) {
-              filterError.push(field.field);
+              filterError.push({
+                item: field.field,
+                id: field.id
+              });
             } else {
-              $(field.field).parents('#filter-value').find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
             }
           });
 
           if (filterError.length) {
             $('.error-holder').removeClass('hidden');
 
-            filterError.forEach(function(item) {
-              $(item).addClass('has-error');
-              $(item).parents('#filter-value').find('label').addClass('has-error-text');
+            filterError.forEach(function(field) {
+              $(field.item).addClass('has-error');
+              $(field.item).parents('#filter-value-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-between-' + field.id).find('label').addClass('has-error-text');
             });
             return;
           }
