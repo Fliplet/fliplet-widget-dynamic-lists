@@ -2589,6 +2589,7 @@ var DynamicLists = (function() {
       _.forEach(_this.config.filterOptions, function(item) {
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
+        item.value = $('#value-field-' + item.id).val();
       });
 
       data.sortOptions = _this.config.sortOptions;
