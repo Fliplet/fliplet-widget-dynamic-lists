@@ -218,9 +218,7 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
-          item.valueType = 'enter-value';
           item.value = '';
-          item.valueField = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -231,7 +229,6 @@ var DynamicLists = (function() {
           var value = $(this).val();
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
-          var id = $(this).attr('filter-item-id');
 
           switch (type) {
             case 'field':
@@ -240,23 +237,11 @@ var DynamicLists = (function() {
 
             case 'logic':
               var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
-              var isLogicComparison = value === 'between';
 
-              $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
-              $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
-              $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+              $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
               break;
-
-            case 'valueType':
-              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+            default:
               break;
-
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
-          }
-
-          if (type === 'valueType') {
-            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -1928,16 +1913,12 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
-      data.valueField = data.valueType === 'enter-value'
-        ? 'Value'
-        : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
 
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
       }
     },
