@@ -65,6 +65,8 @@ function DynamicList(id, data) {
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
 
+  this.data.searchIconsEnabled = this.data.filtersEnabled || this.data.bookmarksEnabled || this.data.sortEnabled;
+
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
@@ -189,7 +191,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.Utils.Records.sortByField({
         $container: _this.$container,
-        $listContainer: $('#news-feed-wrapper-' + _this.data.id),
+        $listContainer: $('#news-feed-list-wrapper-' + _this.data.id),
         listItem: '.news-feed-list-item',
         records: _this.searchedListItems,
         sortOrder: _this.sortOrder,
@@ -704,7 +706,10 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.data.addEntryLinkAction.query = '?mode=add';
+      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.addEntryLinkAction.query,
+        'mode=add'
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
@@ -739,7 +744,10 @@ DynamicList.prototype.attachObservers = function() {
 
       var entryID = $(this).parents('.news-feed-details-content-holder').data('entry-id');
 
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.editEntryLinkAction.query,
+        'dataSourceEntryId=' + entryID
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
@@ -1111,6 +1119,10 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
+      }).then(function() {
+        return _this.Utils.Records.setFilterValues({
+          config: _this.data
+        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];

@@ -64,6 +64,8 @@ function DynamicList(id, data) {
 
   this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
 
+  this.data.searchIconsEnabled = this.data.filtersEnabled || this.data.bookmarksEnabled || this.data.sortEnabled;
+
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
@@ -679,7 +681,10 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.data.addEntryLinkAction.query = '?mode=add';
+      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.addEntryLinkAction.query,
+        'mode=add'
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
@@ -714,7 +719,10 @@ DynamicList.prototype.attachObservers = function() {
 
       var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
 
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.editEntryLinkAction.query,
+        'dataSourceEntryId=' + entryID
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
@@ -899,6 +907,10 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
+      }).then(function() {
+        return _this.Utils.Records.setFilterValues({
+          config: _this.data
+        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];

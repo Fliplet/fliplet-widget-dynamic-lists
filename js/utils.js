@@ -193,6 +193,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return new Handlebars.SafeString(Fliplet.Media.authenticate(url));
   }
 
+  /**
+   * Append a URL query with additional queries
+   * @param {String} query Original query
+   * @param {String} newQuery Additiona queru
+   * @return {String} Result query with both sets of queries
+   */
+  function appendUrlQuery(query, newQuery) {
+    var queryParts = _.concat(
+      // Replace ? with & to avoid multiple ? characters
+      _.split((query || '').replace(/\?/g, '&'), '&'),
+      _.split((newQuery || '').replace(/\?/g, '&'), '&')
+    );
+
+    return _.join(_.compact(queryParts), '&');
+  }
+
   function getMomentDate(date) {
     if (!date) {
       return moment();
@@ -455,6 +471,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         if (!filter.value) {
           // Value is not configured
           return true;
+        }
+
+        if (condition === 'between') {
+          return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
+        }
+
+        if (condition === 'oneof') {
+          return splitByCommas(filter.value).includes(rowData);
         }
 
         // Case insensitive
@@ -1051,7 +1075,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    */
   function sortByField(options) {
     // If user doesn't set sorting do nothing
-    if (!options.sortField) {
+    // Or if we have no records (empty search results)
+    if (!options.sortField || !options.records.length) {
       return options.records;
     }
 
@@ -1098,12 +1123,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
           return 0;
         case 'number':
-          if (+aValue !== 0 && !parseFloat(aValue, 10)) {
-            return isSortAsc ? 1 : -1;
+          if (!parseFloat(aValue, 10) &&  parseFloat(aValue, 10) !== 0) {
+            return isSortAsc ? -1 : 1;
           }
 
-          if (+bValue !== 0 && !parseFloat(bValue, 10)) {
-            return isSortAsc ? -1 : 1;
+          if (!parseFloat(bValue, 10) && parseFloat(bValue, 10) !== 0) {
+            return isSortAsc ? 1 : -1;
           }
 
           if (isSortAsc) {
@@ -1517,6 +1542,59 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  function setFilterValues(options) {
+    var sessionData;
+
+    options = options || {};
+
+    if (!options.config) {
+      return Promise.resolve();
+    }
+
+    return Promise.all(_.map(options.config.filterOptions, function(item) {
+      return new Promise(function(resolve) {
+        switch (item.valueType) {
+          case 'user-profile-data':
+            if (!sessionData) {
+              sessionData = Fliplet.User.getCachedSession();
+            }
+
+            sessionData.then(function(session) {
+              var entries = session.entries;
+
+              if (session && entries) {
+                if (entries.dataSource) {
+                  item.value = entries.dataSource.data[item.fieldValue];
+                  resolve();
+                }
+
+                if (entries.saml2) {
+                  item.value = entries.saml2.data[item.fieldValue];
+                  resolve();
+                }
+
+                if (entries.flipletLogin) {
+                  item.value = entries.flipletLogin.data[item.fieldValue];
+                  resolve();
+                }
+              }
+
+              if (!item.value) {
+                Fliplet.Profile.get(item.fieldValue)
+                  .then(function(result) {
+                    item.value = result || '';
+                    resolve();
+                  });
+              }
+            });
+            break;
+          default:
+            resolve();
+        }
+      });
+    }));
+  }
+
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;
@@ -1567,7 +1645,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     String: {
       splitByCommas: splitByCommas,
-      validateImageUrl: validateImageUrl
+      validateImageUrl: validateImageUrl,
+      appendUrlQuery: appendUrlQuery
     },
     Date: {
       moment: getMomentDate
@@ -1594,6 +1673,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       getFields: getRecordFields,
       getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
+      setFilterValues: setFilterValues,
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
