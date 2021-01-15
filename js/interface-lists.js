@@ -516,7 +516,7 @@ function attahObservers() {
             return;
           }
 
-          $('#filter-value- > .control-label > label').removeClass('has-error-text');
+          $('#filter-value > .control-label > label').removeClass('has-error-text');
           $('.error-holder').addClass('hidden');
 
           toggleError(false);
