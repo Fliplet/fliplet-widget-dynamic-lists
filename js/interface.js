@@ -746,6 +746,7 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
+        $('#value-field-' + item.id).val(item.value);
       });
     },
     renderSortColumns: function() {
