@@ -202,8 +202,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function appendUrlQuery(query, newQuery) {
     var queryParts = _.concat(
       // Replace ? with & to avoid multiple ? characters
-      _.split(query.replace(/\?/g, '&'), '&'),
-      _.split(newQuery.replace(/\?/g, '&'), '&')
+      _.split((query || '').replace(/\?/g, '&'), '&'),
+      _.split((newQuery || '').replace(/\?/g, '&'), '&')
     );
 
     return _.join(_.compact(queryParts), '&');
