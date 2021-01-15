@@ -193,6 +193,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return new Handlebars.SafeString(Fliplet.Media.authenticate(url));
   }
 
+  /**
+   * Append a URL query with additional queries
+   * @param {String} query Original query
+   * @param {String} newQuery Additiona queru
+   * @return {String} Result query with both sets of queries
+   */
+  function appendUrlQuery(query, newQuery) {
+    var queryParts = _.concat(
+      // Replace ? with & to avoid multiple ? characters
+      _.split(query.replace(/\?/g, '&'), '&'),
+      _.split(newQuery.replace(/\?/g, '&'), '&')
+    );
+
+    return _.join(_.compact(queryParts), '&');
+  }
+
   function getMomentDate(date) {
     if (!date) {
       return moment();
@@ -1643,7 +1659,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     String: {
       splitByCommas: splitByCommas,
-      validateImageUrl: validateImageUrl
+      validateImageUrl: validateImageUrl,
+      appendUrlQuery: appendUrlQuery
     },
     Date: {
       moment: getMomentDate
