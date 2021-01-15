@@ -467,7 +467,6 @@ function attahObservers() {
                 valueType: item.valueType.from
               });
 
-
               filterFieldValues.push({
                 field: '#value-field-to-' + item.id,
                 value: item.value.to,
@@ -489,7 +488,8 @@ function attahObservers() {
           filterFieldValues.forEach(function(field) {
             if (field.valueType === 'enter-value') {
               $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
-              $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
 
               return;
             }
@@ -501,7 +501,8 @@ function attahObservers() {
               });
             } else {
               $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
-              $(field.field).parents('#filter-value-between-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
             }
           });
 
@@ -511,7 +512,8 @@ function attahObservers() {
             filterError.forEach(function(field) {
               $(field.item).addClass('has-error');
               $(field.item).parents('#filter-value-' + field.id).find('label').addClass('has-error-text');
-              $(field.item).parents('#filter-value-between-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-from-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-to-' + field.id).find('label').addClass('has-error-text');
             });
             return;
           }
