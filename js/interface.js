@@ -229,7 +229,6 @@ var DynamicLists = (function() {
           var value = $(this).val();
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
-          var id = $(this).attr('filter-item-id');
 
           switch (type) {
             case 'field':
@@ -238,18 +237,11 @@ var DynamicLists = (function() {
 
             case 'logic':
               var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
-              var isLogicComparison = value === 'between';
 
-              $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
-              $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
-              $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+              $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
               break;
-
-            case 'valueType':
-              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+            default:
               break;
-
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
