@@ -63,10 +63,6 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  var addRadioValues = [];
-  var editRadioValues = [];
-  var deleteRadioValues = [];
-
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -234,14 +230,18 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
 
-          if (type === 'field') {
-            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
-          }
+          switch (type) {
+            case 'field':
+              $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+              break;
 
-          if (type === 'logic') {
-            var hideValueFields = value === 'empty' || value === 'notempty';
+            case 'logic':
+              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
 
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+              $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+              break;
+            default:
+              break;
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
