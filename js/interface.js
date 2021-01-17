@@ -222,7 +222,6 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
-          item.valueType = 'enter-value';
           item.value = '';
           item.valueField = 'Value';
           item.columns = dataSourceColumns;
@@ -243,7 +242,6 @@ var DynamicLists = (function() {
           if (type === 'logic') {
             var hideValueFields = value === 'empty' || value === 'notempty';
 
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
             $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
           }
 
@@ -738,8 +736,7 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-type-field-' + item.id).val(item.valueType);
-        $('#value-field-' + item.id).val(item.fieldValue);
+        $('#value-field-' + item.id).val(item.value);
       });
     },
     renderSortColumns: function() {
@@ -1929,7 +1926,6 @@ var DynamicLists = (function() {
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
       }
     },
@@ -2583,16 +2579,7 @@ var DynamicLists = (function() {
         item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.valueType = $('#value-type-field-' + item.id).val();
-
-        if (item.valueType === 'enter-value') {
-          item.value = item.fieldValue;
-        }
-
-        if (item.logic === 'empty' || item.logic === 'notempty') {
-          item.valueType = null;
-          item.value = '';
-        }
+        item.value = $('#value-field-' + item.id).val();
       });
 
       data.sortOptions = _this.config.sortOptions;
