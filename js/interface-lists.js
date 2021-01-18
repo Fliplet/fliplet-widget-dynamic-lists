@@ -454,10 +454,10 @@ function attahObservers() {
 
         toggleError(false);
 
-        if (widgetData.social && widgetData.social.comments) {
-          var errors = [];
-          var values = [];
+        var errors = [];
+        var values = [];
 
+        if (widgetData.social && widgetData.social.comments) {
           values.push({
             value: widgetData.userDataSourceId,
             field: '#user_data_source_provider'
