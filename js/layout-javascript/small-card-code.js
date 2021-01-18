@@ -548,7 +548,10 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.data.addEntryLinkAction.query = '?mode=add';
+      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.addEntryLinkAction.query,
+        'mode=add'
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
@@ -583,7 +586,10 @@ DynamicList.prototype.attachObservers = function() {
 
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
 
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.editEntryLinkAction.query,
+        'dataSourceEntryId=' + entryID
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
