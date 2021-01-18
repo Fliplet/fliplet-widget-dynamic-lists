@@ -271,17 +271,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *
    * @return {void} this funtion doesn't return anything it add changes directly to the DOM
    */
-  function showSelectedFiltersAmount(options) {
-    if (!options.filtersInOverlay || !options.$target.length) {
+  function updateActiveFilterCount(options) {
+    if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
       return;
     }
 
     var $filterPanel = options.$target.parents('.panel');
-    var activeFiltersAmount = $filterPanel.find('[data-filter-group] .mixitup-control-active').length;
-    var $filtersAmount = $filterPanel.find('.panel-heading .panel-title .panel-title-amount');
-    var filtersAmountText = activeFiltersAmount ? '(' + activeFiltersAmount + ')' : '';
+    var activeFilterCount  = $filterPanel.find('[data-filter-group] .mixitup-control-active').length;
+    var $count = $filterPanel.find('.panel-heading .panel-title .active-filter-count');
+    var filtersAmountText = activeFilterCount ? '(' + activeFilterCount + ')' : '';
 
-    $filtersAmount.text(filtersAmountText);
+    $count.text(filtersAmountText);
   }
 
   function fetchAndCache(options) {
@@ -1648,7 +1648,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     Page: {
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
-      showSelectedFiltersAmount: showSelectedFiltersAmount
+      updateActiveFilterCount: updateActiveFilterCount
     },
     String: {
       splitByCommas: splitByCommas,

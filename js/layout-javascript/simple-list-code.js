@@ -102,7 +102,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
     this.$container.find('.clear-filters').addClass('hidden');
   }
 
-  this.Utils.Page.showSelectedFiltersAmount({
+  this.Utils.Page.updateActiveFilterCount({
     filtersInOverlay: this.data.filtersInOverlay,
     $target: $target
   });
