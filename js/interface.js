@@ -248,6 +248,10 @@ var DynamicLists = (function() {
           if (type === 'valueType') {
             $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+          }
         })
         .on('keyup', '.filter-panels-holder input', function() {
           var value = $(this).val();
@@ -736,8 +740,7 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-type-field-' + item.id).val(item.valueType);
-        $('#value-field-' + item.id).val(item.fieldValue);
+        $('#value-field-' + item.id).val(item.value);
       });
     },
     renderSortColumns: function() {
@@ -2577,16 +2580,7 @@ var DynamicLists = (function() {
         item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.valueType = $('#value-type-field-' + item.id).val();
-
-        if (item.valueType === 'enter-value') {
-          item.value = item.fieldValue;
-        }
-
-        if (item.logic === 'empty' || item.logic === 'notempty') {
-          item.valueType = null;
-          item.value = '';
-        }
+        item.value = $('#value-field-' + item.id).val();
       });
 
       data.sortOptions = _this.config.sortOptions;
