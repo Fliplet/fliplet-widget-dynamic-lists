@@ -56,6 +56,7 @@
                 <option value=">=">Is greater or equal to</option>
                 <option value="<">Is less than</option>
                 <option value="<=">Is less or equal to</option>
+                <option value="between">Is between</option>
               </optgroup>
             </select>
             <span class="icon fa fa-chevron-down"></span>
@@ -64,14 +65,77 @@
         </div>
       </div>
 
+      <div class="form-group clearfix" id="filter-value-type">
+        <div class="col-sm-4 control-label">
+          <label>Value type</label>
+        </div>
+        <div class="col-sm-8">
+          <label for="value-type-field-{{id}}" class="select-proxy-display">
+            <select name="value-type-field-{{id}}" id="value-type-field-{{id}}" data-field="valueType" class="hidden-select form-control">
+              <option value="enter-value">Enter a value</option>
+              <option value="user-profile-data">User profile data</option>
+            </select>
+            <span class="icon fa fa-chevron-down"></span>
+          </label>
+        </div>
+      </div>
+
       <div class="form-group clearfix" id="filter-value">
         <div class="col-sm-4 control-label">
-          <label for="value-field-{{id}}">Value</label>
+          <label for="value-field-{{id}}">{{valueField}}</label>
         </div>
         <div class="col-sm-8">
           <input type="text" name="value-field-{{id}}" id="value-field-{{id}}" data-field="value" class="form-control">
         </div>
       </div>
+    </div>
+
+    <div id="logic-comparison-{{id}}">
+      <div class="form-group clearfix">
+        <div class="col-sm-4 control-label">
+          <label>Value type (from)</label>
+        </div>
+        <div class="col-sm-8">
+          <label for="value-type-field-{{id}}" class="select-proxy-display">
+            <select name="value-type-field-{{id}}" id="value-type-field-from-{{id}}" data-field="valueType" class="hidden-select form-control">
+              <option value="enter-value">Enter a value</option>
+            </select>
+            <span class="icon fa fa-chevron-down"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group clearfix">
+        <div class="col-sm-4 control-label">
+          <label for="value-field-{{id}}">Value (from)</label>
+        </div>
+        <div class="col-sm-8">
+          <input type="text" name="value-field-from-{{id}}" id="value-field-from-{{id}}" data-field="value" class="form-control">
+        </div>
+      </div>
+      <div class="form-group clearfix">
+        <div class="col-sm-4 control-label">
+          <label>Value type (to)</label>
+        </div>
+        <div class="col-sm-8">
+          <label for="value-type-field-{{id}}" class="select-proxy-display">
+            <select name="value-type-field-{{id}}" id="value-type-field-to-{{id}}" data-field="valueType" class="hidden-select form-control">
+              <option value="enter-value">Enter a value</option>
+            </select>
+            <span class="icon fa fa-chevron-down"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group clearfix">
+        <div class="col-sm-4 control-label">
+          <label for="value-field-{{id}}">Value (to)</label>
+        </div>
+        <div class="col-sm-8">
+          <input type="text" name="value-field-{{id}}" id="value-field-to-{{id}}" data-field="value" class="form-control">
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
