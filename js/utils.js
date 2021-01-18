@@ -1538,59 +1538,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
-  function setFilterValues(options) {
-    var sessionData;
-
-    options = options || {};
-
-    if (!options.config) {
-      return Promise.resolve();
-    }
-
-    return Promise.all(_.map(options.config.filterOptions, function(item) {
-      return new Promise(function(resolve) {
-        switch (item.valueType) {
-          case 'user-profile-data':
-            if (!sessionData) {
-              sessionData = Fliplet.User.getCachedSession();
-            }
-
-            sessionData.then(function(session) {
-              var entries = session.entries;
-
-              if (session && entries) {
-                if (entries.dataSource) {
-                  item.value = entries.dataSource.data[item.fieldValue];
-                  resolve();
-                }
-
-                if (entries.saml2) {
-                  item.value = entries.saml2.data[item.fieldValue];
-                  resolve();
-                }
-
-                if (entries.flipletLogin) {
-                  item.value = entries.flipletLogin.data[item.fieldValue];
-                  resolve();
-                }
-              }
-
-              if (!item.value) {
-                Fliplet.Profile.get(item.fieldValue)
-                  .then(function(result) {
-                    item.value = result || '';
-                    resolve();
-                  });
-              }
-            });
-            break;
-          default:
-            resolve();
-        }
-      });
-    }));
-  }
-
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;
@@ -1669,7 +1616,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       getFields: getRecordFields,
       getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
-      setFilterValues: setFilterValues,
       addFilterProperties: addRecordFilterProperties,
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,

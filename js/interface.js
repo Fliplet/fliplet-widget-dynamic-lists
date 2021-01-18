@@ -222,6 +222,7 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
+          item.valueType = 'enter-value';
           item.value = '';
           item.valueField = 'Value';
           item.columns = dataSourceColumns;
@@ -234,6 +235,7 @@ var DynamicLists = (function() {
           var value = $(this).val();
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
+          var id = $(this).attr('filter-item-id');
 
           if (type === 'field') {
             $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
@@ -1931,6 +1933,7 @@ var DynamicLists = (function() {
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
+        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
       }
     },
@@ -2581,7 +2584,6 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
-        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
         item.value = $('#value-field-' + item.id).val();
