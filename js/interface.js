@@ -63,6 +63,10 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
+  var addRadioValues = [];
+  var editRadioValues = [];
+  var deleteRadioValues = [];
+
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -231,18 +235,19 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
 
-          switch (type) {
-            case 'field':
-              $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
-              break;
+          if (type === 'field') {
+            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+          }
 
-            case 'logic':
-              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
+          if (type === 'logic') {
+            var hideValueFields = value === 'empty' || value === 'notempty';
 
-              $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
-              break;
-            default:
-              break;
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+          }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
 
           if (type === 'valueType') {
