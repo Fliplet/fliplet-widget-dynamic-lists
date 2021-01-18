@@ -477,10 +477,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
         }
 
-        if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData);
-        }
-
         // Case insensitive
         if (typeof filter.value === 'string') {
           filter.value = filter.value.toLowerCase();
