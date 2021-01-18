@@ -929,31 +929,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function getActiveFilterNode(options) {
     return '<div class="btn hidden-filter-controls-filter mixitup-control-active"'
-      + 'data-toggle="' + options.toggle + '"'
+      + ' data-toggle="' + options.toggle + '"'
       + ' data-field="' + options.field + '"'
       + ' data-value="' + options.value + '"'
       + '>' + options.value
       + '</div>';
   }
 
-  function onActiveFilterClick(event) {
-    var $target = $(this);
-
-    // To deal with error when element clicked twice
-    if (window.prevClickedElement === $target.data('value')) {
-      return;
-    }
-
-    window.prevClickedElement = $target.data('value');
-
-    var context = event.data.context;
-    var filterOverlay = event.data.filterOverlayClass;
+  function onActiveFilterClick(options) {
+    var $target = $(options.event.target);
+    var $container = options.$container;
+    var filterOverlay = options.filterOverlayClass;
     var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="' + $target.data('value') + '"]';
-    var $redirectTarget = context.$container.find(redirectSelector);
+    var $redirectTarget = $container.find(redirectSelector);
 
     $redirectTarget.trigger('click');
 
-    var $applyBtn = context.$container.find('.filter-header-holder .filter-header-btn-controls .apply-filters');
+    var $applyBtn = $container.find('.filter-header-holder .filter-header-btn-controls .apply-filters');
 
     // Allow UI update before we click apply button
     setTimeout(function() {
@@ -969,18 +961,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *   filtersInOverlay { Boolean } - boolean variable that tells us if filters shown in overlay
    *   filterOverlayClass { String } - a CSS class of the layout filter overlay
    *
-   * @return {void} this function doesn't return anything it adds active filters directly into the DOM of the page
+   * @return {void}
    */
-  function addActiveFilters(options) {
+  function updateActiveFilters(options) {
     if (!options.filtersInOverlay) {
       return;
     }
 
-    var $container = options.context.$container;
+    var $container = options.$container;
     var $selectedFilters = $container.find('[data-filter-group] .mixitup-control-active');
     var $activeFiltersHolder = $container.find('.active-filters');
     var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
-    var activeFiltersElements = [];
 
     if (!$selectedFilters.length) {
       $activeFiltersHolder.addClass('hidden');
@@ -988,18 +979,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return;
     }
 
-    $selectedFilters.each(function() {
-      var activeFilter = getActiveFilterNode({
-        toggle: this.dataset.toggle,
-        field: this.dataset.field,
-        value: this.dataset.value
+    var activeFiltersElements = $.map($selectedFilters, function(filter) {
+      return getActiveFilterNode({
+        toggle: filter.dataset.toggle,
+        field: filter.dataset.field,
+        value: filter.dataset.value
       });
-
-      activeFiltersElements.push(activeFilter);
     });
 
     $filtersGroup.html(activeFiltersElements);
-    $filtersGroup.on('click', '.hidden-filter-controls-filter.mixitup-control-active', options, onActiveFilterClick);
+    $filtersGroup.find('.hidden-filter-controls-filter.mixitup-control-active').on('click', function(event) {
+      options.event = event;
+      onActiveFilterClick(options);
+    });
     $activeFiltersHolder.removeClass('hidden');
   }
 
@@ -1700,7 +1692,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       adjustAddButtonPosition: adjustAddButtonPosition
     },
     Page: {
-      addActiveFilters: addActiveFilters,
+      updateActiveFilters: updateActiveFilters,
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext
     },

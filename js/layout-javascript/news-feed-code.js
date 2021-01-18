@@ -1771,8 +1771,8 @@ DynamicList.prototype.searchData = function(options) {
     // Update selected highlight size in Edit
     Fliplet.Widget.updateHighlightDimensions(_this.data.id);
 
-    _this.Utils.Page.addActiveFilters({
-      context: _this,
+    _this.Utils.Page.updateActiveFilters({
+      $container: _this.$container,
       filterOverlayClass: '.news-feed-search-filter-overlay',
       filtersInOverlay: _this.data.filtersInOverlay
     });
