@@ -969,17 +969,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     var $container = options.$container;
-    var $selectedFilters = $container.find('[data-filter-group] .mixitup-control-active');
+    var $activeFilters = $container.find('[data-filter-group] .mixitup-control-active');
     var $activeFiltersHolder = $container.find('.active-filters');
     var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
 
-    if (!$selectedFilters.length) {
+    if (!$activeFilters.length) {
       $activeFiltersHolder.addClass('hidden');
 
       return;
     }
 
-    var activeFiltersElements = $.map($selectedFilters, function(filter) {
+    var activeFilterElements = $.map($activeFilters, function(filter) {
       return getActiveFilterNode({
         toggle: filter.dataset.toggle,
         field: filter.dataset.field,
@@ -987,7 +987,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
     });
 
-    $filtersGroup.html(activeFiltersElements);
+    $filtersGroup.html(activeFilterElements);
     $filtersGroup.find('.hidden-filter-controls-filter.mixitup-control-active').on('click', function(event) {
       options.event = event;
       onActiveFilterClick(options);
