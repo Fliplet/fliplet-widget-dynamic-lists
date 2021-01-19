@@ -2198,6 +2198,12 @@ DynamicList.prototype.searchData = function(options) {
       // Update selected highlight size in Edit
       Fliplet.Widget.updateHighlightDimensions(_this.data.id);
 
+      _this.Utils.Page.updateActiveFilters({
+        $container: _this.$container,
+        filterOverlayClass: '.new-agenda-search-filter-overlay',
+        filtersInOverlay: _this.data.filtersInOverlay
+      });
+
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         instance: _this,
         view: _this.$container.attr('data-view'),

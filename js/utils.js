@@ -961,6 +961,74 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
   }
 
+  function getActiveFilterNode(options) {
+    return '<div class="btn hidden-filter-controls-filter mixitup-control-active"'
+      + ' data-toggle="' + options.toggle + '"'
+      + ' data-field="' + options.field + '"'
+      + ' data-value="' + options.value + '"'
+      + '>' + options.value
+      + '</div>';
+  }
+
+  function onActiveFilterClick(options) {
+    var $target = $(options.event.target);
+    var $container = options.$container;
+    var filterOverlay = options.filterOverlayClass;
+    var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="' + $target.data('value') + '"]';
+    var $redirectTarget = $container.find(redirectSelector);
+
+    $redirectTarget.trigger('click');
+
+    var $applyBtn = $container.find('.filter-header-holder .filter-header-btn-controls .apply-filters');
+
+    // Allow UI update before we click apply button
+    setTimeout(function() {
+      $applyBtn.trigger('click');
+    }, 0);
+  }
+
+  /**
+   * This function designed to show users filters that were activated in the filters overlay
+   *
+   * @param {Object} options - and object with keys:
+   *   context { Object } - the layout instance
+   *   filtersInOverlay { Boolean } - boolean variable that tells us if filters shown in overlay
+   *   filterOverlayClass { String } - a CSS class of the layout filter overlay
+   *
+   * @return {void}
+   */
+  function updateActiveFilters(options) {
+    if (!options.filtersInOverlay) {
+      return;
+    }
+
+    var $container = options.$container;
+    var $activeFilters = $container.find('[data-filter-group] .mixitup-control-active');
+    var $activeFiltersHolder = $container.find('.active-filters');
+    var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
+
+    if (!$activeFilters.length) {
+      $activeFiltersHolder.addClass('hidden');
+
+      return;
+    }
+
+    var activeFilterElements = $.map($activeFilters, function(filter) {
+      return getActiveFilterNode({
+        toggle: filter.dataset.toggle,
+        field: filter.dataset.field,
+        value: filter.dataset.value
+      });
+    });
+
+    $filtersGroup.html(activeFilterElements);
+    $filtersGroup.find('.hidden-filter-controls-filter.mixitup-control-active').on('click', function(event) {
+      options.event = event;
+      onActiveFilterClick(options);
+    });
+    $activeFiltersHolder.removeClass('hidden');
+  }
+
   function updateRecordFiles(options) {
     options = options || {};
 
@@ -1605,6 +1673,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       adjustAddButtonPosition: adjustAddButtonPosition
     },
     Page: {
+      updateActiveFilters: updateActiveFilters,
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
       updateActiveFilterCount: updateActiveFilterCount
