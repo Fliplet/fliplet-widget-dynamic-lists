@@ -104,6 +104,11 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   } else {
     this.$container.find('.clear-filters').addClass('hidden');
   }
+
+  this.Utils.Page.updateActiveFilterCount({
+    filtersInOverlay: this.data.filtersInOverlay,
+    $target: $target
+  });
 };
 
 DynamicList.prototype.clearFilters = function() {

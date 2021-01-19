@@ -912,7 +912,7 @@ var DynamicLists = (function() {
               $('.filter-loop-item, .date-loop-item, .detail-view-item, .search-results-item').removeClass('hidden');
               break;
             case 'small-h-card':
-              $('.detail-view-item').removeClass('hidden');
+              $('.detail-view-item, .items-number').removeClass('hidden');
               break;
             default:
               break;
