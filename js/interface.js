@@ -63,6 +63,10 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
+  var addRadioValues = [];
+  var editRadioValues = [];
+  var deleteRadioValues = [];
+
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -230,18 +234,23 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
 
-          switch (type) {
-            case 'field':
-              $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
-              break;
+          if (type === 'field') {
+            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+          }
 
-            case 'logic':
-              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
+          if (type === 'logic') {
+            var hideValueFields = value === 'empty' || value === 'notempty';
 
-              $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
-              break;
-            default:
-              break;
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+          }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+          }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -731,8 +740,7 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-type-field-' + item.id).val(item.valueType);
-        $('#value-field-' + item.id).val(item.fieldValue);
+        $('#value-field-' + item.id).val(item.value);
       });
     },
     renderSortColumns: function() {
@@ -902,7 +910,7 @@ var DynamicLists = (function() {
               $('.filter-loop-item, .date-loop-item, .detail-view-item, .search-results-item').removeClass('hidden');
               break;
             case 'small-h-card':
-              $('.detail-view-item').removeClass('hidden');
+              $('.detail-view-item, .items-number').removeClass('hidden');
               break;
             default:
               break;
@@ -2569,19 +2577,9 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
-        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.valueType = $('#value-type-field-' + item.id).val();
-
-        if (item.valueType === 'enter-value') {
-          item.value = item.fieldValue;
-        }
-
-        if (item.logic === 'empty' || item.logic === 'notempty') {
-          item.valueType = null;
-          item.value = '';
-        }
+        item.value = $('#value-field-' + item.id).val();
       });
 
       data.sortOptions = _this.config.sortOptions;
