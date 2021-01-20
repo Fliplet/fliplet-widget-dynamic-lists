@@ -193,6 +193,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return new Handlebars.SafeString(Fliplet.Media.authenticate(url));
   }
 
+  /**
+   * Append a URL query with additional queries
+   * @param {String} query Original query
+   * @param {String} newQuery Additiona queru
+   * @return {String} Result query with both sets of queries
+   */
+  function appendUrlQuery(query, newQuery) {
+    var queryParts = _.concat(
+      // Replace ? with & to avoid multiple ? characters
+      _.split((query || '').replace(/\?/g, '&'), '&'),
+      _.split((newQuery || '').replace(/\?/g, '&'), '&')
+    );
+
+    return _.join(_.compact(queryParts), '&');
+  }
+
   function getMomentDate(date) {
     if (!date) {
       return moment();
@@ -260,6 +276,28 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
 
     return selectors;
+  }
+
+  /**
+   * This function is used to show amount of the selected by users filters
+   *
+   * @param {Object} options - incoming object with keys:
+   *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
+   *  $target { Jquery instance } - Jq instance on which user have pressed
+   *
+   * @return {void} this funtion doesn't return anything it add changes directly to the DOM
+   */
+  function updateActiveFilterCount(options) {
+    if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
+      return;
+    }
+
+    var $filterPanel = options.$target.parents('.panel');
+    var activeFilterCount  = $filterPanel.find('[data-filter-group] .mixitup-control-active').length;
+    var $count = $filterPanel.find('.panel-heading .panel-title .active-filter-count');
+    var filtersAmountText = activeFilterCount ? '(' + activeFilterCount + ')' : '';
+
+    $count.text(filtersAmountText);
   }
 
   function fetchAndCache(options) {
@@ -455,6 +493,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         if (!filter.value) {
           // Value is not configured
           return true;
+        }
+
+        if (condition === 'oneof') {
+          return splitByCommas(filter.value).includes(rowData);
         }
 
         // Case insensitive
@@ -917,6 +959,74 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         return data.record;
       });
+  }
+
+  function getActiveFilterNode(options) {
+    return '<div class="btn hidden-filter-controls-filter mixitup-control-active"'
+      + ' data-toggle="' + options.toggle + '"'
+      + ' data-field="' + options.field + '"'
+      + ' data-value="' + options.value + '"'
+      + '>' + options.value
+      + '</div>';
+  }
+
+  function onActiveFilterClick(options) {
+    var $target = $(options.event.target);
+    var $container = options.$container;
+    var filterOverlay = options.filterOverlayClass;
+    var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="' + $target.data('value') + '"]';
+    var $redirectTarget = $container.find(redirectSelector);
+
+    $redirectTarget.trigger('click');
+
+    var $applyBtn = $container.find('.filter-header-holder .filter-header-btn-controls .apply-filters');
+
+    // Allow UI update before we click apply button
+    setTimeout(function() {
+      $applyBtn.trigger('click');
+    }, 0);
+  }
+
+  /**
+   * This function designed to show users filters that were activated in the filters overlay
+   *
+   * @param {Object} options - and object with keys:
+   *   context { Object } - the layout instance
+   *   filtersInOverlay { Boolean } - boolean variable that tells us if filters shown in overlay
+   *   filterOverlayClass { String } - a CSS class of the layout filter overlay
+   *
+   * @return {void}
+   */
+  function updateActiveFilters(options) {
+    if (!options.filtersInOverlay) {
+      return;
+    }
+
+    var $container = options.$container;
+    var $activeFilters = $container.find('[data-filter-group] .mixitup-control-active');
+    var $activeFiltersHolder = $container.find('.active-filters');
+    var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
+
+    if (!$activeFilters.length) {
+      $activeFiltersHolder.addClass('hidden');
+
+      return;
+    }
+
+    var activeFilterElements = $.map($activeFilters, function(filter) {
+      return getActiveFilterNode({
+        toggle: filter.dataset.toggle,
+        field: filter.dataset.field,
+        value: filter.dataset.value
+      });
+    });
+
+    $filtersGroup.html(activeFilterElements);
+    $filtersGroup.find('.hidden-filter-controls-filter.mixitup-control-active').on('click', function(event) {
+      options.event = event;
+      onActiveFilterClick(options);
+    });
+    $activeFiltersHolder.removeClass('hidden');
   }
 
   function updateRecordFiles(options) {
@@ -1563,12 +1673,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       adjustAddButtonPosition: adjustAddButtonPosition
     },
     Page: {
+      updateActiveFilters: updateActiveFilters,
       updateSearchContext: updateSearchContext,
-      updateFilterControlsContext: updateFilterControlsContext
+      updateFilterControlsContext: updateFilterControlsContext,
+      updateActiveFilterCount: updateActiveFilterCount
     },
     String: {
       splitByCommas: splitByCommas,
-      validateImageUrl: validateImageUrl
+      validateImageUrl: validateImageUrl,
+      appendUrlQuery: appendUrlQuery
     },
     Date: {
       moment: getMomentDate
