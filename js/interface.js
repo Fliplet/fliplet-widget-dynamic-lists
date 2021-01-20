@@ -222,6 +222,7 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
+          item.valueType = 'enter-value';
           item.value = '';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
@@ -233,6 +234,7 @@ var DynamicLists = (function() {
           var value = $(this).val();
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
+          var id = $(this).attr('filter-item-id');
 
           if (type === 'field') {
             $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
@@ -241,7 +243,16 @@ var DynamicLists = (function() {
           if (type === 'logic') {
             var hideValueFields = value === 'empty' || value === 'notempty';
 
+            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
             $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+          }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+          }
+
+          if (type === 'valueType') {
+            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -901,7 +912,7 @@ var DynamicLists = (function() {
               $('.filter-loop-item, .date-loop-item, .detail-view-item, .search-results-item').removeClass('hidden');
               break;
             case 'small-h-card':
-              $('.detail-view-item').removeClass('hidden');
+              $('.detail-view-item, .items-number').removeClass('hidden');
               break;
             default:
               break;
@@ -1918,6 +1929,7 @@ var DynamicLists = (function() {
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
+        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
         $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
       }
     },

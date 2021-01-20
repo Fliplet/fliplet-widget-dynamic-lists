@@ -129,7 +129,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>";
+    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.layouts"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
