@@ -39,25 +39,19 @@
         <div class="col-sm-8">
           <label for="logic-field-{{id}}" class="select-proxy-display">
             <select name="logic-field-{{id}}" id="logic-field-{{id}}" data-field="logic" data-label="-- Select an option" class="hidden-select form-control">
-              <optgroup>
-                <option value="empty">Is empty</option>
-                <option value="notempty">Is not empty</option>
-                <option value="==" selected>Equals</option>
-                <option value="!=">Doesn't equal</option>
-                <option value="oneof">Is one of</option>
-              </optgroup>
-              <optgroup label="Text">
-                <option value="contains">Text contains</option>
-                <option value="notcontain">Text doesn't contain</option>
-                <option value="regex">Text matches regex</option>
-              </optgroup>
-              <optgroup label="Number">
-                <option value=">">Is greater than</option>
-                <option value=">=">Is greater or equal to</option>
-                <option value="<">Is less than</option>
-                <option value="<=">Is less or equal to</option>
-                <option value="between">Is between</option>
-              </optgroup>
+              <option value="none">-- Select an option</option>
+              <option value="empty">Is empty</option>
+              <option value="notempty">Is not empty</option>
+              <option value="==">Equals</option>
+              <option value="!=">Doesn't equal</option>
+              <option value="contains">Contains</option>
+              <option value="notcontain">Doesn't contain</option>
+              <option value="regex">Regex</option>
+              <option value=">">Greater than</option>
+              <option value=">=">Greater or equal to</option>
+              <option value="<">Less than</option>
+              <option value="<=">Less or equal to</option>
+              <option value="between">Is between</option>
             </select>
             <span class="icon fa fa-chevron-down"></span>
             <span class="select-value-proxy">-- Please wait</span>
