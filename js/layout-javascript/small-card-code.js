@@ -104,6 +104,11 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   } else {
     this.$container.find('.clear-filters').addClass('hidden');
   }
+
+  this.Utils.Page.updateActiveFilterCount({
+    filtersInOverlay: this.data.filtersInOverlay,
+    $target: $target
+  });
 };
 
 DynamicList.prototype.clearFilters = function() {
@@ -543,7 +548,10 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.data.addEntryLinkAction.query = '?mode=add';
+      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.addEntryLinkAction.query,
+        'mode=add'
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
@@ -578,7 +586,10 @@ DynamicList.prototype.attachObservers = function() {
 
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
 
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.editEntryLinkAction.query,
+        'dataSourceEntryId=' + entryID
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
@@ -745,10 +756,6 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
-      }).then(function() {
-        return _this.Utils.Records.setFilterValues({
-          config: _this.data
-        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
@@ -1421,6 +1428,12 @@ DynamicList.prototype.searchData = function(options) {
 
       // Update selected highlight size in Edit
       Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
+      _this.Utils.Page.updateActiveFilters({
+        $container: _this.$container,
+        filterOverlayClass: '.small-card-search-filter-overlay',
+        filtersInOverlay: _this.data.filtersInOverlay
+      });
 
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
         instance: _this,
