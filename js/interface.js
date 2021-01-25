@@ -219,6 +219,7 @@ var DynamicLists = (function() {
           item.column = 'none';
           item.logic = 'none';
           item.value = '';
+          item.valueField = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -251,10 +252,6 @@ var DynamicLists = (function() {
 
             $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
             $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
-          }
-
-          if (type === 'valueType') {
-            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
 
           if (type === 'valueType') {
@@ -748,7 +745,8 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-field-' + item.id).val(item.value);
+        $('#value-type-field-' + item.id).val(item.valueType);
+        $('#value-field-' + item.id).val(item.fieldValue);
       });
     },
     renderSortColumns: function() {
@@ -1929,14 +1927,16 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
+      data.valueField = data.valueType === 'enter-value'
+        ? 'Value'
+        : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
 
       $filterAccordionContainer.append($newPanel);
 
       if (data.logic === 'empty' || data.logic === 'notempty') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
+        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type #filter-value-type').addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
@@ -2586,9 +2586,19 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+        item.valueType = $('#value-type-field-' + item.id).val();
+
+        if (item.valueType === 'enter-value') {
+          item.value = item.fieldValue;
+        }
+
+        if (item.logic === 'empty' || item.logic === 'notempty') {
+          item.valueType = null;
+          item.value = '';
+        }
       });
 
       data.sortOptions = _this.config.sortOptions;
