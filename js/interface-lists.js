@@ -481,7 +481,7 @@ function attahObservers() {
               $(item).parents('#filter-value').find('label').addClass('has-error-text');
             });
 
-            return
+            return;
           }
 
           $('#filter-value > .control-label > label').removeClass('has-error-text');
