@@ -107,6 +107,11 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   } else {
     this.$container.find('.clear-filters').addClass('hidden');
   }
+
+  this.Utils.Page.updateActiveFilterCount({
+    filtersInOverlay: this.data.filtersInOverlay,
+    $target: $target
+  });
 };
 
 DynamicList.prototype.clearFilters = function() {
@@ -1776,6 +1781,13 @@ DynamicList.prototype.searchData = function(options) {
 
     // Update selected highlight size in Edit
     Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
+    _this.Utils.Page.updateActiveFilters({
+      $container: _this.$container,
+      filterOverlayClass: '.news-feed-search-filter-overlay',
+      filtersInOverlay: _this.data.filtersInOverlay
+    });
+
 
     return Fliplet.Hooks.run('flListDataAfterRenderList', {
       instance: _this,
