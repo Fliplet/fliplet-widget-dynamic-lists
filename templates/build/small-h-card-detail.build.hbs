@@ -123,26 +123,6 @@
           \{{/if}}
         \{{/ifCond}}
 
-	      <!-- File template -->
-        \{{#ifCond type '==' 'file'}}
-          \{{#if content}}
-            <ul class="file-holder">
-              \{{#if labelEnabled}}
-                <div class="small-h-card-list-detail-label">\{{label}}</div>
-              \{{/if}}
-              \{{#each content}}
-                <li id="file-item">
-                  <div class="file-title">\{{formatFilename this}}</div>
-                  <input type="hidden" value=\{{this}}>
-                  <div class="file-icon">
-                    <i class="fa fa-angle-right"></i>
-                  </div>
-                </li>
-              \{{/each}}
-            </ul>
-          \{{/if}}
-        \{{/ifCond}}
-
       \{{/each}}
     </div>
 

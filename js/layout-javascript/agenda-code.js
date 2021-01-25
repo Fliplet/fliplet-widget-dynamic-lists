@@ -756,11 +756,6 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '#file-item', function(file) {
-      var url = $(file.currentTarget).find('input[type=hidden]').val();
-
-      Fliplet.Navigate.file(url);
-    })
     .on('click', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function() {
       var id = $(this).parents('.agenda-detail-wrapper, .agenda-list-item').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
@@ -2398,8 +2393,6 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     // Define content
     if (dynamicDataObj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
-    } else if (dynamicDataObj.type === 'file') {
-      content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]);
     } else {
       content = entry.originalData[dynamicDataObj.column];
     }

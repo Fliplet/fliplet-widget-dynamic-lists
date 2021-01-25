@@ -805,11 +805,6 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '#file-item', function(file) {
-      var url = $(file.currentTarget).find('input[type=hidden]').val();
-
-      Fliplet.Navigate.file(url);
-    })
     .on('click', '.toggle-bookmarks', function() {
       var $toggle = $(this);
 
