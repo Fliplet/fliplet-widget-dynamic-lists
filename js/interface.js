@@ -218,7 +218,6 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
-          item.valueType = 'enter-value';
           item.value = '';
           item.valueField = 'Value';
           item.columns = dataSourceColumns;
@@ -928,7 +927,7 @@ var DynamicLists = (function() {
               $('.filter-loop-item, .date-loop-item, .detail-view-item, .search-results-item').removeClass('hidden');
               break;
             case 'small-h-card':
-              $('.detail-view-item').removeClass('hidden');
+              $('.detail-view-item, .items-number').removeClass('hidden');
               break;
             default:
               break;
