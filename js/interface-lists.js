@@ -515,6 +515,7 @@ function attahObservers() {
               $(field.item).parents('#filter-value-from-' + field.id).find('label').addClass('has-error-text');
               $(field.item).parents('#filter-value-to-' + field.id).find('label').addClass('has-error-text');
             });
+
             return;
           }
 
