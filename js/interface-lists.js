@@ -459,26 +459,61 @@ function attahObservers() {
           var filterFieldValues = [];
 
           widgetData.filterOptions.forEach(function(item) {
+            if (item.logic === 'between') {
+              filterFieldValues.push({
+                field: '#value-field-from-' + item.id,
+                value: item.value.from,
+                id: item.id,
+                valueType: item.valueType.from
+              });
+
+              filterFieldValues.push({
+                field: '#value-field-to-' + item.id,
+                value: item.value.to,
+                id: item.id,
+                valueType: item.valueType.to
+              });
+
+              return;
+            }
+
             filterFieldValues.push({
               field: '#value-field-' + item.id,
-              value: item.fieldValue
+              value: item.fieldValue,
+              id: item.id,
+              valueType: item.valueType
             });
           });
 
           filterFieldValues.forEach(function(field) {
+            if (field.valueType === 'enter-value') {
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
+
+              return;
+            }
+
             if (!validate(field.value)) {
-              filterError.push(field.field);
+              filterError.push({
+                item: field.field,
+                id: field.id
+              });
             } else {
-              $(field.field).parents('#filter-value').find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
             }
           });
 
           if (filterError.length) {
             $('.error-holder').removeClass('hidden');
 
-            filterError.forEach(function(item) {
-              $(item).addClass('has-error');
-              $(item).parents('#filter-value').find('label').addClass('has-error-text');
+            filterError.forEach(function(field) {
+              $(field.item).addClass('has-error');
+              $(field.item).parents('#filter-value-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-from-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-to-' + field.id).find('label').addClass('has-error-text');
             });
 
             return;

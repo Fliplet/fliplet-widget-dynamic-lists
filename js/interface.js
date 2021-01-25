@@ -745,8 +745,19 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-type-field-' + item.id).val(item.valueType);
-        $('#value-field-' + item.id).val(item.fieldValue);
+
+        if (item.logic !== 'between') {
+          $('#value-field-' + item.id).val(item.fieldValue);
+          $('#value-type-field-' + item.id).val(item.valueType);
+
+          return;
+        }
+
+        $('#value-type-field-from-' + item.id).val(item.valueType.from);
+        $('#value-type-field-to-' + item.id).val(item.valueType.to);
+
+        $('#value-field-from-' + item.id).val(item.value.from);
+        $('#value-field-to-' + item.id).val(item.value.to);
       });
     },
     renderSortColumns: function() {
@@ -1935,8 +1946,13 @@ var DynamicLists = (function() {
 
       $filterAccordionContainer.append($newPanel);
 
-      if (data.logic === 'empty' || data.logic === 'notempty') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type #filter-value-type').addClass('hidden');
+      if (['empty', 'notempty', 'between'].indexOf(data.logic) !== -1) {
+        $('#filter-value-type-' + data.id).addClass('hidden');
+        $('#filter-value-' + data.id).addClass('hidden');
+      }
+
+      if (data.logic !== 'between') {
+        $('#logic-comparison-' + data.id).addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
@@ -2598,6 +2614,16 @@ var DynamicLists = (function() {
         if (item.logic === 'empty' || item.logic === 'notempty') {
           item.valueType = null;
           item.value = '';
+        }
+
+        if (item.logic === 'between') {
+          var valueTypeFrom = $('#value-type-field-from-' + item.id).val();
+          var valueTypeTo = $('#value-type-field-to-' + item.id).val();
+          var valueFrom = $('#value-field-from-' + item.id).val();
+          var valueTo = $('#value-field-to-' + item.id).val();
+
+          item.valueType = { from: valueTypeFrom, to: valueTypeTo };
+          item.value = { from: valueFrom, to: valueTo };
         }
       });
 
