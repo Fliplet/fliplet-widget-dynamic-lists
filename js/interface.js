@@ -250,8 +250,8 @@ var DynamicLists = (function() {
               $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
               break;
 
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
+            default:
+              break;
           }
 
           if (type === 'valueType') {
