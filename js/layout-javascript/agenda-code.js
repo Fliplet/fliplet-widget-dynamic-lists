@@ -2397,6 +2397,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = entry.originalData[dynamicDataObj.column];
     }
 
+    if (Array.isArray(content)) {
+      
+    }
+
     // Define data object
     var newEntryDetail = {
       id: entry.id,
@@ -2446,6 +2450,8 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
   var src = _this.src;
+
+  debugger;
 
   entryData = _this.addDetailViewData(entryData);
 
