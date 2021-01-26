@@ -1294,6 +1294,7 @@ var DynamicLists = (function() {
 
         _this.saveSummaryViewOptions();
         _this.saveDetailedViewOptions();
+        _this.saveTokenFields();
 
         dataSourceProvider.close();
         dataSourceProvider = null;
@@ -2604,13 +2605,7 @@ var DynamicLists = (function() {
       data.searchEnabled = $('#enable-search').is(':checked');
       data.filtersEnabled = $('#enable-filters').is(':checked');
       data.sortEnabled = $('#enable-sort').is(':checked');
-      data.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined' ?
-        $('#search-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
-      data.sortFields = typeof $('#sort-column-fields-tokenfield').val() !== 'undefined' ?
-        $('#sort-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
-      data.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
-        $('#filter-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
-      data.filtersInOverlay = $('#enable-filter-overlay').is(':checked');
+      _this.saveTokenFields();
 
       // Number of list items
       var limit = $('#items-number').val().trim();
@@ -2860,6 +2855,15 @@ var DynamicLists = (function() {
           delete item.folder;
         }
       });
+    },
+    saveTokenFields: function() {
+      _this.config.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined' ?
+        $('#search-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      _this.config.sortFields = typeof $('#sort-column-fields-tokenfield').val() !== 'undefined' ?
+        $('#sort-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      _this.config.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
+        $('#filter-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      _this.config.filtersInOverlay = $('#enable-filter-overlay').is(':checked');
     }
   };
 
