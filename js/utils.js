@@ -623,7 +623,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return splitByCommas(filter.value).includes(rowData);
         }
 
-        if (filter.filterModifier) {
+        if (['dateis', 'datebefore', 'dateafter', 'datebetween'].includes(condition)) {
           return isDateMatches({
             date: rowData,
             condition: condition,

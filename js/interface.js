@@ -2672,7 +2672,7 @@ var DynamicLists = (function() {
         item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+        item.valueType = $('#value-type-field-' + item.id).val();
 
         if (item.valueType === 'enter-value') {
           item.value = item.fieldValue;
