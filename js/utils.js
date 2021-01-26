@@ -614,7 +614,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
-        
+        if (!filter.value) {
+          // Value is not configured
+          return true;
+        }
+
         if (condition === 'between') {
           return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
         }
@@ -630,11 +634,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             filterModifier: filter.filterModifier,
             modifierValue: filter.modifierValue
           });
-        }
-
-        if (!filter.value) {
-          // Value is not configured
-          return true;
         }
 
         // Case insensitive
