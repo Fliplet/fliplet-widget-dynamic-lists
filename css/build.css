@@ -145,6 +145,40 @@
   white-space: nowrap;
 }
 
+.file-holder {
+  padding: 0;
+  list-style-type: none;
+}
+
+.file-holder li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(51,51,51,0.2);
+  cursor: pointer;
+}
+
+.file-holder .file-title {
+  padding-top: 5px;
+  font-weight: bold;
+  color: #666;
+}
+
+.file-holder .file-icon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(0, -50%);font-size: 34px;
+  min-width: 30px;
+  color: #666;
+}
+
 /*
   This part of the code is needed for supporting .fa-times-thin class in users who updated
   to use UNICODE icons instead of SVG icons.

@@ -135,6 +135,30 @@
             \{{/if}}
           \{{/ifCond}}
 
+          <!-- File template -->
+          \{{#ifCond type '==' 'file'}}
+            \{{#if content}}
+              <ul class="file-holder">
+                \{{#if labelEnabled}}
+                  <div class="news-feed-detail-label">\{{label}}</div>
+                \{{/if}}
+                \{{#each content}}
+                  <li class="file-item">
+                    <div class="file-title">\{{this.name}}</div>
+                    <div class="file-info">
+                      <span class="file-info-uploaded">Date uploaded: <b>\{{formatDate this.uploaded}}</b></span>
+                      <span class="file-info-size">Size: <b>\{{this.size}}</b></span>
+                    </div>
+                    <input type="hidden" value=\{{this.url}}>
+                    <div class="file-icon">
+                      <i class="fa fa-angle-right"></i>
+                    </div>
+                  </li>
+                \{{/each}}
+              </ul>
+            \{{/if}}
+          \{{/ifCond}}
+
         \{{/each}}
       </div>
       <div class="news-feed-inner-holder \{{#ifCond editEntry '||' deleteEntry}}has-edit-controls\{{/ifCond}}">

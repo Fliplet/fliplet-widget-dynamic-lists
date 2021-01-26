@@ -831,6 +831,11 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
+    .on('click', '.file-item', function(file) {
+      var url = $(file.currentTarget).find('input[type=hidden]').val();
+
+      Fliplet.Navigate.file(url);
+    })
     .on('click', '.toggle-bookmarks', function() {
       var $toggle = $(this);
 
@@ -2168,6 +2173,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     var labelEnabled = true;
     var content = '';
 
+    if (obj.type === 'file') {
+      return;
+    }
+
     // Define label
     if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
       label = obj.column;
@@ -2231,69 +2240,91 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
   var src = _this.src;
 
-  entryData = _this.addDetailViewData(entryData);
+  _this.Utils.Records.getFilesInfo({
+    entryData: entryData,
+    detailViewOptions: _this.data.detailViewOptions
+  })
+    .then(function(files) {
+      entryData = _this.addDetailViewData(entryData);
 
-  var beforeShowDetails = Promise.resolve({
-    src: src,
-    data: entryData
-  });
+      if (files && Array.isArray(files)) {
+        files.forEach(function(file) {
+          if (!file) {
+            return;
+          }
 
-  if (typeof _this.data.beforeShowDetails === 'function') {
-    beforeShowDetails = _this.data.beforeShowDetails({
-      config: _this.data,
-      src: src,
-      data: entryData
-    });
+          var isFileAdded = entryData.entryDetails.some(function(details) {
+            return details.id === file.id;
+          });
 
-    if (!(beforeShowDetails instanceof Promise)) {
-      beforeShowDetails = Promise.resolve(beforeShowDetails);
-    }
-  }
+          if (!isFileAdded) {
+            entryData.entryDetails.push(file);
+          }
+        });
+      }
 
-  return beforeShowDetails.then(function(data) {
-    data = data || {};
+      var beforeShowDetails = Promise.resolve({
+        src: src,
+        data: entryData
+      });
 
-    var template = Handlebars.compile(data.src || src);
-    var wrapperTemplate = Handlebars.compile(wrapper);
+      if (typeof _this.data.beforeShowDetails === 'function') {
+        beforeShowDetails = _this.data.beforeShowDetails({
+          config: _this.data,
+          src: src,
+          data: entryData
+        });
 
-    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
-      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
-    }
+        if (!(beforeShowDetails instanceof Promise)) {
+          beforeShowDetails = Promise.resolve(beforeShowDetails);
+        }
+      }
 
-    // Adds content to overlay
-    _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-    _this.$overlay.find('.news-feed-detail-wrapper').append(template(data.data || entryData));
+      return beforeShowDetails.then(function(data) {
+        data = data || {};
 
-    _this.initializeOverlaySocials(id);
+        var template = Handlebars.compile(data.src || src);
+        var wrapperTemplate = Handlebars.compile(wrapper);
 
-    // Trigger animations
-    $('body').addClass('lock');
-    _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+        // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+        if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+          _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+        }
 
-    // Calculate top position when image finishes loading
-    if ($(window).width() < 640) {
-      _this.$container.find('.news-feed-list-detail-image-wrapper img').one('load', function() {
-        var expandedPosition = $(this).outerHeight();
+        // Adds content to overlay
+        _this.$overlay.find('.news-feed-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+        _this.$overlay.find('.news-feed-detail-wrapper').append(template(data.data || entryData));
 
-        _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
-      }).each(function() {
-        if (this.complete) {
-          $(this).trigger('load');
+        _this.initializeOverlaySocials(id);
+
+        // Trigger animations
+        $('body').addClass('lock');
+        _this.$container.find('.new-news-feed-list-container').addClass('overlay-open');
+
+        // Calculate top position when image finishes loading
+        if ($(window).width() < 640) {
+          _this.$container.find('.news-feed-list-detail-image-wrapper img').one('load', function() {
+            var expandedPosition = $(this).outerHeight();
+
+            _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+          }).each(function() {
+            if (this.complete) {
+              $(this).trigger('load');
+            }
+          });
+        }
+
+        _this.$overlay.addClass('open');
+
+        if (typeof _this.data.afterShowDetails === 'function') {
+          _this.data.afterShowDetails({
+            config: _this.data,
+            src: data.src || src,
+            data: data.data || entryData
+          });
         }
       });
-    }
-
-    _this.$overlay.addClass('open');
-
-    if (typeof _this.data.afterShowDetails === 'function') {
-      _this.data.afterShowDetails({
-        config: _this.data,
-        src: data.src || src,
-        data: data.data || entryData
-      });
-    }
-  });
+    });
 };
 
 DynamicList.prototype.closeDetails = function() {

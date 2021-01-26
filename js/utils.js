@@ -45,6 +45,71 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return parseFloat(value);
   }
 
+  function getFilesInfo(options) {
+    var entry = options.entryData;
+    var detailViewFileOptions = _.filter(options.detailViewOptions, function(option) {
+      return option.editable && option.type === 'file';
+    });
+
+    var formFilesInfoInDetailViewOptions = detailViewFileOptions.map(function(detailViewFileOption) {
+      return new Promise(function(resolve) {
+        var label = '';
+        var labelEnabled = true;
+        var files = typeof entry.originalData[detailViewFileOption.column] === 'string' ?
+          splitByCommas(entry.originalData[detailViewFileOption.column]) :
+          entry.originalData[detailViewFileOption.column];
+
+        if (!files) {
+          return resolve();
+        }
+
+        switch (detailViewFileOption.fieldLabel) {
+          case 'column-name':
+            if (detailViewFileOption.column !== 'custom') {
+              label = detailViewFileOption.column;
+            }
+
+            break;
+          case 'custom-label':
+            label = new Handlebars.SafeString(Handlebars.compile(detailViewFileOption.customFieldLabel)(entry.originalData));
+
+            break;
+          case 'no-label':
+            labelEnabled = false;
+
+            break;
+          default:
+            break;
+        }
+
+        var filesDetailViewInfo = Promise.all(files.map(function(fileUrl) {
+          var fileId = Fliplet.Media.isRemoteUrl(fileUrl)[2];
+
+          return Fliplet.Media.Files.get(fileId).then(function(file) {
+            return {
+              name: file.name,
+              size: file.size,
+              uploaded: file.createdAt,
+              url: file.url
+            };
+          });
+        }));
+
+        filesDetailViewInfo.then(function(filesInfo) {
+          resolve({
+            id: detailViewFileOption.id,
+            content: filesInfo,
+            label: label,
+            labelEnabled: labelEnabled,
+            type: detailViewFileOption.type
+          });
+        });
+      });
+    });
+
+    return Promise.all(formFilesInfoInDetailViewOptions);
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('plaintext', function(context) {
       if (_.isFunction(_.get(context, 'toString'))) {
@@ -128,6 +193,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       res = res.replace(Static.RegExp.linebreak, '<br>');
 
       return new Handlebars.SafeString(res);
+    });
+
+    Handlebars.registerHelper('formatFilename', function(filename) {
+      var index = filename.indexOf('contents/');
+      var formattedName = filename.substring(index + 9);
+
+      return formattedName;
     });
   }
 
@@ -1783,7 +1855,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortRecordsByField
+      sortByField: sortRecordsByField,
+      getFilesInfo: getFilesInfo
     },
     User: {
       isAdmin: userIsAdmin,
