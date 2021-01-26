@@ -1679,6 +1679,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             });
             break;
 
+          case 'link-query-parameter':
+            item.value = Fliplet.Navigate.query[item.fieldValue];
+            resolve();
+
           case 'app-storage-data':
             Fliplet.App.Storage.get(item.fieldValue)
               .then(function(result) {
