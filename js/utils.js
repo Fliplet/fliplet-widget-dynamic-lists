@@ -614,6 +614,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
+        
+        if (condition === 'between') {
+          return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
+        }
+
+        if (condition === 'oneof') {
+          return splitByCommas(filter.value).includes(rowData);
+        }
+
         if (filter.filterModifier) {
           return isDateMatches({
             date: rowData,
@@ -626,14 +635,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         if (!filter.value) {
           // Value is not configured
           return true;
-        }
-
-        if (condition === 'between') {
-          return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
-        }
-
-        if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData);
         }
 
         // Case insensitive
