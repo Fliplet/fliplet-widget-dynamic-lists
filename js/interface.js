@@ -23,6 +23,15 @@ var DynamicLists = (function() {
       ]
     }
   ];
+  var logicOptions = [
+    'empty',
+    'notempty',
+    'between',
+    'dateis',
+    'datebefore',
+    'dateafter',
+    'datebetween'
+  ];
 
   var $filterAccordionContainer = $('#filter-accordion');
   var $sortAccordionContainer = $('#sort-accordion');
@@ -251,17 +260,7 @@ var DynamicLists = (function() {
               break;
 
             case 'logic':
-              var optionsValue = [
-                'empty',
-                'notempty',
-                'between',
-                'dateis',
-                'datebefore',
-                'dateafter',
-                'datebetween'
-              ];
-
-              var hideValueFields = optionsValue.indexOf(value) !== -1;
+              var hideValueFields = logicOptions.indexOf(value) !== -1;
               var areLogicDate = ['dateis', 'datebefore', 'dateafter'].includes(value);
 
               var isAddNumberField = ['today', 'now'].includes($('#date-field-' + id).val());
@@ -1991,17 +1990,7 @@ var DynamicLists = (function() {
 
       $filterAccordionContainer.append($newPanel);
 
-      var optionsValue = [
-        'empty',
-        'notempty',
-        'between',
-        'dateis',
-        'datebefore',
-        'dateafter',
-        'datebetween'
-      ];
-
-      if (optionsValue.indexOf(data.logic) !== -1) {
+      if (logicOptions.indexOf(data.logic) !== -1) {
         $('#filter-value-type-' + data.id).addClass('hidden');
         $('#filter-value-' + data.id).addClass('hidden');
       }

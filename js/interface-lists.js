@@ -457,7 +457,7 @@ function attahObservers() {
         if (widgetData.filterOptions.length) {
           var filterError = [];
           var filterFieldValues = [];
-          var optionsValue = [
+          var logicOptions = [
             'empty',
             'notempty',
             'dateis',
@@ -467,7 +467,7 @@ function attahObservers() {
           ];
 
           widgetData.filterOptions.forEach(function(item) {
-            if (optionsValue.includes(item.logic)) {
+            if (logicOptions.includes(item.logic)) {
               return;
             }
 
