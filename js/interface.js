@@ -219,6 +219,7 @@ var DynamicLists = (function() {
           item.column = 'none';
           item.logic = 'none';
           item.value = '';
+          item.valueField = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -230,8 +231,7 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
           var id = $(this).attr('filter-item-id');
-
-          const isAddNumberFieldDefault = ['today', 'now'].includes(value);
+          var isAddNumberFieldDefault = ['today', 'now'].includes(value);
 
           switch (type) {
             case 'field':
@@ -972,7 +972,7 @@ var DynamicLists = (function() {
               $('.filter-loop-item, .date-loop-item, .detail-view-item, .search-results-item').removeClass('hidden');
               break;
             case 'small-h-card':
-              $('.detail-view-item').removeClass('hidden');
+              $('.detail-view-item, .items-number').removeClass('hidden');
               break;
             default:
               break;
@@ -1396,7 +1396,7 @@ var DynamicLists = (function() {
       }));
       $('#sort-column-fields-tokenfield').tokenfield('destroy').tokenfield({
         autocomplete: {
-          source: _this.config.dataSourceColumns || _this.config.defaultColumns,
+          source: dataSourceColumns || _this.config.defaultColumns,
           delay: 100
         },
         showAutocompleteOnFocus: true,
@@ -1983,6 +1983,9 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
+      data.valueField = data.valueType === 'enter-value'
+        ? 'Value'
+        : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
 
@@ -2668,9 +2671,15 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
         item.value = $('#value-field-' + item.id).val();
+
+        if (item.valueType === 'enter-value') {
+          item.value = item.fieldValue;
+        }
+
 
         item.filterModifier = {
           default: $('#date-field-' + item.id).val()
@@ -2704,10 +2713,7 @@ var DynamicLists = (function() {
           var valueFrom = $('#value-field-from-' + item.id).val();
           var valueTo = $('#value-field-to-' + item.id).val();
 
-          item.valueType = {
-            from: valueTypeFrom,
-            to: valueTypeTo
-          };
+          item.valueType = { from: valueTypeFrom, to: valueTypeTo };
           item.value = { from: valueFrom, to: valueTo };
         }
       });

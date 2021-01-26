@@ -213,7 +213,10 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.data.addEntryLinkAction.query = '?mode=add';
+      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.addEntryLinkAction.query,
+        'mode=add'
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
@@ -248,7 +251,10 @@ DynamicList.prototype.attachObservers = function() {
 
       var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
 
-      _this.data.editEntryLinkAction.query = '?dataSourceEntryId=' + entryID;
+      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.editEntryLinkAction.query,
+        'dataSourceEntryId=' + entryID
+      );
 
       try {
         var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
@@ -376,6 +382,10 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
+      }).then(function() {
+        return _this.Utils.Records.setFilterValues({
+          config: _this.data
+        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
@@ -621,11 +631,16 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
+  var limitedList;
 
   $('#small-h-card-list-wrapper-' + _this.data.id).empty();
 
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+  }
+
   var renderLoopIndex = 0;
-  var data = _this.modifiedListItems;
+  var data = limitedList || _this.modifiedListItems;
 
   return Fliplet.Hooks.run('flListDataBeforeRenderList', {
     instance: _this,
