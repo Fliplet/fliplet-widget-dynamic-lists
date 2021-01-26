@@ -467,7 +467,7 @@ function attahObservers() {
           ];
 
           widgetData.filterOptions.forEach(function(item) {
-            if (optionsValue.includes(item)) {
+            if (optionsValue.includes(item.logic)) {
               return;
             }
 

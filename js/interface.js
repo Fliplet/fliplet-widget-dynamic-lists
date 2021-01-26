@@ -2016,8 +2016,6 @@ var DynamicLists = (function() {
 
       if (data.filterModifier && ['today', 'now'].includes(data.filterModifier.default)) {
         $('#date-number-default-' + data.id).addClass('hidden');
-        $('#date-number-from-' + data.id).addClass('hidden');
-        $('#date-number-to-' + data.id).addClass('hidden');
       }
 
       if (!['dateis', 'dateafter', 'datebefore'].includes(data.logic) || data.logic === 'datebetween') {
