@@ -63,10 +63,6 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  var addRadioValues = [];
-  var editRadioValues = [];
-  var deleteRadioValues = [];
-
   // Constructor
   function DynamicLists(configuration) {
     _this = this;
@@ -222,8 +218,8 @@ var DynamicLists = (function() {
           item.id = _this.makeid(8);
           item.column = 'none';
           item.logic = 'none';
-          item.valueType = 'enter-value';
           item.value = '';
+          item.valueField = 'Value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -236,19 +232,26 @@ var DynamicLists = (function() {
           var $selector = $(this).parents('.filter-panel');
           var id = $(this).attr('filter-item-id');
 
-          if (type === 'field') {
-            $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
-          }
+          switch (type) {
+            case 'field':
+              $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
+              break;
 
-          if (type === 'logic') {
-            var hideValueFields = value === 'empty' || value === 'notempty';
+            case 'logic':
+              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
+              var isLogicComparison = value === 'between';
 
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value-type').toggleClass('hidden', hideValueFields);
-            $selector.find('.panel-title-text .value, #value-dash, #filter-value').toggleClass('hidden', hideValueFields);
-          }
+              $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
+              $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
+              $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+              break;
 
-          if (type === 'valueType') {
-            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+            case 'valueType':
+              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              break;
+
+            default:
+              break;
           }
 
           if (type === 'valueType') {
@@ -742,7 +745,19 @@ var DynamicLists = (function() {
         _this.addFilterItem(item);
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
-        $('#value-field-' + item.id).val(item.value);
+
+        if (item.logic !== 'between') {
+          $('#value-field-' + item.id).val(item.fieldValue);
+          $('#value-type-field-' + item.id).val(item.valueType);
+
+          return;
+        }
+
+        $('#value-type-field-from-' + item.id).val(item.valueType.from);
+        $('#value-type-field-to-' + item.id).val(item.valueType.to);
+
+        $('#value-field-from-' + item.id).val(item.value.from);
+        $('#value-field-to-' + item.id).val(item.value.to);
       });
     },
     renderSortColumns: function() {
@@ -1924,14 +1939,21 @@ var DynamicLists = (function() {
       data.columnLabel = data.column === 'none'
         ? '(Field)'
         : data.column;
+      data.valueField = data.valueType === 'enter-value'
+        ? 'Value'
+        : 'Value for';
 
       var $newPanel = $(filterPanelTemplate(data));
 
       $filterAccordionContainer.append($newPanel);
 
-      if (data.logic === 'empty' || data.logic === 'notempty') {
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value-type').addClass('hidden');
-        $newPanel.find('.panel-title-text .value, #value-dash, #filter-value').addClass('hidden');
+      if (['empty', 'notempty', 'between'].indexOf(data.logic) !== -1) {
+        $('#filter-value-type-' + data.id).addClass('hidden');
+        $('#filter-value-' + data.id).addClass('hidden');
+      }
+
+      if (data.logic !== 'between') {
+        $('#logic-comparison-' + data.id).addClass('hidden');
       }
     },
     addSummaryItem: function(data) {
@@ -2581,9 +2603,29 @@ var DynamicLists = (function() {
 
       // Get filter options
       _.forEach(_this.config.filterOptions, function(item) {
+        item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
-        item.value = $('#value-field-' + item.id).val();
+        item.valueType = $('#value-type-field-' + item.id).val();
+
+        if (item.valueType === 'enter-value') {
+          item.value = item.fieldValue;
+        }
+
+        if (item.logic === 'empty' || item.logic === 'notempty') {
+          item.valueType = null;
+          item.value = '';
+        }
+
+        if (item.logic === 'between') {
+          var valueTypeFrom = $('#value-type-field-from-' + item.id).val();
+          var valueTypeTo = $('#value-type-field-to-' + item.id).val();
+          var valueFrom = $('#value-field-from-' + item.id).val();
+          var valueTo = $('#value-field-to-' + item.id).val();
+
+          item.valueType = { from: valueTypeFrom, to: valueTypeTo };
+          item.value = { from: valueFrom, to: valueTo };
+        }
       });
 
       data.sortOptions = _this.config.sortOptions;

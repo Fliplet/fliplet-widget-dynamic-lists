@@ -482,6 +482,10 @@ header .btn,
   opacity: 0;
 }
 
+.panel-collapse label {
+  font-weight: normal;
+}
+
 .panel-collapse.in {
   opacity: 1;
   -webkit-transition: opacity 0.1s linear;
@@ -1088,6 +1092,26 @@ header .btn,
 .has-error .select2-selection,
 .has-error .token-input {
   border-color: #a94442;
+}
+
+.has-error {
+  border-color: #a94442;
+}
+
+.error-holder {
+  padding: 15px;
+  position: absolute;
+  width: 95%;
+  bottom: 1%;
+  z-index: 10;
+  border-radius: 4px;
+  -webkit-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+  -moz-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+  box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+}
+
+.has-error-text {
+  color: #a94442 !important;
 }
 
 .select-user-email-list-holder {
