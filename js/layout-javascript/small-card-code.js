@@ -132,9 +132,13 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
-  $(window).resize(function() {
-    _this.Utils.DOM.adjustAddButtonPosition(_this);
-  });
+  $(window)
+    .resize(function() {
+      _this.Utils.DOM.adjustAddButtonPosition(_this);
+    })
+    .on('show.bs.dropdown', function () {
+      $('[data-collapse-id]').find('div.in').parent()[0].style.overflow = 'visible';
+    });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
     _this.Utils.DOM.adjustAddButtonPosition(_this);
