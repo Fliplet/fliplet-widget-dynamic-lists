@@ -129,6 +129,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       return new Handlebars.SafeString(res);
     });
+
+    Handlebars.registerHelper('isSingle', function(value) {
+      return value.length === 1;
+    });
   }
 
   function splitByCommas(str, returnNilAsArray) {
@@ -959,6 +963,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         if (!urlEdited) {
           _.set(data, ['record', 'data', data.field.column], '');
+        }
+
+        if (data.field.from === 'details') {
+          if (!Array.isArray(data.record.data[data.field.column])) {
+            data.record.data[data.field.column] = [];
+          }
+
+          response.files.forEach(function(file) {
+            data.record.data[data.field.column].push(file.url);
+          });
         }
 
         return data.record;

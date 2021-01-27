@@ -37,6 +37,7 @@ function DynamicList(id, data) {
   this.pvPreFilterQuery;
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
+  this.imagesData = {};
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -338,6 +339,13 @@ DynamicList.prototype.attachObservers = function() {
       }).then(function() {
         Fliplet.UI.Actions(options);
       });
+    })
+    .on('click', '.multiple-images-item', function() {
+      var id = $(this).parent().data('detailEntryId');
+
+      _this.imagesData[id].options.index = $(this).index();
+
+      Fliplet.Navigate.previewImages(_this.imagesData[id]);
     });
 };
 
@@ -765,6 +773,27 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
     } else {
       content = entry.originalData[dynamicDataObj.column];
+    }
+
+    if (dynamicDataObj.type === 'image') {
+      content = entry.originalData[dynamicDataObj.column];
+
+      if (!Array.isArray(content)) {
+        content = content.split(/\n/);
+      }
+
+      if (!_this.imagesData[dynamicDataObj.id]) {
+        _this.imagesData[dynamicDataObj.id] = {
+          images: [],
+          options: {
+            index: null
+          }
+        };
+      }
+
+      _this.imagesData[dynamicDataObj.id].images = content.map(function(imgUrl) {
+        return { url: imgUrl };
+      });
     }
 
     // Define data object

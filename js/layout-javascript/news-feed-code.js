@@ -57,6 +57,7 @@ function DynamicList(id, data) {
   this.openedEntryOnQuery = false;
   this.sortOrder = 'asc';
   this.sortField = null;
+  this.imagesData = {};
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -880,6 +881,13 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
       record.likeButton.like();
       $(this).find('.count').html(count);
+    })
+    .on('click', '.multiple-images-item', function() {
+      var id = $(this).parent().data('detailEntryId');
+
+      _this.imagesData[id].options.index = $(this).index();
+
+      Fliplet.Navigate.previewImages(_this.imagesData[id]);
     });
 };
 
@@ -2188,6 +2196,27 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
     } else {
       content = entry.originalData[obj.column];
+    }
+
+    if (obj.type === 'image') {
+      content = entry.originalData[obj.column];
+
+      if (!Array.isArray(content)) {
+        content = content.split(/\n/);
+      }
+
+      if (!_this.imagesData[obj.id]) {
+        _this.imagesData[obj.id] = {
+          images: [],
+          options: {
+            index: null
+          }
+        };
+      }
+
+      _this.imagesData[obj.id].images = content.map(function(imgUrl) {
+        return { url: imgUrl };
+      });
     }
 
     // Define data object

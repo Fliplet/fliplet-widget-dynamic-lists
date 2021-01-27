@@ -55,6 +55,7 @@ function DynamicList(id, data) {
   this.openedEntryOnQuery = false;
   this.sortField = null;
   this.sortOrder = 'asc';
+  this.imagesData = {};
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -698,6 +699,13 @@ DynamicList.prototype.attachObservers = function() {
 
       $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
+    })
+    .on('click', '.multiple-images-item', function() {
+      var id = $(this).parent().data('detailEntryId');
+
+      _this.imagesData[id].options.index = $(this).index();
+
+      Fliplet.Navigate.previewImages(_this.imagesData[id]);
     });
 };
 
@@ -1783,6 +1791,27 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]).join(', ');
     } else {
       content = entry.originalData[dynamicDataObj.column];
+    }
+
+    if (dynamicDataObj.type === 'image') {
+      content = entry.originalData[dynamicDataObj.column];
+
+      if (!Array.isArray(content)) {
+        content = content.split(/\n/);
+      }
+
+      if (!_this.imagesData[dynamicDataObj.id]) {
+        _this.imagesData[dynamicDataObj.id] = {
+          images: [],
+          options: {
+            index: null
+          }
+        };
+      }
+
+      _this.imagesData[dynamicDataObj.id].images = content.map(function(imgUrl) {
+        return { url: imgUrl };
+      });
     }
 
     // Define data object
