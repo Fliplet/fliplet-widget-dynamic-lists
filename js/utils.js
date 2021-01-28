@@ -1708,6 +1708,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     Date: {
       moment: getMomentDate
     },
+    DataSource: {
+      formatCellValue: formatCellValue
+    },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
       fetchAndCache: fetchAndCache
@@ -1728,7 +1731,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       runActiveFilters: runActiveFilters,
       runSearch: runRecordSearch,
       getFields: getRecordFields,
-      formatCellValue: formatCellValue,
       getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
