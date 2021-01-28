@@ -789,6 +789,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       .groupBy('type')
       .map(function(values, field) {
         // _.map iteratee for defining of each filter value
+        _.forEach(_.map(values, 'data'), function(item) {
+          item.name = validateStringEntry(item.name);
+        });
+
         return {
           id: id,
           name: field,
@@ -1592,6 +1596,24 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  function validateStringEntry(options) {
+    if (/\[.*\]/.test(options)) {
+      options = options.replace(/[\[\]"]+/g, '').split(',').filter(function(item) {
+        return item.trim();
+      });
+    }
+
+    if (Array.isArray(options)) {
+      options = options.filter(function(item) {
+        return !!item;
+      });
+
+      options = options.join(', ');
+    }
+
+    return options;
+  }
+
   function getUsersToMention(options) {
     options = options || {};
 
@@ -1680,6 +1702,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     String: {
       splitByCommas: splitByCommas,
+      validateStringEntry: validateStringEntry,
       validateImageUrl: validateImageUrl,
       appendUrlQuery: appendUrlQuery
     },

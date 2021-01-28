@@ -882,6 +882,12 @@ DynamicList.prototype.initialize = function() {
     .then(function(records) {
       _this.listItems = _this.getPermissions(records);
 
+      _this.listItems.map(function(item) {
+        _.forIn(item.data, function(value, key) {
+          item.data[key] = _this.Utils.String.validateStringEntry(value);
+        });
+      });
+
       return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function(columns) {
         _this.dataSourceColumns = columns;
       });
@@ -1222,6 +1228,8 @@ DynamicList.prototype.addSummaryData = function(records) {
       if (obj.location === 'Start Time' || obj.location === 'End Time') {
         content = _this.convertTime(content);
       }
+
+      content = _this.Utils.String.validateStringEntry(content);
 
       newObject[obj.location] = content;
     });
@@ -2397,9 +2405,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = entry.originalData[dynamicDataObj.column];
     }
 
-    if (Array.isArray(content)) {
-      
-    }
+    content = _this.Utils.String.validateStringEntry(content);
 
     // Define data object
     var newEntryDetail = {
@@ -2450,8 +2456,6 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
   var src = _this.src;
-
-  debugger;
 
   entryData = _this.addDetailViewData(entryData);
 
