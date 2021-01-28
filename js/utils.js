@@ -790,7 +790,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       .map(function(values, field) {
         // _.map iteratee for defining of each filter value
         _.forEach(_.map(values, 'data'), function(item) {
-          item.name = validateStringEntry(item.name);
+          item.name = parseArrayFromString(item.name);
         });
 
         return {
@@ -1596,7 +1596,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
-  function validateStringEntry(options) {
+  function parseArrayFromString(options) {
     if (/\[.*\]/.test(options)) {
       options = options.replace(/[\[\]"]+/g, '').split(',').filter(function(item) {
         return item.trim();
@@ -1702,7 +1702,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     String: {
       splitByCommas: splitByCommas,
-      validateStringEntry: validateStringEntry,
+      parseArrayFromString: parseArrayFromString,
       validateImageUrl: validateImageUrl,
       appendUrlQuery: appendUrlQuery
     },
