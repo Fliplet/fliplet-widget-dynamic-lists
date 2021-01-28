@@ -1139,6 +1139,12 @@ DynamicList.prototype.initialize = function() {
     .then(function(records) {
       _this.listItems = _this.getPermissions(records);
 
+      _this.listItems.map(function(item) {
+        _.forIn(item.data, function(value, key) {
+          item.data[key] = _this.Utils.String.validateStringEntry(value);
+        })
+      })
+
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }
@@ -1467,6 +1473,8 @@ DynamicList.prototype.addSummaryData = function(records) {
       } else {
         content = entry.data[obj.column];
       }
+
+      content = _this.Utils.String.validateStringEntry(content);
 
       newObject[obj.location] = content;
     });
@@ -2185,6 +2193,8 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     } else {
       content = entry.originalData[obj.column];
     }
+
+    content = _this.Utils.String.validateStringEntry(content);
 
     // Define data object
     var newEntryDetail = {
