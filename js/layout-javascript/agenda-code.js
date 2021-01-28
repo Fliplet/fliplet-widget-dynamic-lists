@@ -643,6 +643,7 @@ DynamicList.prototype.attachObservers = function() {
         if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
           return;
         }
+
         if ($(this).hasClass('active') || $(this).hasClass('placeholder')) {
           return;
         }
@@ -667,16 +668,18 @@ DynamicList.prototype.attachObservers = function() {
             ' ' +
             $(this).find('.day').text().trim() +
             ' ' +
-            $(this).find('.month').text().trim(),
+            $(this).find('.month').text().trim()
         });
 
         if (indexDifference < indexOfActiveDate) {
           _this.moveBackDate(indexOfClickedDate, indexDifference);
+
           return;
         }
 
         if (indexDifference >= indexOfActiveDate) {
           _this.moveForwardDate(indexOfClickedDate, indexDifference);
+
           return;
         }
       }
@@ -685,6 +688,7 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -847,6 +851,7 @@ DynamicList.prototype.attachObservers = function() {
         $parent.find('.btn-bookmark').focus();
 
         record.bookmarkButton.unlike();
+
         return;
       }
 
