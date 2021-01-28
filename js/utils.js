@@ -1607,6 +1607,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       options = options.filter(function(item) {
         return !!item;
       });
+
+      options = options.join(', ');
     }
 
     return options;
