@@ -168,7 +168,11 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click', '.sort-group .list-sort li', function(e) {
+    .on('click keydown', '.sort-group .list-sort li', function(e) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(e)) {
+        return;
+      }
+
       e.stopPropagation();
 
       var $sortListItem = $(e.currentTarget);
@@ -302,7 +306,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click', '.list-search-icon .fa-sliders', function() {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-container');
 
@@ -370,7 +378,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function() {
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
@@ -424,7 +436,11 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.search-holder .search-btn', function() {
+    .on('click keydown', '.search-holder .search-btn', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
       var value = $inputField.val();
 
@@ -446,7 +462,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
+    .on('click keydown', '.clear-search', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       _this.$container.find('.simple-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -805,7 +825,11 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.toggle-bookmarks', function() {
+    .on('click keydown', '.toggle-bookmarks', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
@@ -1829,8 +1853,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
           likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-          likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked
