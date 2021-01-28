@@ -457,8 +457,20 @@ function attahObservers() {
         if (widgetData.filterOptions.length) {
           var filterError = [];
           var filterFieldValues = [];
+          var logicOptionsWithoutValues = [
+            'empty',
+            'notempty',
+            'dateis',
+            'datebefore',
+            'dateafter',
+            'datebetween'
+          ];
 
           widgetData.filterOptions.forEach(function(item) {
+            if (logicOptionsWithoutValues.indexOf(item.logic) !== -1) {
+              return;
+            }
+
             if (item.logic === 'between') {
               filterFieldValues.push({
                 field: '#value-field-from-' + item.id,
