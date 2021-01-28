@@ -791,13 +791,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         // _.map iteratee for defining of each filter value
         _.forEach(_.map(values, 'data'), function(item) {
           item.name = validateStringEntry(item.name);
-        })
+        });
 
         return {
           id: id,
           name: field,
           data: _.map(values, 'data')
-        }
+        };
       })
       .filter(function(filter) {
         return filter.name && _.size(filter.data);
@@ -1598,20 +1598,20 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function validateStringEntry(options) {
     if (/\[.*\]/.test(options)) {
-      options = options.replace(/[\[\]"]+/g,'').split(',').filter(function(item) {
+      options = options.replace(/[\[\]"]+/g, '').split(',').filter(function(item) {
         return item.trim();
-      })
+      });
     }
 
     if (Array.isArray(options)) {
       options = options.filter(function(item) {
         return !!item;
-      })
-  
+      });
+
       options = options.join(', ');
     }
 
-    return options
+    return options;
   }
 
   function getUsersToMention(options) {

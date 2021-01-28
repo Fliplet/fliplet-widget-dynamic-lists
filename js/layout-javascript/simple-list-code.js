@@ -930,8 +930,8 @@ DynamicList.prototype.initialize = function() {
       _this.listItems.map(function(item) {
         _.forIn(item.data, function(value, key) {
           item.data[key] = _this.Utils.String.validateStringEntry(value);
-        })
-      })
+        });
+      });
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
