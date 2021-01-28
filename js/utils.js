@@ -790,7 +790,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       .map(function(values, field) {
         // _.map iteratee for defining of each filter value
         _.forEach(_.map(values, 'data'), function(item) {
-          item.name = parseArrayFromString(item.name);
+          item.name = formatCellValue(item.name);
         });
 
         return {
@@ -1596,7 +1596,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
-  function parseArrayFromString(options) {
+  function formatCellValue(options) {
     if (/\[.*\]/.test(options)) {
       options = options.replace(/[\[\]"]+/g, '').split(',').filter(function(item) {
         return item.trim();
@@ -1702,7 +1702,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     String: {
       splitByCommas: splitByCommas,
-      parseArrayFromString: parseArrayFromString,
       validateImageUrl: validateImageUrl,
       appendUrlQuery: appendUrlQuery
     },
@@ -1729,6 +1728,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       runActiveFilters: runActiveFilters,
       runSearch: runRecordSearch,
       getFields: getRecordFields,
+      formatCellValue: formatCellValue,
       getFieldValues: getRecordFieldValues,
       parseFilters: parseRecordFilters,
       addFilterProperties: addRecordFilterProperties,
