@@ -1145,7 +1145,7 @@ DynamicList.prototype.initialize = function() {
 
       _this.listItems.map(function(item) {
         _.forIn(item.data, function(value, key) {
-          item.data[key] = _this.Utils.DataSource.formatCellValue(value);
+          item.data[key] = _this.Utils.String.toFormattedString(value);
         });
       });
 
@@ -1478,7 +1478,7 @@ DynamicList.prototype.addSummaryData = function(records) {
         content = entry.data[obj.column];
       }
 
-      content = _this.Utils.DataSource.formatCellValue(content);
+      content = _this.Utils.String.toFormattedString(content);
 
       newObject[obj.location] = content;
     });
@@ -2198,7 +2198,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = entry.originalData[obj.column];
     }
 
-    content = _this.Utils.DataSource.formatCellValue(content);
+    content = _this.Utils.String.toFormattedString(content);
 
     // Define data object
     var newEntryDetail = {

@@ -1773,13 +1773,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     String: {
       splitByCommas: splitByCommas,
       validateImageUrl: validateImageUrl,
+      formatCellValue: formatCellValue,
       appendUrlQuery: appendUrlQuery
     },
     Date: {
       moment: getMomentDate
-    },
-    DataSource: {
-      formatCellValue: formatCellValue
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
