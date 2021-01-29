@@ -234,8 +234,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      debugger;
-
       var $el = $(this);
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
@@ -253,7 +251,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       _this.$container.find('.hidden-filter-controls').addClass('active');
-      _this.$container.find('.list-search-cancel').addClass('active');
+      _this.$container.find('.list-search-cancel').addClass('active').focus();
+      _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       $el.addClass('active');
 
       _this.toggleListView();
@@ -308,7 +307,8 @@ DynamicList.prototype.attachObservers = function() {
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active')..focus();
+      _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
       _this.calculateFiltersHeight(true);
 
       // Clear filters
@@ -558,7 +558,7 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
-      
+
       $('.new-agenda-list-container').show();
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -568,7 +568,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var result;
-      
+
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
           return;

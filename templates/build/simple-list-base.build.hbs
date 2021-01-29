@@ -5,7 +5,7 @@
     <div class="simple-list-overlay-screen"></div>
     <div class="simple-list-overlay-wrapper">
       <div class="simple-list-overlay-header">
-        <div class="simple-list-overlay-close">
+        <div class="simple-list-overlay-close focus-outline" tabindex="0">
           <i class="fa fa-angle-left"></i>
         </div>
         <div class="filter-header-holder">
@@ -40,7 +40,7 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required >
+      <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="Search..." required >
       <div class="btn btn-default search-btn">Search</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
@@ -48,18 +48,18 @@
     \{{#if searchIconsEnabled}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
-      <div class="toggle-bookmarks" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
+      <div class="toggle-bookmarks focus-outline" tabindex="0" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
       \{{/if}}
       <div class="list-search-cancel focus-outline" tabindex="0"><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders" ></i>
+      <i class="fa fa-sliders focus-outline" tabindex="0" ></i>
       \{{/if}}
       \{{#if sortEnabled}}
       <div class="sort-group btn-group">
-        <i class="fa fa-sort-amount-desc" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
+        <i class="fa fa-sort-amount-desc focus-outline" tabindex="0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
         <ul class="dropdown-menu list-sort">
           \{{#each sortFields}}
             <li data-sort-order="none" data-sort-field="\{{ this }}"><span>\{{ this }} \{{#if this}}<i class="fa fa-sort" aria-hidden="true"></i>\{{/if}}</span></li>
@@ -88,7 +88,7 @@
   \{{/if}}
   <div class="active-filters hidden">
     <div class="hidden-filter-controls-label">Filters applied</div>
-    <div class="hidden-filter-controls-filter-container" touch-action="pan-x pan-y">
+    <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
       <div class="hidden-filter-controls-filter-wrapper">
         <fieldset data-filter-active-group>
         </fieldset>
@@ -143,7 +143,7 @@
   <div class="simple-list-detail-overlay-wrapper">
     <div class="simple-list-detail-overlay-panel">
       <div class="simple-list-detail-overlay-heading">
-        <div class="simple-list-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+        <div class="simple-list-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline" tabindex="0" >
           <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
         </div>
       </div>
@@ -153,7 +153,7 @@
         </div>
       </div>
     </div>
-    <div class="simple-list-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}}" >
+    <div class="simple-list-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline" tabindex="0" >
       <img src="\{{closeIcon.white.url}}" alt="close icon" class="close-icon">
     </div>
   </div>

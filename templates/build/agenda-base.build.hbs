@@ -35,7 +35,7 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed" placeholder="Search..." required >
+      <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="Search..." required >
       <div class="btn btn-default search-btn">Search</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
@@ -108,7 +108,7 @@
       \{{/if}}
       <div class="active-filters">
         <div class="hidden-filter-controls-label">Filters applied</div>
-        <div class="hidden-filter-controls-filter-container" touch-action="pan-x pan-y">
+        <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
           <div class="hidden-filter-controls-filter-wrapper">
             <fieldset data-filter-active-group>
             </fieldset>
@@ -116,7 +116,7 @@
         </div>
       </div>
       \{{#if filtersEnabled}}
-      <div class="hidden-filter-controls hidden">
+      <div class="hidden-filter-controls">
         <div class="hidden-filter-controls-content">
           \{{#unless filtersInOverlay}}
             \{{#if filtersEnabled}}
