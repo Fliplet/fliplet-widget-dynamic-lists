@@ -454,10 +454,93 @@ function attahObservers() {
 
         toggleError(false);
 
-        var errors = [];
-        var values = [];
+        if (widgetData.filterOptions.length) {
+          var filterError = [];
+          var filterFieldValues = [];
+          var logicOptionsWithoutValues = [
+            'empty',
+            'notempty',
+            'dateis',
+            'datebefore',
+            'dateafter',
+            'datebetween'
+          ];
+
+          widgetData.filterOptions.forEach(function(item) {
+            if (logicOptionsWithoutValues.indexOf(item.logic) !== -1) {
+              return;
+            }
+
+            if (item.logic === 'between') {
+              filterFieldValues.push({
+                field: '#value-field-from-' + item.id,
+                value: item.value.from,
+                id: item.id,
+                valueType: item.valueType.from
+              });
+
+              filterFieldValues.push({
+                field: '#value-field-to-' + item.id,
+                value: item.value.to,
+                id: item.id,
+                valueType: item.valueType.to
+              });
+
+              return;
+            }
+
+            filterFieldValues.push({
+              field: '#value-field-' + item.id,
+              value: item.fieldValue,
+              id: item.id,
+              valueType: item.valueType
+            });
+          });
+
+          filterFieldValues.forEach(function(field) {
+            if (field.valueType === 'enter-value') {
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
+
+              return;
+            }
+
+            if (!validate(field.value)) {
+              filterError.push({
+                item: field.field,
+                id: field.id
+              });
+            } else {
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
+            }
+          });
+
+          if (filterError.length) {
+            $('.error-holder').removeClass('hidden');
+
+            filterError.forEach(function(field) {
+              $(field.item).addClass('has-error');
+              $(field.item).parents('#filter-value-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-from-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-to-' + field.id).find('label').addClass('has-error-text');
+            });
+
+            return;
+          }
+
+          $('#filter-value > .control-label > label').removeClass('has-error-text');
+          $('.error-holder').addClass('hidden');
+
+          toggleError(false);
+        }
 
         if (widgetData.social && widgetData.social.comments) {
+          var errors = [];
+          var values = [];
+
           values.push({
             value: widgetData.userDataSourceId,
             field: '#user_data_source_provider'
