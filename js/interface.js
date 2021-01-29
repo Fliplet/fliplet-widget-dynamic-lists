@@ -217,7 +217,7 @@ var DynamicLists = (function() {
 
           item.id = _this.makeid(8);
           item.column = 'none';
-          item.logic = 'none';
+          item.logic = '==';
           item.value = '';
           item.valueField = 'Value';
           item.columns = dataSourceColumns;
