@@ -307,7 +307,7 @@ DynamicList.prototype.attachObservers = function() {
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active')..focus();
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
       _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
       _this.calculateFiltersHeight(true);
 
@@ -501,7 +501,6 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click keydown', '.agenda-list-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        $('.new-agenda-list-container').hide();
         return;
       }
 
@@ -512,6 +511,8 @@ DynamicList.prototype.attachObservers = function() {
       if ($(event.target).hasClass('agenda-item-bookmark-holder') || $(event.target).parents('.agenda-item-bookmark-holder').length) {
         return;
       }
+
+      $(event.target).find('.new-agenda-list-container').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();
@@ -559,7 +560,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $('.new-agenda-list-container').show();
+      $('.new-agenda-list-container').removeClass('hidden');
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
