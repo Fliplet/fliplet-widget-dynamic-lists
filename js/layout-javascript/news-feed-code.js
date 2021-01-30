@@ -342,7 +342,7 @@ DynamicList.prototype.attachObservers = function() {
           return Fliplet.Navigate.back();
         }).catch(function(error) {
           console.error(error);
-        }); 
+        });
       }
 
       _this.closeDetails();
