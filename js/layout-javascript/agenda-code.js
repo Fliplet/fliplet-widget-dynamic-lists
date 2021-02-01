@@ -886,12 +886,6 @@ DynamicList.prototype.initialize = function() {
     .then(function(records) {
       _this.listItems = _this.getPermissions(records);
 
-      _this.listItems.map(function(item) {
-        _.forIn(item.data, function(value, key) {
-          item.data[key] = _this.Utils.String.toFormattedString(value);
-        });
-      });
-
       return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function(columns) {
         _this.dataSourceColumns = columns;
       });

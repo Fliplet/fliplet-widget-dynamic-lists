@@ -790,12 +790,6 @@ DynamicList.prototype.initialize = function() {
       // Make rows available Globally
       _this.listItems = records;
 
-      _this.listItems.map(function(item) {
-        _.forIn(item.data, function(value, key) {
-          item.data[key] = _this.Utils.String.toFormattedString(value);
-        });
-      });
-
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
       }
