@@ -1611,10 +1611,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         return options.toString();
       case 'object':
         if (Array.isArray(options)) {
-          options = options.filter(function(item) {
-            // Filters each value in array by falsy values exept 0 and remove the empty spaces
-            if (!_.isNil(item)) return /\S/.test(item);
-          });
+          options = _.filter(_.map(options, toFormattedString), function(part) { return part.trim().length; });
 
           return options.join(', ');
         }
