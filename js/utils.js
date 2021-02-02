@@ -1596,24 +1596,34 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Function is formatting the input values to string
+   * @param {*} options Input values that can be of any type
+   * @returns The formatted input value into string value
+   */
+
   function toFormattedString(options) {
-    if (!options) {
-      return '';
+    switch (typeof options) {
+      case 'string':
+        return options;
+      case 'number':
+        return options.toString();
+      case 'boolean':
+        return options.toString();
+      case 'object':
+        if (Array.isArray(options)) {
+          options = options.filter(function(item) {
+            // Filters each value in array by falsy values exept 0 and remove the empty spaces
+            if (!_.isNil(item)) return /\S/.test(item);
+          });
+
+          return options.join(', ');
+        }
+
+        return JSON.stringify(options);
+      default:
+        break;
     }
-
-    if (Array.isArray(options)) {
-      options = options.filter(function(item) {
-        return !!item.trim();
-      });
-
-      options = options.join(', ');
-    }
-
-    if (typeof options === 'object') {
-      return JSON.stringify(options);
-    }
-
-    return options;
   }
 
   function getUsersToMention(options) {
