@@ -447,7 +447,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('touchend touchcancel', '.agenda-list-controls', function() {
       $(this).removeClass('hover');
     })
-    .on('click', '.agenda-list-controls', function() {
+    .on('click keydown', '.agenda-list-controls', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $toggle = $(this).find('.toggle-agenda');
 
       if (!$toggle.length) {

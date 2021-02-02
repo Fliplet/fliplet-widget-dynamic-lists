@@ -574,7 +574,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }

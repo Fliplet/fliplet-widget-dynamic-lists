@@ -217,7 +217,11 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
