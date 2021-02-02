@@ -2201,7 +2201,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     if (obj.type === 'image') {
       content = entry.originalData[obj.column];
 
-      if (!Array.isArray(content)) {
+      if (typeof content === 'string') {
         content = content.split(/\n/);
       }
 

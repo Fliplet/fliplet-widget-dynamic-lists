@@ -778,7 +778,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     if (dynamicDataObj.type === 'image') {
       content = entry.originalData[dynamicDataObj.column];
 
-      if (!Array.isArray(content)) {
+      if (typeof content === 'string') {
         content = content.split(/\n/);
       }
 
@@ -791,7 +791,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
         };
       }
 
-      _this.imagesData[dynamicDataObj.id].images = content.map(function(imgUrl) {
+      _this.imagesData[dynamicDataObj.id].images = _.map(content, function(imgUrl) {
         return { url: imgUrl };
       });
     }
