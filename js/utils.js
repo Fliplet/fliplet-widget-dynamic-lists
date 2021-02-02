@@ -1621,7 +1621,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         return JSON.stringify(options);
       default:
-        break;
+        return '';
     }
   }
 
