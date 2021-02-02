@@ -1607,7 +1607,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       case 'string':
         return options;
       case 'number':
-        return options.toString();
       case 'boolean':
         return options.toString();
       case 'object':
