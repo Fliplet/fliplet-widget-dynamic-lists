@@ -1610,7 +1610,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       case 'boolean':
         return options.toString();
       case 'object':
-        if (Array.isArray(options)) {
+        if (!options) {
+          return '';
+        } else if (Array.isArray(options)) {
           options = _.filter(_.map(options, toFormattedString), function(part) { return part.trim().length; });
 
           return options.join(', ');
