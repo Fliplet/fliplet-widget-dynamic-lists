@@ -500,7 +500,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (condition === 'oneof') {
-          return !!_.intersectionWith(splitByCommas(filter.value), splitByCommas(rowData), _.isEqual).length;
+          return !!_.intersectionWith(splitByCommas(filter.value), splitByCommas(rowData), _.isEqual).length
+            || splitByCommas(filter.value).includes(rowData);
         }
 
         // Case insensitive
