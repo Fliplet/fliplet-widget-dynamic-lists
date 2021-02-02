@@ -350,6 +350,10 @@ DynamicList.prototype.attachObservers = function() {
 
       $('.small-card-list-wrapper').removeClass('hidden');
 
+      var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
+
+      _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"]').focus();
+
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
           return;
@@ -380,8 +384,6 @@ DynamicList.prototype.attachObservers = function() {
 
       if ($(window).width() < 640) {
         if (typeof _this.directoryDetailWrapper === 'undefined') {
-          var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
-
           _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
         }
 

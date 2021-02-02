@@ -292,6 +292,10 @@ DynamicList.prototype.attachObservers = function() {
 
       $('.simple-list-wrapper').removeClass('hidden');
 
+      var id = _this.$container.find('.simple-list-detail-wrapper[data-entry-id]').data('entry-id');
+
+      _this.$container.find('.simple-list-item[data-entry-id="' + id + '"]').focus();
+
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
           return;

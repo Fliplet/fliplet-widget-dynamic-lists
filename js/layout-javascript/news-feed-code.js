@@ -317,6 +317,10 @@ DynamicList.prototype.attachObservers = function() {
 
       $('.news-feed-list-wrapper').removeClass('hidden');
 
+      var id = _this.$container.find('.news-feed-detail-wrapper[data-entry-id]').data('entry-id');
+
+      _this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').focus();
+
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
           return;
