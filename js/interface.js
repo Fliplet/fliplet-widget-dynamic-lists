@@ -220,7 +220,7 @@ var DynamicLists = (function() {
           item.logic = '==';
           item.value = '';
           item.valueField = 'Value';
-          item.valueType= 'enter-value';
+          item.valueType = 'enter-value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
