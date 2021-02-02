@@ -137,7 +137,14 @@ DynamicList.prototype.attachObservers = function() {
       _this.Utils.DOM.adjustAddButtonPosition(_this);
     })
     .on('show.bs.dropdown', function() {
+      // find accordions
+      // find opened accordion (only one opened)
+      // get its parent (always one but in array)
+      // change its overflow to visible
       $('[data-collapse-id]').find('div.in').parent()[0].style.overflow = 'visible';
+    })
+    .on('hide.bs.dropdown', function() {
+      $('[data-collapse-id]').find('div.in').parent()[0].style.overflow = 'hidden';
     });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
