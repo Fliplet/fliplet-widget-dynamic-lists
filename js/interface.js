@@ -220,6 +220,7 @@ var DynamicLists = (function() {
           item.logic = '==';
           item.value = '';
           item.valueField = 'Value';
+          item.valueType = 'enter-value';
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -247,7 +248,7 @@ var DynamicLists = (function() {
               break;
 
             case 'valueType':
-              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              $('#filter-value-' + id + ' label').html(value !== 'enter-value' ? 'Value for' : 'Value');
               break;
 
             default:
@@ -368,13 +369,10 @@ var DynamicLists = (function() {
           $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
         })
         .on('change', '#enable-comments', function() {
-          if ( $(this).is(':checked') ) {
-            $('.user-datasource-options').removeClass('hidden');
-            $('.select-user-photo-holder').removeClass('hidden');
-          } else {
-            $('.user-datasource-options').addClass('hidden');
-            $('.select-user-photo-holder').addClass('hidden');
-          }
+          var isCommentsEnabled = $(this).is(':checked');
+
+          _this.initUserDatasourceProvider(_this.config.userDataSourceId, isCommentsEnabled);
+          $('.select-user-photo-holder').toggleClass('hidden', !isCommentsEnabled);
         })
         .on('change', '[name="select_user_photo"]', function() {
           var value = $(this).val();
