@@ -1518,7 +1518,42 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
   padding: 20px 15px;
 }
 
+.news-feed-multiple-images-holder {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.news-feed-multiple-images-item {
+  width: calc(50% - 7.5px);
+  margin-top: 15px;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid rgba(127, 127, 127, 0.5);
+  cursor: pointer;
+}
+
+.news-feed-multiple-images-item:nth-of-type(2n+1) {
+  margin-right: 15px;
+}
+
+.news-feed-multiple-images-item .image {
+  width: 100%;
+  padding-top: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 @media screen and (min-width: 640px) {
+  .news-feed-multiple-images-item {
+    width: calc(33.33% - 10px);
+    margin-right: 15px;
+  }
+  
+  .news-feed-multiple-images-item:nth-of-type(3n) {
+    margin-right: 0;
+  }
+
   .news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-item-inner-content {
     padding: 20px 15px;
   }

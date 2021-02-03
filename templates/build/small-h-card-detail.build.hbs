@@ -44,10 +44,22 @@
             \{{#if labelEnabled}}
             <div class="small-h-card-list-detail-label">\{{label}}</div>
             \{{/if}}
-
-            <div class="small-h-card-list-detail-body-text">
-              <img src="\{{validateImage content}}">
+ 
+            \{{#if (isSingle content)}}
+              \{{#each content}}
+              <div class="small-h-card-detail-value">
+                <img src="\{{validateImage this}}">
+              </div>
+              \{{/each}}
+            \{{else}}
+            <div class="small-h-card-multiple-images-holder">
+              \{{#each content}}
+              <div class="small-h-card-multiple-images-item">
+                <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
+              </div>
+              \{{/each}}
             </div>
+            \{{/if}}
           \{{/if}}
         \{{/ifCond}}
 
