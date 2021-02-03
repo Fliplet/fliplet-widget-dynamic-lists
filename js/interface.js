@@ -247,7 +247,7 @@ var DynamicLists = (function() {
               break;
 
             case 'valueType':
-              $('#filter-value-' + id + 'label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              $('#filter-value-' + id + ' label').html(value !== 'enter-value' ? 'Value for' : 'Value');
               break;
 
             default:
