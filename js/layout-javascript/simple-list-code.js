@@ -128,26 +128,29 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
-  $(window)
-    .resize(function() {
-      _this.Utils.DOM.adjustAddButtonPosition(_this);
-    })
-    .on('show.bs.dropdown', function() {
-      // find accordions
-      // find opened accordion (only one opened)
-      // get its parent (always one but in array)
-      // change its overflow to visible
-      $('[data-collapse-id]').find('div.in').parent()[0].style.overflow = 'visible';
-    })
-    .on('hide.bs.dropdown', function() {
-      $('[data-collapse-id]').find('div.in').parent()[0].style.overflow = 'hidden';
-    });
+  $(window).resize(function() {
+    _this.Utils.DOM.adjustAddButtonPosition(_this);
+  });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
     _this.Utils.DOM.adjustAddButtonPosition(_this);
   });
 
   _this.$container
+    .on('show.bs.dropdown', function(e) {
+      var parentAccordion = $(e.currentTarget).parents('[data-collapse-id]')[0];
+
+      if (parentAccordion) {
+        parentAccordion.style.overflow = 'visible';
+      }
+    })
+    .on('hide.bs.dropdown', function(e) {
+      var parentAccordion = $(e.currentTarget).parents('[data-collapse-id]')[0];
+
+      if (parentAccordion) {
+        parentAccordion.style.overflow = 'hidden';
+      }
+    })
     .on('click', '[data-lfd-back]', function() {
       var result;
 
