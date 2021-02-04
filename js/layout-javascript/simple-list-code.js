@@ -200,7 +200,11 @@ DynamicList.prototype.attachObservers = function() {
         sortField: _this.sortField
       });
     })
-    .on('click', '.apply-filters', function() {
+    .on('click keydown', '.apply-filters', function(event) {
+      if (event.key !== 'enter' || event.type !== 'click') {
+        return;
+      }
+
       _this.hideFilterOverlay();
       _this.searchData();
     })

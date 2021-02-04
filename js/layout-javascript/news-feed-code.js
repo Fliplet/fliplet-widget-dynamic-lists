@@ -207,7 +207,11 @@ DynamicList.prototype.attachObservers = function() {
         sortField: _this.sortField
       });
     })
-    .on('click', '.apply-filters', function() {
+    .on('click keydown', '.apply-filters', function(event) {
+      if (event.key !== 'enter' || event.type !== 'click') {
+        return;
+      }
+
       _this.hideFilterOverlay();
       _this.searchData();
     })
@@ -363,6 +367,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
+
+        $('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -385,12 +391,18 @@ DynamicList.prototype.attachObservers = function() {
         action: 'search_filter_controls_activate'
       });
     })
-    .on('click', '.news-feed-overlay-close', function() {
+    .on('click keydown', '.news-feed-overlay-close', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
       $('body').removeClass('lock has-filter-overlay');
+
+      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
