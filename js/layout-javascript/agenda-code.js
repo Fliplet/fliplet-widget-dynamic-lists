@@ -195,9 +195,11 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('click keydown', '.apply-filters', function(event) {
-      if (event.key !== 'enter' || event.type !== 'click') {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
+
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
@@ -208,6 +210,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).addClass('hidden');
+      $('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
@@ -267,9 +271,15 @@ DynamicList.prototype.attachObservers = function() {
         action: 'search_filter_controls_activate'
       });
     })
-    .on('click', '.agenda-overlay-close', function() {
+    .on('click keydown', '.agenda-overlay-close', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
+
       $('body').removeClass('lock has-filter-overlay');
+      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -520,7 +530,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $(event.target).find('.new-agenda-list-container').addClass('hidden');
+      $('.agenda-list-holder').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();
@@ -568,7 +578,11 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $('.new-agenda-list-container').removeClass('hidden');
+      $('.agenda-list-holder').removeClass('hidden');
+
+      var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
+
+      _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {

@@ -208,15 +208,23 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.apply-filters', function(event) {
-      if (event.key !== 'enter' || event.type !== 'click') {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
+
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click', '.clear-filters', function() {
+    .on('click keydown', '.clear-filters', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       $(this).addClass('hidden');
+      $('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
@@ -400,8 +408,8 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
-      $('body').removeClass('lock has-filter-overlay');
 
+      $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
@@ -537,7 +545,18 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click', '.news-feed-comment-holder', function(event) {
+    .on('keydown', '.news-feed-filters-panel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $(event.target).find('.collapse').collapse('toggle');
+    })
+    .on('click keydown', '.news-feed-comment-holder', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       event.stopPropagation();
 
       var identifier;
@@ -556,7 +575,11 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click ', '.news-feed-comment-close-panel', function() {
+    .on('click keydown', '.news-feed-comment-close-panel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       _this.$container.find('.new-news-feed-comment-panel').removeClass('open');
       _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
 
@@ -564,7 +587,11 @@ DynamicList.prototype.attachObservers = function() {
         $('body').removeClass('lock');
       }
     })
-    .on('click', '.news-feed-comment-input-holder .comment', function() {
+    .on('click keydown', '.news-feed-comment-input-holder .comment', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val().trim();

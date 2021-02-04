@@ -201,15 +201,23 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.apply-filters', function(event) {
-      if (event.key !== 'enter' || event.type !== 'click') {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
+
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click', '.clear-filters', function() {
+    .on('click keydown', '.clear-filters', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       $(this).addClass('hidden');
+      $('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
@@ -372,9 +380,11 @@ DynamicList.prototype.attachObservers = function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-search-filter-overlay');
 
-      $('.simple-list-container').removeClass('hidden');
       $parentElement.removeClass('display');
+
+      $('.simple-list-container').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
+      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -508,6 +518,13 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('hide.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
+    })
+    .on('keydown', '.simple-list-filters-panel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $(event.target).find('.collapse').collapse('toggle');
     })
     .on('click', '.simple-list-comment-holder', function(event) {
       event.stopPropagation();

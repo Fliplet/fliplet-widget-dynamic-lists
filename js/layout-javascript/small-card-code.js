@@ -205,19 +205,31 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.apply-filters', function(event) {
-      if (event.key !== 'enter' || event.type !== 'click') {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
+
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click', '.clear-filters', function() {
+    .on('click keydown', '.clear-filters', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       $(this).addClass('hidden');
+      $('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -411,6 +423,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+
+        $('.small-card-search-filter-overlay .small-card-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -433,12 +447,18 @@ DynamicList.prototype.attachObservers = function() {
         action: 'search_filter_controls_activate'
       });
     })
-    .on('click', '.small-card-overlay-close', function() {
+    .on('click keydown', '.small-card-overlay-close', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.small-card-search-filter-overlay');
 
       $parentElement.removeClass('display');
+
       $('body').removeClass('lock has-filter-overlay');
+      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -566,7 +586,7 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
-      
+
       _this.$container.find('.new-small-card-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -577,6 +597,20 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
+    })
+    .on('keydown', '.small-card-filters-panel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $(event.target).find('.collapse').collapse('toggle');
+    })
+    .on('keydown', '.small-card-filters-panel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $(event.target).find('.collapse').collapse('toggle');
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
