@@ -459,47 +459,47 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function getDateModifiedValues(options) {
-    var isEntryContainsTime = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/;
+    var isEntryContainsTime = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(options.date);
     var deviceTimeZone = moment.tz.guess();
-    var dateFunc = options.timezone ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
+    var getDate = options.isDeviceTimeZoneEnabled ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
 
     switch (options.filterModifier) {
       case 'today':
         return {
           today: moment().startOf('day'),
-          formatedDate: isEntryContainsTime.test(options.date)
+          inputDate: isEntryContainsTime
             ? moment(options.date, 'HH.mm').startOf('day')
             : moment(options.date).startOf('day')
         };
 
       case 'now':
         return {
-          today: dateFunc().startOf('minute'),
-          formatedDate: isEntryContainsTime.test(options.date)
-            ? dateFunc(options.date, 'HH.mm')
-            : dateFunc(options.date)
+          today: getDate().startOf('minute'),
+          inputDate: isEntryContainsTime
+            ? getDate(options.date, 'HH.mm')
+            : getDate(options.date)
         };
 
       case 'nowaddminutes':
         return {
-          today: dateFunc().add('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
-          formatedDate: isEntryContainsTime.test(options.date)
-            ? dateFunc(options.date, 'HH.mm')
-            : dateFunc(options.date)
+          today: getDate().add('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
+          inputDate: isEntryContainsTime
+            ? getDate(options.date, 'HH.mm')
+            : getDate(options.date)
         };
 
       case 'nowaddhours':
         return {
-          today: dateFunc().add('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
-          formatedDate: isEntryContainsTime.test(options.date)
-            ? dateFunc(options.date, 'HH.mm')
-            : dateFunc(options.date)
+          today: getDate().add('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
+          inputDate: isEntryContainsTime
+            ? getDate(options.date, 'HH.mm')
+            : getDate(options.date)
         };
 
       case 'todayadddays':
         return {
           today: moment().add('days', smartParseFloat(options.modifierValue)).startOf('day'),
-          formatedDate: isEntryContainsTime.test(options.date)
+          inputDate: isEntryContainsTime
             ? moment(options.date, 'HH.mm').startOf('day')
             : moment(options.date).startOf('day')
         };
@@ -507,7 +507,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       case 'todayaddmonths':
         return {
           today: moment().add('month', smartParseFloat(options.modifierValue)).startOf('day'),
-          formatedDate: isEntryContainsTime.test(options.date)
+          inputDate: isEntryContainsTime
             ? moment(options.date, 'HH.mm').startOf('day')
             : moment(options.date).startOf('day')
         };
@@ -515,31 +515,31 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       case 'todayaddyears':
         return {
           today: moment().add('year', smartParseFloat(options.modifierValue)).startOf('day'),
-          formatedDate: isEntryContainsTime.test(options.date)
+          inputDate: isEntryContainsTime
             ? moment(options.date, 'HH.mm').startOf('day')
             : moment(options.date).startOf('day')
         };
 
       case 'nowsubtractminutes':
         return {
-          today: dateFunc().subtract('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
-          formatedDate: isEntryContainsTime.test(options.date)
-            ? dateFunc(options.date, 'HH.mm')
-            : dateFunc(options.date)
+          today: getDate().subtract('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
+          inputDate: isEntryContainsTime
+            ? getDate(options.date, 'HH.mm')
+            : getDate(options.date)
         };
 
       case 'nowsubtracthours':
         return {
-          today: dateFunc().subtract('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
-          formatedDate: isEntryContainsTime.test(options.date)
-            ? dateFunc(options.date, 'HH.mm')
-            : dateFunc(options.date)
+          today: getDate().subtract('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
+          inputDate: isEntryContainsTime
+            ? getDate(options.date, 'HH.mm')
+            : getDate(options.date)
         };
 
       case 'todayminusdays':
         return {
           today: moment().subtract('days', smartParseFloat(options.modifierValue)).startOf('day'),
-          formatedDate: isEntryContainsTime.test(options.date)
+          inputDate: isEntryContainsTime
             ? moment(options.date, 'HH.mm').startOf('day')
             : moment(options.date).startOf('day')
         };
@@ -547,7 +547,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       case 'todayminusmonths':
         return {
           today: moment().subtract('month', smartParseFloat(options.modifierValue)).startOf('day'),
-          formatedDate: isEntryContainsTime.test(options.date)
+          inputDate: isEntryContainsTime
             ? moment(options.date, 'HH.mm').startOf('day')
             : moment(options.date).startOf('day')
         };
@@ -555,7 +555,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       case 'todayminusyears':
         return {
           today: moment().subtract('year', smartParseFloat(options.modifierValue)).startOf('day'),
-          formatedDate: isEntryContainsTime.test(options.date)
+          inputDate: isEntryContainsTime
             ? moment(options.date, 'HH.mm').startOf('day')
             : moment(options.date).startOf('day')
         };
@@ -572,40 +572,40 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         date: options.date,
         filterModifier: options.filterModifier.default.value,
         modifierValue: options.filterModifier.default.offset,
-        timezone: options.filterModifier.default.timezone
+        isDeviceTimeZoneEnabled: options.filterModifier.default.isDeviceTimeZoneEnabled
       });
 
       switch (options.condition) {
         case 'dateis':
-          return moment(result.formatedDate).isSame(result.today);
+          return moment(result.inputDate).isSame(result.today);
 
         case 'datebefore':
-          return  moment(result.formatedDate).isBefore(result.today);
+          return  moment(result.inputDate).isBefore(result.today);
 
         case 'dateafter':
-          return moment(result.formatedDate).isAfter(result.today);
+          return moment(result.inputDate).isAfter(result.today);
 
         case 'datebetween':
           var fromDate = getDateModifiedValues({
             date: options.date,
             filterModifier: options.filterModifier.from.value,
             modifierValue: options.filterModifier.from.offset,
-            timezone: options.filterModifier.from.timezone
+            isDeviceTimeZoneEnabled: options.filterModifier.from.isDeviceTimeZoneEnabled
           }).today;
 
           var toDate = getDateModifiedValues({
             date: options.date,
             filterModifier: options.filterModifier.to.value,
             modifierValue: options.filterModifier.to.offset,
-            timezone: options.filterModifier.to.timezone
+            isDeviceTimeZoneEnabled: options.filterModifier.to.isDeviceTimeZoneEnabled
           }).today;
 
           var inputDate = getDateModifiedValues({
             date: options.date,
             filterModifier: options.filterModifier.from.value,
             modifierValue: options.filterModifier.from.offset,
-            timezone: options.filterModifier.from.timezone
-          }).formatedDate;
+            isDeviceTimeZoneEnabled: options.filterModifier.from.isDeviceTimeZoneEnabled
+          }).inputDate;
 
           return moment(inputDate).isBetween(fromDate, toDate);
         default:
@@ -658,8 +658,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return isDateMatches({
             date: rowData,
             condition: condition,
-            filterModifier: filter.filterModifier,
-            timezone: filter.timezone
+            filterModifier: filter.filterModifier
           });
         }
 
