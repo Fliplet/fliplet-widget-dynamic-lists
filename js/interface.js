@@ -1126,6 +1126,8 @@ var DynamicLists = (function() {
 
             if (_this.config.social.comments) {
               $('.user-datasource-options').removeClass('hidden');
+
+              _this.initUserDatasourceProvider(_this.config.userDataSourceId, true);
             }
           }
 
