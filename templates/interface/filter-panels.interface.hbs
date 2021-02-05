@@ -66,7 +66,6 @@
               </optgroup>
             </select>
             <span class="icon fa fa-chevron-down"></span>
-            <span class="select-value-proxy">-- Please wait</span>
           </label>
         </div>
       </div>
@@ -78,7 +77,7 @@
           </div>
           <div class="col-sm-8">
             <label for="date-field-{{id}}" class="select-proxy-display">
-              <select name="date-field-{{id}}" id="date-field-{{id}}" data-field="date" filter-item-id="{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+              <select name="date-field-{{id}}" id="date-field-{{id}}" data-field="date" filter-item-id="{{id}}" class="hidden-select form-control">
                 <optgroup>
                   <option value="today">Current date (Today)</option>
                   <option value="now">Current date &amp; time (Now)</option>
@@ -99,8 +98,13 @@
                 </optgroup>
               </select>
               <span class="icon fa fa-chevron-down"></span>
-              <span class="select-value-proxy">-- Please wait</span>
             </label>
+            <div class="checkbox checkbox-icon hidden">
+              <input type="checkbox" id="enable-timezone-default-{{id}}">
+              <label for="enable-timezone-default-{{id}}">
+                <span class="check"><i class="fa fa-check"></i></span> Compare using device timezone
+              </label>
+            </div>
           </div>
         </div>
 
@@ -202,7 +206,7 @@
         </div>
         <div class="col-sm-8">
           <label for="date-from-{{id}}" class="select-proxy-display">
-            <select name="date-from-{{id}}" id="date-from-{{id}}" data-field="date-from" filter-item-id="{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+            <select name="date-from-{{id}}" id="date-from-{{id}}" data-field="date-from" filter-item-id="{{id}}" class="hidden-select form-control">
               <optgroup>
                 <option value="today">Current date (Today)</option>
                 <option value="now">Current date &amp; time (Now)</option>
@@ -223,8 +227,13 @@
               </optgroup>
             </select>
             <span class="icon fa fa-chevron-down"></span>
-            <span class="select-value-proxy">-- Please wait</span>
           </label>
+          <div class="checkbox checkbox-icon hidden">
+            <input type="checkbox" id="enable-timezone-from-{{id}}">
+            <label for="enable-timezone-from-{{id}}">
+              <span class="check"><i class="fa fa-check"></i></span> Compare using device timezone
+            </label>
+          </div>
         </div>
       </div>
 
@@ -243,7 +252,7 @@
         </div>
         <div class="col-sm-8">
           <label for="date-to-{{id}}" class="select-proxy-display">
-            <select name="date-to-{{id}}" id="date-to-{{id}}" data-field="date-to" filter-item-id="{{id}}" data-label="-- Select an option" class="hidden-select form-control">
+            <select name="date-to-{{id}}" id="date-to-{{id}}" data-field="date-to" filter-item-id="{{id}}" class="hidden-select form-control">
               <optgroup>
                 <option value="today">Current date (Today)</option>
                 <option value="now">Current date &amp; time (Now)</option>
@@ -264,8 +273,13 @@
               </optgroup>
             </select>
             <span class="icon fa fa-chevron-down"></span>
-            <span class="select-value-proxy">-- Please wait</span>
           </label>
+          <div class="checkbox checkbox-icon hidden">
+            <input type="checkbox" id="enable-timezone-to-{{id}}">
+            <label for="enable-timezone-to-{{id}}">
+              <span class="check"><i class="fa fa-check"></i></span> Compare using device timezone
+            </label>
+          </div>
         </div>
       </div>
 

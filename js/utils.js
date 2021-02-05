@@ -459,77 +459,105 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function getDateModifiedValues(options) {
+    var isEntryContainsTime = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/;
+    var deviceTimeZone = moment.tz.guess();
+    var dateFunc = options.timezone ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
+
     switch (options.filterModifier) {
       case 'today':
         return {
-          today: moment().format('DD/MM/YYYY'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY')
+          today: moment().startOf('day'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? moment(options.date, 'HH.mm').startOf('day')
+            : moment(options.date).startOf('day')
         };
 
       case 'now':
         return {
-          today: moment().format('DD/MM/YYYY, h:mm'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY, h:mm')
+          today: dateFunc().startOf('minute'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? dateFunc(options.date, 'HH.mm')
+            : dateFunc(options.date)
         };
 
       case 'nowaddminutes':
         return {
-          today: moment().add('minute', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h:mm'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY, h:mm')
+          today: dateFunc().add('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? dateFunc(options.date, 'HH.mm')
+            : dateFunc(options.date)
         };
 
       case 'nowaddhours':
         return {
-          today: moment().add('hour', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY, h')
+          today: dateFunc().add('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? dateFunc(options.date, 'HH.mm')
+            : dateFunc(options.date)
         };
 
       case 'todayadddays':
         return {
-          today: moment().add('days', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY')
+          today: moment().add('days', smartParseFloat(options.modifierValue)).startOf('day'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? moment(options.date, 'HH.mm').startOf('day')
+            : moment(options.date).startOf('day')
         };
 
       case 'todayaddmonths':
         return {
-          today: moment().add('month', smartParseFloat(options.modifierValue)).format('MM/YYYY'),
-          formatedDate: moment(options.date).format('MM/YYYY')
+          today: moment().add('month', smartParseFloat(options.modifierValue)).startOf('day'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? moment(options.date, 'HH.mm').startOf('day')
+            : moment(options.date).startOf('day')
         };
 
       case 'todayaddyears':
         return {
-          today: moment().add('year', smartParseFloat(options.modifierValue)).format('YYYY'),
-          formatedDate: moment(options.date).format('YYYY')
+          today: moment().add('year', smartParseFloat(options.modifierValue)).startOf('day'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? moment(options.date, 'HH.mm').startOf('day')
+            : moment(options.date).startOf('day')
         };
 
       case 'nowsubtractminutes':
         return {
-          today: moment().subtract('minute', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h:mm'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY, h:mm')
+          today: dateFunc().subtract('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? dateFunc(options.date, 'HH.mm')
+            : dateFunc(options.date)
         };
 
       case 'nowsubtracthours':
         return {
-          today: moment().subtract('hour', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY, h'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY, h')
+          today: dateFunc().subtract('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? dateFunc(options.date, 'HH.mm')
+            : dateFunc(options.date)
         };
 
       case 'todayminusdays':
         return {
-          today: moment().subtract('days', smartParseFloat(options.modifierValue)).format('DD/MM/YYYY'),
-          formatedDate: moment(options.date).format('DD/MM/YYYY')
+          today: moment().subtract('days', smartParseFloat(options.modifierValue)).startOf('day'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? moment(options.date, 'HH.mm').startOf('day')
+            : moment(options.date).startOf('day')
         };
 
       case 'todayminusmonths':
         return {
-          today: moment().subtract('month', smartParseFloat(options.modifierValue)).format('MM/YYYY'),
-          formatedDate: moment(options.date).format('MM/YYYY')
+          today: moment().subtract('month', smartParseFloat(options.modifierValue)).startOf('day'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? moment(options.date, 'HH.mm').startOf('day')
+            : moment(options.date).startOf('day')
         };
 
       case 'todayminusyears':
         return {
-          today: moment().subtract('year', smartParseFloat(options.modifierValue)).format('YYYY'),
-          formatedDate: moment(options.date).format('YYYY')
+          today: moment().subtract('year', smartParseFloat(options.modifierValue)).startOf('day'),
+          formatedDate: isEntryContainsTime.test(options.date)
+            ? moment(options.date, 'HH.mm').startOf('day')
+            : moment(options.date).startOf('day')
         };
 
       default:
@@ -539,43 +567,47 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
 
   function isDateMatches(options) {
-    if (options) {
+    if (options && options.filterModifier) {
       var result = getDateModifiedValues({
         date: options.date,
-        filterModifier: options.filterModifier.default,
-        modifierValue: options.modifierValue.default
+        filterModifier: options.filterModifier.default.value,
+        modifierValue: options.filterModifier.default.offset,
+        timezone: options.filterModifier.default.timezone
       });
 
       switch (options.condition) {
         case 'dateis':
-          return result.formatedDate === result.today;
+          return moment(result.formatedDate).isSame(result.today);
 
         case 'datebefore':
-          return result.formatedDate < result.today;
+          return  moment(result.formatedDate).isBefore(result.today);
 
         case 'dateafter':
-          return result.formatedDate > result.today;
+          return moment(result.formatedDate).isAfter(result.today);
 
         case 'datebetween':
           var fromDate = getDateModifiedValues({
             date: options.date,
-            filterModifier: options.filterModifier.from,
-            modifierValue: options.modifierValue.from
+            filterModifier: options.filterModifier.from.value,
+            modifierValue: options.filterModifier.from.offset,
+            timezone: options.filterModifier.from.timezone
           }).today;
 
           var toDate = getDateModifiedValues({
             date: options.date,
-            filterModifier: options.filterModifier.to,
-            modifierValue: options.modifierValue.to
+            filterModifier: options.filterModifier.to.value,
+            modifierValue: options.filterModifier.to.offset,
+            timezone: options.filterModifier.to.timezone
           }).today;
 
           var inputDate = getDateModifiedValues({
             date: options.date,
-            filterModifier: options.filterModifier.from,
-            modifierValue: options.modifierValue.from
+            filterModifier: options.filterModifier.from.value,
+            modifierValue: options.filterModifier.from.offset,
+            timezone: options.filterModifier.from.timezone
           }).formatedDate;
 
-          return inputDate >= fromDate && inputDate <= toDate;
+          return moment(inputDate).isBetween(fromDate, toDate);
         default:
           break;
       }
@@ -614,11 +646,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
-        if (!filter.value) {
-          // Value is not configured
-          return true;
-        }
-
         if (condition === 'between') {
           return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
         }
@@ -627,13 +654,18 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return splitByCommas(filter.value).includes(rowData);
         }
 
-        if (['dateis', 'datebefore', 'dateafter', 'datebetween'].includes(condition)) {
+        if (['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(condition) !== -1) {
           return isDateMatches({
             date: rowData,
             condition: condition,
             filterModifier: filter.filterModifier,
-            modifierValue: filter.modifierValue
+            timezone: filter.timezone
           });
+        }
+
+        if (!filter.value) {
+          // Value is not configured
+          return true;
         }
 
         // Case insensitive
@@ -1482,14 +1514,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     // Filter data based on filter options, filter queries and PV storage values (deprecated)
     var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
+
     records = runRecordFilters(records, _.map(filters, function(option) {
       return {
         column: option.column,
         condition: option.logic,
         filterModifier: option.filterModifier,
-        modifierValue: option.modifierValue,
         valueType: option.valueType,
-        value: option.value
+        value: option.value,
+        timezone: option.timezone
       };
     }));
 
