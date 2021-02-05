@@ -2427,6 +2427,19 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
       _this.imagesData[dynamicDataObj.id].images = _.map(content, function(imgUrl) {
         return { url: imgUrl };
+      }).sort(function(a, b) {
+        var aImgName = a.url.match(/\/contents\/(.*?)\./)[1].toUpperCase();
+        var bImgName = b.url.match(/\/contents\/(.*?)\./)[1].toUpperCase();
+
+        if (aImgName < bImgName) {
+          return -1;
+        }
+
+        if (aImgName > bImgName) {
+          return 1;
+        }
+
+        return 0;
       });
     }
 
