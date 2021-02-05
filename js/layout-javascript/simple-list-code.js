@@ -138,18 +138,18 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('show.bs.dropdown', function(e) {
-      var parentAccordion = $(e.currentTarget).parents('[data-collapse-id]')[0];
-
-      if (parentAccordion) {
-        parentAccordion.style.overflow = 'visible';
-      }
+      $(e.target).parents('[data-collapse-id]').css('overflow', 'visible');
+      $(e.target).parents('.panel-group').css({
+        'z-index': 1000,
+        position: 'relative'
+      });
     })
     .on('hide.bs.dropdown', function(e) {
-      var parentAccordion = $(e.currentTarget).parents('[data-collapse-id]')[0];
-
-      if (parentAccordion) {
-        parentAccordion.style.overflow = 'hidden';
-      }
+      $(e.target).parents('[data-collapse-id]').css('overflow', 'hidden');
+      $(e.target).parents('.panel-group').css({
+        'z-index': 'auto',
+        position: 'static'
+      });
     })
     .on('click', '[data-lfd-back]', function() {
       var result;
