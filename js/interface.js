@@ -701,7 +701,7 @@ var DynamicLists = (function() {
             }
           }
         });
-      } else if (userDataSourceProvider) {
+      } else if (userDataSourceProvider && !showUsersDataSource) {
         userDataSourceProvider.close();
 
         userDataSourceProvider = null;
@@ -1125,8 +1125,6 @@ var DynamicLists = (function() {
             $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
 
             if (_this.config.social.comments) {
-              $('.user-datasource-options').removeClass('hidden');
-
               _this.initUserDatasourceProvider(_this.config.userDataSourceId, true);
             }
           }
