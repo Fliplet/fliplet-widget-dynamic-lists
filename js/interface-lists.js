@@ -550,7 +550,7 @@ function attahObservers() {
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
+          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 

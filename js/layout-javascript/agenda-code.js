@@ -1333,6 +1333,8 @@ DynamicList.prototype.addSummaryData = function(records) {
         content = _this.convertTime(content);
       }
 
+      content = _this.Utils.String.toFormattedString(content);
+
       newObject[obj.location] = content;
     });
 
@@ -2506,6 +2508,8 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     } else {
       content = entry.originalData[dynamicDataObj.column];
     }
+
+    content = _this.Utils.String.toFormattedString(content);
 
     // Define data object
     var newEntryDetail = {
