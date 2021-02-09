@@ -369,10 +369,10 @@ var DynamicLists = (function() {
           $(this).parents('.checkbox').find('.hidden-settings')[$(this).is(':checked') ? 'addClass' : 'removeClass']('active');
         })
         .on('change', '#enable-comments', function() {
-          var isCommentsEnabled = $(this).is(':checked');
+          _this.config.social.comments = $(this).is(':checked');
 
-          _this.initUserDatasourceProvider(_this.config.userDataSourceId, isCommentsEnabled);
-          $('.select-user-photo-holder').toggleClass('hidden', !isCommentsEnabled);
+          _this.initUserDatasourceProvider(_this.config.userDataSourceId, _this.config.social.comments);
+          $('.select-user-photo-holder').toggleClass('hidden', !_this.config.social.comments);
         })
         .on('change', '[name="select_user_photo"]', function() {
           var value = $(this).val();
