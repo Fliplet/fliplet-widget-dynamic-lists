@@ -537,9 +537,12 @@ function attahObservers() {
           toggleError(false);
         }
 
+        var errors = [];
+        var values = [];
+
         if (widgetData.social && widgetData.social.comments) {
-          var errors = [];
-          var values = [];
+          errors = [];
+          values = [];
 
           values.push({
             value: widgetData.userDataSourceId,
@@ -550,7 +553,7 @@ function attahObservers() {
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
+          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 

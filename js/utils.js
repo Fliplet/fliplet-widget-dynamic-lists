@@ -46,18 +46,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('plaintext', function(context) {
-      if (_.isFunction(_.get(context, 'toString'))) {
-        context = context.toString();
-      }
-
-      return $('<div></div>').html(context).text();
-    });
-
-    Handlebars.registerHelper('removeSpaces', function(context) {
-      return context.replace(/\s+/g, '');
-    });
-
     Handlebars.registerHelper('formatDate', function(date) {
       if (!date) {
         return;
@@ -72,37 +60,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       }
 
       return splitByCommas(context).join(', ');
-    });
-
-    Handlebars.registerHelper('ifCond', function(v1, operator, v2, options) {
-      switch (operator) {
-        case '==':
-          return (v1 == v2) // eslint-disable-line eqeqeq
-            ? options.fn(this)
-            : options.inverse(this);
-        case '===':
-          return (v1 === v2) ? options.fn(this) : options.inverse(this);
-        case '!=':
-          return (v1 != v2) // eslint-disable-line eqeqeq
-            ? options.fn(this)
-            : options.inverse(this);
-        case '!==':
-          return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-        case '<':
-          return (v1 < v2) ? options.fn(this) : options.inverse(this);
-        case '<=':
-          return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-        case '>':
-          return (v1 > v2) ? options.fn(this) : options.inverse(this);
-        case '>=':
-          return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-        case '&&':
-          return (v1 && v2) ? options.fn(this) : options.inverse(this);
-        case '||':
-          return (v1 || v2) ? options.fn(this) : options.inverse(this);
-        default:
-          return options.inverse(this);
-      }
     });
 
     Handlebars.registerHelper('validateImage', validateImageUrl);
@@ -1596,6 +1553,37 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Function is formatting the input values to string
+   * @param {*} options Input values that can be of any type
+   * @returns The formatted input value into string value
+   */
+
+  function toFormattedString(options) {
+    switch (typeof options) {
+      case 'string':
+        return options;
+      case 'number':
+      case 'boolean':
+        return options.toString();
+      case 'object':
+        if (!options) {
+          return '';
+        } else if (Array.isArray(options)) {
+          options = _.filter(_.map(options, toFormattedString), function(part) { return part.trim().length; });
+
+          return options.join(', ');
+        } else if (options instanceof Handlebars.SafeString) {
+          // Input is a Handlebars SafeString object
+          return options.toString();
+        }
+
+        return JSON.stringify(options);
+      default:
+        return '';
+    }
+  }
+
   function getUsersToMention(options) {
     options = options || {};
 
@@ -1751,6 +1739,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     String: {
       splitByCommas: splitByCommas,
       validateImageUrl: validateImageUrl,
+      toFormattedString: toFormattedString,
       appendUrlQuery: appendUrlQuery
     },
     Date: {
