@@ -537,9 +537,12 @@ function attahObservers() {
           toggleError(false);
         }
 
+        var errors = [];
+        var values = [];
+
         if (widgetData.social && widgetData.social.comments) {
-          var errors = [];
-          var values = [];
+          errors = [];
+          values = [];
 
           values.push({
             value: widgetData.userDataSourceId,
