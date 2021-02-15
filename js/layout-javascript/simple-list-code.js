@@ -137,6 +137,20 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
+    .on('show.bs.dropdown', function(e) {
+      $(e.target).parents('[data-collapse-id]').css('overflow', 'visible');
+      $(e.target).parents('.panel-group').css({
+        'z-index': 1000,
+        position: 'relative'
+      });
+    })
+    .on('hide.bs.dropdown', function(e) {
+      $(e.target).parents('[data-collapse-id]').css('overflow', 'hidden');
+      $(e.target).parents('.panel-group').css({
+        'z-index': 'auto',
+        position: 'static'
+      });
+    })
     .on('click', '[data-lfd-back]', function() {
       var result;
 
