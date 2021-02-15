@@ -209,7 +209,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.$container.find('.fa-sliders').focus();
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
@@ -220,7 +220,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).addClass('hidden');
-      _this.$container.find('.fa-sliders').focus();
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.clearFilters();

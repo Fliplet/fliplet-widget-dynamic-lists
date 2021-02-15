@@ -205,7 +205,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.$container.find('.fa-sliders').focus();
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
@@ -216,7 +216,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).addClass('hidden');
-      _this.$container.find('.fa-sliders').focus();
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.clearFilters();
@@ -548,7 +548,6 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.simple-list-comment-close-panel', function() {
       _this.$container.find('.simple-list-comment-panel').removeClass('open');
       _this.$container.find('.simple-list-detail-overlay-content-holder').removeClass('lock');
-      _this.$container.find('.simple-list-comment-close-panel').focus();
 
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         $('body').removeClass('lock');

@@ -212,7 +212,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.$container.find('.fa-sliders').focus();
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
@@ -223,7 +223,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).addClass('hidden');
-      _this.$container.find('.fa-sliders').focus();
+      $('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.clearFilters();
@@ -582,7 +582,6 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.new-news-feed-comment-panel').removeClass('open');
       _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
-      _this.$container.find('.news-feed-comment-holder').focus();
 
       if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
         $('body').removeClass('lock');
@@ -820,7 +819,11 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.accessibilityHelpers.isExecute(event) && !_this.data.editEntryLinkAction) {
+      if (event.key !== 'enter' || event.type !== 'click') {
+        return;
+      }
+
+      if (!_this.data.editEntryLinkAction) {
         return;
       }
 
