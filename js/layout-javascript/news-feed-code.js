@@ -144,16 +144,16 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
-    .on('show.bs.dropdown', function(e) {
-      $(e.target).parents('[data-collapse-id]').css('overflow', 'visible');
-      $(e.target).parents('.panel-group').css({
+    .on('show.bs.dropdown', function(event) {
+      $(event.target).parents('[data-collapse-id]').css('overflow', 'visible');
+      $(event.target).parents('.panel-group').css({
         'z-index': 1000,
         position: 'relative'
       });
     })
-    .on('hide.bs.dropdown', function(e) {
-      $(e.target).parents('[data-collapse-id]').css('overflow', 'hidden');
-      $(e.target).parents('.panel-group').css({
+    .on('hide.bs.dropdown', function(event) {
+      $(event.target).parents('[data-collapse-id]').css('overflow', 'hidden');
+      $(event.target).parents('.panel-group').css({
         'z-index': 'auto',
         position: 'static'
       });
