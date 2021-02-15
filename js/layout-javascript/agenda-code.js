@@ -199,7 +199,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $('.fa-sliders').focus();
+      _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.searchData();
@@ -210,7 +210,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).addClass('hidden');
-      $('.fa-sliders').focus();
+      _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
       _this.clearFilters();
@@ -578,19 +578,14 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      var result;
+
       $('.agenda-list-holder').removeClass('hidden');
 
       var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
 
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
-      if ($(this).hasClass('go-previous-screen')) {
-        if (!_this.pvPreviousScreen) {
-          return;
-        }
-      }
-
-      var result;
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -661,49 +656,43 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('keydown', '.agenda-date-selector li', function(event) {
-      if (!$(this).hasClass('placeholder')) {
-        if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-          return;
-        }
+      if (!_this.Utils.accessibilityHelpers.isExecute(event) || $(this).is('.active, .placeholder')) {
+        return;
+      }
 
-        if ($(this).hasClass('active') || $(this).hasClass('placeholder')) {
-          return;
-        }
+      var indexOfActiveDate = _this.$container
+        .find('.agenda-date-selector li')
+        .not('.placeholder')
+        .index(_this.$container.find('.agenda-date-selector li.active'));
+      var indexOfClickedDate = _this.$container
+        .find('.agenda-date-selector li')
+        .not('.placeholder')
+        .index(this);
+      var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
-        var indexOfActiveDate = _this.$container
-          .find('.agenda-date-selector li')
-          .not('.placeholder')
-          .index(_this.$container.find('.agenda-date-selector li.active'));
-        var indexOfClickedDate = _this.$container
-          .find('.agenda-date-selector li')
-          .not('.placeholder')
-          .index(this);
-        var indexDifference = indexOfClickedDate - indexOfActiveDate;
+      _this.updateDateIndexContext(indexOfClickedDate);
 
-        _this.updateDateIndexContext(indexOfClickedDate);
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter_date',
+        label:
+          $(this).find('.week').text().trim() +
+          ' ' +
+          $(this).find('.day').text().trim() +
+          ' ' +
+          $(this).find('.month').text().trim()
+      });
 
-        Fliplet.Analytics.trackEvent({
-          category: 'list_dynamic_' + _this.data.layout,
-          action: 'filter_date',
-          label:
-            $(this).find('.week').text().trim() +
-            ' ' +
-            $(this).find('.day').text().trim() +
-            ' ' +
-            $(this).find('.month').text().trim()
-        });
+      if (indexDifference < indexOfActiveDate) {
+        _this.moveBackDate(indexOfClickedDate, indexDifference);
 
-        if (indexDifference < indexOfActiveDate) {
-          _this.moveBackDate(indexOfClickedDate, indexDifference);
+        return;
+      }
 
-          return;
-        }
+      if (indexDifference >= indexOfActiveDate) {
+        _this.moveForwardDate(indexOfClickedDate, indexDifference);
 
-        if (indexDifference >= indexOfActiveDate) {
-          _this.moveForwardDate(indexOfClickedDate, indexDifference);
-
-          return;
-        }
+        return;
       }
     })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
