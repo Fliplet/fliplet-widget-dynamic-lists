@@ -269,9 +269,9 @@ var DynamicLists = (function() {
               var hideValueFields = logicOptions.indexOf(value) !== -1;
               var isDateLogic  = ['dateis', 'datebefore', 'dateafter'].indexOf(value) !== -1;
 
-              var isAddNumberField = ['today', 'now'].indexOf($('#date-field-' + id).val()) !== -1;
-              var isAddNumberFieldFrom = ['today', 'now'].indexOf($('#date-from-' + id).val()) !== -1;
-              var isAddNumberFieldTo = ['today', 'now'].indexOf($('#date-to-' + id).val()) !== -1;
+              var canAddNumber = ['today', 'now'].indexOf($('#date-field-' + id).val()) !== -1;
+              var canAddNumberFrom = ['today', 'now'].indexOf($('#date-from-' + id).val()) !== -1;
+              var canAddNumberTo = ['today', 'now'].indexOf($('#date-to-' + id).val()) !== -1;
 
               var isEnableTimeZone = ['now', 'nowaddminutes', 'nowaddhours'].indexOf($('#date-field-' + id).val()) !== -1;
               var isEnableTimeZoneFrom = ['now', 'nowaddminutes', 'nowaddhours'].indexOf($('#date-from-' + id).val()) !== -1;
@@ -288,9 +288,9 @@ var DynamicLists = (function() {
               $('#date-logic-' + id).toggleClass('hidden', !isDateLogic );
               $('#date-between-' + id).toggleClass('hidden', !isDateBetween);
 
-              $('#date-number-default-' + id).toggleClass('hidden', isDateBetween || isAddNumberField);
-              $('#date-number-from-' + id).toggleClass('hidden', isDateBetween || isAddNumberFieldFrom);
-              $('#date-number-to-' + id).toggleClass('hidden', isDateBetween || isAddNumberFieldTo);
+              $('#date-number-default-' + id).toggleClass('hidden', isDateBetween || canAddNumber);
+              $('#date-number-from-' + id).toggleClass('hidden', isDateBetween || canAddNumberFrom);
+              $('#date-number-to-' + id).toggleClass('hidden', isDateBetween || canAddNumberTo);
               $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !isEnableTimeZone);
               $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !isEnableTimeZoneFrom);
               $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !isEnableTimeZoneTo);
@@ -808,9 +808,7 @@ var DynamicLists = (function() {
           $('#number-field-to-' + item.id).val(item.filterModifier.to.offset);
           $('#enable-timezone-from-' + item.id).prop('checked', item.filterModifier.from.isDeviceTimeZoneEnabled).trigger('change');
           $('#enable-timezone-to-' + item.id).prop('checked', item.filterModifier.to.isDeviceTimeZoneEnabled).trigger('change');
-        }
-
-        if (item.logic === 'between') {
+        } else if (item.logic === 'between') {
           $('#value-type-field-from-' + item.id).val(item.valueType.from);
           $('#value-type-field-to-' + item.id).val(item.valueType.to);
           $('#value-field-from-' + item.id).val(item.value.from);
@@ -2030,11 +2028,11 @@ var DynamicLists = (function() {
       if (['dateis', 'dateafter', 'datebefore'].indexOf(data.logic) === -1 || data.logic === 'datebetween') {
         $('#date-logic-' + data.id).addClass('hidden');
 
-        if (['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.from.value) !== -1) {
+        if (data.filterModifier && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.from.value) !== -1) {
           $('#enable-timezone-from-' + data.id).parents('.checkbox').removeClass('hidden');
         }
 
-        if (['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.to.value) !== -1) {
+        if (data.filterModifier && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.to.value) !== -1) {
           $('#enable-timezone-to-' + data.id).parents('.checkbox').removeClass('hidden');
         }
       }
@@ -2699,7 +2697,7 @@ var DynamicLists = (function() {
         item.filterModifier = {
           default: {
             value: $('#date-field-' + item.id).val(),
-            offset: $('#number-field-' + item.id).val(),
+            offset: $('#number-field-' + item.id).val() ? $('#number-field-' + item.id).val() : null,
             isDeviceTimeZoneEnabled: $('#enable-timezone-default-' + item.id).is(':checked')
           }
         };
@@ -2721,17 +2719,17 @@ var DynamicLists = (function() {
           item.filterModifier = {
             default: {
               value: $('#date-field-' + item.id).val(),
-              offset: $('#number-field-' + item.id).val(),
+              offset: $('#number-field-' + item.id).val() ?  $('#number-field-' + item.id).val() : null,
               isDeviceTimeZoneEnabled: $('#enable-timezone-default-' + item.id).is(':checked')
             },
             from: {
               value: valueDateFrom,
-              offset: valueNumberFrom,
+              offset: valueNumberFrom ? valueNumberFrom : null,
               isDeviceTimeZoneEnabled: isTimeZoneFrom
             },
             to: {
               value: valueDateTo,
-              offset: valueNumberTo,
+              offset: valueNumberTo ? valueNumberTo : null,
               isDeviceTimeZoneEnabled: isTimeZoneTo
             }
           };
