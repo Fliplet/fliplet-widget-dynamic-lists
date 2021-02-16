@@ -506,7 +506,7 @@ function attahObservers() {
               return;
             }
 
-            if (!field.value.trim()) {
+            if (!field.value || !field.value.trim()) {
               filterError.push({
                 item: field.field,
                 id: field.id
