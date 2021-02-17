@@ -605,13 +605,6 @@ DynamicList.prototype.attachObservers = function() {
 
       $(event.target).find('.collapse').collapse('toggle');
     })
-    .on('keydown', '.small-card-filters-panel', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
-      $(event.target).find('.collapse').collapse('toggle');
-    })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
