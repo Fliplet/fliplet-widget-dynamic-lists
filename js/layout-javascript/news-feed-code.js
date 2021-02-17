@@ -545,7 +545,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('keydown', '.news-feed-filters-panel', function(event) {
+    .on('click keydown', '.news-feed-filters-panel', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }

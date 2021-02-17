@@ -586,7 +586,6 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
-
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
           return;
@@ -655,7 +654,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
     })
-    .on('keydown', '.agenda-date-selector li', function(event) {
+    .on('click keydown', '.agenda-date-selector li', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event) || $(this).is('.active, .placeholder')) {
         return;
       }
@@ -675,12 +674,7 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter_date',
-        label:
-          $(this).find('.week').text().trim() +
-          ' ' +
-          $(this).find('.day').text().trim() +
-          ' ' +
-          $(this).find('.month').text().trim()
+        label: [$(this).find('.week').text().trim(), $(this).find('.day').text().trim(), $(this).find('.month').text().trim()].join(' ')
       });
 
       if (indexDifference < indexOfActiveDate) {
