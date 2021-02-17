@@ -608,7 +608,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData);
+          return splitByCommas(filter.value).indexOf(rowData) !== -1;
         }
 
         if (['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(condition) !== -1) {
