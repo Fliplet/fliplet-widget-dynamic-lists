@@ -674,7 +674,11 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter_date',
-        label: [$(this).find('.week').text().trim(), $(this).find('.day').text().trim(), $(this).find('.month').text().trim()].join(' ')
+        label: [
+          $(this).find('.week').text().trim(),
+          $(this).find('.day').text().trim(),
+          $(this).find('.month').text().trim()
+        ].join(' ')
       });
 
       if (indexDifference < indexOfActiveDate) {
