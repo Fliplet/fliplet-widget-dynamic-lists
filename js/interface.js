@@ -746,7 +746,7 @@ var DynamicLists = (function() {
 
         if (item.logic !== 'between') {
           $('#value-field-' + item.id).val(item.fieldValue);
-          $('#value-type-field-' + item.id).val(item.valueType);
+          $('#value-type-field-' + item.id).val(!item.valueType ? 'enter-value' : item.valueType);
 
           return;
         }
