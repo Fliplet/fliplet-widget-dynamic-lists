@@ -142,15 +142,19 @@ DynamicList.prototype.attachObservers = function() {
 
   _this.$container
     .on('show.bs.dropdown', function(event) {
-      $(event.target).parents('[data-collapse-id]').css('overflow', 'visible');
-      $(event.target).parents('.panel-group').css({
+      var $element = $(event.target);
+
+      $element.parents('[data-collapse-id]').css('overflow', 'visible');
+      $element.parents('.panel-group').css({
         'z-index': 1000,
         position: 'relative'
       });
     })
     .on('hide.bs.dropdown', function(event) {
-      $(event.target).parents('[data-collapse-id]').css('overflow', 'hidden');
-      $(event.target).parents('.panel-group').css({
+      var $element = $(event.target);
+
+      $element.parents('[data-collapse-id]').css('overflow', 'hidden');
+      $element.parents('.panel-group').css({
         'z-index': 'auto',
         position: 'static'
       });
