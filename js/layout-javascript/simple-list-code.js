@@ -526,7 +526,11 @@ DynamicList.prototype.attachObservers = function() {
 
       $(event.target).find('.collapse').collapse('toggle');
     })
-    .on('click', '.simple-list-comment-holder', function(event) {
+    .on('click keydown', '.simple-list-comment-holder', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       event.stopPropagation();
 
       var identifier;
@@ -545,7 +549,11 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click', '.simple-list-comment-close-panel', function() {
+    .on('click keydown', '.simple-list-comment-close-panel', function() {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       _this.$container.find('.simple-list-comment-panel').removeClass('open');
       _this.$container.find('.simple-list-detail-overlay-content-holder').removeClass('lock');
       _this.$container.find('.simple-list-comment-close-panel').focus();
