@@ -168,11 +168,7 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click keydown', '.sort-group .list-sort li', function(e) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(e)) {
-        return;
-      }
-
+    .on('click', '.sort-group .list-sort li', function(e) {
       e.stopPropagation();
 
       var $sortListItem = $(e.currentTarget);
@@ -200,32 +196,16 @@ DynamicList.prototype.attachObservers = function() {
         sortField: _this.sortField
       });
     })
-    .on('click keydown', '.apply-filters', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
-      _this.$container.find('.fa-sliders').focus();
-
+    .on('click', '.apply-filters', function() {
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click keydown', '.clear-filters', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.clear-filters', function() {
       $(this).addClass('hidden');
-      _this.$container.find('.fa-sliders').focus();
-
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.hidden-filter-controls-filter', function() {
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -243,16 +223,10 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click keydown', '.simple-list-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.simple-list-item', function(event) {
       if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
         return;
       }
-
-      $(event.target).parents('.simple-list-wrapper').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text().trim();
@@ -295,18 +269,8 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click keydown', '.simple-list-detail-overlay-close', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.simple-list-detail-overlay-close', function() {
       var result;
-
-      $('.simple-list-wrapper').removeClass('hidden');
-
-      var id = _this.$container.find('.simple-list-detail-wrapper[data-entry-id]').data('entry-id');
-
-      _this.$container.find('.simple-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -338,11 +302,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-container');
 
@@ -361,8 +321,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $parentElement.find('.hidden-filter-controls').addClass('active');
-      $parentElement.find('.list-search-cancel').addClass('active').focus();
-      $parentElement.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      $parentElement.find('.list-search-cancel').addClass('active');
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
@@ -372,19 +331,12 @@ DynamicList.prototype.attachObservers = function() {
         action: 'search_filter_controls_activate'
       });
     })
-    .on('click keydown', '.simple-list-overlay-close', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.simple-list-overlay-close', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.simple-list-search-filter-overlay');
 
       $parentElement.removeClass('display');
-
-      $('.simple-list-container').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -418,16 +370,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click keydown', '.list-search-cancel', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.list-search-cancel', function() {
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
-      _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
 
       // Clear filters
@@ -477,11 +424,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click keydown', '.search-holder .search-btn', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.search-holder .search-btn', function() {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
       var value = $inputField.val();
 
@@ -503,11 +446,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click keydown', '.clear-search', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.clear-search', function() {
       _this.$container.find('.simple-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -518,13 +457,6 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('hide.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
-    })
-    .on('keydown', '.simple-list-filters-panel', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
-      $(event.target).find('.collapse').collapse('toggle');
     })
     .on('click', '.simple-list-comment-holder', function(event) {
       event.stopPropagation();
@@ -548,7 +480,6 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.simple-list-comment-close-panel', function() {
       _this.$container.find('.simple-list-comment-panel').removeClass('open');
       _this.$container.find('.simple-list-detail-overlay-content-holder').removeClass('lock');
-      _this.$container.find('.simple-list-comment-close-panel').focus();
 
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         $('body').removeClass('lock');
@@ -741,11 +672,7 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comment_options'
       });
     })
-    .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.dynamic-list-add-item', function() {
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -878,21 +805,13 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click keydown', '.toggle-bookmarks', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.toggle-bookmarks', function() {
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
       _this.searchData();
     })
-    .on('click keydown', '.simple-list-detail-overlay .simple-list-bookmark-wrapper', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.simple-list-detail-overlay .simple-list-bookmark-wrapper', function() {
       var id = $(this).parents('.simple-list-details-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -901,20 +820,16 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       if (record.bookmarked) {
-        $(this).parents('.simple-list-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked').focus();
+        $(this).parents('.simple-list-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
         record.bookmarkButton.unlike();
 
         return;
       }
 
-      $(this).parents('.simple-list-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked').focus();
+      $(this).parents('.simple-list-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     })
-    .on('click keydown', '.simple-list-detail-overlay .simple-list-like-wrapper', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.simple-list-detail-overlay .simple-list-like-wrapper', function() {
       var id = $(this).parents('.simple-list-details-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -929,14 +844,14 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       if (record.liked) {
-        $(this).parents('.simple-list-like-holder').removeClass('liked').addClass('not-liked').focus();
+        $(this).parents('.simple-list-like-holder').removeClass('liked').addClass('not-liked');
         record.likeButton.unlike();
         $(this).find('.count').html(count);
 
         return;
       }
 
-      $(this).parents('.simple-list-like-holder').removeClass('not-liked').addClass('liked').focus();
+      $(this).parents('.simple-list-like-holder').removeClass('not-liked').addClass('liked');
       record.likeButton.like();
       $(this).find('.count').html(count);
     });
@@ -1733,8 +1648,8 @@ DynamicList.prototype.setupLikeButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
           likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-          likeWrapper: '<div class="simple-list-like-wrapper btn-like focus-outline" tabindex="0"></div>',
-          likedWrapper: '<div class="simple-list-like-wrapper btn-liked focus-outline" tabindex="0"></div>',
+          likeWrapper: '<div class="simple-list-like-wrapper btn-like"></div>',
+          likedWrapper: '<div class="simple-list-like-wrapper btn-liked"></div>',
           addType: 'html',
           liked: record.liked,
           count: record.likeCount
@@ -1916,8 +1831,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
           likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-          likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
-          likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
+          likeWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmark"></div>',
+          likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked
