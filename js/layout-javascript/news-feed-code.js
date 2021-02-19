@@ -175,11 +175,7 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click keydown', '.sort-group .list-sort li', function(e) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(e)) {
-        return;
-      }
-
+    .on('click', '.sort-group .list-sort li', function(e) {
       e.stopPropagation();
 
       var $sortListItem = $(e.currentTarget);
@@ -207,32 +203,16 @@ DynamicList.prototype.attachObservers = function() {
         sortField: _this.sortField
       });
     })
-    .on('click keydown', '.apply-filters', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
-      _this.$container.find('.fa-sliders').focus();
-
+    .on('click', '.apply-filters', function() {
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click keydown', '.clear-filters', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.clear-filters', function() {
       $(this).addClass('hidden');
-      _this.$container.find('.fa-sliders').focus();
-
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.hidden-filter-controls-filter', function() {
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -265,16 +245,10 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click keydown', '.news-feed-list-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-list-item', function(event) {
       if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
         return;
       }
-
-      $(event.target).parents('.news-feed-list-wrapper').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
@@ -320,18 +294,8 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click keydown', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-detail-overlay-close, .news-feed-detail-overlay-screen', function() {
       var result;
-
-      $('.news-feed-list-wrapper').removeClass('hidden');
-
-      var id = _this.$container.find('.news-feed-detail-wrapper[data-entry-id]').data('entry-id');
-
-      _this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -363,11 +327,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.closeDetails();
     })
-    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.list-search-icon .fa-sliders', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-news-feed-list-container');
 
@@ -375,8 +335,6 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-
-        $('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -388,8 +346,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $parentElement.find('.hidden-filter-controls').addClass('active');
-      $parentElement.find('.list-search-cancel').addClass('active').focus();
-      $parentElement.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      $parentElement.find('.list-search-cancel').addClass('active');
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
@@ -399,18 +356,12 @@ DynamicList.prototype.attachObservers = function() {
         action: 'search_filter_controls_activate'
       });
     })
-    .on('click keydown', '.news-feed-overlay-close', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-overlay-close', function() {
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
-
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -444,16 +395,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click keydown', '.list-search-cancel', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.list-search-cancel', function() {
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
-      _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
 
       // Clear filters
@@ -503,11 +449,7 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click keydown', '.search-holder .search-btn', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.search-holder .search-btn', function() {
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
       var value = $inputField.val();
 
@@ -529,11 +471,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click keydown', '.clear-search', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.clear-search', function() {
       _this.$container.find('.new-news-feed-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -545,18 +483,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.news-feed-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click keydown', '.news-feed-filters-panel', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
-      $(event.target).find('.collapse').collapse('toggle');
-    })
-    .on('click keydown', '.news-feed-comment-holder', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-comment-holder', function(event) {
       event.stopPropagation();
 
       var identifier;
@@ -575,24 +502,15 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click keydown', '.news-feed-comment-close-panel', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click ', '.news-feed-comment-close-panel', function() {
       _this.$container.find('.new-news-feed-comment-panel').removeClass('open');
       _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
-      _this.$container.find('.news-feed-comment-holder').focus();
 
       if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
         $('body').removeClass('lock');
       }
     })
-    .on('click keydown', '.news-feed-comment-input-holder .comment', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-comment-input-holder .comment', function() {
       var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val().trim();
@@ -779,11 +697,7 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comment_options'
       });
     })
-    .on('click keydown', '.dynamic-list-add-item', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.dynamic-list-add-item', function() {
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -819,8 +733,8 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.accessibilityHelpers.isExecute(event) && !_this.data.editEntryLinkAction) {
+    .on('click', '.dynamic-list-edit-item', function() {
+      if (!_this.data.editEntryLinkAction) {
         return;
       }
 
@@ -917,21 +831,13 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click keydown', '.toggle-bookmarks', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.toggle-bookmarks', function() {
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
       _this.searchData();
     })
-    .on('click keydown', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-detail-overlay .news-feed-bookmark-wrapper', function() {
       var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -940,20 +846,16 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       if (record.bookmarked) {
-        $(this).parents('.news-feed-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked').focus();
+        $(this).parents('.news-feed-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
         record.bookmarkButton.unlike();
 
         return;
       }
 
-      $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked').focus();
+      $(this).parents('.news-feed-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     })
-    .on('click keydown', '.news-feed-detail-overlay .news-feed-like-wrapper', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
+    .on('click', '.news-feed-detail-overlay .news-feed-like-wrapper', function() {
       var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -1965,8 +1867,8 @@ DynamicList.prototype.setupLikeButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
           likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-          likeWrapper: '<div class="news-feed-like-wrapper btn-like focus-outline" tabindex="0"></div>',
-          likedWrapper: '<div class="news-feed-like-wrapper btn-liked focus-outline" tabindex="0"></div>',
+          likeWrapper: '<div class="news-feed-like-wrapper btn-like"></div>',
+          likedWrapper: '<div class="news-feed-like-wrapper btn-liked"></div>',
           addType: 'html',
           liked: record.liked,
           count: record.likeCount
@@ -2148,8 +2050,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o fa-lg"></i>',
           likedLabel: '<i class="fa fa-bookmark fa-lg animated fadeIn"></i>',
-          likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
-          likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
+          likeWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmark"></div>',
+          likedWrapper: '<div class="news-feed-bookmark-wrapper btn-bookmarked"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked

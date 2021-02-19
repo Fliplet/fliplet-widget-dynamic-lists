@@ -1,5 +1,5 @@
 \{{#each this}}
-<div class="simple-list-item mix \{{[flClasses]}} \{{#unless [Image]}}no-image\{{/unless}} focus-outline" tabindex="0" data-entry-id="\{{id}}" role="listitem" >
+<div class="simple-list-item mix \{{[flClasses]}} \{{#unless [Image]}}no-image\{{/unless}}" data-entry-id="\{{id}}" role="listitem" >
   \{{#if [Image]}}
   <div class="list-item-image" style="background-image: url('\{{auth [Image]}}')"></div>
   \{{/if}}
@@ -15,7 +15,7 @@
     \{{/if}}
     <div class="simple-list-social-holder">
       \{{#if likesEnabled}}
-      <div class="simple-list-like-holder simple-list-like-holder-\{{id}} focus-outline" tabindex="0">
+      <div class="simple-list-like-holder simple-list-like-holder-\{{id}}">
         <!-- Like button will be here -->
         <!-- Like placeholder -->
         <i class="fa fa-heart-o fa-lg like-placeholder"></i>
