@@ -1,5 +1,5 @@
 \{{#each this}}
-<div class="news-feed-list-item mix \{{[flClasses]}}" data-entry-id="\{{id}}"  role="listitem">
+<div class="news-feed-list-item mix \{{[flClasses]}} focus-outline" tabindex="0" data-entry-id="\{{id}}" role="listitem">
   <div class="news-feed-item-content">
     \{{#if [Image]}}
     <section class="slide-under">
@@ -15,7 +15,7 @@
           <div class="news-feed-date-category">\{{formatDate [Date]}} \{{#ifCond [Date] '&&' [Categories]}}/\{{/ifCond}} \{{[Categories]}}</div>
           \{{/ifCond}}
           \{{#if likesEnabled}}
-          <div class="news-feed-like-holder news-feed-like-holder-\{{id}}">
+          <div class="news-feed-like-holder news-feed-like-holder-\{{id}} focus-outline" tabindex="0">
             <!-- Like button will be here -->
             <!-- Like placeholder -->
             <i class="fa fa-heart-o fa-lg like-placeholder"></i>
@@ -23,7 +23,7 @@
           \{{/if}}
 
           \{{#if bookmarksEnabled}}
-          <div class="news-feed-bookmark-holder news-feed-bookmark-holder-\{{id}}">
+          <div class="news-feed-bookmark-holder news-feed-bookmark-holder-\{{id}} focus-outline" tabindex="0">
             <!-- Bookmark button will be here -->
             <!-- Bookmark placeholder -->
             <i class="fa fa-bookmark-o fa-lg bookmark-placeholder"></i>
@@ -31,7 +31,7 @@
           \{{/if}}
 
           \{{#if commentsEnabled}}
-          <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}}">
+          <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}} focus-outline" tabindex="0">
             <!-- Like button will be here -->
             <!-- Like placeholder -->
             <i class="fa fa-comment-o fa-lg comment-placeholder"></i>
