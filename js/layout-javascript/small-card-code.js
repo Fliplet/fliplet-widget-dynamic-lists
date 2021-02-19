@@ -598,7 +598,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click keydown', '.small-card-filters-panel', function(event) {
+    .on('keydown', '.small-card-filters-panel', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }

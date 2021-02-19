@@ -519,7 +519,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.simple-list-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click keydown', '.simple-list-filters-panel', function(event) {
+    .on('keydown', '.simple-list-filters-panel', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
