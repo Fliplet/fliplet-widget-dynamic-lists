@@ -932,7 +932,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function onActiveFilterClick(options) {
-    var $target = $(options.event.target);
+    var $target = $(options.target);
     var $container = options.$container;
     var filterOverlay = options.filterOverlayClass;
     var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="' + $target.data('value') + '"]';
@@ -983,11 +983,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
 
     $filtersGroup.html(activeFilterElements);
-    $filtersGroup.find('.hidden-filter-controls-filter.mixitup-control-active').on('click', function(event) {
-      options.event = event;
-      onActiveFilterClick(options);
-    });
     $activeFiltersHolder.removeClass('hidden');
+
+    _.forEach($filtersGroup.find('.hidden-filter-controls-filter'), function(item) {
+      var $element = $(item);
+
+      $element.css({
+        padding: '0px 0px 0px 10px',
+        'pointer-events': 'none'
+      });
+      $element.append('<div data-remove-filter class="filter-item-remove"><span class="fa fa-times"></span></div>');
+      $element.find('[data-remove-filter]').on('click', function() {
+        options.target = item;
+
+        onActiveFilterClick(options);
+      });
+    });
   }
 
   function updateRecordFiles(options) {
