@@ -993,7 +993,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         'pointer-events': 'none'
       });
       $element.append('<div data-remove-filter class="filter-item-remove"><span class="fa fa-times"></span></div>');
-
       $element.find('[data-remove-filter]').on('click', function() {
         options.target = item;
 
