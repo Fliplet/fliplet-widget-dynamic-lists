@@ -362,10 +362,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function isExecute(event) {
-    return event.key === 'Enter' || event.key === " " || event.type === 'click';
-  }
-
   function recordIsDeletable(record, config, userData) {
     if (_.isNil(config.deleteEntry) || _.isNil(config.deletePermissions)) {
       return false;
@@ -1578,8 +1574,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
           return options.join(', ');
         } else if (options instanceof Handlebars.SafeString) {
-          // Input is a Handlebars SafeString object
-          return options.toString();
+          // Return Handlebars SafeString objects as they are for templates to render
+          return options;
         }
 
         return JSON.stringify(options);
@@ -1729,9 +1725,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
-    accessibilityHelpers: {
-      isExecute: isExecute
-    },
     DOM: {
       $: getjQueryObjects,
       resetSortIcons: resetSortIcons,
