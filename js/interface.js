@@ -798,8 +798,9 @@ var DynamicLists = (function() {
           $('#date-field-' + item.id).val(item.filterModifier.default.value);
           $('#number-field-' + item.id).val(item.filterModifier.default.offset);
           $('#enable-timezone-default-' + item.id).prop('checked', item.filterModifier.default.useDeviceTimezone).trigger('change');
-          $('#value-type-field-' + item.id).val(item.valueType);
-          $('#value-field-' + item.id).val(item.value);
+          $('#value-field-' + item.id).val(item.fieldValue || item.value );
+          $('#value-type-field-' + item.id).val(!item.valueType ? 'enter-value' : item.valueType);
+
 
           return;
         }
