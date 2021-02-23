@@ -231,7 +231,6 @@ var DynamicLists = (function() {
           item.valueField = 'Value';
           item.valueType = 'enter-value';
           item.useDeviceTimezone = false;
-          item.filterModifier = {};
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -2031,11 +2030,11 @@ var DynamicLists = (function() {
       if (['dateis', 'dateafter', 'datebefore'].indexOf(data.logic) === -1 || data.logic === 'datebetween') {
         $('#date-logic-' + data.id).addClass('hidden');
 
-        if (data.filterModifier.from && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.from.value) !== -1) {
+        if (data.filterModifier && data.filterModifier.from && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.from.value) !== -1) {
           $('#enable-timezone-from-' + data.id).parents('.checkbox').removeClass('hidden');
         }
 
-        if (data.filterModifier.to && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.to.value) !== -1) {
+        if (data.filterModifier && data.filterModifier.to && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.to.value) !== -1) {
           $('#enable-timezone-to-' + data.id).parents('.checkbox').removeClass('hidden');
         }
       }
