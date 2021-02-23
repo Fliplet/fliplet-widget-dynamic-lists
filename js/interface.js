@@ -2019,7 +2019,7 @@ var DynamicLists = (function() {
         $('#date-between-' + data.id).addClass('hidden');
       }
 
-      if (data.filterModifier && !['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.default.value) !== -1) {
+      if (data.filterModifier && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.default.value) !== -1) {
         $('#enable-timezone-default-' + data.id).parents('.checkbox').removeClass('hidden');
       }
 
