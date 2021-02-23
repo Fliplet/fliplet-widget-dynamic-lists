@@ -2711,11 +2711,11 @@ var DynamicLists = (function() {
         if (item.logic === 'datebetween') {
           var valueDateFrom = $('#date-from-' + item.id).val();
           var valueNumberFrom = $('#number-field-from-' + item.id).val();
-          var isTimeZoneFrom = $('#enable-timezone-from-' + item.id).is(':checked');
+          var useDeviceTimezoneFrom = $('#enable-timezone-from-' + item.id).prop('checked');
 
           var valueDateTo = $('#date-to-' + item.id).val();
           var valueNumberTo = $('#number-field-to-' + item.id).val();
-          var isTimeZoneTo = $('#enable-timezone-to-' + item.id).is(':checked');
+          var useDeviceTimezoneTo = $('#enable-timezone-to-' + item.id).prop('checked');
 
           item.filterModifier = {
             default: {
@@ -2726,12 +2726,12 @@ var DynamicLists = (function() {
             from: {
               value: valueDateFrom,
               offset: valueNumberFrom || null,
-              useDeviceTimezone: isTimeZoneFrom
+              useDeviceTimezone: useDeviceTimezoneFrom
             },
             to: {
               value: valueDateTo,
               offset: valueNumberTo || null,
-              useDeviceTimezone: isTimeZoneTo
+              useDeviceTimezone: useDeviceTimezoneTo
             }
           };
         }
