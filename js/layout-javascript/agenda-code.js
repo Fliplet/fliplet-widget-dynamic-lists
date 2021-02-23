@@ -1235,6 +1235,8 @@ DynamicList.prototype.addSummaryData = function(records) {
         content = _this.convertTime(content);
       }
 
+      content = _this.Utils.String.toFormattedString(content);
+
       newObject[obj.location] = content;
     });
 

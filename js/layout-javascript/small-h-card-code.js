@@ -624,6 +624,8 @@ DynamicList.prototype.addSummaryData = function(records) {
         content = entry.data[obj.column];
       }
 
+      content = _this.Utils.String.toFormattedString(content);
+
       newObject[obj.location] = content;
     });
 
