@@ -933,46 +933,48 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return data.record;
         }
 
-        var image = _.get(data, ['record', 'data', data.field.column]);
+        if (data.field.from === 'summary') {
+          var image = _.get(data, ['record', 'data', data.field.column]);
 
-        if (_.isArray(image)) {
-          image = _.compact(image)[0];
-        }
+          if (_.isArray(image)) {
+            image = _.compact(image)[0];
+          }
 
-        if (isValidImageUrl(image)) {
+          if (isValidImageUrl(image)) {
           // Record data doesn't need updating
-          return data.record;
-        }
+            return data.record;
+          }
 
-        var urlEdited = _.some(response.files, function(file) {
+          var urlEdited = _.some(response.files, function(file) {
           // remove file extension
-          var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
+            var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
 
-          if (image && (file.name === image || fileName === image)) {
+            if (image && (file.name === image || fileName === image)) {
             // File found
-            _.set(data, ['record', 'data', data.field.column], file.url);
+              _.set(data, ['record', 'data', data.field.column], file.url);
 
-            return true;
-          } else if (Static.RegExp.number.test(image)
+              return true;
+            } else if (Static.RegExp.number.test(image)
             && parseInt(image, 10) === file.id) {
-            _.set(data, ['record', 'data', data.field.column], file.url);
+              _.set(data, ['record', 'data', data.field.column], file.url);
 
-            return true;
-          }
-        });
-
-        if (!urlEdited) {
-          _.set(data, ['record', 'data', data.field.column], '');
-        }
-
-        if (data.field.from === 'details') {
-          if (!Array.isArray(data.record.data[data.field.column])) {
-            data.record.data[data.field.column] = [];
-          }
-
-          response.files.forEach(function(file) {
-            data.record.data[data.field.column].push(file.url);
+              return true;
+            }
           });
+
+          if (!urlEdited) {
+            _.set(data, ['record', 'data', data.field.column], '');
+          }
+        } else if (data.field.from === 'details') {
+          var filterImageFiles = [];
+
+          _.forEach(response.files, function(file) {
+            if (/image/.test(file.contentType)) {
+              filterImageFiles.push(file.url);
+            }
+          });
+
+          _.set(data, ['record', 'data', data.field.column], filterImageFiles);
         }
 
         return data.record;
@@ -1003,6 +1005,21 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     setTimeout(function() {
       $applyBtn.trigger('click');
     }, 0);
+  }
+
+  function sortImagesByName(a, b) {
+    var aImgName = a.match(/\/contents\/(.*?)\./)[1].toUpperCase();
+    var bImgName = b.match(/\/contents\/(.*?)\./)[1].toUpperCase();
+
+    if (aImgName < bImgName) {
+      return -1;
+    }
+
+    if (aImgName > bImgName) {
+      return 1;
+    }
+
+    return 0;
   }
 
   /**
@@ -1797,7 +1814,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortRecordsByField
+      sortByField: sortRecordsByField,
+      sortImagesByName: sortImagesByName
     },
     User: {
       isAdmin: userIsAdmin,
