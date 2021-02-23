@@ -415,105 +415,109 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function getInputDate(date, getDate, timeOnly, dateOnly) {
+    var inputDate = null;
+
+    if (!dateOnly) {
+      inputDate = timeOnly
+        ? getDate(date, 'HH:mm')
+        : getDate(date);
+    }
+
+    return inputDate;
+  }
+
   function getDateModifiedValues(options) {
-    var isEntryContainsTime = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(options.date);
+    var timestamp = options.date;
+    var timeOnly = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(timestamp);
+    var dateOnly = !/[:]/.test(timestamp);
     var deviceTimeZone = moment.tz.guess();
-    var getDate = options.isDeviceTimeZoneEnabled ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
+    var getDate = options.useDeviceTimezone ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
 
     switch (options.filterModifier) {
       case 'today':
         return {
           today: moment().startOf('day'),
-          inputDate: isEntryContainsTime
-            ? moment(options.date, 'HH.mm').startOf('day')
+          inputDate: timeOnly
+            ? null
             : moment(options.date).startOf('day')
         };
 
       case 'now':
         return {
           today: getDate().startOf('minute'),
-          inputDate: isEntryContainsTime
-            ? getDate(options.date, 'HH.mm')
-            : getDate(options.date)
+          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowaddminutes':
         return {
           today: getDate().add('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
-          inputDate: isEntryContainsTime
-            ? getDate(options.date, 'HH.mm')
-            : getDate(options.date)
+          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowaddhours':
         return {
           today: getDate().add('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
-          inputDate: isEntryContainsTime
-            ? getDate(options.date, 'HH.mm')
-            : getDate(options.date)
+          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayadddays':
         return {
           today: moment().add('days', smartParseFloat(options.modifierValue)).startOf('day'),
-          inputDate: isEntryContainsTime
-            ? moment(options.date, 'HH.mm').startOf('day')
+          inputDate: timeOnly
+            ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayaddmonths':
         return {
           today: moment().add('month', smartParseFloat(options.modifierValue)).startOf('day'),
-          inputDate: isEntryContainsTime
-            ? moment(options.date, 'HH.mm').startOf('day')
+          inputDate: timeOnly
+            ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayaddyears':
         return {
           today: moment().add('year', smartParseFloat(options.modifierValue)).startOf('day'),
-          inputDate: isEntryContainsTime
-            ? moment(options.date, 'HH.mm').startOf('day')
+          inputDate: timeOnly
+            ? null
             : moment(options.date).startOf('day')
         };
 
       case 'nowsubtractminutes':
         return {
           today: getDate().subtract('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
-          inputDate: isEntryContainsTime
-            ? getDate(options.date, 'HH.mm')
-            : getDate(options.date)
+          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowsubtracthours':
         return {
           today: getDate().subtract('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
-          inputDate: isEntryContainsTime
-            ? getDate(options.date, 'HH.mm')
-            : getDate(options.date)
+          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayminusdays':
         return {
           today: moment().subtract('days', smartParseFloat(options.modifierValue)).startOf('day'),
-          inputDate: isEntryContainsTime
-            ? moment(options.date, 'HH.mm').startOf('day')
+          inputDate: timeOnly
+            ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayminusmonths':
         return {
           today: moment().subtract('month', smartParseFloat(options.modifierValue)).startOf('day'),
-          inputDate: isEntryContainsTime
-            ? moment(options.date, 'HH.mm').startOf('day')
+          inputDate: timeOnly
+            ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayminusyears':
         return {
           today: moment().subtract('year', smartParseFloat(options.modifierValue)).startOf('day'),
-          inputDate: isEntryContainsTime
-            ? moment(options.date, 'HH.mm').startOf('day')
+          inputDate: timeOnly
+            ? null
             : moment(options.date).startOf('day')
         };
 
@@ -522,14 +526,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-
   function isDateMatches(options) {
     if (options && options.filterModifier) {
       var result = getDateModifiedValues({
         date: options.date,
         filterModifier: options.filterModifier.default.value,
         modifierValue: options.filterModifier.default.offset,
-        isDeviceTimeZoneEnabled: options.filterModifier.default.isDeviceTimeZoneEnabled
+        useDeviceTimezone: options.filterModifier.default.useDeviceTimezone
       });
 
       switch (options.condition) {
@@ -547,21 +550,21 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             date: options.date,
             filterModifier: options.filterModifier.from.value,
             modifierValue: options.filterModifier.from.offset,
-            isDeviceTimeZoneEnabled: options.filterModifier.from.isDeviceTimeZoneEnabled
+            useDeviceTimezone: options.filterModifier.from.useDeviceTimezone
           }).today;
 
           var toDate = getDateModifiedValues({
             date: options.date,
             filterModifier: options.filterModifier.to.value,
             modifierValue: options.filterModifier.to.offset,
-            isDeviceTimeZoneEnabled: options.filterModifier.to.isDeviceTimeZoneEnabled
+            useDeviceTimezone: options.filterModifier.to.useDeviceTimezone
           }).today;
 
           var inputDate = getDateModifiedValues({
             date: options.date,
             filterModifier: options.filterModifier.from.value,
             modifierValue: options.filterModifier.from.offset,
-            isDeviceTimeZoneEnabled: options.filterModifier.from.isDeviceTimeZoneEnabled
+            useDeviceTimezone: options.filterModifier.from.useDeviceTimezone
           }).inputDate;
 
           return moment(inputDate).isBetween(fromDate, toDate);
@@ -1477,8 +1480,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         condition: option.logic,
         filterModifier: option.filterModifier,
         valueType: option.valueType,
-        value: option.value,
-        timezone: option.timezone
+        value: option.value
       };
     }));
 

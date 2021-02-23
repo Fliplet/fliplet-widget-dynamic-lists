@@ -230,7 +230,8 @@ var DynamicLists = (function() {
           item.value = '';
           item.valueField = 'Value';
           item.valueType = 'enter-value';
-          item.isDeviceTimeZoneEnabled = false;
+          item.useDeviceTimezone = false;
+          item.filterModifier = {};
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -242,8 +243,6 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
           var id = $(this).attr('filter-item-id');
-          var isAddNumberFieldDefault = ['today', 'now'].indexOf(value) !== -1;
-          var isEnableTimeZoneDefault = ['now', 'nowaddminutes', 'nowaddhours'].indexOf($('#date-field-' + id).val()) !== -1;
 
           switch (type) {
             case 'field':
@@ -251,18 +250,18 @@ var DynamicLists = (function() {
               break;
 
             case 'date':
-              $('#date-number-default-' + id).toggleClass('hidden', isAddNumberFieldDefault);
-              $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !isEnableTimeZoneDefault);
+              $('#date-number-default-' + id).toggleClass('hidden', _this.showNumberField(value));
+              $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField(id));
               break;
 
             case 'date-from':
-              $('#date-number-from-' + id).toggleClass('hidden', isAddNumberFieldDefault);
-              $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !isEnableTimeZoneDefault);
+              $('#date-number-from-' + id).toggleClass('hidden', _this.showNumberField(value));
+              $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', _this.showTimezoneField(id));
               break;
 
             case 'date-to':
-              $('#date-number-to-' + id).toggleClass('hidden', isAddNumberFieldDefault);
-              $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !isEnableTimeZoneDefault);
+              $('#date-number-to-' + id).toggleClass('hidden', _this.showNumberField(value));
+              $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', _this.showTimezoneField(id));
               break;
 
             case 'logic':
@@ -282,7 +281,6 @@ var DynamicLists = (function() {
 
               $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
               $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
-
 
               $('#logic-comparison-' + id).toggleClass('hidden', !isBetween);
               $('#date-logic-' + id).toggleClass('hidden', !isDateLogic );
@@ -641,6 +639,12 @@ var DynamicLists = (function() {
         dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
       }
     },
+    showNumberField: function(selectedElementValue) {
+      return ['today', 'now'].indexOf(selectedElementValue) !== -1;
+    },
+    showTimezoneField: function(selectedElementId) {
+      return ['now', 'nowaddminutes', 'nowaddhours'].indexOf($('#date-field-' + selectedElementId).val()) !== -1;
+    },
     toggleUserEmail: function(showUserEmailList) {
       $('.select-user-email-list-holder').toggleClass('hidden', !showUserEmailList);
     },
@@ -794,7 +798,7 @@ var DynamicLists = (function() {
         if (item.logic !== 'between' && item.logic !== 'datebetween') {
           $('#date-field-' + item.id).val(item.filterModifier.default.value);
           $('#number-field-' + item.id).val(item.filterModifier.default.offset);
-          $('#enable-timezone-default-' + item.id).prop('checked', item.filterModifier.default.isDeviceTimeZoneEnabled).trigger('change');
+          $('#enable-timezone-default-' + item.id).prop('checked', item.filterModifier.default.useDeviceTimezone).trigger('change');
           $('#value-type-field-' + item.id).val(item.valueType);
           $('#value-field-' + item.id).val(item.value);
 
@@ -806,8 +810,8 @@ var DynamicLists = (function() {
           $('#date-to-' + item.id).val(item.filterModifier.to.value);
           $('#number-field-from-' + item.id).val(item.filterModifier.from.offset);
           $('#number-field-to-' + item.id).val(item.filterModifier.to.offset);
-          $('#enable-timezone-from-' + item.id).prop('checked', item.filterModifier.from.isDeviceTimeZoneEnabled).trigger('change');
-          $('#enable-timezone-to-' + item.id).prop('checked', item.filterModifier.to.isDeviceTimeZoneEnabled).trigger('change');
+          $('#enable-timezone-from-' + item.id).prop('checked', item.filterModifier.from.useDeviceTimezone).trigger('change');
+          $('#enable-timezone-to-' + item.id).prop('checked', item.filterModifier.to.useDeviceTimezone).trigger('change');
         } else if (item.logic === 'between') {
           $('#value-type-field-from-' + item.id).val(item.valueType.from);
           $('#value-type-field-to-' + item.id).val(item.valueType.to);
@@ -1999,7 +2003,6 @@ var DynamicLists = (function() {
         ? 'Value'
         : 'Value for';
 
-
       var $newPanel = $(filterPanelTemplate(data));
 
       $filterAccordionContainer.append($newPanel);
@@ -2028,11 +2031,11 @@ var DynamicLists = (function() {
       if (['dateis', 'dateafter', 'datebefore'].indexOf(data.logic) === -1 || data.logic === 'datebetween') {
         $('#date-logic-' + data.id).addClass('hidden');
 
-        if (data.filterModifier && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.from.value) !== -1) {
+        if (data.filterModifier.from && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.from.value) !== -1) {
           $('#enable-timezone-from-' + data.id).parents('.checkbox').removeClass('hidden');
         }
 
-        if (data.filterModifier && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.to.value) !== -1) {
+        if (data.filterModifier.to && ['now', 'nowaddminutes', 'nowaddhours'].indexOf(data.filterModifier.to.value) !== -1) {
           $('#enable-timezone-to-' + data.id).parents('.checkbox').removeClass('hidden');
         }
       }
@@ -2693,12 +2696,11 @@ var DynamicLists = (function() {
           item.value = item.fieldValue;
         }
 
-
         item.filterModifier = {
           default: {
             value: $('#date-field-' + item.id).val(),
-            offset: $('#number-field-' + item.id).val() ? $('#number-field-' + item.id).val() : null,
-            isDeviceTimeZoneEnabled: $('#enable-timezone-default-' + item.id).is(':checked')
+            offset: $('#number-field-' + item.id).val() || null,
+            useDeviceTimezone: $('#enable-timezone-default-' + item.id).prop('checked')
           }
         };
 
@@ -2719,18 +2721,18 @@ var DynamicLists = (function() {
           item.filterModifier = {
             default: {
               value: $('#date-field-' + item.id).val(),
-              offset: $('#number-field-' + item.id).val() ?  $('#number-field-' + item.id).val() : null,
-              isDeviceTimeZoneEnabled: $('#enable-timezone-default-' + item.id).is(':checked')
+              offset: $('#number-field-' + item.id).val() || null,
+              useDeviceTimezone: $('#enable-timezone-default-' + item.id).prop('checked')
             },
             from: {
               value: valueDateFrom,
-              offset: valueNumberFrom ? valueNumberFrom : null,
-              isDeviceTimeZoneEnabled: isTimeZoneFrom
+              offset: valueNumberFrom || null,
+              useDeviceTimezone: isTimeZoneFrom
             },
             to: {
               value: valueDateTo,
-              offset: valueNumberTo ? valueNumberTo : null,
-              isDeviceTimeZoneEnabled: isTimeZoneTo
+              offset: valueNumberTo || null,
+              useDeviceTimezone: isTimeZoneTo
             }
           };
         }
