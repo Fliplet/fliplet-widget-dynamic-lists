@@ -932,7 +932,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function onActiveFilterClick(options) {
-    var $target = $(options.target);
+    var $target = options.$target;
     var $container = options.$container;
     var filterOverlay = options.filterOverlayClass;
     var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="' + $target.data('value') + '"]';
@@ -988,15 +988,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     _.forEach($filtersGroup.find('.hidden-filter-controls-filter'), function(item) {
       var $element = $(item);
 
-      $element.css({
-        padding: '0px 0px 0px 10px',
-        'pointer-events': 'none'
-      });
+      $element.addClass('applied-filter');
       $element.append('<div data-remove-filter class="filter-item-remove"><span class="fa fa-times"></span></div>');
     });
 
     $filtersGroup.find('[data-remove-filter]').on('click', function(event) {
-      options.target = $(event.target).parents('.hidden-filter-controls-filter');
+      options.$target = $(event.target).parents('.hidden-filter-controls-filter');
 
       onActiveFilterClick(options);
     });

@@ -139,6 +139,17 @@
   height: 33px;
 }
 
+.applied-filter {
+  padding: 0px 0px 0px 10px !important;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.applied-filter .fa-times {
+  height: 15px;
+}
+
 .filter-holder .panel-group .panel .panel-body {
   background-color: transparent;
 }
