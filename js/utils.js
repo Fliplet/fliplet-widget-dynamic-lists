@@ -985,7 +985,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     $filtersGroup.html(activeFilterElements);
     $activeFiltersHolder.removeClass('hidden');
 
-    _.forEach($filtersGroup.find('.hidden-filter-controls-filter'), function(item) {
+    $filtersGroup.find('.hidden-filter-controls-filter').each(function(item) {
       var $element = $(item);
 
       $element.addClass('applied-filter');
