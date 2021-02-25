@@ -701,9 +701,10 @@ DynamicList.prototype.attachObservers = function() {
       record.bookmarkButton.like();
     })
     .on('click', '.multiple-images-item', function() {
-      var id = $(this).parent().data('detailEntryId');
+      var $this = $(this);
+      var id = $this.parent().data('detailEntryId');
 
-      _this.imagesData[id].options.index = $(this).index();
+      _this.imagesData[id].options.index = $this.index();
 
       Fliplet.Navigate.previewImages(_this.imagesData[id]);
     });
@@ -1799,6 +1800,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       var contentArray;
 
       if (typeof content === 'string') {
+        // Regex to detect if line containes URL
         var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
 
         contentArray = content.split(detectURLRegex);

@@ -966,15 +966,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             _.set(data, ['record', 'data', data.field.column], '');
           }
         } else if (data.field.from === 'details') {
-          var filterImageFiles = [];
+          var imageFiles = [];
 
           _.forEach(response.files, function(file) {
             if (/image/.test(file.contentType)) {
-              filterImageFiles.push(file.url);
+              imageFiles.push(file.url);
             }
           });
 
-          _.set(data, ['record', 'data', data.field.column], filterImageFiles);
+          _.set(data, ['record', 'data', data.field.column], imageFiles);
         }
 
         return data.record;
