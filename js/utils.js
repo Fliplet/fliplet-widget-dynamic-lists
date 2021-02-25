@@ -452,19 +452,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'nowaddminutes':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowaddhours':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayadddays':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -472,7 +472,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayaddmonths':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -480,7 +480,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayaddyears':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -488,19 +488,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'nowsubtractminutes':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowsubtracthours':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayminusdays':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -508,7 +508,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayminusmonths':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -516,7 +516,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayminusyears':
         return {
-          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -527,7 +527,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function memoizeCurrentDate(offsetType, offsetValue, getDate) {
+  function getCurrentDate(offsetType, offsetValue, getDate) {
+    // Memoization method was used in this function
+
     var offsetTypes = ['minute', 'hour', 'day', 'month', 'year'];
 
     if (offsetType in currentDate) {
