@@ -17,6 +17,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   };
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
+  var currentDate = {};
 
   // Keep date format in English until localisation is correctly rollded out
   moment.locale('en');
@@ -434,7 +435,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var deviceTimeZone = moment.tz.guess();
     var getDate = options.useDeviceTimezone ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
 
-    switch (options.filterModifier) {
+    switch (options.dateFilterModifiers) {
       case 'today':
         return {
           today: moment().startOf('day'),
@@ -451,19 +452,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'nowaddminutes':
         return {
-          today: getDate().add('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowaddhours':
         return {
-          today: getDate().add('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayadddays':
         return {
-          today: moment().add('days', smartParseFloat(options.modifierValue)).startOf('day'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -471,7 +472,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayaddmonths':
         return {
-          today: moment().add('month', smartParseFloat(options.modifierValue)).startOf('day'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -479,7 +480,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayaddyears':
         return {
-          today: moment().add('year', smartParseFloat(options.modifierValue)).startOf('day'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -487,19 +488,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'nowsubtractminutes':
         return {
-          today: getDate().subtract('minute', smartParseFloat(options.modifierValue)).startOf('minute'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowsubtracthours':
         return {
-          today: getDate().subtract('hour', smartParseFloat(options.modifierValue)).startOf('minute'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayminusdays':
         return {
-          today: moment().subtract('days', smartParseFloat(options.modifierValue)).startOf('day'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -507,7 +508,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayminusmonths':
         return {
-          today: moment().subtract('month', smartParseFloat(options.modifierValue)).startOf('day'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -515,7 +516,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       case 'todayminusyears':
         return {
-          today: moment().subtract('year', smartParseFloat(options.modifierValue)).startOf('day'),
+          today: memoizeCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
           inputDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
@@ -526,13 +527,37 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function memoizeCurrentDate(offsetType, offsetValue, getDate) {
+    var offsetTypes = ['minute', 'hour', 'day', 'month', 'year'];
+
+    if (offsetType in currentDate) {
+      return currentDate[offsetType];
+    }
+
+    var period = offsetTypes.find(function(item) {
+      return offsetType.indexOf(item) !== -1;
+    });
+
+    if (offsetType.indexOf('now') !== -1) {
+      currentDate[offsetType] = offsetType.indexOf('add') !== -1
+        ? getDate().add(period, smartParseFloat(offsetValue))
+        : getDate().subtract(period, offsetValue);
+    } else {
+      currentDate[offsetType] = offsetType.indexOf('subtract') !== -1
+        ? moment().add(period, smartParseFloat(offsetValue))
+        : moment().subtract(period, offsetValue);
+    }
+
+    return currentDate[offsetType];
+  }
+
   function isDateMatches(options) {
-    if (options && options.filterModifier) {
+    if (options) {
       var result = getDateModifiedValues({
         date: options.date,
-        filterModifier: options.filterModifier.default.value,
-        modifierValue: options.filterModifier.default.offset,
-        useDeviceTimezone: options.filterModifier.default.useDeviceTimezone
+        dateFilterModifiers: options.dateValue,
+        offsetValue: options.offsetValue,
+        useDeviceTimezone: options.useDeviceTimezone
       });
 
       switch (options.condition) {
@@ -548,23 +573,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         case 'datebetween':
           var fromDate = getDateModifiedValues({
             date: options.date,
-            filterModifier: options.filterModifier.from.value,
-            modifierValue: options.filterModifier.from.offset,
-            useDeviceTimezone: options.filterModifier.from.useDeviceTimezone
+            dateFilterModifiers: options.dateFilterModifiers.from.value,
+            offsetValue: options.dateFilterModifiers.from.offset,
+            useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
           }).today;
 
           var toDate = getDateModifiedValues({
             date: options.date,
-            filterModifier: options.filterModifier.to.value,
-            modifierValue: options.filterModifier.to.offset,
-            useDeviceTimezone: options.filterModifier.to.useDeviceTimezone
+            dateFilterModifiers: options.dateFilterModifiers.to.value,
+            offsetValue: options.dateFilterModifiers.to.offset,
+            useDeviceTimezone: options.dateFilterModifiers.to.useDeviceTimezone
           }).today;
 
           var inputDate = getDateModifiedValues({
             date: options.date,
-            filterModifier: options.filterModifier.from.value,
-            modifierValue: options.filterModifier.from.offset,
-            useDeviceTimezone: options.filterModifier.from.useDeviceTimezone
+            dateFilterModifiers: options.dateFilterModifiers.from.value,
+            offsetValue: options.dateFilterModifiers.from.offset,
+            useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
           }).inputDate;
 
           return moment(inputDate).isBetween(fromDate, toDate);
@@ -618,7 +643,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return isDateMatches({
             date: rowData,
             condition: condition,
-            filterModifier: filter.filterModifier
+            dateValue: filter.dateValue,
+            offsetValue: filter.offsetValue,
+            useDeviceTimezone: filter.useDeviceTimezone,
+            dateFilterModifiers: filter.dateFilterModifiers
           });
         }
 
@@ -1478,11 +1506,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return {
         column: option.column,
         condition: option.logic,
-        filterModifier: option.filterModifier,
+        dateValue: option.dateValue,
+        offsetValue: option.offsetValue,
+        useDeviceTimezone: option.useDeviceTimezone,
+        dateFilterModifiers: option.dateFilterModifiers,
         valueType: option.valueType,
         value: option.value
       };
     }));
+
+    currentDate = {};
 
     if (config.sortOptions.length) {
       var sortFields = _.map(config.sortOptions, function(option) {
