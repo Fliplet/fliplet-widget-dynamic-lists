@@ -47,17 +47,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function getFilesInfo(options) {
     var entry = options.entryData;
-    var detailViewFileOptions = _.filter(options.detailViewOptions, function(option) {
-      return option.editable && option.type === 'file';
-    });
+    var detailViewFileOptions = _.filter(options.detailViewOptions, { type: 'file' });
 
     var formFilesInfoInDetailViewOptions = detailViewFileOptions.map(function(detailViewFileOption) {
-      return new Promise(function(resolve) {
+      return new Promise(function(resolve, reject) {
         var label = '';
         var labelEnabled = true;
-        var files = typeof entry.originalData[detailViewFileOption.column] === 'string' ?
-          splitByCommas(entry.originalData[detailViewFileOption.column]) :
-          entry.originalData[detailViewFileOption.column];
+        var files = typeof entry.originalData[detailViewFileOption.column] === 'string'
+          ? splitByCommas(entry.originalData[detailViewFileOption.column])
+          : entry.originalData[detailViewFileOption.column];
 
         if (!files) {
           return resolve();
@@ -83,16 +81,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         var filesDetailViewInfo = Promise.all(files.map(function(fileUrl) {
-          var fileId = Fliplet.Media.isRemoteUrl(fileUrl)[2];
+          var fileId = fileUrl.match(/v1\/media\/files\/([0-9]+)/)[1];
 
           return Fliplet.Media.Files.get(fileId).then(function(file) {
             return {
               name: file.name,
-              size: file.size,
+              size: file.metadata.size,
               uploaded: file.createdAt,
               url: file.url
             };
-          });
+          })
+            .catch(function(err) {
+              reject(Fliplet.parseError(err));
+            });
         }));
 
         filesDetailViewInfo.then(function(filesInfo) {
@@ -123,12 +124,41 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return context.replace(/\s+/g, '');
     });
 
-    Handlebars.registerHelper('formatDate', function(date) {
-      if (!date) {
-        return;
+    Handlebars.registerHelper('humanFileSize', function(bytes) {
+      if (!bytes) {
+        return null;
       }
 
-      return getMomentDate(date).format('DD MMMM YYYY');
+      var unitCapacity = 1000;
+      var decimals = 1;
+
+      if (Math.abs(bytes) < unitCapacity) {
+        return bytes + ' B';
+      }
+
+      var units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      var unitIndex = -1;
+      var round  = 10 * decimals;
+
+      do {
+        bytes /= unitCapacity;
+        ++unitIndex;
+      } while (Math.round(Math.abs(bytes) * round ) / round  >= unitCapacity && unitIndex < units.length - 1);
+
+      return bytes.toFixed(decimals) + ' ' + units[unitIndex];
+    });
+
+    Handlebars.registerHelper('formatDate', function(context, block) {
+      if (!context) {
+        return '';
+      }
+
+      if (context && context.hash) {
+        block = _.cloneDeep(context);
+        context = undefined;
+      }
+
+      return getMomentDate(context).format(block.hash.format || 'DD MMMM YYYY');
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
