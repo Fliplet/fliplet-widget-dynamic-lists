@@ -568,8 +568,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         useDeviceTimezone: options.useDeviceTimezone
       });
 
-      debugger;
-
       switch (options.condition) {
         case 'dateis':
           return moment(result.entryDate).isSame(result.comparisonDate);
