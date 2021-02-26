@@ -234,6 +234,9 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
           var id = $(this).attr('filter-item-id');
+          var $dateField = $('#date-field-' + id).val();
+          var $dateFieldFrom = $('#date-from-' + id).val();
+          var $dateFieldTo = $('#date-to-' + id).val();
 
           switch (type) {
             case 'field':
@@ -241,23 +244,17 @@ var DynamicLists = (function() {
               break;
 
             case 'date':
-              var dateField = $('#date-field-' + id).val();
-
-              $('#date-number-default-' + id).toggleClass('hidden', _this.showOffsetField(dateField));
+              $('#date-number-default-' + id).toggleClass('hidden', _this.showOffsetField($dateField));
               $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField(value));
               break;
 
             case 'date-from':
-              var dateFieldFrom = $('#date-from-' + id).val();
-
-              $('#date-number-from-' + id).toggleClass('hidden', _this.showOffsetField(dateFieldFrom));
+              $('#date-number-from-' + id).toggleClass('hidden', _this.showOffsetField($dateFieldFrom));
               $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField(value));
               break;
 
             case 'date-to':
-              var dateFieldTo = $('#date-to-' + id).val();
-
-              $('#date-number-to-' + id).toggleClass('hidden', _this.showOffsetField(dateFieldTo));
+              $('#date-number-to-' + id).toggleClass('hidden', _this.showOffsetField($dateFieldTo));
               $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField(value));
               break;
 
@@ -274,12 +271,12 @@ var DynamicLists = (function() {
               $('#date-logic-' + id).toggleClass('hidden', !isDateLogic );
               $('#date-between-' + id).toggleClass('hidden', !isDateBetween);
 
-              $('#date-number-default-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($('#date-field-' + id).val()));
-              $('#date-number-from-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($('#date-from' + id).val()));
-              $('#date-number-to-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($('#date-to' + id).val()));
-              $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($('#date-field-' + id).val()));
-              $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($('#date-from' + id).val()));
-              $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($('#date-to' + id).val()));
+              $('#date-number-default-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateField));
+              $('#date-number-from-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateFieldFrom));
+              $('#date-number-to-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateFieldTo));
+              $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateField));
+              $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateFieldFrom));
+              $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateFieldTo));
 
               break;
 

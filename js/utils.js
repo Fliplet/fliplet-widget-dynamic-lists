@@ -438,86 +438,86 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     switch (options.dateFilterModifiers) {
       case 'today':
         return {
-          today: moment().startOf('day'),
-          inputDate: timeOnly
+          comparisonDate: getCachedDate(options.dateFilterModifiers),
+          entryDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
         };
 
       case 'now':
         return {
-          today: getDate().startOf('minute'),
-          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+          comparisonDate: getCachedDate(options.dateFilterModifiers, null, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowaddminutes':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowaddhours':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayadddays':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: timeOnly
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayaddmonths':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: timeOnly
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayaddyears':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: timeOnly
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
         };
 
       case 'nowsubtractminutes':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'nowsubtracthours':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
         };
 
       case 'todayminusdays':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: timeOnly
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayminusmonths':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: timeOnly
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
         };
 
       case 'todayminusyears':
         return {
-          today: getCurrentDate(options.dateFilterModifiers, options.offsetValue, getDate),
-          inputDate: timeOnly
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
             ? null
             : moment(options.date).startOf('day')
         };
@@ -527,7 +527,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function getCurrentDate(offsetType, offsetValue, getDate) {
+  function getCachedDate(offsetType, offsetValue, getDate) {
     // Memoization method was used in this function
 
     var offsetTypes = ['minute', 'hour', 'day', 'month', 'year'];
@@ -540,14 +540,20 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return offsetType.indexOf(item) !== -1;
     });
 
-    if (offsetType.indexOf('now') !== -1) {
+    if (offsetType === 'now') {
+      currentDate[offsetType] = getDate().startOf('minute');
+    } else if (offsetType === 'today') {
+      currentDate[offsetType] = moment().startOf('day');
+    }
+
+    if (offsetType !== 'now' && offsetType.indexOf('now') !== -1) {
       currentDate[offsetType] = offsetType.indexOf('add') !== -1
-        ? getDate().add(period, smartParseFloat(offsetValue))
-        : getDate().subtract(period, offsetValue);
-    } else {
-      currentDate[offsetType] = offsetType.indexOf('subtract') !== -1
-        ? moment().add(period, smartParseFloat(offsetValue))
-        : moment().subtract(period, offsetValue);
+        ? getDate().add(period, smartParseFloat(offsetValue)).startOf('minute')
+        : getDate().subtract(period, smartParseFloat(offsetValue)).startOf('minute');
+    } else if (offsetType.indexOf('today') !== -1) {
+      currentDate[offsetType] = offsetType.indexOf('add') !== -1
+        ? moment().add(period, smartParseFloat(offsetValue)).startOf('day')
+        : moment().subtract(period, smartParseFloat(offsetValue)).startOf('day');
     }
 
     return currentDate[offsetType];
@@ -562,39 +568,41 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         useDeviceTimezone: options.useDeviceTimezone
       });
 
+      debugger;
+
       switch (options.condition) {
         case 'dateis':
-          return moment(result.inputDate).isSame(result.today);
+          return moment(result.entryDate).isSame(result.comparisonDate);
 
         case 'datebefore':
-          return  moment(result.inputDate).isBefore(result.today);
+          return  moment(result.entryDate).isBefore(result.comparisonDate);
 
         case 'dateafter':
-          return moment(result.inputDate).isAfter(result.today);
+          return moment(result.entryDate).isAfter(result.comparisonDate);
 
         case 'datebetween':
-          var fromDate = getDateModifiedValues({
+          var comparisonDateFrom = getDateModifiedValues({
             date: options.date,
             dateFilterModifiers: options.dateFilterModifiers.from.value,
             offsetValue: options.dateFilterModifiers.from.offset,
             useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
-          }).today;
+          }).comparisonDate;
 
-          var toDate = getDateModifiedValues({
+          var comparisonDateTo = getDateModifiedValues({
             date: options.date,
             dateFilterModifiers: options.dateFilterModifiers.to.value,
             offsetValue: options.dateFilterModifiers.to.offset,
             useDeviceTimezone: options.dateFilterModifiers.to.useDeviceTimezone
-          }).today;
+          }).comparisonDate;
 
-          var inputDate = getDateModifiedValues({
+          var entryDate = getDateModifiedValues({
             date: options.date,
             dateFilterModifiers: options.dateFilterModifiers.from.value,
             offsetValue: options.dateFilterModifiers.from.offset,
             useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
-          }).inputDate;
+          }).entryDate;
 
-          return moment(inputDate).isBetween(fromDate, toDate);
+          return moment(entryDate).isBetween(comparisonDateFrom, comparisonDateTo);
         default:
           break;
       }
