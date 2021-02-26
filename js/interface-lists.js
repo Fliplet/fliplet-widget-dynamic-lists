@@ -457,8 +457,20 @@ function attahObservers() {
         if (widgetData.filterOptions.length) {
           var filterError = [];
           var filterFieldValues = [];
+          var logicOptionsWithoutValues = [
+            'empty',
+            'notempty',
+            'dateis',
+            'datebefore',
+            'dateafter',
+            'datebetween'
+          ];
 
           widgetData.filterOptions.forEach(function(item) {
+            if (logicOptionsWithoutValues.indexOf(item.logic) !== -1) {
+              return;
+            }
+
             if (item.logic === 'between') {
               filterFieldValues.push({
                 field: '#value-field-from-' + item.id,
@@ -494,7 +506,7 @@ function attahObservers() {
               return;
             }
 
-            if (!validate(field.value)) {
+            if (!field.value || !field.value.trim()) {
               filterError.push({
                 item: field.field,
                 id: field.id
@@ -525,9 +537,12 @@ function attahObservers() {
           toggleError(false);
         }
 
+        var errors = [];
+        var values = [];
+
         if (widgetData.social && widgetData.social.comments) {
-          var errors = [];
-          var values = [];
+          errors = [];
+          values = [];
 
           values.push({
             value: widgetData.userDataSourceId,
@@ -538,7 +553,7 @@ function attahObservers() {
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
+          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 
