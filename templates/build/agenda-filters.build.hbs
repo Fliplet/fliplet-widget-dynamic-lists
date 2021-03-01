@@ -1,8 +1,8 @@
 \{{#if filtersInOverlay}}
   <div class="panel-group filter-overlay">
     \{{#each filters}}
-      <div class="panel panel-default agenda-filters-panel">
-        <div class="panel-heading" data-toggle="collapse" data-target="#collapse-\{{id}}-\{{@index}}">
+      <div class="panel panel-default agenda-filters-panel focus-outline" tabindex="0">
+        <div class="panel-heading focus-outline" tabindex="0" data-toggle="collapse" data-target="#collapse-\{{id}}-\{{@index}}">
           <h4 class="panel-title">
             <span class="panel-title-text">
               \{{[name]}}
@@ -15,7 +15,7 @@
           <div class="panel-body">
             <fieldset data-filter-group>
               \{{#each [data]}}
-              <div class="btn hidden-filter-controls-filter" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+              <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
               \{{/each}}
             </fieldset>
           </div>
@@ -26,11 +26,11 @@
 \{{else}}
   \{{#each filters}}
   <div class="hidden-filter-controls-label">Filter by <span>\{{[name]}}</span></div>
-  <div class="hidden-filter-controls-filter-container" touch-action="pan-x pan-y">
+  <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
     <div class="hidden-filter-controls-filter-wrapper">
       <fieldset data-filter-group>
         \{{#each [data]}}
-        <div class="btn hidden-filter-controls-filter" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+        <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
         \{{/each}}
       </fieldset>
     </div>

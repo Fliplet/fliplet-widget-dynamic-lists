@@ -190,7 +190,11 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
-    .on('click', '.sort-group .list-sort li', function(e) {
+    .on('click keydown', '.sort-group .list-sort li', function(e) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(e)) {
+        return;
+      }
+
       e.stopPropagation();
 
       var $sortListItem = $(e.currentTarget);
@@ -218,16 +222,32 @@ DynamicList.prototype.attachObservers = function() {
         sortField: _this.sortField
       });
     })
-    .on('click', '.apply-filters', function() {
+    .on('click keydown', '.apply-filters', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      _this.$container.find('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click', '.clear-filters', function() {
+    .on('click keydown', '.clear-filters', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       $(this).addClass('hidden');
+      _this.$container.find('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -245,7 +265,11 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click', '.small-card-list-detail-button a', function() {
+    .on('click keydown', '.small-card-list-detail-button a', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -288,12 +312,18 @@ DynamicList.prototype.attachObservers = function() {
         action: 'profile_open'
       });
     })
-    .on('click', '.small-card-list-item', function(event) {
+    .on('click keydown', '.small-card-list-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
 
       if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
         return;
       }
+
+      $(event.target).parents('.small-card-list-wrapper').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-card-list-name').text().trim();
@@ -343,10 +373,20 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
+    .on('click keydown', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       event.stopPropagation();
 
       var result;
+
+      $('.small-card-list-wrapper').removeClass('hidden');
+
+      var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
+
+      _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -378,8 +418,6 @@ DynamicList.prototype.attachObservers = function() {
 
       if ($(window).width() < 640) {
         if (typeof _this.directoryDetailWrapper === 'undefined') {
-          var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
-
           _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
         }
 
@@ -391,7 +429,11 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
-    .on('click', '.list-search-icon .fa-sliders', function() {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.new-small-card-list-container');
 
@@ -399,6 +441,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
+
+        $('.small-card-search-filter-overlay .small-card-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -410,7 +454,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $parentElement.find('.hidden-filter-controls').addClass('active');
-      $parentElement.find('.list-search-cancel').addClass('active');
+      $parentElement.find('.list-search-cancel').addClass('active').focus();
+      $parentElement.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       $elementClicked.addClass('active');
 
       _this.calculateFiltersHeight($parentElement);
@@ -420,12 +465,18 @@ DynamicList.prototype.attachObservers = function() {
         action: 'search_filter_controls_activate'
       });
     })
-    .on('click', '.small-card-overlay-close', function() {
+    .on('click keydown', '.small-card-overlay-close', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $elementClicked = $(this);
       var $parentElement = $elementClicked.parents('.small-card-search-filter-overlay');
 
       $parentElement.removeClass('display');
+
       $('body').removeClass('lock has-filter-overlay');
+      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -464,11 +515,16 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function() {
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       // Hide filters
       $(this).removeClass('active');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
+      _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
 
       // Clear filters
@@ -518,7 +574,11 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.search-holder .search-btn', function() {
+    .on('click keydown', '.search-holder .search-btn', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
       var value = $inputField.val();
 
@@ -540,7 +600,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
+    .on('click keydown', '.clear-search', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       _this.$container.find('.new-small-card-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
@@ -552,7 +616,18 @@ DynamicList.prototype.attachObservers = function() {
     .on('hide.bs.collapse', '.small-card-filters-panel .panel-collapse', function() {
       $(this).siblings('.panel-heading').find('.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.small-card-filters-panel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $(event.target).find('.collapse').collapse('toggle');
+    })
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -693,13 +768,21 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.toggle-bookmarks', function() {
+    .on('click keydown', '.toggle-bookmarks', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $toggle = $(this);
 
       $toggle.toggleClass('mixitup-control-active');
       _this.searchData();
     })
-    .on('click', '.small-card-detail-overlay .small-card-bookmark-wrapper', function() {
+    .on('click keydown', '.small-card-detail-overlay .small-card-bookmark-wrapper', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var id = $(this).parents('.small-card-detail-wrapper').data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
@@ -1536,8 +1619,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<i class="fa fa-bookmark-o"></i>',
           likedLabel: '<i class="fa fa-bookmark animated fadeIn"></i>',
-          likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="small-card-bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="small-card-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'html',
           getAllCounts: false,
           liked: record.bookmarked
