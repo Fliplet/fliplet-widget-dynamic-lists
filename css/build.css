@@ -161,12 +161,6 @@
   cursor: pointer;
 }
 
-.file-holder .file-title {
-  padding-top: 5px;
-  font-weight: bold;
-  color: #666;
-}
-
 .file-holder .file-icon {
   display: flex;
   align-items: center;
