@@ -890,7 +890,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return data.record;
         }
 
-        if (data.field.from === 'summary') {
+        if (data.field.from === 'details') {
+          var imageFiles = [];
+
+          _.forEach(response.files, function(file) {
+            if (/image/.test(file.contentType)) {
+              imageFiles.push(file.url);
+            }
+          });
+
+          _.set(data, ['record', 'data', data.field.column], imageFiles);
+        } else {
           var image = _.get(data, ['record', 'data', data.field.column]);
 
           if (_.isArray(image)) {
@@ -922,16 +932,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           if (!urlEdited) {
             _.set(data, ['record', 'data', data.field.column], '');
           }
-        } else if (data.field.from === 'details') {
-          var imageFiles = [];
-
-          _.forEach(response.files, function(file) {
-            if (/image/.test(file.contentType)) {
-              imageFiles.push(file.url);
-            }
-          });
-
-          _.set(data, ['record', 'data', data.field.column], imageFiles);
         }
 
         return data.record;
