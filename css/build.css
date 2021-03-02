@@ -140,7 +140,7 @@
 }
 
 .applied-filter {
-  padding: 0px 0px 0px 10px !important;
+  padding: 0px 5px 0px 14px !important;
   pointer-events: none;
   display: inline-flex;
   align-items: center;
