@@ -80,23 +80,25 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             break;
         }
 
-        var filesDetailViewInfo = Promise.all(files.map(function(fileUrl) {
-          var fileId = fileUrl.match(/v1\/media\/files\/([0-9]+)/)[1];
+        var filesID = files.map(function(fileUrl) {
+          var matchedFileUrl = fileUrl.match(/v1\/media\/files\/([0-9]+)/);
 
-          return Fliplet.Media.Files.get(fileId).then(function(file) {
+          return matchedFileUrl ? matchedFileUrl[1] : null;
+        });
+
+        Fliplet.Media.Files.getAll({
+          files: filesID,
+          fields: ['name', 'url', 'metadata', 'createdAt']
+        }).then(function(files) {
+          var filesInfo = files.map(function(file) {
             return {
               name: file.name,
               size: file.metadata.size,
               uploaded: file.createdAt,
               url: file.url
             };
-          })
-            .catch(function(err) {
-              reject(Fliplet.parseError(err));
-            });
-        }));
+          });
 
-        filesDetailViewInfo.then(function(filesInfo) {
           resolve({
             id: detailViewFileOption.id,
             content: filesInfo,
@@ -104,7 +106,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             labelEnabled: labelEnabled,
             type: detailViewFileOption.type
           });
-        });
+        }).catch(reject);
       });
     });
 
@@ -112,18 +114,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('plaintext', function(context) {
-      if (_.isFunction(_.get(context, 'toString'))) {
-        context = context.toString();
-      }
-
-      return $('<div></div>').html(context).text();
-    });
-
-    Handlebars.registerHelper('removeSpaces', function(context) {
-      return context.replace(/\s+/g, '');
-    });
-
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
         return null;
