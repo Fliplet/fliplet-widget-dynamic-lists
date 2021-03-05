@@ -65,7 +65,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.detail-view-panels"]
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\r\n      <div class=\"btn btn-default file-picker-btn\" data-file-picker-details>Select a folder</div>\r\n      <div class=\"selected-folder hidden\">Selected folder: <span></span></div>\r\n      <div class=\"text-danger error-message hidden\" data-submission-error><span>Please select a folder to continue</span></div>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <p class=\"text-muted field-text-info folders-only\">In the list data use the file name only (e.g. <code>image</code> or <code>image.jpg</code>)</p>\r\n      <p class=\"text-muted field-text-info url-only hidden\">In the list data use a URL (e.g. <code>http://fliplet.com/image.jpg</code>)</p>\r\n    </div>\r\n  </div>\r\n  <div class=\"custom-label-input clearfix hidden\">\r\n    <div class=\"rTableCell title text-right\">\r\n      <small>Custom label</small>\r\n    </div>\r\n    <div class=\"rTableCell select field\">\r\n      <input type=\"text\" class=\"form-control\" id=\"detail_custom_field_name_"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\r\n    </div>\r\n  </div>\r\n</div>\r\n";
+    + "\">\n    </div>\n  </div>\n</div>\n";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.field-token"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -133,7 +133,9 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-type-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"valueType\" class=\"hidden-select form-control\">\r\n              <option value=\"enter-value\">Enter a value</option>\r\n              <option value=\"user-profile-data\">User profile data</option>\r\n              <option value=\"link-query-parameter\">Link query parameter</option>\r\n              <option value=\"app-storage-data\">App storage data</option>\r\n            </select>\r\n            <span class=\"icon fa fa-chevron-down\"></span>\r\n          </label>\r\n        </div>\r\n      </div>\r\n\r\n      <div class=\"form-group clearfix\" id=\"filter-value-"
+    + "\" data-field=\"valueType\" filter-item-id=\""
+    + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
+    + "\" class=\"hidden-select form-control\">\n              <option value=\"enter-value\">Enter a value</option>\n              <option value=\"user-profile-data\">User profile data</option>\n              <option value=\"link-query-parameter\">Link query parameter</option>\n              <option value=\"app-storage-data\">App storage data</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n          </label>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"filter-value-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\r\n        <div class=\"col-sm-4 control-label\">\r\n          <label for=\"value-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
@@ -173,7 +175,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"value-field-to-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"value\" class=\"form-control\">\r\n        </div>\r\n      </div>\r\n\r\n    </div>\r\n  </div>\r\n</div>";
+    + "\" data-field=\"value\" class=\"form-control\">\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.layouts"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
@@ -257,7 +259,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.sort-panels"] = Hand
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\" id=\"order-by-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" data-field=\"order\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\r\n              <option value=\"none\">-- Select an option</option>\r\n              <option value=\"ascending\">Ascending</option>\r\n              <option value=\"descending\">Descending</option>\r\n            </select>\r\n            <span class=\"icon fa fa-chevron-down\"></span>\r\n            <span class=\"select-value-proxy\">-- Please wait</span>\r\n          </label>\r\n        </div>\r\n      </div>\r\n\r\n    </div>\r\n  </div>\r\n</div>";
+    + "\" data-field=\"order\" data-label=\"-- Select an option\" class=\"hidden-select form-control\">\n              <option value=\"none\">-- Select an option</option>\n              <option value=\"ascending\">Ascending</option>\n              <option value=\"descending\">Descending</option>\n            </select>\n            <span class=\"icon fa fa-chevron-down\"></span>\n            <span class=\"select-value-proxy\">-- Please wait</span>\n          </label>\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.interface.summary-view-panels"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {

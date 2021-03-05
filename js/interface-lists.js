@@ -457,8 +457,20 @@ function attahObservers() {
         if (widgetData.filterOptions.length) {
           var filterError = [];
           var filterFieldValues = [];
+          var logicOptionsWithoutValues = [
+            'empty',
+            'notempty',
+            'dateis',
+            'datebefore',
+            'dateafter',
+            'datebetween'
+          ];
 
           widgetData.filterOptions.forEach(function(item) {
+            if (logicOptionsWithoutValues.indexOf(item.logic) !== -1) {
+              return;
+            }
+
             if (item.logic === 'between') {
               filterFieldValues.push({
                 field: '#value-field-from-' + item.id,
@@ -538,7 +550,7 @@ function attahObservers() {
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
+          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 
