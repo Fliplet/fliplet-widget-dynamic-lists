@@ -506,7 +506,7 @@ function attahObservers() {
               return;
             }
 
-            if (!validate(field.value)) {
+            if (!field.value || !field.value.trim()) {
               filterError.push({
                 item: field.field,
                 id: field.id
@@ -537,9 +537,12 @@ function attahObservers() {
           toggleError(false);
         }
 
+        var errors = [];
+        var values = [];
+
         if (widgetData.social && widgetData.social.comments) {
-          var errors = [];
-          var values = [];
+          errors = [];
+          values = [];
 
           values.push({
             value: widgetData.userDataSourceId,

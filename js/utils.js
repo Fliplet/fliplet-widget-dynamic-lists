@@ -1646,8 +1646,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
           return options.join(', ');
         } else if (options instanceof Handlebars.SafeString) {
-          // Input is a Handlebars SafeString object
-          return options.toString();
+          // Return Handlebars SafeString objects as they are for templates to render
+          return options;
         }
 
         return JSON.stringify(options);
