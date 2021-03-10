@@ -363,7 +363,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function isExecute(event) {
-    return event.key === 'Enter' || event.key === " " || event.type === 'click';
+    return event.key === 'Enter' || event.which === 32 || event.type === 'click';
   }
 
   function recordIsDeletable(record, config, userData) {

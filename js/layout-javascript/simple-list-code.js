@@ -186,6 +186,13 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
+    .on('keydown', '.fa-sort-amount-desc', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $(event.currentTarget).dropdown('toggle');
+    })
     .on('click keydown', '.sort-group .list-sort li', function(e) {
       if (!_this.Utils.accessibilityHelpers.isExecute(e)) {
         return;
@@ -270,7 +277,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $(event.target).parents('.simple-list-wrapper').addClass('hidden');
+      $(event.target).parents('.simple-list-container').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text().trim();
@@ -320,7 +327,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      $('.simple-list-wrapper').removeClass('hidden');
+      $('.simple-list-container').removeClass('hidden');
 
       var id = _this.$container.find('.simple-list-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -369,6 +376,7 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
         $('body').addClass('lock has-filter-overlay');
+        $('.simple-list-search-filter-overlay .simple-list-overlay-close').focus();
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
@@ -807,7 +815,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -845,7 +857,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
       var options = {
@@ -1695,7 +1711,7 @@ DynamicList.prototype.searchData = function(options) {
         uuid: _this.data.uuid,
         container: _this.$container,
         initialRender: !!options.initialRender
-      });
+      })
     });
   });
 };

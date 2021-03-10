@@ -190,6 +190,13 @@ DynamicList.prototype.attachObservers = function() {
         console.error(error);
       });
     })
+    .on('keydown', '.fa-sort-amount-desc', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $(event.currentTarget).dropdown('toggle');
+    })
     .on('click keydown', '.sort-group .list-sort li', function(e) {
       if (!_this.Utils.accessibilityHelpers.isExecute(e)) {
         return;
@@ -319,11 +326,11 @@ DynamicList.prototype.attachObservers = function() {
 
       var _that = $(this);
 
+      _this.$container.find('.new-small-card-list-container').addClass('hidden');
+
       if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
         return;
       }
-
-      $(event.target).parents('.small-card-list-wrapper').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-card-list-name').text().trim();
@@ -382,7 +389,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      $('.small-card-list-wrapper').removeClass('hidden');
+      $('.new-small-card-list-container').removeClass('hidden');
 
       var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -663,7 +670,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -701,7 +712,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
