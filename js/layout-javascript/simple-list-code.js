@@ -1711,7 +1711,7 @@ DynamicList.prototype.searchData = function(options) {
         uuid: _this.data.uuid,
         container: _this.$container,
         initialRender: !!options.initialRender
-      })
+      });
     });
   });
 };

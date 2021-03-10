@@ -210,7 +210,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $('.agenda-cards-wrapper').removeClass('hidden');
-
       $(event.target).find('.collapse').collapse('toggle');
     })
     .on('click keydown', '.clear-filters', function(event) {
@@ -288,12 +287,9 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
-
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -314,7 +310,6 @@ DynamicList.prototype.attachObservers = function() {
         })).join(',');
 
         _this.toggleFilterElement(_this.$container.find(selectors), true);
-
         _this.$container.find('.clear-filters').removeClass('hidden');
 
         return;
