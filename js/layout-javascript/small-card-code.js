@@ -323,8 +323,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $(event.target).parents('.small-card-list-wrapper').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
