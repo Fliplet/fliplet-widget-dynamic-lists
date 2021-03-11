@@ -44,10 +44,10 @@
         \{{#ifCond type '==' 'image'}}
           \{{#if content}}
             \{{#if labelEnabled}}
-            <div class="small-card-list-detail-label">\{{label}}</div>
+            <div class="agenda-item-detail-label">\{{label}}</div>
             \{{/if}}
             \{{#if (isSingle contentArray)}}
-            <div class="small-card-list-detail-body-text">
+            <div class="agenda-item-detail-body-text">
               <img src="\{{validateImage content}}">
             </div>
             \{{else}}
