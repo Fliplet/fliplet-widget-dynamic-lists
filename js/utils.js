@@ -561,8 +561,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function isDateMatches(options) {
-    debugger;
-
     if (options) {
       var result = getDateModifiedValues({
         date: options.date,
