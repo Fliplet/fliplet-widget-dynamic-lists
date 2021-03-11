@@ -4,17 +4,15 @@
     \{{#ifCond type '==' 'image'}}
       \{{#if content}}
         \{{#if labelEnabled}}
-        <div class="simple-list-detail-label">\{{label}}</div>
+        <div class="small-card-list-detail-label">\{{label}}</div>
         \{{/if}}
-        \{{#if (isSingle content)}}
-          \{{#each content}}
-            <div class="small-card-list-detail-body-text">
-              <img src="\{{validateImage this}}">
-            </div>
-          \{{/each}}
+        \{{#if (isSingle contentArray)}}
+        <div class="small-card-list-detail-body-text">
+          <img src="\{{validateImage content}}">
+        </div>
         \{{else}}
           <div class="multiple-images-holder" data-detail-entry-id="\{{id}}">
-            \{{#each content}}
+            \{{#each contentArray}}
               <div class="multiple-images-item">
                 <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
               </div>
