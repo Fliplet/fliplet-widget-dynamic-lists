@@ -965,8 +965,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function sortImagesByName(a, b) {
-    var aImgName = a.match(/\/contents\/(.*?)\./)[1].toUpperCase();
-    var bImgName = b.match(/\/contents\/(.*?)\./)[1].toUpperCase();
+    var aImgName = a.match(/\/contents\/(.*?)/)[1].toUpperCase();
+    var bImgName = b.match(/\/contents\/(.*?)/)[1].toUpperCase();
 
     if (aImgName < bImgName) {
       return -1;

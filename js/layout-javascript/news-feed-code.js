@@ -1495,17 +1495,11 @@ DynamicList.prototype.addSummaryData = function(records) {
         var imageContent = entry.data[obj.column];
 
         if (typeof imageContent === 'string') {
+          // Regex to detect if line contains URL
+          var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
           var imagesArray = [];
 
-          // Regex to detect if line containes URL
-          var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-
-          imageContent.split(detectURLRegex).forEach(function(url) {
-            if (url) {
-              imagesArray.push(url);
-            }
-          });
-
+          imagesArray = imageContent.match(detectURLRegex);
           content = imagesArray[0];
         } else if (Array.isArray(imageContent)) {
           content = imageContent[0];
@@ -2244,21 +2238,19 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       var contentArray;
 
       if (typeof content === 'string') {
-        // Regex to detect if line containes URL
+        // Regex to detect if line contains URL
         var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
 
         contentArray = [];
-
-        content.split(detectURLRegex).forEach(function(url) {
-          if (url) {
-            contentArray.push(url);
-          }
-        });
+        contentArray = content.match(detectURLRegex);
       }
 
       if (Array.isArray(content)) {
         contentArray = content;
-        content = content[0];
+      }
+
+      if (contentArray && contentArray.length) {
+        content = contentArray[0];
       }
 
       if (!_this.imagesData[obj.id]) {

@@ -1226,7 +1226,20 @@ DynamicList.prototype.addSummaryData = function(records) {
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
 
-      if (obj.column === 'custom') {
+      if (obj.type === 'image') {
+        var imageContent = entry.data[obj.column];
+
+        if (typeof imageContent === 'string') {
+          // Regex to detect if line contains URL
+          var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
+          var imagesArray = [];
+
+          imagesArray = imageContent.match(detectURLRegex);
+          content = imagesArray[0];
+        } else if (Array.isArray(imageContent)) {
+          content = imageContent[0];
+        }
+      } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
         content = entry.data[obj.column];
@@ -2418,15 +2431,18 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       var contentArray;
 
       if (typeof content === 'string') {
-        // Regex to detect if line containes URL
+        // Regex to detect if line contains URL
         var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
 
-        contentArray = content.split(detectURLRegex);
+        contentArray = content.match(detectURLRegex);
       }
 
       if (Array.isArray(content)) {
         contentArray = content;
-        content = content[0];
+      }
+
+      if (contentArray && contentArray.length) {
+        content = contentArray[0];
       }
 
       if (!_this.imagesData[dynamicDataObj.id]) {
