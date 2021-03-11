@@ -18,6 +18,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
   var currentDate = {};
+  var LOCAL_FORMAT = moment.localeData().longDateFormat('L');
 
   // Keep date format in English until localisation is correctly rollded out
   moment.locale('en');
@@ -422,7 +423,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     if (!dateOnly) {
       inputDate = timeOnly
         ? getDate(date, 'HH:mm')
-        : getDate(date);
+        : getDate(date, LOCAL_FORMAT);
     }
 
     return inputDate;
@@ -441,7 +442,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           comparisonDate: getCachedDate(options.dateFilterModifiers),
           entryDate: timeOnly
             ? null
-            : moment(options.date).startOf('day')
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
         };
 
       case 'now':
@@ -467,7 +468,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
           entryDate: timeOnly
             ? null
-            : moment(options.date).startOf('day')
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
         };
 
       case 'todayaddmonths':
@@ -475,7 +476,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
           entryDate: timeOnly
             ? null
-            : moment(options.date).startOf('day')
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
         };
 
       case 'todayaddyears':
@@ -483,7 +484,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
           entryDate: timeOnly
             ? null
-            : moment(options.date).startOf('day')
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
         };
 
       case 'nowsubtractminutes':
@@ -503,7 +504,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
           entryDate: timeOnly
             ? null
-            : moment(options.date).startOf('day')
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
         };
 
       case 'todayminusmonths':
@@ -511,7 +512,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
           entryDate: timeOnly
             ? null
-            : moment(options.date).startOf('day')
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
         };
 
       case 'todayminusyears':
@@ -519,7 +520,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
           entryDate: timeOnly
             ? null
-            : moment(options.date).startOf('day')
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
         };
 
       default:
@@ -530,7 +531,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function getCachedDate(offsetType, offsetValue, getDate) {
     // Memoization method was used in this function
 
-    var offsetTypes = ['minute', 'hour', 'day', 'month', 'year'];
+    var offsetTypes = ['minute', 'hour', 'month', 'year', 'day'];
 
     if (offsetType in currentDate) {
       return currentDate[offsetType];
@@ -560,6 +561,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function isDateMatches(options) {
+    debugger;
+
     if (options) {
       var result = getDateModifiedValues({
         date: options.date,

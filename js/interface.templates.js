@@ -139,7 +139,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n              <label for=\"enable-timezone-default-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n                <span class=\"check\"><i class=\"fa fa-check\"></i></span> Compare using device timezone\n              </label>\n            </div>\n          </div>\n        </div>\n\n        <div class=\"form-group clearfix\" id=\"date-number-default-"
+    + "\">\n                <span class=\"check\"><i class=\"fa fa-check\"></i></span> Compare using device timezone\n              </label>\n            </div>\n          </div>\n        </div>\n\n        <div class=\"form-group clearfix hidden\" id=\"date-number-default-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n          <div class=\"col-sm-4 control-label\">\n            <label for=\"number-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
@@ -205,7 +205,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n            <label for=\"enable-timezone-from-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n              <span class=\"check\"><i class=\"fa fa-check\"></i></span> Compare using device timezone\n            </label>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"date-number-from-"
+    + "\">\n              <span class=\"check\"><i class=\"fa fa-check\"></i></span> Compare using device timezone\n            </label>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix hidden\" id=\"date-number-from-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n        <div class=\"col-sm-4 control-label\">\n          <label for=\"number-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
@@ -225,7 +225,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.interface.filter-panels"] = Ha
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n            <label for=\"enable-timezone-to-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\">\n              <span class=\"check\"><i class=\"fa fa-check\"></i></span> Compare using device timezone\n            </label>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix\" id=\"date-number-to-"
+    + "\">\n              <span class=\"check\"><i class=\"fa fa-check\"></i></span> Compare using device timezone\n            </label>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"form-group clearfix hidden\" id=\"date-number-to-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">\n        <div class=\"col-sm-4 control-label\">\n          <label for=\"number-field-"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))

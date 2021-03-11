@@ -2034,12 +2034,24 @@ var DynamicLists = (function() {
       if (['dateis', 'dateafter', 'datebefore'].indexOf(data.logic) === -1 || data.logic === 'datebetween') {
         $('#date-logic-' + data.id).addClass('hidden');
 
-        if (data.dateFilterModifiers && data.dateFilterModifiers.from && _this.showTimezoneField(data.dateFilterModifiers.from.value)) {
-          $('#enable-timezone-from-' + data.id).parents('.checkbox').removeClass('hidden');
+        if (data.dateFilterModifiers && data.dateFilterModifiers.from) {
+          if (_this.showTimezoneField(data.dateFilterModifiers.from.value)) {
+            $('#enable-timezone-from-' + data.id).parents('.checkbox').removeClass('hidden');
+          }
+
+          if (!_this.showOffsetField(data.dateFilterModifiers.from.value)) {
+            $('#date-number-from-' + data.id).removeClass('hidden');
+          }
         }
 
-        if (data.dateFilterModifiers && data.dateFilterModifiers.to && _this.showTimezoneField(data.dateFilterModifiers.to.value)) {
-          $('#enable-timezone-to-' + data.id).parents('.checkbox').removeClass('hidden');
+        if (data.dateFilterModifiers && data.dateFilterModifiers.to) {
+          if (_this.showTimezoneField(data.dateFilterModifiers.to.value)) {
+            $('#enable-timezone-to-' + data.id).parents('.checkbox').removeClass('hidden');
+          }
+
+          if (!this.showOffsetField(data.dateFilterModifiers.to.value)) {
+            $('#date-number-to-' + data.id).removeClass('hidden');
+          }
         }
       }
     },
