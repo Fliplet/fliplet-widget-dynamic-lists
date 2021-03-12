@@ -2049,7 +2049,7 @@ var DynamicLists = (function() {
             $('#enable-timezone-to-' + data.id).parents('.checkbox').removeClass('hidden');
           }
 
-          if (!this.showOffsetField(data.dateFilterModifiers.to.value)) {
+          if (!_this.showOffsetField(data.dateFilterModifiers.to.value)) {
             $('#date-number-to-' + data.id).removeClass('hidden');
           }
         }
