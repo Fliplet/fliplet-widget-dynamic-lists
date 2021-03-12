@@ -256,6 +256,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
+        $('.section-top-wrapper').addClass('hidden');
+        $('.agenda-cards-wrapper').addClass('hidden');
         $('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
@@ -288,6 +290,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
+      $('.section-top-wrapper').removeClass('hidden');
+      $('.agenda-cards-wrapper').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 
@@ -667,6 +671,8 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.accessibilityHelpers.isExecute(event) || $(this).is('.active, .placeholder')) {
         return;
       }
+
+      _this.$container.find('.agenda-list-day-holder').removeClass('hidden');
 
       var indexOfActiveDate = _this.$container
         .find('.agenda-date-selector li')
@@ -1721,6 +1727,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
       nextAgendaElement.addClass('active');
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
+
       resolve();
     });
   });
@@ -1792,6 +1799,14 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
+
+    _this.$container.find('.agenda-list-day-holder').each(function() {
+      var $el = $(this);
+
+      if (!$el.hasClass('active')) {
+        $el.addClass('hidden');
+      }
+    });
   });
 };
 
@@ -1824,6 +1839,14 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
+
+    _this.$container.find('.agenda-list-day-holder').each(function() {
+      var $el = $(this);
+
+      if (!$el.hasClass('active')) {
+        $el.addClass('hidden');
+      }
+    });
   });
 };
 
@@ -2324,6 +2347,14 @@ DynamicList.prototype.searchData = function(options) {
         uuid: _this.data.uuid,
         container: _this.$container,
         initialRender: !!options.initialRender
+      }).then(function() {
+        _this.$container.find('.agenda-list-day-holder').each(function() {
+          var $el = $(this);
+
+          if (!$el.hasClass('active')) {
+            $el.addClass('hidden');
+          }
+        });
       });
     });
   });

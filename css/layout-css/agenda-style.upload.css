@@ -1275,7 +1275,7 @@
 .new-agenda-list-container .bookmark-wrapper,
 .agenda-detail-overlay .bookmark-wrapper {
   line-height: 1;
-  padding: 10px;
+  margin: 10px;
   font-size: 12px;
 }
 

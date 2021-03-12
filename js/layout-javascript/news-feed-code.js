@@ -400,7 +400,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-
+        $('.section-top-wrapper').addClass('hidden');
+        $('.news-feed-list-wrapper').addClass('hidden');
         $('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
@@ -433,7 +434,8 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
-
+      $('.section-top-wrapper').removeClass('hidden');
+      $('.news-feed-list-wrapper').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 
@@ -845,7 +847,7 @@ DynamicList.prototype.attachObservers = function() {
       }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
-      if (_this.Utils.accessibilityHelpers.isExecute(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
 
