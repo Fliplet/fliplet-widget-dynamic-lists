@@ -45,6 +45,21 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return parseFloat(value);
   }
 
+  function sortFilesByName(a, b) {
+    var aFileName = a.name.toUpperCase();
+    var bFileName = b.name.toUpperCase();
+
+    if (aFileName < bFileName) {
+      return -1;
+    }
+
+    if (aFileName > bFileName) {
+      return 1;
+    }
+
+    return 0;
+  }
+
   function getFilesInfo(options) {
     var entry = options.entryData;
     var detailViewFileOptions = _.filter(options.detailViewOptions, { type: 'file' });
@@ -97,7 +112,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               uploaded: file.createdAt,
               url: file.url
             };
-          });
+          }).sort(sortFilesByName);
 
           resolve({
             id: detailViewFileOption.id,
