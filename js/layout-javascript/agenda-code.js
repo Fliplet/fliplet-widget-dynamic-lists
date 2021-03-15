@@ -421,7 +421,11 @@ DynamicList.prototype.attachObservers = function() {
       _this.searchData('');
     })
     .on('click keydown', '.go-to-poll', function(event) {
-      if (!_this.data.pollEnabled || !_this.data.pollColumn && !_this.Utils.accessibilityHelpers.isExecute(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      if (!_this.data.pollEnabled || !_this.data.pollColumn) {
         return;
       }
 
@@ -436,7 +440,11 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.go-to-survey', function(event) {
-      if (!_this.data.surveyEnabled || !_this.data.surveyColumn && !_this.Utils.accessibilityHelpers.isExecute(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      if (!_this.data.surveyEnabled || !_this.data.surveyColumn) {
         return;
       }
 
@@ -451,7 +459,11 @@ DynamicList.prototype.attachObservers = function() {
       });
     })
     .on('click keydown', '.go-to-questions', function(event) {
-      if (!_this.data.questionsEnabled || !_this.data.questionsColumn && !_this.Utils.accessibilityHelpers.isExecute(event)) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      if (!_this.data.questionsEnabled || !_this.data.questionsColumn) {
         return;
       }
 
