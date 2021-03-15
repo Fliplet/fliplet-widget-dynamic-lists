@@ -123,7 +123,8 @@
           \{{/if}}
         \{{/ifCond}}
 
-	      <!-- File template -->
+        <!-- File template -->
+        \{{#ifCond type '==' 'file'}}
         \{{#ifCond type '==' 'file'}}
           \{{#if content}}
             <ul class="file-holder">
