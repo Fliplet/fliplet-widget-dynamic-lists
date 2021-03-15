@@ -300,6 +300,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(event.target).parents('.new-news-feed-list-container').addClass('hidden');
+      $('.dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
@@ -400,8 +401,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-        $('.section-top-wrapper').addClass('hidden');
-        $('.news-feed-list-wrapper').addClass('hidden');
+        $('.section-top-wrapper, .news-feed-list-wrappe').addClass('hidden');
         $('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
@@ -434,8 +434,8 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
-      $('.section-top-wrapper').removeClass('hidden');
-      $('.news-feed-list-wrapper').removeClass('hidden');
+      $('.section-top-wrapper, .news-feed-list-wrapper').removeClass('hidden');
+      $('.dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 

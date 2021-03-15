@@ -327,6 +327,7 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
 
       _this.$container.find('.new-small-card-list-container').addClass('hidden');
+      $('.dynamic-list-add-item').addClass('hidden');
 
       if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
         return;
@@ -481,7 +482,7 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.small-card-search-filter-overlay');
 
       $parentElement.removeClass('display');
-
+      $('.dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 

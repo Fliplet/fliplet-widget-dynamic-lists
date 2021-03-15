@@ -278,6 +278,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(event.target).parents('.simple-list-container').addClass('hidden');
+      $('.dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text().trim();
@@ -409,6 +410,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.removeClass('display');
 
       $('.simple-list-container').removeClass('hidden');
+      $('.dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 

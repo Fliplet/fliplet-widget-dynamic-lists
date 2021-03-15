@@ -256,8 +256,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        $('.section-top-wrapper').addClass('hidden');
-        $('.agenda-cards-wrapper').addClass('hidden');
+        $('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
         $('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
@@ -290,8 +289,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('.section-top-wrapper').removeClass('hidden');
-      $('.agenda-cards-wrapper').removeClass('hidden');
+      $('.section-top-wrapper, .agenda-cards-wrapper').removeClass('hidden');
+      $('.dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 
@@ -546,6 +545,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $('.new-agenda-list-container').addClass('hidden');
+      $('.dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();
@@ -1793,20 +1793,14 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
     _this.scrollValue = 0;
   }
 
+  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
+
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
     _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
-
-    _this.$container.find('.agenda-list-day-holder').each(function() {
-      var $el = $(this);
-
-      if (!$el.hasClass('active')) {
-        $el.addClass('hidden');
-      }
-    });
   });
 };
 
@@ -1833,20 +1827,14 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
     _this.scrollValue = 0;
   }
 
+  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
+
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
     _this.animateAgendaBack(prevAgendaElement, prevAgendaElementWidth + _this.scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
-
-    _this.$container.find('.agenda-list-day-holder').each(function() {
-      var $el = $(this);
-
-      if (!$el.hasClass('active')) {
-        $el.addClass('hidden');
-      }
-    });
   });
 };
 
