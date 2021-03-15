@@ -171,8 +171,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      $('.small-h-card-list-wrapper').removeClass('hidden');
-      $('.dynamic-list-add-item').removeClass('hidden');
+      $('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 

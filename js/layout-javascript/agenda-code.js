@@ -289,8 +289,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('.section-top-wrapper, .agenda-cards-wrapper').removeClass('hidden');
-      $('.dynamic-list-add-item').removeClass('hidden');
+      $('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 
@@ -544,8 +543,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $('.new-agenda-list-container').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
+      $('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();

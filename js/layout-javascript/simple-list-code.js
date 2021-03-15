@@ -409,8 +409,7 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.removeClass('display');
 
-      $('.simple-list-container').removeClass('hidden');
-      $('.dynamic-list-add-item').removeClass('hidden');
+      $('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 

@@ -434,8 +434,7 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
-      $('.section-top-wrapper, .news-feed-list-wrapper').removeClass('hidden');
-      $('.dynamic-list-add-item').removeClass('hidden');
+      $('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 
