@@ -95,14 +95,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             break;
         }
 
-        var filesID = files.map(function(fileUrl) {
+        var fileIDs = files.map(function(fileUrl) {
           var matchedFileUrl = fileUrl.match(/v1\/media\/files\/([0-9]+)/);
 
           return matchedFileUrl ? matchedFileUrl[1] : null;
         });
 
         Fliplet.Media.Files.getAll({
-          files: filesID,
+          files: fileIDs,
           fields: ['name', 'url', 'metadata', 'createdAt']
         }).then(function(files) {
           var filesInfo = files.map(function(file) {
