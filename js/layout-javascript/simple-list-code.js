@@ -989,9 +989,9 @@ DynamicList.prototype.attachObservers = function() {
       record.likeButton.like();
       $(this).find('.count').html(count);
     })
-    .on('click', '.multiple-images-item', function() {
+    .on('click', '.multiple-images-item, .single-image-holder', function() {
       var $this = $(this);
-      var id = $this.parent().data('detailEntryId');
+      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
 
       _this.imagesData[id].options.index = $this.index();
 
