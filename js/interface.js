@@ -2027,8 +2027,8 @@ var DynamicLists = (function() {
         $('#enable-timezone-default-' + data.id).parents('.checkbox').removeClass('hidden');
       }
 
-      if (_this.showOffsetField(data.dateValue)) {
-        $('#date-number-default-' + data.id).addClass('hidden');
+      if (!_this.showOffsetField(data.dateValue)) {
+        $('#date-number-default-' + data.id).removeClass('hidden');
       }
 
       if (['dateis', 'dateafter', 'datebefore'].indexOf(data.logic) === -1 || data.logic === 'datebetween') {
