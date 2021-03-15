@@ -18,7 +18,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
   var currentDate = {};
-  var LOCAL_FORMAT = moment.localeData().longDateFormat('L');
+  var LOCAL_FORMAT = 'YYYY-MM-DD';
 
   // Keep date format in English until localisation is correctly rollded out
   moment.locale('en');
@@ -601,7 +601,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
           }).entryDate;
 
-          return moment(entryDate).isBetween(comparisonDateFrom, comparisonDateTo);
+          return moment(entryDate).isBetween(comparisonDateFrom, comparisonDateTo, null, '[]');
         default:
           break;
       }
