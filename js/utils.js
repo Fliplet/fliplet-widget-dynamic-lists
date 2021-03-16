@@ -457,7 +457,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData);
+          return splitByCommas(filter.value).includes(rowData)
+            || !!_.intersectionWith(splitByCommas(filter.value), splitByCommas(rowData), _.isEqual).length;
         }
 
         // Case insensitive
