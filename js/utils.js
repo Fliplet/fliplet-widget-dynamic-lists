@@ -433,6 +433,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return _.every(filters, function(filter) {
         var condition = filter.condition;
         var rowData = _.get(record, ['data', filter.column], null);
+        var splittedFilterValue = splitByCommas(filter.value);
 
         if (condition === 'none' || filter.column === 'none') {
           // Filter isn't configured correctly
@@ -457,8 +458,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData)
-            || !!_.intersectionWith(splitByCommas(filter.value), splitByCommas(rowData), _.isEqual).length;
+          return splittedFilterValue.includes(rowData)
+            || !!_.intersectionWith(splittedFilterValue, splitByCommas(rowData), _.isEqual).length;
         }
 
         // Case insensitive
