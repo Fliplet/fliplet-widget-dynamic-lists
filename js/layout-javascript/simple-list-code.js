@@ -1776,8 +1776,8 @@ DynamicList.prototype.setupLikeButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart-o fa-lg"></i>',
           likedLabel: '<span class="count">{{#if count}}{{count}}{{/if}}</span><i class="fa fa-heart fa-lg animated bounceIn"></i>',
-          likeWrapper: '<div class="simple-list-like-wrapper btn-like focus-outline" tabindex="0"></div>',
-          likedWrapper: '<div class="simple-list-like-wrapper btn-liked focus-outline" tabindex="0"></div>',
+          likeWrapper: '<div class="simple-list-like-wrapper focus-outline btn-like" tabindex="0"></div>',
+          likedWrapper: '<div class="simple-list-like-wrapper focus-outline btn-liked" tabindex="0"></div>',
           addType: 'html',
           liked: record.liked,
           count: record.likeCount
