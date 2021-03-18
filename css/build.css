@@ -191,7 +191,8 @@
   position: absolute;
   right: 0;
   top: 50%;
-  transform: translate(0, -50%);font-size: 34px;
+  transform: translate(0, -50%);
+  font-size: 34px;
   min-width: 30px;
   color: #666;
 }
