@@ -196,6 +196,10 @@
   color: #666;
 }
 
+.file-info {
+  font-size: 0.85em;
+}
+
 /*
   This part of the code is needed for supporting .fa-times-thin class in users who updated
   to use UNICODE icons instead of SVG icons.
