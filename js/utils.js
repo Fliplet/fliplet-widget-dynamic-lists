@@ -17,6 +17,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   };
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
+  var currentDate = {};
+  var LOCAL_FORMAT = 'YYYY-MM-DD';
 
   // Keep date format in English until localisation is correctly rollded out
   moment.locale('en');
@@ -362,6 +364,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function isExecute(event) {
+    return event.which === 13 || event.which === 32 || event.type === 'click';
+  }
+
   function recordIsDeletable(record, config, userData) {
     if (_.isNil(config.deleteEntry) || _.isNil(config.deletePermissions)) {
       return false;
@@ -415,6 +421,197 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function getInputDate(date, getDate, timeOnly, dateOnly) {
+    var inputDate = null;
+
+    if (!dateOnly) {
+      inputDate = timeOnly
+        ? getDate(date, 'HH:mm')
+        : getDate(date, LOCAL_FORMAT);
+    }
+
+    return inputDate;
+  }
+
+  function getDateModifiedValues(options) {
+    var timestamp = options.date;
+    var timeOnly = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(timestamp);
+    var dateOnly = !/[:]/.test(timestamp);
+    var deviceTimeZone = moment.tz.guess();
+    var getDate = options.useDeviceTimezone ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
+
+    switch (options.dateFilterModifiers) {
+      case 'today':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'now':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, null, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'nowaddminutes':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'nowaddhours':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'todayadddays':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayaddmonths':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayaddyears':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'nowsubtractminutes':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'nowsubtracthours':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'todayminusdays':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayminusmonths':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayminusyears':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      default:
+        break;
+    }
+  }
+
+  function getCachedDate(offsetType, offsetValue, getDate) {
+    // Memoization method was used in this function
+
+    var offsetTypes = ['minute', 'hour', 'month', 'year', 'day'];
+
+    if (offsetType in currentDate) {
+      return currentDate[offsetType];
+    }
+
+    var period = offsetTypes.find(function(item) {
+      return offsetType.indexOf(item) !== -1;
+    });
+
+    if (offsetType === 'now') {
+      currentDate[offsetType] = getDate().startOf('minute');
+    } else if (offsetType === 'today') {
+      currentDate[offsetType] = moment().startOf('day');
+    }
+
+    if (offsetType !== 'now' && offsetType.indexOf('now') !== -1) {
+      currentDate[offsetType] = offsetType.indexOf('add') !== -1
+        ? getDate().add(period, smartParseFloat(offsetValue)).startOf('minute')
+        : getDate().subtract(period, smartParseFloat(offsetValue)).startOf('minute');
+    } else if (offsetType.indexOf('today') !== -1) {
+      currentDate[offsetType] = offsetType.indexOf('add') !== -1
+        ? moment().add(period, smartParseFloat(offsetValue)).startOf('day')
+        : moment().subtract(period, smartParseFloat(offsetValue)).startOf('day');
+    }
+
+    return currentDate[offsetType];
+  }
+
+  function isDateMatches(options) {
+    if (options) {
+      var result = getDateModifiedValues({
+        date: options.date,
+        dateFilterModifiers: options.dateValue,
+        offsetValue: options.offsetValue,
+        useDeviceTimezone: options.useDeviceTimezone
+      });
+
+      switch (options.condition) {
+        case 'dateis':
+          return moment(result.entryDate).isSame(result.comparisonDate);
+
+        case 'datebefore':
+          return  moment(result.entryDate).isBefore(result.comparisonDate);
+
+        case 'dateafter':
+          return moment(result.entryDate).isAfter(result.comparisonDate);
+
+        case 'datebetween':
+          var comparisonDateFrom = getDateModifiedValues({
+            date: options.date,
+            dateFilterModifiers: options.dateFilterModifiers.from.value,
+            offsetValue: options.dateFilterModifiers.from.offset,
+            useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
+          }).comparisonDate;
+
+          var comparisonDateTo = getDateModifiedValues({
+            date: options.date,
+            dateFilterModifiers: options.dateFilterModifiers.to.value,
+            offsetValue: options.dateFilterModifiers.to.offset,
+            useDeviceTimezone: options.dateFilterModifiers.to.useDeviceTimezone
+          }).comparisonDate;
+
+          var entryDate = getDateModifiedValues({
+            date: options.date,
+            dateFilterModifiers: options.dateFilterModifiers.from.value,
+            offsetValue: options.dateFilterModifiers.from.offset,
+            useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
+          }).entryDate;
+
+          return moment(entryDate).isBetween(comparisonDateFrom, comparisonDateTo, null, '[]');
+        default:
+          break;
+      }
+    }
+  }
+
   function runRecordFilters(records, filters) {
     if (!filters || _.isEmpty(filters)) {
       return records;
@@ -447,17 +644,28 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
-        if (!filter.value) {
-          // Value is not configured
-          return true;
-        }
-
         if (condition === 'between') {
           return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
         }
 
         if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData);
+          return splitByCommas(filter.value).indexOf(rowData) !== -1;
+        }
+
+        if (['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(condition) !== -1) {
+          return isDateMatches({
+            date: rowData,
+            condition: condition,
+            dateValue: filter.dateValue,
+            offsetValue: filter.offsetValue,
+            useDeviceTimezone: filter.useDeviceTimezone,
+            dateFilterModifiers: filter.dateFilterModifiers
+          });
+        }
+
+        if (!filter.value) {
+          // Value is not configured
+          return true;
         }
 
         // Case insensitive
@@ -1320,9 +1528,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return {
         column: option.column,
         condition: option.logic,
+        dateValue: option.dateValue,
+        offsetValue: option.offsetValue,
+        useDeviceTimezone: option.useDeviceTimezone,
+        dateFilterModifiers: option.dateFilterModifiers,
+        valueType: option.valueType,
         value: option.value
       };
     }));
+
+    currentDate = {};
 
     if (config.sortOptions.length) {
       var sortFields = _.map(config.sortOptions, function(option) {
@@ -1734,6 +1949,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
+    accessibilityHelpers: {
+      isExecute: isExecute
+    },
     DOM: {
       $: getjQueryObjects,
       resetSortIcons: resetSortIcons,
