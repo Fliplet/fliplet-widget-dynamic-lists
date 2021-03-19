@@ -784,6 +784,11 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
+    .on('click', '.file-item', function(event) {
+      var url = $(event.currentTarget).find('input[type=hidden]').val();
+
+      Fliplet.Navigate.file(url);
+    })
     .on('click keydown', '.toggle-bookmarks', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
@@ -1882,6 +1887,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     var labelEnabled = true;
     var content = '';
 
+    if (dynamicDataObj.type === 'file') {
+      return;
+    }
+
     // Define label
     if (dynamicDataObj.fieldLabel === 'column-name' && dynamicDataObj.column !== 'custom') {
       label = dynamicDataObj.column;
@@ -1948,61 +1957,81 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
 
-  entryData = _this.addDetailViewData(entryData);
+  _this.Utils.Records.getFilesInfo({
+    entryData: entryData,
+    detailViewOptions: _this.data.detailViewOptions
+  })
+    .then(function(files) {
+      entryData = _this.addDetailViewData(entryData);
 
-  var beforeShowDetails = Promise.resolve({
-    src: src,
-    data: entryData
-  });
+      if (files && Array.isArray(files)) {
+        _.forEach(files, function(file) {
+          if (!file) {
+            return;
+          }
 
-  if (typeof _this.data.beforeShowDetails === 'function') {
-    beforeShowDetails = _this.data.beforeShowDetails({
-      config: _this.data,
-      src: src,
-      data: entryData
-    });
+          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
 
-    if (!(beforeShowDetails instanceof Promise)) {
-      beforeShowDetails = Promise.resolve(beforeShowDetails);
-    }
-  }
-
-  return beforeShowDetails.then(function(data) {
-    data = data || {};
-
-    var template = Handlebars.compile(data.src || src);
-    var wrapperTemplate = Handlebars.compile(wrapper);
-
-    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
-      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
-    }
-
-    // Adds content to overlay
-    $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-    $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
-
-    _this.initializeOverlaySocials(id);
-
-    // Trigger animations
-    _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
-    $overlay.addClass('open');
-    setTimeout(function() {
-      $overlay.addClass('ready');
-
-      if (typeof _this.directoryDetailWrapper === 'undefined') {
-        _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
-      }
-
-      if (typeof _this.data.afterShowDetails === 'function') {
-        _this.data.afterShowDetails({
-          config: _this.data,
-          src: data.src || src,
-          data: data.data || entryData
+          if (!isFileAdded) {
+            entryData.entryDetails.push(file);
+          }
         });
       }
-    }, 0);
-  });
+
+      var beforeShowDetails = Promise.resolve({
+        src: src,
+        data: entryData
+      });
+
+      if (typeof _this.data.beforeShowDetails === 'function') {
+        beforeShowDetails = _this.data.beforeShowDetails({
+          config: _this.data,
+          src: src,
+          data: entryData
+        });
+
+        if (!(beforeShowDetails instanceof Promise)) {
+          beforeShowDetails = Promise.resolve(beforeShowDetails);
+        }
+      }
+
+      return beforeShowDetails.then(function(data) {
+        data = data || {};
+
+        var template = Handlebars.compile(data.src || src);
+        var wrapperTemplate = Handlebars.compile(wrapper);
+
+        // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+        if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+          _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+        }
+
+        // Adds content to overlay
+        $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+        $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
+
+        _this.initializeOverlaySocials(id);
+
+        // Trigger animations
+        _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
+        $overlay.addClass('open');
+        setTimeout(function() {
+          $overlay.addClass('ready');
+
+          if (typeof _this.directoryDetailWrapper === 'undefined') {
+            _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
+          }
+
+          if (typeof _this.data.afterShowDetails === 'function') {
+            _this.data.afterShowDetails({
+              config: _this.data,
+              src: data.src || src,
+              data: data.data || entryData
+            });
+          }
+        }, 0);
+      });
+    });
 };
 
 DynamicList.prototype.closeDetails = function() {

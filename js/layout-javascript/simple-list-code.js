@@ -921,6 +921,11 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
+    .on('click', '.file-item', function(event) {
+      var url = $(event.currentTarget).find('input[type=hidden]').val();
+
+      Fliplet.Navigate.file(url);
+    })
     .on('click keydown', '.toggle-bookmarks', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
@@ -2262,6 +2267,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     var labelEnabled = true;
     var content = '';
 
+    if (obj.type === 'file') {
+      return;
+    }
+
     // Define label
     if (obj.fieldLabel === 'column-name' && obj.column !== 'custom') {
       label = obj.column;
@@ -2330,55 +2339,75 @@ DynamicList.prototype.showDetails = function(id, listData) {
     ? _this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['detail']]();
 
-  entryData = _this.addDetailViewData(entryData);
+  _this.Utils.Records.getFilesInfo({
+    entryData: entryData,
+    detailViewOptions: _this.data.detailViewOptions
+  })
+    .then(function(files) {
+      entryData = _this.addDetailViewData(entryData);
 
-  var beforeShowDetails = Promise.resolve({
-    src: src,
-    data: entryData
-  });
+      if (files && Array.isArray(files)) {
+        _.forEach(files, function(file) {
+          if (!file) {
+            return;
+          }
 
-  if (typeof _this.data.beforeShowDetails === 'function') {
-    beforeShowDetails = _this.data.beforeShowDetails({
-      config: _this.data,
-      src: src,
-      data: entryData
-    });
+          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
 
-    if (!(beforeShowDetails instanceof Promise)) {
-      beforeShowDetails = Promise.resolve(beforeShowDetails);
-    }
-  }
+          if (!isFileAdded) {
+            entryData.entryDetails.push(file);
+          }
+        });
+      }
 
-  return beforeShowDetails.then(function(data) {
-    data = data || {};
-
-    var template = Handlebars.compile(data.src || src);
-    var wrapperTemplate = Handlebars.compile(wrapper);
-
-    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-    if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
-      _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
-    }
-
-    // Adds content to overlay
-    $overlay.find('.simple-list-detail-overlay-content-holder').html(wrapperTemplate(entryId));
-    $overlay.find('.simple-list-detail-wrapper').append(template(data.data || entryData));
-
-    _this.initializeOverlaySocials(id);
-
-    // Trigger animations
-    $('body').addClass('lock');
-    _this.$container.find('.simple-list-container').addClass('overlay-open');
-    $overlay.addClass('open');
-
-    if (typeof _this.data.afterShowDetails === 'function') {
-      _this.data.afterShowDetails({
-        config: _this.data,
-        src: data.src || src,
-        data: data.data || entryData
+      var beforeShowDetails = Promise.resolve({
+        src: src,
+        data: entryData
       });
-    }
-  });
+
+      if (typeof _this.data.beforeShowDetails === 'function') {
+        beforeShowDetails = _this.data.beforeShowDetails({
+          config: _this.data,
+          src: src,
+          data: entryData
+        });
+
+        if (!(beforeShowDetails instanceof Promise)) {
+          beforeShowDetails = Promise.resolve(beforeShowDetails);
+        }
+      }
+
+      return beforeShowDetails.then(function(data) {
+        data = data || {};
+
+        var template = Handlebars.compile(data.src || src);
+        var wrapperTemplate = Handlebars.compile(wrapper);
+
+        // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
+        if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
+          _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
+        }
+
+        // Adds content to overlay
+        $overlay.find('.simple-list-detail-overlay-content-holder').html(wrapperTemplate(entryId));
+        $overlay.find('.simple-list-detail-wrapper').append(template(data.data || entryData));
+
+        _this.initializeOverlaySocials(id);
+
+        // Trigger animations
+        $('body').addClass('lock');
+        _this.$container.find('.simple-list-container').addClass('overlay-open');
+        $overlay.addClass('open');
+
+        if (typeof _this.data.afterShowDetails === 'function') {
+          _this.data.afterShowDetails({
+            config: _this.data,
+            src: data.src || src,
+            data: data.data || entryData
+          });
+        }
+      });
+    });
 };
 
 DynamicList.prototype.closeDetails = function() {

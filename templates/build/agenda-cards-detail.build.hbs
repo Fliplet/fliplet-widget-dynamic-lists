@@ -125,6 +125,30 @@
           \{{/if}}
         \{{/ifCond}}
 
+        <!-- File template -->
+        \{{#ifCond type '==' 'file'}}
+          \{{#if content}}
+            <ul class="file-holder">
+              \{{#if labelEnabled}}
+                <div class="agenda-item-detail-label">\{{label}}</div>
+              \{{/if}}
+              \{{#each content}}
+                <li class="file-item">
+                  <div class="file-title">\{{this.name}}</div>
+                  <div class="file-info">
+                    <span class="file-info-uploaded">Uploaded: \{{formatDate this.uploaded}}</span>
+                    \{{#if this.size}}<span class="file-info-size">&ndash; \{{humanFileSize this.size}}</span>\{{/if}}
+                  </div>
+                  <input type="hidden" value=\{{this.url}}>
+                  <div class="file-icon">
+                    <i class="fa fa-angle-right"></i>
+                  </div>
+                </li>
+              \{{/each}}
+            </ul>
+          \{{/if}}
+        \{{/ifCond}}
+
       \{{/each}}
     </div>
 

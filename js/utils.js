@@ -47,13 +47,125 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return parseFloat(value);
   }
 
+  function sortFilesByName(a, b) {
+    var aFileName = a.name.toUpperCase();
+    var bFileName = b.name.toUpperCase();
+
+    if (aFileName < bFileName) {
+      return -1;
+    }
+
+    if (aFileName > bFileName) {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  function getFilesInfo(options) {
+    var entry = options.entryData;
+    var detailViewFileOptions = _.filter(options.detailViewOptions, { type: 'file' });
+
+    var formFilesInfoInDetailViewOptions = detailViewFileOptions.map(function(detailViewFileOption) {
+      return new Promise(function(resolve, reject) {
+        var label = '';
+        var labelEnabled = true;
+        var files = typeof entry.originalData[detailViewFileOption.column] === 'string'
+          ? splitByCommas(entry.originalData[detailViewFileOption.column])
+          : entry.originalData[detailViewFileOption.column];
+
+        if (!files) {
+          return resolve();
+        }
+
+        switch (detailViewFileOption.fieldLabel) {
+          case 'column-name':
+            if (detailViewFileOption.column !== 'custom') {
+              label = detailViewFileOption.column;
+            }
+
+            break;
+          case 'custom-label':
+            label = new Handlebars.SafeString(Handlebars.compile(detailViewFileOption.customFieldLabel)(entry.originalData));
+
+            break;
+          case 'no-label':
+            labelEnabled = false;
+
+            break;
+          default:
+            break;
+        }
+
+        var fileIDs = files.map(function(fileUrl) {
+          var matchedFileUrl = fileUrl.match(/v1\/media\/files\/([0-9]+)/);
+
+          return matchedFileUrl ? matchedFileUrl[1] : null;
+        });
+
+        Fliplet.Media.Files.getAll({
+          files: fileIDs,
+          fields: ['name', 'url', 'metadata', 'createdAt']
+        }).then(function(files) {
+          var filesInfo = files.map(function(file) {
+            return {
+              name: file.name,
+              size: file.metadata.size,
+              uploaded: file.createdAt,
+              url: file.url
+            };
+          }).sort(sortFilesByName);
+
+          resolve({
+            id: detailViewFileOption.id,
+            content: filesInfo,
+            label: label,
+            labelEnabled: labelEnabled,
+            type: detailViewFileOption.type
+          });
+        }).catch(reject);
+      });
+    });
+
+    return Promise.all(formFilesInfoInDetailViewOptions);
+  }
+
   function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('formatDate', function(date) {
-      if (!date) {
-        return;
+    Handlebars.registerHelper('humanFileSize', function(bytes) {
+      if (!bytes) {
+        return null;
       }
 
-      return getMomentDate(date).format('DD MMMM YYYY');
+      var unitCapacity = 1000;
+      var decimals = 1;
+
+      if (Math.abs(bytes) < unitCapacity) {
+        return bytes + ' B';
+      }
+
+      var units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      var unitIndex = -1;
+      var round  = 10 * decimals;
+
+      do {
+        bytes /= unitCapacity;
+        ++unitIndex;
+      } while (Math.round(Math.abs(bytes) * round ) / round  >= unitCapacity && unitIndex < units.length - 1);
+
+      return bytes.toFixed(decimals) + ' ' + units[unitIndex];
+    });
+
+    Handlebars.registerHelper('formatDate', function(context, block) {
+      if (!context) {
+        return '';
+      }
+
+      if (context && context.hash) {
+        block = _.cloneDeep(context);
+        context = undefined;
+      }
+
+      return getMomentDate(context).format(block.hash.format || 'DD MMMM YYYY');
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
@@ -87,6 +199,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       res = res.replace(Static.RegExp.linebreak, '<br>');
 
       return new Handlebars.SafeString(res);
+    });
+
+    Handlebars.registerHelper('formatFilename', function(filename) {
+      var index = filename.indexOf('contents/');
+      var formattedName = filename.substring(index + 9);
+
+      return formattedName;
     });
   }
 
@@ -1999,7 +2118,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortRecordsByField
+      sortByField: sortRecordsByField,
+      getFilesInfo: getFilesInfo
     },
     User: {
       isAdmin: userIsAdmin,
