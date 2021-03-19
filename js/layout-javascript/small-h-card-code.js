@@ -74,7 +74,11 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
-    .on('click', '.small-h-card-list-detail-button a', function() {
+    .on('click keydown', '.small-h-card-list-detail-button a', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -101,11 +105,18 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click', '.small-h-card-list-item', function(event) {
+    .on('click keydown', '.small-h-card-list-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
       var beforeOpen = Promise.resolve();
+
+      $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
+      $('.dynamic-list-add-item').addClass('hidden');
 
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
@@ -151,10 +162,20 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
+    .on('click keydown', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       event.stopPropagation();
 
       var result;
+
+      $('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+
+      var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
+
+      _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"] .small-h-card-list-image').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -186,8 +207,6 @@ DynamicList.prototype.attachObservers = function() {
 
       if ($(window).width() < 640) {
         if (typeof _this.directoryDetailWrapper === 'undefined') {
-          var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
-
           _this.directoryDetailWrapper = _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"] .small-h-card-list-detail-wrapper');
         }
 
@@ -199,7 +218,11 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -235,7 +258,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -273,7 +300,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {

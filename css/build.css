@@ -129,6 +129,28 @@
   max-width: 100%;
 }
 
+.filter-item-remove {
+  cursor: pointer;
+  pointer-events: all;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 33px;
+  height: 33px;
+}
+
+.applied-filter {
+  padding: 0px 5px 0px 14px !important;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+}
+
+.applied-filter .fa-times {
+  height: 15px;
+}
+
 .filter-holder .panel-group .panel .panel-body {
   background-color: transparent;
 }
