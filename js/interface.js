@@ -221,6 +221,8 @@ var DynamicLists = (function() {
           item.value = '';
           item.valueField = 'Value';
           item.valueType = 'enter-value';
+          item.dateValue = 'today';
+          item.useDeviceTimezone = false;
           item.columns = dataSourceColumns;
           _this.config.filterOptions.push(item);
 
@@ -232,19 +234,50 @@ var DynamicLists = (function() {
           var type = $(this).data('field');
           var $selector = $(this).parents('.filter-panel');
           var id = $(this).attr('filter-item-id');
+          var $dateField = $('#date-field-' + id).val();
+          var $dateFieldFrom = $('#date-from-' + id).val();
+          var $dateFieldTo = $('#date-to-' + id).val();
 
           switch (type) {
             case 'field':
               $selector.find('.panel-title-text .column').html(value === 'none' ? '(Field)' : value);
               break;
 
+            case 'date':
+              $('#date-number-default-' + id).toggleClass('hidden', _this.showOffsetField($dateField));
+              $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField(value));
+              break;
+
+            case 'date-from':
+              $('#date-number-from-' + id).toggleClass('hidden', _this.showOffsetField($dateFieldFrom));
+              $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField(value));
+              break;
+
+            case 'date-to':
+              $('#date-number-to-' + id).toggleClass('hidden', _this.showOffsetField($dateFieldTo));
+              $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField(value));
+              break;
+
             case 'logic':
-              var hideValueFields = ['empty', 'notempty', 'between'].indexOf(value) !== -1;
-              var isLogicComparison = value === 'between';
+              var hideValueFields = _this.showValueFields(value);
+              var isDateLogic  = ['dateis', 'datebefore', 'dateafter'].indexOf(value) !== -1;
+              var isBetween = value === 'between';
+              var isDateBetween = value === 'datebetween';
 
               $('#filter-value-' + id).toggleClass('hidden', hideValueFields);
               $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
-              $('#logic-comparison-' + id).toggleClass('hidden', !isLogicComparison);
+
+              $('#logic-comparison-' + id).toggleClass('hidden', !isBetween);
+              $('#date-logic-' + id).toggleClass('hidden', !isDateLogic );
+              $('#date-between-' + id).toggleClass('hidden', !isDateBetween);
+
+              $('#date-number-default-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateField));
+              $('#date-number-from-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateFieldFrom));
+              $('#date-number-to-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateFieldTo));
+              $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateField));
+              $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateFieldFrom));
+              $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateFieldTo));
+
               break;
 
             case 'valueType':
@@ -253,10 +286,6 @@ var DynamicLists = (function() {
 
             default:
               break;
-          }
-
-          if (type === 'valueType') {
-            $selector.find('#filter-value label').html(value !== 'enter-value' ? 'Value for' : 'Value');
           }
         })
         .on('keyup', '.filter-panels-holder input', function() {
@@ -595,6 +624,29 @@ var DynamicLists = (function() {
         dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
       }
     },
+    showOffsetField: function(value) {
+      return ['today', 'now'].indexOf(value) !== -1;
+    },
+    showTimezoneField: function(value) {
+      return [
+        'now',
+        'nowaddminutes',
+        'nowaddhours',
+        'nowsubtractminutes',
+        'nowsubtracthours'
+      ].indexOf(value) !== -1;
+    },
+    showValueFields: function(value) {
+      return [
+        'empty',
+        'notempty',
+        'between',
+        'dateis',
+        'datebefore',
+        'dateafter',
+        'datebetween'
+      ].indexOf(value) !== -1;
+    },
     toggleUserEmail: function(showUserEmailList) {
       $('.select-user-email-list-holder').toggleClass('hidden', !showUserEmailList);
     },
@@ -741,21 +793,34 @@ var DynamicLists = (function() {
         item.fromLoading = true; // Flag to close accordions
         item.columns = dataSourceColumns;
         _this.addFilterItem(item);
+
         $('#select-data-field-' + item.id).val(item.column);
         $('#logic-field-' + item.id).val(item.logic);
 
-        if (item.logic !== 'between') {
+        if (item.logic !== 'between' && item.logic !== 'datebetween') {
+          $('#date-field-' + item.id).val(item.dateValue);
+          $('#number-field-' + item.id).val(item.offsetValue);
+          $('#enable-timezone-default-' + item.id).prop('checked', item.useDeviceTimezone).trigger('change');
           $('#value-field-' + item.id).val(item.fieldValue || item.value );
           $('#value-type-field-' + item.id).val(!item.valueType ? 'enter-value' : item.valueType);
+
 
           return;
         }
 
-        $('#value-type-field-from-' + item.id).val(item.valueType.from);
-        $('#value-type-field-to-' + item.id).val(item.valueType.to);
-
-        $('#value-field-from-' + item.id).val(item.value.from);
-        $('#value-field-to-' + item.id).val(item.value.to);
+        if (item.logic === 'datebetween') {
+          $('#date-from-' + item.id).val(item.dateFilterModifiers.from.value);
+          $('#date-to-' + item.id).val(item.dateFilterModifiers.to.value);
+          $('#number-field-from-' + item.id).val(item.dateFilterModifiers.from.offset);
+          $('#number-field-to-' + item.id).val(item.dateFilterModifiers.to.offset);
+          $('#enable-timezone-from-' + item.id).prop('checked', item.dateFilterModifiers.from.useDeviceTimezone).trigger('change');
+          $('#enable-timezone-to-' + item.id).prop('checked', item.dateFilterModifiers.to.useDeviceTimezone).trigger('change');
+        } else if (item.logic === 'between') {
+          $('#value-type-field-from-' + item.id).val(item.valueType.from);
+          $('#value-type-field-to-' + item.id).val(item.valueType.to);
+          $('#value-field-from-' + item.id).val(item.value.from);
+          $('#value-field-to-' + item.id).val(item.value.to);
+        }
       });
     },
     renderSortColumns: function() {
@@ -1945,13 +2010,49 @@ var DynamicLists = (function() {
 
       $filterAccordionContainer.append($newPanel);
 
-      if (['empty', 'notempty', 'between'].indexOf(data.logic) !== -1) {
+      if (_this.showValueFields(data.logic)) {
         $('#filter-value-type-' + data.id).addClass('hidden');
         $('#filter-value-' + data.id).addClass('hidden');
       }
 
       if (data.logic !== 'between') {
         $('#logic-comparison-' + data.id).addClass('hidden');
+      }
+
+      if (data.logic !== 'datebetween') {
+        $('#date-between-' + data.id).addClass('hidden');
+      }
+
+      if (_this.showTimezoneField(data.dateValue)) {
+        $('#enable-timezone-default-' + data.id).parents('.checkbox').removeClass('hidden');
+      }
+
+      if (!_this.showOffsetField(data.dateValue)) {
+        $('#date-number-default-' + data.id).removeClass('hidden');
+      }
+
+      if (['dateis', 'dateafter', 'datebefore'].indexOf(data.logic) === -1 || data.logic === 'datebetween') {
+        $('#date-logic-' + data.id).addClass('hidden');
+
+        if (data.dateFilterModifiers && data.dateFilterModifiers.from) {
+          if (_this.showTimezoneField(data.dateFilterModifiers.from.value)) {
+            $('#enable-timezone-from-' + data.id).parents('.checkbox').removeClass('hidden');
+          }
+
+          if (!_this.showOffsetField(data.dateFilterModifiers.from.value)) {
+            $('#date-number-from-' + data.id).removeClass('hidden');
+          }
+        }
+
+        if (data.dateFilterModifiers && data.dateFilterModifiers.to) {
+          if (_this.showTimezoneField(data.dateFilterModifiers.to.value)) {
+            $('#enable-timezone-to-' + data.id).parents('.checkbox').removeClass('hidden');
+          }
+
+          if (!_this.showOffsetField(data.dateFilterModifiers.to.value)) {
+            $('#date-number-to-' + data.id).removeClass('hidden');
+          }
+        }
       }
     },
     addSummaryItem: function(data) {
@@ -2605,14 +2706,40 @@ var DynamicLists = (function() {
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
         item.valueType = $('#value-type-field-' + item.id).val();
+        item.dateValue =  $('#date-field-' + item.id).val();
+        item.offsetValue = $('#number-field-' + item.id).val() || null;
+        item.useDeviceTimezone = $('#enable-timezone-default-' + item.id).prop('checked');
 
         if (item.valueType === 'enter-value') {
           item.value = item.fieldValue;
         }
 
         if (item.logic === 'empty' || item.logic === 'notempty') {
-          item.valueType = null;
+          item.valueType = '';
           item.value = '';
+        }
+
+        if (item.logic === 'datebetween') {
+          var valueDateFrom = $('#date-from-' + item.id).val();
+          var valueNumberFrom = $('#number-field-from-' + item.id).val();
+          var useDeviceTimezoneFrom = $('#enable-timezone-from-' + item.id).prop('checked');
+
+          var valueDateTo = $('#date-to-' + item.id).val();
+          var valueNumberTo = $('#number-field-to-' + item.id).val();
+          var useDeviceTimezoneTo = $('#enable-timezone-to-' + item.id).prop('checked');
+
+          item.dateFilterModifiers = {
+            from: {
+              value: valueDateFrom,
+              offset: valueNumberFrom || null,
+              useDeviceTimezone: useDeviceTimezoneFrom
+            },
+            to: {
+              value: valueDateTo,
+              offset: valueNumberTo || null,
+              useDeviceTimezone: useDeviceTimezoneTo
+            }
+          };
         }
 
         if (item.logic === 'between') {
