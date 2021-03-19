@@ -194,16 +194,40 @@ DynamicList.prototype.attachObservers = function() {
   });
 
   _this.$container
-    .on('click', '.apply-filters', function() {
+    .on('click keydown', '.apply-filters', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      _this.$container.find('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.searchData();
     })
-    .on('click', '.clear-filters', function() {
+    .on('click keydown', '.agenda-filters-panel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      $('.agenda-cards-wrapper').removeClass('hidden');
+      $(event.target).find('.collapse').collapse('toggle');
+    })
+    .on('click keydown', '.clear-filters', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       $(this).addClass('hidden');
+      _this.$container.find('.fa-sliders').focus();
+
       _this.hideFilterOverlay();
       _this.clearFilters();
     })
-    .on('click', '.hidden-filter-controls-filter', function() {
+    .on('click keydown', '.hidden-filter-controls-filter', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $filter = $(this);
 
       Fliplet.Analytics.trackEvent({
@@ -221,13 +245,19 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click', '.list-search-icon .fa-sliders', function() {
+    .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $el = $(this);
 
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
+        $('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
+        $('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -238,8 +268,11 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.agenda-date-selector').addClass('hidden');
+      _this.$container.find('.agenda-list-holder').addClass('hidden');
       _this.$container.find('.hidden-filter-controls').addClass('active');
-      _this.$container.find('.list-search-cancel').addClass('active');
+      _this.$container.find('.list-search-cancel').addClass('active').focus();
+      _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       $el.addClass('active');
 
       _this.toggleListView();
@@ -250,9 +283,15 @@ DynamicList.prototype.attachObservers = function() {
         action: 'search_filter_controls_activate'
       });
     })
-    .on('click', '.agenda-overlay-close', function() {
+    .on('click keydown', '.agenda-overlay-close', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
+      $('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
+      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -273,7 +312,6 @@ DynamicList.prototype.attachObservers = function() {
         })).join(',');
 
         _this.toggleFilterElement(_this.$container.find(selectors), true);
-
         _this.$container.find('.clear-filters').removeClass('hidden');
 
         return;
@@ -286,11 +324,18 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.clear-filters').removeClass('hidden');
     })
-    .on('click', '.list-search-cancel', function() {
+    .on('click keydown', '.list-search-cancel', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       // Hide filters
       $(this).removeClass('active');
+      _this.$container.find('.agenda-date-selector').removeClass('hidden');
+      _this.$container.find('.agenda-list-holder').removeClass('hidden');
       _this.$container.find('.hidden-filter-controls').removeClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active');
+      _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
+      _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
       _this.calculateFiltersHeight(true);
 
       // Clear filters
@@ -340,7 +385,11 @@ DynamicList.prototype.attachObservers = function() {
         }
       });
     })
-    .on('click', '.search-holder .search-btn', function() {
+    .on('click keydown', '.search-holder .search-btn', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $inputField = $(this).parents('.search-holder').find('.search-feed');
       var value = $inputField.val();
 
@@ -362,12 +411,20 @@ DynamicList.prototype.attachObservers = function() {
       _this.isSearching = true;
       _this.searchData(value);
     })
-    .on('click', '.clear-search', function() {
+    .on('click keydown', '.clear-search', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       _this.$container.find('.new-agenda-list-container').removeClass('searching');
       _this.isSearching = false;
       _this.searchData('');
     })
-    .on('click', '.go-to-poll', function() {
+    .on('click keydown', '.go-to-poll', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.pollEnabled || !_this.data.pollColumn) {
         return;
       }
@@ -382,7 +439,11 @@ DynamicList.prototype.attachObservers = function() {
         entry: entry
       });
     })
-    .on('click', '.go-to-survey', function() {
+    .on('click keydown', '.go-to-survey', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.surveyEnabled || !_this.data.surveyColumn) {
         return;
       }
@@ -397,7 +458,11 @@ DynamicList.prototype.attachObservers = function() {
         entry: entry
       });
     })
-    .on('click', '.go-to-questions', function() {
+    .on('click keydown', '.go-to-questions', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.questionsEnabled || !_this.data.questionsColumn) {
         return;
       }
@@ -421,7 +486,11 @@ DynamicList.prototype.attachObservers = function() {
     .on('touchend touchcancel', '.agenda-list-controls', function() {
       $(this).removeClass('hover');
     })
-    .on('click', '.agenda-list-controls', function() {
+    .on('click keydown', '.agenda-list-controls', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $toggle = $(this).find('.toggle-agenda');
 
       if (!$toggle.length) {
@@ -438,7 +507,11 @@ DynamicList.prototype.attachObservers = function() {
           : 'bookmarks_hide'
       });
     })
-    .on('click', '.toggle-agenda, .toggle-bookmarks', function(event) {
+    .on('click keydown', '.toggle-agenda, .toggle-bookmarks', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       event.stopPropagation();
 
       var $toggle = _this.$container.find(event.handleObj.selector);
@@ -469,7 +542,11 @@ DynamicList.prototype.attachObservers = function() {
         _this.allowClick = true;
       }, 100);
     })
-    .on('click', '.agenda-list-item', function(event) {
+    .on('click keydown', '.agenda-list-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (_this.isPanning && !_this.allowClick && $(this).hasClass('open')) {
         return;
       }
@@ -477,6 +554,8 @@ DynamicList.prototype.attachObservers = function() {
       if ($(event.target).hasClass('agenda-item-bookmark-holder') || $(event.target).parents('.agenda-item-bookmark-holder').length) {
         return;
       }
+
+      $('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();
@@ -519,8 +598,16 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function() {
+    .on('click keydown', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var result;
+      var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
+
+      _this.$container.find('.new-agenda-list-container').removeClass('hidden');
+      _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -590,15 +677,21 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
     })
-    .on('click', '.agenda-date-selector li', function() {
-      // prevents clicking the active one
-      // prevents clicking the placeholder
-      if ($(this).hasClass('active') || $(this).hasClass('placeholder')) {
+    .on('click keydown', '.agenda-date-selector li', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event) || $(this).is('.active, .placeholder')) {
         return;
       }
 
-      var indexOfActiveDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(_this.$container.find('.agenda-date-selector li.active'));
-      var indexOfClickedDate = _this.$container.find('.agenda-date-selector li').not('.placeholder').index(this);
+      _this.$container.find('.agenda-list-day-holder').removeClass('hidden');
+
+      var indexOfActiveDate = _this.$container
+        .find('.agenda-date-selector li')
+        .not('.placeholder')
+        .index(_this.$container.find('.agenda-date-selector li.active'));
+      var indexOfClickedDate = _this.$container
+        .find('.agenda-date-selector li')
+        .not('.placeholder')
+        .index(this);
       var indexDifference = indexOfClickedDate - indexOfActiveDate;
 
       _this.updateDateIndexContext(indexOfClickedDate);
@@ -606,7 +699,11 @@ DynamicList.prototype.attachObservers = function() {
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter_date',
-        label: $(this).find('.week').text().trim() + ' ' + $(this).find('.day').text().trim() + ' ' + $(this).find('.month').text().trim()
+        label: [
+          $(this).find('.week').text().trim(),
+          $(this).find('.day').text().trim(),
+          $(this).find('.month').text().trim()
+        ].join(' ')
       });
 
       if (indexDifference < indexOfActiveDate) {
@@ -621,7 +718,11 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
     })
-    .on('click', '.dynamic-list-add-item', function() {
+    .on('click keydown', '.dynamic-list-add-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.addEntryLinkAction) {
         return;
       }
@@ -657,7 +758,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-edit-item', function() {
+    .on('click keydown', '.dynamic-list-edit-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       if (!_this.data.editEntryLinkAction) {
         return;
       }
@@ -695,7 +800,11 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
     })
-    .on('click', '.dynamic-list-delete-item', function() {
+    .on('click keydown', '.dynamic-list-delete-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var _that = $(this);
       var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
       var options = {
@@ -761,8 +870,15 @@ DynamicList.prototype.attachObservers = function() {
 
       Fliplet.Navigate.file(url);
     })
-    .on('click', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function() {
-      var id = $(this).parents('.agenda-detail-wrapper, .agenda-list-item').data('entry-id');
+    .on('click keydown', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      var $parent = $(this).parents('.agenda-item-bookmark-holder');
+      var id = $(this)
+        .parents('.agenda-detail-wrapper, .agenda-list-item')
+        .data('entry-id');
       var record = _.find(_this.listItems, { id: id });
 
       if (!record || !record.bookmarkButton) {
@@ -770,14 +886,16 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       if (record.bookmarked) {
-        $(this).parents('.agenda-item-bookmark-holder').removeClass('bookmarked').addClass('not-bookmarked');
+        $parent.removeClass('bookmarked').addClass('not-bookmarked');
+        $parent.find('.btn-bookmark').focus();
 
         record.bookmarkButton.unlike();
 
         return;
       }
 
-      $(this).parents('.agenda-item-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
+      $parent.removeClass('not-bookmarked').addClass('bookmarked');
+      $parent.find('.btn-bookmarked').focus();
 
       record.bookmarkButton.like();
     });
@@ -1624,6 +1742,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
       nextAgendaElement.addClass('active');
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
+
       resolve();
     });
   });
@@ -1689,6 +1808,8 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
     _this.scrollValue = 0;
   }
 
+  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
+
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
     _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
@@ -1720,6 +1841,8 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   if (!_this.isPanning) {
     _this.scrollValue = 0;
   }
+
+  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
 
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
@@ -1833,8 +1956,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           name: Fliplet.Env.get('pageTitle') + '/' + title,
           likeLabel: '<span class="fa fa-bookmark-o"></span>',
           likedLabel: '<span class="fa fa-bookmark"></span>',
-          likeWrapper: '<div class="bookmark-wrapper btn-bookmark"></div>',
-          likedWrapper: '<div class="bookmark-wrapper btn-bookmarked"></div>',
+          likeWrapper: '<div class="bookmark-wrapper btn-bookmark focus-outline" tabindex="0"></div>',
+          likedWrapper: '<div class="bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'prepend',
           getAllCounts: false,
           liked: record.bookmarked,
@@ -2227,6 +2350,14 @@ DynamicList.prototype.searchData = function(options) {
         uuid: _this.data.uuid,
         container: _this.$container,
         initialRender: !!options.initialRender
+      }).then(function() {
+        _this.$container.find('.agenda-list-day-holder').each(function() {
+          var $el = $(this);
+
+          if (!$el.hasClass('active')) {
+            $el.addClass('hidden');
+          }
+        });
       });
     });
   });
