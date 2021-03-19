@@ -362,6 +362,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function isExecute(event) {
+    return event.which === 13 || event.which === 32 || event.type === 'click';
+  }
+
   function recordIsDeletable(record, config, userData) {
     if (_.isNil(config.deleteEntry) || _.isNil(config.deletePermissions)) {
       return false;
@@ -1734,6 +1738,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
+    accessibilityHelpers: {
+      isExecute: isExecute
+    },
     DOM: {
       $: getjQueryObjects,
       resetSortIcons: resetSortIcons,
