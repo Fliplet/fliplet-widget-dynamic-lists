@@ -499,6 +499,7 @@ function attahObservers() {
 
           filterFieldValues.forEach(function(field) {
             if (field.valueType === 'enter-value') {
+              $(field.field).parents('.panel-default').removeClass('filter-error');
               $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
               $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
               $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
@@ -512,6 +513,7 @@ function attahObservers() {
                 id: field.id
               });
             } else {
+              $(field.field).parents('.panel-default').removeClass('filter-error');
               $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
               $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
               $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
@@ -523,6 +525,7 @@ function attahObservers() {
 
             filterError.forEach(function(field) {
               $(field.item).addClass('has-error');
+              $(field.item).parents('.panel-default').addClass('filter-error');
               $(field.item).parents('#filter-value-' + field.id).find('label').addClass('has-error-text');
               $(field.item).parents('#filter-value-from-' + field.id).find('label').addClass('has-error-text');
               $(field.item).parents('#filter-value-to-' + field.id).find('label').addClass('has-error-text');

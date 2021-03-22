@@ -281,7 +281,7 @@ var DynamicLists = (function() {
               break;
 
             case 'valueType':
-              $('#filter-value-' + id + ' label').html(value !== 'enter-value' ? 'Value for' : 'Value');
+              $('#filter-value-' + id + ' label').html(value !== 'enter-value' ? ' Value for (required)' : 'Value');
               break;
 
             default:
@@ -2004,7 +2004,7 @@ var DynamicLists = (function() {
         : data.column;
       data.valueField = data.valueType === 'enter-value'
         ? 'Value'
-        : 'Value for';
+        : 'Value for (required)';
 
       var $newPanel = $(filterPanelTemplate(data));
 

@@ -370,8 +370,8 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.file-item', function(file) {
-      var url = $(file.currentTarget).find('input[type=hidden]').val();
+    .on('click', '.file-item', function(event) {
+      var url = $(event.currentTarget).find('input[type=hidden]').val();
 
       Fliplet.Navigate.file(url);
     });
@@ -863,14 +863,12 @@ DynamicList.prototype.showDetails = function(id, listData) {
       entryData = _this.addDetailViewData(entryData);
 
       if (files && Array.isArray(files)) {
-        files.forEach(function(file) {
+        _.forEach(files, function(file) {
           if (!file) {
             return;
           }
 
-          var isFileAdded = entryData.entryDetails.some(function(details) {
-            return details.id === file.id;
-          });
+          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
 
           if (!isFileAdded) {
             entryData.entryDetails.push(file);

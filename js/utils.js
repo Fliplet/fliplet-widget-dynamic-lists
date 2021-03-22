@@ -47,19 +47,32 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return parseFloat(value);
   }
 
+  function sortFilesByName(a, b) {
+    var aFileName = a.name.toUpperCase();
+    var bFileName = b.name.toUpperCase();
+
+    if (aFileName < bFileName) {
+      return -1;
+    }
+
+    if (aFileName > bFileName) {
+      return 1;
+    }
+
+    return 0;
+  }
+
   function getFilesInfo(options) {
     var entry = options.entryData;
-    var detailViewFileOptions = _.filter(options.detailViewOptions, function(option) {
-      return option.editable && option.type === 'file';
-    });
+    var detailViewFileOptions = _.filter(options.detailViewOptions, { type: 'file' });
 
     var formFilesInfoInDetailViewOptions = detailViewFileOptions.map(function(detailViewFileOption) {
-      return new Promise(function(resolve) {
+      return new Promise(function(resolve, reject) {
         var label = '';
         var labelEnabled = true;
-        var files = typeof entry.originalData[detailViewFileOption.column] === 'string' ?
-          splitByCommas(entry.originalData[detailViewFileOption.column]) :
-          entry.originalData[detailViewFileOption.column];
+        var files = typeof entry.originalData[detailViewFileOption.column] === 'string'
+          ? splitByCommas(entry.originalData[detailViewFileOption.column])
+          : entry.originalData[detailViewFileOption.column];
 
         if (!files) {
           return resolve();
@@ -84,20 +97,25 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             break;
         }
 
-        var filesDetailViewInfo = Promise.all(files.map(function(fileUrl) {
-          var fileId = Fliplet.Media.isRemoteUrl(fileUrl)[2];
+        var fileIDs = files.map(function(fileUrl) {
+          var matchedFileUrl = fileUrl.match(/v1\/media\/files\/([0-9]+)/);
 
-          return Fliplet.Media.Files.get(fileId).then(function(file) {
+          return matchedFileUrl ? matchedFileUrl[1] : null;
+        });
+
+        Fliplet.Media.Files.getAll({
+          files: fileIDs,
+          fields: ['name', 'url', 'metadata', 'createdAt']
+        }).then(function(files) {
+          var filesInfo = files.map(function(file) {
             return {
               name: file.name,
-              size: file.size,
+              size: file.metadata.size,
               uploaded: file.createdAt,
               url: file.url
             };
-          });
-        }));
+          }).sort(sortFilesByName);
 
-        filesDetailViewInfo.then(function(filesInfo) {
           resolve({
             id: detailViewFileOption.id,
             content: filesInfo,
@@ -105,7 +123,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             labelEnabled: labelEnabled,
             type: detailViewFileOption.type
           });
-        });
+        }).catch(reject);
       });
     });
 
@@ -113,12 +131,41 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('formatDate', function(date) {
-      if (!date) {
-        return;
+    Handlebars.registerHelper('humanFileSize', function(bytes) {
+      if (!bytes) {
+        return null;
       }
 
-      return getMomentDate(date).format('DD MMMM YYYY');
+      var unitCapacity = 1000;
+      var decimals = 1;
+
+      if (Math.abs(bytes) < unitCapacity) {
+        return bytes + ' B';
+      }
+
+      var units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      var unitIndex = -1;
+      var round  = 10 * decimals;
+
+      do {
+        bytes /= unitCapacity;
+        ++unitIndex;
+      } while (Math.round(Math.abs(bytes) * round ) / round  >= unitCapacity && unitIndex < units.length - 1);
+
+      return bytes.toFixed(decimals) + ' ' + units[unitIndex];
+    });
+
+    Handlebars.registerHelper('formatDate', function(context, block) {
+      if (!context) {
+        return '';
+      }
+
+      if (context && context.hash) {
+        block = _.cloneDeep(context);
+        context = undefined;
+      }
+
+      return getMomentDate(context).format(block.hash.format || 'DD MMMM YYYY');
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
