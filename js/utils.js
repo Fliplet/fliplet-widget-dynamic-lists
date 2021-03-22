@@ -964,21 +964,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }, 0);
   }
 
-  function sortImagesByName(a, b) {
-    var aImgName = a.match(/\/contents\/(.*?)/)[1].toUpperCase();
-    var bImgName = b.match(/\/contents\/(.*?)/)[1].toUpperCase();
-
-    if (aImgName < bImgName) {
-      return -1;
-    }
-
-    if (aImgName > bImgName) {
-      return 1;
-    }
-
-    return 0;
-  }
-
   /**
    * This function designed to show users filters that were activated in the filters overlay
    *
@@ -1803,8 +1788,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortRecordsByField,
-      sortImagesByName: sortImagesByName
+      sortByField: sortRecordsByField
     },
     User: {
       isAdmin: userIsAdmin,

@@ -2225,8 +2225,6 @@ DynamicList.prototype.addDetailViewData = function(entry) {
         };
       }
 
-      contentArray.sort(_this.Utils.Records.sortImagesByName);
-
       _this.imagesData[obj.id].images = _.map(contentArray, function(imgUrl) {
         return { url: imgUrl };
       });
