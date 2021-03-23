@@ -129,6 +129,28 @@
   max-width: 100%;
 }
 
+.filter-item-remove {
+  cursor: pointer;
+  pointer-events: all;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 33px;
+  height: 33px;
+}
+
+.applied-filter {
+  padding: 0px 5px 0px 14px !important;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+}
+
+.applied-filter .fa-times {
+  height: 15px;
+}
+
 .filter-holder .panel-group .panel .panel-body {
   background-color: transparent;
 }
@@ -143,6 +165,40 @@
   display: block;
   clear: both;
   white-space: nowrap;
+}
+
+.file-holder {
+  padding: 0;
+  list-style-type: none;
+}
+
+.file-holder li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  padding-bottom: 10px;
+  padding-right: 30px;
+  border-bottom: 1px solid rgba(51,51,51,0.2);
+  cursor: pointer;
+}
+
+.file-holder .file-icon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(0, -50%);
+  font-size: 34px;
+  min-width: 30px;
+  color: #666;
+}
+
+.file-info {
+  font-size: 0.85em;
 }
 
 /*

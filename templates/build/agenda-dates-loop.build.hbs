@@ -1,5 +1,5 @@
 \{{#each this}}
-<li class="focus-outline \{{#if placeholder}}placeholder\{{/if}}" id="\{{@index}}" tabindex="0">
+<li class="\{{#if placeholder}}placeholder\{{else}}focus-outline\{{/if}}" id="\{{@index}}" \{{#ifCond placeholder '!=' true}}tabindex="0"\{{/ifCond}}>
   <div class="week">\{{week}}</div>
   <div class="day">\{{day}}</div>
   <div class="month">\{{month}}</div>

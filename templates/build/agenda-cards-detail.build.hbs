@@ -22,17 +22,17 @@
         <div class="agenda-item-add-agenda"></div>
       </div>
       \{{#if pollButton}}
-      <div class="go-to-poll session-button">
+      <div class="go-to-poll session-button focus-outline" tabindex="0">
         <i class="fa fa-pie-chart"></i>Poll
       </div>
       \{{/if}}
       \{{#if surveyButton}}
-      <div class="go-to-survey session-button">
+      <div class="go-to-survey session-button focus-outline" tabindex="0">
         <i class="fa fa-pencil-square-o"></i>Survey
       </div>
       \{{/if}}
       \{{#if questionsButton}}
-      <div class="go-to-questions session-button">
+      <div class="go-to-questions session-button focus-outline" tabindex="0">
         <i class="fa fa-question-circle-o"></i>Questions
       </div>
       \{{/if}}
@@ -122,6 +122,30 @@
             \{{/if}}
 
             <div class="agenda-item-detail-body-text">\{{formatDate content}}</div>
+          \{{/if}}
+        \{{/ifCond}}
+
+        <!-- File template -->
+        \{{#ifCond type '==' 'file'}}
+          \{{#if content}}
+            <ul class="file-holder">
+              \{{#if labelEnabled}}
+                <div class="agenda-item-detail-label">\{{label}}</div>
+              \{{/if}}
+              \{{#each content}}
+                <li class="file-item">
+                  <div class="file-title">\{{this.name}}</div>
+                  <div class="file-info">
+                    <span class="file-info-uploaded">Uploaded: \{{formatDate this.uploaded}}</span>
+                    \{{#if this.size}}<span class="file-info-size">&ndash; \{{humanFileSize this.size}}</span>\{{/if}}
+                  </div>
+                  <input type="hidden" value=\{{this.url}}>
+                  <div class="file-icon">
+                    <i class="fa fa-angle-right"></i>
+                  </div>
+                </li>
+              \{{/each}}
+            </ul>
           \{{/if}}
         \{{/ifCond}}
 
