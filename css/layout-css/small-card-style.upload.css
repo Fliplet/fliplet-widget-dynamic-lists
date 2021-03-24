@@ -51,11 +51,10 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 44px;
+  height: 50px;
   display: flex;
   align-items: center;
   padding-right: 15px;
-  padding-left: 44px;
   font-size: 1.2em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -121,12 +120,10 @@
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-close {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 44px;
   height: 44px;
   padding-left: 15px;
+  margin-left: 3px;
   font-size: 1.8em;
   line-height: 44px;
   z-index: 1;
