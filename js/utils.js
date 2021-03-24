@@ -886,23 +886,44 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     return cachedFiles[cacheKey]
       .then(function(response) {
+        var image = _.get(data, ['record', 'data', data.field.column]);
+
         if (!data.field) {
           return data.record;
         }
 
         if (data.field.from === 'details') {
           var imageFiles = [];
+          var images;
+          var fileExtensionRegex = /(.+?)(?:\.[^\.]*$|$)/;
+          var fileNameRegex = /(?=\w+\.\w{3,4}$).+/igm;
+
+          if (typeof image === 'string') {
+            images = splitByCommas(image);
+          } else {
+            images = image;
+          }
 
           _.forEach(response.files, function(file) {
-            if (/image/.test(file.contentType)) {
-              imageFiles.push(file.url);
-            }
+            var fileName = file.name.match(fileExtensionRegex)[1];
+
+            _.forEach(images, function(image) {
+              var imageNameFromURL = image.match(fileNameRegex);
+              var imageName = imageNameFromURL
+                ? imageNameFromURL[0]
+                : image;
+
+              if (imageName && (file.name === imageName || fileName === imageName)) {
+                imageFiles.push(file.url);
+              } else if (Static.RegExp.number.test(imageName)
+                && parseInt(imageName, 10) === file.id) {
+                imageFiles.push(file.url);
+              }
+            });
           });
 
           _.set(data, ['record', 'data', data.field.column], imageFiles);
         } else {
-          var image = _.get(data, ['record', 'data', data.field.column]);
-
           if (_.isArray(image)) {
             image = _.compact(image)[0];
           }
@@ -914,7 +935,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
           var urlEdited = _.some(response.files, function(file) {
           // remove file extension
-            var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
+            var fileName = file.name.match(fileExtensionRegex)[1];
 
             if (image && (file.name === image || fileName === image)) {
             // File found
