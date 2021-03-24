@@ -199,6 +199,9 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
+      $('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -259,6 +262,7 @@ DynamicList.prototype.attachObservers = function() {
         $('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
         $('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
+
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,

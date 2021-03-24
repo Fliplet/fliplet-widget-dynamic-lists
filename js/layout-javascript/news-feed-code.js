@@ -237,6 +237,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      $('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -435,6 +436,7 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.removeClass('display');
       $('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.fa-sliders').focus();
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected

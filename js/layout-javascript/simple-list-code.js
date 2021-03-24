@@ -230,6 +230,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      $('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
