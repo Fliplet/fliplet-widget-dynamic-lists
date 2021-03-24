@@ -263,7 +263,6 @@ DynamicList.prototype.attachObservers = function() {
         $('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
-
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'search_filter_controls_overlay_activate'
