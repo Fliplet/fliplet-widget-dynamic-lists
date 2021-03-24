@@ -12,10 +12,10 @@
         \{{/ifCond}}
         \{{#if likesEnabled}}
         <div class="news-feed-like-holder news-feed-like-holder-\{{id}}">
-          <div class="news-feed-like-wrapper btn-like">
+          <div class="news-feed-like-wrapper btn-like focus-outline" tabindex="0">
             <span class="count"></span><i class="fa fa-heart-o fa-lg"></i>
           </div>
-          <div class="news-feed-like-wrapper btn-liked">
+          <div class="news-feed-like-wrapper btn-liked focus-outline" tabindex="0">
             <span class="count"></span><i class="fa fa-heart fa-lg animated bounceIn"></i>
           </div>
         </div>
@@ -23,17 +23,17 @@
 
         \{{#if bookmarksEnabled}}
         <div class="news-feed-bookmark-holder news-feed-bookmark-holder-\{{id}}">
-          <div class="news-feed-bookmark-wrapper btn-bookmark">
+          <div class="news-feed-bookmark-wrapper btn-bookmark focus-outline" tabindex="0">
             <i class="fa fa-bookmark-o fa-lg"></i>
           </div>
-          <div class="news-feed-bookmark-wrapper btn-bookmarked">
+          <div class="news-feed-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0">
             <i class="fa fa-bookmark fa-lg animated fadeIn"></i>
           </div>
         </div>
         \{{/if}}
 
         \{{#if commentsEnabled}}
-        <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}}">
+        <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}} focus-outline" tabindex="0">
           <!-- Like button will be here -->
           <!-- Like placeholder -->
           <i class="fa fa-comment-o fa-lg comment-placeholder"></i>
@@ -135,21 +135,45 @@
             \{{/if}}
           \{{/ifCond}}
 
+          <!-- File template -->
+          \{{#ifCond type '==' 'file'}}
+            \{{#if content}}
+              <ul class="file-holder">
+                \{{#if labelEnabled}}
+                  <div class="news-feed-detail-label">\{{label}}</div>
+                \{{/if}}
+                \{{#each content}}
+                  <li class="file-item">
+                    <div class="file-title">\{{this.name}}</div>
+                    <div class="file-info">
+                      <span class="file-info-uploaded">Uploaded: \{{formatDate this.uploaded}}</span>
+                      \{{#if this.size}}<span class="file-info-size">&ndash; \{{humanFileSize this.size}}</span>\{{/if}}
+                    </div>
+                    <input type="hidden" value=\{{this.url}}>
+                    <div class="file-icon">
+                      <i class="fa fa-angle-right"></i>
+                    </div>
+                  </li>
+                \{{/each}}
+              </ul>
+            \{{/if}}
+          \{{/ifCond}}
+
         \{{/each}}
       </div>
       <div class="news-feed-inner-holder \{{#ifCond editEntry '||' deleteEntry}}has-edit-controls\{{/ifCond}}">
         \{{#ifCond editEntry '||' deleteEntry}}
         <div class="dynamic-list-controls">
           \{{#if editEntry}}
-          <div class="btn btn-default dynamic-list-edit-item">Edit</div>
+          <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">Edit</div>
           \{{/if}}
           \{{#if deleteEntry}}
-          <div class="btn btn-danger dynamic-list-delete-item">Delete</div>
+          <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">Delete</div>
           \{{/if}}
         </div>
         \{{/ifCond}}
         \{{#if commentsEnabled}}
-        <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}}">
+        <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}} focus-outline" tabindex="0">
           <!-- Like button will be here -->
           <!-- Like placeholder -->
           <i class="fa fa-comment-o fa-lg comment-placeholder"></i>
