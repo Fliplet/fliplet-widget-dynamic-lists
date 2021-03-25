@@ -1500,7 +1500,9 @@ DynamicList.prototype.addSummaryData = function(records) {
           var imagesArray = [];
 
           imagesArray = imageContent.match(detectURLRegex);
-          content = imagesArray[0];
+          content = imagesArray !== null
+            ? imagesArray[0]
+            : '';
         } else if (Array.isArray(imageContent)) {
           content = imageContent[0];
         }
