@@ -896,7 +896,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           var imageFiles = [];
           var images;
           var fileExtensionRegex = /(.+?)(?:\.[^\.]*$|$)/;
-          var fileNameRegex = /(?=\w+\.\w{3,4}$).+/igm;
+          var fileNameRegex = /[^\\/]+$/igm;
 
           if (typeof image === 'string') {
             images = splitByCommas(image);
