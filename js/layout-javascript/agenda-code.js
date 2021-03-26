@@ -609,13 +609,10 @@ DynamicList.prototype.attachObservers = function() {
       var result;
       var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
 
-      _this.$container.find('.new-agenda-list-container').removeClass('hidden');
-      _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
-
       $('.agenda-list-holder').removeClass('hidden');
 
-      var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
-
+      _this.$container.find('.new-agenda-list-container').removeClass('hidden');
+      _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
