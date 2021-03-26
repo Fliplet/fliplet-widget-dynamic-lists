@@ -769,7 +769,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (condition === 'oneof') {
-          var splittedRowData = Array.isArray(rowData) ? rowData : splitByCommas(rowData);
+          var splittedRowData = _.isArray(rowData) ? _.flatten(rowData) : splitByCommas(rowData);
 
           return splittedFilterValue.includes(rowData)
             || !!_.intersectionWith(splittedFilterValue, splittedRowData, _.isEqual).length;
