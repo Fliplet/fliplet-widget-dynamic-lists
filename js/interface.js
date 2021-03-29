@@ -106,7 +106,7 @@ var DynamicLists = (function() {
       accessRules: accessRules
     };
 
-    dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider-andrey', {
+    dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
       selector: '#dataSourceProvider',
       data: dataSourceData,
       onEvent: function(event, dataSource) {
