@@ -613,7 +613,6 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.new-agenda-list-container').removeClass('hidden');
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
-      _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
