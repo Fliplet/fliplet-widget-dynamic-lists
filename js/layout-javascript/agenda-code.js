@@ -259,8 +259,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        $('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
-        $('.agenda-overlay-close').focus();
+        _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
+        _this.$container.find('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -811,7 +811,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var _that = $(this);
-      var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entryID = _that.parents('.agenda-item-inner-content').data('entry-id');
       var options = {
         title: 'Are you sure you want to delete the list entry?',
         labels: [
