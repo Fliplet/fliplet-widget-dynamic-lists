@@ -1358,7 +1358,9 @@ DynamicList.prototype.addSummaryData = function(records) {
           var imagesArray = [];
 
           imagesArray = imageContent.match(detectURLRegex);
-          content = imagesArray[0];
+          content = imagesArray !== null
+            ? imagesArray[0]
+            : '';
         } else if (Array.isArray(imageContent)) {
           content = imageContent[0];
         }
@@ -2593,8 +2595,6 @@ DynamicList.prototype.addDetailViewData = function(entry) {
           }
         };
       }
-
-      contentArray.sort(_this.Utils.Records.sortImagesByName);
 
       _this.imagesData[dynamicDataObj.id].images = _.map(contentArray, function(imgUrl) {
         return { url: imgUrl };
