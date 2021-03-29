@@ -175,8 +175,6 @@
 .multiple-images-item {
   width: calc(50% - 7.5px);
   margin-top: 15px;
-  border-radius: 12px;
-  padding: 10px;
   border: 1px solid rgba(127, 127, 127, 0.5);
   cursor: pointer;
 }
