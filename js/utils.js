@@ -769,8 +769,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (condition === 'oneof') {
+          var splittedRowData = _.isArray(rowData) ? _.flatten(rowData) : splitByCommas(rowData);
+
           return splittedFilterValue.includes(rowData)
-            || !!_.intersectionWith(splittedFilterValue, splitByCommas(rowData), _.isEqual).length;
+            || !!_.intersectionWith(splittedFilterValue, splittedRowData, _.isEqual).length;
         }
 
         if (['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(condition) !== -1) {
