@@ -609,8 +609,7 @@ DynamicList.prototype.attachObservers = function() {
       var result;
       var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
 
-      $('.agenda-list-holder').removeClass('hidden');
-
+      _this.$container.find('.agenda-list-holder').removeClass('hidden');
       _this.$container.find('.new-agenda-list-container').removeClass('hidden');
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
