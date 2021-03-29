@@ -414,7 +414,7 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.$container.find('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);

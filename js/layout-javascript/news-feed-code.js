@@ -303,7 +303,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $el.parents('.new-news-feed-list-container').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();

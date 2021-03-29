@@ -293,8 +293,8 @@ DynamicList.prototype.attachObservers = function() {
 
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
