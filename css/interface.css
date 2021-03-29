@@ -1094,10 +1094,6 @@ header .btn,
   border-color: #a94442;
 }
 
-.has-error {
-  border-color: #a94442;
-}
-
 .error-holder {
   padding: 15px;
   position: absolute;
@@ -1110,8 +1106,20 @@ header .btn,
   box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
 }
 
+.filter-error {
+  border: 1px solid #a94442;
+}
+
+.filter-error .panel-title-text {
+  color: #a94442 !important;
+}
+
 .has-error-text {
   color: #a94442 !important;
+}
+
+.has-error {
+  border-color: #a94442;
 }
 
 .select-user-email-list-holder {

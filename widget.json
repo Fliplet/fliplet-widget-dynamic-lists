@@ -63,6 +63,7 @@
       "font-awesome",
       "bootstrap",
       "moment",
+      "moment-timezone",
       "lodash",
       "handlebars",
       "animate-css",

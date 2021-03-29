@@ -17,6 +17,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   };
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
+  var currentDate = {};
+  var LOCAL_FORMAT = 'YYYY-MM-DD';
 
   // Keep date format in English until localisation is correctly rollded out
   moment.locale('en');
@@ -45,13 +47,125 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return parseFloat(value);
   }
 
+  function sortFilesByName(a, b) {
+    var aFileName = a.name.toUpperCase();
+    var bFileName = b.name.toUpperCase();
+
+    if (aFileName < bFileName) {
+      return -1;
+    }
+
+    if (aFileName > bFileName) {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  function getFilesInfo(options) {
+    var entry = options.entryData;
+    var detailViewFileOptions = _.filter(options.detailViewOptions, { type: 'file' });
+
+    var formFilesInfoInDetailViewOptions = detailViewFileOptions.map(function(detailViewFileOption) {
+      return new Promise(function(resolve, reject) {
+        var label = '';
+        var labelEnabled = true;
+        var files = typeof entry.originalData[detailViewFileOption.column] === 'string'
+          ? splitByCommas(entry.originalData[detailViewFileOption.column])
+          : entry.originalData[detailViewFileOption.column];
+
+        if (!files) {
+          return resolve();
+        }
+
+        switch (detailViewFileOption.fieldLabel) {
+          case 'column-name':
+            if (detailViewFileOption.column !== 'custom') {
+              label = detailViewFileOption.column;
+            }
+
+            break;
+          case 'custom-label':
+            label = new Handlebars.SafeString(Handlebars.compile(detailViewFileOption.customFieldLabel)(entry.originalData));
+
+            break;
+          case 'no-label':
+            labelEnabled = false;
+
+            break;
+          default:
+            break;
+        }
+
+        var fileIDs = files.map(function(fileUrl) {
+          var matchedFileUrl = fileUrl.match(/v1\/media\/files\/([0-9]+)/);
+
+          return matchedFileUrl ? matchedFileUrl[1] : null;
+        });
+
+        Fliplet.Media.Files.getAll({
+          files: fileIDs,
+          fields: ['name', 'url', 'metadata', 'createdAt']
+        }).then(function(files) {
+          var filesInfo = files.map(function(file) {
+            return {
+              name: file.name,
+              size: file.metadata.size,
+              uploaded: file.createdAt,
+              url: file.url
+            };
+          }).sort(sortFilesByName);
+
+          resolve({
+            id: detailViewFileOption.id,
+            content: filesInfo,
+            label: label,
+            labelEnabled: labelEnabled,
+            type: detailViewFileOption.type
+          });
+        }).catch(reject);
+      });
+    });
+
+    return Promise.all(formFilesInfoInDetailViewOptions);
+  }
+
   function registerHandlebarsHelpers() {
-    Handlebars.registerHelper('formatDate', function(date) {
-      if (!date) {
-        return;
+    Handlebars.registerHelper('humanFileSize', function(bytes) {
+      if (!bytes) {
+        return null;
       }
 
-      return getMomentDate(date).format('DD MMMM YYYY');
+      var unitCapacity = 1000;
+      var decimals = 1;
+
+      if (Math.abs(bytes) < unitCapacity) {
+        return bytes + ' B';
+      }
+
+      var units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      var unitIndex = -1;
+      var round  = 10 * decimals;
+
+      do {
+        bytes /= unitCapacity;
+        ++unitIndex;
+      } while (Math.round(Math.abs(bytes) * round ) / round  >= unitCapacity && unitIndex < units.length - 1);
+
+      return bytes.toFixed(decimals) + ' ' + units[unitIndex];
+    });
+
+    Handlebars.registerHelper('formatDate', function(context, block) {
+      if (!context) {
+        return '';
+      }
+
+      if (context && context.hash) {
+        block = _.cloneDeep(context);
+        context = undefined;
+      }
+
+      return getMomentDate(context).format(block.hash.format || 'DD MMMM YYYY');
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
@@ -89,6 +203,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     Handlebars.registerHelper('isSingle', function(value) {
       return value.length === 1;
+    });
+
+    Handlebars.registerHelper('formatFilename', function(filename) {
+      var index = filename.indexOf('contents/');
+      var formattedName = filename.substring(index + 9);
+
+      return formattedName;
     });
   }
 
@@ -366,6 +487,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function isExecute(event) {
+    return event.which === 13 || event.which === 32 || event.type === 'click';
+  }
+
   function recordIsDeletable(record, config, userData) {
     if (_.isNil(config.deleteEntry) || _.isNil(config.deletePermissions)) {
       return false;
@@ -419,6 +544,197 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  function getInputDate(date, getDate, timeOnly, dateOnly) {
+    var inputDate = null;
+
+    if (!dateOnly) {
+      inputDate = timeOnly
+        ? getDate(date, 'HH:mm')
+        : getDate(date, LOCAL_FORMAT);
+    }
+
+    return inputDate;
+  }
+
+  function getDateModifiedValues(options) {
+    var timestamp = options.date;
+    var timeOnly = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(timestamp);
+    var dateOnly = !/[:]/.test(timestamp);
+    var deviceTimeZone = moment.tz.guess();
+    var getDate = options.useDeviceTimezone ? moment.tz.setDefault(deviceTimeZone) : moment.utc;
+
+    switch (options.dateFilterModifiers) {
+      case 'today':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'now':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, null, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'nowaddminutes':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'nowaddhours':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'todayadddays':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayaddmonths':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayaddyears':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'nowsubtractminutes':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'nowsubtracthours':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: getInputDate(options.date, getDate, timeOnly, dateOnly)
+        };
+
+      case 'todayminusdays':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayminusmonths':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      case 'todayminusyears':
+        return {
+          comparisonDate: getCachedDate(options.dateFilterModifiers, options.offsetValue, getDate),
+          entryDate: timeOnly
+            ? null
+            : moment(options.date, LOCAL_FORMAT).startOf('day')
+        };
+
+      default:
+        break;
+    }
+  }
+
+  function getCachedDate(offsetType, offsetValue, getDate) {
+    // Memoization method was used in this function
+
+    var offsetTypes = ['minute', 'hour', 'month', 'year', 'day'];
+
+    if (offsetType in currentDate) {
+      return currentDate[offsetType];
+    }
+
+    var period = offsetTypes.find(function(item) {
+      return offsetType.indexOf(item) !== -1;
+    });
+
+    if (offsetType === 'now') {
+      currentDate[offsetType] = getDate().startOf('minute');
+    } else if (offsetType === 'today') {
+      currentDate[offsetType] = moment().startOf('day');
+    }
+
+    if (offsetType !== 'now' && offsetType.indexOf('now') !== -1) {
+      currentDate[offsetType] = offsetType.indexOf('add') !== -1
+        ? getDate().add(period, smartParseFloat(offsetValue)).startOf('minute')
+        : getDate().subtract(period, smartParseFloat(offsetValue)).startOf('minute');
+    } else if (offsetType.indexOf('today') !== -1) {
+      currentDate[offsetType] = offsetType.indexOf('add') !== -1
+        ? moment().add(period, smartParseFloat(offsetValue)).startOf('day')
+        : moment().subtract(period, smartParseFloat(offsetValue)).startOf('day');
+    }
+
+    return currentDate[offsetType];
+  }
+
+  function isDateMatches(options) {
+    if (options) {
+      var result = getDateModifiedValues({
+        date: options.date,
+        dateFilterModifiers: options.dateValue,
+        offsetValue: options.offsetValue,
+        useDeviceTimezone: options.useDeviceTimezone
+      });
+
+      switch (options.condition) {
+        case 'dateis':
+          return moment(result.entryDate).isSame(result.comparisonDate);
+
+        case 'datebefore':
+          return  moment(result.entryDate).isBefore(result.comparisonDate);
+
+        case 'dateafter':
+          return moment(result.entryDate).isAfter(result.comparisonDate);
+
+        case 'datebetween':
+          var comparisonDateFrom = getDateModifiedValues({
+            date: options.date,
+            dateFilterModifiers: options.dateFilterModifiers.from.value,
+            offsetValue: options.dateFilterModifiers.from.offset,
+            useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
+          }).comparisonDate;
+
+          var comparisonDateTo = getDateModifiedValues({
+            date: options.date,
+            dateFilterModifiers: options.dateFilterModifiers.to.value,
+            offsetValue: options.dateFilterModifiers.to.offset,
+            useDeviceTimezone: options.dateFilterModifiers.to.useDeviceTimezone
+          }).comparisonDate;
+
+          var entryDate = getDateModifiedValues({
+            date: options.date,
+            dateFilterModifiers: options.dateFilterModifiers.from.value,
+            offsetValue: options.dateFilterModifiers.from.offset,
+            useDeviceTimezone: options.dateFilterModifiers.from.useDeviceTimezone
+          }).entryDate;
+
+          return moment(entryDate).isBetween(comparisonDateFrom, comparisonDateTo, null, '[]');
+        default:
+          break;
+      }
+    }
+  }
+
   function runRecordFilters(records, filters) {
     if (!filters || _.isEmpty(filters)) {
       return records;
@@ -437,6 +753,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return _.every(filters, function(filter) {
         var condition = filter.condition;
         var rowData = _.get(record, ['data', filter.column], null);
+        var splittedFilterValue = splitByCommas(filter.value);
 
         if (condition === 'none' || filter.column === 'none') {
           // Filter isn't configured correctly
@@ -451,17 +768,29 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return !_.isEmpty(rowData) || _.isFinite(rowData) || typeof rowData === 'boolean';
         }
 
-        if (!filter.value) {
-          // Value is not configured
-          return true;
-        }
-
         if (condition === 'between') {
           return rowData >= smartParseFloat(filter.value.from.trim()) && (rowData <= (smartParseFloat(filter.value.to.trim()) || rowData));
         }
 
         if (condition === 'oneof') {
-          return splitByCommas(filter.value).includes(rowData);
+          return splittedFilterValue.includes(rowData)
+            || !!_.intersectionWith(splittedFilterValue, splitByCommas(rowData), _.isEqual).length;
+        }
+
+        if (['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(condition) !== -1) {
+          return isDateMatches({
+            date: rowData,
+            condition: condition,
+            dateValue: filter.dateValue,
+            offsetValue: filter.offsetValue,
+            useDeviceTimezone: filter.useDeviceTimezone,
+            dateFilterModifiers: filter.dateFilterModifiers
+          });
+        }
+
+        if (!filter.value) {
+          // Value is not configured
+          return true;
         }
 
         // Case insensitive
@@ -1351,9 +1680,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return {
         column: option.column,
         condition: option.logic,
+        dateValue: option.dateValue,
+        offsetValue: option.offsetValue,
+        useDeviceTimezone: option.useDeviceTimezone,
+        dateFilterModifiers: option.dateFilterModifiers,
+        valueType: option.valueType,
         value: option.value
       };
     }));
+
+    currentDate = {};
 
     if (config.sortOptions.length) {
       var sortFields = _.map(config.sortOptions, function(option) {
@@ -1765,6 +2101,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   return {
     registerHandlebarsHelpers: registerHandlebarsHelpers,
+    accessibilityHelpers: {
+      isExecute: isExecute
+    },
     DOM: {
       $: getjQueryObjects,
       resetSortIcons: resetSortIcons,
@@ -1813,7 +2152,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
       sortByField: sortRecordsByField,
-      sortImagesByName: sortImagesByName
+      sortImagesByName: sortImagesByName,
+      getFilesInfo: getFilesInfo
     },
     User: {
       isAdmin: userIsAdmin,
