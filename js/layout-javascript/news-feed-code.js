@@ -238,6 +238,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -296,12 +297,14 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
+      var $el = $(event.target);
+
+      if ($el.hasClass('news-feed-info-holder') || $el.parents('.news-feed-info-holder').length) {
         return;
       }
 
-      $(event.target).parents('.new-news-feed-list-container').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
+      $el.parents('.new-news-feed-list-container').addClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
@@ -435,11 +438,8 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
-      $('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
-      $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
-
-      // Clear all selected filters
+      _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.fa-sliders').focus();
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected

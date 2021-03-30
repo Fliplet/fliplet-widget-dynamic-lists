@@ -200,6 +200,9 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
+      _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -257,8 +260,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        $('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
-        $('.agenda-overlay-close').focus();
+        _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
+        _this.$container.find('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -290,9 +293,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -556,7 +559,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
+      _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();
@@ -607,6 +610,7 @@ DynamicList.prototype.attachObservers = function() {
       var result;
       var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
 
+      _this.$container.find('.agenda-list-holder').removeClass('hidden');
       _this.$container.find('.new-agenda-list-container').removeClass('hidden');
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
@@ -807,7 +811,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var _that = $(this);
-      var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entryID = _that.parents('.agenda-item-inner-content').data('entry-id');
       var options = {
         title: 'Are you sure you want to delete the list entry?',
         labels: [

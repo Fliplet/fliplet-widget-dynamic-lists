@@ -325,17 +325,19 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      var _that = $(this);
+      var $el = $(event.target);
 
       _this.$container.find('.new-small-card-list-container').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
-      if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
+      if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
         return;
       }
 
-      var entryId = $(this).data('entry-id');
-      var entryTitle = $(this).find('.small-card-list-name').text().trim();
+      $el.parents('.small-card-list-wrapper').addClass('hidden');
+
+      var entryId = $el.data('entry-id');
+      var entryTitle = $el.find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
@@ -371,7 +373,7 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick && $(window).width() < 640) {
-          _this.directoryDetailWrapper = _that.find('.small-card-list-detail-wrapper');
+          _this.directoryDetailWrapper = $el.find('.small-card-list-detail-wrapper');
           _this.expandElement(_this.directoryDetailWrapper, entryId);
         } else if (_this.allowClick && $(window).width() >= 640) {
           _this.showDetails(entryId);
@@ -391,7 +393,8 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      $('.new-small-card-list-container').removeClass('hidden');
+      _this.$container.find('.new-small-card-list-container, .small-card-list-wrapper').removeClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
       var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
