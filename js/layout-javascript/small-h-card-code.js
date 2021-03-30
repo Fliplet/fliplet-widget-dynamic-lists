@@ -659,11 +659,9 @@ DynamicList.prototype.addSummaryData = function(records) {
         var imageContent = entry.data[obj.column];
 
         if (typeof imageContent === 'string') {
-          // Regex to detect if line contains URL
-          var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
           var imagesArray = [];
 
-          imagesArray = imageContent.match(detectURLRegex);
+          imagesArray = _this.Utils.String.getImagesByRegex(imageContent);
           content = imagesArray !== null
             ? imagesArray[0]
             : '';
@@ -839,10 +837,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       var contentArray;
 
       if (typeof content === 'string') {
-        // Regex to detect if line contains URL
-        var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-
-        contentArray = content.match(detectURLRegex);
+        contentArray = _this.Utils.String.getImagesByRegex(content);
       }
 
       if (Array.isArray(content)) {

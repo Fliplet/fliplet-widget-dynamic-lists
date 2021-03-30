@@ -2068,6 +2068,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }));
   }
 
+  function getImagesUrlsByRegex(imageString) {
+    // Regex to detect if line contains URL
+    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/);
+  }
+
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;
@@ -2125,6 +2130,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       splitByCommas: splitByCommas,
       validateImageUrl: validateImageUrl,
       toFormattedString: toFormattedString,
+      getImagesByRegex: getImagesUrlsByRegex,
       appendUrlQuery: appendUrlQuery
     },
     Date: {

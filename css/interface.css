@@ -992,6 +992,10 @@ header .btn,
   width: 18%;
 }
 
+.detail-table-panels-holder .image-type-select .rTableCell.title {
+  width: 20.6%;
+}
+
 .flex-right {
   display: flex;
   height: 44px;
