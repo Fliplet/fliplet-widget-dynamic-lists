@@ -271,9 +271,12 @@ var DynamicLists = (function() {
               $('#date-logic-' + id).toggleClass('hidden', !isDateLogic );
               $('#date-between-' + id).toggleClass('hidden', !isDateBetween);
 
-              $('#date-number-default-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateField));
-              $('#date-number-from-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateFieldFrom));
-              $('#date-number-to-' + id).toggleClass('hidden', isDateBetween || _this.showOffsetField($dateFieldTo));
+              if (isDateBetween) {
+                $('#date-number-default-' + id).toggleClass('hidden', _this.showOffsetField($dateField));
+                $('#date-number-from-' + id).toggleClass('hidden', _this.showOffsetField($dateFieldFrom));
+                $('#date-number-to-' + id).toggleClass('hidden', _this.showOffsetField($dateFieldTo));
+              }
+
               $('#enable-timezone-default-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateField));
               $('#enable-timezone-from-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateFieldFrom));
               $('#enable-timezone-to-' + id).parents('.checkbox').toggleClass('hidden', !_this.showTimezoneField($dateFieldTo));

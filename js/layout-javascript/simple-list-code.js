@@ -230,6 +230,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -273,12 +274,14 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if ($(event.target).hasClass('simple-list-social-holder') || $(event.target).parents('.simple-list-social-holder').length) {
+      var $el = $(event.target);
+
+      if ($el.hasClass('simple-list-social-holder') || $el.parents('.simple-list-social-holder').length) {
         return;
       }
 
-      $(event.target).parents('.simple-list-container').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
+      $el.parents('.simple-list-container').addClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text().trim();
@@ -409,9 +412,9 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.removeClass('display');
 
-      $('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);

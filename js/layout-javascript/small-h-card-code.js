@@ -116,7 +116,7 @@ DynamicList.prototype.attachObservers = function() {
       var beforeOpen = Promise.resolve();
 
       $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
@@ -171,7 +171,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      $('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
