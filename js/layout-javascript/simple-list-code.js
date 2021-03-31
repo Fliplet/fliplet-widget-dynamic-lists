@@ -331,7 +331,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      $('.simple-list-container').removeClass('hidden');
+      _this.$container.find('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.simple-list-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -380,7 +380,9 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
         $('body').addClass('lock has-filter-overlay');
-        $('.simple-list-search-filter-overlay .simple-list-overlay-close').focus();
+
+        _this.$container.find('.simple-list-search-filter-overlay .simple-list-overlay-close').focus();
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,

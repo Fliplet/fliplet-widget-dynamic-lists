@@ -127,6 +127,7 @@ DynamicList.prototype.clearFilters = function() {
 
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
+  this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -259,7 +260,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
+        _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').addClass('hidden');
         _this.$container.find('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
@@ -610,7 +611,7 @@ DynamicList.prototype.attachObservers = function() {
       var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
 
       _this.$container.find('.agenda-list-holder').removeClass('hidden');
-      _this.$container.find('.new-agenda-list-container').removeClass('hidden');
+      _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -1821,6 +1822,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
+    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
@@ -1855,6 +1857,7 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
+    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
