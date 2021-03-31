@@ -1821,6 +1821,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
+    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
@@ -1855,6 +1856,7 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
+    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
