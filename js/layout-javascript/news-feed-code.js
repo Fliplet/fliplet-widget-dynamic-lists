@@ -436,7 +436,10 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.removeClass('display');
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
-      _this.$container.find('.fa-sliders').focus();
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
+      $('body').removeClass('lock has-filter-overlay');
+
+      // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected

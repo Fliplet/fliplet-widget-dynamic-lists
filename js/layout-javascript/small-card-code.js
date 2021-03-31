@@ -234,6 +234,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -324,19 +325,19 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      var _that = $(this);
+      var $el = $(this);
 
       _this.$container.find('.new-small-card-list-container').addClass('hidden');
       _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
-      if (_that.hasClass('small-card-bookmark-holder') || _that.parents('.small-card-bookmark-holder').length) {
+      if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
         return;
       }
 
-      _that.parents('.small-card-list-wrapper').addClass('hidden');
+      $el.parents('.small-card-list-wrapper').addClass('hidden');
 
-      var entryId = _that.data('entry-id');
-      var entryTitle = _that.find('.small-card-list-name').text().trim();
+      var entryId = $el.data('entry-id');
+      var entryTitle = $el.find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
@@ -372,7 +373,7 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick && $(window).width() < 640) {
-          _this.directoryDetailWrapper = _that.find('.small-card-list-detail-wrapper');
+          _this.directoryDetailWrapper = $el.find('.small-card-list-detail-wrapper');
           _this.expandElement(_this.directoryDetailWrapper, entryId);
         } else if (_this.allowClick && $(window).width() >= 640) {
           _this.showDetails(entryId);
