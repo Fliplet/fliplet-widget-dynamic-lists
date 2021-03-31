@@ -324,19 +324,19 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      var $el = $(event.target);
+      var _that = $(this);
 
       _this.$container.find('.new-small-card-list-container').addClass('hidden');
       _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
-      if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
+      if (_that.hasClass('small-card-bookmark-holder') || _that.parents('.small-card-bookmark-holder').length) {
         return;
       }
 
-      $el.parents('.small-card-list-wrapper').addClass('hidden');
+      _that.parents('.small-card-list-wrapper').addClass('hidden');
 
-      var entryId = $el.data('entry-id');
-      var entryTitle = $el.find('.small-card-list-name').text().trim();
+      var entryId = _that.data('entry-id');
+      var entryTitle = _that.find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
@@ -372,7 +372,7 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick && $(window).width() < 640) {
-          _this.directoryDetailWrapper = $el.find('.small-card-list-detail-wrapper');
+          _this.directoryDetailWrapper = _that.find('.small-card-list-detail-wrapper');
           _this.expandElement(_this.directoryDetailWrapper, entryId);
         } else if (_this.allowClick && $(window).width() >= 640) {
           _this.showDetails(entryId);
@@ -392,8 +392,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      _this.$container.find('.new-small-card-list-container, .small-card-list-wrapper').removeClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+      _this.$container.find('.new-small-card-list-container, .small-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -453,7 +452,9 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
 
-        $('.small-card-search-filter-overlay .small-card-overlay-close').focus();
+        _this.$container.find('.small-card-search-filter-overlay .small-card-overlay-close').focus();
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
