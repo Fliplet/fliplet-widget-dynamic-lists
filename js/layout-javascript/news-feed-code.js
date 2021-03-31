@@ -1239,6 +1239,7 @@ DynamicList.prototype.initialize = function() {
   }
 
   _this.attachObservers();
+  _this.Utils.DOM.addLayoutData(_this.$container, _this.data.layout);
 
   // Check if there is a query or PV for search/filter queries
   return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())

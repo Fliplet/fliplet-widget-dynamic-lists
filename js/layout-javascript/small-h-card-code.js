@@ -397,6 +397,8 @@ DynamicList.prototype.initialize = function() {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   }
 
+  _this.Utils.DOM.addLayoutData(_this.$container, _this.data.layout);
+
   // Check if there is a query or PV for search/filter queries
   return (shouldInitFromQuery ? Promise.resolve() : _this.parsePVQueryVars())
     .then(function() {
