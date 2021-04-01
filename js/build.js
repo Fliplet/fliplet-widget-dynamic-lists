@@ -8,3 +8,11 @@ Fliplet.Widget.instance('dynamic-lists', function(data) {
     dynamicLists[id] = new DynamicLists(data, container);
   }
 });
+
+Fliplet.Studio.onEvent(function(event) {
+  var eventDetail = event.detail;
+
+  if (eventDetail.type === 'layout') {
+    $('[data-dynamic-lists-id="' + eventDetail.data.id + '"]').parent().attr('data-settings-layout', eventDetail.data.layout);
+  }
+});

@@ -2033,14 +2033,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }));
   }
 
-  function addLayoutDataAttribute($container, layout) {
-    var $mainContainer = $container.parent();
-
-    if (!$mainContainer.attr('data-settings-layout')) {
-      $mainContainer.attr('data-settings-layout', layout);
-    }
-  }
-
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;
@@ -2086,8 +2078,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     DOM: {
       $: getjQueryObjects,
       resetSortIcons: resetSortIcons,
-      adjustAddButtonPosition: adjustAddButtonPosition,
-      addLayoutData: addLayoutDataAttribute
+      adjustAddButtonPosition: adjustAddButtonPosition
     },
     Page: {
       updateActiveFilters: updateActiveFilters,
