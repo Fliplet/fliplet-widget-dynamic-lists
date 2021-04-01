@@ -12,7 +12,7 @@ Fliplet.Widget.instance('dynamic-lists', function(data) {
 Fliplet.Studio.onEvent(function(event) {
   var eventDetail = event.detail;
 
-  if (eventDetail.type === 'layout') {
-    $('[data-dynamic-lists-id="' + eventDetail.data.id + '"]').parent().attr('data-settings-layout', eventDetail.data.layout);
+  if (eventDetail.type === 'dynamicListLayout') {
+    $('.fl-widget-instance[data-id="' + eventDetail.data.id + '"]').attr('data-settings-layout', eventDetail.data.layout);
   }
 });

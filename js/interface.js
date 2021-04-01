@@ -155,7 +155,7 @@ var DynamicLists = (function() {
           isLayoutSelected = true;
 
           Fliplet.Studio.emit('page-preview-send-event', {
-            type: 'layout',
+            type: 'dynamicListLayout',
             data: {
               layout: listLayout,
               id: _this.widgetId
