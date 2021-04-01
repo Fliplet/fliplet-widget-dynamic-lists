@@ -356,11 +356,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var result;
-
-      $('.new-news-feed-list-container').removeClass('hidden');
-
       var id = _this.$container.find('.news-feed-detail-wrapper[data-entry-id]').data('entry-id');
 
+      _this.$container.find('.new-news-feed-list-container, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -405,8 +403,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-        $('.section-top-wrapper, .news-feed-list-wrappe').addClass('hidden');
-        $('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
+        _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').addClass('hidden');
+        _this.$container.find('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -439,7 +437,10 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.removeClass('display');
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
-      _this.$container.find('.fa-sliders').focus();
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
+      $('body').removeClass('lock has-filter-overlay');
+
+      // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected
