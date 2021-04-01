@@ -154,6 +154,14 @@ var DynamicLists = (function() {
           listLayout = $(this).data('layout');
           isLayoutSelected = true;
 
+          Fliplet.Studio.emit('page-preview-send-event', {
+            type: 'dynamicListLayout',
+            data: {
+              layout: listLayout,
+              id: _this.widgetId
+            }
+          });
+
           $('.state.present').addClass('is-loading');
           // Create data source
           _this.loadDataFromLayout()
