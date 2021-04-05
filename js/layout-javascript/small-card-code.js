@@ -325,7 +325,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      var $el = $(event.target);
+      var $el = $(this);
 
       _this.$container.find('.new-small-card-list-container').addClass('hidden');
       _this.$container.find('.dynamic-list-add-item').addClass('hidden');
@@ -1237,18 +1237,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       var content = '';
 
       if (obj.type === 'image') {
-        var imageContent = entry.data[obj.column];
-
-        if (typeof imageContent === 'string') {
-          var imagesArray = [];
-
-          imagesArray = _this.Utils.String.getImagesByRegex(imageContent);
-          content = imagesArray !== null
-            ? imagesArray[0]
-            : '';
-        } else if (Array.isArray(imageContent)) {
-          content = imageContent[0];
-        }
+        content = _this.Utils.Record.imageContent(entry.data[obj.column], true);
       } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
@@ -1939,21 +1928,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     }
 
     if (dynamicDataObj.type === 'image') {
-      content = entry.originalData[dynamicDataObj.column];
+      var imagesContentData = _this.Utils.Record.imageContent(entry.originalData[dynamicDataObj.column]);
+      var contentArray = imagesContentData.imagesArray;
 
-      var contentArray;
-
-      if (typeof content === 'string') {
-        contentArray = _this.Utils.String.getImagesByRegex(content);
-      }
-
-      if (Array.isArray(content)) {
-        contentArray = content;
-      }
-
-      if (contentArray && contentArray.length) {
-        content = contentArray[0];
-      }
+      content = imagesContentData.imageContent;
 
       if (!_this.imagesData[dynamicDataObj.id]) {
         _this.imagesData[dynamicDataObj.id] = {

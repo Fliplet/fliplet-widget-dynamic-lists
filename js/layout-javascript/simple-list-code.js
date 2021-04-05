@@ -1394,18 +1394,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       var content = '';
 
       if (obj.type === 'image') {
-        var imageContent = entry.data[obj.column];
-
-        if (typeof imageContent === 'string') {
-          var imagesArray = [];
-
-          imagesArray = _this.Utils.String.getImagesByRegex(imageContent);
-          content = imagesArray !== null
-            ? imagesArray[0]
-            : '';
-        } else if (Array.isArray(imageContent)) {
-          content = imageContent[0];
-        }
+        content = _this.Utils.Record.imageContent(entry.data[obj.column], true);
       } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
@@ -2319,21 +2308,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     }
 
     if (obj.type === 'image') {
-      content = entry.originalData[obj.column];
+      var imagesContentData = _this.Utils.Record.imageContent(entry.originalData[obj.column]);
+      var contentArray = imagesContentData.imagesArray;
 
-      var contentArray;
-
-      if (typeof content === 'string') {
-        contentArray = _this.Utils.String.getImagesByRegex(content);
-      }
-
-      if (Array.isArray(content)) {
-        contentArray = content;
-      }
-
-      if (contentArray && contentArray.length) {
-        content = contentArray[0];
-      }
+      content = imagesContentData.imageContent;
 
       if (!_this.imagesData[obj.id]) {
         _this.imagesData[obj.id] = {

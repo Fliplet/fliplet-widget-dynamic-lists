@@ -130,6 +130,37 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return Promise.all(formFilesInfoInDetailViewOptions);
   }
 
+  /**
+   * This function is preparing image original data to display images in the detail view
+   *
+   * @param {String | Array} content - content data that we get from originalData
+   * @param {Boolean} isSummary - flag that show us from where this function was called
+   * @returns {Object | String} in case isSummary is true than we will return only first image URL.
+   *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
+   *  And 'imagesArray' {Array} to display multiple images in the detail view
+   */
+  function prepareImageContent(content, isSummary) {
+    var imageContent;
+    var imagesArray = [];
+    var isString = typeof content === 'string';
+
+    if (isString) {
+      imagesArray = getImagesUrlsByRegex(content);
+    } else {
+      imagesArray = content;
+    }
+
+    imageContent = imagesArray
+      ? imagesArray[0]
+      : '';
+
+    if (isSummary) {
+      return imageContent;
+    }
+
+    return { imageContent: imageContent, imagesArray: imagesArray };
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -2151,7 +2182,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isDeletable: recordIsDeletable,
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
-      getUniqueId: getRecordUniqueId
+      getUniqueId: getRecordUniqueId,
+      imageContent: prepareImageContent
     },
     Records: {
       runFilters: runRecordFilters,
