@@ -235,6 +235,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -393,8 +394,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      _this.$container.find('.new-small-card-list-container, .small-card-list-wrapper').removeClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+      _this.$container.find('.new-small-card-list-container, .small-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -454,7 +454,9 @@ DynamicList.prototype.attachObservers = function() {
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.small-card-search-filter-overlay').addClass('display');
 
-        $('.small-card-search-filter-overlay .small-card-overlay-close').focus();
+        _this.$container.find('.small-card-search-filter-overlay .small-card-overlay-close').focus();
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
