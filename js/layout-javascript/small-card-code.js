@@ -234,6 +234,10 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
