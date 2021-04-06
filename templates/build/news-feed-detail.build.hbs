@@ -54,12 +54,12 @@
           \{{#ifCond type '==' 'image'}}
             \{{#if content}}
               \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
+                <div class="news-feed-detail-label">\{{label}}</div>
               \{{/if}}
               \{{#if (isSingle contentArray)}}
-              <div class="news-feed-list-detail-body-text">
-                <img src="\{{validateImage content}}">
-              </div>
+                <div class="news-feed-list-detail-body-text">
+                  <img src="\{{validateImage content}}">
+                </div>
               \{{else}}
                 <div class="multiple-images-holder" data-detail-entry-id="\{{id}}">
                   \{{#each contentArray}}
