@@ -1735,6 +1735,7 @@ DynamicList.prototype.animateDateForward = function(nextDateElement, nextDateEle
 // animates cards forward
 DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth) {
   var _this = this;
+  var $activeFilters = _this.$container.find('.agenda-list-day-holder');
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
@@ -1743,14 +1744,8 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
-      nextAgendaElement.addClass('active');
-
-      _this.$container.find('.agenda-list-day-holder').each(function() {
-        if (!$(this).hasClass('active')) {
-          $(this).addClass('hidden');
-        }
-      });
+      $activeFilters.removeClass('active').addClass('hidden');
+      nextAgendaElement.addClass('active').removeClass('hidden');
 
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
@@ -1781,6 +1776,7 @@ DynamicList.prototype.animateDateBack = function(prevDateElement, prevDateElemen
 // animate cards back
 DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgendaElementWidth) {
   var _this = this;
+  var $activeFilters = _this.$container.find('.agenda-list-day-holder');
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
@@ -1789,14 +1785,8 @@ DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgenda
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
-      prevAgendaElement.addClass('active');
-
-      _this.$container.find('.agenda-list-day-holder').each(function() {
-        if (!$(this).hasClass('active')) {
-          $(this).addClass('hidden');
-        }
-      });
+      $activeFilters.removeClass('active').addClass('hidden');
+      prevAgendaElement.addClass('active').removeClass('hidden');
 
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
