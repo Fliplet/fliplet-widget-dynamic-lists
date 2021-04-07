@@ -1743,8 +1743,15 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active').addClass('hidden');
+      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       nextAgendaElement.addClass('active');
+
+      _this.$container.find('.agenda-list-day-holder').each(function() {
+        if (!$(this).hasClass('active')) {
+          $(this).addClass('hidden');
+        }
+      });
+
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
 
@@ -1782,8 +1789,15 @@ DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgenda
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active').addClass('hidden');
+      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       prevAgendaElement.addClass('active');
+
+      _this.$container.find('.agenda-list-day-holder').each(function() {
+        if (!$(this).hasClass('active')) {
+          $(this).addClass('hidden');
+        }
+      });
+
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
       resolve();
