@@ -1743,7 +1743,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
+      _this.$container.find('.agenda-list-day-holder.active').removeClass('active').addClass('hidden');
       nextAgendaElement.addClass('active');
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
@@ -1782,7 +1782,7 @@ DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgenda
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
+      _this.$container.find('.agenda-list-day-holder.active').removeClass('active').addClass('hidden');
       prevAgendaElement.addClass('active');
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
@@ -1813,15 +1813,12 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
     _this.scrollValue = 0;
   }
 
-  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
-
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
     _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
-    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
@@ -1848,15 +1845,12 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
     _this.scrollValue = 0;
   }
 
-  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
-
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
     _this.animateAgendaBack(prevAgendaElement, prevAgendaElementWidth + _this.scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
-    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
