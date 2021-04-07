@@ -234,7 +234,9 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters) {
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       }
 
