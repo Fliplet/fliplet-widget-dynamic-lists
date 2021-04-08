@@ -334,6 +334,10 @@ DynamicList.prototype.attachObservers = function() {
       var entryTitle = $el.find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
 
+      if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
+        return;
+      }
+
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
@@ -351,10 +355,6 @@ DynamicList.prototype.attachObservers = function() {
       beforeOpen.then(function() {
         _this.$container.find('.new-small-card-list-container').addClass('hidden');
         _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
-        if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
-          return;
-        }
 
         $el.parents('.small-card-list-wrapper').addClass('hidden');
 
