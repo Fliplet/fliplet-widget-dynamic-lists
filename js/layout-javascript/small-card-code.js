@@ -331,14 +331,9 @@ DynamicList.prototype.attachObservers = function() {
 
       var $el = $(this);
 
-      _this.$container.find('.new-small-card-list-container').addClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
       if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
         return;
       }
-
-      $el.parents('.small-card-list-wrapper').addClass('hidden');
 
       var entryId = $el.data('entry-id');
       var entryTitle = $el.find('.small-card-list-name').text().trim();
@@ -359,6 +354,11 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        _this.$container.find('.new-small-card-list-container').addClass('hidden');
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
+        $el.parents('.small-card-list-wrapper').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
