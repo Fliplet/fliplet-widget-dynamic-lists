@@ -139,7 +139,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
    *  And 'imagesArray' {Array} to display multiple images in the detail view
    */
-  function prepareImageContent(content, isSummary) {
+  function getImageContent(content, isSummary) {
     var imageContent;
     var imagesArray = [];
     var isString = typeof content === 'string';
@@ -158,7 +158,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return imageContent;
     }
 
-    return { imageContent: imageContent, imagesArray: imagesArray };
+    var imagesData = {
+      images: [],
+      options: {
+        index: null
+      }
+    };
+
+    imagesData.images = _.map(imagesArray, function(imgUrl) {
+      return { url: imgUrl };
+    });
+
+    return {
+      imageContent: imageContent,
+      imagesArray: imagesArray,
+      imagesData: imagesData
+    };
   }
 
   function registerHandlebarsHelpers() {
@@ -2183,7 +2198,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
-      imageContent: prepareImageContent
+      getImageContent: getImageContent
     },
     Records: {
       runFilters: runRecordFilters,

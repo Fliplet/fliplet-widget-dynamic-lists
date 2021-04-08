@@ -905,7 +905,11 @@ DynamicList.prototype.attachObservers = function() {
 
       record.bookmarkButton.like();
     })
-    .on('click', '.multiple-images-item', function() {
+    .on('click keydown', '.multiple-images-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $this = $(this);
       var id = $this.parent().data('detailEntryId');
 
@@ -1355,7 +1359,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       var content = '';
 
       if (obj.type === 'image') {
-        content = _this.Utils.Record.imageContent(entry.data[obj.column], true);
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
       } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
@@ -2562,23 +2566,11 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     }
 
     if (dynamicDataObj.type === 'image') {
-      var imagesContentData = _this.Utils.Record.imageContent(entry.originalData[dynamicDataObj.column]);
+      var imagesContentData = _this.Utils.Record.getImageContent(entry.originalData[dynamicDataObj.column]);
       var contentArray = imagesContentData.imagesArray;
 
       content = imagesContentData.imageContent;
-
-      if (!_this.imagesData[dynamicDataObj.id]) {
-        _this.imagesData[dynamicDataObj.id] = {
-          images: [],
-          options: {
-            index: null
-          }
-        };
-      }
-
-      _this.imagesData[dynamicDataObj.id].images = _.map(contentArray, function(imgUrl) {
-        return { url: imgUrl };
-      });
+      _this.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
     } else {
       content = _this.Utils.String.toFormattedString(content);
     }
