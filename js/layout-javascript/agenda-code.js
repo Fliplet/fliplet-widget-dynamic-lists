@@ -563,8 +563,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -584,6 +582,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
