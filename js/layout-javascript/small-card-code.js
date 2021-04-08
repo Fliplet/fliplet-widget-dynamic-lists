@@ -234,6 +234,10 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
@@ -326,19 +330,13 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var $el = $(this);
-
-      _this.$container.find('.new-small-card-list-container').addClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+      var entryId = $el.data('entry-id');
+      var entryTitle = $el.find('.small-card-list-name').text().trim();
+      var beforeOpen = Promise.resolve();
 
       if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
         return;
       }
-
-      $el.parents('.small-card-list-wrapper').addClass('hidden');
-
-      var entryId = $el.data('entry-id');
-      var entryTitle = $el.find('.small-card-list-name').text().trim();
-      var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
@@ -355,6 +353,11 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        _this.$container.find('.new-small-card-list-container').addClass('hidden');
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
+        $el.parents('.small-card-list-wrapper').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',

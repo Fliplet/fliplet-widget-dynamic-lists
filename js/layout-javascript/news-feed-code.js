@@ -241,6 +241,10 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
+      if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.hideFilterOverlay();
       _this.searchData();
     })
@@ -303,9 +307,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $el.parents('.new-news-feed-list-container').addClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -325,6 +326,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        $el.parents('.new-news-feed-list-container').addClass('hidden');
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
