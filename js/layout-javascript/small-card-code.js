@@ -377,6 +377,13 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
+        if (_this.allowClick) {
+          _this.$container.find('.new-small-card-list-container').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+  
+          $el.parents('.small-card-list-wrapper').addClass('hidden');
+        }
+
         // find the element to expand and expand it
         if (_this.allowClick && $(window).width() < 640) {
           _this.directoryDetailWrapper = $el.find('.small-card-list-detail-wrapper');
