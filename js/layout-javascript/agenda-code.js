@@ -1735,7 +1735,6 @@ DynamicList.prototype.animateDateForward = function(nextDateElement, nextDateEle
 // animates cards forward
 DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth) {
   var _this = this;
-  var $dayHolders = _this.$container.find('.agenda-list-day-holder');
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
@@ -1744,7 +1743,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      $dayHolders.removeClass('active').not(nextAgendaElement).addClass('hidden');
+      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       nextAgendaElement.addClass('active');
 
       _this.scrollValue = $(this).scrollLeft();
@@ -1776,7 +1775,6 @@ DynamicList.prototype.animateDateBack = function(prevDateElement, prevDateElemen
 // animate cards back
 DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgendaElementWidth) {
   var _this = this;
-  var $dayHolders = _this.$container.find('.agenda-list-day-holder');
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
@@ -1785,7 +1783,7 @@ DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgenda
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      $dayHolders.removeClass('active').not(prevAgendaElement).addClass('hidden');
+      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       prevAgendaElement.addClass('active');
 
       _this.scrollValue = $(this).scrollLeft();
