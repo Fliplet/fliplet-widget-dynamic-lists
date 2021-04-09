@@ -330,13 +330,14 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var $el = $(this);
-      var entryId = $el.data('entry-id');
-      var entryTitle = $el.find('.small-card-list-name').text().trim();
-      var beforeOpen = Promise.resolve();
 
       if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
         return;
       }
+
+      var entryId = $el.data('entry-id');
+      var entryTitle = $el.find('.small-card-list-name').text().trim();
+      var beforeOpen = Promise.resolve();
 
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
