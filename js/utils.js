@@ -135,7 +135,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *
    * @param {String | Array} content - content data that we get from originalData
    * @param {Boolean} isSummary - flag that show us from where this function was called
-   * @returns {Object | String} in case isSummary is true than we will return only first image URL.
+   * @returns {Object | String} in case isSummary is true then we will return only the first image URL.
    *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
    *  And 'imagesArray' {Array} to display multiple images in the detail view
    */
@@ -2178,7 +2178,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       splitByCommas: splitByCommas,
       validateImageUrl: validateImageUrl,
       toFormattedString: toFormattedString,
-      getImagesByRegex: getImagesUrlsByRegex,
       appendUrlQuery: appendUrlQuery
     },
     Date: {
