@@ -691,8 +691,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.$container.find('.agenda-list-day-holder').removeClass('hidden');
-
       var indexOfActiveDate = _this.$container
         .find('.agenda-date-selector li')
         .not('.placeholder')
@@ -2357,14 +2355,6 @@ DynamicList.prototype.searchData = function(options) {
         uuid: _this.data.uuid,
         container: _this.$container,
         initialRender: !!options.initialRender
-      }).then(function() {
-        _this.$container.find('.agenda-list-day-holder').each(function() {
-          var $el = $(this);
-
-          if (!$el.hasClass('active')) {
-            $el.addClass('hidden');
-          }
-        });
       });
     });
   });
