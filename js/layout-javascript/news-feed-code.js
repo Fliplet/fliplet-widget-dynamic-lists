@@ -309,9 +309,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $el.parents('.new-news-feed-list-container').addClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -331,6 +328,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        $el.parents('.new-news-feed-list-container').addClass('hidden');
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
