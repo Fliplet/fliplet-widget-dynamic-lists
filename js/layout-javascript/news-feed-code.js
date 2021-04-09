@@ -322,9 +322,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
-        $el.parents('.new-news-feed-list-container').addClass('hidden');
-        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
@@ -343,6 +340,9 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick) {
+          $el.parents('.new-news-feed-list-container').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
           _this.showDetails(entryId);
           Fliplet.Page.Context.update({
             dynamicListOpenId: entryId
