@@ -602,6 +602,8 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
+        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
+
         _this.showDetails(entryId);
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
