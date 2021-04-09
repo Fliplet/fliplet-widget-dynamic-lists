@@ -695,8 +695,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.$container.find('.agenda-list-day-holder').removeClass('hidden');
-
       var indexOfActiveDate = _this.$container
         .find('.agenda-date-selector li')
         .not('.placeholder')
@@ -1753,6 +1751,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       nextAgendaElement.addClass('active');
+
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
 
@@ -1792,6 +1791,7 @@ DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgenda
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       prevAgendaElement.addClass('active');
+
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
       resolve();
@@ -1821,15 +1821,12 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
     _this.scrollValue = 0;
   }
 
-  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
-
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
     _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
-    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
@@ -1856,15 +1853,12 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
     _this.scrollValue = 0;
   }
 
-  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
-
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
     _this.animateAgendaBack(prevAgendaElement, prevAgendaElementWidth + _this.scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
-    _this.$container.find('.agenda-list-day-holder.active').removeClass('hidden');
   });
 };
 
@@ -2365,14 +2359,6 @@ DynamicList.prototype.searchData = function(options) {
         uuid: _this.data.uuid,
         container: _this.$container,
         initialRender: !!options.initialRender
-      }).then(function() {
-        _this.$container.find('.agenda-list-day-holder').each(function() {
-          var $el = $(this);
-
-          if (!$el.hasClass('active')) {
-            $el.addClass('hidden');
-          }
-        });
       });
     });
   });
