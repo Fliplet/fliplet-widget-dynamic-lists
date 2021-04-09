@@ -203,7 +203,9 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
-      if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters.length) {
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       }
 

@@ -241,7 +241,9 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
-      if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters.length) {
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       }
 
