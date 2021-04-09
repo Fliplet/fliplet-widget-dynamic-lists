@@ -234,6 +234,12 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
