@@ -115,6 +115,9 @@ DynamicList.prototype.attachObservers = function() {
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
       var beforeOpen = Promise.resolve();
 
+      $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
