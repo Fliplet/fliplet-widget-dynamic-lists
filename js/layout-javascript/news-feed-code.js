@@ -310,9 +310,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $el.parents('.new-news-feed-list-container').addClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -2526,6 +2523,8 @@ DynamicList.prototype.closeDetails = function() {
     if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
+
+    _this.$container.find('.new-news-feed-list-container, .dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 
