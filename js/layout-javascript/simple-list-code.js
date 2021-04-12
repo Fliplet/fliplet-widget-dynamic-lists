@@ -286,9 +286,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $el.parents('.simple-list-container').addClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text().trim();
       var beforeOpen = Promise.resolve();
