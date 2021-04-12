@@ -9,6 +9,7 @@ var addEntryLinkAction;
 var editEntryLinkAction;
 var linkAddEntryProvider;
 var linkEditEntryProvider;
+var chatLinkProvider;
 var filePickerPromises = [];
 var withError = false;
 var selectedFieldId = [];
@@ -16,7 +17,7 @@ var selectedFieldId = [];
 var addEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
-  omitPages: omitPages,
+  omitPages,
   transition: 'fade',
   options: {
     hideAction: true
@@ -25,12 +26,21 @@ var addEntryLinkData = $.extend(true, {
 var editEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
-  omitPages: omitPages,
+  omitPages,
   transition: 'fade',
   options: {
     hideAction: true
   }
 }, widgetData.editEntryLinkAction, { action: 'screen' });
+var chatLinkData = $.extend(true, {
+  action: 'screen',
+  page: '',
+  omitPages,
+  transition: 'fade',
+  options: {
+    hideAction: true
+  }
+}, widgetData.chatLinkAction, { action: 'screen' });
 
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
@@ -41,13 +51,13 @@ function linkProviderInit() {
     // the interface gets repopulated with the same stuff
     data: addEntryLinkData,
     // Events fired from the provider
-    onEvent: function(event, data) {
+    onEvent(event, data) {
       if (event === 'interface-validate') {
         Fliplet.Widget.toggleSaveButton(data.isValid === true);
       }
     }
   });
-  linkAddEntryProvider.then(function(result) {
+  linkAddEntryProvider.then((result) => {
     addEntryLinkAction = result.data || {};
     linkEditEntryProvider.forwardSaveRequest();
   });
@@ -59,13 +69,31 @@ function linkProviderInit() {
     // the interface gets repopulated with the same stuff
     data: editEntryLinkData,
     // Events fired from the provider
-    onEvent: function(event, data) {
+    onEvent(event, data) {
       if (event === 'interface-validate') {
         Fliplet.Widget.toggleSaveButton(data.isValid === true);
       }
     }
   });
-  linkEditEntryProvider.then(function(result) {
+  linkEditEntryProvider.then((result) => {
+    editEntryLinkAction = result.data || {};
+    dataSourceProvider().forwardSaveRequest();
+  });
+  chatLinkProvider = Fliplet.Widget.open('com.fliplet.link', {
+    // If provided, the iframe will be appended here,
+    // otherwise will be displayed as a full-size iframe overlay
+    selector: '#chat-link',
+    // Also send the data I have locally, so that
+    // the interface gets repopulated with the same stuff
+    data: chatLinkData,
+    // Events fired from the provider
+    onEvent(event, data) {
+      if (event === 'interface-validate') {
+        Fliplet.Widget.toggleSaveButton(data.isValid === true);
+      }
+    }
+  });
+  chatLinkProvider.then((result) => {
     editEntryLinkAction = result.data || {};
     dataSourceProvider().forwardSaveRequest();
   });
@@ -85,16 +113,16 @@ function initUserFilePickerProvider(userFolder) {
     provId: userFolder.id
   }, userFolder.folder);
 
-  var providerFilePickerInstance = Fliplet.Widget.open('com.fliplet.file-picker', {
+  const providerFilePickerInstance = Fliplet.Widget.open('com.fliplet.file-picker', {
     data: userFolder.folder,
-    onEvent: function(e, data) {
+    onEvent(e, data) {
       switch (e) {
         case 'widget-rendered':
           break;
         case 'widget-set-info':
           Fliplet.Widget.toggleSaveButton(!!data.length);
 
-          var msg = data.length ? data.length + ' files selected' : 'no selected files';
+          var msg = data.length ? `${data.length} files selected` : 'no selected files';
 
           Fliplet.Widget.info(msg);
           break;
@@ -104,7 +132,7 @@ function initUserFilePickerProvider(userFolder) {
     }
   });
 
-  providerFilePickerInstance.then(function(data) {
+  providerFilePickerInstance.then((data) => {
     Fliplet.Widget.info('');
     Fliplet.Widget.toggleCancelButton(true);
     Fliplet.Widget.toggleSaveButton(true);
@@ -143,16 +171,16 @@ function initFilePickerProvider(field) {
     provId: field.id
   }, field.folder);
 
-  var providerFilePickerInstance = Fliplet.Widget.open('com.fliplet.file-picker', {
+  const providerFilePickerInstance = Fliplet.Widget.open('com.fliplet.file-picker', {
     data: field.folder,
-    onEvent: function(e, data) {
+    onEvent(e, data) {
       switch (e) {
         case 'widget-rendered':
           break;
         case 'widget-set-info':
           Fliplet.Widget.toggleSaveButton(!!data.length);
 
-          var msg = data.length ? data.length + ' files selected' : 'no selected files';
+          var msg = data.length ? `${data.length} files selected` : 'no selected files';
 
           Fliplet.Widget.info(msg);
           break;
@@ -162,7 +190,7 @@ function initFilePickerProvider(field) {
     }
   });
 
-  providerFilePickerInstance.then(function(data) {
+  providerFilePickerInstance.then((data) => {
     Fliplet.Widget.info('');
     Fliplet.Widget.toggleCancelButton(true);
     Fliplet.Widget.toggleSaveButton(true);
@@ -170,13 +198,13 @@ function initFilePickerProvider(field) {
     field.folder.selectFiles = data.data.length ? data.data : [];
 
     if (field.from === 'summary') {
-      widgetData['summary-fields'].forEach(function(item, index) {
+      widgetData['summary-fields'].forEach((item, index) => {
         if (item.id === field.id) {
           widgetData['summary-fields'][index].folder = field.folder;
         }
       });
     } else if (field.from === 'details') {
-      widgetData.detailViewOptions.forEach(function(item, index) {
+      widgetData.detailViewOptions.forEach((item, index) => {
         if (item.id === field.id) {
           widgetData.detailViewOptions[index].folder = field.folder;
         }
@@ -189,9 +217,9 @@ function initFilePickerProvider(field) {
     });
 
     if (field.folder.selectFiles.length) {
-      $('[data-field-id="' + field.id + '"] .file-picker-btn').text('Replace folder');
-      $('[data-field-id="' + field.id + '"] .selected-folder').removeClass('hidden');
-      $('[data-field-id="' + field.id + '"] .selected-folder span').text(field.folder.selectFiles[0].name);
+      $(`[data-field-id="${field.id}"] .file-picker-btn`).text('Replace folder');
+      $(`[data-field-id="${field.id}"] .selected-folder`).removeClass('hidden');
+      $(`[data-field-id="${field.id}"] .selected-folder span`).text(field.folder.selectFiles[0].name);
     }
   });
 
@@ -222,7 +250,7 @@ function validate(value) {
 
 function toggleError(showError, element) {
   if (showError) {
-    var $element = $(element);
+    const $element = $(element);
 
     $element.addClass('has-error');
 
@@ -245,9 +273,9 @@ function toggleError(showError, element) {
 
 function attahObservers() {
   $(document)
-    .on('click', '[data-file-picker-user]', function() {
-      var idAttr = $('#select_user_folder_type').attr('id');
-      var userFolder = widgetData.userFolder || {
+    .on('click', '[data-file-picker-user]', () => {
+      const idAttr = $('#select_user_folder_type').attr('id');
+      const userFolder = widgetData.userFolder || {
         id: idAttr,
         folder: {}
       };
@@ -255,8 +283,8 @@ function attahObservers() {
       initUserFilePickerProvider(userFolder);
     })
     .on('click', '[data-file-picker-summary]', function() {
-      var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = _.find(widgetData['summary-fields'], { id: fieldId });
+      const fieldId = $(this).parents('.picker-provider-button').data('field-id');
+      let field = _.find(widgetData['summary-fields'], { id: fieldId });
 
       highlightError(selectedFieldId, true);
 
@@ -273,8 +301,8 @@ function attahObservers() {
       }
     })
     .on('click', '[data-file-picker-details]', function() {
-      var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = _.find(widgetData.detailViewOptions, { id: fieldId });
+      const fieldId = $(this).parents('.picker-provider-button').data('field-id');
+      let field = _.find(widgetData.detailViewOptions, { id: fieldId });
 
       highlightError(selectedFieldId, true);
 
@@ -291,40 +319,38 @@ function attahObservers() {
       }
     })
     .on('change', '[name="image_type_select"]', function() {
-      var $element = $(this);
-      var dataType = $element.val();
-      var fieldId = $element.data('current-id');
+      const $element = $(this);
+      const dataType = $element.val();
+      const fieldId = $element.data('current-id');
 
       switch (dataType) {
         case 'all-folders':
           selectedFieldId.push(fieldId);
           break;
         case 'url':
-          selectedFieldId = _.filter(selectedFieldId, function(item) {
-            return item !== fieldId;
-          });
+          selectedFieldId = _.filter(selectedFieldId, item => item !== fieldId);
           break;
         default:
           break;
       }
     })
     .on('change', '[name="detail_field_type"]', function() {
-      var $element = $(this);
-      var fieldName = $element.val();
-      var fieldId = $element.parents('.rTableRow.clearfix').data('id');
-      var fieldIdInSelectedFields = selectedFieldId.indexOf(fieldId) !== -1;
+      const $element = $(this);
+      const fieldName = $element.val();
+      const fieldId = $element.parents('.rTableRow.clearfix').data('id');
+      const fieldIdInSelectedFields = selectedFieldId.indexOf(fieldId) !== -1;
 
       if (fieldName !== 'image' && fieldIdInSelectedFields) {
-        selectedFieldId = _.filter(selectedFieldId, function(item) {
+        selectedFieldId = _.filter(selectedFieldId, item =>
           // eslint-disable-next-line eqeqeq
-          return item != fieldId;
-        });
-      } else if ($('#detail_image_field_type_' + fieldId).val() === 'all-folders') {
+          item != fieldId
+        );
+      } else if ($(`#detail_image_field_type_${fieldId}`).val() === 'all-folders') {
         selectedFieldId.push(fieldId);
       }
     })
-    .on('datasource-initialized', function() {
-      dataSourceProvider().then(function(dataSource) {
+    .on('datasource-initialized', () => {
+      dataSourceProvider().then((dataSource) => {
         dynamicLists.config.dataSourceId = dataSource.data.id;
 
         if (!withError) {
@@ -334,14 +360,14 @@ function attahObservers() {
     });
 
   $('[data-toggle="tooltip"]').tooltip();
-  $('form').submit(function(event) {
+  $('form').submit((event) => {
     event.preventDefault();
     dynamicLists.saveLists()
-      .then(function() {
+      .then(() => {
         widgetData = dynamicLists.config;
 
         if (filePickerPromises.length) {
-          filePickerPromises.forEach(function(promise) {
+          filePickerPromises.forEach((promise) => {
             promise.forwardSaveRequest();
           });
 
@@ -349,7 +375,7 @@ function attahObservers() {
         }
 
         // Validation for required fields
-        var requiredFields = {
+        const requiredFields = {
           admins: [
             {
               value: widgetData.userDataSourceId,
@@ -405,8 +431,8 @@ function attahObservers() {
             }
           ]
         };
-        var selectedPermissions = [];
-        var managementErrors = [];
+        const selectedPermissions = [];
+        const managementErrors = [];
 
         if (widgetData.addEntry) {
           selectedPermissions.push('addPermissions');
@@ -420,9 +446,9 @@ function attahObservers() {
           selectedPermissions.push('deletePermissions');
         }
 
-        selectedPermissions.forEach(function(permission) {
+        selectedPermissions.forEach((permission) => {
           if (requiredFields[widgetData[permission]]) {
-            requiredFields[widgetData[permission]].forEach(function(field) {
+            requiredFields[widgetData[permission]].forEach((field) => {
               if (!validate(field.value)) {
                 managementErrors.push(field.field);
               }
@@ -430,10 +456,10 @@ function attahObservers() {
           }
 
           if (managementErrors.length) {
-            var $componentError = $('.component-error');
+            const $componentError = $('.component-error');
 
             $componentError.removeClass('hidden').addClass('bounceInUp');
-            managementErrors.forEach(function(field) {
+            managementErrors.forEach((field) => {
               toggleError(true, field);
             });
 
@@ -442,7 +468,7 @@ function attahObservers() {
               linkProviderInit();
             }
 
-            setTimeout(function() {
+            setTimeout(() => {
               $componentError.addClass('hidden').removeClass('bounceInUp');
             }, 4000);
           }
@@ -455,9 +481,9 @@ function attahObservers() {
         toggleError(false);
 
         if (widgetData.filterOptions.length) {
-          var filterError = [];
-          var filterFieldValues = [];
-          var logicOptionsWithoutValues = [
+          const filterError = [];
+          const filterFieldValues = [];
+          const logicOptionsWithoutValues = [
             'empty',
             'notempty',
             'dateis',
@@ -466,21 +492,21 @@ function attahObservers() {
             'datebetween'
           ];
 
-          widgetData.filterOptions.forEach(function(item) {
+          widgetData.filterOptions.forEach((item) => {
             if (logicOptionsWithoutValues.indexOf(item.logic) !== -1) {
               return;
             }
 
             if (item.logic === 'between') {
               filterFieldValues.push({
-                field: '#value-field-from-' + item.id,
+                field: `#value-field-from-${item.id}`,
                 value: item.value.from,
                 id: item.id,
                 valueType: item.valueType.from
               });
 
               filterFieldValues.push({
-                field: '#value-field-to-' + item.id,
+                field: `#value-field-to-${item.id}`,
                 value: item.value.to,
                 id: item.id,
                 valueType: item.valueType.to
@@ -490,19 +516,19 @@ function attahObservers() {
             }
 
             filterFieldValues.push({
-              field: '#value-field-' + item.id,
+              field: `#value-field-${item.id}`,
               value: item.fieldValue,
               id: item.id,
               valueType: item.valueType
             });
           });
 
-          filterFieldValues.forEach(function(field) {
+          filterFieldValues.forEach((field) => {
             if (field.valueType === 'enter-value') {
               $(field.field).parents('.panel-default').removeClass('filter-error');
-              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
-              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
-              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents(`#filter-value-${field.id}`).find('label').removeClass('has-error-text');
+              $(field.field).parents(`#filter-value-from-${field.id}`).find('label').removeClass('has-error-text');
+              $(field.field).parents(`#filter-value-to-${field.id}`).find('label').removeClass('has-error-text');
 
               return;
             }
@@ -514,21 +540,21 @@ function attahObservers() {
               });
             } else {
               $(field.field).parents('.panel-default').removeClass('filter-error');
-              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
-              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
-              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents(`#filter-value-${field.id}`).find('label').removeClass('has-error-text');
+              $(field.field).parents(`#filter-value-from-${field.id}`).find('label').removeClass('has-error-text');
+              $(field.field).parents(`#filter-value-to-${field.id}`).find('label').removeClass('has-error-text');
             }
           });
 
           if (filterError.length) {
             $('.error-holder').removeClass('hidden');
 
-            filterError.forEach(function(field) {
+            filterError.forEach((field) => {
               $(field.item).addClass('has-error');
               $(field.item).parents('.panel-default').addClass('filter-error');
-              $(field.item).parents('#filter-value-' + field.id).find('label').addClass('has-error-text');
-              $(field.item).parents('#filter-value-from-' + field.id).find('label').addClass('has-error-text');
-              $(field.item).parents('#filter-value-to-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents(`#filter-value-${field.id}`).find('label').addClass('has-error-text');
+              $(field.item).parents(`#filter-value-from-${field.id}`).find('label').addClass('has-error-text');
+              $(field.item).parents(`#filter-value-to-${field.id}`).find('label').addClass('has-error-text');
             });
 
             return;
@@ -540,8 +566,8 @@ function attahObservers() {
           toggleError(false);
         }
 
-        var errors = [];
-        var values = [];
+        let errors = [];
+        let values = [];
 
         if (widgetData.social && widgetData.social.comments) {
           errors = [];
@@ -556,11 +582,11 @@ function attahObservers() {
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
+          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, name => name).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 
-          values.forEach(function(field) {
+          values.forEach((field) => {
             if (!validate(field.value)) {
               errors.push(field.field);
             }
@@ -568,7 +594,7 @@ function attahObservers() {
 
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            errors.forEach(function(field) {
+            errors.forEach((field) => {
               toggleError(true, field);
             });
 
@@ -577,7 +603,7 @@ function attahObservers() {
               linkProviderInit();
             }
 
-            setTimeout(function() {
+            setTimeout(() => {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
 
@@ -587,7 +613,7 @@ function attahObservers() {
           toggleError(false);
         }
 
-        var imageFolderSelected = validateImageFoldersSelection();
+        const imageFolderSelected = validateImageFoldersSelection();
 
         if (imageFolderSelected) {
           highlightError(selectedFieldId, false);
@@ -612,7 +638,7 @@ function attahObservers() {
             field: '#select_poll_data'
           });
 
-          values.forEach(function(field) {
+          values.forEach((field) => {
             if (!validate(field.value)) {
               errors.push(field.field);
             }
@@ -620,7 +646,7 @@ function attahObservers() {
 
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            errors.forEach(function(field) {
+            errors.forEach((field) => {
               toggleError(true, field);
             });
 
@@ -629,7 +655,7 @@ function attahObservers() {
               linkProviderInit();
             }
 
-            setTimeout(function() {
+            setTimeout(() => {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
 
@@ -645,7 +671,7 @@ function attahObservers() {
             field: '#select_survey_data'
           });
 
-          values.forEach(function(field) {
+          values.forEach((field) => {
             if (!validate(field.value)) {
               errors.push(field.field);
             }
@@ -653,7 +679,7 @@ function attahObservers() {
 
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            errors.forEach(function(field) {
+            errors.forEach((field) => {
               toggleError(true, field);
             });
 
@@ -662,7 +688,7 @@ function attahObservers() {
               linkProviderInit();
             }
 
-            setTimeout(function() {
+            setTimeout(() => {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
 
@@ -678,7 +704,7 @@ function attahObservers() {
             field: '#select_questions_data'
           });
 
-          values.forEach(function(field) {
+          values.forEach((field) => {
             if (!validate(field.value)) {
               errors.push(field.field);
             }
@@ -686,7 +712,7 @@ function attahObservers() {
 
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
-            errors.forEach(function(field) {
+            errors.forEach((field) => {
               toggleError(true, field);
             });
 
@@ -695,7 +721,7 @@ function attahObservers() {
               linkProviderInit();
             }
 
-            setTimeout(function() {
+            setTimeout(() => {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
 
@@ -710,10 +736,10 @@ function attahObservers() {
   });
 
   function highlightError(fieldIds, showError) {
-    var action = showError ? 'removeClass' : 'addClass';
+    const action = showError ? 'removeClass' : 'addClass';
 
-    _.each(fieldIds, function(id) {
-      $('[data-field-id="' + id + '"] .text-danger')[action]('hidden');
+    _.each(fieldIds, (id) => {
+      $(`[data-field-id="${id}"] .text-danger`)[action]('hidden');
     });
   }
 
@@ -724,27 +750,23 @@ function attahObservers() {
       return selectedFieldId.length === 0;
     }
 
-    var totalArray = _.concat(widgetData.detailViewOptions, widgetData['summary-fields']);
-    var errorInputIds = _.filter(selectedFieldId, function(id) {
-      return !_.some(totalArray, function(item) {
-        return item.id === id && item.folder;
-      });
-    });
+    const totalArray = _.concat(widgetData.detailViewOptions, widgetData['summary-fields']);
+    const errorInputIds = _.filter(selectedFieldId, id => !_.some(totalArray, item => item.id === id && item.folder));
 
     highlightError(errorInputIds, true);
 
     return errorInputIds.length === 0;
   }
 
-  Fliplet.Widget.onSaveRequest(function() {
+  Fliplet.Widget.onSaveRequest(() => {
     if (!dynamicLists.isLoaded) {
       Fliplet.Widget.complete();
 
       return;
     }
 
-    var dataViewWindowIsOpen = $('.relations-tab').hasClass('present');
-    var imageFolderSelectionIsValid = validateImageFoldersSelection();
+    const dataViewWindowIsOpen = $('.relations-tab').hasClass('present');
+    const imageFolderSelectionIsValid = validateImageFoldersSelection();
 
     if (imageFolderSelectionIsValid || filePickerPromises.length || !dataViewWindowIsOpen) {
       highlightError(selectedFieldId, false);
@@ -764,7 +786,7 @@ function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
 
-  Fliplet.Widget.save(widgetData).then(function() {
+  Fliplet.Widget.save(widgetData).then(() => {
     if (notifyComplete) {
       Fliplet.Widget.complete();
       window.location.reload();
