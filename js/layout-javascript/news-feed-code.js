@@ -2492,6 +2492,8 @@ DynamicList.prototype.closeDetails = function() {
     if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
+
+    _this.$container.find('.new-news-feed-list-container, .dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 

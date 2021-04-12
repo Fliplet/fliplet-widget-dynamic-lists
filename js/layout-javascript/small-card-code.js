@@ -2066,6 +2066,8 @@ DynamicList.prototype.closeDetails = function() {
     if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
+
+    _this.$container.find('.new-small-card-list-container, .dynamic-list-add-item, .small-card-list-wrapper').removeClass('hidden');
   }, 300);
 };
 
