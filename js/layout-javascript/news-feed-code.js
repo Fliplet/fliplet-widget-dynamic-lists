@@ -122,6 +122,7 @@ DynamicList.prototype.clearFilters = function() {
 
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.news-feed-search-filter-overlay').removeClass('display');
+  this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -240,6 +241,12 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters.length) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.hideFilterOverlay();
       _this.searchData();
     })
@@ -302,9 +309,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $el.parents('.new-news-feed-list-container').addClass('hidden');
-      _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -324,6 +328,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        $el.parents('.new-news-feed-list-container').addClass('hidden');
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
@@ -342,6 +349,9 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick) {
+          $el.parents('.new-news-feed-list-container').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
           _this.showDetails(entryId);
           Fliplet.Page.Context.update({
             dynamicListOpenId: entryId
