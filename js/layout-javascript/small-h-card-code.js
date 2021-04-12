@@ -149,6 +149,11 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
+        if (_this.allowClick) {
+          $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+        }
+
         // find the element to expand and expand it
         if (_this.allowClick && $(window).width() < 640) {
           _this.directoryDetailWrapper = _that.find('.small-h-card-list-detail-wrapper');
