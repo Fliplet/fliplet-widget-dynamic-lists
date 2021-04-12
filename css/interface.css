@@ -992,6 +992,15 @@ header .btn,
   width: 18%;
 }
 
+.detail-table-panels-holder .rTableRow .image-type-select .rTableCell.select {
+  width: calc(45% - 19% - 10px);
+  padding-left: 2px;
+}
+
+.detail-table-panels-holder .rTableRow .image-type-select .rTableCell.title {
+  width: 21%;
+}
+
 .flex-right {
   display: flex;
   height: 44px;

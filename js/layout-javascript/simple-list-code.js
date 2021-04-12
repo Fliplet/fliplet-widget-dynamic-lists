@@ -56,6 +56,7 @@ function DynamicList(id, data) {
   this.openedEntryOnQuery = false;
   this.sortOrder = 'asc';
   this.sortField = null;
+  this.imagesData = {};
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -1001,6 +1002,18 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.simple-list-like-holder').removeClass('not-liked').addClass('liked').focus();
       record.likeButton.like();
       $(this).find('.count').html(count);
+    })
+    .on('click keydown', '.multiple-images-item', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      var $this = $(this);
+      var id = $this.parent().data('detailEntryId');
+
+      _this.imagesData[id].options.index = $this.index();
+
+      Fliplet.Navigate.previewImages(_this.imagesData[id]);
     });
 };
 
@@ -1395,7 +1408,9 @@ DynamicList.prototype.addSummaryData = function(records) {
     _this.data['summary-fields'].some(function(obj) {
       var content = '';
 
-      if (obj.column === 'custom') {
+      if (obj.type === 'image') {
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
+      } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
         content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
@@ -2307,7 +2322,13 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = entry.originalData[obj.column];
     }
 
-    content = _this.Utils.String.toFormattedString(content);
+    if (obj.type === 'image') {
+      var imagesContentData = _this.Utils.Record.getImageContent(entry.originalData[obj.column]);
+      var contentArray = imagesContentData.imagesArray;
+
+      content = imagesContentData.imageContent;
+      _this.imagesData[obj.id] = imagesContentData.imagesData;
+    }
 
     // Define data object
     var newEntryDetail = {
@@ -2317,6 +2338,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       labelEnabled: labelEnabled,
       type: obj.type
     };
+
+    if (contentArray) {
+      newEntryDetail.contentArray = contentArray;
+    }
 
     entry.data.push(newEntryDetail);
   });
