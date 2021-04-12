@@ -203,6 +203,12 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters.length) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -578,6 +584,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',

@@ -234,6 +234,12 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
@@ -350,6 +356,11 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        _this.$container.find('.new-small-card-list-container').addClass('hidden');
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
+        $el.parents('.small-card-list-wrapper').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
