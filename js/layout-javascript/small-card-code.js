@@ -356,11 +356,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
-        _this.$container.find('.new-small-card-list-container').addClass('hidden');
-        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
-        $el.parents('.small-card-list-wrapper').addClass('hidden');
-
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
