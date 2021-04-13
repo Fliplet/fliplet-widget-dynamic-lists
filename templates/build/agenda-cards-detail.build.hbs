@@ -44,12 +44,21 @@
         \{{#ifCond type '==' 'image'}}
           \{{#if content}}
             \{{#if labelEnabled}}
-            <div class="agenda-item-detail-label">\{{label}}</div>
+              <div class="agenda-item-detail-label">\{{label}}</div>
             \{{/if}}
-
-            <div class="agenda-item-detail-body-text">
-              <img src="\{{validateImage content}}">
-            </div>
+            \{{#if (isSingle contentArray)}}
+              <div class="agenda-item-detail-body-text">
+                <img src="\{{validateImage content}}">
+              </div>
+            \{{else}}
+              <div class="multiple-images-holder" data-detail-entry-id="\{{id}}">
+                \{{#each contentArray}}
+                  <div class="multiple-images-item focus-outline" tabindex="0">
+                    <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
+                  </div>
+                \{{/each}}
+              </div>
+            \{{/if}}
           \{{/if}}
         \{{/ifCond}}
 
