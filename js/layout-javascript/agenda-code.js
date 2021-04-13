@@ -128,6 +128,7 @@ DynamicList.prototype.clearFilters = function() {
 
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
+  this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -200,6 +201,15 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
+      _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters.length) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
+
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
@@ -257,8 +267,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        $('.section-top-wrapper, .agenda-cards-wrapper').addClass('hidden');
-        $('.agenda-overlay-close').focus();
+        _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').addClass('hidden');
+        _this.$container.find('.agenda-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -290,9 +300,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
-      $('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -556,8 +566,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      $('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.agenda-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -593,6 +601,8 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
+        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
+
         _this.showDetails(entryId);
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
@@ -607,7 +617,8 @@ DynamicList.prototype.attachObservers = function() {
       var result;
       var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
 
-      _this.$container.find('.new-agenda-list-container').removeClass('hidden');
+      _this.$container.find('.agenda-list-holder').removeClass('hidden');
+      _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -682,8 +693,6 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.accessibilityHelpers.isExecute(event) || $(this).is('.active, .placeholder')) {
         return;
       }
-
-      _this.$container.find('.agenda-list-day-holder').removeClass('hidden');
 
       var indexOfActiveDate = _this.$container
         .find('.agenda-date-selector li')
@@ -807,7 +816,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var _that = $(this);
-      var entryID = $(this).parents('.agenda-item-inner-content').data('entry-id');
+      var entryID = _that.parents('.agenda-item-inner-content').data('entry-id');
       var options = {
         title: 'Are you sure you want to delete the list entry?',
         labels: [
@@ -900,7 +909,11 @@ DynamicList.prototype.attachObservers = function() {
 
       record.bookmarkButton.like();
     })
-    .on('click', '.multiple-images-item, .single-image-holder', function() {
+    .on('click keydown', '.multiple-images-item, .single-image-holder', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+      
       var $this = $(this);
       var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
 
@@ -1350,20 +1363,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       var content = '';
 
       if (obj.type === 'image') {
-        var imageContent = entry.data[obj.column];
-
-        if (typeof imageContent === 'string') {
-          // Regex to detect if line contains URL
-          var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-          var imagesArray = [];
-
-          imagesArray = imageContent.match(detectURLRegex);
-          content = imagesArray !== null
-            ? imagesArray[0]
-            : '';
-        } else if (Array.isArray(imageContent)) {
-          content = imageContent[0];
-        }
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
       } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
@@ -1764,6 +1764,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       nextAgendaElement.addClass('active');
+
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
 
@@ -1803,6 +1804,7 @@ DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgenda
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
       prevAgendaElement.addClass('active');
+
       _this.scrollValue = $(this).scrollLeft();
       _this.copyOfScrollValue = _this.scrollValue;
       resolve();
@@ -1831,8 +1833,6 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   if (!_this.isPanning) {
     _this.scrollValue = 0;
   }
-
-  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
 
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
@@ -1865,8 +1865,6 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   if (!_this.isPanning) {
     _this.scrollValue = 0;
   }
-
-  _this.$container.find('.agenda-list-day-holder.active').addClass('hidden');
 
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
@@ -2374,14 +2372,6 @@ DynamicList.prototype.searchData = function(options) {
         uuid: _this.data.uuid,
         container: _this.$container,
         initialRender: !!options.initialRender
-      }).then(function() {
-        _this.$container.find('.agenda-list-day-holder').each(function() {
-          var $el = $(this);
-
-          if (!$el.hasClass('active')) {
-            $el.addClass('hidden');
-          }
-        });
       });
     });
   });
@@ -2568,37 +2558,11 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     }
 
     if (dynamicDataObj.type === 'image') {
-      content = entry.originalData[dynamicDataObj.column];
+      var imagesContentData = _this.Utils.Record.getImageContent(entry.originalData[dynamicDataObj.column]);
+      var contentArray = imagesContentData.imagesArray;
 
-      var contentArray;
-
-      if (typeof content === 'string') {
-        // Regex to detect if line contains URL
-        var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-
-        contentArray = content.match(detectURLRegex);
-      }
-
-      if (Array.isArray(content)) {
-        contentArray = content;
-      }
-
-      if (contentArray && contentArray.length) {
-        content = contentArray[0];
-      }
-
-      if (!_this.imagesData[dynamicDataObj.id]) {
-        _this.imagesData[dynamicDataObj.id] = {
-          images: [],
-          options: {
-            index: null
-          }
-        };
-      }
-
-      _this.imagesData[dynamicDataObj.id].images = _.map(contentArray, function(imgUrl) {
-        return { url: imgUrl };
-      });
+      content = imagesContentData.imageContent;
+      _this.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
     } else {
       content = _this.Utils.String.toFormattedString(content);
     }
@@ -2759,5 +2723,7 @@ DynamicList.prototype.closeDetails = function() {
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+
+    _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };

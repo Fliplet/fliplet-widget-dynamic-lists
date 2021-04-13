@@ -130,6 +130,52 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return Promise.all(formFilesInfoInDetailViewOptions);
   }
 
+  /**
+   * This function is preparing image original data to display images in the detail view
+   *
+   * @param {String | Array} content - content data that we get from originalData
+   * @param {Boolean} isSummary - flag that show us from where this function was called
+   * @returns {Object | String} in case isSummary is true then we will return only the first image URL.
+   *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
+   *  And 'imagesArray' {Array} to display multiple images in the detail view
+   */
+  function getImageContent(content, isSummary) {
+    var imageContent;
+    var imagesArray = [];
+    var isString = typeof content === 'string';
+
+    if (isString) {
+      imagesArray = getImagesUrlsByRegex(content);
+    } else {
+      imagesArray = content;
+    }
+
+    imageContent = imagesArray
+      ? imagesArray[0]
+      : '';
+
+    if (isSummary) {
+      return imageContent;
+    }
+
+    var imagesData = {
+      images: [],
+      options: {
+        index: null
+      }
+    };
+
+    imagesData.images = _.map(imagesArray, function(imgUrl) {
+      return { url: imgUrl };
+    });
+
+    return {
+      imageContent: imageContent,
+      imagesArray: imagesArray,
+      imagesData: imagesData
+    };
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -773,8 +819,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         if (condition === 'oneof') {
+          var splittedRowData = _.isArray(rowData) ? _.flatten(rowData) : splitByCommas(rowData);
+
           return splittedFilterValue.includes(rowData)
-            || !!_.intersectionWith(splittedFilterValue, splitByCommas(rowData), _.isEqual).length;
+            || !!_.intersectionWith(splittedFilterValue, splittedRowData, _.isEqual).length;
         }
 
         if (['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(condition) !== -1) {
@@ -2068,6 +2116,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }));
   }
 
+  function getImagesUrlsByRegex(imageString) {
+    // Regex to detect if line contains URL
+    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/);
+  }
+
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;
@@ -2143,7 +2196,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isDeletable: recordIsDeletable,
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
-      getUniqueId: getRecordUniqueId
+      getUniqueId: getRecordUniqueId,
+      getImageContent: getImageContent
     },
     Records: {
       runFilters: runRecordFilters,
