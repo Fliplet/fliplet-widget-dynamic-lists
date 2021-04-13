@@ -1269,10 +1269,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return data.record;
         }
 
+        var fileExtensionRegex = /(.+?)(?:\.[^\.]*$|$)/;
+
         if (data.field.from === 'details') {
           var imageFiles = [];
           var images;
-          var fileExtensionRegex = /(.+?)(?:\.[^\.]*$|$)/;
           var fileNameRegex = /[^\\\/]+$/igm;
 
           if (typeof image === 'string') {
@@ -1311,11 +1312,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           }
 
           var urlEdited = _.some(response.files, function(file) {
-          // remove file extension
+            // remove file extension
             var fileName = file.name.match(fileExtensionRegex)[1];
 
             if (image && (file.name === image || fileName === image)) {
-            // File found
+              // File found
               _.set(data, ['record', 'data', data.field.column], file.url);
 
               return true;
