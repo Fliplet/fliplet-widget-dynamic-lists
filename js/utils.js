@@ -130,6 +130,52 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return Promise.all(formFilesInfoInDetailViewOptions);
   }
 
+  /**
+   * This function is preparing image original data to display images in the detail view
+   *
+   * @param {String | Array} content - content data that we get from originalData
+   * @param {Boolean} isSummary - flag that show us from where this function was called
+   * @returns {Object | String} in case isSummary is true then we will return only the first image URL.
+   *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
+   *  And 'imagesArray' {Array} to display multiple images in the detail view
+   */
+  function getImageContent(content, isSummary) {
+    var imageContent;
+    var imagesArray = [];
+    var isString = typeof content === 'string';
+
+    if (isString) {
+      imagesArray = getImagesUrlsByRegex(content);
+    } else {
+      imagesArray = content;
+    }
+
+    imageContent = imagesArray
+      ? imagesArray[0]
+      : '';
+
+    if (isSummary) {
+      return imageContent;
+    }
+
+    var imagesData = {
+      images: [],
+      options: {
+        index: null
+      }
+    };
+
+    imagesData.images = _.map(imagesArray, function(imgUrl) {
+      return { url: imgUrl };
+    });
+
+    return {
+      imageContent: imageContent,
+      imagesArray: imagesArray,
+      imagesData: imagesData
+    };
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -199,6 +245,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       res = res.replace(Static.RegExp.linebreak, '<br>');
 
       return new Handlebars.SafeString(res);
+    });
+
+    Handlebars.registerHelper('isSingle', function(value) {
+      return value.length === 1;
     });
 
     Handlebars.registerHelper('formatFilename', function(filename) {
@@ -1213,40 +1263,73 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     return cachedFiles[cacheKey]
       .then(function(response) {
+        var image = _.get(data, ['record', 'data', data.field.column]);
+
         if (!data.field) {
           return data.record;
         }
 
-        var image = _.get(data, ['record', 'data', data.field.column]);
+        if (data.field.from === 'details') {
+          var imageFiles = [];
+          var images;
+          var fileExtensionRegex = /(.+?)(?:\.[^\.]*$|$)/;
+          var fileNameRegex = /[^\\\/]+$/igm;
 
-        if (_.isArray(image)) {
-          image = _.compact(image)[0];
-        }
-
-        if (isValidImageUrl(image)) {
-          // Record data doesn't need updating
-          return data.record;
-        }
-
-        var urlEdited = _.some(response.files, function(file) {
-          // remove file extension
-          var fileName = file.name.match(/(.+?)(?:\.[^\.]*$|$)/)[1];
-
-          if (image && (file.name === image || fileName === image)) {
-            // File found
-            _.set(data, ['record', 'data', data.field.column], file.url);
-
-            return true;
-          } else if (Static.RegExp.number.test(image)
-            && parseInt(image, 10) === file.id) {
-            _.set(data, ['record', 'data', data.field.column], file.url);
-
-            return true;
+          if (typeof image === 'string') {
+            images = splitByCommas(image);
+          } else {
+            images = image;
           }
-        });
 
-        if (!urlEdited) {
-          _.set(data, ['record', 'data', data.field.column], '');
+          _.forEach(response.files, function(file) {
+            var fileName = file.name.match(fileExtensionRegex)[1];
+
+            _.forEach(images, function(image) {
+              var imageNameFromURL = image.match(fileNameRegex);
+              var imageName = imageNameFromURL
+                ? imageNameFromURL[0]
+                : image;
+
+              if (imageName && (file.name === imageName || fileName === imageName)) {
+                imageFiles.push(file.url);
+              } else if (Static.RegExp.number.test(imageName)
+                && parseInt(imageName, 10) === file.id) {
+                imageFiles.push(file.url);
+              }
+            });
+          });
+
+          _.set(data, ['record', 'data', data.field.column], imageFiles);
+        } else {
+          if (_.isArray(image)) {
+            image = _.compact(image)[0];
+          }
+
+          if (isValidImageUrl(image)) {
+          // Record data doesn't need updating
+            return data.record;
+          }
+
+          var urlEdited = _.some(response.files, function(file) {
+          // remove file extension
+            var fileName = file.name.match(fileExtensionRegex)[1];
+
+            if (image && (file.name === image || fileName === image)) {
+            // File found
+              _.set(data, ['record', 'data', data.field.column], file.url);
+
+              return true;
+            } else if (Static.RegExp.number.test(image)
+            && parseInt(image, 10) === file.id) {
+              _.set(data, ['record', 'data', data.field.column], file.url);
+
+              return true;
+            }
+          });
+
+          if (!urlEdited) {
+            _.set(data, ['record', 'data', data.field.column], '');
+          }
         }
 
         return data.record;
@@ -2033,6 +2116,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }));
   }
 
+  function getImagesUrlsByRegex(imageString) {
+    // Regex to detect if line contains URL
+    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/);
+  }
+
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;
@@ -2108,7 +2196,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isDeletable: recordIsDeletable,
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
-      getUniqueId: getRecordUniqueId
+      getUniqueId: getRecordUniqueId,
+      getImageContent: getImageContent
     },
     Records: {
       runFilters: runRecordFilters,
@@ -2122,8 +2211,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFiles: updateRecordFiles,
       prepareData: prepareRecordsData,
       addComputedFields: addRecordsComputedFields,
-      sortByField: sortRecordsByField,
-      getFilesInfo: getFilesInfo
+      getFilesInfo: getFilesInfo,
+      sortByField: sortRecordsByField
     },
     User: {
       isAdmin: userIsAdmin,
