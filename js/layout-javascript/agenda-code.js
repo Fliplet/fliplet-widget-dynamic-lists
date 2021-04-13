@@ -2621,7 +2621,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
   var src = _this.src;
 
-  _this.Utils.Records.getFilesInfo({
+  return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
   })
