@@ -376,7 +376,7 @@ DynamicList.prototype.attachObservers = function() {
         if (_this.allowClick) {
           _this.$container.find('.new-small-card-list-container').addClass('hidden');
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-  
+
           $el.parents('.small-card-list-wrapper').addClass('hidden');
         }
 

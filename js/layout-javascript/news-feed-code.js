@@ -1031,7 +1031,7 @@ DynamicList.prototype.attachObservers = function() {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
-      
+
       var $this = $(this);
       var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
 
