@@ -2375,7 +2375,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
     ? _this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['detail']]();
 
-  _this.Utils.Records.getFilesInfo({
+  return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
   })
