@@ -1249,8 +1249,6 @@ DynamicList.prototype.renderBaseHTML = function() {
 };
 
 DynamicList.prototype.convertTime = function(time) {
-  var _this = this;
-
   if (!time) {
     time = '';
 
@@ -1266,7 +1264,7 @@ DynamicList.prototype.convertTime = function(time) {
     format = 'hh:mm';
   }
 
-  var convertedTime = moment(time, format).format(_this.Utils.Date.LOCALE_FORMATS.TIME);
+  var convertedTime = moment(time, format).format(this.Utils.Date.LOCALE_FORMATS.TIME);
 
   return convertedTime;
 };
