@@ -2618,14 +2618,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
-      entryComments[index].literalDate = moment(entry.createdAt).calendar(null, {
-        sameDay: '[Today], HH:mm',
-        nextDay: '[Tomorrow], HH:mm',
-        nextWeek: 'dddd, HH:mm',
-        lastDay: '[Yesterday], HH:mm',
-        lastWeek: 'dddd, HH:mm',
-        sameElse: 'MMM Do YY, HH:mm'
-      });
+      entryComments[index].literalDate = moment().calendar(entry.createdAt);
       entryComments[index].userName = userName;
       entryComments[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments[index].text = entry.data.settings.text || '';
@@ -2898,14 +2891,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
   var commentInfo = {
     id: guid,
-    literalDate: moment(timestamp).calendar(null, {
-      sameDay: '[Today], HH:mm',
-      nextDay: '[Tomorrow], HH:mm',
-      nextWeek: 'dddd, HH:mm',
-      lastDay: '[Yesterday], HH:mm',
-      lastWeek: 'dddd, HH:mm',
-      sameElse: 'MMM Do YY, HH:mm'
-    }),
+    literalDate: moment().calendar(timestamp),
     userName: userName,
     photo: _this.myUserData[_this.data.userPhotoColumn] || '',
     text: value
@@ -2929,14 +2915,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   })).join(' ').trim();
 
   if (!commentData.literalDate) {
-    commentData.literalDate = moment(commentData.createdAt).calendar(null, {
-      sameDay: '[Today], HH:mm',
-      nextDay: '[Tomorrow], HH:mm',
-      nextWeek: 'dddd, HH:mm',
-      lastDay: '[Yesterday], HH:mm',
-      lastWeek: 'dddd, HH:mm',
-      sameElse: 'MMM Do YY, HH:mm'
-    });
+    commentData.literalDate = moment().calendar(commentData.createdAt);
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];

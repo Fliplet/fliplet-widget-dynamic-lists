@@ -84,6 +84,7 @@
       "js/build-lists.js",
       "js/build.js",
       "css/build.css",
+      "vendor/moment-with-locales.js",
 
       "css/layout-css/small-card-style.upload.css",
       "css/layout-css/news-feed-style.upload.css",
