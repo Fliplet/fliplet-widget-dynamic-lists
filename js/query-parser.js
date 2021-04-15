@@ -51,11 +51,13 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
       console.warn('Please supply an equal number of parameter to the dynamicListPrefilter filters.');
     } else {
       this.pvPreFilterQuery = [];
+
       var maxPartCount = Math.max(
         prefilterColumnParts.length,
         prefilterLogicParts.length,
         prefilterValueParts.length
       );
+
       // loop through the query parts and create new filters with every one
       for (let i = 0; i < maxPartCount; i++) {
         var filter = {
@@ -63,6 +65,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
           logic: prefilterLogicParts.pop(),
           value: prefilterValueParts.pop()
         };
+
         this.pvPreFilterQuery.push(filter);
       }
     }
@@ -132,7 +135,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   // ?dynamicListSortColumn=Name&dynamicListSortOrder=asc
   this.pvPreSortQuery = _.pickBy({
     column: Fliplet.Navigate.query['dynamicListSortColumn'],
-    order: Fliplet.Navigate.query['dynamicListSortOrder'],
+    order: Fliplet.Navigate.query['dynamicListSortOrder']
   });
   this.querySort = _(this.pvPreSortQuery).size() > 0;
 
