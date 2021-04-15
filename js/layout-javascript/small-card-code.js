@@ -1043,6 +1043,7 @@ DynamicList.prototype.parseFilterQueries = function() {
   }
 
   _this.toggleFilterElement($filters, true);
+  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
   $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {

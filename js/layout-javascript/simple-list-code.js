@@ -1198,7 +1198,8 @@ DynamicList.prototype.parseFilterQueries = function() {
   }
 
   _this.toggleFilterElement($filters, true);
-  $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
+  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+  $filters.parents('.simple-list-filters-panel').find('.panel-collapse').addClass('in');
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
