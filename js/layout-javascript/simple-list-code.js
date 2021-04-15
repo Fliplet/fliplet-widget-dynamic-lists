@@ -1508,7 +1508,8 @@ DynamicList.prototype.addFilters = function(records) {
   var filters = _this.Utils.Records.parseFilters({
     records: records,
     filters: _this.data.filterFields,
-    id: _this.data.id
+    id: _this.data.id,
+    query: _this.queryFilter ? _this.pvFilterQuery : undefined
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {

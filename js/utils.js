@@ -1111,15 +1111,66 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }));
   }
 
+  /**
+   * Takes the list of data records and the page query parameter to return a list of filter and filter options to render
+   * @param {Object} options - A mapping of options for this function
+   * @param {Object[]} options.records - Records from which to derive the filter values
+   * @param {Object[]} options.filters - List of filters configured by the user
+   * @param {Number} options.id - Widget instance ID
+   * @param {Object} [options.query] - Filter query found in the page URL
+   * @returns {Object[]} An array of filters and possible values, ready to be rendered through Handlebars template
+   */
   function parseRecordFilters(options) {
     options = options || {};
 
     var records = options.records || [];
     var filters = options.filters || [];
     var id = options.id;
+    var query = options.query;
+    var hasFilterQuery = query && query.value.length;
+
+    // Add a fake entry into records to represent the filters from the query
+    // to ensure all filter options from the query are rendered in the filter UI
+    if (hasFilterQuery) {
+      var flFilters = [];
+
+      // When filter columns are unspecified, apply the values to all columns
+      if (!query.column.length) {
+        query.column = filters;
+        query.value = _.fill(Array(filters.length), query.value);
+      }
+
+      _.forEach(query.column, function(field, i) {
+        var value = query.value[i];
+
+        if (!Array.isArray(value)) {
+          value = [value];
+        }
+
+        _.forEach(value, function(value) {
+          if (typeof value === 'undefined') {
+            return;
+          }
+
+          flFilters.push({
+            type: field,
+            data: {
+              name: value,
+              class: ('' + value).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g, '-')
+            }
+          });
+        });
+      });
+
+      records.push({
+        data: {
+          flFilters: flFilters
+        }
+      });
+    }
 
     // Parse legacy flFilters from records to generate a list of filter values
-    return _(records)
+    var result = _(records)
       .map(function(record) {
         return (record.data && record.data.flFilters) || record.flFilters;
       })
@@ -1128,7 +1179,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         // _.uniqBy iteratee
         return JSON.stringify(filter);
       })
-      .orderBy('data.name')
+      .orderBy(function(obj) {
+        return (_.get(obj, ['data', 'name'], '') + '').toLowerCase();
+      })
       .groupBy('type')
       .map(function(values, field) {
         // _.map iteratee for defining of each filter value
@@ -1146,6 +1199,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         return _.indexOf(filters, filter.name);
       })
       .value();
+
+    // Remove the fake entry added from filter query
+    if (hasFilterQuery) {
+      records.pop();
+    }
+
+    return result;
   }
 
   function getRecordField(options) {
