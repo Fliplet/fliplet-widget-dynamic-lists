@@ -187,7 +187,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   
     dynamicData.forEach(function(dynamicDataObj) {
       if (dynamicDataObj.type === 'image') {
-        var imagesContentData = ctx.Utils.Record.getImageContent(entry.originalData[dynamicDataObj.column]);
+        var imagesContentData = getImageContent(entry.originalData[dynamicDataObj.column]);
         ctx.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
       }
     });
