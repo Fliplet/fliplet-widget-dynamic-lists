@@ -1861,7 +1861,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function() {
       searchedData = searchedData || [];
 
-      var truncated = results.truncated || searchedData.length < _this.listItems.length;
+      var truncated = results.truncated || (searchedData.length && searchedData.length < _this.listItems.length);
 
       if (openSingleEntry && searchedData.length === 1) {
         _this.showDetails(searchedData[0].id);
