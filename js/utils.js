@@ -2215,7 +2215,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
       getImageContent: getImageContent,
-      fetchImageContent: fetchImageContent,
+      fetchImageContent: fetchImageContent
     },
     Records: {
       runFilters: runRecordFilters,
