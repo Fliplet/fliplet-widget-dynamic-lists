@@ -183,7 +183,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    * @param {Object} entry - selected LFD entry
    * @return {void} this funtion doesn't return anything it commits modifications to layout context
    */
-  function fetchImageContent(ctx, entry) {
+  function assignImageContent(ctx, entry) {
     var dynamicData = _.filter(ctx.data.detailViewOptions, function(option) {
       return option.editable;
     });
@@ -2234,7 +2234,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
       getImageContent: getImageContent,
-      fetchImageContent: fetchImageContent
+      assignImageContent: assignImageContent
     },
     Records: {
       runFilters: runRecordFilters,
