@@ -1603,7 +1603,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *          sortField {String} - name of the field to sort
    *          sortOrder {String} - sort order of
    *          records {Array} - array of records to sort
-   * @return {Array} - sorted by field array
    * @returns {Array} - sorted by field array
    */
   function sortByField(options) {
@@ -2164,6 +2163,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           case 'link-query-parameter':
             item.value = Fliplet.Navigate.query[item.fieldValue];
             resolve();
+            break;
 
           case 'app-storage-data':
             Fliplet.App.Storage.get(item.fieldValue)
