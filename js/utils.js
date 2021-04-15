@@ -187,11 +187,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var dynamicData = _.filter(ctx.data.detailViewOptions, function(option) {
       return option.editable;
     });
-  
+
     if (!dynamicData.length) {
       return;
     }
-  
+
     dynamicData.forEach(function(dynamicDataObj) {
       if (dynamicDataObj.type === 'image') {
         var imagesContentData = getImageContent(entry.originalData[dynamicDataObj.column]);
