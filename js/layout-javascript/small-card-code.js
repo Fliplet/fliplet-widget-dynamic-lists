@@ -1363,6 +1363,7 @@ DynamicList.prototype.addFilters = function(records) {
       filtersInOverlay: _this.data.filtersInOverlay,
       filters: filters
     };
+
     var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());

@@ -324,8 +324,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   /**
    * Append a URL query with additional queries
    * @param {String} query Original query
-   * @param {String} newQuery Additiona queru
-   * @return {String} Result query with both sets of queries
+   * @param {String} newQuery Additional query
+   * @returns {String} Result query with both sets of queries
    */
   function appendUrlQuery(query, newQuery) {
     var queryParts = _.concat(
@@ -364,6 +364,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     if (date.match(/^\d{4}-\d{2}-\d{2}/)) {
       return moment(new Date(date.substr(0, 10))).utc();
     } else if (!isoDateWarningIssued) {
+      /* eslint-disable-next-line no-console */
       console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. ' + new Date().toISOString().substr(0, 10));
       isoDateWarningIssued = true;
     }
@@ -413,7 +414,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
    *  $target { Jquery instance } - Jq instance on which user have pressed
    *
-   * @return {void} this funtion doesn't return anything it add changes directly to the DOM
+   * @returns {void} this funtion doesn't return anything it add changes directly to the DOM
    */
   function updateActiveFilterCount(options) {
     if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
@@ -560,7 +561,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function moveAddbuttonPosition(options) {
+  function moveAddButtonPosition(options) {
     var $addButton = options.$container.find('.dynamic-list-add-item');
     var layout = options.data.layout;
     var listClasses = {
@@ -584,7 +585,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function adjustAddButtonPosition(options) {
     if (options.data.addEntry && Modernizr.tablet) {
-      moveAddbuttonPosition(options);
+      moveAddButtonPosition(options);
     } else if (options.data.addEntry && !Modernizr.tablet) {
       resetAddButtonPosition(options);
     }
@@ -1255,6 +1256,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return response;
         })
         .catch(function(error) {
+          /* eslint-disable-next-line no-console */
           console.warn('Error retrieving files', error, data);
 
           return Promise.resolve({ files: [], folders: [] });
@@ -1370,7 +1372,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *   filtersInOverlay { Boolean } - boolean variable that tells us if filters shown in overlay
    *   filterOverlayClass { String } - a CSS class of the layout filter overlay
    *
-   * @return {void}
+   * @returns {void}
    */
   function updateActiveFilters(options) {
     if (!options.filtersInOverlay) {
@@ -1542,6 +1544,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *          sortOrder {String} - sort order of
    *          records {Array} - array of records to sort
    * @return {Array} - sorted by field array
+   * @returns {Array} - sorted by field array
    */
   function sortByField(options) {
     // If user doesn't set sorting do nothing
@@ -1855,6 +1858,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     if (computedFieldClashes.length) {
       var clashedFields = computedFieldClashes.sort().join(', ');
 
+      /* eslint-disable-next-line no-console */
       console.warn('Computed field(s) "' + clashedFields + '" are already defined as a property for one or more records. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten.');
     }
   }

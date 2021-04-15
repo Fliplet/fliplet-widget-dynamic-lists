@@ -1404,7 +1404,6 @@ DynamicList.prototype.parseFilterQueries = function() {
   }
 
   var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
-
   var $filters = _this.$container.find(_.map(filterSelectors, function(selector) {
     return '.hidden-filter-controls-filter' + selector;
   }).join(','));
