@@ -2415,7 +2415,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
   var src = _this.src;
 
-  _this.Utils.Records.getFilesInfo({
+  return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
   })
