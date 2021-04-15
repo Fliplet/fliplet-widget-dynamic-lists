@@ -1170,6 +1170,10 @@ DynamicList.prototype.parseFilterQueries = function() {
     return '.hidden-filter-controls-filter' + selector;
   }).join(','));
 
+  if (!$filters.length) {
+    return;
+  }
+
   _this.toggleFilterElement($filters, true);
   $filters.parents('.agenda-filters-panel').find('.panel-collapse').addClass('in');
 

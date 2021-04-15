@@ -1107,7 +1107,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     return _.zipObject(fields, _.map(fields, function(field) {
-      return _.sortBy(_.uniq(splitByCommas(_.map(records, 'data.' + field))));
+      return _.sortBy(_.uniq(splitByCommas(_.map(records, ['data', field]))));
     }));
   }
 
@@ -1167,7 +1167,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var path = field.shift();
 
       if (field.length) {
-        var arr = _.get(record, (useData ? 'data.' : '') + path);
+        var arr = _.get(record, (useData ? ['data', path] : [path]));
 
         return _.map(arr, function(item) {
           return getRecordField({
@@ -1186,7 +1186,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     if (typeof field === 'string') {
-      return splitByCommas(_.get(record, (useData ? 'data.' : '') + field));
+      return splitByCommas(_.get(record, (useData ? ['data', field] : [field])));
     }
 
     return [];
@@ -1200,8 +1200,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function(record) {
-      if (_.isArray(_.get(record, 'data.flFilters')) && !options.force) {
-        // If filters are alredy present, skip unless it's forced
+      if (_.isArray(_.get(record, ['data', 'flFilters'])) && !options.force) {
+        // If filters are already present, skip unless it's forced
         return;
       }
 
@@ -1228,7 +1228,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         });
       });
 
-      var existingClasses = _.get(record, 'data.flClasses', []);
+      var existingClasses = _.get(record, ['data', 'flClasses'], []);
 
       if (typeof existingClasses === 'string') {
         existingClasses = existingClasses.split(' ');
