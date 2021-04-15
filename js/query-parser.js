@@ -59,7 +59,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
       );
 
       // loop through the query parts and create new filters with every one
-      for (let i = 0; i < maxPartCount; i++) {
+      for (var i = 0; i < maxPartCount; i++) {
         var filter = {
           column: prefilterColumnParts.pop(),
           logic: prefilterLogicParts.pop(),
