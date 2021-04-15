@@ -1411,7 +1411,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var $target = options.$target;
     var $container = options.$container;
     var filterOverlay = options.filterOverlayClass;
-    var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="' + $target.data('value') + '"]';
+    var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-field="' + $target.data('field') + '"][data-value="' + $target.data('value') + '"]';
     var $redirectTarget = $container.find(redirectSelector);
 
     $redirectTarget.trigger('click');
