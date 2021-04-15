@@ -1240,6 +1240,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return records;
   }
 
+  /**
+   * Function to strip query params from the url string
+   *
+   * @param {String} url - incoming url string with query params
+   * @returns {String} returns url without query params
+   */
+  function stripQueryParametersFromUrl(url) {
+    return url.split('?')[0];
+  }
+
   function getFiles(data) {
     var cacheKey = JSON.stringify(data.query);
 
@@ -1288,8 +1298,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             _.forEach(images, function(image) {
               var imageNameFromURL = image.match(fileNameRegex);
               var imageName = imageNameFromURL
-                ? imageNameFromURL[0]
-                : image;
+                ? stripQueryParametersFromUrl(imageNameFromURL[0])
+                : stripQueryParametersFromUrl(image);
 
               if (imageName && (file.name === imageName || fileName === imageName)) {
                 imageFiles.push(file.url);
