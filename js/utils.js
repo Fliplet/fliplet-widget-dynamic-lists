@@ -176,6 +176,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     };
   }
 
+  function fetchImageContent(ctx, entry) {
+    var dynamicData = _.filter(ctx.data.detailViewOptions, function(option) {
+      return option.editable;
+    });
+  
+    if (!dynamicData.length) {
+      return;
+    }
+  
+    dynamicData.forEach(function(dynamicDataObj) {
+      if (dynamicDataObj.type === 'image') {
+        var imagesContentData = ctx.Utils.Record.getImageContent(entry.originalData[dynamicDataObj.column]);
+        ctx.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
+      }
+    });
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -2197,7 +2214,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
-      getImageContent: getImageContent
+      getImageContent: getImageContent,
+      fetchImageContent: fetchImageContent,
     },
     Records: {
       runFilters: runRecordFilters,
