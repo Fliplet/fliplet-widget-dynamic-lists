@@ -176,6 +176,31 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     };
   }
 
+  /**
+   * This function adds selected LFD item's images to the layout context
+   *
+   * @param {Object} ctx - curent layout context
+   * @param {Object} entry - selected LFD entry
+   * @return {void} this funtion doesn't return anything it commits modifications to layout context
+   */
+  function assignImageContent(ctx, entry) {
+    var dynamicData = _.filter(ctx.data.detailViewOptions, function(option) {
+      return option.editable;
+    });
+
+    if (!dynamicData.length) {
+      return;
+    }
+
+    dynamicData.forEach(function(dynamicDataObj) {
+      if (dynamicDataObj.type === 'image') {
+        var imagesContentData = getImageContent(entry.originalData[dynamicDataObj.column]);
+
+        ctx.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
+      }
+    });
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -2272,7 +2297,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
-      getImageContent: getImageContent
+      getImageContent: getImageContent,
+      assignImageContent: assignImageContent
     },
     Records: {
       runFilters: runRecordFilters,

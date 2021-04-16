@@ -2287,6 +2287,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
   if (_.isArray(entry.data) && entry.data.length) {
+    _this.Utils.Record.assignImageContent(_this, entry);
     return entry;
   }
 
