@@ -1156,7 +1156,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             type: field,
             data: {
               name: value,
-              class: ('' + value).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g, '-')
+              class: _.kebabCase(value)
             }
           });
         });
@@ -1274,7 +1274,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           field: field,
           useData: true
         }), function(item) {
-          var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g, '-');
+          var classConverted = _.kebabCase(item);
           var newObj = {
             type: field,
             data: {
