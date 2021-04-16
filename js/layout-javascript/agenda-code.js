@@ -1184,9 +1184,9 @@ DynamicList.prototype.parseFilterQueries = function() {
     if (!_this.data.filtersInOverlay) {
       _this.$container.find('.list-search-cancel').addClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
-    }
 
-    _this.calculateFiltersHeight();
+      _this.calculateFiltersHeight();
+    }
   }
 };
 
