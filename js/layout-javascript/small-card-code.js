@@ -1038,7 +1038,12 @@ DynamicList.prototype.parseFilterQueries = function() {
     return '.hidden-filter-controls-filter' + selector;
   }).join(','));
 
+  if (!$filters.length) {
+    return;
+  }
+
   _this.toggleFilterElement($filters, true);
+  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
   $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
@@ -1348,7 +1353,8 @@ DynamicList.prototype.addFilters = function(records) {
   var filters = _this.Utils.Records.parseFilters({
     records: records,
     filters: _this.data.filterFields,
-    id: _this.data.id
+    id: _this.data.id,
+    query: _this.queryFilter ? _this.pvFilterQuery : undefined
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
@@ -1363,6 +1369,7 @@ DynamicList.prototype.addFilters = function(records) {
       filtersInOverlay: _this.data.filtersInOverlay,
       filters: filters
     };
+
     var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
@@ -1485,7 +1492,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function() {
       searchedData = searchedData || [];
 
-      var truncated = results.truncated || searchedData.length < _this.listItems.length;
+      var truncated = results.truncated || (searchedData.length && searchedData.length < _this.listItems.length);
 
       if (openSingleEntry && searchedData.length === 1) {
         _this.showDetails(searchedData[0].id);
