@@ -1186,7 +1186,7 @@ DynamicList.prototype.parseFilterQueries = function() {
       _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
     }
 
-    _this.calculateFiltersHeight(_this.$container.find('.new-agenda-list-container'));
+    _this.calculateFiltersHeight();
   }
 };
 
