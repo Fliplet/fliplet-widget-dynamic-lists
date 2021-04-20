@@ -176,6 +176,31 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     };
   }
 
+  /**
+   * This function adds selected LFD item's images to the layout context
+   *
+   * @param {Object} ctx - curent layout context
+   * @param {Object} entry - selected LFD entry
+   * @return {void} this funtion doesn't return anything it commits modifications to layout context
+   */
+  function assignImageContent(ctx, entry) {
+    var dynamicData = _.filter(ctx.data.detailViewOptions, function(option) {
+      return option.editable;
+    });
+
+    if (!dynamicData.length) {
+      return;
+    }
+
+    dynamicData.forEach(function(dynamicDataObj) {
+      if (dynamicDataObj.type === 'image') {
+        var imagesContentData = getImageContent(entry.originalData[dynamicDataObj.column]);
+
+        ctx.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
+      }
+    });
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -324,8 +349,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   /**
    * Append a URL query with additional queries
    * @param {String} query Original query
-   * @param {String} newQuery Additiona queru
-   * @return {String} Result query with both sets of queries
+   * @param {String} newQuery Additional query
+   * @returns {String} Result query with both sets of queries
    */
   function appendUrlQuery(query, newQuery) {
     var queryParts = _.concat(
@@ -364,6 +389,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     if (date.match(/^\d{4}-\d{2}-\d{2}/)) {
       return moment(new Date(date.substr(0, 10))).utc();
     } else if (!isoDateWarningIssued) {
+      /* eslint-disable-next-line no-console */
       console.warn('Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. ' + new Date().toISOString().substr(0, 10));
       isoDateWarningIssued = true;
     }
@@ -413,7 +439,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
    *  $target { Jquery instance } - Jq instance on which user have pressed
    *
-   * @return {void} this funtion doesn't return anything it add changes directly to the DOM
+   * @returns {void} this funtion doesn't return anything it add changes directly to the DOM
    */
   function updateActiveFilterCount(options) {
     if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
@@ -560,7 +586,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
-  function moveAddbuttonPosition(options) {
+  function moveAddButtonPosition(options) {
     var $addButton = options.$container.find('.dynamic-list-add-item');
     var layout = options.data.layout;
     var listClasses = {
@@ -584,7 +610,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function adjustAddButtonPosition(options) {
     if (options.data.addEntry && Modernizr.tablet) {
-      moveAddbuttonPosition(options);
+      moveAddButtonPosition(options);
     } else if (options.data.addEntry && !Modernizr.tablet) {
       resetAddButtonPosition(options);
     }
@@ -1106,19 +1132,70 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     return _.zipObject(fields, _.map(fields, function(field) {
-      return _.sortBy(_.uniq(splitByCommas(_.map(records, 'data.' + field))));
+      return _.sortBy(_.uniq(splitByCommas(_.map(records, ['data', field]))));
     }));
   }
 
+  /**
+   * Takes the list of data records and the page query parameter to return a list of filter and filter options to render
+   * @param {Object} options - A mapping of options for this function
+   * @param {Object[]} options.records - Records from which to derive the filter values
+   * @param {Object[]} options.filters - List of filters configured by the user
+   * @param {Number} options.id - Widget instance ID
+   * @param {Object} [options.query] - Filter query found in the page URL
+   * @returns {Object[]} An array of filters and possible values, ready to be rendered through Handlebars template
+   */
   function parseRecordFilters(options) {
     options = options || {};
 
     var records = options.records || [];
     var filters = options.filters || [];
     var id = options.id;
+    var query = options.query;
+    var hasFilterQuery = query && query.value.length;
+
+    // Add a fake entry into records to represent the filters from the query
+    // to ensure all filter options from the query are rendered in the filter UI
+    if (hasFilterQuery) {
+      var flFilters = [];
+
+      // When filter columns are unspecified, apply the values to all columns
+      if (!query.column.length) {
+        query.column = filters;
+        query.value = _.fill(Array(filters.length), query.value);
+      }
+
+      _.forEach(query.column, function(field, i) {
+        var value = query.value[i];
+
+        if (!Array.isArray(value)) {
+          value = [value];
+        }
+
+        _.forEach(value, function(value) {
+          if (typeof value === 'undefined') {
+            return;
+          }
+
+          flFilters.push({
+            type: field,
+            data: {
+              name: value,
+              class: _.kebabCase(value)
+            }
+          });
+        });
+      });
+
+      records.push({
+        data: {
+          flFilters: flFilters
+        }
+      });
+    }
 
     // Parse legacy flFilters from records to generate a list of filter values
-    return _(records)
+    var result = _(records)
       .map(function(record) {
         return (record.data && record.data.flFilters) || record.flFilters;
       })
@@ -1127,7 +1204,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         // _.uniqBy iteratee
         return JSON.stringify(filter);
       })
-      .orderBy('data.name')
+      .orderBy(function(obj) {
+        return (_.get(obj, ['data', 'name'], '') + '').toLowerCase();
+      })
       .groupBy('type')
       .map(function(values, field) {
         // _.map iteratee for defining of each filter value
@@ -1145,6 +1224,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         return _.indexOf(filters, filter.name);
       })
       .value();
+
+    // Remove the fake entry added from filter query
+    if (hasFilterQuery) {
+      records.pop();
+    }
+
+    return result;
   }
 
   function getRecordField(options) {
@@ -1166,7 +1252,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var path = field.shift();
 
       if (field.length) {
-        var arr = _.get(record, (useData ? 'data.' : '') + path);
+        var arr = _.get(record, (useData ? ['data', path] : [path]));
 
         return _.map(arr, function(item) {
           return getRecordField({
@@ -1185,7 +1271,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     if (typeof field === 'string') {
-      return splitByCommas(_.get(record, (useData ? 'data.' : '') + field));
+      return splitByCommas(_.get(record, (useData ? ['data', field] : [field])));
     }
 
     return [];
@@ -1199,8 +1285,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function(record) {
-      if (_.isArray(_.get(record, 'data.flFilters')) && !options.force) {
-        // If filters are alredy present, skip unless it's forced
+      if (_.isArray(_.get(record, ['data', 'flFilters'])) && !options.force) {
+        // If filters are already present, skip unless it's forced
         return;
       }
 
@@ -1213,7 +1299,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           field: field,
           useData: true
         }), function(item) {
-          var classConverted = ('' + item).toLowerCase().replace(/[!@#\$%\^\&*\)\(\ ]/g, '-');
+          var classConverted = _.kebabCase(item);
           var newObj = {
             type: field,
             data: {
@@ -1227,7 +1313,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         });
       });
 
-      var existingClasses = _.get(record, 'data.flClasses', []);
+      var existingClasses = _.get(record, ['data', 'flClasses'], []);
 
       if (typeof existingClasses === 'string') {
         existingClasses = existingClasses.split(' ');
@@ -1265,6 +1351,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return response;
         })
         .catch(function(error) {
+          /* eslint-disable-next-line no-console */
           console.warn('Error retrieving files', error, data);
 
           return Promise.resolve({ files: [], folders: [] });
@@ -1360,7 +1447,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var $target = options.$target;
     var $container = options.$container;
     var filterOverlay = options.filterOverlayClass;
-    var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-value="' + $target.data('value') + '"]';
+    var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-field="' + $target.data('field') + '"][data-value="' + $target.data('value') + '"]';
     var $redirectTarget = $container.find(redirectSelector);
 
     $redirectTarget.trigger('click');
@@ -1381,7 +1468,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *   filtersInOverlay { Boolean } - boolean variable that tells us if filters shown in overlay
    *   filterOverlayClass { String } - a CSS class of the layout filter overlay
    *
-   * @return {void}
+   * @returns {void}
    */
   function updateActiveFilters(options) {
     if (!options.filtersInOverlay) {
@@ -1552,7 +1639,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *          sortField {String} - name of the field to sort
    *          sortOrder {String} - sort order of
    *          records {Array} - array of records to sort
-   * @return {Array} - sorted by field array
+   * @returns {Array} - sorted by field array
    */
   function sortByField(options) {
     // If user doesn't set sorting do nothing
@@ -1866,6 +1953,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     if (computedFieldClashes.length) {
       var clashedFields = computedFieldClashes.sort().join(', ');
 
+      /* eslint-disable-next-line no-console */
       console.warn('Computed field(s) "' + clashedFields + '" are already defined as a property for one or more records. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten.');
     }
   }
@@ -2111,6 +2199,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           case 'link-query-parameter':
             item.value = Fliplet.Navigate.query[item.fieldValue];
             resolve();
+            break;
 
           case 'app-storage-data':
             Fliplet.App.Storage.get(item.fieldValue)
@@ -2208,7 +2297,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
-      getImageContent: getImageContent
+      getImageContent: getImageContent,
+      assignImageContent: assignImageContent
     },
     Records: {
       runFilters: runRecordFilters,
