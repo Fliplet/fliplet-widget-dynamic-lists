@@ -1383,15 +1383,33 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             var fileName = file.name.match(fileExtensionRegex)[1];
 
             _.forEach(images, function(image) {
+              /* The regular expression below matches any of these on a Fliplet domain:
+              * - /v1/media/files/123/contents
+              * - /v1/media/files/123/contents?
+              * - /v1/media/files/123/contents/fileName
+              * - /v1/media/files/123/contents/filename?
+              */
+              var imageIdFromURL = Fliplet.Media.getIdFromRemoteUrl(image);
               var imageNameFromURL = image.match(fileNameRegex);
               var imageName = imageNameFromURL
                 ? stripQueryParametersFromUrl(imageNameFromURL[0])
                 : stripQueryParametersFromUrl(image);
+              var matchMethod = imageIdFromURL || Static.RegExp.number.test(image)  ? 'id' : 'name';
 
-              if (imageName && (file.name === imageName || fileName === imageName)) {
-                imageFiles.push(file.url);
-              } else if (Static.RegExp.number.test(imageName)
-                && parseInt(imageName, 10) === file.id) {
+              if (matchMethod === 'id') {
+                // Image ID extracted from URL matches file ID
+                if (imageIdFromURL && imageIdFromURL === file.id) {
+                  imageFiles.push(file.url);
+                } else if (parseInt(image, 10) === file.id) {
+                  // Image is an ID and matches file ID
+                  imageFiles.push(file.url);
+                }
+              } else if (imageName && (file.name === imageName || fileName === imageName)) {
+                // File ID not found. Use file name matching.
+                // Image name extracted from URL matches file name
+
+                // NOTE - This could lead to all files in the folder that matches the entry data to be shown
+                // Perhaps this should only check for non-remote URL data
                 imageFiles.push(file.url);
               }
             });
