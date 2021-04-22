@@ -116,9 +116,6 @@ DynamicList.prototype.attachObservers = function() {
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
       var beforeOpen = Promise.resolve();
 
-      $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
-
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
@@ -150,6 +147,11 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
+        if (_this.allowClick) {
+          $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+        }
+
         // find the element to expand and expand it
         if (_this.allowClick && $(window).width() < 640) {
           _this.directoryDetailWrapper = _that.find('.small-h-card-list-detail-wrapper');
@@ -172,7 +174,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      $('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -371,9 +373,13 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click', '.multiple-images-item, .single-image-holder', function() {
+    .on('click', '.multiple-images-item, .single-image-holder', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $this = $(this);
-      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
+      var id = $this.parent().data('detailEntryId');
 
       _this.imagesData[id].options.index = $this.index();
 
@@ -656,20 +662,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       var content = '';
 
       if (obj.type === 'image') {
-        var imageContent = entry.data[obj.column];
-
-        if (typeof imageContent === 'string') {
-          // Regex to detect if line contains URL
-          var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-          var imagesArray = [];
-
-          imagesArray = imageContent.match(detectURLRegex);
-          content = imagesArray !== null
-            ? imagesArray[0]
-            : '';
-        } else if (Array.isArray(imageContent)) {
-          content = imageContent[0];
-        }
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
       } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else {
@@ -776,6 +769,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    _this.Utils.Record.assignImageContent(_this, entry);
     return entry;
   }
 
@@ -834,37 +828,11 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     }
 
     if (dynamicDataObj.type === 'image') {
-      content = entry.originalData[dynamicDataObj.column];
+      var imagesContentData = _this.Utils.Record.getImageContent(entry.originalData[dynamicDataObj.column]);
+      var contentArray = imagesContentData.imagesArray;
 
-      var contentArray;
-
-      if (typeof content === 'string') {
-        // Regex to detect if line contains URL
-        var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-
-        contentArray = content.match(detectURLRegex);
-      }
-
-      if (Array.isArray(content)) {
-        contentArray = content;
-      }
-
-      if (contentArray && contentArray.length) {
-        content = contentArray[0];
-      }
-
-      if (!_this.imagesData[dynamicDataObj.id]) {
-        _this.imagesData[dynamicDataObj.id] = {
-          images: [],
-          options: {
-            index: null
-          }
-        };
-      }
-
-      _this.imagesData[dynamicDataObj.id].images = _.map(contentArray, function(imgUrl) {
-        return { url: imgUrl };
-      });
+      content = imagesContentData.imageContent;
+      _this.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
     }
 
     // Define data object
@@ -915,7 +883,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
 
-  _this.Utils.Records.getFilesInfo({
+  return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
   })
@@ -1014,6 +982,8 @@ DynamicList.prototype.closeDetails = function() {
     if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
+
+    _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 

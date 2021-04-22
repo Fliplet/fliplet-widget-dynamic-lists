@@ -123,6 +123,7 @@ DynamicList.prototype.clearFilters = function() {
 
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.news-feed-search-filter-overlay').removeClass('display');
+  this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -238,7 +239,14 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
+
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters.length) {
+        _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+      }
 
       _this.hideFilterOverlay();
       _this.searchData();
@@ -296,12 +304,11 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if ($(event.target).hasClass('news-feed-info-holder') || $(event.target).parents('.news-feed-info-holder').length) {
+      var $el = $(event.target);
+
+      if ($el.hasClass('news-feed-info-holder') || $el.parents('.news-feed-info-holder').length) {
         return;
       }
-
-      $(event.target).parents('.new-news-feed-list-container').addClass('hidden');
-      $('.dynamic-list-add-item').addClass('hidden');
 
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
@@ -340,6 +347,9 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick) {
+          $el.parents('.new-news-feed-list-container').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
           _this.showDetails(entryId);
           Fliplet.Page.Context.update({
             dynamicListOpenId: entryId
@@ -353,11 +363,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var result;
-
-      $('.new-news-feed-list-container').removeClass('hidden');
-
       var id = _this.$container.find('.news-feed-detail-wrapper[data-entry-id]').data('entry-id');
 
+      _this.$container.find('.new-news-feed-list-container, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -402,8 +410,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
-        $('.section-top-wrapper, .news-feed-list-wrappe').addClass('hidden');
-        $('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
+        _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').addClass('hidden');
+        _this.$container.find('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -435,9 +443,9 @@ DynamicList.prototype.attachObservers = function() {
       var $parentElement = $elementClicked.parents('.news-feed-search-filter-overlay');
 
       $parentElement.removeClass('display');
-      $('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.list-search-icon .fa-sliders').focus();
       $('body').removeClass('lock has-filter-overlay');
-      $('.list-search-icon .fa-sliders').focus();
 
       // Clear all selected filters
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
@@ -1019,9 +1027,13 @@ DynamicList.prototype.attachObservers = function() {
       record.likeButton.like();
       $(this).find('.count').html(count);
     })
-    .on('click', '.multiple-images-item, .single-image-holder', function() {
+    .on('click', '.multiple-images-item, .single-image-holder', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $this = $(this);
-      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
+      var id = $this.parent().data('detailEntryId');
 
       _this.imagesData[id].options.index = $this.index();
 
@@ -1392,13 +1404,17 @@ DynamicList.prototype.parseFilterQueries = function() {
   }
 
   var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
-
   var $filters = _this.$container.find(_.map(filterSelectors, function(selector) {
     return '.hidden-filter-controls-filter' + selector;
   }).join(','));
 
+  if (!$filters.length) {
+    return;
+  }
+
   _this.toggleFilterElement($filters, true);
-  $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
+  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+  $filters.parents('.news-feed-filters-panel').find('.panel-collapse').addClass('in');
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
@@ -1611,20 +1627,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       var content = '';
 
       if (obj.type === 'image') {
-        var imageContent = entry.data[obj.column];
-
-        if (typeof imageContent === 'string') {
-          // Regex to detect if line contains URL
-          var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-          var imagesArray = [];
-
-          imagesArray = imageContent.match(detectURLRegex);
-          content = imagesArray !== null
-            ? imagesArray[0]
-            : '';
-        } else if (Array.isArray(imageContent)) {
-          content = imageContent[0];
-        }
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
       } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
@@ -1722,7 +1725,8 @@ DynamicList.prototype.addFilters = function(records) {
   var filters = _this.Utils.Records.parseFilters({
     records: records,
     filters: _this.data.filterFields,
-    id: _this.data.id
+    id: _this.data.id,
+    query: _this.queryFilter ? _this.pvFilterQuery : undefined
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
@@ -1859,7 +1863,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function() {
       searchedData = searchedData || [];
 
-      var truncated = results.truncated || searchedData.length < _this.listItems.length;
+      var truncated = results.truncated || (searchedData.length && searchedData.length < _this.listItems.length);
 
       if (openSingleEntry && searchedData.length === 1) {
         _this.showDetails(searchedData[0].id);
@@ -2326,6 +2330,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    _this.Utils.Record.assignImageContent(_this, entry);
     return entry;
   }
 
@@ -2364,38 +2369,11 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     }
 
     if (obj.type === 'image') {
-      content = entry.originalData[obj.column];
+      var imagesContentData = _this.Utils.Record.getImageContent(entry.originalData[obj.column]);
+      var contentArray = imagesContentData.imagesArray;
 
-      var contentArray;
-
-      if (typeof content === 'string') {
-        // Regex to detect if line contains URL
-        var detectURLRegex = /((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/;
-
-        contentArray = [];
-        contentArray = content.match(detectURLRegex);
-      }
-
-      if (Array.isArray(content)) {
-        contentArray = content;
-      }
-
-      if (contentArray && contentArray.length) {
-        content = contentArray[0];
-      }
-
-      if (!_this.imagesData[obj.id]) {
-        _this.imagesData[obj.id] = {
-          images: [],
-          options: {
-            index: null
-          }
-        };
-      }
-
-      _this.imagesData[obj.id].images = _.map(contentArray, function(imgUrl) {
-        return { url: imgUrl };
-      });
+      content = imagesContentData.imageContent;
+      _this.imagesData[obj.id] = imagesContentData.imagesData;
     }
 
     // Define data object
@@ -2443,7 +2421,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
   var src = _this.src;
 
-  _this.Utils.Records.getFilesInfo({
+  return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
   })
@@ -2551,6 +2529,8 @@ DynamicList.prototype.closeDetails = function() {
     if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
+
+    _this.$container.find('.new-news-feed-list-container, .dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 
