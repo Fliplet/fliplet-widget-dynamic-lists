@@ -168,7 +168,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         context = undefined;
       }
 
-      return getMomentDate(context).format(block.hash.format || LOCALE_FORMATS.DATE);
+      return getMomentDate(context).format(moment()._locale._longDateFormat.ll || moment()._locale._longDateFormat.LL);
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
