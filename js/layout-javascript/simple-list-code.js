@@ -1036,6 +1036,7 @@ DynamicList.prototype.initialize = function() {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   }
 
+  moment.locale(navigator.language);
   _this.attachObservers();
 
   // Check if there is a query or PV for search/filter queries
@@ -2618,7 +2619,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
-      entryComments[index].literalDate = moment().calendar(entry.createdAt);
+      entryComments[index].literalDate = moment(entry.createdAt).calendar();
       entryComments[index].userName = userName;
       entryComments[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments[index].text = entry.data.settings.text || '';
@@ -2891,7 +2892,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
   var commentInfo = {
     id: guid,
-    literalDate: moment().calendar(timestamp),
+    literalDate: moment(timestamp).calendar(),
     userName: userName,
     photo: _this.myUserData[_this.data.userPhotoColumn] || '',
     text: value
@@ -2915,7 +2916,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   })).join(' ').trim();
 
   if (!commentData.literalDate) {
-    commentData.literalDate = moment().calendar(commentData.createdAt);
+    commentData.literalDate = moment(commentData.createdAt).calendar();
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];

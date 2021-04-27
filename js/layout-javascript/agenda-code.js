@@ -978,6 +978,7 @@ DynamicList.prototype.initialize = function() {
     Fliplet.App.Storage.remove('flDynamicListQuery:' + _this.data.layout);
   }
 
+  moment.locale(navigator.language);
   _this.attachObservers();
 
   // Check if there is a query or PV for search/filter queries
