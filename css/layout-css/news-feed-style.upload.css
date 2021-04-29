@@ -949,7 +949,6 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
 
 .news-feed-inner-holder .dynamic-list-controls {
   display: none;
-  margin-top: 0;
 }
 
 .news-feed-list-item.open .news-feed-inner-holder .dynamic-list-controls {

@@ -923,17 +923,15 @@ var DynamicLists = (function() {
       // Load
       var loadingPromise;
 
+      $('.form-group').removeClass('disabled');
+
       if (!_this.config.dataSourceId) {
         loadingPromise = new Promise(function(resolve) {
           _this.updateFieldsWithColumns(_this.config.defaultColumns);
-          $('.form-group').removeClass('disabled');
           resolve();
         });
       } else {
-        loadingPromise = _this.getDataSourceById(_this.config.dataSourceId)
-          .then(function(datasource) {
-            return _this.changeCreateDsButton(datasource);
-          });
+        loadingPromise = Promise.resolve();
       }
 
       return loadingPromise
@@ -1965,17 +1963,6 @@ var DynamicLists = (function() {
       })
         .then(function() {
           _this.saveLists(true);
-        });
-    },
-    changeCreateDsButton: function(dataSource) {
-      newDataSource = dataSource;
-
-      return _this.getColumns(dataSource.id)
-        .then(function() {
-          $('.selected-datasource span').html(dataSource.name);
-          $('.create-holder').addClass('hidden');
-          $('.edit-holder').removeClass('hidden');
-          $('.form-group').removeClass('disabled');
         });
     },
     checkSortPanelLength: function() {
