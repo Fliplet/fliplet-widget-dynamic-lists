@@ -588,7 +588,7 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click keydown', '.simple-list-comment-close-panel', function() {
+    .on('click keydown', '.simple-list-comment-close-panel', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
