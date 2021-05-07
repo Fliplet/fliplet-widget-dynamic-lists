@@ -334,7 +334,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var $el = $(this);
 
-      if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
+      if ($(event.target).hasClass('small-card-bookmark-holder') || $(event.target).parents('.small-card-bookmark-holder').length) {
         return;
       }
 
