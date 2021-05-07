@@ -2288,10 +2288,11 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_.isArray(entry.data) && entry.data.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
+
     return entry;
   }
 
-  entry.data = [];
+  entry.entryDetails = [];
 
   // Define detail view data based on user's settings
   _this.data.detailViewOptions.forEach(function(obj) {
@@ -2346,7 +2347,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       newEntryDetail.contentArray = contentArray;
     }
 
-    entry.data.push(newEntryDetail);
+    entry.entryDetails.push(newEntryDetail);
   });
 
   if (_this.data.detailViewAutoUpdate) {
@@ -2362,7 +2363,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
         type: 'text'
       };
 
-      entry.data.push(newColumnData);
+      entry.entryDetails.push(newColumnData);
     });
   }
 
