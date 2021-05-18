@@ -101,9 +101,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           var url = typeof file === 'string'
             ? file
             : file.url;
-          var matchedFileUrl = url.match(/v1\/media\/files\/([0-9]+)/);
 
-          return matchedFileUrl ? matchedFileUrl[1] : null;
+          return Fliplet.Media.getIdFromRemoteUrl(url);
         });
 
         Fliplet.Media.Files.getAll({
