@@ -373,13 +373,13 @@ DynamicList.prototype.attachObservers = function() {
         Fliplet.UI.Actions(options);
       });
     })
-    .on('click keydown', '.multiple-images-item', function(event) {
+    .on('click keydown', '.multiple-images-item, .single-image-holder', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
 
       var $this = $(this);
-      var id = $this.parent().data('detailEntryId');
+      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
 
       _this.imagesData[id].options.index = $this.index();
 

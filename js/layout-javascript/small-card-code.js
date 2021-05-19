@@ -333,8 +333,9 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var $el = $(this);
+      var $target = $(event.target);
 
-      if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
+      if ($target.hasClass('small-card-bookmark-holder') || $target.parents('.small-card-bookmark-holder').length) {
         return;
       }
 
@@ -835,13 +836,13 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
     })
-    .on('click keydown', '.multiple-images-item', function(event) {
+    .on('click keydown', '.multiple-images-item, .single-image-holder', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
 
       var $this = $(this);
-      var id = $this.parent().data('detailEntryId');
+      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
 
       _this.imagesData[id].options.index = $this.index();
 

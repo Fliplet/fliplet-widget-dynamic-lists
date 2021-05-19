@@ -588,7 +588,7 @@ DynamicList.prototype.attachObservers = function() {
         action: 'comments_open'
       });
     })
-    .on('click keydown', '.simple-list-comment-close-panel', function() {
+    .on('click keydown', '.simple-list-comment-close-panel', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
@@ -1000,13 +1000,13 @@ DynamicList.prototype.attachObservers = function() {
       record.likeButton.like();
       $(this).find('.count').html(count);
     })
-    .on('click keydown', '.multiple-images-item', function(event) {
+    .on('click keydown', '.multiple-images-item, .single-image-holder', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
 
       var $this = $(this);
-      var id = $this.parent().data('detailEntryId');
+      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
 
       _this.imagesData[id].options.index = $this.index();
 
@@ -2288,10 +2288,11 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_.isArray(entry.data) && entry.data.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
+
     return entry;
   }
 
-  entry.data = [];
+  entry.entryDetails = [];
 
   // Define detail view data based on user's settings
   _this.data.detailViewOptions.forEach(function(obj) {
@@ -2346,7 +2347,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       newEntryDetail.contentArray = contentArray;
     }
 
-    entry.data.push(newEntryDetail);
+    entry.entryDetails.push(newEntryDetail);
   });
 
   if (_this.data.detailViewAutoUpdate) {
@@ -2362,7 +2363,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
         type: 'text'
       };
 
-      entry.data.push(newColumnData);
+      entry.entryDetails.push(newColumnData);
     });
   }
 
