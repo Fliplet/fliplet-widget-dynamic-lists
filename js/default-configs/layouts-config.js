@@ -1,6 +1,7 @@
 window.flListLayoutConfig = {
   'small-card': {
     'filtersEnabled': true,
+    'chatEnabled': false,
     'filterFields': ['Location', 'Sectors', 'Expertise'],
     'filtersInOverlay': false,
     'searchEnabled': true,
@@ -15,7 +16,7 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': ['list-filter', 'list-search', 'list-bookmark', 'list-sort'],
+    'style-specific': ['list-filter', 'list-search', 'list-bookmark', 'list-sort', 'list-chat'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
@@ -220,6 +221,7 @@ window.flListLayoutConfig = {
   'small-h-card': {
     'filtersEnabled': false,
     'filterFields': [],
+    'chatEnabled': true,
     'filtersInOverlay': false,
     'searchEnabled': false,
     'searchFields': [],
@@ -233,7 +235,7 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': [],
+    'style-specific': ['list-chat'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
