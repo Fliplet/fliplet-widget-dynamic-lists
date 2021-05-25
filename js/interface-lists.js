@@ -258,6 +258,10 @@ function validate(value) {
 function toggleError(showError, element) {
   if (showError) {
     if (element === 'chat-provider' && linkChatProvider) {
+      var $socialAccordion = $('#social-accordion');
+
+      $socialAccordion.find('.panel').addClass('panel-danger').removeClass('panel-default');
+      $socialAccordion.find('.form-group.list-chat p').addClass('text-danger');
       linkChatProvider.emit('page-field-error');
 
       return;
@@ -284,6 +288,7 @@ function toggleError(showError, element) {
   $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
 
   if (linkChatProvider) {
+    $('#social-accordion').find('.text-danger').removeClass('text-danger');
     linkChatProvider.emit('reset-page-field-error');
   }
 }

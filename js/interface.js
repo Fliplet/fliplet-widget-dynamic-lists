@@ -1608,10 +1608,6 @@ var DynamicLists = (function() {
         });
       });
 
-      if (this.config.chatEmailColumn) {
-        $('#select_chat_email').val(this.config.chatEmailColumn ? this.config.chatEmailColumn : 'none').trigger('change');
-      }
-
       _this.setUpTokenFields();
     },
     updateUserFieldsWithColumns: function(userDataSourceColumns) {
