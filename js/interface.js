@@ -105,6 +105,7 @@ var DynamicLists = (function() {
       },
       accessRules: accessRules
     };
+    var $document = $(document);
 
     dataSourceProvider = Fliplet.Widget.open('com.fliplet.data-source-provider', {
       selector: '#dataSourceProvider',
@@ -120,12 +121,14 @@ var DynamicLists = (function() {
             _this.renderSortColumns();
             _this.renderFilterColumns();
             _this.updateFieldsWithColumns(dataSourceColumns);
+
+            $document.trigger('datasource-selected');
           }
         }
       }
     });
 
-    $(document).trigger('datasource-initialized');
+    $document.trigger('datasource-initialized');
   }
 
   DynamicLists.prototype = {
@@ -925,17 +928,27 @@ var DynamicLists = (function() {
 
       // Load
       var loadingPromise;
+      var $document = $(document);
 
       $('.form-group').removeClass('disabled');
 
-      if (!_this.config.dataSourceId) {
-        loadingPromise = new Promise(function(resolve) {
+      // Select layout
+      listLayout = _this.config.layout;
+
+      loadingPromise = new Promise(function(resolve) {
+        if (!_this.config.dataSourceId) {
           _this.updateFieldsWithColumns(_this.config.defaultColumns);
+          initDataSourceProvider(_this.config.dataSourceId);
+
           resolve();
-        });
-      } else {
-        loadingPromise = Promise.resolve();
-      }
+        } else {
+          $document.on('datasource-selected', function() {
+            resolve();
+          });
+
+          initDataSourceProvider(_this.config.dataSourceId);
+        }
+      });
 
       return loadingPromise
         .then(function() {
@@ -976,14 +989,9 @@ var DynamicLists = (function() {
             delete: _this.config.deleteEntry
           });
 
-          // Select layout
-          listLayout = _this.config.layout;
           // eslint-disable-next-line no-unused-vars
           isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
-
-          // init Data Source Provider
-          initDataSourceProvider(_this.config.dataSourceId);
 
           // Load Add. Edit, Delete
           $('#add_entry').prop('checked', _this.config.addEntry).trigger('change');
