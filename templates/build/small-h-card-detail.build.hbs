@@ -10,14 +10,6 @@
     <div class="small-h-card-list-detail-role">\{{[Title]}}</div>
     <div class="small-h-card-list-detail-location">\{{[Location]}}</div>
     <div class="small-h-card-list-detail-buttons-wrapper">
-      \{{#if chatEnabled}}
-      <div class="small-h-card-list-detail-button">
-        <div class="small-h-card-list-detail-chat" data-chat-email="\{{chatEmail}}" class="focus-outline" tabindex="0">
-          <div class="small-h-card-list-detail-button-image"><span class="fa fa-comments-o"></span></div>
-          <div class="small-h-card-list-detail-button-text">CHAT</div>
-        </div>
-      </div>
-      \{{/if}}
       \{{#if [Email]}}
       <div class="small-h-card-list-detail-button">
         <a href="mailto:\{{[Email]}}" target="_blank" class="focus-outline">
@@ -32,6 +24,14 @@
           <div class="small-h-card-list-detail-button-image"><span class="fa fa-phone"></span></div>
           <div class="small-h-card-list-detail-button-text">CALL</div>
         </a>
+      </div>
+      \{{/if}}
+      \{{#if chatEnabled}}
+      <div class="small-h-card-list-detail-button">
+        <div class="small-h-card-list-detail-chat" data-chat-email="\{{chatEmail}}" class="focus-outline" tabindex="0">
+          <div class="small-h-card-list-detail-button-image"><span class="fa fa-comments-o"></span></div>
+          <div class="small-h-card-list-detail-button-text">MESSAGE</div>
+        </div>
       </div>
       \{{/if}}
       \{{#if [Linkedin]}}
