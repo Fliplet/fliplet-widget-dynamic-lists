@@ -2114,19 +2114,27 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *
    * @returns {Promise} returns a promise of the Fliplet.Navigate.to method.
    */
-  function navigateToTheScreen(linkAction, queryParams) {
+  function navigateToScreen(linkAction, queryParams) {
     if (!_.get(linkAction, 'page')) {
       return Promise.reject('Page error');
     }
 
     linkAction.query = appendUrlQuery(linkAction.query, queryParams);
 
-    return Fliplet.Navigate.to(linkAction);
+    try {
+      var navigate = Fliplet.Navigate.to(linkAction);
+
+      if (navigate instanceof Promise) {
+        return navigate;
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   /**
    *
-   * @param {String} error - error message from the navigateToTheScreen function
+   * @param {String} error - error message from the navigateToScreen function
    * @param {Object} errorMessages - Messages that we will show in toast.
    *  required poperties:
    *    'pageError' - message that we will show when no page is specifyed
@@ -2138,13 +2146,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     switch (error) {
       case 'Page error':
         Fliplet.UI.Toast({
-          title: 'Link not configured',
           message: errorMessages.pageError
         });
 
         break;
       default:
-        Fliplet.UI.Toast(error, {
+        Fliplet.UI.Toast.error(error, {
           message: errorMessages.openError
         });
 
@@ -2359,7 +2366,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Navigate: {
       openLinkAction: openLinkAction,
-      goToScreen: navigateToTheScreen,
+      goToScreen: navigateToScreen,
       errorHandler: navigateToScreenErrorHandler
     },
     Record: {

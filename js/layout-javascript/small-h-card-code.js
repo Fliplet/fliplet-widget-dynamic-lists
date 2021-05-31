@@ -180,7 +180,7 @@ DynamicList.prototype.attachObservers = function() {
         .catch(function(error) {
           _this.Utils.Navigate.errorHandler(error,
             {
-              pageError: 'Chat not found. Please check the component\'s configuration.',
+              pageError: 'Chat screen not found. Please check the component\'s configuration.',
               openError: 'Error open the chat'
             }
           );
