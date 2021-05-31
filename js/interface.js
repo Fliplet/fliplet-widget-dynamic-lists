@@ -1564,48 +1564,46 @@ var DynamicLists = (function() {
         '[name="detail_select_field"]' // Detail fields
       ];
 
-      _.forEach(selectors, function(selector) {
-        $(selector).each(function() {
-          var $el = $(this);
-          var name = $el.prop('name');
-          var defaultOptions;
-          var oldValue = $el.val();
+      $(selectors.join(',')).each(function() {
+        var $el = $(this);
+        var name = $el.prop('name');
+        var defaultOptions;
+        var oldValue = $el.val();
 
-          $el.html('');
+        $el.html('');
 
-          switch (name) {
-            case 'summary_select_field':
-              defaultOptions = [
-                '<option value="none">-- Select a data field</option>',
-                '<option disabled>------</option>',
-                '<option value="empty">None</option>',
-                '<option value="custom">Custom</option>',
-                '<option disabled>------</option>'
-              ];
+        switch (name) {
+          case 'summary_select_field':
+            defaultOptions = [
+              '<option value="none">-- Select a data field</option>',
+              '<option disabled>------</option>',
+              '<option value="empty">None</option>',
+              '<option value="custom">Custom</option>',
+              '<option disabled>------</option>'
+            ];
 
-              break;
-            case 'detail_select_field':
-              defaultOptions = [
-                '<option value="none">-- Select a data field</option>',
-                '<option disabled>------</option>',
-                '<option value="custom">Custom</option>',
-                '<option disabled>------</option>'
-              ];
+            break;
+          case 'detail_select_field':
+            defaultOptions = [
+              '<option value="none">-- Select a data field</option>',
+              '<option disabled>------</option>',
+              '<option value="custom">Custom</option>',
+              '<option disabled>------</option>'
+            ];
 
-              break;
-            default:
-              defaultOptions = ['<option value="none">-- Select a data field</option>'];
-              break;
-          }
+            break;
+          default:
+            defaultOptions = ['<option value="none">-- Select a data field</option>'];
+            break;
+        }
 
-          $el.append(defaultOptions.concat(options).join(''));
+        $el.append(defaultOptions.concat(options).join(''));
 
-          if (oldValue && oldValue.length) {
-            $el.val(oldValue);
-          } else {
-            $el.val('none');
-          }
-        });
+        if (oldValue && oldValue.length) {
+          $el.val(oldValue);
+        } else {
+          $el.val('none');
+        }
       });
 
       _this.setUpTokenFields();
