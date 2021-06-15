@@ -2238,7 +2238,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function getImagesUrlsByRegex(imageString) {
     // Regex to detect if line contains URL
-    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/);
+    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/g);
   }
 
   function openLinkAction(options) {
