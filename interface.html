@@ -307,11 +307,13 @@
                           <p>You need to create a chat screen to allow users to message each other. Select the screen where the chat feature will be found.</p>
                           <div id="chat-link"></div>
                           <div class="select-chat-email-holder">
-                            <label>Email field (Required)</label>
-                            <select name="select_chat_email" id="select_chat_email" class="form-control">
-                              <option value="none">-- Select email data field</option>
-                              <option disabled>------</option>
-                            </select>
+                            <label for="select_chat_email" class="select-proxy-display">
+                              Email field (Required)
+                              <select name="select_chat_email" id="select_chat_email" class="hidden-select form-control">
+                                <option value="">-- Select email data field</option>
+                              </select>
+                              <span class="icon fa fa-chevron-down"></span>
+                            </label>
                           </div>
                         </div>
                       </div>
