@@ -1470,6 +1470,10 @@ DynamicList.prototype.renderLoopHTML = function() {
 };
 
 DynamicList.prototype.renderDatesHTML = function(records, index) {
+  if (!records || !records.length) {
+    return;
+  }
+
   // Function that renders the Dates template
   var _this = this;
   var calendarDates = [];
