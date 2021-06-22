@@ -1470,6 +1470,10 @@ DynamicList.prototype.renderLoopHTML = function() {
 };
 
 DynamicList.prototype.renderDatesHTML = function(records, index) {
+  if (!records || !records.length) {
+    return;
+  }
+
   // Function that renders the Dates template
   var _this = this;
   var calendarDates = [];
@@ -1740,18 +1744,28 @@ DynamicList.prototype.initializeSocials = function(records) {
 
 /* ANIMATION FOR DATES BACK AND FORWARD */
 // animates dates forward
-DynamicList.prototype.animateDateForward = function(nextDateElement, nextDateElementWidth) {
+DynamicList.prototype.animateDateForward = function($nextDateElement, nextDateElementWidth) {
   var _this = this;
 
   return new Promise(function(resolve) {
+    var $currentActiveDate = _this.$container.find('.agenda-date-selector li.active');
+
+    $currentActiveDate.removeClass('active').find('.day').addBack().css('color', '#000');
+    setTimeout(function() {
+      $currentActiveDate.find('.day').addBack().css('color', '');
+
+      $nextDateElement.addClass('active').find('.day').addBack().css('color', '#000');
+      setTimeout(function() {
+        $nextDateElement.find('.day').addBack().css('color', '');
+      }, 0);
+    }, 0);
+
     _this.$container.find('.agenda-date-selector ul').animate({
       scrollLeft: '+=' + nextDateElementWidth
     },
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-date-selector li.active').removeClass('active');
-      nextDateElement.addClass('active');
       resolve();
     });
   });
@@ -1780,18 +1794,28 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
 };
 
 // animates dates back
-DynamicList.prototype.animateDateBack = function(prevDateElement, prevDateElementWidth) {
+DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateElementWidth) {
   var _this = this;
 
   return new Promise(function(resolve) {
+    var $currentActiveDate = _this.$container.find('.agenda-date-selector li.active');
+
+    $currentActiveDate.removeClass('active').find('.day').addBack().css('color', '#000');
+    setTimeout(function() {
+      $currentActiveDate.find('.day').addBack().css('color', '');
+
+      $prevDateElement.addClass('active').find('.day').addBack().css('color', '#000');
+      setTimeout(function() {
+        $prevDateElement.find('.day').addBack().css('color', '');
+      }, 0);
+    }, 0);
+
     _this.$container.find('.agenda-date-selector ul').animate({
       scrollLeft: '-=' + prevDateElementWidth
     },
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-date-selector li.active').removeClass('active');
-      prevDateElement.addClass('active');
       resolve();
     });
   });
@@ -2505,6 +2529,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
+
     return entry;
   }
 

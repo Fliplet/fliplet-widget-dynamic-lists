@@ -97,10 +97,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             break;
         }
 
-        var fileIDs = files.map(function(fileUrl) {
-          var matchedFileUrl = fileUrl.match(/v1\/media\/files\/([0-9]+)/);
+        var fileIDs = files.map(function(file) {
+          var url = typeof file === 'string'
+            ? file
+            : file.url;
 
-          return matchedFileUrl ? matchedFileUrl[1] : null;
+          return Fliplet.Media.getIdFromRemoteUrl(url);
         });
 
         Fliplet.Media.Files.getAll({
@@ -2295,7 +2297,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function getImagesUrlsByRegex(imageString) {
     // Regex to detect if line contains URL
-    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/);
+    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/g);
   }
 
   function openLinkAction(options) {

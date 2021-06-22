@@ -41,7 +41,7 @@ var chatLinkData = $.extend(true, {
   transition: 'fade',
   options: {
     hideAction: true,
-    required: true
+    pageRequired: true
   }
 }, widgetData.chatLinkAction, { action: 'screen' });
 
