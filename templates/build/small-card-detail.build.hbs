@@ -38,6 +38,14 @@
         </a>
       </div>
       \{{/if}}
+      \{{#if chatEnabled}}
+      <div class="small-card-list-detail-button">
+        <div class="small-card-list-detail-chat" data-chat-email="\{{chatEmail}}" class="focus-outline" tabindex="0">
+          <div class="small-card-list-detail-button-image"><span class="fa fa-comments-o"></span></div>
+          <div class="small-card-list-detail-button-text">MESSAGE</div>
+        </div>
+      </div>
+      \{{/if}}
       \{{#if [Linkedin]}}
       <div class="small-card-list-detail-button">
         <a href="\{{[Linkedin]}}" target="_blank" class="focus-outline" tabindex="0">
@@ -53,12 +61,23 @@
         <!-- Image template -->
         \{{#ifCond type '==' 'image'}}
           \{{#if content}}
-            \{{#if labelEnabled}}
-            <div class="small-card-list-detail-label">\{{label}}</div>
-            \{{/if}}
-
-            <div class="small-card-list-detail-body-text">
-              <img src="\{{validateImage content}}">
+            <div data-detail-entry-id="\{{id}}">
+              \{{#if labelEnabled}}
+                <div class="small-card-list-detail-label">\{{label}}</div>
+              \{{/if}}
+              \{{#if (isSingle contentArray)}}
+                <div class="small-card-list-detail-body-text single-image-holder">
+                  <img src="\{{validateImage content}}">
+                </div>
+              \{{else}}
+                <div class="multiple-images-holder" >
+                  \{{#each contentArray}}
+                    <div class="multiple-images-item">
+                      <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
+                    </div>
+                  \{{/each}}
+                </div>
+              \{{/if}}
             </div>
           \{{/if}}
         \{{/ifCond}}
