@@ -1149,5 +1149,6 @@ header .btn,
 }
 
 .select-chat-email-holder label {
-  padding: 0;
+  padding: 0px 0px 6px 0px;
+  font-weight: bold;
 }
