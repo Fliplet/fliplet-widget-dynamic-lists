@@ -894,7 +894,7 @@ var DynamicLists = (function() {
           _this.initializeDetailViewSortable();
         });
     },
-    defaultDataSourceProvider () {
+    initDefaultDatasourceProvider () {
       _this.updateFieldsWithColumns(_this.config.defaultColumns);
       initDataSourceProvider(_this.config.dataSourceId);
     },
@@ -941,7 +941,7 @@ var DynamicLists = (function() {
 
       loadingPromise = new Promise(function(resolve) {
         if (!_this.config.dataSourceId) {
-          _this.defaultDataSourceProvider();
+          _this.initDefaultDatasourceProvider();
 
           resolve();
         } else {
@@ -955,7 +955,7 @@ var DynamicLists = (function() {
 
             return;
           }).catch(function() {
-            _this.defaultDataSourceProvider();
+            _this.initDefaultDatasourceProvider();
 
             resolve();
 
