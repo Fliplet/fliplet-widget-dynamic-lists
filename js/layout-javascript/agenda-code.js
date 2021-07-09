@@ -1280,7 +1280,7 @@ DynamicList.prototype.convertTime = function(time) {
     format = 'hh:mm';
   }
 
-  var convertedTime = moment(time, format).format('h:mm A');
+  var convertedTime = moment(time, format).format(this.Utils.Date.LOCALE_FORMATS.TIME);
 
   return convertedTime;
 };
