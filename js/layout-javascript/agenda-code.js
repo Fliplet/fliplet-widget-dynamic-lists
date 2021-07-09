@@ -585,8 +585,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
-        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
-
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
@@ -602,8 +600,6 @@ DynamicList.prototype.attachObservers = function() {
 
           return;
         }
-
-        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
 
         _this.showDetails(entryId);
         Fliplet.Page.Context.update({
