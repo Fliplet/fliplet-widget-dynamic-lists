@@ -952,14 +952,10 @@ var DynamicLists = (function() {
             });
 
             _this.initDataSourceProvider(_this.config.dataSourceId);
-
-            return;
           }).catch(function() {
             _this.initDefaultDatasourceProvider();
 
             resolve();
-
-            return;
           });
         }
       });
