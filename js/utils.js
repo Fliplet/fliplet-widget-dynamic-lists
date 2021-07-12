@@ -25,9 +25,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   var LOCALE_FORMATS = {
     TIME: moment.localeData().longDateFormat('LT'),
-    DATE: moment.localeData().longDateFormat('ll'),
-    DATE_TIME: moment.localeData().longDateFormat('lll')
+    DATE: moment.localeData().longDateFormat('ll')
   };
+
+  function getLocaleFormat(format) {
+    switch (format) {
+      case 'date':
+        return LOCALE_FORMATS.DATE;
+      case 'time':
+        return LOCALE_FORMATS.TIME;
+      default:
+        break;
+    }
+  }
 
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
@@ -244,7 +254,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         context = undefined;
       }
 
-      return getMomentDate(context).format(moment()._locale._longDateFormat.ll || moment()._locale._longDateFormat.LL);
+      return getMomentDate(context).format(block.hash.format || LOCALE_FORMATS.DATE);
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
@@ -2367,7 +2377,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Date: {
       moment: getMomentDate,
-      LOCALE_FORMATS
+      getLocaleFormat: getLocaleFormat
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
