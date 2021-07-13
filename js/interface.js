@@ -894,7 +894,7 @@ var DynamicLists = (function() {
           _this.initializeDetailViewSortable();
         });
     },
-    initDefaultDatasourceProvider () {
+    initDefaultDatasourceProvider: function() {
       _this.updateFieldsWithColumns(_this.config.defaultColumns);
       initDataSourceProvider(_this.config.dataSourceId);
     },
