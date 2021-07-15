@@ -25,13 +25,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   var LOCALE_FORMATS = {
     TIME: moment.localeData().longDateFormat('LT'),
-    DATE: moment.localeData().longDateFormat('ll')
+    DATE: moment.localeData().longDateFormat('ll'),
+    LONG_DATE: moment.localeData().longDateFormat('ll')
   };
 
   function getLocaleFormat(format) {
     switch (format) {
       case 'date':
         return LOCALE_FORMATS.DATE;
+      case 'long-date':
+        return LOCALE_FORMATS.LONG_DATE;
       case 'time':
         return LOCALE_FORMATS.TIME;
       default:
