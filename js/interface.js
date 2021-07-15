@@ -951,7 +951,7 @@ var DynamicLists = (function() {
               resolve();
             });
 
-            _this.initDataSourceProvider(_this.config.dataSourceId);
+            initDataSourceProvider(_this.config.dataSourceId);
           }).catch(function() {
             _this.initDefaultDatasourceProvider();
 
