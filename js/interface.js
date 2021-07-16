@@ -894,6 +894,10 @@ var DynamicLists = (function() {
           _this.initializeDetailViewSortable();
         });
     },
+    initDefaultDatasourceProvider: function() {
+      _this.updateFieldsWithColumns(_this.config.defaultColumns);
+      initDataSourceProvider(_this.config.dataSourceId);
+    },
     loadData: function() {
       if (!_this.config.layout) {
         return Promise.resolve();
@@ -937,16 +941,22 @@ var DynamicLists = (function() {
 
       loadingPromise = new Promise(function(resolve) {
         if (!_this.config.dataSourceId) {
-          _this.updateFieldsWithColumns(_this.config.defaultColumns);
-          initDataSourceProvider(_this.config.dataSourceId);
+          _this.initDefaultDatasourceProvider();
 
           resolve();
         } else {
-          $document.on('datasource-selected', function() {
+          // Check data source
+          _this.getDataSourceById(_this.config.dataSourceId).then(function() {
+            $document.on('datasource-selected', function() {
+              resolve();
+            });
+
+            initDataSourceProvider(_this.config.dataSourceId);
+          }).catch(function() {
+            _this.initDefaultDatasourceProvider();
+
             resolve();
           });
-
-          initDataSourceProvider(_this.config.dataSourceId);
         }
       });
 
