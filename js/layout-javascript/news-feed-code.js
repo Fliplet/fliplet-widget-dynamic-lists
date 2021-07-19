@@ -2701,7 +2701,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
-      entryComments[index].literalDate = moment(entry.createdAt).format(this.Utils.Date.getLocaleFormat('long-date'));
+      entryComments[index].literalDate = moment(entry.createdAt).format(_this.Utils.Date.getLocaleFormat('long-date'));
       entryComments[index].userName = userName;
       entryComments[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments[index].text = entry.data.settings.text || '';
@@ -2974,7 +2974,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
   var commentInfo = {
     id: guid,
-    literalDate: moment(timestamp).format(this.Utils.Date.getLocaleFormat('long-date')),
+    literalDate: moment(timestamp).format(_this.Utils.Date.getLocaleFormat('long-date')),
     userName: userName,
     photo: _this.myUserData[_this.data.userPhotoColumn] || '',
     text: value
@@ -2997,7 +2997,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   })).join(' ').trim();
 
   if (!commentData.literalDate) {
-    commentData.literalDate = moment(commentData.createdAt).format(this.Utils.Date.getLocaleFormat('long-date'));
+    commentData.literalDate = moment(commentData.createdAt).format(_this.Utils.Date.getLocaleFormat('long-date'));
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
