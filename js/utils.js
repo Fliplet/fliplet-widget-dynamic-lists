@@ -20,7 +20,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
 
-  // Keep date format in user language until localisation is correctly rollded out
+  // Set date format to user language
   moment.locale(navigator.language);
 
   var LOCALE_FORMATS = {
