@@ -523,7 +523,9 @@
     right: 0;
     bottom: 0;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 40px 0;
+    z-index: 9;
   }
 
   .small-h-card-detail-overlay .small-h-card-detail-overlay-panel {
