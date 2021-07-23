@@ -1201,6 +1201,7 @@
     bottom: 0;
     overflow: auto;
     padding: 40px 0;
+    z-index: 1;
   }
 
   .small-card-detail-overlay .small-card-detail-overlay-panel {

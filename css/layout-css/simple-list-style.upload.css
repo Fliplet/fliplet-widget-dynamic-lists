@@ -1193,6 +1193,7 @@ html.ie11 .simple-list-item .list-item-description {
     bottom: 0;
     overflow: auto;
     padding: 40px 0;
+    z-index: 1;
   }
 
   .simple-list-detail-overlay .simple-list-detail-overlay-panel {
