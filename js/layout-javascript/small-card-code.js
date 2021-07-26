@@ -236,13 +236,9 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-<<<<<<< HEAD
-      if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
-=======
       var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
 
       if ($selectedFilters) {
->>>>>>> upstream/master
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       }
 
@@ -340,11 +336,7 @@ DynamicList.prototype.attachObservers = function() {
       var $el = $(this);
       var $target = $(event.target);
 
-<<<<<<< HEAD
-      if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
-=======
       if ($target.hasClass('small-card-bookmark-holder') || $target.parents('.small-card-bookmark-holder').length) {
->>>>>>> upstream/master
         return;
       }
 
