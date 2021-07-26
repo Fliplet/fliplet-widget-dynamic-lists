@@ -7,7 +7,7 @@
       \{{#if [Location]}}
       <p class="agenda-item-location">\{{{[Location]}}}</p>
       \{{/if}}
-      <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{moment [Full Date] format="D MMM YYYY"}}</p>
+      <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{formatDate [Full Date]}}</p>
     </div>
 
     <div class="agenda-item-bookmark \{{#if agendaButtonsEnabled}}more-buttons\{{/if}}">
@@ -43,12 +43,23 @@
         <!-- Image template -->
         \{{#ifCond type '==' 'image'}}
           \{{#if content}}
-            \{{#if labelEnabled}}
-            <div class="agenda-item-detail-label">\{{label}}</div>
-            \{{/if}}
-
-            <div class="agenda-item-detail-body-text">
-              <img src="\{{validateImage content}}">
+            <div data-detail-entry-id="\{{id}}">
+              \{{#if labelEnabled}}
+                <div class="agenda-item-detail-label">\{{label}}</div>
+              \{{/if}}
+              \{{#if (isSingle contentArray)}}
+                <div class="agenda-item-detail-body-text single-image-holder">
+                  <img src="\{{validateImage content}}">
+                </div>
+              \{{else}}
+                <div class="multiple-images-holder" >
+                  \{{#each contentArray}}
+                    <div class="multiple-images-item">
+                      <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
+                    </div>
+                  \{{/each}}
+                </div>
+              \{{/if}}
             </div>
           \{{/if}}
         \{{/ifCond}}

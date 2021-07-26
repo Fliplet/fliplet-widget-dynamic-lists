@@ -57,6 +57,7 @@ function DynamicList(id, data) {
   this.openedEntryOnQuery = false;
   this.sortOrder = 'asc';
   this.sortField = null;
+  this.imagesData = {};
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -241,7 +242,13 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
+<<<<<<< HEAD
       if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+=======
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters.length) {
+>>>>>>> upstream/master
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       }
 
@@ -347,6 +354,9 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick) {
+          $el.parents('.new-news-feed-list-container').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
           _this.showDetails(entryId);
           Fliplet.Page.Context.update({
             dynamicListOpenId: entryId
@@ -1023,6 +1033,18 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.news-feed-like-holder').removeClass('not-liked').addClass('liked');
       record.likeButton.like();
       $(this).find('.count').html(count);
+    })
+    .on('click keydown', '.multiple-images-item, .single-image-holder', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      var $this = $(this);
+      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
+
+      _this.imagesData[id].options.index = $this.index();
+
+      Fliplet.Navigate.previewImages(_this.imagesData[id]);
     });
 };
 
@@ -1389,13 +1411,17 @@ DynamicList.prototype.parseFilterQueries = function() {
   }
 
   var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
-
   var $filters = _this.$container.find(_.map(filterSelectors, function(selector) {
     return '.hidden-filter-controls-filter' + selector;
   }).join(','));
 
+  if (!$filters.length) {
+    return;
+  }
+
   _this.toggleFilterElement($filters, true);
-  $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
+  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+  $filters.parents('.news-feed-filters-panel').find('.panel-collapse').addClass('in');
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
     _this.$container.find('.hidden-filter-controls').addClass('active');
@@ -1607,7 +1633,9 @@ DynamicList.prototype.addSummaryData = function(records) {
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
 
-      if (obj.column === 'custom') {
+      if (obj.type === 'image') {
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
+      } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
         content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
@@ -1704,7 +1732,8 @@ DynamicList.prototype.addFilters = function(records) {
   var filters = _this.Utils.Records.parseFilters({
     records: records,
     filters: _this.data.filterFields,
-    id: _this.data.id
+    id: _this.data.id,
+    query: _this.queryFilter ? _this.pvFilterQuery : undefined
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
@@ -1841,7 +1870,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function() {
       searchedData = searchedData || [];
 
-      var truncated = results.truncated || searchedData.length < _this.listItems.length;
+      var truncated = results.truncated || (searchedData.length && searchedData.length < _this.listItems.length);
 
       if (openSingleEntry && searchedData.length === 1) {
         _this.showDetails(searchedData[0].id);
@@ -2308,6 +2337,8 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    _this.Utils.Record.assignImageContent(_this, entry);
+
     return entry;
   }
 
@@ -2345,7 +2376,13 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = entry.originalData[obj.column];
     }
 
-    content = _this.Utils.String.toFormattedString(content);
+    if (obj.type === 'image') {
+      var imagesContentData = _this.Utils.Record.getImageContent(entry.originalData[obj.column]);
+      var contentArray = imagesContentData.imagesArray;
+
+      content = imagesContentData.imageContent;
+      _this.imagesData[obj.id] = imagesContentData.imagesData;
+    }
 
     // Define data object
     var newEntryDetail = {
@@ -2355,6 +2392,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       labelEnabled: labelEnabled,
       type: obj.type
     };
+
+    if (contentArray) {
+      newEntryDetail.contentArray = contentArray;
+    }
 
     entry.entryDetails.push(newEntryDetail);
   });
@@ -2388,7 +2429,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
   var src = _this.src;
 
-  _this.Utils.Records.getFilesInfo({
+  return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
   })
@@ -2496,6 +2537,8 @@ DynamicList.prototype.closeDetails = function() {
     if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
+
+    _this.$container.find('.new-news-feed-list-container, .dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 
@@ -2665,14 +2708,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
-      entryComments[index].literalDate = moment(entry.createdAt).calendar(null, {
-        sameDay: '[Today], HH:mm',
-        nextDay: '[Tomorrow], HH:mm',
-        nextWeek: 'dddd, HH:mm',
-        lastDay: '[Yesterday], HH:mm',
-        lastWeek: 'dddd, HH:mm',
-        sameElse: 'MMM Do YY, HH:mm'
-      });
+      entryComments[index].literalDate = moment(entry.createdAt).format(_this.Utils.Date.getLocaleFormat('long-date'));
       entryComments[index].userName = userName;
       entryComments[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments[index].text = entry.data.settings.text || '';
@@ -2945,14 +2981,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
   var commentInfo = {
     id: guid,
-    literalDate: moment(timestamp).calendar(null, {
-      sameDay: '[Today], HH:mm',
-      nextDay: '[Tomorrow], HH:mm',
-      nextWeek: 'dddd, HH:mm',
-      lastDay: '[Yesterday], HH:mm',
-      lastWeek: 'dddd, HH:mm',
-      sameElse: 'MMM Do YY, HH:mm'
-    }),
+    literalDate: moment(timestamp).format(_this.Utils.Date.getLocaleFormat('long-date')),
     userName: userName,
     photo: _this.myUserData[_this.data.userPhotoColumn] || '',
     text: value
@@ -2975,14 +3004,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   })).join(' ').trim();
 
   if (!commentData.literalDate) {
-    commentData.literalDate = moment(commentData.createdAt).calendar(null, {
-      sameDay: '[Today], HH:mm',
-      nextDay: '[Tomorrow], HH:mm',
-      nextWeek: 'dddd, HH:mm',
-      lastDay: '[Yesterday], HH:mm',
-      lastWeek: 'dddd, HH:mm',
-      sameElse: 'MMM Do YY, HH:mm'
-    });
+    commentData.literalDate = moment(commentData.createdAt).format(_this.Utils.Date.getLocaleFormat('long-date'));
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];

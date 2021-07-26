@@ -7,8 +7,11 @@ var dataSourceProvider;
 var omitPages = page ? [page.id] : [];
 var addEntryLinkAction;
 var editEntryLinkAction;
+var chatLinkAction;
+var chatLinkPage = 'none';
 var linkAddEntryProvider;
 var linkEditEntryProvider;
+var linkChatProvider;
 var filePickerPromises = [];
 var withError = false;
 var selectedFieldId = [];
@@ -31,6 +34,16 @@ var editEntryLinkData = $.extend(true, {
     hideAction: true
   }
 }, widgetData.editEntryLinkAction, { action: 'screen' });
+var chatLinkData = $.extend(true, {
+  action: 'screen',
+  page: '',
+  omitPages: omitPages,
+  transition: 'fade',
+  options: {
+    hideAction: true,
+    pageRequired: true
+  }
+}, widgetData.chatLinkAction, { action: 'screen' });
 
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
@@ -67,6 +80,28 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
+    linkChatProvider.forwardSaveRequest();
+  });
+  linkChatProvider = Fliplet.Widget.open('com.fliplet.link', {
+    selector: '#chat-link',
+    data: chatLinkData,
+    onEvent: function(event, data) {
+      switch (event) {
+        case 'interface-validate':
+          Fliplet.Widget.toggleSaveButton(data.isValid === true);
+
+          break;
+        case 'onPageChange':
+          chatLinkPage = data.value;
+
+          break;
+        default:
+          break;
+      }
+    }
+  });
+  linkChatProvider.then(function(result) {
+    chatLinkAction = result.data || {};
     dataSourceProvider().forwardSaveRequest();
   });
 }
@@ -222,6 +257,16 @@ function validate(value) {
 
 function toggleError(showError, element) {
   if (showError) {
+    if (element === 'chat-provider' && linkChatProvider) {
+      var $socialAccordion = $('#social-accordion');
+
+      $socialAccordion.find('.panel').addClass('panel-danger').removeClass('panel-default');
+      $socialAccordion.find('.form-group.list-chat p').addClass('text-danger');
+      linkChatProvider.emit('page-field-error');
+
+      return;
+    }
+
     var $element = $(element);
 
     $element.addClass('has-error');
@@ -241,6 +286,11 @@ function toggleError(showError, element) {
   $('.has-error').removeClass('has-error');
   $('.component-error').addClass('hidden');
   $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
+
+  if (linkChatProvider) {
+    $('#social-accordion').find('.text-danger').removeClass('text-danger');
+    linkChatProvider.emit('reset-page-field-error');
+  }
 }
 
 function attahObservers() {
@@ -587,6 +637,44 @@ function attahObservers() {
           toggleError(false);
         }
 
+        if (widgetData.social && widgetData.social.chat) {
+          errors = [];
+          values = [];
+
+          values.push({
+            value: widgetData.chatEmailColumn,
+            field: '#select_chat_email'
+          });
+          values.push({
+            value: chatLinkPage,
+            field: 'chat-provider'
+          });
+
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors.length) {
+            errors.forEach(function(field) {
+              toggleError(true, field);
+            });
+
+            if (!linkChatProvider) {
+              linkProviderInit();
+            }
+
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+
+            return;
+          }
+
+          toggleError(false);
+        }
+
         var imageFolderSelected = validateImageFoldersSelection();
 
         if (imageFolderSelected) {
@@ -763,6 +851,7 @@ function attahObservers() {
 function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
+  widgetData.chatLinkAction = chatLinkAction;
 
   Fliplet.Widget.save(widgetData).then(function() {
     if (notifyComplete) {

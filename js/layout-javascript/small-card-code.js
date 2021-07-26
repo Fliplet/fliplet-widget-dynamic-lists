@@ -55,6 +55,7 @@ function DynamicList(id, data) {
   this.openedEntryOnQuery = false;
   this.sortField = null;
   this.sortOrder = 'asc';
+  this.imagesData = {};
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -62,6 +63,7 @@ function DynamicList(id, data) {
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
+  this.data.chatEnabled = _.get(_this, 'data.social.chat');
 
   // Register handlebars helpers
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
@@ -234,7 +236,13 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+<<<<<<< HEAD
       if (!_this.$container.find('.clear-filters').hasClass('hidden')) {
+=======
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+
+      if ($selectedFilters) {
+>>>>>>> upstream/master
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       }
 
@@ -330,8 +338,13 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var $el = $(this);
+      var $target = $(event.target);
 
+<<<<<<< HEAD
       if ($el.hasClass('small-card-bookmark-holder') || $el.parents('.small-card-bookmark-holder').length) {
+=======
+      if ($target.hasClass('small-card-bookmark-holder') || $target.parents('.small-card-bookmark-holder').length) {
+>>>>>>> upstream/master
         return;
       }
 
@@ -373,6 +386,13 @@ DynamicList.prototype.attachObservers = function() {
           });
 
           return;
+        }
+
+        if (_this.allowClick) {
+          _this.$container.find('.new-small-card-list-container').addClass('hidden');
+          _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
+          $el.parents('.small-card-list-wrapper').addClass('hidden');
         }
 
         // find the element to expand and expand it
@@ -640,6 +660,25 @@ DynamicList.prototype.attachObservers = function() {
 
       $(event.target).find('.collapse').collapse('toggle');
     })
+    .on('click keydown', '.small-card-list-detail-chat', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      if (!_this.data.chatLinkAction) {
+        return;
+      }
+
+      _this.Utils.Navigate.goToScreen(_this.data.chatLinkAction, 'contactEmail=' + $(this).data('chatEmail'))
+        .catch(function(error) {
+          _this.Utils.Navigate.errorHandler(error,
+            {
+              pageError: 'Chat screen not found. Please check the component\'s configuration.',
+              openError: 'Error open the chat'
+            }
+          );
+        });
+    })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
@@ -649,36 +688,15 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+      _this.Utils.Navigate.goToScreen(_this.data.addEntryLinkAction, 'mode=add')
+        .catch(function(error) {
+          _this.Utils.Navigate.errorHandler(error,
+            {
+              pageError: 'Form not found. Please check the component\'s configuration.',
+              openError: 'Error adding entry'
+            }
+          );
         });
-
-        return;
-      }
-
-      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
-        _this.data.addEntryLinkAction.query,
-        'mode=add'
-      );
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
-              });
-            });
-        }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
-        });
-      }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -689,38 +707,17 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
-        });
-
-        return;
-      }
-
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
 
-      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
-        _this.data.editEntryLinkAction.query,
-        'dataSourceEntryId=' + entryID
-      );
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
-              });
-            });
-        }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
+      _this.Utils.Navigate.goToScreen(_this.data.editEntryLinkAction, 'dataSourceEntryId=' + entryID)
+        .catch(function(error) {
+          _this.Utils.Navigate.errorHandler(error,
+            {
+              pageError: 'Form not found. Please check the component\'s configuration.',
+              openError: 'Error editing entry'
+            }
+          );
         });
-      }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -829,6 +826,18 @@ DynamicList.prototype.attachObservers = function() {
 
       $(this).parents('.small-card-bookmark-holder').removeClass('not-bookmarked').addClass('bookmarked');
       record.bookmarkButton.like();
+    })
+    .on('click keydown', '.multiple-images-item, .single-image-holder', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      var $this = $(this);
+      var id = $this.parents('[data-detail-entry-id]').data('detailEntryId');
+
+      _this.imagesData[id].options.index = $this.index();
+
+      Fliplet.Navigate.previewImages(_this.imagesData[id]);
     });
 };
 
@@ -1021,7 +1030,12 @@ DynamicList.prototype.parseFilterQueries = function() {
     return '.hidden-filter-controls-filter' + selector;
   }).join(','));
 
+  if (!$filters.length) {
+    return;
+  }
+
   _this.toggleFilterElement($filters, true);
+  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
   $filters.parents('.small-card-filters-panel').find('.panel-collapse').addClass('in');
 
   if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
@@ -1225,6 +1239,8 @@ DynamicList.prototype.addSummaryData = function(records) {
       deleteEntry: entry.deleteEntry,
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
       bookmarksEnabled: entry.bookmarksEnabled,
+      chatEnabled: entry.chatEnabled,
+      chatEmail: entry.chatEmail,
       entryDetails: [],
       originalData: entry.data
     };
@@ -1233,7 +1249,9 @@ DynamicList.prototype.addSummaryData = function(records) {
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
 
-      if (obj.column === 'custom') {
+      if (obj.type === 'image') {
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
+      } else if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
       } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
         content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
@@ -1329,7 +1347,8 @@ DynamicList.prototype.addFilters = function(records) {
   var filters = _this.Utils.Records.parseFilters({
     records: records,
     filters: _this.data.filterFields,
-    id: _this.data.id
+    id: _this.data.id,
+    query: _this.queryFilter ? _this.pvFilterQuery : undefined
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
@@ -1344,6 +1363,7 @@ DynamicList.prototype.addFilters = function(records) {
       filtersInOverlay: _this.data.filtersInOverlay,
       filters: filters
     };
+
     var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
@@ -1466,7 +1486,7 @@ DynamicList.prototype.searchData = function(options) {
     }).then(function() {
       searchedData = searchedData || [];
 
-      var truncated = results.truncated || searchedData.length < _this.listItems.length;
+      var truncated = results.truncated || (searchedData.length && searchedData.length < _this.listItems.length);
 
       if (openSingleEntry && searchedData.length === 1) {
         _this.showDetails(searchedData[0].id);
@@ -1861,6 +1881,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+    _this.Utils.Record.assignImageContent(_this, entry);
     return entry;
   }
 
@@ -1922,7 +1943,13 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       content = entry.originalData[dynamicDataObj.column];
     }
 
-    content = _this.Utils.String.toFormattedString(content);
+    if (dynamicDataObj.type === 'image') {
+      var imagesContentData = _this.Utils.Record.getImageContent(entry.originalData[dynamicDataObj.column]);
+      var contentArray = imagesContentData.imagesArray;
+
+      content = imagesContentData.imageContent;
+      _this.imagesData[dynamicDataObj.id] = imagesContentData.imagesData;
+    }
 
     // Define data object
     var newEntryDetail = {
@@ -1932,6 +1959,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       labelEnabled: labelEnabled,
       type: dynamicDataObj.type
     };
+
+    if (contentArray) {
+      newEntryDetail.contentArray = contentArray;
+    }
 
     entry.entryDetails.push(newEntryDetail);
   });
@@ -1966,7 +1997,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
 
-  _this.Utils.Records.getFilesInfo({
+  return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
   })
@@ -2068,6 +2099,8 @@ DynamicList.prototype.closeDetails = function() {
     if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
+
+    _this.$container.find('.new-small-card-list-container, .dynamic-list-add-item, .small-card-list-wrapper').removeClass('hidden');
   }, 300);
 };
 
