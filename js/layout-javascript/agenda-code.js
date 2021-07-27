@@ -1278,7 +1278,7 @@ DynamicList.prototype.convertTime = function(time) {
     format = 'hh:mm';
   }
 
-  var convertedTime = moment(time, format).format('h:mm A');
+  var convertedTime = moment(time, format).format(this.Utils.Date.getLocaleFormat('time'));
 
   return convertedTime;
 };
