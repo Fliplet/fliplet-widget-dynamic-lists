@@ -62,6 +62,10 @@ var DynamicLists = (function() {
   var defaultSettings = window.flListLayoutConfig;
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
+  var LOCALE_FORMATS = {
+    TIME: moment.localeData().longDateFormat('LT'),
+    DATE: moment.localeData().longDateFormat('ll')
+  };
 
   // Constructor
   function DynamicLists(configuration) {
@@ -894,6 +898,10 @@ var DynamicLists = (function() {
           _this.initializeDetailViewSortable();
         });
     },
+    initDefaultDatasourceProvider: function() {
+      _this.updateFieldsWithColumns(_this.config.defaultColumns);
+      initDataSourceProvider(_this.config.dataSourceId);
+    },
     loadData: function() {
       if (!_this.config.layout) {
         return Promise.resolve();
@@ -937,16 +945,22 @@ var DynamicLists = (function() {
 
       loadingPromise = new Promise(function(resolve) {
         if (!_this.config.dataSourceId) {
-          _this.updateFieldsWithColumns(_this.config.defaultColumns);
-          initDataSourceProvider(_this.config.dataSourceId);
+          _this.initDefaultDatasourceProvider();
 
           resolve();
         } else {
-          $document.on('datasource-selected', function() {
+          // Check data source
+          _this.getDataSourceById(_this.config.dataSourceId).then(function() {
+            $document.on('datasource-selected', function() {
+              resolve();
+            });
+
+            initDataSourceProvider(_this.config.dataSourceId);
+          }).catch(function() {
+            _this.initDefaultDatasourceProvider();
+
             resolve();
           });
-
-          initDataSourceProvider(_this.config.dataSourceId);
         }
       });
 
@@ -1992,15 +2006,15 @@ var DynamicLists = (function() {
       }
     },
     addSummaryItem: function(data) {
-      data.date = moment().format('MMM Do YYYY');
-      data.time = moment().format('h:mm A');
+      data.date = moment().format(LOCALE_FORMATS.DATE);
+      data.time = moment().format(LOCALE_FORMATS.TIME);
 
       var $newPanel = $(summaryRowTemplate(data));
 
       $summaryRowContainer.append($newPanel);
     },
     addDetailItem: function(data) {
-      data.date = moment().format('MMM Do YYYY');
+      data.date = moment().format(LOCALE_FORMATS.DATE);
 
       var $newPanel = $(detailsRowTemplate(data));
 
