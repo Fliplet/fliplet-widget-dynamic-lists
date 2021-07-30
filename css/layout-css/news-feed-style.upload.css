@@ -1565,6 +1565,9 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
 
   .news-feed-detail-wrapper .news-feed-list-detail-content-scroll-wrapper {
     position: relative;
+  }
+
+  .news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-list-detail-image-wrapper ~ .news-feed-list-detail-content-scroll-wrapper .news-feed-item-inner-content {
     padding: 40px;
   }
 }

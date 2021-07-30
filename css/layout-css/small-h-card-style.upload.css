@@ -556,9 +556,13 @@
     padding-top: 0;
   }
 
+  .small-h-card-detail-overlay.ready .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper + .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
+    padding: 40px;
+    border-radius: 0;
+  }
+
   .small-h-card-detail-wrapper .small-h-card-list-detail-content-scroll-wrapper {
     position: relative;
-    padding: 40px;
   }
 }
 
