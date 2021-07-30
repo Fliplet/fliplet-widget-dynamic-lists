@@ -585,6 +585,8 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
@@ -600,8 +602,6 @@ DynamicList.prototype.attachObservers = function() {
 
           return;
         }
-
-        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
 
         _this.showDetails(entryId);
         Fliplet.Page.Context.update({
@@ -1774,6 +1774,7 @@ DynamicList.prototype.animateDateForward = function($nextDateElement, nextDateEl
 // animates cards forward
 DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth) {
   var _this = this;
+  var $dayHolders = _this.$container.find('.agenda-list-day-holder');
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
@@ -1782,7 +1783,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
+      $dayHolders.removeClass('active').not(nextAgendaElement).addClass('hidden');
       nextAgendaElement.addClass('active');
 
       _this.scrollValue = $(this).scrollLeft();
@@ -1824,6 +1825,7 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
 // animate cards back
 DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgendaElementWidth) {
   var _this = this;
+  var $dayHolders = _this.$container.find('.agenda-list-day-holder');
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
@@ -1832,7 +1834,7 @@ DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgenda
     _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
-      _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
+      $dayHolders.removeClass('active').not(prevAgendaElement).addClass('hidden');
       prevAgendaElement.addClass('active');
 
       _this.scrollValue = $(this).scrollLeft();

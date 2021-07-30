@@ -359,6 +359,11 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       beforeOpen.then(function() {
+        _this.$container.find('.new-small-card-list-container').addClass('hidden');
+        _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+
+        $el.parents('.small-card-list-wrapper').addClass('hidden');
+
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic_' + _this.data.layout,
           action: 'entry_open',
@@ -1869,6 +1874,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
+
     return entry;
   }
 
@@ -2028,6 +2034,8 @@ DynamicList.prototype.showDetails = function(id, listData) {
         var template = Handlebars.compile(data.src || src);
         var wrapperTemplate = Handlebars.compile(wrapper);
 
+        $('.fl-page-content-wrapper').parent().css('overflow', 'hidden');
+
         // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
         if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
           _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
@@ -2075,6 +2083,7 @@ DynamicList.prototype.closeDetails = function() {
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-card-list-container').removeClass('overlay-open');
+  $('.fl-page-content-wrapper').parent().css('overflow', 'auto');
 
   setTimeout(function() {
     $overlay.removeClass('ready');
