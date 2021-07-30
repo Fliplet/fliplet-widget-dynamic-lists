@@ -524,6 +524,7 @@
     bottom: 0;
     overflow: auto;
     padding: 40px 0;
+    z-index: 1;
   }
 
   .small-h-card-detail-overlay .small-h-card-detail-overlay-panel {
