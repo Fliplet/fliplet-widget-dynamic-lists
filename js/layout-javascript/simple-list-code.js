@@ -2601,7 +2601,7 @@ DynamicList.prototype.updateCommentCounter = function(options) {
   var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">Comment</span>';
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var data = {
-    count: record.commentCount
+    count: TN(record.commentCount)
   };
   var html = counterCompiled(data);
 
