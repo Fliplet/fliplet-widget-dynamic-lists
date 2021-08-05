@@ -1264,27 +1264,6 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.bindTouchEvents();
 };
 
-DynamicList.prototype.convertTime = function(time) {
-  if (!time) {
-    time = '';
-
-    return;
-  }
-
-  var hasLetters = !!time.match(/[A-Za-z]/g);
-  var format;
-
-  if (hasLetters) {
-    format = 'hh:mm a';
-  } else {
-    format = 'hh:mm';
-  }
-
-  var convertedTime = moment(time, format).format(this.Utils.Date.getLocaleFormat('time'));
-
-  return convertedTime;
-};
-
 DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
   var _this = this;
   // Group data by date field
@@ -1376,7 +1355,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       }
 
       if (obj.location === 'Start Time' || obj.location === 'End Time') {
-        content = _this.convertTime(content);
+        content = TD(content, { format: 'LT' });
       }
 
       content = _this.Utils.String.toFormattedString(content);

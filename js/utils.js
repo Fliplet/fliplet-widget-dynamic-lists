@@ -20,28 +20,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
 
-  // Set date format to user language
-  moment.locale(navigator.language);
-
-  var LOCALE_FORMATS = {
-    TIME: moment.localeData().longDateFormat('LT'),
-    DATE: moment.localeData().longDateFormat('ll'),
-    LONG_DATE: moment.localeData().longDateFormat('lll')
-  };
-
-  function getLocaleFormat(format) {
-    switch (format) {
-      case 'date':
-        return LOCALE_FORMATS.DATE;
-      case 'long-date':
-        return LOCALE_FORMATS.LONG_DATE;
-      case 'time':
-        return LOCALE_FORMATS.TIME;
-      default:
-        break;
-    }
-  }
-
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)
@@ -50,7 +28,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function smartParseFloat(value) {
     // Convert strings to numbers where possible so that
-    // strings that reprepsent numbers are compared as numbers
+    // strings that represent numbers are compared as numbers
     if (!_.isString(value)) {
       return value;
     }
@@ -257,7 +235,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         context = undefined;
       }
 
-      return getMomentDate(context).format(block.hash.format || LOCALE_FORMATS.DATE);
+      return block.hash.format
+        ? getMomentDate(context).format(block.hash.format)
+        : TD(getMomentDate(context), { format: 'll' });
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
@@ -2379,8 +2359,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       appendUrlQuery: appendUrlQuery
     },
     Date: {
-      moment: getMomentDate,
-      getLocaleFormat: getLocaleFormat
+      moment: getMomentDate
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
