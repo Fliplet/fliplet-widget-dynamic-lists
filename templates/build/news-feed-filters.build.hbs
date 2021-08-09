@@ -14,8 +14,8 @@
         <div id="collapse-\{{id}}-\{{@index}}" class="panel-collapse collapse">
           <div class="panel-body">
             <fieldset data-filter-group>
-              \{{#each [data]}}
-              <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+              \{{#each data}}
+                <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{class}}" data-field="\{{../name}}" data-value="\{{name}}" >\{{name}}</div>
               \{{/each}}
             </fieldset>
           </div>
@@ -29,8 +29,37 @@
   <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
     <div class="hidden-filter-controls-filter-wrapper">
       <fieldset data-filter-group>
-        \{{#each [data]}}
-        <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+        \{{#each data}}
+          \{{#ifCond type '==' 'Date'}}
+            \{{#if @first}}
+              <div class="date-picker-container">
+                <input
+                  type="text"
+                  id="dateFrom"
+                  value="\{{minDate}}"
+                  class="date-picker btn overlay-filter hidden-filter-controls-filter-date-range focus-outline"
+                  data-toggle="dateFrom"
+                  data-field="\{{../../name}}"
+                  data-value="">
+                <i class="fa fa-calendar">&nbsp;</i>
+                to
+              </div>
+              <div class="date-picker-container">
+                <input
+                  type="text"
+                  id="dateTo"
+                  value="\{{maxDate}}"
+                  class="date-picker btn overlay-filter hidden-filter-controls-filter-date-range focus-outline"
+                  data-toggle="dateTo"
+                  data-field="\{{../../name}}"
+                  data-value="">
+                <i class="fa fa-calendar">&nbsp;</i>
+                <input type="button" value="Reset" id="resetDate" class="btn btn-link btn-link-reset hidden" data-track="RESET_DATES">
+              </div>
+            \{{/if}}
+          \{{else}}
+            <div class="btn hidden-filter-controls-filter focus-outline overlay-filter" tabindex="0" data-toggle="\{{class}}" data-field="\{{../name}}" data-value="\{{name}}" >\{{name}}</div>
+          \{{/ifCond}}
         \{{/each}}
       </fieldset>
     </div>

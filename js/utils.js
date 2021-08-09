@@ -1207,7 +1207,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         return JSON.stringify(filter);
       })
       .orderBy(function(obj) {
-        return (_.get(obj, ['data', 'name'], '') + '').toLowerCase();
+        return (_.get(obj, ['data', 'name', 'type'], '') + '').toLowerCase();
       })
       .groupBy('type')
       .map(function(values, field) {
@@ -1260,7 +1260,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return getRecordField({
             record: item,
             field: _.clone(field),
-            useData: false
+            useData: false,
+            type: field.type
           });
         });
       }
@@ -1301,12 +1302,20 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           field: field,
           useData: true
         }), function(item) {
+          var dates = records.map(function(obj) {
+            return moment(obj.data.Date);
+          });
+          var minDate = moment.min(dates).format(LOCAL_FORMAT);
+          var maxDate = moment.max(dates).format(LOCAL_FORMAT);
           var classConverted = _.kebabCase(item);
           var newObj = {
             type: field,
             data: {
               name: item,
-              class: classConverted
+              class: classConverted,
+              type: field,
+              minDate: minDate,
+              maxDate: maxDate
             }
           };
 

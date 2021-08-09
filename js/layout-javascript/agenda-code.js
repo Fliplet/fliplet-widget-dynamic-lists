@@ -121,7 +121,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 };
 
 DynamicList.prototype.clearFilters = function() {
-  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
+  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active, .hidden-filter-controls-filter-date-range.mixitup-control-active'), false);
 
   return this.searchData();
 };
@@ -204,7 +204,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
 
-      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active, .hidden-filter-controls-filter-date-range.mixitup-control-active');
 
       if ($selectedFilters.length) {
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
