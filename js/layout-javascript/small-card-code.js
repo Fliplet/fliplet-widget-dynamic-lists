@@ -2028,14 +2028,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
 
         var template = Handlebars.compile(data.src || src);
         var wrapperTemplate = Handlebars.compile(wrapper);
-        var $pageContentBody = $(document.body);
 
         // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
         if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
           _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
         }
 
-        $pageContentBody.css('overflow', 'hidden');
+        $('body').addClass('lock');
 
         // Adds content to overlay
         $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
@@ -2075,12 +2074,11 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
-  var $pageContentBody = $(document.body);
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-card-list-container').removeClass('overlay-open');
-  $pageContentBody.css('overflow', 'auto');
+  $('body').addClass('lock');
 
   setTimeout(function() {
     $overlay.removeClass('ready');
