@@ -2078,7 +2078,7 @@ DynamicList.prototype.closeDetails = function() {
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-card-list-container').removeClass('overlay-open');
-  $('body').addClass('lock');
+  $('body').removeClass('lock');
 
   setTimeout(function() {
     $overlay.removeClass('ready');
