@@ -63,6 +63,7 @@ function DynamicList(id, data) {
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
   this.data.bookmarksEnabled = _this.data.social.bookmark;
+  this.data.chatEnabled = _.get(_this, 'data.social.chat');
 
   // Register handlebars helpers
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
@@ -646,6 +647,25 @@ DynamicList.prototype.attachObservers = function() {
 
       $(event.target).find('.collapse').collapse('toggle');
     })
+    .on('click keydown', '.small-card-list-detail-chat', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      if (!_this.data.chatLinkAction) {
+        return;
+      }
+
+      _this.Utils.Navigate.goToScreen(_this.data.chatLinkAction, 'contactEmail=' + $(this).data('chatEmail'))
+        .catch(function(error) {
+          _this.Utils.Navigate.errorHandler(error,
+            {
+              pageError: 'Chat screen not found. Please check the component\'s configuration.',
+              openError: 'Error open the chat'
+            }
+          );
+        });
+    })
     .on('click keydown', '.dynamic-list-add-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
@@ -655,36 +675,15 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+      _this.Utils.Navigate.goToScreen(_this.data.addEntryLinkAction, 'mode=add')
+        .catch(function(error) {
+          _this.Utils.Navigate.errorHandler(error,
+            {
+              pageError: 'Form not found. Please check the component\'s configuration.',
+              openError: 'Error adding entry'
+            }
+          );
         });
-
-        return;
-      }
-
-      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
-        _this.data.addEntryLinkAction.query,
-        'mode=add'
-      );
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
-              });
-            });
-        }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
-        });
-      }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -695,38 +694,17 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
-        Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
-        });
-
-        return;
-      }
-
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
 
-      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
-        _this.data.editEntryLinkAction.query,
-        'dataSourceEntryId=' + entryID
-      );
-
-      try {
-        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
-
-        if (navigate instanceof Promise) {
-          navigate
-            .catch(function(error) {
-              Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
-              });
-            });
-        }
-      } catch (error) {
-        Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
+      _this.Utils.Navigate.goToScreen(_this.data.editEntryLinkAction, 'dataSourceEntryId=' + entryID)
+        .catch(function(error) {
+          _this.Utils.Navigate.errorHandler(error,
+            {
+              pageError: 'Form not found. Please check the component\'s configuration.',
+              openError: 'Error editing entry'
+            }
+          );
         });
-      }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -1248,6 +1226,8 @@ DynamicList.prototype.addSummaryData = function(records) {
       deleteEntry: entry.deleteEntry,
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
       bookmarksEnabled: entry.bookmarksEnabled,
+      chatEnabled: entry.chatEnabled,
+      chatEmail: entry.chatEmail,
       entryDetails: [],
       originalData: entry.data
     };
@@ -1889,6 +1869,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
+
     return entry;
   }
 
@@ -2053,6 +2034,8 @@ DynamicList.prototype.showDetails = function(id, listData) {
           _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
         }
 
+        $('body').addClass('lock');
+
         // Adds content to overlay
         $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
         $overlay.find('.small-card-detail-wrapper').append(template(data.data || entryData));
@@ -2095,6 +2078,7 @@ DynamicList.prototype.closeDetails = function() {
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-card-list-container').removeClass('overlay-open');
+  $('body').removeClass('lock');
 
   setTimeout(function() {
     $overlay.removeClass('ready');

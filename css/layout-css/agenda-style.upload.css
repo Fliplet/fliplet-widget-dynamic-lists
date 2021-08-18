@@ -1535,6 +1535,7 @@
     bottom: 0;
     overflow: auto;
     padding: 40px 0;
+    z-index: 1;
   }
 
   .agenda-detail-overlay .agenda-detail-overlay-panel {

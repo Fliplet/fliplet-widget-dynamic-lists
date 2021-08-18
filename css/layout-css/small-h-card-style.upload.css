@@ -524,6 +524,7 @@
     bottom: 0;
     overflow: auto;
     padding: 40px 0;
+    z-index: 1;
   }
 
   .small-h-card-detail-overlay .small-h-card-detail-overlay-panel {
@@ -555,9 +556,13 @@
     padding-top: 0;
   }
 
+  .small-h-card-detail-overlay.ready .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper + .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
+    padding: 40px;
+    border-radius: 0;
+  }
+
   .small-h-card-detail-wrapper .small-h-card-list-detail-content-scroll-wrapper {
     position: relative;
-    padding: 40px;
   }
 }
 
@@ -569,6 +574,11 @@
 
 .small-h-card-detail-overlay-wrapper .small-h-card-detail-overlay-close .fa-times-thin::before {
   content: '\002573';
+}
+
+.small-h-card-list-detail-chat {
+  cursor: pointer;
+  font-weight: bold;
 }
 
 /* IE11 layout */
