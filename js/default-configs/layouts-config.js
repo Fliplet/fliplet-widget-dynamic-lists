@@ -221,7 +221,7 @@ window.flListLayoutConfig = {
   'small-h-card': {
     'filtersEnabled': false,
     'filterFields': [],
-    'chatEnabled': false,
+    'chatEnabled': true,
     'filtersInOverlay': false,
     'searchEnabled': false,
     'searchFields': [],
