@@ -58,6 +58,7 @@ function DynamicList(id, data) {
   this.sortOrder = 'asc';
   this.sortField = null;
   this.imagesData = {};
+  this.DATE_FORMAT = 'YYYY-MM-DD';
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -116,7 +117,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 };
 
 DynamicList.prototype.clearFilters = function() {
-  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
+  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active, .hidden-filter-controls-filter-date-range.mixitup-control-active'), false);
 
   return this.searchData();
 };
@@ -242,7 +243,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.fa-sliders').focus();
 
-      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active');
+      var $selectedFilters = _this.$container.find('.hidden-filter-controls-filter.mixitup-control-active, .hidden-filter-controls-filter-date-range.mixitup-control-active');
 
       if ($selectedFilters.length) {
         _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
@@ -283,6 +284,42 @@ DynamicList.prototype.attachObservers = function() {
           _this.searchData();
         }, 0);
       }
+    })
+    .on('click keydown', '.hidden-filter-controls-filter-date-range', function(event) {
+      event.stopPropagation();
+
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      var $filter = $(this);
+      var $resetDates = $('#resetDate');
+      var value = $filter.val().trim();
+      var formatDate = moment(value).format(_this.DATE_FORMAT);
+
+
+      $resetDates.removeClass('hidden');
+      $filter.attr('data-value', formatDate);
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: $filter.text().trim()
+      });
+
+      _this.toggleFilterElement($filter);
+
+      if ($filter.parents('.inline-filter-holder').length) {
+        // @HACK Skip an execution loop to allow custom handlers to update the filters
+        setTimeout(function() {
+          _this.searchData();
+        }, 0);
+      }
+    })
+    .on('click', '#resetDate', function() {
+      $('input.date-picker').datepicker('setDate', new Date());
+      _this.clearFilters();
+      $(this).addClass('hidden');
     })
     .on('touchstart', '.news-feed-list-item', function(event) {
       event.stopPropagation();
@@ -461,7 +498,7 @@ DynamicList.prototype.attachObservers = function() {
         // Select filters based on existing settings
         var selectors = _.flatten(_.map(_this.activeFilters, function(values, field) {
           return _.map(values, function(value) {
-            return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
+            return '.overlay-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
         })).join(',');
 
@@ -474,7 +511,7 @@ DynamicList.prototype.attachObservers = function() {
 
       // Legacy class-based settings
       _this.activeFilters['undefined'].forEach(function(filter) {
-        _this.toggleFilterElement(_this.$container.find('.hidden-filter-controls-filter[data-toggle="' + filter + '"]'), true);
+        _this.toggleFilterElement(_this.$container.find('.overlay-filter[data-toggle="' + filter + '"]'), true);
       });
 
       _this.$container.find('.clear-filters').removeClass('hidden');
@@ -1405,7 +1442,7 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
   var $filters = _this.$container.find(_.map(filterSelectors, function(selector) {
-    return '.hidden-filter-controls-filter' + selector;
+    return '.overlay-filter' + selector;
   }).join(','));
 
   if (!$filters.length) {
@@ -1725,6 +1762,8 @@ DynamicList.prototype.addFilters = function(records) {
   var filters = _this.Utils.Records.parseFilters({
     records: records,
     filters: _this.data.filterFields,
+    summaryFields: _this.data['summary-fields'],
+    detailViewOptions: _this.data.detailViewOptions,
     id: _this.data.id,
     query: _this.queryFilter ? _this.pvFilterQuery : undefined
   });
@@ -1739,8 +1778,10 @@ DynamicList.prototype.addFilters = function(records) {
 
     var filtersData = {
       filtersInOverlay: _this.data.filtersInOverlay,
+      detailViewOptions: _this.data.detailViewOptions,
       filters: filters
     };
+
     var template = _this.data.advancedSettings && _this.data.advancedSettings.filterHTML
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
@@ -1748,7 +1789,37 @@ DynamicList.prototype.addFilters = function(records) {
     _.remove(filters, function(filter) {
       return _.isEmpty(filter.data);
     });
+
     _this.$container.find('.filter-holder').html(template(filtersData));
+    _this.datePickerFrom = _this.$container.find('#dateFrom');
+    _this.datePickerTo = _this.$container.find('#dateTo');
+
+    _this.datePicker = _this.$container.find('input.date-picker').datepicker({
+      format: 'yyyy-mm-dd', // specific date format using lower case for Bootstrap datepicker
+      todayHighlight: true,
+      autoclose: true
+    }).on('changeDate', function(e) {
+      _this.value = moment(e.date).format(_this.DATE_FORMAT);
+    });
+
+    _this.datePickerFrom.datepicker({
+      format: 'yyyy-mm-dd',
+      autoclose: true
+    }).on('changeDate', function(e) {
+      var startDate = new Date(e.date);
+
+      _this.datePickerTo.datepicker('setStartDate', startDate);
+    });
+
+    _this.datePickerTo.datepicker({
+      format: 'yyyy-mm-dd',
+      autoclose: true
+    }).on('changeDate', function(e) {
+      var endDate = new Date(e.date);
+
+      _this.datePickerFrom.datepicker('setEndDate', endDate);
+    });
+
     Fliplet.Hooks.run('flListDataAfterRenderFilters', {
       instance: _this,
       filters: filters,
@@ -1759,7 +1830,7 @@ DynamicList.prototype.addFilters = function(records) {
 };
 
 DynamicList.prototype.getActiveFilters = function() {
-  return _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'))
+  return _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active, .hidden-filter-controls-filter-date-range.mixitup-control-active'))
     .map(function(el) {
       return _.pickBy({
         class: el.dataset.toggle,
@@ -2331,7 +2402,6 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
-
     return entry;
   }
 
@@ -2654,7 +2724,7 @@ DynamicList.prototype.updateCommentCounter = function(options) {
   var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">Comment</span>';
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var data = {
-    count: TN(record.commentCount)
+    count: record.commentCount
   };
   var html = counterCompiled(data);
 
@@ -2701,7 +2771,14 @@ DynamicList.prototype.showComments = function(id, commentId) {
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
-      entryComments[index].literalDate = TD(entry.createdAt, { format: 'lll' });
+      entryComments[index].literalDate = moment(entry.createdAt).calendar(null, {
+        sameDay: '[Today], HH:mm',
+        nextDay: '[Tomorrow], HH:mm',
+        nextWeek: 'dddd, HH:mm',
+        lastDay: '[Yesterday], HH:mm',
+        lastWeek: 'dddd, HH:mm',
+        sameElse: 'MMM Do YY, HH:mm'
+      });
       entryComments[index].userName = userName;
       entryComments[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments[index].text = entry.data.settings.text || '';
@@ -2974,7 +3051,14 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
   var commentInfo = {
     id: guid,
-    literalDate: TD(timestamp, { format: 'lll' }),
+    literalDate: moment(timestamp).calendar(null, {
+      sameDay: '[Today], HH:mm',
+      nextDay: '[Tomorrow], HH:mm',
+      nextWeek: 'dddd, HH:mm',
+      lastDay: '[Yesterday], HH:mm',
+      lastWeek: 'dddd, HH:mm',
+      sameElse: 'MMM Do YY, HH:mm'
+    }),
     userName: userName,
     photo: _this.myUserData[_this.data.userPhotoColumn] || '',
     text: value
@@ -2997,7 +3081,14 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   })).join(' ').trim();
 
   if (!commentData.literalDate) {
-    commentData.literalDate = TD(commentData.createdAt, { format: 'lll' });
+    commentData.literalDate = moment(commentData.createdAt).calendar(null, {
+      sameDay: '[Today], HH:mm',
+      nextDay: '[Tomorrow], HH:mm',
+      nextWeek: 'dddd, HH:mm',
+      lastDay: '[Yesterday], HH:mm',
+      lastWeek: 'dddd, HH:mm',
+      sameElse: 'MMM Do YY, HH:mm'
+    });
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
