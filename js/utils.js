@@ -1311,7 +1311,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             type: field,
             data: {
               name: item,
-              class: classConverted
               class: classConverted,
               type: field,
               minDate: minDate,
