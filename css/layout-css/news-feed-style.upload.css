@@ -550,12 +550,12 @@
 }
 
 .date-picker-container .btn.btn-link {
-  color: inherit;
+  color: #666666;
   text-decoration: none;
 }
 
 .date-picker-container .btn.btn-link:hover {
-  color: inherit;
+  color: #333333;
   text-decoration: underline;
 }
 
