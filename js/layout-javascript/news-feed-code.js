@@ -297,7 +297,6 @@ DynamicList.prototype.attachObservers = function() {
       var value = $filter.val().trim();
       var formatDate = moment(value).format(_this.DATE_FORMAT);
 
-
       $resetDates.removeClass('hidden');
       $filter.attr('data-value', formatDate);
 
@@ -1806,18 +1805,14 @@ DynamicList.prototype.addFilters = function(records) {
       format: 'yyyy-mm-dd',
       autoclose: true
     }).on('changeDate', function(e) {
-      var startDate = new Date(e.date);
-
-      _this.datePickerTo.datepicker('setStartDate', startDate);
+      _this.datePickerTo.datepicker('setStartDate', new Date(e.date));
     });
 
     _this.datePickerTo.datepicker({
       format: 'yyyy-mm-dd',
       autoclose: true
     }).on('changeDate', function(e) {
-      var endDate = new Date(e.date);
-
-      _this.datePickerFrom.datepicker('setEndDate', endDate);
+      _this.datePickerFrom.datepicker('setEndDate', new Date(e.date));
     });
 
     Fliplet.Hooks.run('flListDataAfterRenderFilters', {
