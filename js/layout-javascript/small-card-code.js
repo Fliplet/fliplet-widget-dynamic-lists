@@ -28,6 +28,7 @@ function DynamicList(id, data) {
   this.isSearching;
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
+  this.allFilterPropertiesAdded = false;
 
   this.emailField = 'Email';
   this.myProfileData = [];
@@ -900,16 +901,16 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(records) {
-      records = _this.getPermissions(records);
-
       // Get user profile
       if (!_.isEmpty(_this.myUserData)) {
         // Create flag for current user
-        records.forEach(function(record) {
+        records.some(function(record) {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
 
           if (record.isCurrentUser) {
             _this.myProfileData.push(record);
+
+            return true;
           }
         });
       }
@@ -934,12 +935,13 @@ DynamicList.prototype.initialize = function() {
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
       _this.checkIsToOpen();
-      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+      _this.listItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
         config: _this.data
       });
+      _this.allFilterPropertiesAdded = true;
 
-      return _this.addFilters(_this.modifiedListItems);
+      return _this.addFilters(_this.listItems);
     })
     .then(function() {
       _this.parseFilterQueries();
@@ -1213,17 +1215,20 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  var modifiedData = _this.Utils.Records.addFilterProperties({
-    records: records,
-    config: _this.data
-  });
+  var modifiedData = records;
+
+  if (!_this.allFilterPropertiesAdded) {
+    modifiedData = _this.Utils.Records.addFilterProperties({
+      records: modifiedData,
+      config: _this.data
+    });
+  }
+
   var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
       flFilters: entry.data['flFilters'],
-      editEntry: entry.editEntry,
-      deleteEntry: entry.deleteEntry,
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
       bookmarksEnabled: entry.bookmarksEnabled,
       chatEnabled: entry.chatEnabled,
@@ -1232,7 +1237,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       originalData: entry.data
     };
 
-    // Uses sumamry view settings set by users
+    // Uses summary view settings set by users
     _this.data['summary-fields'].forEach(function(obj) {
       var content = '';
 
@@ -1316,16 +1321,16 @@ DynamicList.prototype.getAddPermission = function(data) {
   return data;
 };
 
-DynamicList.prototype.getPermissions = function(entries) {
-  var _this = this;
+DynamicList.prototype.addPermissions = function(entry) {
+  if (!_.isObject(entry)) {
+    return entry;
+  }
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
-    entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
-    entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
-  });
+  entry.editEntry = this.Utils.Record.isEditable(entry, this.data, this.myUserData);
+  entry.deleteEntry = this.Utils.Record.isDeletable(entry, this.data, this.myUserData);
 
-  return entries;
+  return entry;
 };
 
 DynamicList.prototype.addFilters = function(records) {
@@ -1546,7 +1551,7 @@ DynamicList.prototype.searchData = function(options) {
           var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
           var profileIconTemplateCompiled = Handlebars.compile(profileIconTemplate());
 
-          _this.modifiedProfileData = _this.addSummaryData(_this.myProfileData, true);
+          _this.modifiedProfileData = _this.addSummaryData(_this.myProfileData);
           _this.$container.find('.my-profile-placeholder').html(myProfileTemplateCompiled(_this.modifiedProfileData[0]));
           _this.$container.find('.my-profile-icon').html(profileIconTemplateCompiled(_this.modifiedProfileData[0]));
           _this.$container.find('.section-top-wrapper').removeClass('profile-disabled');
@@ -1629,7 +1634,7 @@ DynamicList.prototype.getBookmarkIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
-  if (!_.get(this.data, 'social.bookmark')) {
+  if (!(this.data.social && this.data.social.bookmark)) {
     return Promise.resolve();
   }
 
@@ -1793,7 +1798,7 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
-  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (_this.fetchedAllBookmarks || !(_this.data.social && _this.data.social.bookmark) || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -1819,7 +1824,7 @@ DynamicList.prototype.getAllBookmarks = function() {
     })
   }).then(function(results) {
     var bookmarkedIds = _.compact(_.map(results.data, function(record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      var match = ((record.data && record.data.content && record.data.content.entryId) || '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));
@@ -1845,7 +1850,7 @@ DynamicList.prototype.getAllBookmarks = function() {
 DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
-  if (!_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (!(_this.data.social && _this.data.social.bookmark) || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -1880,6 +1885,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     return option.editable;
   });
 
+  entry = _this.addPermissions(entry);
   entry.entryDetails = [];
 
   // Uses detail view settings not set by users

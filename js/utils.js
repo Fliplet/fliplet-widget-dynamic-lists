@@ -178,9 +178,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   /**
    * This function adds selected LFD item's images to the layout context
    *
-   * @param {Object} ctx - curent layout context
+   * @param {Object} ctx - current layout context
    * @param {Object} entry - selected LFD entry
-   * @return {void} this funtion doesn't return anything it commits modifications to layout context
+   * @return {void} this function doesn't return anything it commits modifications to layout context
    */
   function assignImageContent(ctx, entry) {
     var dynamicData = _.filter(ctx.data.detailViewOptions, function(option) {
@@ -440,7 +440,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
    *  $target { Jquery instance } - Jq instance on which user have pressed
    *
-   * @returns {void} this funtion doesn't return anything it add changes directly to the DOM
+   * @returns {void} this function doesn't return anything it add changes directly to the DOM
    */
   function updateActiveFilterCount(options) {
     if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
@@ -1090,11 +1090,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return _[config.filterMatch === 'all' ? 'every' : 'some'](filters[field], function(value) {
         if (field === 'undefined') {
           // Legacy class-based filters
-          return _.includes(_.map(_.get(record, 'data.flFilters'), 'data.class'), value);
+          return _.includes(_.map(record.data && record.data.flFilters, function(flFilter) {
+            return flFilter.data && flFilter.data.class;
+          }), value);
         }
 
         // Filter UI contains data-field, i.e. uses new field-based filters
-        return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
+        return _.some(recordFieldValues[field], function(recordFieldValue) {
           // Loosely typed comparison is used to make filtering more predictable for users
           // eslint-disable-next-line eqeqeq
           return recordFieldValue == value;
@@ -1106,7 +1108,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function getRecordUniqueId(options) {
     options = options || {};
 
-    var primaryKey = _.get(options, 'config.dataPrimaryKey');
+    var primaryKey = options.config && options.config.dataPrimaryKey;
 
     if (typeof primaryKey === 'function') {
       return primaryKey({
@@ -1116,10 +1118,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     if (typeof primaryKey === 'string' && primaryKey.length) {
-      return _.get(options, ['record', 'data', primaryKey]);
+      return options.record && options.record.data && options.record.data[primaryKey];
     }
 
-    return _.get(options, ['record', 'id']);
+    return options.record && options.record.id;
   }
 
   function getRecordFieldValues(records, fields) {
@@ -1133,7 +1135,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     return _.zipObject(fields, _.map(fields, function(field) {
-      return _.sortBy(_.uniq(splitByCommas(_.map(records, ['data', field]))));
+      return _.sortBy(_.uniq(splitByCommas(_.map(records, function(record) {
+        return record.data && record.data[field];
+      }))));
     }));
   }
 
@@ -2004,9 +2008,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function recordIsCurrentUser(record, config, userData) {
     return config.userEmailColumn !== 'none'
-      && !_.isEmpty(_.get(userData, config.userEmailColumn))
-      && !_.isEmpty(_.get(record, ['data', config.userListEmailColumn]))
-      && _.get(userData, config.userEmailColumn) === _.get(record, ['data', config.userListEmailColumn]);
+      && !_.isEmpty(userData[config.userEmailColumn])
+      && !_.isEmpty(record.data && record.data[config.userListEmailColumn])
+      && userData[config.userEmailColumn] === (record.data && record.data[config.userListEmailColumn]);
   }
 
   function userCanAddRecord(config, userData) {
@@ -2100,12 +2104,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function resetSortIcons(options) {
     options.$sortList.each(function() {
-      var $listitem = $(this);
-      var listSortOrder = $listitem.data('sortOrder');
-      var $listIcon = $listitem.find('i');
+      var $listItem = $(this);
+      var listSortOrder = $listItem.data('sortOrder');
+      var $listIcon = $listItem.find('i');
 
       $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
-      $listitem.data('sortOrder', 'none');
+      $listItem.data('sortOrder', 'none');
     });
   }
 
@@ -2137,9 +2141,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *
    * @param {String} error - error message from the navigateToScreen function
    * @param {Object} errorMessages - Messages that we will show in toast.
-   *  required poperties:
-   *    'pageError' - message that we will show when no page is specifyed
-   *    'openError' - message that we will show when error ocures on page open
+   *  required properties:
+   *    'pageError' - message that we will show when no page is specified
+   *    'openError' - message that we will show when error occurs on page open
    *
    * @returns {void}
    */

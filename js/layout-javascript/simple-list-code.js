@@ -33,6 +33,7 @@ function DynamicList(id, data) {
   this.isSearching;
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
+  this.allFilterPropertiesAdded = false;
 
   this.listItems;
   this.modifiedListItems;
@@ -1086,7 +1087,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(records) {
-      _this.listItems = _this.getPermissions(records);
+      _this.listItems = records;
 
       if (!_this.data.detailViewAutoUpdate) {
         return Promise.resolve();
@@ -1105,12 +1106,13 @@ DynamicList.prototype.initialize = function() {
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
       _this.checkIsToOpen();
-      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+      _this.listItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
         config: _this.data
       });
+      _this.allFilterPropertiesAdded = true;
 
-      return _this.addFilters(_this.modifiedListItems);
+      return _this.addFilters(_this.listItems);
     })
     .then(function() {
       _this.parseFilterQueries();
@@ -1388,17 +1390,20 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  var modifiedData = _this.Utils.Records.addFilterProperties({
-    records: records,
-    config: _this.data
-  });
+  var modifiedData = records;
+
+  if (!_this.allFilterPropertiesAdded) {
+    modifiedData = _this.Utils.Records.addFilterProperties({
+      records: modifiedData,
+      config: _this.data
+    });
+  }
+
   var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
       flFilters: entry.data['flFilters'],
-      editEntry: entry.editEntry,
-      deleteEntry: entry.deleteEntry,
       likesEnabled: entry.likesEnabled,
       bookmarksEnabled: entry.bookmarksEnabled,
       commentsEnabled: entry.commentsEnabled,
@@ -1490,16 +1495,16 @@ DynamicList.prototype.getAddPermission = function(data) {
   return data;
 };
 
-DynamicList.prototype.getPermissions = function(entries) {
-  var _this = this;
+DynamicList.prototype.addPermissions = function(entry) {
+  if (!_.isObject(entry)) {
+    return entry;
+  }
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
-    entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
-    entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
-  });
+  entry.editEntry = this.Utils.Record.isEditable(entry, this.data, this.myUserData);
+  entry.deleteEntry = this.Utils.Record.isDeletable(entry, this.data, this.myUserData);
 
-  return entries;
+  return entry;
 };
 
 DynamicList.prototype.addFilters = function(records) {
@@ -1787,7 +1792,7 @@ DynamicList.prototype.getLikeIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupLikeButton = function(options) {
-  if (!_.get(this.data, 'social.likes')) {
+  if (!(this.data.social && this.data.social.likes)) {
     return Promise.resolve();
   }
 
@@ -1969,7 +1974,7 @@ DynamicList.prototype.getBookmarkIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
-  if (!_.get(this.data, 'social.bookmark')) {
+  if (!(this.data.social && this.data.social.bookmark)) {
     return Promise.resolve();
   }
 
@@ -2160,7 +2165,7 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
-  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (_this.fetchedAllBookmarks || !(_this.data.social && _this.data.social.bookmark) || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -2186,7 +2191,7 @@ DynamicList.prototype.getAllBookmarks = function() {
     })
   }).then(function(results) {
     var bookmarkedIds = _.compact(_.map(results.data, function(record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      var match = ((record.data && record.data.content && record.data.content.entryId) || '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));
@@ -2240,7 +2245,7 @@ DynamicList.prototype.initializeSocials = function(records) {
 };
 
 DynamicList.prototype.getCommentUsers = function() {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!(this.data.social && this.data.social.comments)) {
     return Promise.resolve();
   }
 
@@ -2263,14 +2268,14 @@ DynamicList.prototype.getCommentUsers = function() {
       _this.allUsers = users;
 
       // Update my user data
-      if (!_.isEmpty(_this.myUserData)) {
-        var myUser = _.find(_this.allUsers, function(user) {
-          return _this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn];
-        });
+      if (_this.myUserData) {
+        _this.allUsers.some(function(user) {
+          if (_this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn]) {
+            _this.myUserData = $.extend(true, _this.myUserData, user.data);
 
-        if (myUser) {
-          _this.myUserData = $.extend(true, _this.myUserData, myUser.data);
-        }
+            return true;
+          }
+        });
       }
 
       return _this.Utils.Users.getUsersToMention({
@@ -2292,6 +2297,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     return entry;
   }
 
+  entry = _this.addPermissions(entry);
   entry.entryDetails = [];
 
   // Define detail view data based on user's settings
@@ -2522,7 +2528,7 @@ DynamicList.prototype.getCommentIdentifier = function(record) {
 };
 
 DynamicList.prototype.getEntryComments = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!(this.data.social && this.data.social.comments)) {
     return Promise.resolve();
   }
 
@@ -2584,7 +2590,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
 };
 
 DynamicList.prototype.updateCommentCounter = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!(this.data.social && this.data.social.comments)) {
     return;
   }
 
@@ -2645,7 +2651,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
       var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
-        return _.get(entry, 'data.settings.user.' + name);
+        return entry.data && entry.data.settings && entry.data.settings.user && entry.data.settings.user[name];
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
@@ -2916,7 +2922,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
   var timestamp = (new Date()).toISOString();
   var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
     return _this.myUserData.isSaml2
-      ? _.get(userFromDataSource, 'data.' + name)
+      ? userFromDataSource.data && userFromDataSource.data[name]
       : _this.myUserData[name];
   })).join(' ').trim();
 
@@ -2942,7 +2948,7 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
   var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
-    return _.get(commentData, 'data.settings.user.' + name);
+    return commentData.data && commentData.data.settings && commentData.data.settings.user && commentData.data.settings.user[name];
   })).join(' ').trim();
 
   if (!commentData.literalDate) {

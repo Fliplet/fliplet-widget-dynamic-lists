@@ -36,6 +36,7 @@ function DynamicList(id, data) {
   this.agendaDates = [];
   this.showBookmarks;
   this.fetchedAllBookmarks = false;
+  this.allFilterPropertiesAdded = false;
   this.searchValue = '';
   this.activeFilters = {};
 
@@ -1029,7 +1030,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(records) {
-      _this.listItems = _this.getPermissions(records);
+      _this.listItems = records;
 
       return _this.Utils.Records.getFields(_this.listItems, _this.data.dataSourceId).then(function(columns) {
         _this.dataSourceColumns = columns;
@@ -1048,12 +1049,13 @@ DynamicList.prototype.initialize = function() {
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
       _this.checkIsToOpen();
-      _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
+      _this.listItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
         config: _this.data
       });
+      _this.allFilterPropertiesAdded = true;
 
-      return _this.addFilters(_this.modifiedListItems);
+      return _this.addFilters(_this.listItems);
     }).then(function() {
       _this.parseFilterQueries();
       _this.parseSearchQueries();
@@ -1307,10 +1309,14 @@ DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  var modifiedData = _this.Utils.Records.addFilterProperties({
-    records: records,
-    config: _this.data
-  });
+  var modifiedData = records;
+
+  if (!_this.allFilterPropertiesAdded) {
+    modifiedData = _this.Utils.Records.addFilterProperties({
+      records: modifiedData,
+      config: _this.data
+    });
+  }
 
   // Uses sumamry view settings set by users
   var loopData = _.map(modifiedData, function(entry) {
@@ -1318,8 +1324,6 @@ DynamicList.prototype.addSummaryData = function(records) {
       id: entry.id,
       flClasses: entry.data['flClasses'],
       flFilters: entry.data['flFilters'],
-      editEntry: entry.editEntry,
-      deleteEntry: entry.deleteEntry,
       pollButton: _this.data.pollEnabled
         && entry.data[_this.data.pollColumn]
         && entry.data[_this.data.pollColumn] !== '',
@@ -1551,16 +1555,16 @@ DynamicList.prototype.getAddPermission = function(data) {
   return data;
 };
 
-DynamicList.prototype.getPermissions = function(entries) {
-  var _this = this;
+DynamicList.prototype.addPermissions = function(entry) {
+  if (!_.isObject(entry)) {
+    return entry;
+  }
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
-    entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
-    entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
-  });
+  entry.editEntry = this.Utils.Record.isEditable(entry, this.data, this.myUserData);
+  entry.deleteEntry = this.Utils.Record.isDeletable(entry, this.data, this.myUserData);
 
-  return entries;
+  return entry;
 };
 
 DynamicList.prototype.addFilters = function(records) {
@@ -1677,7 +1681,7 @@ DynamicList.prototype.getAllBookmarks = function() {
     })
   }).then(function(results) {
     var bookmarkedIds = _.compact(_.map(results.data, function(record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+      var match = ((record.data && record.data.content && record.data.content.entryId) || '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));
@@ -2519,6 +2523,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     return option.editable;
   });
 
+  entry = _this.addPermissions(entry);
   entry.entryDetails = [];
 
   // Uses detail view settings not set by users
