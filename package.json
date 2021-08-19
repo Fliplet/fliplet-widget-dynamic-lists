@@ -1,0 +1,24 @@
+{
+  "name": "fliplet-widget-dynamic-lists",
+  "version": "1.4.0",
+  "description": "Fliplet component that generates lists based on dynamic data from a Fliplet data source",
+  "main": "index.js",
+  "scripts": {
+    "eslint:github-action": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fliplet/fliplet-widget-dynamic-lists.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Fliplet/fliplet-widget-dynamic-lists/issues"
+  },
+  "homepage": "https://github.com/Fliplet/fliplet-widget-dynamic-lists#readme",
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.14.0",
+    "eslint-config-fliplet": "^1.0.6"
+  }
+}

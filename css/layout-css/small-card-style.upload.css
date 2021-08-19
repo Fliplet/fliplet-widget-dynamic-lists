@@ -12,12 +12,13 @@
   top: 0;
   top: env(safe-area-inset-top);
   right: 0;
-  bottom: 0;
   left: 0;
   z-index: 11;
   background-color: transparent;
   transform: translate3d(100%, 0, 0);
   transition: all 0.2s ease-out;
+  height: 100vh;
+  padding-bottom: env(safe-area-inset-top);
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay.display {
@@ -50,11 +51,10 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 44px;
+  height: 50px;
   display: flex;
   align-items: center;
   padding-right: 15px;
-  padding-left: 44px;
   font-size: 1.2em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -120,12 +120,10 @@
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-close {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 44px;
   height: 44px;
   padding-left: 15px;
+  margin-left: 3px;
   font-size: 1.8em;
   line-height: 44px;
   z-index: 1;
@@ -175,6 +173,10 @@
   padding: 8px 15px;
   margin: 10px 5px 10px 0;
   font-size: 14px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls-filter:hover,
@@ -322,7 +324,6 @@
 
 .new-small-card-list-container .list-search-icon .fa {
   display: inline-block;
-  opacity: 0.3;
   font-size: 20px;
   width: 35px;
   height: 35px;
@@ -496,7 +497,7 @@
 .new-small-card-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
-  top: 0;
+  top: -2px;
   width: 34px;
   height: 100%;
   display: flex;
@@ -580,8 +581,9 @@
 
 /* List */
 .new-small-card-list-container {
-  max-width: 600px;
   margin: 0 auto;
+  max-width: 600px;
+  position: relative;
 }
 
 .new-small-card-list-container .small-card-list-wrapper {
@@ -726,8 +728,7 @@
 }
 
 .new-small-card-list-container .small-card-list-location {
-  color: #333333;
-  opacity: 0.5;
+  color: rgba(51, 51, 51, 0.5);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.6;
@@ -747,6 +748,14 @@
   left: 0;
   padding: 15px;
   font-size: 25px;
+}
+
+.has-filter-overlay .new-small-card-list-container {
+  /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
+  z-index: 1010;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
 }
 
 @media screen and (min-width: 640px) {
@@ -824,7 +833,7 @@
   width: 100%;
   text-align: left;
   cursor: default;
-  pointer-events: all;
+  pointer-events: none;
   background-color: #ffffff;
   overflow: hidden;
   -webkit-transform: translate3d(0,0,0);
@@ -945,17 +954,21 @@
 .small-card-detail-overlay .small-card-list-detail-role {
   margin: 0 0 5px 0;
   font-size: 24px;
-  color: #333333;
-  opacity: 0.6;
+  color: rgba(51, 51, 51, 0.6);
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-location {
   margin: 0 0 10px 0;
   font-size: 16px;
-  color: #333333;
-  opacity: 0.4;
+  color: rgba(51, 51, 51, 0.4);
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .small-card-detail-overlay .small-card-list-detail-buttons-wrapper {
@@ -979,7 +992,6 @@
 .small-card-detail-overlay .small-card-list-detail-button a:active,
 .small-card-detail-overlay .small-card-list-detail-button a:active:hover,
 .small-card-detail-overlay .small-card-list-detail-button a:active:focus {
-  color: #333333;
   text-decoration: none;
 }
 
@@ -988,20 +1000,20 @@
 }
 
 .small-card-detail-overlay .small-card-list-detail-button-image {
-  opacity: 0.3;
+  color: rgba(51, 51, 51, 0.3);
   text-align: center;
   font-size: 35px;
 }
 
 .small-card-detail-overlay .small-card-list-detail-button-text {
+  color: rgba(51, 51, 51, 0.5);
   font-size: 10px;
   text-align: center;
-  opacity: 0.5;
 }
 
 .small-card-detail-overlay .small-card-list-detail-label {
   font-size: 12px;
-  opacity: 0.5;
+  color: rgba(51, 51, 51, 0.5);
   text-transform: uppercase;
   margin: 20px 0 0 0;
 }
@@ -1096,7 +1108,6 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.8);
-  pointer-events: none;
 }
 
 .small-card-detail-overlay .small-card-detail-overlay-wrapper {
@@ -1159,6 +1170,7 @@
   height: 100%;
   overflow: auto;
   padding: 40px 15px 15px 15px;
+  word-break: break-word;
 }
 
 .small-card-detail-label {
@@ -1170,6 +1182,10 @@
 .small-card-detail-value {
   font-size: 1.15em;
   margin-bottom: 25px;
+}
+
+.small-card-detail-overlay .small-card-detail-overlay-panel {
+  z-index: 1;
 }
 
 .small-card-detail-overlay-close.tablet {
@@ -1185,6 +1201,7 @@
     bottom: 0;
     overflow: auto;
     padding: 40px 0;
+    z-index: 1;
   }
 
   .small-card-detail-overlay .small-card-detail-overlay-panel {
@@ -1218,21 +1235,13 @@
     padding-top: 0;
   }
 
+  .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
+    padding: 40px;
+    border-radius: 0;
+  }
+
   .small-card-detail-wrapper .small-card-list-detail-content-scroll-wrapper {
     position: relative;
-    padding: 40px;
-  }
-
-  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close.tablet {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-  }
-
-  .small-card-detail-overlay-panel .small-card-detail-overlay-heading,
-  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close {
-    display: none;
   }
 }
 
@@ -1250,12 +1259,29 @@
   content: '\002573';
 }
 
+.small-card-list-detail-chat {
+  cursor: pointer;
+  font-weight: bold;
+}
+
 /* IE11 layout */
 @media screen and (-ms-high-contrast: none) {
   .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
     padding-top: 0px;
     padding-bottom: 5px;
   }
+
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 1px;
+    font-weight: lighter;
+    font-size: 1.2em !important;
+  }
+
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin::before {
+    content: '\2715';
+  }
+
 }
 
 /* Safari layout */

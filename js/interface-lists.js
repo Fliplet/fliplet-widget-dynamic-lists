@@ -2,12 +2,16 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
 var page = Fliplet.Widget.getPage();
 var dynamicLists;
+var dataSourceProvider;
 
 var omitPages = page ? [page.id] : [];
 var addEntryLinkAction;
 var editEntryLinkAction;
+var chatLinkAction;
+var chatLinkPage = 'none';
 var linkAddEntryProvider;
 var linkEditEntryProvider;
+var linkChatProvider;
 var filePickerPromises = [];
 var withError = false;
 var selectedFieldId = [];
@@ -20,7 +24,7 @@ var addEntryLinkData = $.extend(true, {
   options: {
     hideAction: true
   }
-}, widgetData.addEntryLinkAction);
+}, widgetData.addEntryLinkAction, { action: 'screen' });
 var editEntryLinkData = $.extend(true, {
   action: 'screen',
   page: '',
@@ -29,7 +33,17 @@ var editEntryLinkData = $.extend(true, {
   options: {
     hideAction: true
   }
-}, widgetData.editEntryLinkAction);
+}, widgetData.editEntryLinkAction, { action: 'screen' });
+var chatLinkData = $.extend(true, {
+  action: 'screen',
+  page: '',
+  omitPages: omitPages,
+  transition: 'fade',
+  options: {
+    hideAction: true,
+    pageRequired: true
+  }
+}, widgetData.chatLinkAction, { action: 'screen' });
 
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
@@ -66,9 +80,29 @@ function linkProviderInit() {
   });
   linkEditEntryProvider.then(function(result) {
     editEntryLinkAction = result.data || {};
-    if (!withError) {
-      save(true);
+    linkChatProvider.forwardSaveRequest();
+  });
+  linkChatProvider = Fliplet.Widget.open('com.fliplet.link', {
+    selector: '#chat-link',
+    data: chatLinkData,
+    onEvent: function(event, data) {
+      switch (event) {
+        case 'interface-validate':
+          Fliplet.Widget.toggleSaveButton(data.isValid === true);
+
+          break;
+        case 'onPageChange':
+          chatLinkPage = data.value;
+
+          break;
+        default:
+          break;
+      }
     }
+  });
+  linkChatProvider.then(function(result) {
+    chatLinkAction = result.data || {};
+    dataSourceProvider().forwardSaveRequest();
   });
 }
 
@@ -94,7 +128,9 @@ function initUserFilePickerProvider(userFolder) {
           break;
         case 'widget-set-info':
           Fliplet.Widget.toggleSaveButton(!!data.length);
+
           var msg = data.length ? data.length + ' files selected' : 'no selected files';
+
           Fliplet.Widget.info(msg);
           break;
         default:
@@ -111,12 +147,11 @@ function initUserFilePickerProvider(userFolder) {
     userFolder.folder.selectFiles = data.data.length ? data.data : [];
     widgetData.userFolder = userFolder;
 
-    var itemProvider = _.find(filePickerPromises, { id: userFolder.folder.provId });
-    itemProvider = null;
     _.remove(filePickerPromises, { id: userFolder.folder.provId });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
+
     if (userFolder.folder.selectFiles.length) {
       $('.select-photo-folder .file-picker-btn').text('Replace folder');
       $('.select-photo-folder .selected-user-folder span').text(userFolder.folder.selectFiles[0].name);
@@ -151,7 +186,9 @@ function initFilePickerProvider(field) {
           break;
         case 'widget-set-info':
           Fliplet.Widget.toggleSaveButton(!!data.length);
+
           var msg = data.length ? data.length + ' files selected' : 'no selected files';
+
           Fliplet.Widget.info(msg);
           break;
         default:
@@ -181,12 +218,11 @@ function initFilePickerProvider(field) {
       });
     }
 
-    var itemProvider = _.find(filePickerPromises, { id: field.folder.provId });
-    itemProvider = null;
     _.remove(filePickerPromises, { id: field.folder.provId });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
+
     if (field.folder.selectFiles.length) {
       $('[data-field-id="' + field.id + '"] .file-picker-btn').text('Replace folder');
       $('[data-field-id="' + field.id + '"] .selected-folder').removeClass('hidden');
@@ -202,9 +238,16 @@ function initialize() {
   linkProviderInit();
   attahObservers();
   dynamicLists = new DynamicLists(widgetData);
+  dataSourceProvider = Fliplet.Registry.get('datasource-provider');
 }
 
 function validate(value) {
+  // token field returns always an array with one element even if we didn't past any data in the field
+  // that is why we are checking a value of the first element if no data past it will be an empty
+  if (Array.isArray(value)) {
+    return !!value[0];
+  }
+
   if (value && value !== '' && value !== 'none') {
     return true;
   }
@@ -212,18 +255,42 @@ function validate(value) {
   return false;
 }
 
-function toggleError (showError, element) {
+function toggleError(showError, element) {
   if (showError) {
+    if (element === 'chat-provider' && linkChatProvider) {
+      var $socialAccordion = $('#social-accordion');
+
+      $socialAccordion.find('.panel').addClass('panel-danger').removeClass('panel-default');
+      $socialAccordion.find('.form-group.list-chat p').addClass('text-danger');
+      linkChatProvider.emit('page-field-error');
+
+      return;
+    }
+
     var $element = $(element);
+
     $element.addClass('has-error');
-    $element.parents('.form-group').addClass('has-error');
-    $element.parents('.panel').addClass('panel-danger').removeClass('panel-default');
+
+    // the token field has deferent structure from other elements
+    // that is why we show error differently for it
+    if ($element.hasClass('token-input')) {
+      $element.parents('.form-control').addClass('has-error');
+    } else {
+      $element.parents('.form-group').addClass('has-error');
+      $element.parents('.panel').addClass('panel-danger').removeClass('panel-default');
+    }
+
     return;
   }
 
   $('.has-error').removeClass('has-error');
   $('.component-error').addClass('hidden');
   $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
+
+  if (linkChatProvider) {
+    $('#social-accordion').find('.text-danger').removeClass('text-danger');
+    linkChatProvider.emit('reset-page-field-error');
+  }
 }
 
 function attahObservers() {
@@ -234,6 +301,7 @@ function attahObservers() {
         id: idAttr,
         folder: {}
       };
+
       initUserFilePickerProvider(userFolder);
     })
     .on('click', '[data-file-picker-summary]', function() {
@@ -286,6 +354,8 @@ function attahObservers() {
             return item !== fieldId;
           });
           break;
+        default:
+          break;
       }
     })
     .on('change', '[name="detail_field_type"]', function() {
@@ -296,15 +366,25 @@ function attahObservers() {
 
       if (fieldName !== 'image' && fieldIdInSelectedFields) {
         selectedFieldId = _.filter(selectedFieldId, function(item) {
+          // eslint-disable-next-line eqeqeq
           return item != fieldId;
         });
       } else if ($('#detail_image_field_type_' + fieldId).val() === 'all-folders') {
         selectedFieldId.push(fieldId);
       }
+    })
+    .on('datasource-initialized', function() {
+      dataSourceProvider().then(function(dataSource) {
+        dynamicLists.config.dataSourceId = dataSource.data.id;
+
+        if (!withError) {
+          save(true);
+        }
+      });
     });
 
   $('[data-toggle="tooltip"]').tooltip();
-  $('form').submit(function (event) {
+  $('form').submit(function(event) {
     event.preventDefault();
     dynamicLists.saveLists()
       .then(function() {
@@ -314,15 +394,16 @@ function attahObservers() {
           filePickerPromises.forEach(function(promise) {
             promise.forwardSaveRequest();
           });
+
           return;
         }
 
         // Validation for required fields
         var requiredFields = {
-          admins:[
+          admins: [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -333,10 +414,10 @@ function attahObservers() {
               field: '#select_user_admin'
             }
           ],
-          "users-admins": [
+          'users-admins': [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
@@ -345,6 +426,10 @@ function attahObservers() {
             {
               value: widgetData.userAdminColumn,
               field: '#select_user_admin'
+            },
+            {
+              value: widgetData.userNameFields,
+              field: '#user-name-column-fields-tokenfield-tokenfield'
             },
             {
               value: widgetData.userListEmailColumn,
@@ -354,11 +439,15 @@ function attahObservers() {
           user: [
             {
               value: widgetData.userDataSourceId,
-              field: '#select_user_datasource'
+              field: '#user_data_source_provider'
             },
             {
               value: widgetData.userEmailColumn,
               field: '#select_user_email'
+            },
+            {
+              value: widgetData.userNameFields,
+              field: '#user-name-column-fields-tokenfield-tokenfield'
             },
             {
               value: widgetData.userListEmailColumn,
@@ -415,20 +504,109 @@ function attahObservers() {
 
         toggleError(false);
 
+        if (widgetData.filterOptions.length) {
+          var filterError = [];
+          var filterFieldValues = [];
+          var logicOptionsWithoutValues = [
+            'empty',
+            'notempty',
+            'dateis',
+            'datebefore',
+            'dateafter',
+            'datebetween'
+          ];
+
+          widgetData.filterOptions.forEach(function(item) {
+            if (logicOptionsWithoutValues.indexOf(item.logic) !== -1) {
+              return;
+            }
+
+            if (item.logic === 'between') {
+              filterFieldValues.push({
+                field: '#value-field-from-' + item.id,
+                value: item.value.from,
+                id: item.id,
+                valueType: item.valueType.from
+              });
+
+              filterFieldValues.push({
+                field: '#value-field-to-' + item.id,
+                value: item.value.to,
+                id: item.id,
+                valueType: item.valueType.to
+              });
+
+              return;
+            }
+
+            filterFieldValues.push({
+              field: '#value-field-' + item.id,
+              value: item.fieldValue,
+              id: item.id,
+              valueType: item.valueType
+            });
+          });
+
+          filterFieldValues.forEach(function(field) {
+            if (field.valueType === 'enter-value') {
+              $(field.field).parents('.panel-default').removeClass('filter-error');
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
+
+              return;
+            }
+
+            if (!field.value || !field.value.trim()) {
+              filterError.push({
+                item: field.field,
+                id: field.id
+              });
+            } else {
+              $(field.field).parents('.panel-default').removeClass('filter-error');
+              $(field.field).parents('#filter-value-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-from-' + field.id).find('label').removeClass('has-error-text');
+              $(field.field).parents('#filter-value-to-' + field.id).find('label').removeClass('has-error-text');
+            }
+          });
+
+          if (filterError.length) {
+            $('.error-holder').removeClass('hidden');
+
+            filterError.forEach(function(field) {
+              $(field.item).addClass('has-error');
+              $(field.item).parents('.panel-default').addClass('filter-error');
+              $(field.item).parents('#filter-value-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-from-' + field.id).find('label').addClass('has-error-text');
+              $(field.item).parents('#filter-value-to-' + field.id).find('label').addClass('has-error-text');
+            });
+
+            return;
+          }
+
+          $('#filter-value > .control-label > label').removeClass('has-error-text');
+          $('.error-holder').addClass('hidden');
+
+          toggleError(false);
+        }
+
+        var errors = [];
+        var values = [];
+
         if (widgetData.social && widgetData.social.comments) {
-          var errors = [];
-          var values = [];
+          errors = [];
+          values = [];
 
           values.push({
             value: widgetData.userDataSourceId,
-            field: '#select_user_datasource'
+            field: '#user_data_source_provider'
           });
           values.push({
             value: widgetData.userEmailColumn,
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields && !widgetData.userNameFields.length) {
+          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 
@@ -443,17 +621,58 @@ function attahObservers() {
             errors.forEach(function(field) {
               toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false)
           }
+
+          toggleError(false);
+        }
+
+        if (widgetData.social && widgetData.social.chat) {
+          errors = [];
+          values = [];
+
+          values.push({
+            value: widgetData.chatEmailColumn,
+            field: '#select_chat_email'
+          });
+          values.push({
+            value: chatLinkPage,
+            field: 'chat-provider'
+          });
+
+          values.forEach(function(field) {
+            if (!validate(field.value)) {
+              errors.push(field.field);
+            }
+          });
+
+          if (errors.length) {
+            errors.forEach(function(field) {
+              toggleError(true, field);
+            });
+
+            if (!linkChatProvider) {
+              linkProviderInit();
+            }
+
+            setTimeout(function() {
+              $('.component-error').addClass('hidden').removeClass('bounceInUp');
+            }, 4000);
+
+            return;
+          }
+
+          toggleError(false);
         }
 
         var imageFolderSelected = validateImageFoldersSelection();
@@ -476,9 +695,6 @@ function attahObservers() {
         }
 
         if (widgetData.pollEnabled && widgetData.pollColumn) {
-          var errors = [];
-          var values = [];
-
           values.push({
             value: widgetData.pollColumn,
             field: '#select_poll_data'
@@ -493,25 +709,25 @@ function attahObservers() {
           if (errors.length) {
             $('.component-error').removeClass('hidden').addClass('bounceInUp');
             errors.forEach(function(field) {
-              toggleError(true, field)
+              toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false);
           }
+
+          toggleError(false);
         }
 
         if (widgetData.surveyEnabled && widgetData.surveyColumn) {
-          var errors = [];
-          var values = [];
-
           values.push({
             value: widgetData.surveyColumn,
             field: '#select_survey_data'
@@ -528,23 +744,23 @@ function attahObservers() {
             errors.forEach(function(field) {
               toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false);
           }
+
+          toggleError(false);
         }
 
         if (widgetData.questionsEnabled && widgetData.questionsColumn) {
-          var errors = [];
-          var values = [];
-
           values.push({
             value: widgetData.questionsColumn,
             field: '#select_questions_data'
@@ -561,17 +777,20 @@ function attahObservers() {
             errors.forEach(function(field) {
               toggleError(true, field);
             });
+
             if (!linkAddEntryProvider || !linkEditEntryProvider) {
               withError = true;
               linkProviderInit();
             }
+
             setTimeout(function() {
               $('.component-error').addClass('hidden').removeClass('bounceInUp');
             }, 4000);
+
             return;
-          } else {
-            toggleError(false);
           }
+
+          toggleError(false);
         }
 
         return linkAddEntryProvider.forwardSaveRequest();
@@ -579,7 +798,8 @@ function attahObservers() {
   });
 
   function highlightError(fieldIds, showError) {
-    var action = showError ? 'removeClass': 'addClass';
+    var action = showError ? 'removeClass' : 'addClass';
+
     _.each(fieldIds, function(id) {
       $('[data-field-id="' + id + '"] .text-danger')[action]('hidden');
     });
@@ -588,6 +808,7 @@ function attahObservers() {
   function validateImageFoldersSelection() {
     if (!widgetData['summary-fields']) {
       highlightError(selectedFieldId, true);
+
       return selectedFieldId.length === 0;
     }
 
@@ -597,13 +818,16 @@ function attahObservers() {
         return item.id === id && item.folder;
       });
     });
+
     highlightError(errorInputIds, true);
+
     return errorInputIds.length === 0;
   }
 
-  Fliplet.Widget.onSaveRequest(function () {
+  Fliplet.Widget.onSaveRequest(function() {
     if (!dynamicLists.isLoaded) {
       Fliplet.Widget.complete();
+
       return;
     }
 
@@ -613,6 +837,7 @@ function attahObservers() {
     if (imageFolderSelectionIsValid || filePickerPromises.length || !dataViewWindowIsOpen) {
       highlightError(selectedFieldId, false);
       $('form').submit();
+
       return;
     }
 
@@ -626,8 +851,9 @@ function attahObservers() {
 function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
+  widgetData.chatLinkAction = chatLinkAction;
 
-  Fliplet.Widget.save(widgetData).then(function () {
+  Fliplet.Widget.save(widgetData).then(function() {
     if (notifyComplete) {
       Fliplet.Widget.complete();
       window.location.reload();

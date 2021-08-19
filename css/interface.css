@@ -9,6 +9,13 @@
   background-color: transparent;
 }
 
+.help-icon {
+  font-size: 16px;
+  margin-left: 8px;
+  color: #333;
+  opacity: 0.5;
+}
+
 header {
   display: block;
 }
@@ -191,7 +198,7 @@ header .btn,
   padding-top: 20px;
   padding-left: 15px;
   padding-right: 15px;
-  height: calc(100% - 52px);
+  height: calc(100% - 68px);
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -473,6 +480,10 @@ header .btn,
 
 .panel-collapse {
   opacity: 0;
+}
+
+.panel-collapse label {
+  font-weight: normal;
 }
 
 .panel-collapse.in {
@@ -981,6 +992,15 @@ header .btn,
   width: 18%;
 }
 
+.detail-table-panels-holder .rTableRow .image-type-select .rTableCell.select {
+  width: calc(45% - 19% - 10px);
+  padding-left: 2px;
+}
+
+.detail-table-panels-holder .rTableRow .image-type-select .rTableCell.title {
+  width: 21%;
+}
+
 .flex-right {
   display: flex;
   height: 44px;
@@ -1083,6 +1103,34 @@ header .btn,
   border-color: #a94442;
 }
 
+.error-holder {
+  padding: 15px;
+  position: absolute;
+  width: 95%;
+  bottom: 1%;
+  z-index: 10;
+  border-radius: 4px;
+  -webkit-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+  -moz-box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+  box-shadow: 10px 6px 25px -10px rgba(0,0,0,1);
+}
+
+.filter-error {
+  border: 1px solid #a94442;
+}
+
+.filter-error .panel-title-text {
+  color: #a94442 !important;
+}
+
+.has-error-text {
+  color: #a94442 !important;
+}
+
+.has-error {
+  border-color: #a94442;
+}
+
 .select-user-email-list-holder {
   margin-top: 25px;
 }
@@ -1094,4 +1142,13 @@ header .btn,
 .relations-error {
   background-color: #f2dede;
   color: #a94442;
+}
+
+.select-chat-email-holder {
+  padding-bottom: 15px;
+}
+
+.select-chat-email-holder label {
+  padding: 0px 0px 6px 0px;
+  font-weight: bold;
 }

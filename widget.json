@@ -3,10 +3,15 @@
   "package": "com.fliplet.dynamic-lists",
   "version": "1.4.0",
   "icon": "img/icon.png",
-  "tags": ["type:component", "category:list", "beta:true"],
+  "tags": ["type:component", "category:list"],
   "provider_only": false,
   "html_tag": "div",
   "providers": [],
+  "settings": {
+    "attributes": {
+      "layout": "layout"
+    }
+  },
   "interface": {
     "dependencies": [
       "fliplet-core",
@@ -74,6 +79,7 @@
       "vendor/autosize.js",
       "vendor/unorm.js",
       "vendor/ellipsed.js",
+      "vendor/moment-timezone-with-data-10-year-range.min.js",
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",

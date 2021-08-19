@@ -1,6 +1,7 @@
 window.flListLayoutConfig = {
   'small-card': {
     'filtersEnabled': true,
+    'chatEnabled': false,
     'filterFields': ['Location', 'Sectors', 'Expertise'],
     'filtersInOverlay': false,
     'searchEnabled': true,
@@ -15,7 +16,7 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': ['list-filter', 'list-search', 'list-bookmark'],
+    'style-specific': ['list-filter', 'list-search', 'list-bookmark', 'list-sort', 'list-chat'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
@@ -101,7 +102,7 @@ window.flListLayoutConfig = {
       'bookmark': true,
       'comments': false
     },
-    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments'],
+    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments', 'list-sort'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
@@ -220,6 +221,7 @@ window.flListLayoutConfig = {
   'small-h-card': {
     'filtersEnabled': false,
     'filterFields': [],
+    'chatEnabled': false,
     'filtersInOverlay': false,
     'searchEnabled': false,
     'searchFields': [],
@@ -233,7 +235,7 @@ window.flListLayoutConfig = {
         'title': 'First Name - Alphabetical - Ascending'
       }
     ],
-    'style-specific': [],
+    'style-specific': ['list-chat'],
     'summary-fields': [
       {
         id: 'ajdmjRrT',
@@ -309,7 +311,7 @@ window.flListLayoutConfig = {
       'bookmark': true,
       'comments': false
     },
-    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments'],
+    'style-specific': ['list-filter', 'list-search', 'list-likes', 'list-bookmark', 'list-comments', 'list-sort'],
     'summary-fields-enabled': true,
     'summary-fields': [
       {
@@ -351,4 +353,4 @@ window.flListLayoutConfig = {
       }
     ]
   }
-}
+};

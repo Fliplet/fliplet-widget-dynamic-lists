@@ -7,32 +7,32 @@
       \{{#if [Location]}}
       <p class="agenda-item-location">\{{{[Location]}}}</p>
       \{{/if}}
-      <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{moment [Full Date] format="D MMM YYYY"}}</p>
+      <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{formatDate [Full Date]}}</p>
     </div>
 
     <div class="agenda-item-bookmark \{{#if agendaButtonsEnabled}}more-buttons\{{/if}}">
       <div class="agenda-item-bookmark-holder agenda-item-bookmark-holder-\{{id}}">
-        <div class="bookmark-wrapper btn-bookmark">
-          <span class="fa fa-bookmark-o"></span>
+        <div class="bookmark-wrapper focus-outline btn-bookmark" tabindex="0">
+          <i class="fa fa-bookmark-o"></i>Bookmark
         </div>
-        <div class="bookmark-wrapper btn-bookmarked">
-          <span class="fa fa-bookmark"></span>
+        <div class="bookmark-wrapper focus-outline btn-bookmarked" tabindex="0">
+          <i class="fa fa-bookmark"></i>Bookmarked
         </div>
 
         <div class="agenda-item-add-agenda"></div>
       </div>
       \{{#if pollButton}}
-      <div class="go-to-poll session-button">
+      <div class="go-to-poll session-button focus-outline" tabindex="0">
         <i class="fa fa-pie-chart"></i>Poll
       </div>
       \{{/if}}
       \{{#if surveyButton}}
-      <div class="go-to-survey session-button">
+      <div class="go-to-survey session-button focus-outline" tabindex="0">
         <i class="fa fa-pencil-square-o"></i>Survey
       </div>
       \{{/if}}
       \{{#if questionsButton}}
-      <div class="go-to-questions session-button">
+      <div class="go-to-questions session-button focus-outline" tabindex="0">
         <i class="fa fa-question-circle-o"></i>Questions
       </div>
       \{{/if}}
@@ -43,12 +43,23 @@
         <!-- Image template -->
         \{{#ifCond type '==' 'image'}}
           \{{#if content}}
-            \{{#if labelEnabled}}
-            <div class="agenda-item-detail-label">\{{label}}</div>
-            \{{/if}}
-
-            <div class="agenda-item-detail-body-text">
-              <img src="\{{validateImage content}}">
+            <div data-detail-entry-id="\{{id}}">
+              \{{#if labelEnabled}}
+                <div class="agenda-item-detail-label">\{{label}}</div>
+              \{{/if}}
+              \{{#if (isSingle contentArray)}}
+                <div class="agenda-item-detail-body-text single-image-holder">
+                  <img src="\{{validateImage content}}">
+                </div>
+              \{{else}}
+                <div class="multiple-images-holder" >
+                  \{{#each contentArray}}
+                    <div class="multiple-images-item">
+                      <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
+                    </div>
+                  \{{/each}}
+                </div>
+              \{{/if}}
             </div>
           \{{/if}}
         \{{/ifCond}}
@@ -124,16 +135,41 @@
             <div class="agenda-item-detail-body-text">\{{formatDate content}}</div>
           \{{/if}}
         \{{/ifCond}}
+
+        <!-- File template -->
+        \{{#ifCond type '==' 'file'}}
+          \{{#if content}}
+            <ul class="file-holder">
+              \{{#if labelEnabled}}
+                <div class="agenda-item-detail-label">\{{label}}</div>
+              \{{/if}}
+              \{{#each content}}
+                <li class="file-item">
+                  <div class="file-title">\{{this.name}}</div>
+                  <div class="file-info">
+                    <span class="file-info-uploaded">Uploaded: \{{formatDate this.uploaded}}</span>
+                    \{{#if this.size}}<span class="file-info-size">&ndash; \{{humanFileSize this.size}}</span>\{{/if}}
+                  </div>
+                  <input type="hidden" value=\{{this.url}}>
+                  <div class="file-icon">
+                    <i class="fa fa-angle-right"></i>
+                  </div>
+                </li>
+              \{{/each}}
+            </ul>
+          \{{/if}}
+        \{{/ifCond}}
+
       \{{/each}}
     </div>
 
     \{{#ifCond editEntry '||' deleteEntry}}
     <div class="dynamic-list-controls">
       \{{#if editEntry}}
-      <div class="btn btn-default dynamic-list-edit-item">Edit</div>
+      <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">Edit</div>
       \{{/if}}
       \{{#if deleteEntry}}
-      <div class="btn btn-danger dynamic-list-delete-item">Delete</div>
+      <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">Delete</div>
       \{{/if}}
     </div>
     \{{/ifCond}}

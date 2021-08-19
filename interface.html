@@ -2,7 +2,12 @@
   <div class="layouts-tab state present loading">
     <header>
       <div class="first-row">
-        <p>Select a layout</p>
+        <p>
+          Select layout
+          <a href="https://help.fliplet.com/list-from-data-source-lfd-component/" class="help-icon" target="_blank">
+            <i class="fa fa-question-circle-o"></i>
+          </a>
+        </p>
         <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
@@ -20,9 +25,17 @@
     </div>
   </div>
   <div class="settings-tab state future">
+    <div class="error-holder relations-error hidden">
+      <span class="text-danger">Please provide a value on the required fields.</span>
+    </div>
     <header>
       <div class="first-row">
-        <p>Configure your list</p>
+        <p>
+          Configure your list
+          <a href="https://help.fliplet.com/list-from-data-source-lfd-component/" class="help-icon" target="_blank">
+            <i class="fa fa-question-circle-o"></i>
+          </a>
+        </p>
         <span>Version: 1.4.0 (latest)</span>
       </div>
       <div class="uuid-holder">UUID: {{uuid}}</div>
@@ -30,28 +43,7 @@
     <div class="state-wrapper">
       <form class="settings-form">
         <div class="form-group clearfix">
-          <div class="col-sm-4 control-label">
-            <label>Your list data</label>
-          </div>
-          <div class="col-sm-8">
-            <div class="create-holder">
-              <div class="btn btn-default" data-create-datasource>Create list data</div>
-              <div class="btn btn-secondary select-new-data-source">Use existing data</div>
-            </div>
-            <div class="edit-holder hidden">
-              <div class="btn btn-default" data-edit-datasource>Edit list data</div>
-              <div class="btn btn-secondary select-new-data-source">Change data source</div>
-              <p class="text-helper selected-datasource hidden"><strong>Data selected:</strong> <span></span></p>
-            </div>
-            <div class="select-datasource-holder hidden">
-              <select name="select_datasource" id="select_datasource" data-label="select" class="form-control">
-                <option value="none">-- Select a data source</option>
-                <option disabled>------</option>
-                <option value="new">Create a new data source</option>
-                <option disabled>------</option>
-              </select>
-            </div>
-          </div>
+          <div id="dataSourceProvider" class="col-sm-8"></div>
         </div>
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
@@ -76,7 +68,12 @@
         </div>
         <div class="form-group clearfix disabled">
           <div class="col-sm-4 control-label">
-            <label>How do you want to filter your list?</label>
+            <label>
+              How do you want to filter your list?
+              <a href="https://help.fliplet.com/filter-options-for-an-lfd/" class="help-icon" target="_blank">
+                <i class="fa fa-question-circle-o"></i>
+              </a>
+            </label>
           </div>
           <div class="col-sm-8">
             <div class="filter-panels-holder empty">
@@ -142,6 +139,25 @@
           </div>
         </div>
 
+        <div class="form-group clearfix list-sort disabled hidden">
+          <div class="col-sm-4 control-label">
+            <label>List sorting</label>
+          </div>
+          <div class="col-sm-8">
+            <div class="checkbox checkbox-icon">
+              <input type="checkbox" id="enable-sort">
+              <label for="enable-sort">
+                <span class="check"><i class="fa fa-check"></i></span> Allow users to sort the list
+              </label>
+            </div>
+
+            <div class="sort-fields hidden">
+              <!-- field will be added here -->
+            </div>
+
+          </div>
+        </div>
+
         <div class="margin-15">
           <div class="panel-group hidden" id="agenda-accordion">
             <div class="panel panel-default">
@@ -166,7 +182,7 @@
                         </label>
 
                         <div class="hidden-settings">
-                          <p>Select poll data field <small>(Required)</small></p>
+                          <p>Select poll data field (Required)</p>
                           <select name="select_poll_data" id="select_poll_data" class="form-control agenda-options-select">
                             <option value="none">-- Select a field</option>
                             <option disabled>------</option>
@@ -188,7 +204,7 @@
                         </label>
 
                         <div class="hidden-settings">
-                          <p>Select survey data field <small>(Required)</small></p>
+                          <p>Select survey data field (Required)</p>
                           <select name="select_survey_data" id="select_survey_data" class="form-control agenda-options-select">
                             <option value="none">-- Select a field</option>
                             <option disabled>------</option>
@@ -210,7 +226,7 @@
                         </label>
 
                         <div class="hidden-settings">
-                          <p>Select questions data field <small>(Required)</small></p>
+                          <p>Select questions data field (Required)</p>
                           <select name="select_questions_data" id="select_questions_data" class="form-control agenda-options-select">
                             <option value="none">-- Select a field</option>
                             <option disabled>------</option>
@@ -277,6 +293,33 @@
                       </div>
                     </div>
                   </div>
+                  <div class="form-group clearfix list-chat disabled hidden">
+                    <div class="col-sm-4 control-label">
+                      <label>Chat</label>
+                    </div>
+                    <div class="col-sm-8">
+                      <div class="checkbox checkbox-icon">
+                        <input type="checkbox" id="enable-chat">
+                        <label for="enable-chat">
+                          <span class="check"><i class="fa fa-check"></i></span> Allow users to start messaging directly from each entry
+                        </label>
+                        <div class="hidden-settings">
+                          <p>You need to create a chat screen to allow users to message each other. Select the screen where the chat feature will be found.</p>
+                          <div id="chat-link"></div>
+                          <div class="select-chat-email-holder">
+                            <label for="select_chat_email" class="select-proxy-display">
+                              Email field (Required)
+                              <select name="select_chat_email" id="select_chat_email" class="hidden-select form-control">
+                                <option value="">-- Select email data field</option>
+                              </select>
+                              <span class="icon fa fa-chevron-down"></span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -409,7 +452,7 @@
                         </div>
                       </div>
                       <div class="select-user-email-list-holder hidden">
-                        <label>Select field where the post author's email is stored <small>(Required)</small></label>
+                        <label>Select field where the post author's email is stored (Required)</label>
                         <p><small>This is used so we can offer the right edit options to the right person.</small></p>
                         <select name="select_user_email_data" id="select_user_email_data" class="form-control">
                           <option value="none">-- Select the email data field</option>
@@ -426,23 +469,17 @@
 
         <div class="user-datasource-options hidden">
           <div class="form-group clearfix">
-            <div class="col-xs-12 select-user-datasource-holder">
-              <label>Select the datasource where app users are listed <small>(Required)</small></label>
-              <p><small>To enable features that are specific to a user we need to know how to identify different users. Please select the location where the users emails are listed.</small></p>
-              <select name="select_user_datasource" id="select_user_datasource" class="form-control">
-                <option value="none">-- Select a data source</option>
-                <option disabled>------</option>
-              </select>
+            <div class="col-xs-12 select-user-datasource-holder" id="user_data_source_provider">
             </div>
             <div class="col-xs-12 select-user-firstname-holder hidden">
-              <label>Username data field(s) <small>(Required)</small></label>
+              <label>Username data field(s) (Required)</label>
               <p><small>Select any that apply if you have two fields for the users name.</small></p>
               <div class="user-name-fields">
                 <!-- field will be added here -->
               </div>
             </div>
             <div class="col-xs-12 select-user-email-holder hidden">
-              <label>User email data field <small>(Required)</small></label>
+              <label>User email data field (Required)</label>
               <select name="select_user_email" id="select_user_email" class="form-control">
                 <option value="none">-- Select email data field</option>
                 <option disabled>------</option>
@@ -467,7 +504,7 @@
               <div class="selected-user-folder hidden">Selected folder: <strong><span></span></strong></div>
             </div>
             <div class="col-xs-12 select-user-admin-holder hidden">
-              <label>Field to identify Admins <small>(Required)</small> <span data-toggle="tooltip" data-placement="top" title="To identify which users have admin rights you can create a new column in your users data source, and mark admins with an 'X' and leave non-admins as blank"><i class="fa fa-info-circle"></i></span></label>
+              <label>Field to identify Admins (Required) <span data-toggle="tooltip" data-placement="top" title="To identify which users have admin rights you can create a new column in your users data source, and mark admins with an 'X' and leave non-admins as blank"><i class="fa fa-info-circle"></i></span></label>
               <select name="select_user_admin" id="select_user_admin" class="form-control">
                 <option value="none">-- Select admin field</option>
                 <option disabled>------</option>

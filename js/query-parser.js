@@ -9,22 +9,9 @@
 Fliplet.Registry.set('dynamicListQueryParser', function() {
   var _this = this;
 
-  function splitQueryValues(input) {
-    var testPattern = /^(?:\[[\w\W]*\])$/;
-
-    if (_.isNil(input)) {
-      return input;
-    }
-
-    return _.map(_this.Utils.String.splitByCommas('' + input), function (str) {
-      str = str.trim();
-
-      if (!testPattern.test(str)) {
-        return str;
-      }
-
-      return _.compact(splitQueryValues(str.substring(1, str.length-1)));
-    });
+  if (Fliplet.Env.get('mode') === 'interact') {
+    // Don't parse queries when editing in Studio
+    return false;
   }
 
   // we do not execute previousScreen like in the PV case so we don't open ourselves up to an xss attack
@@ -53,9 +40,9 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   if (this.queryPreFilter) {
     // take the query parameters and parse them down to arrays
-    var prefilterColumnParts = splitQueryValues(this.pvPreFilterQuery.column) || [];
-    var prefilterLogicParts = splitQueryValues(this.pvPreFilterQuery.logic) || [];
-    var prefilterValueParts = splitQueryValues(this.pvPreFilterQuery.value) || [];
+    var prefilterColumnParts = _this.Utils.String.splitByCommas(this.pvPreFilterQuery.column);
+    var prefilterLogicParts = _this.Utils.String.splitByCommas(this.pvPreFilterQuery.logic);
+    var prefilterValueParts = _this.Utils.String.splitByCommas(this.pvPreFilterQuery.value);
 
     if (prefilterColumnParts.length !== prefilterLogicParts.length
       || prefilterLogicParts.length !== prefilterValueParts.length) {
@@ -64,18 +51,21 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
       console.warn('Please supply an equal number of parameter to the dynamicListPrefilter filters.');
     } else {
       this.pvPreFilterQuery = [];
+
       var maxPartCount = Math.max(
         prefilterColumnParts.length,
         prefilterLogicParts.length,
         prefilterValueParts.length
       );
+
       // loop through the query parts and create new filters with every one
-      for (let i = 0; i < maxPartCount; i++) {
+      for (var i = 0; i < maxPartCount; i++) {
         var filter = {
           column: prefilterColumnParts.pop(),
           logic: prefilterLogicParts.pop(),
           value: prefilterValueParts.pop()
         };
+
         this.pvPreFilterQuery.push(filter);
       }
     }
@@ -105,7 +95,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   if (this.querySearch) {
     // check if a comma separated list of columns were passed as column
-    this.pvSearchQuery.column = splitQueryValues(this.pvSearchQuery.column);
+    this.pvSearchQuery.column = _this.Utils.String.splitByCommas(this.pvSearchQuery.column, false);
     this.pvSearchQuery.openSingleEntry = (this.pvSearchQuery.openSingleEntry || '').toLowerCase() === 'true';
     this.data.searchEnabled = this.querySearch;
   } else {
@@ -121,8 +111,8 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   if (this.queryFilter) {
     // check if a comma separated list of columns/values were passed as column/value
-    this.pvFilterQuery.column = splitQueryValues(this.pvFilterQuery.column) || [];
-    this.pvFilterQuery.value = splitQueryValues(this.pvFilterQuery.value) || [];
+    this.pvFilterQuery.column = _this.Utils.String.splitByCommas(this.pvFilterQuery.column);
+    this.pvFilterQuery.value = _this.Utils.String.splitByCommas(this.pvFilterQuery.value);
 
     if (!_.isEmpty(this.pvFilterQuery.column) && !_.isEmpty(this.pvFilterQuery.value)
       && this.pvFilterQuery.column.length !== this.pvFilterQuery.value.length) {
@@ -134,9 +124,24 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
     // cast to boolean
     this.pvFilterQuery.hideControls = (this.pvFilterQuery.hideControls || '').toLowerCase() === 'true';
-    this.data.filtersEnabled = this.queryFilter;
+    this.data.filtersEnabled = this.data.filtersEnabled || this.queryFilter;
   } else {
     this.queryFilter = null;
+  }
+
+  // We can sort only by one column that is why this syntax doesn't support
+  // ?dynamicListSortColumn=Name,Age&dynamicListSortOrder=asc
+  // Correct example is
+  // ?dynamicListSortColumn=Name&dynamicListSortOrder=asc
+  this.pvPreSortQuery = _.pickBy({
+    column: Fliplet.Navigate.query['dynamicListSortColumn'],
+    order: Fliplet.Navigate.query['dynamicListSortOrder']
+  });
+  this.querySort = _(this.pvPreSortQuery).size() > 0;
+
+  if (this.querySort) {
+    this.sortOrder = this.pvPreSortQuery.order || 'asc';
+    this.sortField = this.pvPreSortQuery.column;
   }
 
   return this.previousScreen

@@ -12,12 +12,13 @@
   top: 0;
   top: env(safe-area-inset-top);
   right: 0;
-  bottom: 0;
   left: 0;
   z-index: 11;
   background-color: transparent;
   transform: translate3d(100%, 0, 0);
   transition: all 0.2s ease-out;
+  height: 100vh;
+  padding-bottom: env(safe-area-inset-top);
 }
 
 .simple-list-search-filter-overlay.display {
@@ -50,11 +51,10 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 44px;
+  height: 50px;
   display: flex;
   align-items: center;
   padding-right: 15px;
-  padding-left: 44px;
   font-size: 1.2em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -130,6 +130,7 @@
   line-height: 44px;
   z-index: 1;
   cursor: pointer;
+  margin: 2px;
 }
 
 .simple-list-container .simple-list-search-filter-overlay .hidden-filter-controls,
@@ -268,7 +269,6 @@
 
 .simple-list-container .list-search-icon .fa {
   display: inline-block;
-  opacity: 0.3;
   font-size: 20px;
   width: 35px;
   height: 35px;
@@ -440,7 +440,7 @@
 .simple-list-container .current-query-wrapper .clear-search {
   position: absolute;
   right: 0;
-  top: 0;
+  top: -2px;
   width: 34px;
   height: 100%;
   display: flex;
@@ -483,8 +483,12 @@
   border: 1px solid #e5e5e5;
   border-radius: 20px;
   padding: 8px 15px;
-  margin: 0 5px 7px 0;
+  margin: 2px 5px 7px 2px;
   font-size: 14px;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .simple-list-container .hidden-filter-controls-filter.mixitup-control-active {
@@ -514,6 +518,14 @@
   border-radius: 20px;
   margin-top: 15px;
   margin-bottom: 20px;
+}
+
+.has-filter-overlay .simple-list-search-filter-overlay  {
+  /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
+  z-index: 1010;
+  -webkit-transition-delay: 0s;
+  -ms-transition-delay: 0s;
+  transition-delay: 0s;
 }
 
 @media screen and (min-width: 640px) {
@@ -567,6 +579,13 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+html.ie11 .simple-list-item .list-item-description {
+  max-height: 4.4em;
 }
 
 .simple-list-item .list-item-title {
@@ -580,7 +599,7 @@
 
 .simple-list-item .list-item-subtitle {
   font-size: 12px;
-  opacity: 0.4;
+  color: rgba(51, 51, 51, 0.4);
 }
 
 .list-item-description + .list-item-subtitle {
@@ -661,7 +680,6 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0,0,0,0.8);
-  pointer-events: none;
 }
 
 .simple-list-detail-overlay .simple-list-detail-overlay-wrapper {
@@ -713,6 +731,7 @@
   height: 100%;
   overflow: auto;
   padding: 40px 15px 15px 15px;
+  word-break: break-word;
 }
 
 .simple-list-detail-label {
@@ -724,6 +743,9 @@
 .simple-list-detail-value {
   font-size: 1.15em;
   margin-bottom: 25px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .simple-list-detail-overlay-close.tablet {
@@ -1149,6 +1171,10 @@
   margin-right: 4px;
 }
 
+.simple-list-detail-overlay .simple-list-detail-overlay-panel {
+  z-index: 1;
+}
+
 .simple-list-container .simple-list-comment-holder span.count,
 .simple-list-detail-overlay .simple-list-comment-holder span.count {
   margin-right: 0;
@@ -1167,6 +1193,7 @@
     bottom: 0;
     overflow: auto;
     padding: 40px 0;
+    z-index: 1;
   }
 
   .simple-list-detail-overlay .simple-list-detail-overlay-panel {
@@ -1181,26 +1208,6 @@
 
   .simple-list-detail-overlay-panel .simple-list-detail-overlay-content {
     padding: 40px;
-  }
-
-  .simple-list-detail-overlay-close.tablet {
-    display: block;
-    position: fixed;
-    top: 0;
-    right: 0;
-    color: #fff;
-    width: 68px;
-    height: 68px;
-    padding: 15px;
-    font-size: 1.2em;
-    line-height: 36px;
-    text-align: center;
-    z-index: 1;
-    cursor: pointer;
-  }
-
-  .simple-list-detail-overlay-panel .simple-list-detail-overlay-heading {
-    display: none;
   }
 }
 
@@ -1229,6 +1236,18 @@
     padding-top: 0px;
     padding-bottom: 5px;
   }
+
+  .simple-list-detail-overlay-close .win7.fa-times-thin {
+    padding-top: 2px;
+    padding-bottom: 1px;
+    font-weight: lighter;
+    font-size: 1.2em !important;
+  }
+
+  .simple-list-detail-overlay-close .win7.fa-times-thin::before {
+    content: '\2715';
+  }
+
 }
 
 /* Safari layout */
