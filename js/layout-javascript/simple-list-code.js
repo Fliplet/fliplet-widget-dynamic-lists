@@ -2267,6 +2267,17 @@ DynamicList.prototype.getCommentUsers = function() {
     .then(function(users) {
       _this.allUsers = users;
 
+      // Update my user data
+      if (_this.myUserData) {
+        _this.allUsers.some(function(user) {
+          if (_this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn]) {
+            _this.myUserData = $.extend(true, _this.myUserData, user.data);
+
+            return true;
+          }
+        });
+      }
+
       return _this.Utils.Users.getUsersToMention({
         allUsers: _this.allUsers,
         config: _this.data
@@ -2287,7 +2298,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   }
 
   entry = _this.addPermissions(entry);
-  entry.data = [];
+  entry.entryDetails = [];
 
   // Define detail view data based on user's settings
   _this.data.detailViewOptions.forEach(function(obj) {
@@ -2342,7 +2353,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
       newEntryDetail.contentArray = contentArray;
     }
 
-    entry.data.push(newEntryDetail);
+    entry.entryDetails.push(newEntryDetail);
   });
 
   if (_this.data.detailViewAutoUpdate) {
@@ -2358,7 +2369,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
         type: 'text'
       };
 
-      entry.data.push(newColumnData);
+      entry.entryDetails.push(newColumnData);
     });
   }
 

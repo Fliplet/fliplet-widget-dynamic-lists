@@ -1229,6 +1229,17 @@ DynamicList.prototype.getCommentUsers = function() {
     .then(function(users) {
       _this.allUsers = users;
 
+      // Update my user data
+      if (_this.myUserData) {
+        _this.allUsers.some(function(user) {
+          if (_this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn]) {
+            _this.myUserData = $.extend(true, _this.myUserData, user.data);
+
+            return true;
+          }
+        });
+      }
+
       return _this.Utils.Users.getUsersToMention({
         allUsers: _this.allUsers,
         config: _this.data
