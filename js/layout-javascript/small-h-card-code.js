@@ -44,8 +44,6 @@ function DynamicList(id, data) {
    */
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
-  this.data.chatEnabled = _.get(this, 'data.social.chat');
-
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
@@ -167,25 +165,6 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
-    .on('click keydown', '.small-h-card-list-detail-chat', function(event) {
-      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
-        return;
-      }
-
-      if (!_this.data.chatLinkAction) {
-        return;
-      }
-
-      _this.Utils.Navigate.goToScreen(_this.data.chatLinkAction, 'contactEmail=' + $(this).data('chatEmail'))
-        .catch(function(error) {
-          _this.Utils.Navigate.errorHandler(error,
-            {
-              pageError: 'Chat screen not found. Please check the component\'s configuration.',
-              openError: 'Error open the chat'
-            }
-          );
-        });
-    })
     .on('click keydown', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
@@ -251,15 +230,36 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      _this.Utils.Navigate.goToScreen(_this.data.addEntryLinkAction, 'mode=add')
-        .catch(function(error) {
-          _this.Utils.Navigate.errorHandler(error,
-            {
-              pageError: 'Form not found. Please check the component\'s configuration.',
-              openError: 'Error adding entry'
-            }
-          );
+      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.'
         });
+
+        return;
+      }
+
+      _this.data.addEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.addEntryLinkAction.query,
+        'mode=add'
+      );
+
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.addEntryLinkAction);
+
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error adding entry'
+              });
+            });
+        }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error adding entry'
+        });
+      }
     })
     .on('click keydown', '.dynamic-list-edit-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -270,17 +270,38 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+        Fliplet.UI.Toast({
+          title: 'Link not configured',
+          message: 'Form not found. Please check the component\'s configuration.'
+        });
+
+        return;
+      }
+
       var entryID = $(this).parents('.small-h-card-detail-overlay').find('.small-h-card-list-detail-content-scroll-wrapper').data('entry-id');
 
-      _this.Utils.Navigate.goToScreen(_this.data.editEntryLinkAction, 'dataSourceEntryId=' + entryID)
-        .catch(function(error) {
-          _this.Utils.Navigate.errorHandler(error,
-            {
-              pageError: 'Form not found. Please check the component\'s configuration.',
-              openError: 'Error editing entry'
-            }
-          );
+      _this.data.editEntryLinkAction.query = _this.Utils.String.appendUrlQuery(
+        _this.data.editEntryLinkAction.query,
+        'dataSourceEntryId=' + entryID
+      );
+
+      try {
+        var navigate = Fliplet.Navigate.to(_this.data.editEntryLinkAction);
+
+        if (navigate instanceof Promise) {
+          navigate
+            .catch(function(error) {
+              Fliplet.UI.Toast(error, {
+                message: 'Error editing entry'
+              });
+            });
+        }
+      } catch (error) {
+        Fliplet.UI.Toast(error, {
+          message: 'Error editing entry'
         });
+      }
     })
     .on('click keydown', '.dynamic-list-delete-item', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -630,7 +651,6 @@ DynamicList.prototype.addSummaryData = function(records) {
   var loopData = _.map(records, function(entry) {
     var newObject = {
       id: entry.id,
-      chatEnabled: entry.chatEnabled,
       editEntry: entry.editEntry,
       deleteEntry: entry.deleteEntry,
       isCurrentUser: entry.isCurrentUser ? entry.isCurrentUser : false,
