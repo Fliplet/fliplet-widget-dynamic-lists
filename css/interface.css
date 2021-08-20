@@ -1143,12 +1143,3 @@ header .btn,
   background-color: #f2dede;
   color: #a94442;
 }
-
-.select-chat-email-holder {
-  padding-bottom: 15px;
-}
-
-.select-chat-email-holder label {
-  padding: 0px 0px 6px 0px;
-  font-weight: bold;
-}
