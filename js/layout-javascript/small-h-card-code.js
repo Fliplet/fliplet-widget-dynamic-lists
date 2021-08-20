@@ -770,6 +770,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
+
     return entry;
   }
 
@@ -932,6 +933,8 @@ DynamicList.prototype.showDetails = function(id, listData) {
           _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
         }
 
+        $('body').addClass('lock');
+
         // Adds content to overlay
         $overlay.find('.small-h-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
         $overlay.find('.small-h-card-detail-wrapper').append(template(data.data || entryData));
@@ -972,6 +975,7 @@ DynamicList.prototype.closeDetails = function() {
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
+  $('body').removeClass('lock');
 
   setTimeout(function() {
     $overlay.removeClass('ready');

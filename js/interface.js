@@ -62,10 +62,6 @@ var DynamicLists = (function() {
   var defaultSettings = window.flListLayoutConfig;
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
-  var LOCALE_FORMATS = {
-    TIME: moment.localeData().longDateFormat('LT'),
-    DATE: moment.localeData().longDateFormat('ll')
-  };
 
   // Constructor
   function DynamicLists(configuration) {
@@ -2076,15 +2072,19 @@ var DynamicLists = (function() {
       }
     },
     addSummaryItem: function(data) {
-      data.date = moment().format(LOCALE_FORMATS.DATE);
-      data.time = moment().format(LOCALE_FORMATS.TIME);
+      var now = new Date();
+
+      data.date = TD(now, { format: 'll' });
+      data.time = TD(now, { format: 'LT' });
 
       var $newPanel = $(summaryRowTemplate(data));
 
       $summaryRowContainer.append($newPanel);
     },
     addDetailItem: function(data) {
-      data.date = moment().format(LOCALE_FORMATS.DATE);
+      var now = new Date();
+
+      data.date = TD(now, { format: 'll' });
 
       var $newPanel = $(detailsRowTemplate(data));
 
