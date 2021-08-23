@@ -272,7 +272,7 @@ function toggleError(showError, element) {
     $element.addClass('has-error');
 
     if ($element.hasClass('select-user-datasource-holder')) {
-      var iframe = $element.contents()[0];
+      var iframe = document.querySelector('#user_data_source_provider>.fl-widget-provider');
 
       $(iframe.contentDocument.querySelector('.select-proxy-display')).addClass('has-error');
     }
