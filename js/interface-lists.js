@@ -274,7 +274,7 @@ function toggleError(showError, element) {
     if ($element.hasClass('select-user-datasource-holder')) {
       var iframe = $element.contents()[0];
 
-      iframe.contentDocument.querySelector('.select-proxy-display').classList.add('has-error');
+      $(iframe.contentDocument.querySelector('.select-proxy-display')).addClass('has-error');
     }
 
     // the token field has deferent structure from other elements
