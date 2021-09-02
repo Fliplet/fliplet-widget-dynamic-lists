@@ -793,6 +793,7 @@ var DynamicLists = (function() {
         };
         var accessRuleIndex = -1;
 
+        // eslint-disable-next-line no-loop-func
         accessRules.forEach(function(item, index) {
           var typeIndex = item.type.indexOf(type);
 
@@ -994,9 +995,23 @@ var DynamicLists = (function() {
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
           // Load Add. Edit, Delete
-          $('#add_entry').prop('checked', _this.config.addEntry).trigger('change');
-          $('#edit_entry').prop('checked', _this.config.editEntry).trigger('change');
-          $('#delete_entry').prop('checked', _this.config.deleteEntry).trigger('change');
+          $('#add_entry')
+            .prop('checked', _this.config.addEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', _this.config.addEntry);
+
+          $('#edit_entry')
+            .prop('checked', _this.config.editEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', _this.config.editEntry);
+
+          $('#delete_entry')
+            .prop('checked', _this.config.deleteEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', _this.config.deleteEntry);
 
           var addPermission = _this.config.addPermissions || 'everyone';
           var editPermission = _this.config.editPermissions || 'everyone';
