@@ -953,6 +953,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     var searchResults = [];
+    var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
+    var filterTypes = _.zipObject(_.keys(activeFilters), _.map(_.keys(activeFilters), function(field) {
+      return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
+    }));
     var truncated = _.some(records, function(record) {
       if (limit > -1 && searchResults.length >= limit) {
         // Search results reached limit
@@ -968,7 +972,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       if (!recordMatchesFilters({
         record: record,
         filters: activeFilters,
-        config: config
+        config: config,
+        filterTypes: filterTypes
       })) {
         return;
       }
@@ -1076,6 +1081,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var record = options.record;
     var filters = options.filters;
     var config = options.config || {};
+    var filterTypes = options.filterTypes || {};
 
     var recordFieldValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function(field) {
       return _.map(_.uniq(getRecordField({
@@ -1085,8 +1091,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })), convertData);
     }));
 
-    // Returns true if record matches all of provided filters and values
+
+    // Returns true if record matches all of provided filters
     return _.every(_.keys(filters), function(field) {
+      // For date filters, record passes filter if it's within range
+      if (filterTypes[field] === 'date') {
+        // Invalid date filter values, fail silently by passing the filter
+        if (!filters[field] || filters[field].length !== 2) {
+          return true;
+        }
+
+        return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
+          return moment(recordFieldValue).isBetween(filters[field][0], filters[field][1], undefined, '[]');
+        });
+      }
+
+      // Record passes filter if it matches one of the values
       return _[config.filterMatch === 'all' ? 'every' : 'some'](filters[field], function(value) {
         if (field === 'undefined') {
           // Legacy class-based filters
@@ -1138,6 +1158,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
+   * Gets the minimum and maximum values from a list of filter values
+   * @param {Array} values - List of filter values
+   * @returns {Object} Minimum and maximum values
+   */
+  function getMinMaxFilterValues(values) {
+    return {
+      min: _.minBy(values, function(value) {
+        return value.data.value;
+      }).data.value,
+      max: _.maxBy(values, function(value) {
+        return value.data.value;
+      }).data.value
+    };
+  }
+
+  /**
    * Takes the list of data records and the page query parameter to return a list of filter and filter options to render
    * @param {Object} options - A mapping of options for this function
    * @param {Object[]} options.records - Records from which to derive the filter values
@@ -1151,6 +1187,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var records = options.records || [];
     var filters = options.filters || [];
+    var summaryFields = options.summaryFields || [];
+    var detailViewOptions = options.detailViewOptions || [];
     var id = options.id;
     var query = options.query;
     var hasFilterQuery = query && query.value.length;
@@ -1211,11 +1249,21 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       .groupBy('type')
       .map(function(values, field) {
         // _.map iteratee for defining of each filter value
-        return {
+        var filter  = {
           id: id,
-          name: field,
-          data: _.map(values, 'data')
+          name: field
         };
+        var dataViewFields = summaryFields.concat(detailViewOptions);
+
+        if (_.find(dataViewFields, { column: field, type: 'date' })) {
+          filter.type = 'date';
+          filter.data = getMinMaxFilterValues(values);
+        } else {
+          filter.type = 'toggle';
+          filter.data = _.map(values, 'data');
+        }
+
+        return filter;
       })
       .filter(function(filter) {
         return filter.name && _.size(filter.data);
@@ -1283,6 +1331,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var records = options.records || [];
     var config = options.config || {};
+    var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function(record) {
@@ -1299,18 +1348,38 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           record: record,
           field: field,
           useData: true
-        }), function(item) {
-          var classConverted = _.kebabCase(item);
-          var newObj = {
-            type: field,
-            data: {
-              name: item,
-              class: classConverted
-            }
-          };
+        }), function(value) {
+          var filterClass;
+          var filterData;
 
-          classes.push(classConverted);
-          record.data['flFilters'].push(newObj);
+          if (_.find(dataViewFields, { column: field, type: 'date' })) {
+            var date = getMomentDate(value);
+
+            if (!date.isValid()) {
+              return;
+            }
+
+            filterData = {
+              type: field,
+              data: {
+                value: date.format('YYYY-MM-DD')
+              }
+            };
+
+            record.data['flFilters'].push(filterData);
+          } else {
+            filterClass = _.kebabCase(value);
+            filterData = {
+              type: field,
+              data: {
+                name: value,
+                class: filterClass
+              }
+            };
+
+            classes.push(filterClass);
+            record.data['flFilters'].push(filterData);
+          }
         });
       });
 
@@ -1961,6 +2030,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var records = options.records || [];
     var config = options.config;
+
+    if (_.isEmpty(config.computedFields)) {
+      return;
+    }
 
     _.forEach(records, function(record) {
       addRecordComputedFields({

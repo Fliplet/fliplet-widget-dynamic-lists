@@ -129,6 +129,28 @@
   max-width: 100%;
 }
 
+.hidden-filter-controls-filter-wrapper[data-type="date"] {
+  white-space: initial !important;
+}
+
+.filter-range-block {
+  display: inline-block;
+}
+
+.filter-range-block:first-child,
+.hidden-filter-controls-filter[data-type="date"] {
+  margin-right: 5px !important;
+}
+
+.filter-range-reset {
+  display: none;
+}
+
+.filter-range-active .filter-range-reset {
+  display: inline-block;
+  margin-left: -10px;
+}
+
 .filter-item-remove {
   cursor: pointer;
   pointer-events: all;

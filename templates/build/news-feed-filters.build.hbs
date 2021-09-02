@@ -27,12 +27,26 @@
   \{{#each filters}}
   <div class="hidden-filter-controls-label">Filter by <span>\{{[name]}}</span></div>
   <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
-    <div class="hidden-filter-controls-filter-wrapper">
-      <fieldset data-filter-group>
-        \{{#each [data]}}
-        <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
-        \{{/each}}
-      </fieldset>
+    <div class="hidden-filter-controls-filter-wrapper" data-type="\{{type}}">
+      \{{#ifCond type '===' 'date'}}
+        <fieldset data-filter-group>
+          <div class="filter-range-block">
+            <input type="date" class="hidden-filter-controls-filter filter-date-from" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.min}}" value="\{{data.min}}" />
+            to
+          </div>
+          <div class="filter-range-block">
+            <input type="date" class="hidden-filter-controls-filter filter-date-to" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.max}}" value="\{{data.max}}" />
+            <span class="btn btn-link filter-range-reset" data-field="\{{name}}">Reset</span>
+          </div>
+        </fieldset>
+      \{{/ifCond}}
+      \{{#ifCond type '===' 'toggle'}}
+        <fieldset data-filter-group>
+          \{{#each [data]}}
+          <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-type="\{{../type}}" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+          \{{/each}}
+        </fieldset>
+      \{{/ifCond}}
     </div>
   </div>
   \{{/each}}

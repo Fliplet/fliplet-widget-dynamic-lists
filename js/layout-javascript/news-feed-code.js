@@ -96,11 +96,21 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
+  var filterType = $target.data('type');
+
+  // Date filters are targeted at the same time
+  if (filterType === 'date') {
+    $target = $target.closest('[data-filter-group]').find('.hidden-filter-controls-filter');
+  }
 
   if (typeof toggle === 'undefined') {
     $target.toggleClass('mixitup-control-active');
   } else {
     $target[!!toggle ? 'addClass' : 'removeClass']('mixitup-control-active');
+  }
+
+  if (filterType === 'date') {
+    $target.closest('[data-filter-group]').toggleClass('filter-range-active', $target.hasClass('mixitup-control-active'));
   }
 
   if (this.$container.find('.mixitup-control-active').length) {
@@ -126,6 +136,41 @@ DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
   $('body').removeClass('lock has-filter-overlay');
 };
+
+DynamicList.prototype.onFilterRangeChange = _.debounce(function(event) {
+  var _this = this;
+  var $filter = $(event.target);
+  var value = $filter.val();
+
+  // Invalid value. Do nothing.
+  if (!value) {
+    return;
+  }
+
+  var $filterGroup = $filter.closest('[data-filter-group]');
+  var $from = $filterGroup.find('.hidden-filter-controls-filter.filter-date-from');
+  var $to = $filterGroup.find('.hidden-filter-controls-filter.filter-date-to');
+  var fromValue = $from.val();
+  var toValue = $to.val();
+
+  // Validate range values to ensure FROM is not greater than TO
+  if (fromValue && toValue && fromValue > toValue) {
+    if ($filter.hasClass('filter-date-from')) {
+      $to.val(fromValue);
+    } else if ($filter.hasClass('filter-date-to')) {
+      $from.val(toValue);
+    }
+  }
+
+  this.toggleFilterElement($filter, true);
+
+  if ($filter.parents('.inline-filter-holder').length) {
+    // @HACK Skip an execution loop to allow custom handlers to update the filters
+    setTimeout(function() {
+      _this.searchData();
+    }, 0);
+  }
+}, 500);
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -269,6 +314,11 @@ DynamicList.prototype.attachObservers = function() {
 
       var $filter = $(this);
 
+      // Date filters change events are handled differently
+      if (['date'].indexOf($filter.data('type')) > -1) {
+        return;
+      }
+
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
@@ -278,6 +328,27 @@ DynamicList.prototype.attachObservers = function() {
       _this.toggleFilterElement($filter);
 
       if ($filter.parents('.inline-filter-holder').length) {
+        // @HACK Skip an execution loop to allow custom handlers to update the filters
+        setTimeout(function() {
+          _this.searchData();
+        }, 0);
+      }
+    })
+    .on('change', '.hidden-filter-controls-filter[data-type="date"]', _this.onFilterRangeChange.bind(_this))
+    .on('click', '.filter-range-reset', function() {
+      var $filterGroup = $(this).closest('[data-filter-group]');
+      var $filters = $filterGroup.find('.hidden-filter-controls-filter');
+
+      $filters.each(function() {
+        var $filter = $(this);
+
+        // This won't trigger the jQuery change event
+        $filter.val($filter.data('default'));
+      });
+
+      _this.toggleFilterElement($filters, false);
+
+      if ($filters.parents('.inline-filter-holder').length) {
         // @HACK Skip an execution loop to allow custom handlers to update the filters
         setTimeout(function() {
           _this.searchData();
@@ -1527,7 +1598,13 @@ DynamicList.prototype.connectToDataSource = function() {
 
   function getData(options) {
     if (_this.data.defaultData && !_this.data.dataSourceId) {
-      return Promise.resolve(_this.data.defaultEntries);
+      return Promise.resolve(_.flatten(_.times(_this.data.defaultEntries.length, function(i) {
+        var entry = _.clone(_this.data.defaultEntries[i % _this.data.defaultEntries.length]);
+
+        entry.id = i;
+
+        return entry;
+      })));
     }
 
     options = options || cache;
@@ -1726,7 +1803,9 @@ DynamicList.prototype.addFilters = function(records) {
     records: records,
     filters: _this.data.filterFields,
     id: _this.data.id,
-    query: _this.queryFilter ? _this.pvFilterQuery : undefined
+    query: _this.queryFilter ? _this.pvFilterQuery : undefined,
+    summaryFields: _this.data['summary-fields'],
+    detailViewOptions: _this.data.detailViewOptions
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
@@ -1759,7 +1838,7 @@ DynamicList.prototype.addFilters = function(records) {
 };
 
 DynamicList.prototype.getActiveFilters = function() {
-  return _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'))
+  var activeFilters = _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"]'))
     .map(function(el) {
       return _.pickBy({
         class: el.dataset.toggle,
@@ -1776,6 +1855,21 @@ DynamicList.prototype.getActiveFilters = function() {
       });
     })
     .value();
+
+  _.assign(activeFilters, _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
+    .map(function(el) {
+      return _.pickBy({
+        field: el.dataset.field,
+        value: el.value
+      });
+    })
+    .groupBy('field')
+    .mapValues(function(filters) {
+      return _.map(filters, 'value').sort();
+    })
+    .value());
+
+  return activeFilters;
 };
 
 DynamicList.prototype.calculateFiltersHeight = function($el) {
