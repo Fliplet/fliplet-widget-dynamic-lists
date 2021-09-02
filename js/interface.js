@@ -793,7 +793,6 @@ var DynamicLists = (function() {
         };
         var accessRuleIndex = -1;
 
-        // eslint-disable-next-line no-loop-func
         accessRules.forEach(function(item, index) {
           var typeIndex = item.type.indexOf(type);
 
