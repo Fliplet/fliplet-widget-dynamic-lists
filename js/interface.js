@@ -724,6 +724,7 @@ var DynamicLists = (function() {
           this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
           break;
         default:
+          this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
           break;
       }
     },
@@ -878,6 +879,11 @@ var DynamicLists = (function() {
       $('.state').removeClass('loading is-loading');
     },
     init: function() {
+      _this.toggleRuleTypes({
+        insert: _this.config.addEntry,
+        update: _this.config.editEntry,
+        delete: _this.config.deleteEntry
+      });
       _this.setupLayoutSelector();
 
       return _this.getDataSources()
@@ -998,19 +1004,21 @@ var DynamicLists = (function() {
             .prop('checked', _this.config.addEntry)
             .parent()
             .find('.hidden-settings')
-            .toggleClass('active', _this.config.addEntry);
+            .toggleClass('active', !!_this.config.addEntry);
 
           $('#edit_entry')
             .prop('checked', _this.config.editEntry)
             .parent()
             .find('.hidden-settings')
-            .toggleClass('active', _this.config.editEntry);
+            .toggleClass('active', !!_this.config.editEntry);
 
           $('#delete_entry')
             .prop('checked', _this.config.deleteEntry)
             .parent()
             .find('.hidden-settings')
-            .toggleClass('active', _this.config.deleteEntry);
+            .toggleClass('active', !!_this.config.deleteEntry);
+
+          _this.updatePermission();
 
           var addPermission = _this.config.addPermissions || 'everyone';
           var editPermission = _this.config.editPermissions || 'everyone';
