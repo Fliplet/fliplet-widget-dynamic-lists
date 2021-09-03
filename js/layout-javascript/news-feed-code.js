@@ -1856,7 +1856,7 @@ DynamicList.prototype.getActiveFilters = function() {
     })
     .value();
 
-  _.assign(activeFilters, _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
+  var dateFilters = _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
     .map(function(el) {
       return _.pickBy({
         field: el.dataset.field,
@@ -1865,9 +1865,19 @@ DynamicList.prototype.getActiveFilters = function() {
     })
     .groupBy('field')
     .mapValues(function(filters) {
-      return _.map(filters, 'value').sort();
+      // Sort the values to assume the FROM date is not after the TO date
+      return _.compact(_.map(filters, 'value')).sort();
     })
-    .value());
+    .value();
+
+  // Clean up invalid date filter values
+  _.forIn(dateFilters, function(values, field) {
+    if (!values || values.length !== 2) {
+      delete dateFilters[field];
+    }
+  });
+
+  _.assign(activeFilters, dateFilters);
 
   return activeFilters;
 };
