@@ -1331,7 +1331,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var records = options.records || [];
     var config = options.config || {};
+    var filterFields = config.filterFields || [];
     var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
+    var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
+      return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
+    }));
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function(record) {
@@ -1343,7 +1347,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var classes = [];
 
       record.data['flFilters'] = [];
-      _.forEach(config.filterFields, function(field) {
+      _.forEach(filterFields, function(field) {
         _.forEach(getRecordField({
           record: record,
           field: field,
@@ -1352,10 +1356,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           var filterClass;
           var filterData;
 
-          if (_.find(dataViewFields, { column: field, type: 'date' })) {
+          if (filterTypes[field] === 'date') {
             var date = getMomentDate(value);
 
-            if (!date.isValid()) {
+            if (value && !date.isValid()) {
               return;
             }
 
