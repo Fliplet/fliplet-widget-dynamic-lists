@@ -724,7 +724,6 @@ var DynamicLists = (function() {
           this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
           break;
         default:
-          this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
           break;
       }
     },
