@@ -20,9 +20,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
 
-  // Keep date format in English until localisation is correctly rollded out
-  moment.locale('en');
-
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)
@@ -31,7 +28,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   function smartParseFloat(value) {
     // Convert strings to numbers where possible so that
-    // strings that reprepsent numbers are compared as numbers
+    // strings that represent numbers are compared as numbers
     if (!_.isString(value)) {
       return value;
     }
@@ -238,7 +235,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         context = undefined;
       }
 
-      return getMomentDate(context).format(block.hash.format || 'DD MMMM YYYY');
+      return block.hash.format
+        ? getMomentDate(context).format(block.hash.format)
+        : TD(getMomentDate(context), { format: 'll' });
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
@@ -1931,16 +1930,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       // Add bookmarks flag
       record.bookmarksEnabled = config.social && config.social.bookmark;
 
-      // Add chat flag
-      record.chatEnabled = config.social && config.social.chat;
-
       // Add comments flag
       record.commentsEnabled = config.social && config.social.comments;
-    });
-
-    // add Chat email value
-    records.forEach(function(record) {
-      record.chatEmail = record.data[config.chatEmailColumn];
     });
 
     return records;
@@ -2108,57 +2099,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
       $listitem.data('sortOrder', 'none');
     });
-  }
-
-  /**
-   * @param {Object} linkAction - link provider result object with required field `page`
-   * @param {String} queryParams - default query parameters that we want to add when navigating to another screen
-   *
-   * @returns {Promise} returns a promise of the Fliplet.Navigate.to method.
-   */
-  function navigateToScreen(linkAction, queryParams) {
-    if (!_.get(linkAction, 'page')) {
-      return Promise.reject('Page error');
-    }
-
-    linkAction.query = appendUrlQuery(linkAction.query, queryParams);
-
-    try {
-      var navigate = Fliplet.Navigate.to(linkAction);
-
-      if (navigate instanceof Promise) {
-        return navigate;
-      }
-    } catch (error) {
-      throw new Error(error);
-    }
-  }
-
-  /**
-   *
-   * @param {String} error - error message from the navigateToScreen function
-   * @param {Object} errorMessages - Messages that we will show in toast.
-   *  required poperties:
-   *    'pageError' - message that we will show when no page is specifyed
-   *    'openError' - message that we will show when error ocures on page open
-   *
-   * @returns {void}
-   */
-  function navigateToScreenErrorHandler(error, errorMessages) {
-    switch (error) {
-      case 'Page error':
-        Fliplet.UI.Toast({
-          message: errorMessages.pageError
-        });
-
-        break;
-      default:
-        Fliplet.UI.Toast.error(error, {
-          message: errorMessages.openError
-        });
-
-        break;
-    }
   }
 
   /**
@@ -2367,9 +2307,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       fetchAndCache: fetchAndCache
     },
     Navigate: {
-      openLinkAction: openLinkAction,
-      goToScreen: navigateToScreen,
-      errorHandler: navigateToScreenErrorHandler
+      openLinkAction: openLinkAction
     },
     Record: {
       contains: recordContains,
