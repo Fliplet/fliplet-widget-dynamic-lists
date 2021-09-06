@@ -1112,10 +1112,6 @@ html.ie11 .simple-list-item .list-item-description {
   color: rgba(51, 51, 51, 0.5);
 }
 
-.simple-list-like-wrapper span {
-  color: rgba(51, 51, 51, 0.5);
-}
-
 .simple-list-detail-overlay .simple-list-like-wrapper,
 .simple-list-detail-overlay .simple-list-bookmark-wrapper {
   display: none;
