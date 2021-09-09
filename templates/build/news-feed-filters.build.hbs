@@ -31,11 +31,21 @@
       \{{#ifCond type '===' 'date'}}
         <fieldset data-filter-group>
           <div class="filter-range-block">
-            <input type="date" class="hidden-filter-controls-filter filter-date-from" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.min}}" value="\{{data.min}}" />
+            <div class="form-group fl-date-picker hidden-filter-controls-filter filter-date-from" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.min}}">
+              <i class="fa fa-calendar fa-fw"></i>
+              <input type="date" class="form-control" value="\{{data.min}}">
+              <input type="text" class="form-control">
+              <i class="fa fa-times fa-fw"></i>
+            </div>
             to
           </div>
           <div class="filter-range-block">
-            <input type="date" class="hidden-filter-controls-filter filter-date-to" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.max}}" value="\{{data.max}}" />
+            <div class="form-group fl-date-picker hidden-filter-controls-filter filter-date-to" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.max}}">
+              <i class="fa fa-calendar fa-fw"></i>
+              <input type="date" class="form-control" value="\{{data.max}}">
+              <input type="text" class="form-control">
+              <i class="fa fa-times fa-fw"></i>
+            </div>
             <span class="btn btn-link filter-range-reset" data-field="\{{name}}">Reset</span>
           </div>
         </fieldset>

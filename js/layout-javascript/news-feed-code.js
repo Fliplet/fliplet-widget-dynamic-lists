@@ -126,6 +126,12 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 };
 
 DynamicList.prototype.clearFilters = function() {
+  this.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]').each(function() {
+    var $filter = $(this);
+
+    $filter.data('flDatePicker').set($filter.data('default'), false);
+  });
+
   this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
 
   return this.searchData();
@@ -137,28 +143,26 @@ DynamicList.prototype.hideFilterOverlay = function() {
   $('body').removeClass('lock has-filter-overlay');
 };
 
-DynamicList.prototype.onFilterRangeChange = _.debounce(function(event) {
-  var _this = this;
-  var $filter = $(event.target);
-  var value = $filter.val();
-
+DynamicList.prototype.onFilterRangeChange = function(value, instance) {
   // Invalid value. Do nothing.
   if (!value) {
     return;
   }
 
+  var _this = this;
+  var $filter = instance.$el;
   var $filterGroup = $filter.closest('[data-filter-group]');
-  var $from = $filterGroup.find('.hidden-filter-controls-filter.filter-date-from');
-  var $to = $filterGroup.find('.hidden-filter-controls-filter.filter-date-to');
-  var fromValue = $from.val();
-  var toValue = $to.val();
+  var $from = $filterGroup.find('.hidden-filter-controls-filter.filter-date-from').data('flDatePicker');
+  var $to = $filterGroup.find('.hidden-filter-controls-filter.filter-date-to').data('flDatePicker');
+  var fromValue = $from.get();
+  var toValue = $to.get();
 
   // Validate range values to ensure FROM is not greater than TO
   if (fromValue && toValue && fromValue > toValue) {
     if ($filter.hasClass('filter-date-from')) {
-      $to.val(fromValue);
+      $to.set(fromValue);
     } else if ($filter.hasClass('filter-date-to')) {
-      $from.val(toValue);
+      $from.set(toValue);
     }
   }
 
@@ -170,7 +174,7 @@ DynamicList.prototype.onFilterRangeChange = _.debounce(function(event) {
       _this.searchData();
     }, 0);
   }
-}, 500);
+};
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -334,7 +338,6 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('change', '.hidden-filter-controls-filter[data-type="date"]', _this.onFilterRangeChange.bind(_this))
     .on('click', '.filter-range-reset', function() {
       var $filterGroup = $(this).closest('[data-filter-group]');
       var $filters = $filterGroup.find('.hidden-filter-controls-filter');
@@ -342,8 +345,7 @@ DynamicList.prototype.attachObservers = function() {
       $filters.each(function() {
         var $filter = $(this);
 
-        // This won't trigger the jQuery change event
-        $filter.val($filter.data('default'));
+        $filter.data('flDatePicker').set($filter.data('default'), false);
       });
 
       _this.toggleFilterElement($filters, false);
@@ -1827,7 +1829,16 @@ DynamicList.prototype.addFilters = function(records) {
     _.remove(filters, function(filter) {
       return _.isEmpty(filter.data);
     });
-    _this.$container.find('.filter-holder').html(template(filtersData));
+    _this.$container
+      .find('.filter-holder').html(template(filtersData))
+      .find('.fl-date-picker').each(function() {
+        // Initialize date pickers
+        var picker = Fliplet.UI.DatePicker(this, { required: true });
+
+        picker.change(function(value) {
+          _this.onFilterRangeChange(value, this);
+        });
+      });
     Fliplet.Hooks.run('flListDataAfterRenderFilters', {
       instance: _this,
       filters: filters,
@@ -1860,7 +1871,7 @@ DynamicList.prototype.getActiveFilters = function() {
     .map(function(el) {
       return _.pickBy({
         field: el.dataset.field,
-        value: el.value
+        value: $(el).data('flDatePicker').get()
       });
     })
     .groupBy('field')
