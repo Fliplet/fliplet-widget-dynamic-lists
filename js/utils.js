@@ -1336,6 +1336,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
       return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
     }));
+    var locale = moment.locale();
+
+    // Temporarily switch locale to EN to ensure correct formatting and sorting
+    moment.locale('en');
 
     // Function that get and converts the categories for the filters to work
     records.forEach(function(record) {
@@ -1396,6 +1400,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       classes = _.concat(classes, existingClasses);
       record.data['flClasses'] = _.compact(_.uniq(classes)).join(' ');
     });
+
+    moment.locale(locale);
 
     return records;
   }
@@ -1935,6 +1941,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     currentDate = {};
 
+    var locale = moment.locale();
+
+    // Temporarily switch locale to EN to ensure correct formatting and sorting
+    moment.locale('en');
+
     if (config.sortOptions.length) {
       var sortFields = _.map(config.sortOptions, function(option) {
         return {
@@ -1994,6 +2005,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       // Sort data
       records = _.orderBy(modifiedRecords, sortColumns, sortOrders);
     }
+
+    moment.locale(locale);
 
     // Add flag for social features
     records.forEach(function(record) {
