@@ -271,12 +271,6 @@ function toggleError(showError, element) {
 
     $element.addClass('has-error');
 
-    if ($element.hasClass('select-user-datasource-holder')) {
-      var iframe = document.querySelector('#user_data_source_provider > .fl-widget-provider');
-
-      $(iframe.contentDocument.querySelector('.select-proxy-display')).addClass('has-error');
-    }
-
     // the token field has deferent structure from other elements
     // that is why we show error differently for it
     if ($element.hasClass('token-input')) {

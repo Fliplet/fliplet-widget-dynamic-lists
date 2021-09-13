@@ -616,6 +616,10 @@ var DynamicLists = (function() {
             Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
           });
         }
+
+        if (event.data === 'save-widget') {
+          userDataSourceProvider.emit('click-save');
+        }
       });
     },
     manageAppData: function() {
