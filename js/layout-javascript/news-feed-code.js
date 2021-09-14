@@ -1600,13 +1600,7 @@ DynamicList.prototype.connectToDataSource = function() {
 
   function getData(options) {
     if (_this.data.defaultData && !_this.data.dataSourceId) {
-      return Promise.resolve(_.flatten(_.times(_this.data.defaultEntries.length, function(i) {
-        var entry = _.clone(_this.data.defaultEntries[i % _this.data.defaultEntries.length]);
-
-        entry.id = i;
-
-        return entry;
-      })));
+      return Promise.resolve(_this.data.defaultEntries);
     }
 
     options = options || cache;
