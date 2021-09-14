@@ -1061,31 +1061,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
-  function runActiveFilters(options) {
-    options = options || {};
-
-    var records = options.records || [];
-    var filters = options.filters;
-    var config = options.config;
-    var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
-
-    if (_.isEmpty(filters)) {
-      if (!showBookmarks) {
-        return records;
-      }
-
-      return _.filter(records, { bookmarked: true });
-    }
-
-    return _.filter(records, function(record) {
-      return (!showBookmarks || record.bookmarked) && recordMatchesFilters({
-        record: record,
-        filters: filters,
-        config: config
-      });
-    });
-  }
-
   function runRecordSearch(options) {
     options = options || {};
 
@@ -2575,7 +2550,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Records: {
       runFilters: runRecordFilters,
-      runActiveFilters: runActiveFilters,
       runSearch: runRecordSearch,
       getFields: getRecordFields,
       getFieldValues: getRecordFieldValues,
