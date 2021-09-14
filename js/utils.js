@@ -200,6 +200,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Determine filter types based on configuration
+   * @param {Object} config - Layout configuration
+   * @returns {Object} Mapping of filter types
+   */
+  function getFilterTypes(config) {
+    config = config || {};
+
+    var filterFields = config.filterFields || [];
+    var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
+    var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
+      return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
+    }));
+
+    return filterTypes;
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -1077,6 +1094,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var fields = options.fields || [];
     var config = options.config || {};
     var activeFilters = options.activeFilters || {};
+    var filterTypes = options.filterTypes;
     var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
     var limit = _.get(options, 'limit', -1);
 
@@ -1091,6 +1109,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         activeFilters: activeFilters,
         records: records,
         showBookmarks: showBookmarks,
+        filterTypes: filterTypes,
         limit: limit
       });
 
@@ -1102,10 +1121,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     var searchResults = [];
-    var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
-    var filterTypes = _.zipObject(_.keys(activeFilters), _.map(_.keys(activeFilters), function(field) {
-      return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
-    }));
     var truncated = _.some(records, function(record) {
       if (limit > -1 && searchResults.length >= limit) {
         // Search results reached limit
@@ -1230,16 +1245,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var record = options.record;
     var filters = options.filters;
     var config = options.config || {};
-    var filterTypes = options.filterTypes || {};
+    var filterTypes = options.filterTypes;
 
-    var recordFieldValues = _.zipObject(_.keys(filters), _.map(_.keys(filters), function(field) {
+    var recordFieldValues = _.mapValues(filters, function(values, field) {
       return _.map(_.uniq(getRecordField({
         record: record,
         field: field,
         useData: true
       })), convertData);
-    }));
-
+    });
 
     // Returns true if record matches all of provided filters
     return _.every(_.keys(filters), function(field) {
@@ -1336,10 +1350,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var records = options.records || [];
     var filters = options.filters || [];
-    var summaryFields = options.summaryFields || [];
-    var detailViewOptions = options.detailViewOptions || [];
     var id = options.id;
     var query = options.query;
+    var filterTypes = options.filterTypes;
     var hasFilterQuery = query && query.value.length;
 
     // Add a fake entry into records to represent the filters from the query
@@ -1402,14 +1415,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           id: id,
           name: field
         };
-        var dataViewFields = summaryFields.concat(detailViewOptions);
 
-        if (_.find(dataViewFields, { column: field, type: 'date' })) {
-          filter.type = 'date';
-          filter.data = getMinMaxFilterValues(values);
-        } else {
-          filter.type = 'toggle';
-          filter.data = _.map(values, 'data');
+        filter.type = filterTypes[field];
+
+        switch (filter.type) {
+          case 'date':
+            filter.data = getMinMaxFilterValues(values);
+            break;
+          case 'toggle':
+          default:
+            filter.data = _.map(values, 'data');
         }
 
         return filter;
@@ -1481,10 +1496,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var records = options.records || [];
     var config = options.config || {};
     var filterFields = config.filterFields || [];
-    var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
-    var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
-      return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
-    }));
+    var filterTypes = options.filterTypes;
     var locale = moment.locale();
 
     // Temporarily switch locale to EN to ensure correct formatting and sorting
@@ -2516,6 +2528,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   return {
+    getFilterTypes: getFilterTypes,
     registerHandlebarsHelpers: registerHandlebarsHelpers,
     accessibilityHelpers: {
       isExecute: isExecute

@@ -69,6 +69,9 @@ function DynamicList(id, data) {
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
+  // Determine filter types from configuration
+  this.filterTypes = this.Utils.getFilterTypes(this.data);
+
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
     if (_.get(session, 'entries.saml2.user')) {
@@ -1135,7 +1138,8 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
-        config: _this.data
+        config: _this.data,
+        filterTypes: _this.filterTypes
       });
 
       return _this.addFilters(_this.modifiedListItems);
@@ -1418,7 +1422,8 @@ DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
-    config: _this.data
+    config: _this.data,
+    filterTypes: _this.filterTypes
   });
   var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
@@ -1538,8 +1543,7 @@ DynamicList.prototype.addFilters = function(records) {
     filters: _this.data.filterFields,
     id: _this.data.id,
     query: _this.queryFilter ? _this.pvFilterQuery : undefined,
-    summaryFields: _this.data['summary-fields'],
-    detailViewOptions: _this.data.detailViewOptions
+    filterTypes: _this.filterTypes
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
@@ -1633,6 +1637,7 @@ DynamicList.prototype.searchData = function(options) {
     records: _this.listItems,
     fields: fields,
     config: _this.data,
+    filterTypes: _this.filterTypes,
     activeFilters: _this.activeFilters,
     showBookmarks: _this.showBookmarks,
     limit: limit
