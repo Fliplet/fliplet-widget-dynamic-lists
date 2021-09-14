@@ -139,39 +139,6 @@ DynamicList.prototype.hideFilterOverlay = function() {
   $('body').removeClass('lock has-filter-overlay');
 };
 
-DynamicList.prototype.onFilterRangeChange = function(value, instance) {
-  // Invalid value. Do nothing.
-  if (!value) {
-    return;
-  }
-
-  var _this = this;
-  var $filter = instance.$el;
-  var $filterGroup = $filter.closest('[data-filter-group]');
-  var $from = $filterGroup.find('.hidden-filter-controls-filter.filter-date-from').data('flDatePicker');
-  var $to = $filterGroup.find('.hidden-filter-controls-filter.filter-date-to').data('flDatePicker');
-  var fromValue = $from.get();
-  var toValue = $to.get();
-
-  // Validate range values to ensure FROM is not greater than TO
-  if (fromValue && toValue && fromValue > toValue) {
-    if ($filter.hasClass('filter-date-from')) {
-      $to.set(fromValue);
-    } else if ($filter.hasClass('filter-date-to')) {
-      $from.set(toValue);
-    }
-  }
-
-  this.toggleFilterElement($filter, true);
-
-  if ($filter.parents('.inline-filter-holder').length) {
-    // @HACK Skip an execution loop to allow custom handlers to update the filters
-    setTimeout(function() {
-      _this.searchData();
-    }, 0);
-  }
-};
-
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -1453,16 +1420,10 @@ DynamicList.prototype.addFilters = function(records) {
     _.remove(filters, function(filter) {
       return _.isEmpty(filter.data);
     });
-    _this.$container
-      .find('.filter-holder').html(template(filtersData))
-      .find('.fl-date-picker').each(function() {
-        // Initialize date pickers
-        var picker = Fliplet.UI.DatePicker(this, { required: true });
-
-        picker.change(function(value) {
-          _this.onFilterRangeChange(value, this);
-        });
-      });
+    _this.Utils.Page.renderFilters({
+      instance: _this,
+      html: template(filtersData)
+    });
     Fliplet.Hooks.run('flListDataAfterRenderFilters', {
       instance: _this,
       filters: filters,
@@ -1470,51 +1431,6 @@ DynamicList.prototype.addFilters = function(records) {
       config: _this.data
     });
   });
-};
-
-DynamicList.prototype.getActiveFilters = function() {
-  var activeFilters = _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"]'))
-    .map(function(el) {
-      return _.pickBy({
-        class: el.dataset.toggle,
-        field: el.dataset.field,
-        value: el.dataset.value
-      });
-    })
-    .groupBy('field')
-    .mapValues(function(filters) {
-      return _.map(filters, function(filter) {
-        return _.has(filter, 'field') && _.has(filter, 'value')
-          ? filter.value
-          : filter.class;
-      });
-    })
-    .value();
-
-  var dateFilters = _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
-    .map(function(el) {
-      return _.pickBy({
-        field: el.dataset.field,
-        value: $(el).data('flDatePicker').get()
-      });
-    })
-    .groupBy('field')
-    .mapValues(function(filters) {
-      // Sort the values to assume the FROM date is not after the TO date
-      return _.compact(_.map(filters, 'value')).sort();
-    })
-    .value();
-
-  // Clean up invalid date filter values
-  _.forIn(dateFilters, function(values, field) {
-    if (!values || values.length !== 2) {
-      delete dateFilters[field];
-    }
-  });
-
-  _.assign(activeFilters, dateFilters);
-
-  return activeFilters;
 };
 
 DynamicList.prototype.calculateFiltersHeight = function($el) {
@@ -1554,7 +1470,7 @@ DynamicList.prototype.searchData = function(options) {
 
   _this.searchValue = value;
   value = value.toLowerCase();
-  _this.activeFilters = _this.getActiveFilters();
+  _this.activeFilters = _this.Utils.Page.getActiveFilters({ $container: _this.$container });
   _this.isSearching = value !== '';
   _this.isFiltering = !_.isEmpty(_this.activeFilters);
   _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');

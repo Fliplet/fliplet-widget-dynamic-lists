@@ -455,6 +455,132 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     $count.text(filtersAmountText);
   }
 
+  /**
+   * Gets the active filters
+   * @param {Object} options - A map of options for the function
+   * @param {jQuery} options.$container - Container node for the layout instance
+   * @returns {Object} Active filters
+   */
+  function getActiveFilters(options) {
+    options = options || {};
+
+    var $container = options.$container;
+    var activeFilters = _($container.find('.hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"]'))
+      .map(function(el) {
+        return _.pickBy({
+          class: el.dataset.toggle,
+          field: el.dataset.field,
+          value: el.dataset.value
+        });
+      })
+      .groupBy('field')
+      .mapValues(function(filters) {
+        return _.map(filters, function(filter) {
+          return _.has(filter, 'field') && _.has(filter, 'value')
+            ? filter.value
+            : filter.class;
+        });
+      })
+      .value();
+
+    var dateFilters = _($container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
+      .map(function(el) {
+        return _.pickBy({
+          field: el.dataset.field,
+          value: $(el).data('flDatePicker').get()
+        });
+      })
+      .groupBy('field')
+      .mapValues(function(filters) {
+        // Sort the values to assume the FROM date is not after the TO date
+        return _.compact(_.map(filters, 'value')).sort();
+      })
+      .value();
+
+    // Clean up invalid date filter values
+    _.forIn(dateFilters, function(values, field) {
+      if (!values || values.length !== 2) {
+        delete dateFilters[field];
+      }
+    });
+
+    _.assign(activeFilters, dateFilters);
+
+    return activeFilters;
+  }
+
+  /**
+   * Process changes in filter ranges. This should be triggered whenever a filter range is updated.
+   * @param {Object} options - A map of options for the function
+   * @param {*} value - New value for the updated filter
+   * @param {*} instance - Instance of the layout
+   * @returns {undefined}
+   */
+  function onFilterRangeChange(options) {
+    options = options || {};
+
+    var value = options.value;
+
+    // Invalid value. Do nothing.
+    if (!value) {
+      return;
+    }
+
+    var instance = options.instance;
+    var $filter = options.$filter;
+    var $filterGroup = $filter.closest('[data-filter-group]');
+    var $from = $filterGroup.find('.hidden-filter-controls-filter.filter-date-from').data('flDatePicker');
+    var $to = $filterGroup.find('.hidden-filter-controls-filter.filter-date-to').data('flDatePicker');
+    var fromValue = $from.get();
+    var toValue = $to.get();
+
+    // Validate range values to ensure FROM is not greater than TO
+    if (fromValue && toValue && fromValue > toValue) {
+      if ($filter.hasClass('filter-date-from')) {
+        $to.set(fromValue);
+      } else if ($filter.hasClass('filter-date-to')) {
+        $from.set(toValue);
+      }
+    }
+
+    instance.toggleFilterElement($filter, true);
+
+    if ($filter.parents('.inline-filter-holder').length) {
+      // @HACK Skip an execution loop to allow custom handlers to update the filters
+      setTimeout(function() {
+        instance.searchData();
+      }, 0);
+    }
+  }
+
+  /**
+   *
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.instance - Instance of the layout
+   * @param {String} options.html - Filter HTML
+   */
+  function renderFilters(options) {
+    options = options || {};
+
+    var instance = options.instance;
+    var html = options.html;
+
+    instance.$container
+      .find('.filter-holder').html(html)
+      .find('.fl-date-picker').each(function(i, el) {
+        // Initialize date pickers
+        var picker = Fliplet.UI.DatePicker(el, { required: true });
+
+        picker.change(function(value) {
+          onFilterRangeChange({
+            value: value,
+            instance: instance,
+            $filter: this.$el
+          });
+        });
+      });
+  }
+
   function fetchAndCache(options) {
     options = options || {};
 
@@ -1561,12 +1687,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   /**
    * This function designed to show users filters that were activated in the filters overlay
    *
-   * @param {Object} options - and object with keys:
-   *   context { Object } - the layout instance
-   *   filtersInOverlay { Boolean } - boolean variable that tells us if filters shown in overlay
-   *   filterOverlayClass { String } - a CSS class of the layout filter overlay
-   *
-   * @returns {void}
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.context - The layout instance
+   * @param {Boolean} options.filtersInOverlay - If TRUE, the filters are configured to be shown in an overlay
+   * @param {String} options.filterOverlayClass - CSS class of the layout filter overlay
+   * @returns {undefined}
    */
   function updateActiveFilters(options) {
     if (!options.filtersInOverlay) {
@@ -2381,7 +2506,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateActiveFilters: updateActiveFilters,
       updateSearchContext: updateSearchContext,
       updateFilterControlsContext: updateFilterControlsContext,
-      updateActiveFilterCount: updateActiveFilterCount
+      updateActiveFilterCount: updateActiveFilterCount,
+      getActiveFilters: getActiveFilters,
+      renderFilters: renderFilters
     },
     String: {
       splitByCommas: splitByCommas,
