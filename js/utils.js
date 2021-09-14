@@ -554,10 +554,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   *
+   * Renders filters and initializes range filter UI
    * @param {Object} options - A map of options for the function
    * @param {Object} options.instance - Instance of the layout
    * @param {String} options.html - Filter HTML
+   * @returns {undefined}
    */
   function renderFilters(options) {
     options = options || {};
@@ -579,6 +580,28 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           });
         });
       });
+  }
+
+  /**
+   * Clears filters and re-render data
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.instance - Instance of the layout
+   * @returns {undefined}
+   */
+  function clearFilters(options) {
+    options = options || {};
+
+    var instance = options.instance;
+
+    instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]').each(function() {
+      var $filter = $(this);
+
+      $filter.data('flDatePicker').set($filter.data('default'), false);
+    });
+
+    instance.toggleFilterElement(instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
+
+    return instance.searchData();
   }
 
   function fetchAndCache(options) {
@@ -2508,7 +2531,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateFilterControlsContext: updateFilterControlsContext,
       updateActiveFilterCount: updateActiveFilterCount,
       getActiveFilters: getActiveFilters,
-      renderFilters: renderFilters
+      renderFilters: renderFilters,
+      clearFilters: clearFilters
     },
     String: {
       splitByCommas: splitByCommas,

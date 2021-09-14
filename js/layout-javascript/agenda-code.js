@@ -130,18 +130,6 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   });
 };
 
-DynamicList.prototype.clearFilters = function() {
-  this.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]').each(function() {
-    var $filter = $(this);
-
-    $filter.data('flDatePicker').set($filter.data('default'), false);
-  });
-
-  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
-
-  return this.searchData();
-};
-
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
@@ -246,7 +234,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
-      _this.clearFilters();
+      _this.Utils.Page.clearFilters({ instance: _this });
     })
     .on('click keydown', '.hidden-filter-controls-filter', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -388,7 +376,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.calculateFiltersHeight(true);
 
       // Clear filters
-      _this.clearFilters();
+      _this.Utils.Page.clearFilters({ instance: _this });
     })
     .on('keyup input', '.search-holder input', function(e) {
       var $inputField = $(this);
