@@ -537,9 +537,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     // Validate range values to ensure FROM is not greater than TO
     if (fromValue && toValue && fromValue > toValue) {
       if ($filter.hasClass('filter-date-from')) {
-        $to.set(fromValue);
+        $to.set(fromValue, false);
       } else if ($filter.hasClass('filter-date-to')) {
-        $from.set(toValue);
+        $from.set(toValue, false);
       }
     }
 
