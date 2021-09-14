@@ -576,11 +576,6 @@
   content: '\002573';
 }
 
-.small-h-card-list-detail-chat {
-  cursor: pointer;
-  font-weight: bold;
-}
-
 /* IE11 layout */
 @media screen and (-ms-high-contrast: none) {
   .small-h-card-detail-overlay-wrapper .small-h-card-detail-overlay-close .fa-times-thin {

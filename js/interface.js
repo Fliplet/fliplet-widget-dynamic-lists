@@ -62,10 +62,6 @@ var DynamicLists = (function() {
   var defaultSettings = window.flListLayoutConfig;
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
-  var LOCALE_FORMATS = {
-    TIME: moment.localeData().longDateFormat('LT'),
-    DATE: moment.localeData().longDateFormat('ll')
-  };
 
   // Constructor
   function DynamicLists(configuration) {
@@ -420,14 +416,6 @@ var DynamicLists = (function() {
 
           _this.initUserDatasourceProvider(_this.config.userDataSourceId, _this.config.social.comments);
           $('.select-user-photo-holder').toggleClass('hidden', !_this.config.social.comments);
-        })
-        .on('change', '#enable-chat', function() {
-          var $el = $(this);
-          var isChatEnabled = $el.is(':checked');
-
-          _this.config.social.chat = isChatEnabled;
-
-          $el.parent().find('.hidden-settings').toggleClass('active', isChatEnabled);
         })
         .on('change', '[name="select_user_photo"]', function() {
           var value = $(this).val();
@@ -882,6 +870,11 @@ var DynamicLists = (function() {
       $('.state').removeClass('loading is-loading');
     },
     init: function() {
+      _this.toggleRuleTypes({
+        insert: _this.config.addEntry,
+        update: _this.config.editEntry,
+        delete: _this.config.deleteEntry
+      });
       _this.setupLayoutSelector();
 
       return _this.getDataSources()
@@ -916,7 +909,6 @@ var DynamicLists = (function() {
           case 'list-likes':
           case 'list-bookmark':
           case 'list-comments':
-          case 'list-chat':
             $('#social-accordion').removeClass('hidden');
             break;
           case 'list-agenda-options':
@@ -995,7 +987,6 @@ var DynamicLists = (function() {
           $('#enable-likes').prop('checked', _this.config.social.likes);
           $('#enable-bookmarks').prop('checked', _this.config.social.bookmark);
           $('#enable-comments').prop('checked', _this.config.social.comments);
-          $('#enable-chat').prop('checked', _this.config.social.chat);
 
           _this.toggleRuleTypes({
             insert: _this.config.addEntry,
@@ -1008,9 +999,25 @@ var DynamicLists = (function() {
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
           // Load Add. Edit, Delete
-          $('#add_entry').prop('checked', _this.config.addEntry).trigger('change');
-          $('#edit_entry').prop('checked', _this.config.editEntry).trigger('change');
-          $('#delete_entry').prop('checked', _this.config.deleteEntry).trigger('change');
+          $('#add_entry')
+            .prop('checked', _this.config.addEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', !!_this.config.addEntry);
+
+          $('#edit_entry')
+            .prop('checked', _this.config.editEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', !!_this.config.editEntry);
+
+          $('#delete_entry')
+            .prop('checked', _this.config.deleteEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', !!_this.config.deleteEntry);
+
+          _this.updatePermission();
 
           var addPermission = _this.config.addPermissions || 'everyone';
           var editPermission = _this.config.editPermissions || 'everyone';
@@ -1233,11 +1240,6 @@ var DynamicLists = (function() {
             if (_this.config.social.comments) {
               _this.initUserDatasourceProvider(_this.config.userDataSourceId, true);
             }
-          }
-
-          if (_this.config.social.chat) {
-            $('#select_chat_email').val(_this.config.chatEmailColumn ? _this.config.chatEmailColumn : 'none').trigger('change');
-            $('#enable-chat').prop('checked', _this.config.social.chat).trigger('change');
           }
 
           _this.setupCodeEditors(listLayout);
@@ -1563,62 +1565,147 @@ var DynamicLists = (function() {
         return;
       }
 
-      var options = dataSourceColumns.map(function(value) {
-        return '<option value="' + value + '">' + value + '</option>';
-      });
-      var selectors = [
-        '#select_user_email_data',
-        '#select_chat_email',
-        '#select_field_link', // Summary link field
-        '#select_poll_data', // Pool data field
-        '#select_survey_data', // Survey data field
-        '#select_questions_data', // Questions data field
-        '[data-field="field"]',
-        '[name="summary_select_field"]', // Summary fields
-        '[name="detail_select_field"]' // Detail fields
-      ];
+      $('[data-field="field"]').each(function(index, obj) {
+        var oldValue = $(obj).val();
+        var options = [];
 
-      $(selectors.join(',')).each(function() {
-        var $el = $(this);
-        var name = $el.prop('name');
-        var defaultOptions;
-        var oldValue = $el.val();
+        $(obj).html('');
+        $(obj).append('<option value="none">-- Select a data field</option>');
 
-        $el.html('');
-
-        switch (name) {
-          case 'summary_select_field':
-            defaultOptions = [
-              '<option value="none">-- Select a data field</option>',
-              '<option disabled>------</option>',
-              '<option value="empty">None</option>',
-              '<option value="custom">Custom</option>',
-              '<option disabled>------</option>'
-            ];
-
-            break;
-          case 'detail_select_field':
-            defaultOptions = [
-              '<option value="none">-- Select a data field</option>',
-              '<option disabled>------</option>',
-              '<option value="custom">Custom</option>',
-              '<option disabled>------</option>'
-            ];
-
-            break;
-          default:
-            defaultOptions = ['<option value="none">-- Select a data field</option>'];
-            break;
-        }
-
-        $el.append(defaultOptions.concat(options).join(''));
+        dataSourceColumns.forEach(function(value) {
+          options.push('<option value="' + value + '">' + value + '</option>');
+        });
+        $(obj).append(options.join(''));
 
         if (oldValue && oldValue.length) {
-          $el.val(oldValue);
-        } else {
-          $el.val('none');
+          $(obj).val(oldValue);
         }
       });
+
+      var emailOldValue = $('#select_user_email_data').val();
+      var options = [];
+
+      $('#select_user_email_data').html('');
+      $('#select_user_email_data').append('<option value="none">-- Select a data field</option>');
+      dataSourceColumns.forEach(function(value) {
+        options.push('<option value="' + value + '">' + value + '</option>');
+      });
+      $('#select_user_email_data').append(options.join(''));
+
+      if (emailOldValue && emailOldValue.length) {
+        $('#select_user_email_data').val(emailOldValue);
+      }
+
+      // Summary link field
+      var linkFieldValue = $('#select_field_link').val();
+      var linkOptions = [];
+
+      $('#select_field_link').html('');
+      linkOptions.push('<option value="none">-- Select a data field</option>');
+      linkOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value) {
+        linkOptions.push('<option value="' + value + '">' + value + '</option>');
+      });
+      $('#select_field_link').append(options.join(''));
+
+      if (linkFieldValue && linkFieldValue.length) {
+        $('#select_field_link').val(linkFieldValue);
+      }
+
+      // Summary fields
+      $('[name="summary_select_field"]').each(function() {
+        var oldValue = $(this).val();
+        var defaultOptions = [
+          '<option value="none">-- Select a data field</option>',
+          '<option disabled>------</option>',
+          '<option value="empty">None</option>',
+          '<option value="custom">Custom</option>',
+          '<option disabled>------</option>'
+        ];
+        var options = _.concat(defaultOptions, _.map(dataSourceColumns, function(value) {
+          return '<option value="' + value + '">' + value + '</option>';
+        }));
+
+        $(this).html(options.join(''));
+
+        if (oldValue && oldValue.length) {
+          $(this).val(oldValue);
+        }
+      });
+
+      // Detail fields
+      $('[name="detail_select_field"]').each(function() {
+        var oldValue = $(this).val();
+        var defaultOptions = [
+          '<option value="none">-- Select a data field</option>',
+          '<option disabled>------</option>',
+          '<option value="custom">Custom</option>',
+          '<option disabled>------</option>'
+        ];
+        var options = _.concat(defaultOptions, _.map(dataSourceColumns, function(value) {
+          return '<option value="' + value + '">' + value + '</option>';
+        }));
+
+        $(this).html(options.join(''));
+
+        if (oldValue && oldValue.length) {
+          $(this).val(oldValue);
+        }
+      });
+
+      // Pool data field
+      var poolFieldValue = $('#select_poll_data').val();
+      var poolFieldOptions = [];
+
+      $('#select_poll_data').html('');
+      poolFieldOptions.push('<option value="none">-- Select a field</option>');
+      poolFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value) {
+        poolFieldOptions.push('<option value="' + value + '">' + value + '</option>');
+      });
+      $('#select_poll_data').append(poolFieldOptions.join(''));
+
+      if (poolFieldValue && poolFieldValue.length) {
+        $('#select_poll_data').val(poolFieldValue);
+      } else {
+        $('#select_poll_data').val('none');
+      }
+
+      // Survey data field
+      var surveyFieldValue = $('#select_survey_data').val();
+      var surveyFieldOptions = [];
+
+      $('#select_survey_data').html('');
+      surveyFieldOptions.push('<option value="none">-- Select a field</option>');
+      surveyFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value) {
+        surveyFieldOptions.push('<option value="' + value + '">' + value + '</option>');
+      });
+      $('#select_survey_data').append(surveyFieldOptions.join(''));
+
+      if (surveyFieldValue && surveyFieldValue.length) {
+        $('#select_survey_data').val(surveyFieldValue);
+      } else {
+        $('#select_survey_data').val('none');
+      }
+
+      // Questions data field
+      var questionsFieldValue = $('#select_questions_data').val();
+      var questionsFieldOptions = [];
+
+      $('#select_questions_data').html('');
+      questionsFieldOptions.push('<option value="none">-- Select a field</option>');
+      questionsFieldOptions.push('<option disabled>------</option>');
+      dataSourceColumns.forEach(function(value) {
+        questionsFieldOptions.push('<option value="' + value + '">' + value + '</option>');
+      });
+      $('#select_questions_data').append(questionsFieldOptions.join(''));
+
+      if (questionsFieldValue && questionsFieldValue.length) {
+        $('#select_questions_data').val(questionsFieldValue);
+      } else {
+        $('#select_questions_data').val('none');
+      }
 
       _this.setUpTokenFields();
     },
@@ -2006,15 +2093,19 @@ var DynamicLists = (function() {
       }
     },
     addSummaryItem: function(data) {
-      data.date = moment().format(LOCALE_FORMATS.DATE);
-      data.time = moment().format(LOCALE_FORMATS.TIME);
+      var now = new Date();
+
+      data.date = TD(now, { format: 'll' });
+      data.time = TD(now, { format: 'LT' });
 
       var $newPanel = $(summaryRowTemplate(data));
 
       $summaryRowContainer.append($newPanel);
     },
     addDetailItem: function(data) {
-      data.date = moment().format(LOCALE_FORMATS.DATE);
+      var now = new Date();
+
+      data.date = TD(now, { format: 'll' });
 
       var $newPanel = $(detailsRowTemplate(data));
 
@@ -2788,7 +2879,6 @@ var DynamicLists = (function() {
       _this.config.social.bookmark = $('#enable-bookmarks').is(':checked');
       _this.config.social.comments = $('#enable-comments').is(':checked');
       _this.config.social.likes = $('#enable-likes').is(':checked');
-      _this.config.social.chat = $('#enable-chat').is(':checked');
 
       data.social = _this.config.social;
 
@@ -2798,7 +2888,6 @@ var DynamicLists = (function() {
       data.userEmailColumn = $('#select_user_email').val();
       data.userPhotoColumn = $('#select_user_photo').val();
       data.userFolderOption = $('#select_user_folder_type').val();
-      data.chatEmailColumn = $('#select_chat_email').val();
       data.userAppFolder = data.userFolderOption === 'app' ? $('#select_user_folder_type [data-app-option]').data('app-id') : undefined;
       data.userOrgFolder = data.userFolderOption === 'organization' ? $('#select_user_folder_type [data-org-option]').data('org-id') : undefined;
       data.userAdminColumn = $('#select_user_admin').val();
