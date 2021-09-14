@@ -178,9 +178,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   /**
    * This function adds selected LFD item's images to the layout context
    *
-   * @param {Object} ctx - curent layout context
+   * @param {Object} ctx - current layout context
    * @param {Object} entry - selected LFD entry
-   * @return {void} this funtion doesn't return anything it commits modifications to layout context
+   * @return {void} this function doesn't return anything it commits modifications to layout context
    */
   function assignImageContent(ctx, entry) {
     var dynamicData = _.filter(ctx.data.detailViewOptions, function(option) {
@@ -440,7 +440,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
    *  $target { Jquery instance } - Jq instance on which user have pressed
    *
-   * @returns {void} this funtion doesn't return anything it add changes directly to the DOM
+   * @returns {void} this function doesn't return anything it add changes directly to the DOM
    */
   function updateActiveFilterCount(options) {
     if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
