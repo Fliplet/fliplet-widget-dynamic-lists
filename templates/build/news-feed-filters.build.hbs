@@ -46,7 +46,7 @@
               <input type="text" class="form-control">
               <i class="fa fa-times fa-fw"></i>
             </div>
-            <span class="btn btn-link filter-range-reset" data-field="\{{name}}">Reset</span>
+            <span class="btn btn-link filter-range-reset" data-field="\{{name}}" tabindex="0">Reset</span>
           </div>
         </fieldset>
       \{{/ifCond}}
@@ -57,6 +57,13 @@
           \{{/each}}
         </fieldset>
       \{{/ifCond}}
+      \{{#unless type}}
+        <fieldset data-filter-group>
+          \{{#each [data]}}
+          <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-type="toggle" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+          \{{/each}}
+        </fieldset>
+      \{{/unless}}
     </div>
   </div>
   \{{/each}}
