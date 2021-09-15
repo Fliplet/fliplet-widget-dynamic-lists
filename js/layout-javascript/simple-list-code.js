@@ -69,8 +69,6 @@ function DynamicList(id, data) {
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
-  // Determine filter types from configuration
-  this.filterTypes = this.Utils.getFilterTypes(this.data);
 
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
@@ -435,7 +433,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       $elementClicked.addClass('active');
 
-      _this.calculateFiltersHeight($parentElement);
+      _this.calculateFiltersHeight();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -1084,6 +1082,8 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
+      // Determine filter types from configuration
+      _this.filterTypes = _this.Utils.getFilterTypes({ instance: _this });
 
       return _this.connectToDataSource();
     })
@@ -1139,7 +1139,8 @@ DynamicList.prototype.initialize = function() {
       _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
         config: _this.data,
-        filterTypes: _this.filterTypes
+        filterTypes: _this.filterTypes,
+        filterQuery: _this.queryFilter ? _this.pvFilterQuery : undefined
       });
 
       return _this.addFilters(_this.modifiedListItems);
@@ -1214,35 +1215,13 @@ DynamicList.prototype.parseSearchQueries = function() {
 };
 
 DynamicList.prototype.parseFilterQueries = function() {
-  var _this = this;
-
-  if (!_this.queryFilter) {
+  if (!this.queryFilter) {
     return;
   }
 
-  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
-  var $filters = _this.$container.find(_.map(filterSelectors, function(selector) {
-    return '.hidden-filter-controls-filter' + selector;
-  }).join(','));
-
-  if (!$filters.length) {
-    return;
-  }
-
-  _this.toggleFilterElement($filters, true);
-  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
-  $filters.parents('.simple-list-filters-panel').find('.panel-collapse').addClass('in');
-
-  if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
-    _this.$container.find('.hidden-filter-controls').addClass('active');
-
-    if (!_this.data.filtersInOverlay) {
-      _this.$container.find('.list-search-cancel').addClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
-    }
-
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
-  }
+  this.Utils.Page.parseFilterQueries({
+    instance: this
+  });
 };
 
 DynamicList.prototype.navigateBackEvent = function() {
@@ -1578,8 +1557,8 @@ DynamicList.prototype.addFilters = function(records) {
   });
 };
 
-DynamicList.prototype.calculateFiltersHeight = function($el) {
-  $el.find('.hidden-filter-controls').each(function() {
+DynamicList.prototype.calculateFiltersHeight = function() {
+  this.$container.find('.hidden-filter-controls').each(function() {
     $(this).animate({
       height: '100%'
     }, 200);
@@ -1629,7 +1608,8 @@ DynamicList.prototype.searchData = function(options) {
   _this.Utils.Page.updateSearchContext({
     activeFilters: _this.activeFilters,
     searchValue: _this.searchValue,
-    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length
+    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length,
+    filterTypes: _this.filterTypes
   });
 
   return _this.Utils.Records.runSearch({
