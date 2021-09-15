@@ -482,7 +482,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     var $container = options.$container;
-    var activeFilters = _($container.find('.hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"]'))
+    var activeFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"]'))
       .map(function(el) {
         return _.pickBy({
           class: el.dataset.toggle,
@@ -500,7 +500,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })
       .value();
 
-    var dateFilters = _($container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
+    var dateFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
       .map(function(el) {
         return _.pickBy({
           field: el.dataset.field,
@@ -1668,23 +1668,41 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
   }
 
-  function getActiveFilterNode(options) {
-    return '<div class="btn hidden-filter-controls-filter mixitup-control-active"'
-      + ' data-toggle="' + options.toggle + '"'
-      + ' data-field="' + options.field + '"'
-      + ' data-value="' + options.value + '"'
-      + '>' + options.value
-      + '</div>';
+  function getAppliedFilterNode(options) {
+    switch (options.type) {
+      case 'date':
+        var values = options.$container.find('.fl-date-picker[data-type="date"][data-field="' + options.field + '"]').map(function() {
+          return Fliplet.UI.DatePicker.get(this).get(true);
+        }).get();
+
+        return '<div class="btn hidden-filter-controls-filter mixitup-control-active applied-filter"'
+          + ' data-type="date"'
+          + ' data-field="' + options.field + '"'
+          + '>' + values.join(' to ')
+          + '<div data-remove-filter class="filter-item-remove" tabindex="0"><span class="fa fa-times"></span></div>'
+          + '</div>';
+      case 'toggle':
+      default:
+        return '<div class="btn hidden-filter-controls-filter mixitup-control-active applied-filter"'
+          + ' data-type="toggle"'
+          + ' data-field="' + options.field + '"'
+          + ' data-value="' + options.value + '"'
+          + '>' + options.value
+          + '<div data-remove-filter class="filter-item-remove" tabindex="0"><span class="fa fa-times"></span></div>'
+          + '</div>';
+    }
   }
 
   function onActiveFilterClick(options) {
     var $target = options.$target;
     var $container = options.$container;
-    var filterOverlay = options.filterOverlayClass;
-    var redirectSelector = filterOverlay + ' [data-filter-group] .mixitup-control-active[data-field="' + $target.data('field') + '"][data-value="' + $target.data('value') + '"]';
-    var $redirectTarget = $container.find(redirectSelector);
+    var filterToggleSelector = ['date'].indexOf($target.data('type')) > -1
+      ? options.filterOverlayClass + ' [data-filter-group][data-field="' + $target.data('field') + '"] .filter-range-reset'
+      : options.filterOverlayClass + ' [data-filter-group] .mixitup-control-active[data-field="' + $target.data('field') + '"][data-value="' + $target.data('value') + '"]';
+    var $filterToggle = $container.find(filterToggleSelector);
 
-    $redirectTarget.trigger('click');
+    // Toggle filter
+    $filterToggle.trigger('click');
 
     var $applyBtn = $container.find('.filter-header-holder .filter-header-btn-controls .apply-filters');
 
@@ -1709,36 +1727,55 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     var $container = options.$container;
-    var $activeFilters = $container.find('[data-filter-group] .mixitup-control-active');
+    var activeFilters = getActiveFilters({ $container: $container });
+    var filterTypes = options.filterTypes;
+
     var $activeFiltersHolder = $container.find('.active-filters');
     var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
 
-    if (!$activeFilters.length) {
+    if (!_.keys(activeFilters).length) {
       $activeFiltersHolder.addClass('hidden');
 
       return;
     }
 
-    var activeFilterElements = $.map($activeFilters, function(filter) {
-      return getActiveFilterNode({
-        toggle: filter.dataset.toggle,
-        field: filter.dataset.field,
-        value: filter.dataset.value
+    var appliedFilterNodes = [];
+
+    _.forIn(activeFilters, function(values, field) {
+      if (['date'].indexOf(filterTypes[field]) > -1) {
+        var node = getAppliedFilterNode({
+          $container: $container,
+          field: field,
+          value: values,
+          type: filterTypes[field]
+        });
+
+        appliedFilterNodes.push(node);
+
+        return;
+      }
+
+      _.forEach(values, function(value) {
+        var node = getAppliedFilterNode({
+          $container: $container,
+          field: field,
+          value: value,
+          type: filterTypes[field]
+        });
+
+        appliedFilterNodes.push(node);
       });
     });
 
-    $filtersGroup.html(activeFilterElements);
+    $filtersGroup.html(appliedFilterNodes.join(''));
     $activeFiltersHolder.removeClass('hidden');
 
-    $filtersGroup.find('.hidden-filter-controls-filter').each(function() {
-      var $element = $(this);
+    $filtersGroup.find('[data-remove-filter]').on('click keydown', function(event) {
+      if (!isExecute(event)) {
+        return;
+      }
 
-      $element.addClass('applied-filter');
-      $element.append('<div data-remove-filter class="filter-item-remove"><span class="fa fa-times"></span></div>');
-    });
-
-    $filtersGroup.find('[data-remove-filter]').on('click', function(event) {
-      options.$target = $(event.target).parents('.hidden-filter-controls-filter');
+      options.$target = $(event.target).closest('.hidden-filter-controls-filter');
 
       onActiveFilterClick(options);
     });

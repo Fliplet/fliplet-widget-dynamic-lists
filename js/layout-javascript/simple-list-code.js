@@ -1752,7 +1752,8 @@ DynamicList.prototype.searchData = function(options) {
       _this.Utils.Page.updateActiveFilters({
         $container: _this.$container,
         filterOverlayClass: '.simple-list-search-filter-overlay',
-        filtersInOverlay: _this.data.filtersInOverlay
+        filtersInOverlay: _this.data.filtersInOverlay,
+        filterTypes: _this.filterTypes
       });
 
       return Fliplet.Hooks.run('flListDataAfterRenderList', {
