@@ -296,6 +296,12 @@ DynamicList.prototype.attachObservers = function() {
         $filter.data('flDatePicker').set($filter.data('default'), false);
       });
 
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: 'RESET_DATES'
+      });
+
       _this.toggleFilterElement($filters, false);
 
       if ($filters.parents('.inline-filter-holder').length) {

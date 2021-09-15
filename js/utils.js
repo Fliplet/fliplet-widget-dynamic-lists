@@ -678,6 +678,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         var picker = Fliplet.UI.DatePicker(el, { required: true });
 
         picker.change(function(value) {
+          var isFrom = this.$el.closest('.hidden-filter-controls-filter').hasClass('filter-date-from');
+
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + instance.data.layout,
+            action: 'filter',
+            label: isFrom ? 'FROM_DATE' : 'TO_DATE'
+          });
+
           onFilterRangeChange({
             value: value,
             instance: instance,
