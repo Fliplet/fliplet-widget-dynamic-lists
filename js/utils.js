@@ -203,8 +203,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   /**
    * Determine filter types based on configuration
-   * @param {Object} config - Layout configuration
-   * @returns {Object} Mapping of filter types
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.instance - Instance of the layout
+   * @returns {Object} A map of filter types
    */
   function getFilterTypes(options) {
     options = options || {};
@@ -419,11 +420,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return moment(new Date(date));
   }
 
+  /**
+   * Checks if the value is a valid date string in YYYY-MM-DD format
+   * @param {String} value - Date string
+   * @returns {Boolean} Returns TRUE if the date is a valid date string
+   */
   function isValidDate(value) {
     return value.match(Static.RegExp.date) && moment(value).isValid();
   }
 
-  function validateQueries(options) {
+  /**
+   * Validate filter queries
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.query - Filter queries
+   * @param {Object} options.filterTypes - A map of filter types
+   * @returns {undefined}
+   */
+  function validateFilterQueries(options) {
     options = options || {};
 
     var query = options.query || {};
@@ -484,10 +497,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return query;
   }
 
+  /**
+   * Generate a list of jQuery selectors for the filter elements based on the filter query
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.query - Filter queries
+   * @param {Object} options.filterTypes - A map of filter types
+   * @returns {Array} A list of jQuery selectors
+   */
   function getFilterQuerySelectors(options) {
     options = options || {};
 
-    var query = validateQueries(options);
+    var query = validateFilterQueries(options);
     var filterTypes = options.filterTypes;
 
     if (!_.get(query, 'value', []).length) {
@@ -521,13 +541,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * This function is used to show amount of the selected by users filters
-   *
-   * @param {Object} options - incoming object with keys:
-   *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
-   *  $target { Jquery instance } - Jq instance on which user have pressed
-   *
-   * @returns {void} this function doesn't return anything it add changes directly to the DOM
+   * Update the number of selected filters
+   * @param {Object} options - A map of options for the function
+   * @param {Boolean} options.filtersInOverlay - If TRUE, filters are displayed in an overlay
+   * @param {jQuery} options.$target - jQuery instance on which user has pressed
+   * @returns {undefined}
    */
   function updateActiveFilterCount(options) {
     if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
@@ -691,6 +709,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return instance.searchData();
   }
 
+  /**
+   * Process the filter queries and prepare the filter UI accordingly
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.instance - Instance of the layout
+   * @returns {undefined}
+   */
   function parseFilterQueries(options) {
     options = options || {};
 
