@@ -2237,8 +2237,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function prepareRecordsData(options) {
-    debugger;
-
     options = options || {};
 
     var records = options.records || [];
