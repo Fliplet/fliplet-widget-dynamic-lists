@@ -619,9 +619,14 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
       _this.$container.find('.news-feed-comment-holder').focus();
 
+      var contextsToRemove = ['dynamicListOpenComments', 'dynamicListCommentId'];
+
       if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
         $('body').removeClass('lock');
+        contextsToRemove.push('dynamicListOpenId');
       }
+
+      Fliplet.Page.Context.remove(contextsToRemove);
     })
     .on('click keydown', '.news-feed-comment-input-holder .comment', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {

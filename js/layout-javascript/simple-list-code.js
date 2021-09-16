@@ -597,9 +597,14 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.simple-list-detail-overlay-content-holder').removeClass('lock');
       _this.$container.find('.simple-list-comment-close-panel').focus();
 
+      var contextsToRemove = ['dynamicListOpenComments', 'dynamicListCommentId'];
+
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         $('body').removeClass('lock');
+        contextsToRemove.push('dynamicListOpenId');
       }
+
+      Fliplet.Page.Context.remove(contextsToRemove);
     })
     .on('click', '.simple-list-comment-input-holder .comment', function() {
       var entryId = _this.entryClicked;
