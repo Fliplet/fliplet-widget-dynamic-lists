@@ -747,8 +747,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var type = $filter.data('type');
 
       if (type === 'date') {
-        var queryIndex = instance.pvFilterQuery.column.indexOf($filter.data('field'));
-        var rangeValues = instance.pvFilterQuery.value[queryIndex];
+        var queryIndex = _.get(instance, 'pvFilterQuery.column', []).indexOf($filter.data('field'));
+        var rangeValues = _.get(instance, ['pvFilterQuery', 'value', queryIndex], []);
         var value = $filter.hasClass('filter-date-from') ? rangeValues[0] : rangeValues[1];
 
         Fliplet.UI.DatePicker.get($filter).set(value, false);
