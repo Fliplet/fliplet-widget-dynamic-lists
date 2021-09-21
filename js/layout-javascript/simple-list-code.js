@@ -735,8 +735,8 @@ DynamicList.prototype.attachObservers = function() {
               label: T('widgets.dynamicLists.dataSource.notifications.actionRequest.delete'),
               action: function() {
                 var options = {
-                  title: T('widgets.dynamicLists.dataSource.notifications.actionRequest.confirmDeletion.title'),
-                  message: T('widgets.dynamicLists.dataSource.notifications.actionRequest.confirmDeletion.message'),
+                  title: T('widgets.dynamicLists.dataSource.notifications.actionRequest.confirmDelete.title'),
+                  message: T('widgets.dynamicLists.dataSource.notifications.actionRequest.confirmDelete.message'),
                   labels: [T('widgets.dynamicLists.dataSource.notifications.actionRequest.delete'), T('widgets.dynamicLists.dataSource.notifications.actionRequest.cancel')] // Native only (defaults to [OK,Cancel])
                 };
 
@@ -823,13 +823,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: T('widgets.dynamicLists.dataSource.errors.addingEntry')
+                message: T('widgets.dynamicLists.dataSource.errors.addFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: T('widgets.dynamicLists.dataSource.errors.addingEntry')
+          message: T('widgets.dynamicLists.dataSource.errors.addFailed')
         });
       }
     })
@@ -865,13 +865,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: T('widgets.dynamicLists.dataSource.errors.editingEntry')
+                message: T('widgets.dynamicLists.dataSource.errors.editFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: T('widgets.dynamicLists.dataSource.errors.editingEntry')
+          message: T('widgets.dynamicLists.dataSource.errors.editFailed')
         });
       }
     })
@@ -883,12 +883,12 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
       var options = {
-        title: T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.title'),
+        title: T('widgets.dynamicLists.dataSource.notifications.confirmDelete.title'),
         labels: [
           {
-            label: T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.label'),
+            label: T('widgets.dynamicLists.dataSource.notifications.confirmDelete.label'),
             action: function() {
-              _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.textInProcess')).addClass('disabled');
+              _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.progress')).addClass('disabled');
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
@@ -910,7 +910,7 @@ DynamicList.prototype.attachObservers = function() {
                   _.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
-                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.textComplete')).removeClass('disabled');
+                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.textComplete')).removeClass('disabled');
                   _this.closeDetails();
                   _this.removeListItemHTML({
                     id: entryId
@@ -918,7 +918,7 @@ DynamicList.prototype.attachObservers = function() {
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
-                    message: T('widgets.dynamicLists.dataSource.errors.deletingEntry')
+                    message: T('widgets.dynamicLists.dataSource.errors.deleteFailed')
                   });
                 });
             }
@@ -2738,7 +2738,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
     });
   }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
-      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.unableComments')
+      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.loadFailed')
     });
   });
 };
@@ -3036,7 +3036,7 @@ DynamicList.prototype.deleteComment = function(id) {
   }).catch(function(error) {
     commentHolder.show();
     Fliplet.UI.Toast.error(error, {
-      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.deleteComment')
+      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.deleteFailed')
     });
   });
 };
@@ -3106,7 +3106,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
     .catch(function(error) {
       _this.replaceComment(commentId, oldCommentData, 'final');
       Fliplet.UI.Toast.error(error, {
-        message: T('widgets.dynamicLists.dataSource.newsFeed.errors.updateComment')
+        message: T('widgets.dynamicLists.dataSource.newsFeed.errors.updateFailed')
       });
     });
 };

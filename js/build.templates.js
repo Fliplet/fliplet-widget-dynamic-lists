@@ -92,19 +92,19 @@ this["Fliplet"]["Widget"]["Templates"]["templates.build.news-feed-base"] = Handl
     + " <span class=\"current-query-wrapper\"><span class=\"current-query\"></span><span class=\"clear-search focus-outline\" tabindex=\"0\"><i class=\"fa fa-times\"></i></span></span>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  {{/if}}\r\n  <div class=\"active-filters hidden\">\r\n    <div class=\"hidden-filter-controls-label\">"
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.label",{"name":"T","hash":{},"data":data}))
     + "</div>\r\n    <div class=\"hidden-filter-controls-filter-container hidden\" touch-action=\"pan-x pan-y\">\r\n      <div class=\"hidden-filter-controls-filter-wrapper\">\r\n        <fieldset data-filter-active-group>\r\n        </fieldset>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  {{#if filtersEnabled}}\r\n  <div class=\"hidden-filter-controls\">\r\n    <div class=\"hidden-filter-controls-content\">\r\n      {{#unless filtersInOverlay}}\r\n      {{#if filtersEnabled}}\r\n      <div class=\"filter-holder inline-filter-holder\">\r\n        <!-- Filters here -->\r\n      </div>\r\n      {{/if}}\r\n      {{/unless}}\r\n    </div>\r\n  </div>\r\n  {{/if}}\r\n  <!-- End of Inline Search and Filters -->\r\n\r\n  <div class=\"news-feed-list-wrapper\" id=\"news-feed-list-wrapper-{{id}}\" role=\"list\">\r\n    <!-- List items will appear here -->\r\n  </div>\r\n\r\n  {{#if enabledLimitEntries}}\r\n  <div class=\"limit-entries-text\">\r\n    {{#ifCond limitEntries '==' 0}}\r\n      {{#ifCond searchEnabled '||' filtersEnabled}}\r\n      <p>\r\n        {{#if searchEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isSearch",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}}\r\n        {{#ifCond searchEnabled '&&' filtersEnabled}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.andOr",{"name":"T","hash":{},"data":data}))
     + " {{/ifCond}}\r\n        {{#if filtersEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isFilter",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.toSeeItems",{"name":"T","hash":{},"data":data}))
     + "\r\n      </p>\r\n      {{/ifCond}}\r\n    {{/ifCond}}\r\n    {{#ifCond limitEntries '>' 0}}\r\n    <p>\r\n      {{ T \"widgets.dynamicLists.dataSource.search.limitItems\" limit=limitEntries }}\r\n      {{#ifCond searchEnabled '||' filtersEnabled}}\r\n        {{#if searchEnabled}} "
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isSearch",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}}\r\n        {{#ifCond searchEnabled '&&' filtersEnabled}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.andOr",{"name":"T","hash":{},"data":data}))
     + " {{/ifCond}}\r\n        {{#if filtersEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isFilter",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.toSeeMore",{"name":"T","hash":{},"data":data}))
     + "\r\n      {{/ifCond}}\r\n    </p>\r\n    {{/ifCond}}\r\n  </div>\r\n  {{/if}}\r\n\r\n  <div class=\"loading-holder\">\r\n    <i class=\"fa fa-circle-o-notch fa-spin\"></i> "
@@ -180,19 +180,19 @@ this["Fliplet"]["Widget"]["Templates"]["templates.build.simple-list-base"] = Han
     + " <span class=\"current-query-wrapper\"><span class=\"current-query\"></span><span class=\"clear-search\"><i class=\"fa fa-times\"></i></span></span>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  {{/if}}\r\n  <div class=\"active-filters hidden\">\r\n    <div class=\"hidden-filter-controls-label\">"
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.label",{"name":"T","hash":{},"data":data}))
     + "</div>\r\n    <div class=\"hidden-filter-controls-filter-container hidden\" touch-action=\"pan-x pan-y\">\r\n      <div class=\"hidden-filter-controls-filter-wrapper\">\r\n        <fieldset data-filter-active-group>\r\n        </fieldset>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  {{#if filtersEnabled}}\r\n  <div class=\"hidden-filter-controls\">\r\n    <div class=\"hidden-filter-controls-content\">\r\n      {{#unless filtersInOverlay}}\r\n        {{#if filtersEnabled}}\r\n        <div class=\"filter-holder inline-filter-holder\">\r\n          <!-- Filters here -->\r\n        </div>\r\n        {{/if}}\r\n      {{/unless}}\r\n    </div>\r\n  </div>\r\n  {{/if}}\r\n  <!-- End of Inline Search and Filters -->\r\n\r\n  <div class=\"simple-list-wrapper\" id=\"simple-list-wrapper-{{id}}\" role=\"list\">\r\n    <!-- List items will appear here -->\r\n  </div>\r\n\r\n  {{#if enabledLimitEntries}}\r\n  <div class=\"limit-entries-text\">\r\n    {{#ifCond limitEntries '==' 0}}\r\n      {{#ifCond searchEnabled '||' filtersEnabled}}\r\n      <p>\r\n        {{#if searchEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isSearch",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}}\r\n          {{#ifCond searchEnabled '&&' filtersEnabled}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.andOr",{"name":"T","hash":{},"data":data}))
     + " {{/ifCond}}\r\n        {{#if filtersEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isFilter",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.toSeeItems",{"name":"T","hash":{},"data":data}))
     + "\r\n      </p>\r\n      {{/ifCond}}\r\n    {{/ifCond}}\r\n    {{#ifCond limitEntries '>' 0}}\r\n    <p>\r\n      {{T \"widgets.dynamicLists.dataSource.search.limitItems\" limit=limitEntries }}\r\n      {{#ifCond searchEnabled '||' filtersEnabled}}\r\n      {{#if searchEnabled}} "
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isSearch",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}}\r\n      {{#ifCond searchEnabled '&&' filtersEnabled}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.andOr",{"name":"T","hash":{},"data":data}))
     + " {{/ifCond}}\r\n      {{#if filtersEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isFilter",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.toSeeMore",{"name":"T","hash":{},"data":data}))
     + "{{/ifCond}}\r\n    </p>\r\n    {{/ifCond}}\r\n  </div>\r\n  {{/if}}\r\n\r\n  <div class=\"loading-holder\">\r\n    <i class=\"fa fa-circle-o-notch fa-spin\"></i> "
@@ -268,19 +268,19 @@ this["Fliplet"]["Widget"]["Templates"]["templates.build.small-card-base"] = Hand
     + " <span class=\"current-query-wrapper\"><span class=\"current-query\"></span><span class=\"clear-search focus-outline\" tabindex=\"0\"><i class=\"fa fa-times\"></i></span></span>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  {{/if}}\r\n  <div class=\"active-filters hidden\">\r\n    <div class=\"hidden-filter-controls-label\">"
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.label",{"name":"T","hash":{},"data":data}))
     + "</div>\r\n    <div class=\"hidden-filter-controls-filter-container hidden\" touch-action=\"pan-x pan-y\">\r\n      <div class=\"hidden-filter-controls-filter-wrapper\">\r\n        <fieldset data-filter-active-group>\r\n        </fieldset>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  {{#if filtersEnabled}}\r\n  <div class=\"hidden-filter-controls\">\r\n    <div class=\"hidden-filter-controls-content\">\r\n      {{#unless filtersInOverlay}}\r\n        {{#if filtersEnabled}}\r\n        <div class=\"filter-holder inline-filter-holder\">\r\n          <!-- Filters here -->\r\n        </div>\r\n        {{/if}}\r\n      {{/unless}}\r\n    </div>\r\n  </div>\r\n  {{/if}}\r\n  <!-- End of Inline Search and Filters -->\r\n\r\n  <div class=\"small-card-list-wrapper\" id=\"small-card-list-wrapper-{{id}}\">\r\n      <!-- List items will appear here -->\r\n  </div>\r\n\r\n  {{#if enabledLimitEntries}}\r\n  <div class=\"limit-entries-text\">\r\n    {{#ifCond limitEntries '==' 0}}\r\n      {{#ifCond searchEnabled '||' filtersEnabled}}\r\n      <p>\r\n        {{#if searchEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isSearch",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}}\r\n        {{#ifCond searchEnabled '&&' filtersEnabled}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.andOr",{"name":"T","hash":{},"data":data}))
     + " {{/ifCond}}\r\n        {{#if filtersEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isFilter",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.toSeeItems",{"name":"T","hash":{},"data":data}))
     + "\r\n      </p>\r\n      {{/ifCond}}\r\n    {{/ifCond}}\r\n    {{#ifCond limitEntries '>' 0}}\r\n    <p>\r\n      {{T \"widgets.dynamicLists.dataSource.search.limitItems\" limit=limitEntries }}\r\n      {{#ifCond searchEnabled '||' filtersEnabled}}\r\n      {{#if searchEnabled}} "
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isSearch",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}}\r\n      {{#ifCond searchEnabled '&&' filtersEnabled}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.andOr",{"name":"T","hash":{},"data":data}))
     + " {{/ifCond}}\r\n      {{#if filtersEnabled}}"
-    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.isFilter",{"name":"T","hash":{},"data":data}))
+    + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.filter.action",{"name":"T","hash":{},"data":data}))
     + "{{/if}} "
     + alias3((helpers.T || (depth0 && depth0.T) || alias2).call(alias1,"widgets.dynamicLists.dataSource.search.toSeeMore",{"name":"T","hash":{},"data":data}))
     + "{{/ifCond}}\r\n    </p>\r\n    {{/ifCond}}\r\n  </div>\r\n  {{/if}}\r\n\r\n  <div class=\"loading-data\">\r\n    <i class=\"fa fa-circle-o-notch fa-spin\"></i> "

@@ -15,9 +15,9 @@
                             "title": "We couldn't find your user details.",
                             "message": "Invalid user"
                         },
-                        "updateComment": "Error updating comment",
-                        "deleteComment": "Error deleting comment",
-                        "unableComments": "Unable to load comments"
+                        "updateFailed": "Error updating comment",
+                        "deleteFailed": "Error deleting comment",
+                        "loadFailed": "Unable to load comments"
                     }
                 },
                 "smallCard": {
@@ -25,10 +25,9 @@
                     "call": "CALL",
                     "linkedin": "LINKEDIN",
                     "profileText": "Me"
-
                 },
                 "detail": {
-                    "bookmark": "Bookmark {{msg}}",
+                    "bookmark": "Bookmark",
                     "bookmarked": "Bookmarked",
                     "poll": "Poll",
                     "survey": "Survey",
@@ -46,6 +45,7 @@
                     "save": "Save"
                 },
                 "filter": {
+                    "action": "Filter",
                     "clear": "Clear",
                     "apply": "Apply",
                     "filterBy": "Filter by",
@@ -59,28 +59,26 @@
                     "noResults": "No results found",
                     "bookmarksNoResults": "No results found in bookmarks",
                     "limitItems": "Showing the first {{limit}} list items.",
-                    "isSearch": "Search",
                     "andOr": "and/or",
-                    "isFilter": "Filter",
                     "toSeeItems": "to see the list items",
                     "toSeeMore": "to see more.",
                     "noMatches": "No matches found",
                     "noBookmarked": "Nothing bookmarked"
                 },
                 "errors": {
-                    "addingEntry": "Error adding entry",
-                    "editingEntry": "Error editing entry",
-                    "deletingEntry": "Error deleting entry"
+                    "addFailed": "Error adding entry",
+                    "editFailed": "Error editing entry",
+                    "deleteFailed": "Error deleting entry"
                 },
                 "notifications": {
                     "noConfiguration": {
                         "title": "Link not configured",
                         "message": "Form not found. Please check the component's configuration."
                     },
-                    "confirmDeleteItem": {
+                    "confirmDelete": {
                         "title": "Are you sure you want to delete the list entry?",
                         "label": "Delete",
-                        "textInProcess": "Deleting...",
+                        "progress": "Deleting...",
                         "textComplete": "Delete"
                     },
                     "actionRequest": {
@@ -89,7 +87,7 @@
                         "edit": "Edit",
                         "cancel": "Cancel",
                         "delete": "Delete",
-                        "confirmDeletion": {
+                        "confirmDelete": {
                             "title": "Delete comment",
                             "message": "Are you sure you want to delete this comment?"
                         }

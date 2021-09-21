@@ -756,13 +756,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: T('widgets.dynamicLists.dataSource.errors.addingEntry')
+                message: T('widgets.dynamicLists.dataSource.errors.addFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: T('widgets.dynamicLists.dataSource.errors.addingEntry')
+          message: T('widgets.dynamicLists.dataSource.errors.addFailed')
         });
       }
     })
@@ -798,13 +798,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: T('widgets.dynamicLists.dataSource.errors.editingEntry')
+                message: T('widgets.dynamicLists.dataSource.errors.editFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: T('widgets.dynamicLists.dataSource.errors.editingEntry')
+          message: T('widgets.dynamicLists.dataSource.errors.editFailed')
         });
       }
     })
@@ -816,12 +816,12 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryID = _that.parents('.agenda-item-inner-content').data('entry-id');
       var options = {
-        title: T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.title'),
+        title: T('widgets.dynamicLists.dataSource.notifications.confirmDelete.title'),
         labels: [
           {
-            label: T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.label'),
+            label: T('widgets.dynamicLists.dataSource.notifications.confirmDelete.label'),
             action: function() {
-              _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.textInProcess')).addClass('disabled');
+              _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.progress')).addClass('disabled');
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
@@ -844,7 +844,7 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.textComplete')).removeClass('disabled');
+                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.textComplete')).removeClass('disabled');
                   _this.closeDetails();
 
                   _this.removeListItemHTML({
@@ -853,7 +853,7 @@ DynamicList.prototype.attachObservers = function() {
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
-                    message: T('widgets.dynamicLists.dataSource.errors.deletingEntry')
+                    message: T('widgets.dynamicLists.dataSource.errors.deleteFailed')
                   });
                 });
             }
