@@ -213,7 +213,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var instance = options.instance;
     var config = instance.data;
 
-    var filterFields = (config.filterFields || []).concat(instance.pvFilterQuery.column);
+    var filterFields = _.concat(config.filterFields, _.get(instance, 'pvFilterQuery.column'));
     var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
     var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
       return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
