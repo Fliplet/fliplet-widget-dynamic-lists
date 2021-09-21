@@ -606,7 +606,7 @@ var DynamicLists = (function() {
         }
 
         if (event.data === 'save-widget') {
-          userDataSourceProvider.emit('click-save');
+          userDataSourceProvider.emit('validation');
         }
       });
     },
