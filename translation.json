@@ -1,0 +1,102 @@
+{
+    "widgets": {
+        "dynamicLists": {
+            "dataSource": {
+                "agenda": {
+                    "itemEmpty": "Nothing bookmarked for this date",
+                    "errors": {
+                        "loading": "Error loading agenda"
+                    }
+                },
+                "newsFeed": {
+                    "errors": {
+                        "loading": "Error loading data",
+                        "invalidUser": {
+                            "title": "We couldn't find your user details.",
+                            "message": "Invalid user"
+                        },
+                        "updateFailed": "Error updating comment",
+                        "deleteFailed": "Error deleting comment",
+                        "loadFailed": "Unable to load comments"
+                    }
+                },
+                "smallCard": {
+                    "email": "EMAIL",
+                    "call": "CALL",
+                    "linkedin": "LINKEDIN",
+                    "profileText": "Me"
+                },
+                "detail": {
+                    "bookmark": "Bookmark",
+                    "bookmarked": "Bookmarked",
+                    "poll": "Poll",
+                    "survey": "Survey",
+                    "questions": "Questions",
+                    "linkMessage": "Tap to open",
+                    "uploaded:": "Uploaded:",
+                    "edit": "Edit",
+                    "delete": "Delete"
+                },
+                "comments": {
+                    "title": "Comments",
+                    "offline": "You are offline",
+                    "commentTitle": "Comment",
+                    "cancel": "Cancel",
+                    "save": "Save"
+                },
+                "filter": {
+                    "action": "Filter",
+                    "clear": "Clear",
+                    "apply": "Apply",
+                    "filterBy": "Filter by",
+                    "label": "Filters applied"
+                },
+                "search": {
+                    "placeholder": "Search...",
+                    "action": "Search",
+                    "searchingFor": "Searching for",
+                    "searchQuery": "Searching for <span class=\"current-query-wrapper\"><span class=\"current-query\"></span><span class=\"clear-search focus-outline\" tabindex=\"0\"><i class=\"fa fa-times\"></i></span></span>",
+                    "noResults": "No results found",
+                    "bookmarksNoResults": "No results found in bookmarks",
+                    "limitItems": "Showing the first {{limit}} list items.",
+                    "andOr": "and/or",
+                    "toSeeItems": "to see the list items",
+                    "toSeeMore": "to see more.",
+                    "noMatches": "No matches found",
+                    "noBookmarked": "Nothing bookmarked"
+                },
+                "errors": {
+                    "addFailed": "Error adding entry",
+                    "editFailed": "Error editing entry",
+                    "deleteFailed": "Error deleting entry"
+                },
+                "notifications": {
+                    "noConfiguration": {
+                        "title": "Link not configured",
+                        "message": "Form not found. Please check the component's configuration."
+                    },
+                    "confirmDelete": {
+                        "title": "Are you sure you want to delete the list entry?",
+                        "label": "Delete",
+                        "progress": "Deleting...",
+                        "textComplete": "Delete"
+                    },
+                    "actionRequest": {
+                        "title": "What do you want to do?",
+                        "copy": "Copy",
+                        "edit": "Edit",
+                        "cancel": "Cancel",
+                        "delete": "Delete",
+                        "confirmDelete": {
+                            "title": "Delete comment",
+                            "message": "Are you sure you want to delete this comment?"
+                        }
+                    },
+                    "notFound": "Entry not found",
+                    "unauthorized": "You must be logged in to use this feature"
+                },
+                "loading": "Loading..."
+            }
+        }
+    }
+}

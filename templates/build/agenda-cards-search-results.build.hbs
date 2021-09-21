@@ -1,7 +1,7 @@
 <div class="search-results \{{#unless length}}no-results\{{/unless}}">
 \{{#unless this}}
-  <p class="results-empty">No results found</p>
-  <p class="results-empty-bookmarks">No results found in bookmarks<span class="results-empty-filtering results-empty-searching"><br>Disable bookmarks to search all items</span></p>
+  <p class="results-empty">{{T "widgets.dynamicLists.dataSource.search.noResults"}}</p>
+  <p class="results-empty-bookmarks">{{T "widgets.dynamicLists.dataSource.search.bookmarksNoResults"}}<span class="results-empty-filtering results-empty-searching"><br>Disable bookmarks to search all items</span></p>
 \{{/unless}}
 \{{#each this}}
   <h3 class="search-results-list-date">\{{moment this.0.[Full Date] format="ddd D MMM"}}</h3>

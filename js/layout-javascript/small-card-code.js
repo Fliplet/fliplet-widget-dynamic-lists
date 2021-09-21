@@ -657,8 +657,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.title'),
+          message: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.message')
         });
 
         return;
@@ -676,13 +676,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
+                message: T('widgets.dynamicLists.dataSource.errors.addFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
+          message: T('widgets.dynamicLists.dataSource.errors.addFailed')
         });
       }
     })
@@ -697,8 +697,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.title'),
+          message: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.message')
         });
 
         return;
@@ -718,13 +718,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
+                message: T('widgets.dynamicLists.dataSource.errors.editFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
+          message: T('widgets.dynamicLists.dataSource.errors.editFailed')
         });
       }
     })
@@ -736,12 +736,12 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
-        title: 'Are you sure you want to delete the list entry?',
+        title: T('widgets.dynamicLists.dataSource.notifications.confirmDelete.title'),
         labels: [
           {
-            label: 'Delete',
+            label: T('widgets.dynamicLists.dataSource.notifications.confirmDelete.label'),
             action: function() {
-              _that.text('Deleting...').addClass('disabled');
+              _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.progress')).addClass('disabled');
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
@@ -764,7 +764,7 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  _that.text('Delete').removeClass('disabled');
+                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.textComplete')).removeClass('disabled');
 
                   if ($(window).width() < 640) {
                     _this.collapseElement(_this.directoryDetailWrapper);
@@ -779,7 +779,7 @@ DynamicList.prototype.attachObservers = function() {
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
+                    message: T('widgets.dynamicLists.dataSource.errors.deleteFailed')
                   });
                 });
             }
@@ -987,7 +987,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (!entry) {
-    Fliplet.UI.Toast('Entry not found');
+    Fliplet.UI.Toast(T('widgets.dynamicLists.dataSource.notifications.notFound'));
 
     return;
   }
@@ -1204,7 +1204,7 @@ DynamicList.prototype.connectToDataSource = function() {
     return getData(cache);
   }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
-      message: 'Error loading data'
+      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.loading')
     });
   });
 };
