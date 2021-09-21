@@ -703,17 +703,17 @@ DynamicList.prototype.attachObservers = function() {
 
       if ($parentContainer.hasClass('current-user')) {
         Fliplet.UI.Actions({
-          title: 'What do you want to do?',
+          title: T('widgets.dynamicLists.dataSource.newsFeed.notifications.actionRequest.title'),
           labels: [
             {
-              label: 'Copy',
+              label: T('widgets.dynamicLists.dataSource.notifications.actionRequest.copy'),
               action: {
                 type: 'copyText',
                 text: textToCopy
               }
             },
             {
-              label: 'Edit',
+              label: T('widgets.dynamicLists.dataSource.notifications.actionRequest.edit'),
               action: function() {
                 var $messageArea = _this.$container.find('[data-comment-body]');
 
@@ -732,12 +732,12 @@ DynamicList.prototype.attachObservers = function() {
               }
             },
             {
-              label: 'Delete',
+              label: T('widgets.dynamicLists.dataSource.notifications.actionRequest.delete'),
               action: function() {
                 var options = {
-                  title: 'Delete comment',
-                  message: 'Are you sure you want to delete this comment?',
-                  labels: ['Delete', 'Cancel'] // Native only (defaults to [OK,Cancel])
+                  title: T('widgets.dynamicLists.dataSource.notifications.actionRequest.confirmDeletion.title'),
+                  message: T('widgets.dynamicLists.dataSource.notifications.actionRequest.confirmDeletion.message'),
+                  labels: [T('widgets.dynamicLists.dataSource.notifications.actionRequest.delete'), T('widgets.dynamicLists.dataSource.notifications.actionRequest.cancel')] // Native only (defaults to [OK,Cancel])
                 };
 
                 Fliplet.Navigate.confirm(options)
@@ -756,7 +756,7 @@ DynamicList.prototype.attachObservers = function() {
               }
             }
           ],
-          cancel: 'Cancel'
+          cancel: T('widgets.dynamicLists.dataSource.notifications.actionRequest.cancel')
         }).then(function(i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
@@ -767,17 +767,17 @@ DynamicList.prototype.attachObservers = function() {
         });
       } else {
         Fliplet.UI.Actions({
-          title: 'What do you want to do?',
+          title: T('widgets.dynamicLists.dataSource.notifications.actionRequest.title'),
           labels: [
             {
-              label: 'Copy',
+              label: T('widgets.dynamicLists.dataSource.notifications.actionRequest.copy'),
               action: {
                 type: 'copyText',
                 text: textToCopy
               }
             }
           ],
-          cancel: 'Cancel'
+          cancel: T('widgets.dynamicLists.dataSource.notifications.actionRequest.cancel')
         }).then(function(i) {
           if (i === 0) {
             Fliplet.Analytics.trackEvent({
@@ -804,8 +804,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.title'),
+          message: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.message')
         });
 
         return;
@@ -823,13 +823,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
+                message: T('widgets.dynamicLists.dataSource.errors.addingEntry')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
+          message: T('widgets.dynamicLists.dataSource.errors.addingEntry')
         });
       }
     })
@@ -844,8 +844,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.title'),
+          message: T('widgets.dynamicLists.dataSource.notifications.noConfiguration.message')
         });
 
         return;
@@ -865,13 +865,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
+                message: T('widgets.dynamicLists.dataSource.errors.editingEntry')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
+          message: T('widgets.dynamicLists.dataSource.errors.editingEntry')
         });
       }
     })
@@ -883,12 +883,12 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryID = $(this).parents('.simple-list-detail-overlay-content').find('.simple-list-detail-wrapper').data('entry-id');
       var options = {
-        title: 'Are you sure you want to delete the list entry?',
+        title: T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.title'),
         labels: [
           {
-            label: 'Delete',
+            label: T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.label'),
             action: function() {
-              _that.text('Deleting...').addClass('disabled');
+              _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.textInProcess')).addClass('disabled');
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
@@ -910,7 +910,7 @@ DynamicList.prototype.attachObservers = function() {
                   _.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
-                  _that.text('Delete').removeClass('disabled');
+                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDeleteItem.textComplete')).removeClass('disabled');
                   _this.closeDetails();
                   _this.removeListItemHTML({
                     id: entryId
@@ -918,7 +918,7 @@ DynamicList.prototype.attachObservers = function() {
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
+                    message: T('widgets.dynamicLists.dataSource.errors.deletingEntry')
                   });
                 });
             }
@@ -1142,7 +1142,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (!entry) {
-    Fliplet.UI.Toast('Entry not found');
+    Fliplet.UI.Toast(T('widgets.dynamicLists.dataSource.notifications.notFound'));
 
     return;
   }
@@ -1363,7 +1363,7 @@ DynamicList.prototype.connectToDataSource = function() {
     return getData(cache);
   }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
-      message: 'Error loading data'
+      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.loading')
     });
   });
 };
@@ -2738,7 +2738,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
     });
   }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
-      message: 'Unable to load comments'
+      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.unableComments')
     });
   });
 };
@@ -2767,7 +2767,7 @@ DynamicList.prototype.sendComment = function(id, value) {
       });
     }
 
-    return Fliplet.UI.Toast('You must be logged in to use this feature');
+    return Fliplet.UI.Toast(T('widgets.dynamicLists.dataSource.notifications.unauthorized'));
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
@@ -2785,8 +2785,8 @@ DynamicList.prototype.sendComment = function(id, value) {
   });
 
   if (!userFromDataSource) {
-    return Fliplet.UI.Toast.error('We couldn\'t find your user details.', {
-      message: 'Invalid user'
+    return Fliplet.UI.Toast.error(T('widgets.dynamicLists.dataSource.newsFeed.errors.invalidUser.title'), {
+      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.invalidUser.message')
     });
   }
 
@@ -3036,7 +3036,7 @@ DynamicList.prototype.deleteComment = function(id) {
   }).catch(function(error) {
     commentHolder.show();
     Fliplet.UI.Toast.error(error, {
-      message: 'Error deleting comment'
+      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.deleteComment')
     });
   });
 };
@@ -3106,7 +3106,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
     .catch(function(error) {
       _this.replaceComment(commentId, oldCommentData, 'final');
       Fliplet.UI.Toast.error(error, {
-        message: 'Error updating comment'
+        message: T('widgets.dynamicLists.dataSource.newsFeed.errors.updateComment')
       });
     });
 };

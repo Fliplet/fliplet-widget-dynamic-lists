@@ -10,15 +10,15 @@
         </div>
         <div class="filter-header-holder">
           <div class="filter-header-btn-controls">
-            <div class="btn clear-filters hidden focus-outline" tabindex="0">Clear</div>
-            <div class="btn apply-filters focus-outline" tabindex="0">Apply</div>
+            <div class="btn clear-filters hidden focus-outline" tabindex="0">{{ T "widgets.dynamicLists.dataSource.filter.clear" }}</div>
+            <div class="btn apply-filters focus-outline" tabindex="0">{{ T "widgets.dynamicLists.dataSource.filter.apply" }}</div>
           </div>
         </div>
       </div>
       <div class="news-feed-overlay-content">
         <div class="hidden-filter-controls">
           <div class="hidden-filter-controls-content">
-            <div class="filters-header">Filter by</div>
+            <div class="filters-header">{{ T "widgets.dynamicLists.dataSource.filter.filterBy" }}</div>
             <div class="filter-holder">
               <!-- Filters here -->
             </div>
@@ -41,7 +41,7 @@
     <div class="search-holder">
       <i class="fa fa-search"></i>
       <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="Search..." required >
-      <div class="btn btn-default search-btn">Search</div>
+      <div class="btn btn-default search-btn">{{ T "widgets.dynamicLists.dataSource.search.action" }}</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
@@ -81,7 +81,7 @@
       <div class="hidden-filter-controls-search">
         <div class="search-query-holder">
           <div class="search-query">
-          Searching for <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search focus-outline" tabindex="0"><i class="fa fa-times"></i></span></span>
+          {{ T "widgets.dynamicLists.dataSource.search.searchingFor" }} <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search focus-outline" tabindex="0"><i class="fa fa-times"></i></span></span>
           </div>
         </div>
       </div>
@@ -89,7 +89,7 @@
   </div>
   \{{/if}}
   <div class="active-filters hidden">
-    <div class="hidden-filter-controls-label">Filters applied</div>
+    <div class="hidden-filter-controls-label">{{ T "widgets.dynamicLists.dataSource.filter.label" }}</div>
     <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
       <div class="hidden-filter-controls-filter-wrapper">
         <fieldset data-filter-active-group>
@@ -120,23 +120,34 @@
   <div class="limit-entries-text">
     \{{#ifCond limitEntries '==' 0}}
       \{{#ifCond searchEnabled '||' filtersEnabled}}
-      <p>\{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see the list items</p>
+      <p>
+        \{{#if searchEnabled}}{{ T "widgets.dynamicLists.dataSource.search.isSearch" }}\{{/if}}
+        \{{#ifCond searchEnabled '&&' filtersEnabled}} {{ T "widgets.dynamicLists.dataSource.search.andOr" }} \{{/ifCond}}
+        \{{#if filtersEnabled}}{{ T "widgets.dynamicLists.dataSource.search.isFilter" }}\{{/if}} {{ T "widgets.dynamicLists.dataSource.search.toSeeItems" }}
+      </p>
       \{{/ifCond}}
     \{{/ifCond}}
     \{{#ifCond limitEntries '>' 0}}
-    <p>Showing the first \{{limitEntries}} list items.\{{#ifCond searchEnabled '||' filtersEnabled}} \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.\{{/ifCond}}</p>
+    <p>
+      \{{ T "widgets.dynamicLists.dataSource.search.limitItems" limit=limitEntries }}
+      \{{#ifCond searchEnabled '||' filtersEnabled}}
+        \{{#if searchEnabled}} {{ T "widgets.dynamicLists.dataSource.search.isSearch" }}\{{/if}}
+        \{{#ifCond searchEnabled '&&' filtersEnabled}} {{ T "widgets.dynamicLists.dataSource.search.andOr" }} \{{/ifCond}}
+        \{{#if filtersEnabled}}{{ T "widgets.dynamicLists.dataSource.search.isFilter" }}\{{/if}} {{ T "widgets.dynamicLists.dataSource.search.toSeeMore" }}
+      \{{/ifCond}}
+    </p>
     \{{/ifCond}}
   </div>
   \{{/if}}
 
   <div class="loading-holder">
-    <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+    <i class="fa fa-circle-o-notch fa-spin"></i> {{ T "widgets.dynamicLists.dataSource.loading" }}
   </div>
   <div class="no-results-holder">
-    No matches found
+    {{ T "widgets.dynamicLists.dataSource.search.noMatches" }}
   </div>
   <div class="no-bookmarks-holder">
-    Nothing bookmarked
+    {{ T "widgets.dynamicLists.dataSource.search.noBookmarked" }}
   </div>
 </div>
 
@@ -168,16 +179,16 @@
 
 <div class="new-news-feed-comment-panel">
   <div class="news-feed-comment-panel-header">
-    <div class="news-feed-comment-panel-title">Comments</div>
+    <div class="news-feed-comment-panel-title">{{ T "widgets.dynamicLists.dataSource.comments.title" }}</div>
     <div class="news-feed-comment-close-panel focus-outline" tabindex="0"><i class="fa fa-times"></i></div>
   </div>
 
-  <div class="comments-offline">You are offline</div>
+  <div class="comments-offline">{{ T "widgets.dynamicLists.dataSource.comments.offline" }}</div>
 
   <div class="news-feed-comment-area">
     <!-- Comments will be added here -->
     <div class="loading-holder">
-      <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+      <i class="fa fa-circle-o-notch fa-spin"></i>{{ T "widgets.dynamicLists.dataSource.loading" }}
     </div>
   </div>
 
@@ -186,9 +197,9 @@
       <textarea class="form-control" rows="1" placeholder="Type comment" data-comment-body></textarea>
     </div>
     <div class="input-second-row">
-      <div class="btn btn-primary comment focus-outline" tabindex="0">Comment</div>
-      <div class="btn btn-link cancel">Cancel</div>
-      <div class="btn btn-primary save">Save</div>
+      <div class="btn btn-primary comment focus-outline" tabindex="0">{{ T "widgets.dynamicLists.dataSource.comments.commentTitle" }}</div>
+      <div class="btn btn-link cancel">{{ T "widgets.dynamicLists.dataSource.comments.cancel" }}</div>
+      <div class="btn btn-primary save">{{ T "widgets.dynamicLists.dataSource.comments.save" }}</div>
     </div>
   </div>
 </div>
