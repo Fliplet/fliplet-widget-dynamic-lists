@@ -706,7 +706,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var instance = options.instance;
 
-    instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]').each(function() {
+    instance.$container.find('.hidden-filter-controls-filter.fl-date-picker.mixitup-control-active[data-type="date"]').each(function() {
       var $filter = $(this);
 
       $filter.data('flDatePicker').set($filter.data('default'), false);
