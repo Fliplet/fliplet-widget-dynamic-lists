@@ -3004,7 +3004,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
-  var entryId = _this.$container.find('.simple-list-item.open').data('entry-id') || _this.entryClicked;
+  var entryId = _this.$container.find('.simple-list-details-holder').data('entry-id') || _this.entryClicked;
   var entry = _.find(_this.listItems, { id: entryId });
   var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
   var options = {
