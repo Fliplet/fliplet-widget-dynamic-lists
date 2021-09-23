@@ -3,22 +3,11 @@
         "dynamicLists": {
             "dataSource": {
                 "agenda": {
-                    "itemEmpty": "Nothing bookmarked for this date",
+                    "noBookmarks": "Nothing bookmarked for this date",
                     "errors": {
-                        "loading": "Error loading agenda"
-                    }
-                },
-                "newsFeed": {
-                    "errors": {
-                        "loading": "Error loading data",
-                        "invalidUser": {
-                            "title": "We couldn't find your user details.",
-                            "message": "Invalid user"
-                        },
-                        "updateFailed": "Error updating comment",
-                        "deleteFailed": "Error deleting comment",
-                        "loadFailed": "Unable to load comments"
-                    }
+                        "loadFailed": "Error loading agenda"
+                    },
+                    "loading": "Loading agenda..."
                 },
                 "smallCard": {
                     "email": "EMAIL",
@@ -32,27 +21,34 @@
                     "poll": "Poll",
                     "survey": "Survey",
                     "questions": "Questions",
-                    "linkMessage": "Tap to open",
+                    "linkText": "Tap to open",
                     "uploaded:": "Uploaded:",
                     "edit": "Edit",
                     "delete": "Delete"
                 },
                 "comments": {
-                    "title": "Comments",
+                    "listTitle": "Comments",
                     "offline": "You are offline",
-                    "commentTitle": "Comment",
+                    "title": "Comment",
                     "cancel": "Cancel",
-                    "save": "Save"
+                    "save": "Save",
+                    "errors": {
+                        "loadFailed": "Unable to load comments",
+                        "updateFailed": "Error updating comment",
+                        "deleteFailed": "Error deleting comment"
+                    }
                 },
                 "filter": {
+                    "title": "Filter",
                     "action": "Filter",
                     "clear": "Clear",
                     "apply": "Apply",
                     "filterBy": "Filter by",
-                    "label": "Filters applied"
+                    "applied": "Filters applied"
                 },
                 "search": {
                     "placeholder": "Search...",
+                    "title": "Search",
                     "action": "Search",
                     "searchingFor": "Searching for",
                     "searchQuery": "Searching for <span class=\"current-query-wrapper\"><span class=\"current-query\"></span><span class=\"clear-search focus-outline\" tabindex=\"0\"><i class=\"fa fa-times\"></i></span></span>",
@@ -66,9 +62,14 @@
                     "noBookmarked": "Nothing bookmarked"
                 },
                 "errors": {
+                    "loadFailed": "Error loading data",
                     "addFailed": "Error adding entry",
                     "editFailed": "Error editing entry",
-                    "deleteFailed": "Error deleting entry"
+                    "deleteFailed": "Error deleting entry",
+                    "invalidUser": {
+                        "title": "We couldn't find your user details.",
+                        "message": "Invalid user"
+                    }
                 },
                 "notifications": {
                     "noConfiguration": {
@@ -78,8 +79,8 @@
                     "confirmDelete": {
                         "title": "Are you sure you want to delete the list entry?",
                         "label": "Delete",
-                        "progress": "Deleting...",
-                        "textComplete": "Delete"
+                        "action": "Delete",
+                        "progress": "Deleting..."
                     },
                     "actionRequest": {
                         "title": "What do you want to do?",

@@ -703,7 +703,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if ($parentContainer.hasClass('current-user')) {
         Fliplet.UI.Actions({
-          title: T('widgets.dynamicLists.dataSource.newsFeed.notifications.actionRequest.title'),
+          title: T('widgets.dynamicLists.dataSource.notifications.actionRequest.title'),
           labels: [
             {
               label: T('widgets.dynamicLists.dataSource.notifications.actionRequest.copy'),
@@ -910,7 +910,7 @@ DynamicList.prototype.attachObservers = function() {
                   _.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
-                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.textComplete')).removeClass('disabled');
+                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.action')).removeClass('disabled');
                   _this.closeDetails();
                   _this.removeListItemHTML({
                     id: entryId
@@ -1363,7 +1363,7 @@ DynamicList.prototype.connectToDataSource = function() {
     return getData(cache);
   }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
-      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.loading')
+      message: T('widgets.dynamicLists.dataSource.errors.loadFailed')
     });
   });
 };
@@ -2738,7 +2738,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
     });
   }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
-      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.loadFailed')
+      message: T('widgets.dynamicLists.dataSource.comments.errors.loadFailed')
     });
   });
 };
@@ -2785,8 +2785,8 @@ DynamicList.prototype.sendComment = function(id, value) {
   });
 
   if (!userFromDataSource) {
-    return Fliplet.UI.Toast.error(T('widgets.dynamicLists.dataSource.newsFeed.errors.invalidUser.title'), {
-      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.invalidUser.message')
+    return Fliplet.UI.Toast.error(T('widgets.dynamicLists.dataSource.errors.invalidUser.title'), {
+      message: T('widgets.dynamicLists.dataSource.errors.invalidUser.message')
     });
   }
 
@@ -3036,7 +3036,7 @@ DynamicList.prototype.deleteComment = function(id) {
   }).catch(function(error) {
     commentHolder.show();
     Fliplet.UI.Toast.error(error, {
-      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.deleteFailed')
+      message: T('widgets.dynamicLists.dataSource.comments.errors.deleteFailed')
     });
   });
 };
@@ -3106,7 +3106,7 @@ DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
     .catch(function(error) {
       _this.replaceComment(commentId, oldCommentData, 'final');
       Fliplet.UI.Toast.error(error, {
-        message: T('widgets.dynamicLists.dataSource.newsFeed.errors.updateFailed')
+        message: T('widgets.dynamicLists.dataSource.comments.errors.updateFailed')
       });
     });
 };

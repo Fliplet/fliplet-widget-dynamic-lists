@@ -87,7 +87,7 @@
   </div>
   \{{/if}}
   <div class="active-filters hidden">
-    <div class="hidden-filter-controls-label">{{ T "widgets.dynamicLists.dataSource.filter.label" }}</div>
+    <div class="hidden-filter-controls-label">{{ T "widgets.dynamicLists.dataSource.filter.applied" }}</div>
     <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
       <div class="hidden-filter-controls-filter-wrapper">
         <fieldset data-filter-active-group>
@@ -119,9 +119,9 @@
     \{{#ifCond limitEntries '==' 0}}
       \{{#ifCond searchEnabled '||' filtersEnabled}}
       <p>
-        \{{#if searchEnabled}}{{ T "widgets.dynamicLists.dataSource.search.action" }}\{{/if}}
+        \{{#if searchEnabled}}{{ T "widgets.dynamicLists.dataSource.search.title" }}\{{/if}}
           \{{#ifCond searchEnabled '&&' filtersEnabled}} {{ T "widgets.dynamicLists.dataSource.search.andOr" }} \{{/ifCond}}
-        \{{#if filtersEnabled}}{{ T "widgets.dynamicLists.dataSource.filter.action" }}\{{/if}} {{ T "widgets.dynamicLists.dataSource.search.toSeeItems" }}
+        \{{#if filtersEnabled}}{{ T "widgets.dynamicLists.dataSource.filter.title" }}\{{/if}} {{ T "widgets.dynamicLists.dataSource.search.toSeeItems" }}
       </p>
       \{{/ifCond}}
     \{{/ifCond}}
@@ -129,9 +129,9 @@
     <p>
       \{{T "widgets.dynamicLists.dataSource.search.limitItems" limit=limitEntries }}
       \{{#ifCond searchEnabled '||' filtersEnabled}}
-      \{{#if searchEnabled}} {{ T "widgets.dynamicLists.dataSource.search.action" }}\{{/if}}
+      \{{#if searchEnabled}} {{ T "widgets.dynamicLists.dataSource.search.title" }}\{{/if}}
       \{{#ifCond searchEnabled '&&' filtersEnabled}} {{ T "widgets.dynamicLists.dataSource.search.andOr" }} \{{/ifCond}}
-      \{{#if filtersEnabled}}{{ T "widgets.dynamicLists.dataSource.filter.action" }}\{{/if}} {{ T "widgets.dynamicLists.dataSource.search.toSeeMore" }}\{{/ifCond}}
+      \{{#if filtersEnabled}}{{ T "widgets.dynamicLists.dataSource.filter.title" }}\{{/if}} {{ T "widgets.dynamicLists.dataSource.search.toSeeMore" }}\{{/ifCond}}
     </p>
     \{{/ifCond}}
   </div>
@@ -178,7 +178,7 @@
 
 <div class="simple-list-comment-panel">
   <div class="simple-list-comment-panel-header">
-    <div class="simple-list-comment-panel-title">{{ T "widgets.dynamicLists.dataSource.comments.title" }}</div>
+    <div class="simple-list-comment-panel-title">{{ T "widgets.dynamicLists.dataSource.comments.listTitle" }}</div>
     <div class="simple-list-comment-close-panel focus-outline" tabindex="0"><i class="fa fa-times"></i></div>
   </div>
 
@@ -196,7 +196,7 @@
       <textarea class="form-control" rows="1" placeholder="Type comment" data-comment-body></textarea>
     </div>
     <div class="input-second-row">
-      <div class="btn btn-primary comment focus-outline" tabindex="0">{{ T "widgets.dynamicLists.dataSource.comments.commentTitle" }}</div>
+      <div class="btn btn-primary comment focus-outline" tabindex="0">{{ T "widgets.dynamicLists.dataSource.comments.title" }}</div>
       <div class="btn btn-link cancel">{{ T "widgets.dynamicLists.dataSource.comments.cancel" }}</div>
       <div class="btn btn-primary save">{{ T "widgets.dynamicLists.dataSource.comments.save" }}</div>
     </div>

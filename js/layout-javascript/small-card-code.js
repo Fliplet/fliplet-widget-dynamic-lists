@@ -764,7 +764,7 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.textComplete')).removeClass('disabled');
+                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.action')).removeClass('disabled');
 
                   if ($(window).width() < 640) {
                     _this.collapseElement(_this.directoryDetailWrapper);
@@ -1204,7 +1204,7 @@ DynamicList.prototype.connectToDataSource = function() {
     return getData(cache);
   }).catch(function(error) {
     Fliplet.UI.Toast.error(error, {
-      message: T('widgets.dynamicLists.dataSource.newsFeed.errors.loading')
+      message: T('widgets.dynamicLists.dataSource.errors.loadFailed')
     });
   });
 };

@@ -92,7 +92,7 @@ function DynamicList(id, data) {
     })
     .catch(function(error) {
       Fliplet.UI.Toast.error(error, {
-        message: T('widgets.dynamicLists.dataSource.agenda.errors.loading')
+        message: T('widgets.dynamicLists.dataSource.agenda.errors.loadFailed')
       });
     });
 }
@@ -844,7 +844,7 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.textComplete')).removeClass('disabled');
+                  _that.text(T('widgets.dynamicLists.dataSource.notifications.confirmDelete.action')).removeClass('disabled');
                   _this.closeDetails();
 
                   _this.removeListItemHTML({
