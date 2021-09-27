@@ -3,7 +3,8 @@
         "dynamicLists": {
             "dataSource": {
                 "agenda": {
-                    "noBookmarks": "Nothing bookmarked for this date",
+                    "bookmarksNoResults": "Nothing bookmarked for this date",
+                    "instruction": "Disable bookmarks to search all items",
                     "errors": {
                         "loadFailed": "Error loading agenda"
                     },
@@ -22,7 +23,7 @@
                     "survey": "Survey",
                     "questions": "Questions",
                     "linkText": "Tap to open",
-                    "uploaded:": "Uploaded:",
+                    "uploaded": "Uploaded",
                     "edit": "Edit",
                     "delete": "Delete"
                 },
@@ -30,8 +31,10 @@
                     "listTitle": "Comments",
                     "offline": "You are offline",
                     "title": "Comment",
-                    "cancel": "Cancel",
-                    "save": "Save",
+                    "actions": {
+                        "cancel": "Cancel",
+                        "save": "Save"
+                    },
                     "errors": {
                         "loadFailed": "Unable to load comments",
                         "updateFailed": "Error updating comment",
