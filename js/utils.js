@@ -11,7 +11,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       email: /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
       phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
       url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,32})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
-      mention: /\B@[a-z0-9_-]+/ig
+      mention: /\B@[a-z0-9_-]+/ig,
+      date: /^[0-9]{4}-([0]?[1-9]|[1][0-2])-([0]?[1-9]|[1|2][0-9]|[3][0|1])$/
     },
     refArraySeparator: '.$.'
   };
@@ -202,13 +203,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   /**
    * Determine filter types based on configuration
-   * @param {Object} config - Layout configuration
-   * @returns {Object} Mapping of filter types
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.instance - Instance of the layout
+   * @returns {Object} A map of filter types
    */
-  function getFilterTypes(config) {
-    config = config || {};
+  function getFilterTypes(options) {
+    options = options || {};
 
-    var filterFields = config.filterFields || [];
+    var instance = options.instance;
+    var config = instance.data;
+
+    var filterFields = (config.filterFields || []).concat(instance.pvFilterQuery.column);
     var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
     var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
       return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
@@ -415,17 +420,98 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return moment(new Date(date));
   }
 
-  function getFilterQuerySelectors(options) {
+  /**
+   * Checks if the value is a valid date string in YYYY-MM-DD format
+   * @param {String} value - Date string
+   * @returns {Boolean} Returns TRUE if the date is a valid date string
+   */
+  function isValidDate(value) {
+    return value.match(Static.RegExp.date) && moment(value).isValid();
+  }
+
+  /**
+   * Validate filter queries
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.query - Filter queries
+   * @param {Object} options.filterTypes - A map of filter types
+   * @returns {undefined}
+   */
+  function validateFilterQueries(options) {
     options = options || {};
 
     var query = options.query || {};
-
-    if (!_.get(query, 'value', []).length) {
-      return [];
-    }
+    var filterTypes = options.filterTypes;
 
     if (!Array.isArray(query.value)) {
       query.value = [query.value];
+    }
+
+    _.forEach(query.column, function(field, index) {
+      if (typeof query.value[index] === 'undefined') {
+        delete query.column[index];
+        delete query.value[index];
+
+        return;
+      }
+
+      var type = filterTypes[field];
+
+      // Toggle queries don't need to be further validated
+      if (type === 'toggle' || typeof type === 'undefined') {
+        if (!Array.isArray(query.value[index])) {
+          query.value[index] = [query.value[index]];
+        }
+
+        return;
+      }
+
+      // Validate range queries
+      if (query.value[index].indexOf('..') === -1) {
+        delete query.column[index];
+        delete query.value[index];
+
+        return;
+      }
+
+      var parts = query.value[index].split('..');
+      var from = parts[0];
+      var to = parts[1];
+
+      if (type === 'date') {
+        if (!isValidDate(from) || !isValidDate(to)) {
+          delete query.column[index];
+          delete query.value[index];
+
+          return;
+        }
+
+        // Set the range values as an array and reverse them if necessary
+        query.value[index] = from <= to ? [from, to] : [to, from];
+      }
+    });
+
+    // Remove undefined values
+    query.column = _.compact(query.column);
+    query.value = _.compact(query.value);
+
+    return query;
+  }
+
+  /**
+   * Generate a list of jQuery selectors for the filter elements based on the filter query
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.query - Filter queries
+   * @param {Object} options.filterTypes - A map of filter types
+   * @returns {Array} A list of jQuery selectors
+   */
+  function getFilterQuerySelectors(options) {
+    options = options || {};
+
+    var query = validateFilterQueries(options);
+    var filterTypes = options.filterTypes;
+
+    if (!_.get(query, 'value', []).length) {
+      return [];
     }
 
     if (!_.get(query, 'column', []).length) {
@@ -438,12 +524,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     // Select filters using column-specific methods
     query.column.forEach(function(field, index) {
-      if (!Array.isArray(query.value[index])) {
-        query.value[index] = [query.value[index]];
+      var type = filterTypes[field];
+
+      if (['date'].indexOf(type) > -1) {
+        selectors.push('.hidden-filter-controls-filter[data-field="' + field + '"][data-type="' + type + '"]');
+
+        return;
       }
 
       query.value[index].forEach(function(value) {
-        selectors.push('[data-field="' + field + '"][data-value="' + value + '"]');
+        selectors.push('.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]');
       });
     });
 
@@ -451,13 +541,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * This function is used to show amount of the selected by users filters
-   *
-   * @param {Object} options - incoming object with keys:
-   *  filtersInOverlay { Boolean } - represent us if filters shown in the overlay
-   *  $target { Jquery instance } - Jq instance on which user have pressed
-   *
-   * @returns {void} this function doesn't return anything it add changes directly to the DOM
+   * Update the number of selected filters
+   * @param {Object} options - A map of options for the function
+   * @param {Boolean} options.filtersInOverlay - If TRUE, filters are displayed in an overlay
+   * @param {jQuery} options.$target - jQuery instance on which user has pressed
+   * @returns {undefined}
    */
   function updateActiveFilterCount(options) {
     if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
@@ -619,6 +707,64 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     instance.toggleFilterElement(instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
 
     return instance.searchData();
+  }
+
+  /**
+   * Process the filter queries and prepare the filter UI accordingly
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.instance - Instance of the layout
+   * @returns {undefined}
+   */
+  function parseFilterQueries(options) {
+    options = options || {};
+
+    var instance = options.instance;
+
+    if (!instance) {
+      return;
+    }
+
+    var filterSelectors = getFilterQuerySelectors({
+      query: instance.pvFilterQuery,
+      filterTypes: instance.filterTypes
+    });
+    var $filters = instance.$container.find(filterSelectors.join(','));
+
+    if (!$filters.length) {
+      return;
+    }
+
+    $filters.each(function() {
+      var $filter = $(this);
+      var type = $filter.data('type');
+
+      if (type === 'date') {
+        var queryIndex = instance.pvFilterQuery.column.indexOf($filter.data('field'));
+        var rangeValues = instance.pvFilterQuery.value[queryIndex];
+        var value = $filter.hasClass('filter-date-from') ? rangeValues[0] : rangeValues[1];
+
+        Fliplet.UI.DatePicker.get($filter).set(value, false);
+      }
+
+      instance.toggleFilterElement($filter, true);
+    });
+
+    instance.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
+
+    if (instance.data.filtersInOverlay) {
+      $filters.closest('.panel-collapse').addClass('in');
+    }
+
+    if (!_.get(instance.pvFilterQuery, 'hideControls', false)) {
+      instance.$container.find('.hidden-filter-controls').addClass('active');
+
+      if (!instance.data.filtersInOverlay) {
+        instance.$container.find('.list-search-cancel').addClass('active');
+        instance.$container.find('.list-search-icon .fa-sliders').addClass('active');
+
+        instance.calculateFiltersHeight();
+      }
+    }
   }
 
   function fetchAndCache(options) {
@@ -1472,7 +1618,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var config = options.config || {};
     var filterFields = config.filterFields || [];
     var filterTypes = options.filterTypes;
+    var filterQuery = options.filterQuery;
     var locale = moment.locale();
+
+    if (filterQuery) {
+      filterFields = filterFields.concat(filterQuery.column);
+    }
 
     // Temporarily switch locale to EN to ensure correct formatting and sorting
     moment.locale('en');
@@ -2311,10 +2462,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     // Update page context for navigation
+    var filterTypes = options.filterTypes;
     var pageCtx = {};
     var filterColumns = _.map(_.toPairs(options.activeFilters), 0).join(',');
     var filterValues = _.map(_.toPairs(options.activeFilters), function(filter) {
-      return filter[1].length > 1 ? '[' + filter[1].join(',') + ']' : filter[1].join(',');
+      switch (filterTypes[filter[0]]) {
+        case 'date':
+          return filter[1].join('..');
+        case 'toggle':
+        default:
+          return filter[1].length > 1 ? '[' + filter[1].join(',') + ']' : filter[1].join(',');
+      }
     }).join(',');
 
     if (!options.searchValue) {
@@ -2557,7 +2715,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       updateActiveFilterCount: updateActiveFilterCount,
       getActiveFilters: getActiveFilters,
       renderFilters: renderFilters,
-      clearFilters: clearFilters
+      clearFilters: clearFilters,
+      parseFilterQueries: parseFilterQueries
     },
     String: {
       splitByCommas: splitByCommas,
