@@ -138,10 +138,12 @@
   margin-right: 2px !important;
 }
 
-[data-filter-group] .hidden-filter-controls-filter.fl-date-picker {
+[data-filter-group] .hidden-filter-controls-filter.fl-date-picker,
+.filter-overlay [data-filter-group] .hidden-filter-controls-filter.fl-date-picker {
   padding: 0;
   display: inline-block;
   width: 130px;
+  overflow: visible;
 }
 
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
