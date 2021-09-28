@@ -1109,7 +1109,7 @@ html.ie11 .simple-list-item .list-item-description {
 .simple-list-detail-overlay .simple-list-bookmark-wrapper .fa,
 .simple-list-detail-overlay .simple-list-comment-holder .fa,
 .simple-list-detail-overlay .simple-list-comment-holder span {
-  opacity: 0.3;
+  color: rgba(51, 51, 51, 0.5);
 }
 
 .simple-list-detail-overlay .simple-list-like-wrapper,

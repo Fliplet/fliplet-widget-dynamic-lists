@@ -870,6 +870,11 @@ var DynamicLists = (function() {
       $('.state').removeClass('loading is-loading');
     },
     init: function() {
+      _this.toggleRuleTypes({
+        insert: _this.config.addEntry,
+        update: _this.config.editEntry,
+        delete: _this.config.deleteEntry
+      });
       _this.setupLayoutSelector();
 
       return _this.getDataSources()
@@ -994,9 +999,25 @@ var DynamicLists = (function() {
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
           // Load Add. Edit, Delete
-          $('#add_entry').prop('checked', _this.config.addEntry).trigger('change');
-          $('#edit_entry').prop('checked', _this.config.editEntry).trigger('change');
-          $('#delete_entry').prop('checked', _this.config.deleteEntry).trigger('change');
+          $('#add_entry')
+            .prop('checked', _this.config.addEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', !!_this.config.addEntry);
+
+          $('#edit_entry')
+            .prop('checked', _this.config.editEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', !!_this.config.editEntry);
+
+          $('#delete_entry')
+            .prop('checked', _this.config.deleteEntry)
+            .parent()
+            .find('.hidden-settings')
+            .toggleClass('active', !!_this.config.deleteEntry);
+
+          _this.updatePermission();
 
           var addPermission = _this.config.addPermissions || 'everyone';
           var editPermission = _this.config.editPermissions || 'everyone';
@@ -2877,7 +2898,8 @@ var DynamicLists = (function() {
         likesPromise = Fliplet.DataSources.create({
           name: appName + ' - Likes',
           bundle: false,
-          organizationId: organizationId, // optional
+          type: 'likes',
+          organizationId: organizationId,
           accessRules: [
             { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
           ]
@@ -2893,7 +2915,8 @@ var DynamicLists = (function() {
         bookmarksPromise = Fliplet.DataSources.create({
           name: appName + ' - Bookmarks',
           bundle: false,
-          organizationId: organizationId, // optional
+          type: 'bookmarks',
+          organizationId: organizationId,
           definition: {
             views: [
               {
@@ -2937,11 +2960,12 @@ var DynamicLists = (function() {
       }
 
       if (_this.config.social.comments && (!_this.config.commentsDataSourceId || _this.config.commentsDataSourceId === '')) {
-        // Create likes data source
+        // Create comments data source
         commentsPromise = Fliplet.DataSources.create({
           name: appName + ' - Comments',
           bundle: false,
-          organizationId: organizationId, // optional
+          type: 'comments',
+          organizationId: organizationId,
           accessRules: [
             { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
           ]

@@ -877,7 +877,7 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
 .news-feed-detail-overlay .news-feed-bookmark-wrapper .fa,
 .news-feed-detail-overlay .news-feed-comment-holder .fa,
 .news-feed-detail-overlay .news-feed-comment-holder span {
-  color: rgba(51, 51, 51, 0.3);
+  color: rgba(51, 51, 51, 0.5);
 }
 
 .news-feed-detail-overlay .news-feed-like-wrapper,

@@ -653,16 +653,21 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.news-feed-list-item.open .slide-over').removeClass('lock');
       _this.$container.find('.news-feed-comment-holder').focus();
 
+      var contextsToRemove = ['dynamicListOpenComments', 'dynamicListCommentId'];
+
       if (!_this.$container.find('.news-feed-detail-overlay').hasClass('open')) {
         $('body').removeClass('lock');
+        contextsToRemove.push('dynamicListOpenId');
       }
+
+      Fliplet.Page.Context.remove(contextsToRemove);
     })
     .on('click keydown', '.news-feed-comment-input-holder .comment', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
 
-      var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
+      var entryId = _this.$container.find('.news-feed-details-content-holder').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val().trim();
 
@@ -721,7 +726,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('click', '.news-feed-comment-input-holder .save', function() {
       var commentId = _this.$container.find('.fl-individual-comment.editing').data('id');
-      var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
+      var entryId = _this.$container.find('.news-feed-details-content-holder').data('entry-id') || _this.entryClicked;
       var $commentArea = $(this).parents('.news-feed-comment-input-holder').find('[data-comment-body]');
       var comment = $commentArea.val();
 
@@ -3053,7 +3058,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
-  var entryId = _this.$container.find('.news-feed-list-item.open').data('entry-id') || _this.entryClicked;
+  var entryId = _this.$container.find('.news-feed-details-content-holder').data('entry-id') || _this.entryClicked;
   var entry = _.find(_this.listItems, { id: entryId });
   var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
   var options = {

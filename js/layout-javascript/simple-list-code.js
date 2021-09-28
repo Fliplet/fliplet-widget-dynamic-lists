@@ -632,9 +632,14 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.simple-list-detail-overlay-content-holder').removeClass('lock');
       _this.$container.find('.simple-list-comment-close-panel').focus();
 
+      var contextsToRemove = ['dynamicListOpenComments', 'dynamicListCommentId'];
+
       if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
         $('body').removeClass('lock');
+        contextsToRemove.push('dynamicListOpenId');
       }
+
+      Fliplet.Page.Context.remove(contextsToRemove);
     })
     .on('click', '.simple-list-comment-input-holder .comment', function() {
       var entryId = _this.entryClicked;
@@ -3004,7 +3009,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
-  var entryId = _this.$container.find('.simple-list-item.open').data('entry-id') || _this.entryClicked;
+  var entryId = _this.$container.find('.simple-list-details-holder').data('entry-id') || _this.entryClicked;
   var entry = _.find(_this.listItems, { id: entryId });
   var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
   var options = {
