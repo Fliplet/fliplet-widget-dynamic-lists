@@ -213,7 +213,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var instance = options.instance;
     var config = instance.data;
 
-    var filterFields = (config.filterFields || []).concat(instance.pvFilterQuery.column);
+    var filterFields = _.concat(config.filterFields, _.get(instance, 'pvFilterQuery.column'));
     var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
     var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
       return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
@@ -678,6 +678,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         var picker = Fliplet.UI.DatePicker(el, { required: true });
 
         picker.change(function(value) {
+          var isFrom = this.$el.closest('.hidden-filter-controls-filter').hasClass('filter-date-from');
+
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + instance.data.layout,
+            action: 'filter',
+            label: isFrom ? 'FROM_DATE' : 'TO_DATE'
+          });
+
           onFilterRangeChange({
             value: value,
             instance: instance,
@@ -698,7 +706,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var instance = options.instance;
 
-    instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active[data-type="date"]').each(function() {
+    instance.$container.find('.hidden-filter-controls-filter.fl-date-picker.mixitup-control-active[data-type="date"]').each(function() {
       var $filter = $(this);
 
       $filter.data('flDatePicker').set($filter.data('default'), false);
@@ -739,8 +747,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var type = $filter.data('type');
 
       if (type === 'date') {
-        var queryIndex = instance.pvFilterQuery.column.indexOf($filter.data('field'));
-        var rangeValues = instance.pvFilterQuery.value[queryIndex];
+        var queryIndex = _.get(instance, 'pvFilterQuery.column', []).indexOf($filter.data('field'));
+        var rangeValues = _.get(instance, ['pvFilterQuery', 'value', queryIndex], []);
         var value = $filter.hasClass('filter-date-from') ? rangeValues[0] : rangeValues[1];
 
         Fliplet.UI.DatePicker.get($filter).set(value, false);
