@@ -1,7 +1,7 @@
 <div class="search-results \{{#unless length}}no-results\{{/unless}}">
 \{{#unless this}}
-  <p class="results-empty">{{T "widgets.dynamicLists.dataSource.search.noResults"}}</p>
-  <p class="results-empty-bookmarks">{{T "widgets.dynamicLists.dataSource.search.bookmarksNoResults"}}<span class="results-empty-filtering results-empty-searching"><br>{{T "widgets.dynamicLists.dataSource.agenda.instruction"}}</span></p>
+  <p class="results-empty">{{T "widgets.list.dynamic.search.noResults"}}</p>
+  <p class="results-empty-bookmarks">{{T "widgets.list.dynamic.search.bookmarksNoResults"}}<span class="results-empty-filtering results-empty-searching"><br>{{T "widgets.list.dynamic.agenda.instruction"}}</span></p>
 \{{/unless}}
 \{{#each this}}
   <h3 class="search-results-list-date">\{{moment this.0.[Full Date] format="ddd D MMM"}}</h3>

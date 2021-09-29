@@ -13,27 +13,27 @@
     <div class="agenda-item-bookmark \{{#if agendaButtonsEnabled}}more-buttons\{{/if}}">
       <div class="agenda-item-bookmark-holder agenda-item-bookmark-holder-\{{id}}">
         <div class="bookmark-wrapper focus-outline btn-bookmark" tabindex="0">
-          <i class="fa fa-bookmark-o"></i>{{T "widgets.dynamicLists.dataSource.detail.bookmark"}}
+          <i class="fa fa-bookmark-o"></i>{{T "widgets.list.dynamic.detail.bookmark"}}
         </div>
         <div class="bookmark-wrapper focus-outline btn-bookmarked" tabindex="0">
-          <i class="fa fa-bookmark"></i>{{T "widgets.dynamicLists.dataSource.detail.bookmarked"}}
+          <i class="fa fa-bookmark"></i>{{T "widgets.list.dynamic.detail.bookmarked"}}
         </div>
 
         <div class="agenda-item-add-agenda"></div>
       </div>
       \{{#if pollButton}}
       <div class="go-to-poll session-button focus-outline" tabindex="0">
-        <i class="fa fa-pie-chart"></i>{{T "widgets.dynamicLists.dataSource.detail.poll"}}
+        <i class="fa fa-pie-chart"></i>{{T "widgets.list.dynamic.detail.poll"}}
       </div>
       \{{/if}}
       \{{#if surveyButton}}
       <div class="go-to-survey session-button focus-outline" tabindex="0">
-        <i class="fa fa-pencil-square-o"></i>{{T "widgets.dynamicLists.dataSource.detail.survey"}}
+        <i class="fa fa-pencil-square-o"></i>{{T "widgets.list.dynamic.detail.survey"}}
       </div>
       \{{/if}}
       \{{#if questionsButton}}
       <div class="go-to-questions session-button focus-outline" tabindex="0">
-        <i class="fa fa-question-circle-o"></i>{{T "widgets.dynamicLists.dataSource.detail.questions"}}
+        <i class="fa fa-question-circle-o"></i>{{T "widgets.list.dynamic.detail.questions"}}
       </div>
       \{{/if}}
     </div>
@@ -94,7 +94,7 @@
             \{{/if}}
 
             <div class="agenda-item-detail-body-text">
-              <a href="\{{{auth content}}}" target="_blank">{{T "widgets.dynamicLists.dataSource.detail.linkText"}}</a>
+              <a href="\{{{auth content}}}" target="_blank">{{T "widgets.list.dynamic.detail.linkText"}}</a>
             </div>
           \{{/if}}
         \{{/ifCond}}
@@ -147,7 +147,7 @@
                 <li class="file-item">
                   <div class="file-title">\{{this.name}}</div>
                   <div class="file-info">
-                    <span class="file-info-uploaded">{{T "widgets.dynamicLists.dataSource.detail.uploaded"}}: \{{formatDate this.uploaded}}</span>
+                    <span class="file-info-uploaded">{{T "widgets.list.dynamic.detail.uploaded"}}: \{{formatDate this.uploaded}}</span>
                     \{{#if this.size}}<span class="file-info-size">&ndash; \{{humanFileSize this.size}}</span>\{{/if}}
                   </div>
                   <input type="hidden" value=\{{this.url}}>
@@ -166,10 +166,10 @@
     \{{#ifCond editEntry '||' deleteEntry}}
     <div class="dynamic-list-controls">
       \{{#if editEntry}}
-      <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">{{T "widgets.dynamicLists.dataSource.detail.edit"}}</div>
+      <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">{{T "widgets.list.dynamic.detail.edit"}}</div>
       \{{/if}}
       \{{#if deleteEntry}}
-      <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">{{T "widgets.dynamicLists.dataSource.detail.delete"}}</div>
+      <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">{{T "widgets.list.dynamic.detail.delete"}}</div>
       \{{/if}}
     </div>
     \{{/ifCond}}

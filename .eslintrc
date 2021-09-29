@@ -18,10 +18,7 @@
     "Hammer": "readonly",
     "CodeMirror": "readonly",
     "autosize": "readonly",
-    "Raven": "readonly",
-    "TD": "readonly",
-    "TN": "readonly",
-    "T": "readonly"
+    "Raven": "readonly"
   },
   "rules": {
     "no-eval": 0

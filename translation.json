@@ -1,7 +1,7 @@
 {
     "widgets": {
-        "dynamicLists": {
-            "dataSource": {
+        "list": {
+            "dynamic": {
                 "agenda": {
                     "bookmarksNoResults": "Nothing bookmarked for this date",
                     "instruction": "Disable bookmarks to search all items",
