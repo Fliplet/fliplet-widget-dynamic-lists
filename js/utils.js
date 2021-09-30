@@ -1461,10 +1461,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    * @returns {Object} Minimum and maximum values
    */
   function getMinMaxFilterValues(values) {
+    var min = _.minBy(values, function(value) {
+      return value.data.value;
+    });
+
+    if (typeof min === 'undefined') {
+      return {};
+    }
+
     return {
-      min: _.minBy(values, function(value) {
-        return value.data.value;
-      }).data.value,
+      min: min.data.value,
       max: _.maxBy(values, function(value) {
         return value.data.value;
       }).data.value
@@ -1556,6 +1562,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         switch (filter.type) {
           case 'date':
             filter.data = getMinMaxFilterValues(values);
+
+            if (_.isEmpty(filter.data)) {
+              filterTypes[field] = 'toggle';
+              filter.type = 'toggle';
+              filter.data = _.map(values, 'data');
+            }
+
             break;
           case 'toggle':
           default:
@@ -1658,35 +1671,34 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           field: field,
           useData: true
         }), function(value) {
-          var filterClass;
-          var filterData;
+          var filterData = {
+            type: field,
+            data: {
+              name: value
+            }
+          };
 
           if (filterTypes[field] === 'date') {
-            var date = getMomentDate(value);
-
-            if (value && !date.isValid()) {
+            if (!value) {
               return;
             }
 
-            filterData = {
-              type: field,
-              data: {
-                value: date.format('YYYY-MM-DD')
-              }
-            };
+            var date = getMomentDate(value);
+
+            if (date.isValid()) {
+              filterData.data.value = date.format('YYYY-MM-DD');
+            }
 
             record.data['flFilters'].push(filterData);
           } else {
-            filterClass = _.kebabCase(value);
-            filterData = {
-              type: field,
-              data: {
-                name: value,
-                class: filterClass
-              }
-            };
+            var filterClass = _.kebabCase(value);
 
-            classes.push(filterClass);
+            filterData.data.class = filterClass;
+
+            if (classes.indexOf(filterClass) === -1) {
+              classes.push(filterClass);
+            }
+
             record.data['flFilters'].push(filterData);
           }
         });
