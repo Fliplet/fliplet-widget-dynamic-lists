@@ -257,9 +257,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         context = undefined;
       }
 
+      var date = getMomentDate(context);
+
+      if (!date.isValid()) {
+        return context;
+      }
+
       return block.hash.format
-        ? getMomentDate(context).format(block.hash.format)
-        : TD(getMomentDate(context), { format: 'll' });
+        ? date.format(block.hash.format)
+        : TD(date, { format: 'll' });
     });
 
     Handlebars.registerHelper('formatCSV', function(context) {
