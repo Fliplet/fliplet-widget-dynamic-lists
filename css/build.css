@@ -129,8 +129,14 @@
   white-space: initial !important;
 }
 
+[data-filter-group][data-type="date"] {
+  vertical-align: middle;
+  margin-bottom: 5px;
+}
+
 .filter-range-block {
   display: inline-block;
+  vertical-align: middle;
 }
 
 .filter-range-block:first-child,
@@ -144,6 +150,8 @@
   display: inline-block;
   width: 130px;
   overflow: visible;
+  margin-top: 2px;
+  margin-bottom: 2px;
 }
 
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
@@ -162,6 +170,10 @@
 
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa:first-child {
   text-indent: 4px;
+}
+
+.filter-range-to {
+  display: inline-block;
 }
 
 .filter-range-reset {
