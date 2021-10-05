@@ -7,10 +7,8 @@ var DynamicLists = (function() {
   var dataSourceProvider = null;
   var userDataSourceProvider = null;
   var listLayout;
-  var isLayoutSelected = false;
   var allDataSources = [];
   var newDataSource;
-  var newUserDataSource;
   var dataSourceColumns;
   var userDataSourceColumns;
   var resetToDefaults = false;
@@ -155,7 +153,6 @@ var DynamicLists = (function() {
       $(document)
         .on('click', '.layout-holder', function() {
           listLayout = $(this).data('layout');
-          isLayoutSelected = true;
 
           Fliplet.Studio.emit('page-preview-send-event', {
             type: 'dynamicListLayout',
@@ -376,7 +373,7 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '#enable-search', function() {
-          if ( $(this).is(':checked') ) {
+          if ($(this).is(':checked')) {
             $('.search-fields').removeClass('hidden');
             $('#search-column-fields-tokenfield').tokenfield('update');
           } else {
@@ -384,7 +381,7 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '#enable-sort', function() {
-          if ( $(this).is(':checked') ) {
+          if ($(this).is(':checked')) {
             $('.sort-fields').removeClass('hidden');
             $('#sort-column-fields-tokenfield').tokenfield('update');
           } else {
@@ -392,7 +389,7 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '#enable-filters', function() {
-          if ( $(this).is(':checked') ) {
+          if ($(this).is(':checked')) {
             $('.filter-fields').removeClass('hidden');
             $('.filter-in-overlay').removeClass('hidden');
             $('#filter-column-fields-tokenfield').tokenfield('update');
@@ -668,7 +665,7 @@ var DynamicLists = (function() {
     toggleUserEmail: function(showUserEmailList) {
       $('.select-user-email-list-holder').toggleClass('hidden', !showUserEmailList);
     },
-    toggleAdminIndetification: function(showUserAdminHolder) {
+    toggleAdminIdentification: function(showUserAdminHolder) {
       $('.select-user-admin-holder').toggleClass('hidden', !showUserAdminHolder);
     },
     updatePermission: function(permissionType) {
@@ -709,9 +706,10 @@ var DynamicLists = (function() {
             isEditEntryActive: isEditEntryActive,
             isDeleteEntryActive: isDeleteEntryActive
           });
+        // eslint-disable-next-line no-fallthrough
         case 'edit':
         case 'delete':
-          this.toggleAdminIndetification(showUserAdminHolder);
+          this.toggleAdminIdentification(showUserAdminHolder);
           this.toggleUserEmail(showUserEmailList);
           this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
           break;
@@ -789,6 +787,7 @@ var DynamicLists = (function() {
         };
         var accessRuleIndex = -1;
 
+        // eslint-disable-next-line no-loop-func
         accessRules.forEach(function(item, index) {
           var typeIndex = item.type.indexOf(type);
 
@@ -821,7 +820,6 @@ var DynamicLists = (function() {
           $('#enable-timezone-default-' + item.id).prop('checked', item.useDeviceTimezone).trigger('change');
           $('#value-field-' + item.id).val(item.fieldValue || item.value );
           $('#value-type-field-' + item.id).val(!item.valueType ? 'enter-value' : item.valueType);
-
 
           return;
         }
@@ -998,8 +996,6 @@ var DynamicLists = (function() {
             delete: _this.config.deleteEntry
           });
 
-          // eslint-disable-next-line no-unused-vars
-          isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
           // Load Add. Edit, Delete
@@ -1322,7 +1318,7 @@ var DynamicLists = (function() {
     updateSummaryRowContainer: function() {
       $summaryRowContainer.empty();
       _.forEach(_this.config['summary-fields'], function(item) {
-        // Backwards compatability
+        // Backwards compatibility
         if (typeof item.interfaceName === 'undefined') {
           var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
             return defaultItem.location === item.location;
@@ -1556,7 +1552,6 @@ var DynamicLists = (function() {
         return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
         }).then(function(dataSource) {
-          newUserDataSource = dataSource;
           userDataSourceColumns = dataSource.columns;
           _this.updateUserFieldsWithColumns(userDataSourceColumns);
         });
@@ -1921,7 +1916,7 @@ var DynamicLists = (function() {
 
         if (name === '') {
           $dataSources.val('none').trigger('change');
-          alert('You must enter a data source name');
+          Fliplet.Modal.alert({ message: 'You must enter a data source name' });
 
           return;
         }
