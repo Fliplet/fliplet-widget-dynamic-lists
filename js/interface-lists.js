@@ -201,7 +201,7 @@ function initFilePickerProvider(field) {
 
 function initialize() {
   linkProviderInit();
-  attahObservers();
+  attachObservers();
   dynamicLists = new DynamicLists(widgetData);
   dataSourceProvider = Fliplet.Registry.get('datasource-provider');
 }
@@ -243,7 +243,7 @@ function toggleError(showError, element) {
   $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
 }
 
-function attahObservers() {
+function attachObservers() {
   $(document)
     .on('click', '[data-file-picker-user]', function() {
       var idAttr = $('#select_user_folder_type').attr('id');
