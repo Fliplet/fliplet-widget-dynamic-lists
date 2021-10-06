@@ -13,11 +13,42 @@
         </div>
         <div id="collapse-\{{id}}-\{{@index}}" class="panel-collapse collapse">
           <div class="panel-body">
-            <fieldset data-filter-group>
+          \{{#ifCond type '===' 'date'}}
+            <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
+              <div class="filter-range-block">
+                <div class="form-group fl-date-picker hidden-filter-controls-filter filter-date-from focus-outline" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.min}}">
+                  <i class="fa fa-calendar fa-fw"></i>
+                  <input type="date" class="form-control" value="\{{data.min}}">
+                  <input type="text" class="form-control">
+                  <i class="fa fa-times fa-fw"></i>
+                </div>
+                to
+              </div>
+              <div class="filter-range-block">
+                <div class="form-group fl-date-picker hidden-filter-controls-filter filter-date-to focus-outline" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.max}}">
+                  <i class="fa fa-calendar fa-fw"></i>
+                  <input type="date" class="form-control" value="\{{data.max}}">
+                  <input type="text" class="form-control">
+                  <i class="fa fa-times fa-fw"></i>
+                </div>
+                <span class="btn btn-link filter-range-reset" data-field="\{{name}}" tabindex="0">Reset</span>
+              </div>
+            </fieldset>
+          \{{/ifCond}}
+          \{{#ifCond type '===' 'toggle'}}
+            <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
               \{{#each [data]}}
-              <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+              <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-type="\{{../type}}" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
               \{{/each}}
             </fieldset>
+          \{{/ifCond}}
+          \{{#unless type}}
+            <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
+              \{{#each [data]}}
+              <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-type="toggle" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+              \{{/each}}
+            </fieldset>
+          \{{/unless}}
           </div>
         </div>
       </div>
@@ -27,12 +58,43 @@
   \{{#each filters}}
   <div class="hidden-filter-controls-label">Filter by <span>\{{[name]}}</span></div>
   <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
-    <div class="hidden-filter-controls-filter-wrapper">
-      <fieldset data-filter-group>
-        \{{#each [data]}}
-        <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
-        \{{/each}}
-      </fieldset>
+    <div class="hidden-filter-controls-filter-wrapper" data-type="\{{type}}">
+      \{{#ifCond type '===' 'date'}}
+        <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
+          <div class="filter-range-block">
+            <div class="form-group fl-date-picker hidden-filter-controls-filter filter-date-from focus-outline" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.min}}">
+              <i class="fa fa-calendar fa-fw"></i>
+              <input type="date" class="form-control" value="\{{data.min}}">
+              <input type="text" class="form-control">
+              <i class="fa fa-times fa-fw"></i>
+            </div>
+            to
+          </div>
+          <div class="filter-range-block">
+            <div class="form-group fl-date-picker hidden-filter-controls-filter filter-date-to focus-outline" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{data.max}}">
+              <i class="fa fa-calendar fa-fw"></i>
+              <input type="date" class="form-control" value="\{{data.max}}">
+              <input type="text" class="form-control">
+              <i class="fa fa-times fa-fw"></i>
+            </div>
+            <span class="btn btn-link filter-range-reset" data-field="\{{name}}" tabindex="0">Reset</span>
+          </div>
+        </fieldset>
+      \{{/ifCond}}
+      \{{#ifCond type '===' 'toggle'}}
+        <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
+          \{{#each [data]}}
+          <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-type="\{{../type}}" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+          \{{/each}}
+        </fieldset>
+      \{{/ifCond}}
+      \{{#unless type}}
+        <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
+          \{{#each [data]}}
+          <div class="btn hidden-filter-controls-filter focus-outline" tabindex="0" data-type="toggle" data-toggle="\{{[class]}}" data-field="\{{../name}}" data-value="\{{[name]}}" >\{{[name]}}</div>
+          \{{/each}}
+        </fieldset>
+      \{{/unless}}
     </div>
   </div>
   \{{/each}}
