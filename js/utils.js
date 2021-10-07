@@ -446,7 +446,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     var query = options.query || {};
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
 
     if (!Array.isArray(query.value)) {
       query.value = [query.value];
@@ -514,7 +514,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     var query = validateFilterQueries(options);
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
 
     if (!_.get(query, 'value', []).length) {
       return [];
@@ -1229,7 +1229,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var fields = options.fields || [];
     var config = options.config || {};
     var activeFilters = options.activeFilters || {};
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
     var showBookmarks = _.get(config, 'social.bookmark') && options.showBookmarks;
     var limit = _.get(options, 'limit', -1);
 
@@ -1380,7 +1380,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var record = options.record;
     var filters = options.filters;
     var config = options.config || {};
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
 
     var recordFieldValues = _.mapValues(filters, function(values, field) {
       return _.map(_.uniq(getRecordField({
@@ -1493,7 +1493,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var filters = options.filters || [];
     var id = options.id;
     var query = options.query;
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
     var hasFilterQuery = query && query.value.length;
 
     // Add a fake entry into records to represent the filters from the query
@@ -1644,7 +1644,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var records = options.records || [];
     var config = options.config || {};
     var filterFields = config.filterFields || [];
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
     var filterQuery = options.filterQuery;
     var locale = moment.locale();
 
@@ -1905,7 +1905,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var $container = options.$container;
     var activeFilters = getActiveFilters({ $container: $container });
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
 
     var $activeFiltersHolder = $container.find('.active-filters');
     var $filtersGroup = $activeFiltersHolder.find('[data-filter-active-group]');
@@ -2488,7 +2488,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     // Update page context for navigation
-    var filterTypes = options.filterTypes;
+    var filterTypes = options.filterTypes || {};
     var pageCtx = {};
     var filterColumns = _.map(_.toPairs(options.activeFilters), 0).join(',');
     var filterValues = _.map(_.toPairs(options.activeFilters), function(filter) {
