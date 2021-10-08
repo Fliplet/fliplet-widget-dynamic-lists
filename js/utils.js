@@ -1551,28 +1551,28 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })
       .groupBy('type')
       .map(function(values, field) {
-        // _.map iteratee for defining of each filter value
+        // _.map iteratee for defining of each filter field
         var filter  = {
           id: id,
-          name: field
+          name: field,
+          data: _.map(values, 'data'),
+          type: filterTypes[field]
         };
-
-        filter.type = filterTypes[field];
 
         switch (filter.type) {
           case 'date':
-            filter.data = getMinMaxFilterValues(values);
+            _.assign(filter, getMinMaxFilterValues(values));
 
-            if (_.isEmpty(filter.data)) {
+            // If min/max values can't be found, render the filter as a toggle
+            if (!_.has(filter, 'min') || !_.has(filter, 'max')) {
               filterTypes[field] = 'toggle';
               filter.type = 'toggle';
-              filter.data = _.map(values, 'data');
             }
 
             break;
           case 'toggle':
           default:
-            filter.data = _.map(values, 'data');
+            break;
         }
 
         return filter;
