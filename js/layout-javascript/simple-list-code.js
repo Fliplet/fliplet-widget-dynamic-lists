@@ -69,6 +69,7 @@ function DynamicList(id, data) {
 
   // Register handlebars helpers
   this.Utils.registerHandlebarsHelpers();
+
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
     if (_.get(session, 'entries.saml2.user')) {
@@ -90,11 +91,21 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
+  var filterType = $target.data('type');
+
+  // Date filters are targeted at the same time
+  if (filterType === 'date') {
+    $target = $target.closest('[data-filter-group]').find('.hidden-filter-controls-filter');
+  }
 
   if (typeof toggle === 'undefined') {
     $target.toggleClass('mixitup-control-active');
   } else {
     $target[!!toggle ? 'addClass' : 'removeClass']('mixitup-control-active');
+  }
+
+  if (filterType === 'date') {
+    $target.closest('[data-filter-group]').toggleClass('filter-range-active', $target.hasClass('mixitup-control-active'));
   }
 
   if (this.$container.find('.mixitup-control-active').length) {
@@ -107,12 +118,6 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
     filtersInOverlay: this.data.filtersInOverlay,
     $target: $target
   });
-};
-
-DynamicList.prototype.clearFilters = function() {
-  this.toggleFilterElement(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
-
-  return this.searchData();
 };
 
 DynamicList.prototype.hideFilterOverlay = function() {
@@ -252,7 +257,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.fa-sliders').focus();
 
       _this.hideFilterOverlay();
-      _this.clearFilters();
+      _this.Utils.Page.clearFilters({ instance: _this });
     })
     .on('click keydown', '.hidden-filter-controls-filter', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -260,6 +265,11 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var $filter = $(this);
+
+      // Date filters change events are handled differently
+      if (['date'].indexOf($filter.data('type')) > -1) {
+        return;
+      }
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -270,6 +280,31 @@ DynamicList.prototype.attachObservers = function() {
       _this.toggleFilterElement($filter);
 
       if ($filter.parents('.inline-filter-holder').length) {
+        // @HACK Skip an execution loop to allow custom handlers to update the filters
+        setTimeout(function() {
+          _this.searchData();
+        }, 0);
+      }
+    })
+    .on('click', '.filter-range-reset', function() {
+      var $filterGroup = $(this).closest('[data-filter-group]');
+      var $filters = $filterGroup.find('.hidden-filter-controls-filter');
+
+      $filters.each(function() {
+        var $filter = $(this);
+
+        $filter.data('flDatePicker').set($filter.data('default'), false);
+      });
+
+      Fliplet.Analytics.trackEvent({
+        category: 'list_dynamic_' + _this.data.layout,
+        action: 'filter',
+        label: 'RESET_DATES'
+      });
+
+      _this.toggleFilterElement($filters, false);
+
+      if ($filters.parents('.inline-filter-holder').length) {
         // @HACK Skip an execution loop to allow custom handlers to update the filters
         setTimeout(function() {
           _this.searchData();
@@ -404,7 +439,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.find('.hidden-filter-controls-filter-container').removeClass('hidden');
       $elementClicked.addClass('active');
 
-      _this.calculateFiltersHeight($parentElement);
+      _this.calculateFiltersHeight();
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -470,7 +505,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').animate({ height: 0 }, 200);
 
       // Clear filters
-      _this.clearFilters();
+      _this.Utils.Page.clearFilters({ instance: _this });
     })
     .on('keyup input', '.search-holder input', function(e) {
       var $inputField = $(this);
@@ -1058,6 +1093,8 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
+      // Determine filter types from configuration
+      _this.filterTypes = _this.Utils.getFilterTypes({ instance: _this });
 
       return _this.connectToDataSource();
     })
@@ -1112,7 +1149,9 @@ DynamicList.prototype.initialize = function() {
       _this.checkIsToOpen();
       _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
-        config: _this.data
+        config: _this.data,
+        filterTypes: _this.filterTypes,
+        filterQuery: _this.queryFilter ? _this.pvFilterQuery : undefined
       });
 
       return _this.addFilters(_this.modifiedListItems);
@@ -1187,35 +1226,13 @@ DynamicList.prototype.parseSearchQueries = function() {
 };
 
 DynamicList.prototype.parseFilterQueries = function() {
-  var _this = this;
-
-  if (!_this.queryFilter) {
+  if (!this.queryFilter) {
     return;
   }
 
-  var filterSelectors = _this.Utils.Query.getFilterSelectors({ query: _this.pvFilterQuery });
-  var $filters = _this.$container.find(_.map(filterSelectors, function(selector) {
-    return '.hidden-filter-controls-filter' + selector;
-  }).join(','));
-
-  if (!$filters.length) {
-    return;
-  }
-
-  _this.toggleFilterElement($filters, true);
-  _this.$container.find('.hidden-filter-controls-filter-container').removeClass('hidden');
-  $filters.parents('.simple-list-filters-panel').find('.panel-collapse').addClass('in');
-
-  if (!_.get(_this.pvFilterQuery, 'hideControls', false)) {
-    _this.$container.find('.hidden-filter-controls').addClass('active');
-
-    if (!_this.data.filtersInOverlay) {
-      _this.$container.find('.list-search-cancel').addClass('active');
-      _this.$container.find('.list-search-icon .fa-sliders').addClass('active');
-    }
-
-    _this.calculateFiltersHeight(_this.$container.find('.simple-list-container'));
-  }
+  this.Utils.Page.parseFilterQueries({
+    instance: this
+  });
 };
 
 DynamicList.prototype.navigateBackEvent = function() {
@@ -1395,7 +1412,8 @@ DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
     records: records,
-    config: _this.data
+    config: _this.data,
+    filterTypes: _this.filterTypes
   });
   var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
@@ -1514,7 +1532,8 @@ DynamicList.prototype.addFilters = function(records) {
     records: records,
     filters: _this.data.filterFields,
     id: _this.data.id,
-    query: _this.queryFilter ? _this.pvFilterQuery : undefined
+    query: _this.queryFilter ? _this.pvFilterQuery : undefined,
+    filterTypes: _this.filterTypes
   });
 
   return Fliplet.Hooks.run('flListDataBeforeRenderFilters', {
@@ -1536,7 +1555,10 @@ DynamicList.prototype.addFilters = function(records) {
     _.remove(filters, function(filter) {
       return _.isEmpty(filter.data);
     });
-    _this.$container.find('.filter-holder').html(template(filtersData));
+    _this.Utils.Page.renderFilters({
+      instance: _this,
+      html: template(filtersData)
+    });
     Fliplet.Hooks.run('flListDataAfterRenderFilters', {
       instance: _this,
       filters: filters,
@@ -1546,28 +1568,8 @@ DynamicList.prototype.addFilters = function(records) {
   });
 };
 
-DynamicList.prototype.getActiveFilters = function() {
-  return _(this.$container.find('.hidden-filter-controls-filter.mixitup-control-active'))
-    .map(function(el) {
-      return _.pickBy({
-        class: el.dataset.toggle,
-        field: el.dataset.field,
-        value: el.dataset.value
-      });
-    })
-    .groupBy('field')
-    .mapValues(function(filters) {
-      return _.map(filters, function(filter) {
-        return _.has(filter, 'field') && _.has(filter, 'value')
-          ? filter.value
-          : filter.class;
-      });
-    })
-    .value();
-};
-
-DynamicList.prototype.calculateFiltersHeight = function($el) {
-  $el.find('.hidden-filter-controls').each(function() {
+DynamicList.prototype.calculateFiltersHeight = function() {
+  this.$container.find('.hidden-filter-controls').each(function() {
     $(this).animate({
       height: '100%'
     }, 200);
@@ -1603,7 +1605,7 @@ DynamicList.prototype.searchData = function(options) {
 
   _this.searchValue = value;
   value = value.toLowerCase();
-  _this.activeFilters = _this.getActiveFilters();
+  _this.activeFilters = _this.Utils.Page.getActiveFilters({ $container: _this.$container });
   _this.isSearching = value !== '';
   _this.isFiltering = !_.isEmpty(_this.activeFilters);
   _this.showBookmarks = _this.$container.find('.toggle-bookmarks').hasClass('mixitup-control-active');
@@ -1617,7 +1619,8 @@ DynamicList.prototype.searchData = function(options) {
   _this.Utils.Page.updateSearchContext({
     activeFilters: _this.activeFilters,
     searchValue: _this.searchValue,
-    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length
+    filterControlsActive: !!_this.$container.find('.hidden-filter-controls.active').length,
+    filterTypes: _this.filterTypes
   });
 
   return _this.Utils.Records.runSearch({
@@ -1625,6 +1628,7 @@ DynamicList.prototype.searchData = function(options) {
     records: _this.listItems,
     fields: fields,
     config: _this.data,
+    filterTypes: _this.filterTypes,
     activeFilters: _this.activeFilters,
     showBookmarks: _this.showBookmarks,
     limit: limit
@@ -1739,7 +1743,8 @@ DynamicList.prototype.searchData = function(options) {
       _this.Utils.Page.updateActiveFilters({
         $container: _this.$container,
         filterOverlayClass: '.simple-list-search-filter-overlay',
-        filtersInOverlay: _this.data.filtersInOverlay
+        filtersInOverlay: _this.data.filtersInOverlay,
+        filterTypes: _this.filterTypes
       });
 
       return Fliplet.Hooks.run('flListDataAfterRenderList', {

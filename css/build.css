@@ -125,8 +125,54 @@
   width: 40%;
 }
 
-.hidden-filter-controls {
-  max-width: 100%;
+.hidden-filter-controls-filter-wrapper[data-type="date"] {
+  white-space: initial !important;
+}
+
+.filter-range-block {
+  display: inline-block;
+}
+
+.filter-range-block:first-child,
+.hidden-filter-controls-filter[data-type="date"] {
+  margin-right: 2px !important;
+}
+
+[data-filter-group] .hidden-filter-controls-filter.fl-date-picker,
+.filter-overlay [data-filter-group] .hidden-filter-controls-filter.fl-date-picker {
+  padding: 0;
+  display: inline-block;
+  width: 130px;
+  overflow: visible;
+}
+
+[data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
+  border: none;
+  background: none;
+  color: inherit;
+  height: auto;
+  padding: 8px 8px 8px 44px;
+  text-align: center;
+}
+
+[data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa {
+  width: 36px;
+  line-height: 36px;
+}
+
+[data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa:first-child {
+  text-indent: 4px;
+}
+
+.filter-range-reset {
+  display: none;
+  margin-left: -2px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.filter-range-active .filter-range-reset {
+  display: inline-block;
 }
 
 .filter-item-remove {
