@@ -355,7 +355,7 @@
 .new-small-card-list-container .hidden-search-controls {
   height: 0;
   overflow: hidden;
-  margin: 0 -15px;
+  margin: 0;
   position: relative;
 }
 
@@ -511,7 +511,7 @@
 .new-small-card-list-container .hidden-filter-controls-label {
   font-size: 14px;
   color: #aaaaaa;
-  padding: 0 18px 5px;
+  padding: 0 0 5px;
 }
 
 .new-small-card-list-container .hidden-filter-controls-filter-container + .hidden-filter-controls-label {
@@ -529,7 +529,7 @@
 }
 
 .new-small-card-list-container .hidden-filter-controls-filter-wrapper {
-  padding: 0 15px;
+  padding: 0;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
