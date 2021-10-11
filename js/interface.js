@@ -7,10 +7,8 @@ var DynamicLists = (function() {
   var dataSourceProvider = null;
   var userDataSourceProvider = null;
   var listLayout;
-  var isLayoutSelected = false;
   var allDataSources = [];
   var newDataSource;
-  var newUserDataSource;
   var dataSourceColumns;
   var userDataSourceColumns;
   var resetToDefaults = false;
@@ -45,6 +43,7 @@ var DynamicLists = (function() {
   var detailTemplateEditor;
   var filterLoopTemplateEditor;
   var otherLoopTemplateEditor;
+  var templateEditors = {};
   var cssStyleEditor;
   var javascriptEditor;
 
@@ -155,7 +154,6 @@ var DynamicLists = (function() {
       $(document)
         .on('click', '.layout-holder', function() {
           listLayout = $(this).data('layout');
-          isLayoutSelected = true;
 
           Fliplet.Studio.emit('page-preview-send-event', {
             type: 'dynamicListLayout',
@@ -188,6 +186,12 @@ var DynamicLists = (function() {
         })
         .on('click', '[data-create-datasource]', _this.createDataSourceData)
         .on('click', '#manage-data, [data-edit-datasource]', _this.manageAppData)
+        .on('click', '[data-reset-template]', function() {
+          var id = $('.advanced-tabs-level-two li.active a').data('template-id');
+          var name = $('.advanced-tabs-level-two li.active').text().trim().toLowerCase();
+
+          _this.resetTemplate(id, name);
+        })
         .on('click', '[data-reset-default]', function() {
           var buttonId = $(this).data('id');
 
@@ -338,15 +342,28 @@ var DynamicLists = (function() {
         .on('hide.bs.collapse', '.panel-collapse, .permissions-collapse, .social-collapse', function() {
           $(this).siblings('.panel-heading').find('.fa-chevron-up').removeClass('fa-chevron-up').addClass('fa-chevron-down');
         })
+        .on('shown.bs.tab', '#templates a[data-toggle="tab"]', function(event) {
+          $('#reset-template-name').html(event.target.innerHTML.trim().toLowerCase());
+          $('[data-reset-template]').removeClass('hidden');
+          $('[data-reset-template-success]').addClass('hidden');
+        })
         .on('change', '.advanced-tab input[type="checkbox"]', function() {
           var $input = $(this);
           var inputId = $(this).attr('id');
-          var activateWarning = '<p>With this option enabled you will take responsability for maintaining the code. If Fliplet updates the component, those changes might not be applied to your component.<br><strong>You can always revert back to the original components code.</strong></p><p>Are you sure you want to continue?</p>';
 
-          if ( $(this).is(':checked') && !resetToDefaults) {
+          if (!$(this).is(':checked')) {
+            $('[data-id="' + inputId + '"]').addClass('hidden');
+            $('.editor-holder.' + inputId).addClass('disabled');
+
+            return;
+          }
+
+          var listTemplate = $('.advanced-tabs-level-two li.active').text().trim().toLowerCase();
+
+          if (!resetToDefaults) {
             Fliplet.Modal.confirm({
               title: 'Important',
-              message: activateWarning
+              message: '<p>With this option enabled you will take responsibility for maintaining the code. If Fliplet updates the component, those changes might not be applied to your component.<br><br><strong>You can always revert back to the original components code.</strong></p><p>Are you sure you want to continue?</p>'
             }).then(function(result) {
               if (!result) {
                 $input.prop('checked', false);
@@ -354,29 +371,22 @@ var DynamicLists = (function() {
                 return;
               }
 
-              $('.btn[data-id="' + inputId + '"]').removeClass('hidden');
+              $('#reset-template-name').html(listTemplate);
+
+              $('[data-id="' + inputId + '"]').removeClass('hidden');
               $('.editor-holder.' + inputId).removeClass('disabled');
-
-              return;
             });
-          }
-
-          if ( $(this).is(':checked') && resetToDefaults ) {
-            $('.btn[data-id="' + inputId + '"]').removeClass('hidden');
-            $('.editor-holder.' + inputId).removeClass('disabled');
 
             return;
           }
 
-          if ( !$(this).is(':checked') ) {
-            $('.btn[data-id="' + inputId + '"]').addClass('hidden');
-            $('.editor-holder.' + inputId).addClass('disabled');
+          $('#reset-template-name').html(listTemplate);
 
-            return;
-          }
+          $('[data-id="' + inputId + '"]').removeClass('hidden');
+          $('.editor-holder.' + inputId).removeClass('disabled');
         })
         .on('change', '#enable-search', function() {
-          if ( $(this).is(':checked') ) {
+          if ($(this).is(':checked')) {
             $('.search-fields').removeClass('hidden');
             $('#search-column-fields-tokenfield').tokenfield('update');
           } else {
@@ -384,7 +394,7 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '#enable-sort', function() {
-          if ( $(this).is(':checked') ) {
+          if ($(this).is(':checked')) {
             $('.sort-fields').removeClass('hidden');
             $('#sort-column-fields-tokenfield').tokenfield('update');
           } else {
@@ -392,7 +402,7 @@ var DynamicLists = (function() {
           }
         })
         .on('change', '#enable-filters', function() {
-          if ( $(this).is(':checked') ) {
+          if ($(this).is(':checked')) {
             $('.filter-fields').removeClass('hidden');
             $('.filter-in-overlay').removeClass('hidden');
             $('#filter-column-fields-tokenfield').tokenfield('update');
@@ -604,6 +614,10 @@ var DynamicLists = (function() {
             Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
           });
         }
+
+        if (event.data === 'save-widget') {
+          userDataSourceProvider.emit('validation');
+        }
       });
     },
     manageAppData: function() {
@@ -664,7 +678,7 @@ var DynamicLists = (function() {
     toggleUserEmail: function(showUserEmailList) {
       $('.select-user-email-list-holder').toggleClass('hidden', !showUserEmailList);
     },
-    toggleAdminIndetification: function(showUserAdminHolder) {
+    toggleAdminIdentification: function(showUserAdminHolder) {
       $('.select-user-admin-holder').toggleClass('hidden', !showUserAdminHolder);
     },
     updatePermission: function(permissionType) {
@@ -705,9 +719,10 @@ var DynamicLists = (function() {
             isEditEntryActive: isEditEntryActive,
             isDeleteEntryActive: isDeleteEntryActive
           });
+        // eslint-disable-next-line no-fallthrough
         case 'edit':
         case 'delete':
-          this.toggleAdminIndetification(showUserAdminHolder);
+          this.toggleAdminIdentification(showUserAdminHolder);
           this.toggleUserEmail(showUserEmailList);
           this.initUserDatasourceProvider(this.config.userDataSourceId, showUsersDataSource);
           break;
@@ -785,6 +800,7 @@ var DynamicLists = (function() {
         };
         var accessRuleIndex = -1;
 
+        // eslint-disable-next-line no-loop-func
         accessRules.forEach(function(item, index) {
           var typeIndex = item.type.indexOf(type);
 
@@ -817,7 +833,6 @@ var DynamicLists = (function() {
           $('#enable-timezone-default-' + item.id).prop('checked', item.useDeviceTimezone).trigger('change');
           $('#value-field-' + item.id).val(item.fieldValue || item.value );
           $('#value-type-field-' + item.id).val(!item.valueType ? 'enter-value' : item.valueType);
-
 
           return;
         }
@@ -994,8 +1009,6 @@ var DynamicLists = (function() {
             delete: _this.config.deleteEntry
           });
 
-          // eslint-disable-next-line no-unused-vars
-          isLayoutSelected = true;
           $('.layout-holder[data-layout="' + _this.config.layout + '"]').addClass('active');
 
           // Load Add. Edit, Delete
@@ -1318,7 +1331,7 @@ var DynamicLists = (function() {
     updateSummaryRowContainer: function() {
       $summaryRowContainer.empty();
       _.forEach(_this.config['summary-fields'], function(item) {
-        // Backwards compatability
+        // Backwards compatibility
         if (typeof item.interfaceName === 'undefined') {
           var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
             return defaultItem.location === item.location;
@@ -1552,7 +1565,6 @@ var DynamicLists = (function() {
         return Fliplet.DataSources.getById(dataSourceId, {
           cache: false
         }).then(function(dataSource) {
-          newUserDataSource = dataSource;
           userDataSourceColumns = dataSource.columns;
           _this.updateUserFieldsWithColumns(userDataSourceColumns);
         });
@@ -1917,7 +1929,7 @@ var DynamicLists = (function() {
 
         if (name === '') {
           $dataSources.val('none').trigger('change');
-          alert('You must enter a data source name');
+          Fliplet.Modal.alert({ message: 'You must enter a data source name' });
 
           return;
         }
@@ -2521,6 +2533,7 @@ var DynamicLists = (function() {
               baseTemplate,
               _this.codeMirrorConfig(baseTemplateType)
             );
+            templateEditors['base'] = baseTemplateEditor;
           }
 
           if (baseTemplateEditor) {
@@ -2536,6 +2549,7 @@ var DynamicLists = (function() {
               loopTemplate,
               _this.codeMirrorConfig(loopTemplateType)
             );
+            templateEditors['loop'] = loopTemplateEditor;
           }
 
           if (loopTemplateEditor) {
@@ -2551,6 +2565,7 @@ var DynamicLists = (function() {
               searchResultsTemplate,
               _this.codeMirrorConfig(searchResultsTemplateType)
             );
+            templateEditors['search-results'] = searchResultsTemplateEditor;
           }
 
           if (searchResultsTemplateEditor) {
@@ -2566,6 +2581,7 @@ var DynamicLists = (function() {
               detailTemplate,
               _this.codeMirrorConfig(detailTemplateType)
             );
+            templateEditors['detail'] = detailTemplateEditor;
           }
 
           if (detailTemplateEditor) {
@@ -2581,6 +2597,7 @@ var DynamicLists = (function() {
               filterLoopTemplate,
               _this.codeMirrorConfig(filterLoopTemplateType)
             );
+            templateEditors['filter'] = filterLoopTemplateEditor;
           }
 
           if (filterLoopTemplateEditor) {
@@ -2596,6 +2613,7 @@ var DynamicLists = (function() {
               otherLoopTemplate,
               _this.codeMirrorConfig(otherLoopTemplateType)
             );
+            templateEditors['other-loop'] = otherLoopTemplateEditor;
           }
 
           if (otherLoopTemplateEditor) {
@@ -2659,12 +2677,56 @@ var DynamicLists = (function() {
         });
       }, 1);
     },
+    resetTemplate: function(id, name) {
+      if (!id || !name) {
+        return;
+      }
+
+      var originalTemplate = Fliplet.Widget.Templates[layoutMapping[listLayout][id]];
+      var editor = templateEditors[id];
+
+
+      if (!originalTemplate || !editor) {
+        return;
+      }
+
+      Fliplet.Modal.confirm({
+        title: 'Reset ' + name + ' to default',
+        message: '<p>You will lose all the changes you made to ' + name + '.</p><p>Are you sure you want to continue?</p>',
+        buttons: {
+          confirm: {
+            label: 'Reset ' + name,
+            className: 'btn-danger'
+          }
+        }
+      }).then(function(confirmed) {
+        if (!confirmed) {
+          return;
+        }
+
+        editor.setValue(originalTemplate());
+
+        $('[data-reset-template]').addClass('hidden');
+        $('[data-reset-template-success]').removeClass('hidden');
+
+        setTimeout(function() {
+          $('[data-reset-template]').removeClass('hidden');
+          $('[data-reset-template-success]').addClass('hidden');
+        }, 2000);
+      });
+    },
     resetToDefaults: function(id) {
       Fliplet.Modal.confirm({
-        title: 'Reset to default',
-        message: '<p>You will lose all the changes you made.<p>Are you sure you want to continue?</p>'
-      }).then(function(result) {
-        if (!result) {
+        title: 'Reset all HTML to default',
+        message: '<p>You will lose the changes you made to all the HTML templates.</p><p>Are you sure you want to continue?</p>',
+        buttons: {
+          confirm: {
+            label: 'Reset all HTML',
+            className: 'btn-danger'
+          }
+        }
+      }).then(function(confirmed) {
+        if (!confirmed) {
           return;
         }
 
