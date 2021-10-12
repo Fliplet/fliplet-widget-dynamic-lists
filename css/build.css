@@ -164,11 +164,27 @@
   text-indent: 4px;
 }
 
+[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active.fl-date-picker > .fa:first-child {
+  border-color: #fff;
+}
+
+.ie11 .filter-range-to {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 7px;
+  margin-right: 6px;
+}
+
 .filter-range-reset {
   display: none;
   margin-left: -2px;
   padding-left: 2px;
   padding-right: 2px;
+}
+
+.ie11 .filter-range-reset {
+  vertical-align: top;
+  margin-top: 2px;
 }
 
 .filter-range-active .filter-range-reset {
