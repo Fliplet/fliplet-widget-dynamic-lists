@@ -155,9 +155,17 @@
   text-align: center;
 }
 
+.ie11 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
+  line-height: 1;
+}
+
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa {
   width: 36px;
   line-height: 36px;
+}
+
+.ie11 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa {
+  line-height: 31px;
 }
 
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa:first-child {
