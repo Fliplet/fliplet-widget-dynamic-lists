@@ -1082,7 +1082,10 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
-      _this.checkIsToOpen();
+
+      return _this.checkIsToOpen();
+    })
+    .then(function() {
       _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
         records: _this.listItems,
         config: _this.data,
@@ -1103,7 +1106,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   var entry;
 
   if (!_this.queryOpen) {
-    return;
+    return Promise.resolve();
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
@@ -1117,13 +1120,18 @@ DynamicList.prototype.checkIsToOpen = function() {
   if (!entry) {
     Fliplet.UI.Toast('Entry not found');
 
-    return;
+    return Promise.resolve();
   }
 
   var modifiedData = _this.addSummaryData([entry]);
 
-  _this.showDetails(entry.id, modifiedData).then(function() {
+  return _this.showDetails(entry.id, modifiedData).then(function() {
     _this.openedEntryOnQuery = true;
+
+    // Wait for overlay transition to complete
+    return new Promise(function(resolve) {
+      setTimeout(resolve, 250);
+    });
   });
 };
 
