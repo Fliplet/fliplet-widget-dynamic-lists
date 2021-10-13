@@ -155,13 +155,32 @@
   text-align: center;
 }
 
+.ie11 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
+  line-height: 1;
+}
+
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa {
   width: 36px;
   line-height: 36px;
 }
 
+.ie11 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa {
+  line-height: 31px;
+}
+
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa:first-child {
   text-indent: 4px;
+}
+
+[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active.fl-date-picker > .fa:first-child {
+  border-color: #fff;
+}
+
+.ie11 .filter-range-to {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 7px;
+  margin-left: 2px;
 }
 
 .filter-range-reset {
@@ -169,6 +188,11 @@
   margin-left: -2px;
   padding-left: 2px;
   padding-right: 2px;
+}
+
+.ie11 .filter-range-reset {
+  vertical-align: top;
+  margin-top: 2px;
 }
 
 .filter-range-active .filter-range-reset {

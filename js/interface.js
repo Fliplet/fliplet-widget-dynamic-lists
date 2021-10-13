@@ -2706,22 +2706,37 @@ var DynamicLists = (function() {
 
         editor.setValue(originalTemplate());
 
-        $('[data-reset-template]').addClass('hidden');
-        $('[data-reset-template-success]').removeClass('hidden');
-
-        setTimeout(function() {
-          $('[data-reset-template]').removeClass('hidden');
-          $('[data-reset-template-success]').addClass('hidden');
-        }, 2000);
+        Fliplet.Modal.alert({
+          title: 'Reset complete',
+          message: _.capitalize(name) + ' has been reset to default.'
+        });
       });
     },
     resetToDefaults: function(id) {
+      var confirmOptions = {
+        'enable-templates': {
+          title: 'Reset all HTML to default',
+          message: '<p>You will lose the changes you made to all the HTML templates.</p><p>Are you sure you want to continue?</p>',
+          confirmLabel: 'Reset all HTML'
+        },
+        'enable-css': {
+          title: 'Reset CSS to default',
+          message: '<p>You will lose all the changes you made.</p><p>Are you sure you want to continue?</p>',
+          confirmLabel: 'Reset CSS'
+        },
+        'enable-javascript': {
+          title: 'Reset JavaScript to default',
+          message: '<p>You will lose all the changes you made.</p><p>Are you sure you want to continue?</p>',
+          confirmLabel: 'Reset JavaScript'
+        }
+      };
+
       Fliplet.Modal.confirm({
-        title: 'Reset all HTML to default',
-        message: '<p>You will lose the changes you made to all the HTML templates.</p><p>Are you sure you want to continue?</p>',
+        title: confirmOptions[id].title,
+        message: confirmOptions[id].message,
         buttons: {
           confirm: {
-            label: 'Reset all HTML',
+            label: confirmOptions[id].confirmLabel,
             className: 'btn-danger'
           }
         }

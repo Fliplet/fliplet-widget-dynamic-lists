@@ -828,7 +828,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   function removeSymbols(str) {
-    return ('' + str).replace(/[&\/\\#,+()$~%.`'‘’"“”:*?<>{}]+/g, '');
+    // Remove commonly used symbols in text that should be ignored for string matching
+    return ('' + str).replace(/[&\/\\#+()$~%.`'‘’"“”:*?<>{}]+/g, '');
   }
 
   function recordContains(record, value) {
