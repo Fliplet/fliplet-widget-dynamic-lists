@@ -183,6 +183,10 @@
   margin-left: 2px;
 }
 
+.ie11 .filter-overlay .filter-range-to {
+  margin-top: 15px;
+}
+
 .filter-range-reset {
   display: none;
   margin-left: -2px;
@@ -193,6 +197,10 @@
 .ie11 .filter-range-reset {
   vertical-align: top;
   margin-top: 2px;
+}
+
+.ie11 .filter-overlay .filter-range-reset {
+  margin-top: 10px;
 }
 
 .filter-range-active .filter-range-reset {
