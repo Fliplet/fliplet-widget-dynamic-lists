@@ -160,8 +160,10 @@
 }
 
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa {
-  width: 36px;
-  line-height: 36px;
+  width: 38px;
+  line-height: 38px;
+  top: -1px;
+  bottom: -1px;
 }
 
 .ie11 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .fa {
