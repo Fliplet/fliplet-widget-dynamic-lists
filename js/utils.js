@@ -2337,8 +2337,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         return record;
       });
 
+      var sortColumns = _.map(sortFields, function(field) {
+        return 'data[modified_' + field.column + ']';
+      });
+
+      var sortOrders = _.map(config.sortOptions, function(option) {
+        switch (option.orderBy) {
+          case 'descending':
+            return 'desc';
+          case 'ascending':
+          default:
+            return 'asc';
+        }
+      });
+
       // Sort data
-      records = modifiedRecords;
+      records = _.orderBy(modifiedRecords, sortColumns, sortOrders);
     }
 
     moment.locale(locale);
