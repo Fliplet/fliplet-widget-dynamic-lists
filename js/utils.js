@@ -2091,7 +2091,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function sortByField(options) {
     // If user doesn't set sorting do nothing
     // Or if we have no records (empty search results)
-    if (!options.sortField || !options.records.length) {
+    if (!options.sortField || !options.records.length || options.sortOrder === 'none') {
       return options.records;
     }
 
@@ -2337,22 +2337,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         return record;
       });
 
-      var sortColumns = _.map(sortFields, function(field) {
-        return 'data[modified_' + field.column + ']';
-      });
-
-      var sortOrders = _.map(config.sortOptions, function(option) {
-        switch (option.orderBy) {
-          case 'descending':
-            return 'desc';
-          case 'ascending':
-          default:
-            return 'asc';
-        }
-      });
-
       // Sort data
-      records = _.orderBy(modifiedRecords, sortColumns, sortOrders);
+      records = modifiedRecords;
     }
 
     moment.locale(locale);
