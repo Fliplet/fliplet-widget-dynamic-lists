@@ -54,7 +54,7 @@ function DynamicList(id, data) {
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
   this.sortField = null;
-  this.sortOrder = 'asc';
+  this.sortOrder = 'none';
   this.imagesData = {};
 
   /**
@@ -219,8 +219,20 @@ DynamicList.prototype.attachObservers = function() {
         asc: 'fa-sort-asc',
         desc: 'fa-sort-desc'
       };
+      var currentSortOrder = $sortListItem.data('sortOrder');
 
-      _this.sortOrder = $sortListItem.data('sortOrder') === 'asc' ? 'desc' : 'asc';
+      switch (currentSortOrder) {
+        case 'asc':
+          _this.sortOrder = 'desc';
+          break;
+        case 'desc':
+          _this.sortOrder = 'none';
+          break;
+        default:
+          _this.sortOrder = 'asc';
+          break;
+      }
+
       _this.sortField = $sortListItem.data('sortField');
       _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
