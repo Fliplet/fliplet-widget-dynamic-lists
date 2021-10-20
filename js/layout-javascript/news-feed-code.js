@@ -14,6 +14,11 @@ function DynamicList(id, data) {
       'temp-comment': 'templates.build.news-feed-temp-comment'
     }
   };
+  this.sortClasses = {
+    none: 'fa-sort',
+    asc: 'fa-sort-asc',
+    desc: 'fa-sort-desc'
+  };
 
   // Makes data and the component container available to Public functions
   this.data = data;
@@ -216,11 +221,6 @@ DynamicList.prototype.attachObservers = function() {
       var $sortListItem = $(e.currentTarget);
       var $sortOrderIcon = $sortListItem.find('i');
       var $sortList = _this.$container.find('.list-sort li');
-      var sortClasses = {
-        none: 'fa-sort',
-        asc: 'fa-sort-asc',
-        desc: 'fa-sort-desc'
-      };
       var currentSortOrder = $sortListItem.data('sortOrder');
 
       switch (currentSortOrder) {
@@ -238,7 +238,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.sortField = $sortListItem.data('sortField');
       _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
-      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[_this.sortOrder]);
+      $sortOrderIcon.removeClass(_.values(_this.sortClasses).join(' ')).addClass(_this.sortClasses[_this.sortOrder]);
       $sortListItem.data('sortOrder', _this.sortOrder);
 
       _this.Utils.Records.sortByField({
@@ -1381,6 +1381,14 @@ DynamicList.prototype.initialize = function() {
       return _this.addFilters(_this.modifiedListItems);
     })
     .then(function() {
+      if (_.has(_this.pvPreSortQuery, 'column') && _.has(_this.pvPreSortQuery, 'order')) {
+        $('[data-sort-field="' + _this.pvPreSortQuery.column + '"]')
+          .data('sortOrder', _this.pvPreSortQuery.order)
+          .find('i')
+          .removeClass(_.values(_this.sortClasses).join(' '))
+          .addClass(_this.sortClasses[_this.pvPreSortQuery.order]);
+      }
+
       _this.parseFilterQueries();
       _this.parseSearchQueries();
     });
