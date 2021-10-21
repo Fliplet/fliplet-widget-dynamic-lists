@@ -2540,11 +2540,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function resetSortIcons(options) {
     options.$sortList.each(function() {
       var $listitem = $(this);
-      var listSortOrder = $listitem.data('sortOrder');
+      var listSortOrder = $listitem.attr('data-sort-order');
       var $listIcon = $listitem.find('i');
 
       $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
-      $listitem.data('sortOrder', 'none');
+      $listitem.attr('data-sort-order', 'none');
     });
   }
 
