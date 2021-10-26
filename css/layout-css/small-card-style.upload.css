@@ -331,6 +331,16 @@
   line-height: 35px;
 }
 
+.new-small-card-list-container .list-search-icon li[data-sort-order] .fa {
+  display: none;
+}
+
+.new-small-card-list-container .list-search-icon li[data-sort-order="none"] .fa.fa-sort,
+.new-small-card-list-container .list-search-icon li[data-sort-order="asc"] .fa.fa-sort-asc,
+.new-small-card-list-container .list-search-icon li[data-sort-order="desc"] .fa.fa-sort-desc  {
+  display: inline-block;
+}
+
 .new-small-card-list-container .list-search-icon .fa-search.active,
 .new-small-card-list-container .list-search-icon .fa-sliders.active {
   display: none;
