@@ -2093,14 +2093,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     // If user doesn't set sorting do nothing
     // Or if we have no records (empty search results)
     if (!options.sortField || !options.records.length || options.sortOrder === 'none') {
-      // Saving sort parameters so when users come back to the page through BACK navigation, the sort order is restored
-      Fliplet.Page.Context.update({
-        dynamicListSortColumn: options.sortField,
-        dynamicListSortOrder: options.sortOrder
-      });
+      Fliplet.Page.Context.remove(['dynamicListSortColumn', 'dynamicListSortOrder']);
 
       return options.records;
     }
+
+    // Saving sort parameters so when users come back to the page through BACK navigation, the sort order is restored
+    Fliplet.Page.Context.update({
+      dynamicListSortColumn: options.sortField,
+      dynamicListSortOrder: options.sortOrder
+    });
 
     var records = _.clone(options.records);
     var isSortAsc = options.sortOrder === 'asc';
