@@ -1544,7 +1544,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })
       .flatten()
       .uniqBy(function(filter) {
-        // _.uniqBy iteratee
+        // Ignore the filter class name when computing unique filter values
+        if (filter.data && filter.data.class) {
+          delete filter.data.class;
+        }
+
+        // _.uniqBy iteratee, ignoring classes
         return JSON.stringify(filter);
       })
       .orderBy(function(obj) {
