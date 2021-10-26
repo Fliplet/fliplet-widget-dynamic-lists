@@ -2093,6 +2093,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     // If user doesn't set sorting do nothing
     // Or if we have no records (empty search results)
     if (!options.sortField || !options.records.length || options.sortOrder === 'none') {
+      Fliplet.Page.Context.remove(['dynamicListSortColumn', 'dynamicListSortOrder']);
+
       return options.records;
     }
 
@@ -2540,10 +2542,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function resetSortIcons(options) {
     options.$sortList.each(function() {
       var $listitem = $(this);
-      var listSortOrder = $listitem.attr('data-sort-order');
-      var $listIcon = $listitem.find('i');
 
-      $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
       $listitem.attr('data-sort-order', 'none');
     });
   }
