@@ -1538,9 +1538,12 @@ DynamicList.prototype.searchData = function(options) {
         .addClass('active')
         [searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
+      var searchedDataIds = _.map(searchedData, 'id');
+      var searchedListItemIds = _.map(_this.searchedListItems, 'id');
+
       if (!_this.data.forceRenderList
         && searchedData.length
-        && _.isEqual(_.map(searchedData, 'id'), _.map(_this.searchedListItems, 'id'))) {
+        && _.isEqual(searchedDataIds, searchedListItemIds)) {
         // Same results returned. Do nothing.
         return;
       }
@@ -1550,6 +1553,21 @@ DynamicList.prototype.searchData = function(options) {
         var hideLimitText = !results.truncated && _this.data.limitEntries > 0;
 
         _this.$container.find('.limit-entries-text').toggleClass('hidden', hideLimitText);
+      }
+
+      if (!_this.data.forceRenderList
+        && !_this.data.sortEnabled
+        && !_this.data.sortFields.length
+        && searchedData.length
+        && searchedData.length === _.intersection(searchedDataIds, searchedListItemIds).length) {
+        // Search results is a subset of the current render.
+        // Remove the extra records without re-render.
+        _this.$container.find(_.map(_.difference(_this.searchedListItemIds, searchedDataIds), function(record) {
+          return '.small-card-list-item[data-entry-id="' + record.id + '"]';
+        }).join(',')).remove();
+        _this.searchedListItems = searchedData;
+
+        return;
       }
 
       /**
