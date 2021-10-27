@@ -1583,7 +1583,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })
       .flatten()
       .uniqBy(function(filter) {
-        // _.uniqBy iteratee
+        // Ignore the filter class name when computing unique filter values
+        if (filter.data && filter.data.class) {
+          delete filter.data.class;
+        }
+
+        // _.uniqBy iteratee, ignoring classes
         return JSON.stringify(filter);
       })
       .orderBy(function(obj) {
@@ -2132,6 +2137,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     // If user doesn't set sorting do nothing
     // Or if we have no records (empty search results)
     if (!options.sortField || !options.records.length || options.sortOrder === 'none') {
+      Fliplet.Page.Context.remove(['dynamicListSortColumn', 'dynamicListSortOrder']);
+
       return options.records;
     }
 
@@ -2579,11 +2586,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function resetSortIcons(options) {
     options.$sortList.each(function() {
       var $listitem = $(this);
-      var listSortOrder = $listitem.data('sortOrder');
-      var $listIcon = $listitem.find('i');
 
-      $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
-      $listitem.data('sortOrder', 'none');
+      $listitem.attr('data-sort-order', 'none');
     });
   }
 

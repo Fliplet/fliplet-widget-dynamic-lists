@@ -207,14 +207,8 @@ DynamicList.prototype.attachObservers = function() {
       e.stopPropagation();
 
       var $sortListItem = $(e.currentTarget);
-      var $sortOrderIcon = $sortListItem.find('i');
       var $sortList = _this.$container.find('.list-sort li');
-      var sortClasses = {
-        none: 'fa-sort',
-        asc: 'fa-sort-asc',
-        desc: 'fa-sort-desc'
-      };
-      var currentSortOrder = $sortListItem.data('sortOrder');
+      var currentSortOrder = $sortListItem.attr('data-sort-order');
 
       switch (currentSortOrder) {
         case 'asc':
@@ -231,8 +225,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.sortField = $sortListItem.data('sortField');
       _this.Utils.DOM.resetSortIcons({ $sortList: $sortList });
 
-      $sortOrderIcon.removeClass(_.values(sortClasses).join(' ')).addClass(sortClasses[_this.sortOrder]);
-      $sortListItem.data('sortOrder', _this.sortOrder);
+      $sortListItem.attr('data-sort-order', _this.sortOrder);
 
       _this.Utils.Records.sortByField({
         $container: _this.$container,
@@ -1173,9 +1166,17 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function() {
       _this.parseFilterQueries();
+      _this.changeSort();
 
       return _this.parseSearchQueries();
     });
+};
+
+DynamicList.prototype.changeSort = function() {
+  if (_.has(this.pvPreSortQuery, 'column') && _.has(this.pvPreSortQuery, 'order')) {
+    $('[data-sort-field="' + this.pvPreSortQuery.column + '"]')
+      .attr('data-sort-order', this.pvPreSortQuery.order);
+  }
 };
 
 DynamicList.prototype.checkIsToOpen = function() {
