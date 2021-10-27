@@ -140,7 +140,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   // Validate sort queries
   if (this.pvPreSortQuery.order) {
-    this.pvPreSortQuery.order = this.pvPreSortQuery.order.toLowerCase();
+    this.pvPreSortQuery.order = this.pvPreSortQuery.order.toLowerCase().trim();
 
     if (!this.pvPreSortQuery.column
       || ['asc', 'desc'].indexOf(this.pvPreSortQuery.order) === -1) {
