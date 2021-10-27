@@ -148,7 +148,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     }
   }
 
-  this.querySort = _(this.pvPreSortQuery).size() > 0;
+  this.querySort = _(this.pvPreSortQuery).size() === 2;
 
   if (this.querySort) {
     // Ensures sorting is configured correctly to match the query
