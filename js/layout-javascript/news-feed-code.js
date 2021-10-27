@@ -234,14 +234,7 @@ DynamicList.prototype.attachObservers = function() {
 
       $sortListItem.attr('data-sort-order', _this.sortOrder);
 
-      _this.Utils.Records.sortByField({
-        $container: _this.$container,
-        $listContainer: $('#news-feed-list-wrapper-' + _this.data.id),
-        listItem: '.news-feed-list-item',
-        records: _this.searchedListItems,
-        sortOrder: _this.sortOrder,
-        sortField: _this.sortField
-      });
+      _this.searchData();
     })
     .on('click keydown', '.apply-filters', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -1433,7 +1426,7 @@ DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
   if (!_.get(_this.pvSearchQuery, 'value')) {
-    // Continue to exectute query filters
+    // Continue to execute query filters
     return _this.searchData({
       initialRender: true
     });
@@ -1697,9 +1690,10 @@ DynamicList.prototype.renderLoopHTML = function() {
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
   var limitedList;
+  var isSorting = this.sortField && ['asc', 'desc'].indexOf(this.sortOrder) > -1;
 
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
-    && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks) {
+    && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks && !isSorting) {
     limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
 
     // Hides the entry limit warning if the number of entries to show is less than the limit value
@@ -1848,8 +1842,9 @@ DynamicList.prototype.searchData = function(options) {
   _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
+  var isSorting = _this.sortField && ['asc', 'desc'].indexOf(_this.sortOrder) > -1;
   var limit = limitEntriesEnabled && _this.data.limitEntries > -1
-    && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering
+    && !_this.isSearching && !_this.showBookmarks && !_this.isFiltering && !isSorting
     ? _this.data.limitEntries
     : -1;
 
@@ -1868,6 +1863,8 @@ DynamicList.prototype.searchData = function(options) {
     filterTypes: _this.filterTypes,
     activeFilters: _this.activeFilters,
     showBookmarks: _this.showBookmarks,
+    sortField: _this.sortField,
+    sortOrder: _this.sortOrder,
     limit: limit
   }).then(function(results) {
     results = results || {};
@@ -1914,9 +1911,9 @@ DynamicList.prototype.searchData = function(options) {
 
       if (!_this.data.forceRenderList
         && searchedData.length
-        && !_.xorBy(searchedData, _this.searchedListItems, 'id').length ) {
+        && _.isEqual(_.map(searchedData, 'id'), _.map(_this.searchedListItems, 'id'))) {
         // Same results returned. Do nothing.
-        return Promise.resolve();
+        return;
       }
 
       if (limitEntriesEnabled) {
@@ -1926,19 +1923,6 @@ DynamicList.prototype.searchData = function(options) {
         _this.$container.find('.limit-entries-text').toggleClass('hidden', hideLimitText);
       }
 
-      if (!_this.data.forceRenderList
-        && searchedData.length
-        && searchedData.length === _.intersectionBy(searchedData, _this.searchedListItems, 'id').length) {
-        // Search results is a subset of the current render.
-        // Remove the extra records without re-render.
-        _this.$container.find(_.map(_.differenceBy(_this.searchedListItems, searchedData, 'id'), function(record) {
-          return '.news-feed-list-item[data-entry-id="' + record.id + '"]';
-        }).join(',')).remove();
-        _this.searchedListItems = searchedData;
-
-        return Promise.resolve();
-      }
-
       /**
        * Render results
        **/
@@ -1946,12 +1930,6 @@ DynamicList.prototype.searchData = function(options) {
       $('#news-feed-list-wrapper-' + _this.data.id).html('');
 
       _this.modifiedListItems = _this.addSummaryData(searchedData);
-      _this.modifiedListItems = _this.Utils.Records.sortByField({
-        records: _this.modifiedListItems,
-        sortOrder: _this.sortOrder,
-        sortField: _this.sortField,
-        sortHTMLElements: false
-      });
 
       return _this.renderLoopHTML().then(function(records) {
         _this.searchedListItems = searchedData;

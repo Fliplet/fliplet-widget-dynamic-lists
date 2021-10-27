@@ -137,6 +137,16 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     column: Fliplet.Navigate.query['dynamicListSortColumn'],
     order: Fliplet.Navigate.query['dynamicListSortOrder']
   });
+
+  // Validate sort queries
+  if (this.pvPreSortQuery.order) {
+    this.pvPreSortQuery.order = this.pvPreSortQuery.order.toLowerCase();
+
+    if (['asc', 'desc'].indexOf(this.pvPreSortQuery.order) === -1) {
+      this.pvPreSortQuery = {};
+    }
+  }
+
   this.querySort = _(this.pvPreSortQuery).size() > 0;
 
   if (this.querySort) {
