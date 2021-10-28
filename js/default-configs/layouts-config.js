@@ -22,28 +22,32 @@ window.flListLayoutConfig = {
         interfaceName: 'Primary text 1',
         location: 'First Name',
         type: 'text',
-        column: 'First Name'
+        column: 'First Name',
+        editable: true
       },
       {
         id: 'aJdnjRrT',
         interfaceName: 'Primary text 2',
         location: 'Last Name',
         type: 'text',
-        column: 'Last Name'
+        column: 'Last Name',
+        editable: true
       },
       {
         id: 'ajdmJrlT',
         interfaceName: 'Secondary text',
         location: 'Title',
         type: 'text',
-        column: 'Title'
+        column: 'Title',
+        editable: true
       },
       {
         id: 'qWerTymn',
         interfaceName: 'Tertiary text',
         location: 'Location',
         type: 'text',
-        column: 'Location'
+        column: 'Location',
+        editable: true
       },
       {
         id: 'gHlmJrlT',
@@ -108,28 +112,32 @@ window.flListLayoutConfig = {
         interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
-        column: 'Title'
+        column: 'Title',
+        editable: true
       },
       {
         id: 'aJdnjRrT',
         interfaceName: 'Secondary text',
         location: 'Content',
         type: 'html',
-        column: 'Content'
+        column: 'Content',
+        editable: true
       },
       {
         id: 'gHlJkerT',
         interfaceName: 'Tertiary text 1',
         location: 'Date',
         type: 'date',
-        column: 'Date'
+        column: 'Date',
+        editable: true
       },
       {
         id: 'ajdmJrlT',
         interfaceName: 'Tertiary text 2',
         location: 'Categories',
         type: 'text',
-        column: 'Categories'
+        column: 'Categories',
+        editable: true
       },
       {
         id: 'gHlmJrlT',
@@ -189,14 +197,16 @@ window.flListLayoutConfig = {
         interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
-        column: 'Title'
+        column: 'Title',
+        editable: true
       },
       {
         id: 'gHlmJrlT',
         interfaceName: 'Secondary text',
         location: 'Location',
         type: 'text',
-        column: 'Location'
+        column: 'Location',
+        editable: true
       }
     ],
     'detail-fields': [
@@ -240,28 +250,32 @@ window.flListLayoutConfig = {
         interfaceName: 'Primary text 1',
         location: 'First Name',
         type: 'text',
-        column: 'First Name'
+        column: 'First Name',
+        editable: true
       },
       {
         id: 'aJdnjRrT',
         interfaceName: 'Primary text 2',
         location: 'Last Name',
         type: 'text',
-        column: 'Last Name'
+        column: 'Last Name',
+        editable: true
       },
       {
         id: 'ajdmJrlT',
         interfaceName: 'Secondary text',
         location: 'Title',
         type: 'text',
-        column: 'Title'
+        column: 'Title',
+        editable: true
       },
       {
         id: 'qWerTymn',
         interfaceName: 'Tertiary text',
         location: 'Location',
         type: 'text',
-        column: 'Location'
+        column: 'Location',
+        editable: true
       },
       {
         id: 'gHlmJrlT',
@@ -324,21 +338,24 @@ window.flListLayoutConfig = {
         interfaceName: 'Primary text',
         location: 'Title',
         type: 'text',
-        column: 'Title'
+        column: 'Title',
+        editable: true
       },
       {
         id: 'aJdnjRrT',
         interfaceName: 'Secondary text',
         location: 'Description',
         type: 'text',
-        column: 'Description'
+        column: 'Description',
+        editable: true
       },
       {
         id: 'ajdmJrlT',
         interfaceName: 'Tertiary text',
         location: 'Category',
         type: 'text',
-        column: 'Category'
+        column: 'Category',
+        editable: true
       }
     ],
     'showSummaryFieldsInDetailView': true,
