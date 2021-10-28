@@ -137,9 +137,25 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     column: Fliplet.Navigate.query['dynamicListSortColumn'],
     order: Fliplet.Navigate.query['dynamicListSortOrder']
   });
-  this.querySort = _(this.pvPreSortQuery).size() > 0;
+
+  // Validate sort queries
+  if (this.pvPreSortQuery.order) {
+    this.pvPreSortQuery.order = this.pvPreSortQuery.order.toLowerCase().trim();
+
+    if (!this.pvPreSortQuery.column
+      || ['asc', 'desc'].indexOf(this.pvPreSortQuery.order) === -1) {
+      this.pvPreSortQuery = {};
+    }
+  }
+
+  this.querySort = _(this.pvPreSortQuery).size() === 2;
 
   if (this.querySort) {
+    // Ensures sorting is configured correctly to match the query
+    this.data.sortEnabled = true;
+    this.data.sortFields = _.uniq(_.concat(this.data.sortFields, [this.pvPreSortQuery.column]));
+    this.data.searchIconsEnabled = true;
+
     this.sortOrder = this.pvPreSortQuery.order || 'asc';
     this.sortField = this.pvPreSortQuery.column;
   }
