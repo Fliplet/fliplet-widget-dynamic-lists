@@ -1353,6 +1353,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       searchResults.push(record);
     });
 
+    // Sort results
+    searchResults = sortByField(_.assign({}, options, { records: searchResults }));
+
     return Promise.resolve({
       records: searchResults,
       truncated: truncated
@@ -2134,9 +2137,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    * @returns {Array} - sorted by field array
    */
   function sortByField(options) {
+    options = options || {};
+
     // If user doesn't set sorting do nothing
     // Or if we have no records (empty search results)
-    if (!options.sortField || !options.records.length || options.sortOrder === 'none') {
+    if (!options.sortField || !options.records.length || ['asc', 'desc'].indexOf(options.sortOrder) === -1) {
       Fliplet.Page.Context.remove(['dynamicListSortColumn', 'dynamicListSortOrder']);
 
       return options.records;
@@ -2243,6 +2248,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  // No longer used but kept to support customized layout JS
   function sortRecordsByField(options) {
     var sortedRecords = sortByField(options);
 
