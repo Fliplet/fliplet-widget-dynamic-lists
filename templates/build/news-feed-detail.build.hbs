@@ -135,17 +135,6 @@
             \{{/if}}
           \{{/ifCond}}
 
-          <!-- Number template -->
-          \{{#ifCond type '==' 'number'}}
-            \{{#if content includeZero=true}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
-
-              <div class="news-feed-detail-value">\{{TN content allowNaN=true}}</div>
-            \{{/if}}
-          \{{/ifCond}}
-
           <!-- Date template -->
           \{{#ifCond type '==' 'date'}}
             \{{#if content}}

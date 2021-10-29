@@ -123,17 +123,6 @@
           \{{/if}}
         \{{/ifCond}}
 
-        <!-- Number template -->
-        \{{#ifCond type '==' 'number'}}
-          \{{#if content includeZero=true}}
-            \{{#if labelEnabled}}
-            <div class="small-h-card-list-detail-label">\{{label}}</div>
-            \{{/if}}
-
-            <div class="small-h-card-list-detail-body-text">\{{TN content allowNaN=true}}</div>
-          \{{/if}}
-        \{{/ifCond}}
-
         <!-- Date template -->
         \{{#ifCond type '==' 'date'}}
           \{{#if content}}

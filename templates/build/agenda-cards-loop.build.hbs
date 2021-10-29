@@ -19,7 +19,7 @@
                 \{{/if}}
                 <div class="agenda-item-session-location">
                   \{{#if [Location]}}
-                  <p class="agenda-item-location">\{{[Location]}}</p>
+                  <p class="agenda-item-location">\{{{[Location]}}}</p>
                   \{{/if}}
                   <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{[Full Date]}}</p>
                 </div>
