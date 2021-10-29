@@ -2104,15 +2104,31 @@ var DynamicLists = (function() {
         }
       }
     },
+    fieldLocationIsEditable: function(location) {
+      var layout = this.config.layout;
+      var field = _.find(defaultSettings[layout]['summary-fields'], { location: location });
+
+      return field && field.editable;
+    },
     addSummaryItem: function(data) {
       var now = new Date();
 
-      data.date = TD(now, { format: 'll' });
-      data.time = TD(now, { format: 'LT' });
+      data.editable = this.fieldLocationIsEditable(data.location);
+      data.options = [
+        { value: 'text', label: 'Plain text' },
+        { value: 'html', label: 'HTML' },
+        { value: 'number', label: 'Number' },
+        { value: 'date', label: 'Date (e.g. ' + TD(now, { format: 'll' }) + ')' },
+        { value: 'time', label: 'Time (e.g. ' + TD(now, { format: 'LT' }) + ')' },
+        { value: 'image', label: 'Image' }
+      ];
 
-      var $newPanel = $(summaryRowTemplate(data));
+      // Images aren't used in editable fields
+      if (data.editable) {
+        _.remove(data.options, { value: 'image' });
+      }
 
-      $summaryRowContainer.append($newPanel);
+      $summaryRowContainer.append(summaryRowTemplate(data));
     },
     addDetailItem: function(data) {
       var now = new Date();
