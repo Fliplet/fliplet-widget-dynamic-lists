@@ -1285,13 +1285,23 @@ DynamicList.prototype.addSummaryData = function(records) {
       originalData: entry.data
     };
 
-    // Uses summary view settings set by users
+    // Uses sumamry view settings set by users
     _this.data['summary-fields'].forEach(function(obj) {
-      newObject[obj.location] = _this.Utils.Record.getDataViewContent({
-        record: entry,
-        field: obj,
-        filterFields: _this.data.filterFields
-      });
+      var content = '';
+
+      if (obj.type === 'image') {
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
+      } else if (obj.column === 'custom') {
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
+      } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+        content = _this.Utils.String.splitByCommas(entry.data[obj.column]).join(', ');
+      } else {
+        content = entry.data[obj.column];
+      }
+
+      content = _this.Utils.String.toFormattedString(content);
+
+      newObject[obj.location] = content;
     });
 
     return newObject;

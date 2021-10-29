@@ -654,7 +654,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  // Uses summary view settings set by users
+  // Uses sumamry view settings set by users
   var loopData = _.map(records, function(entry) {
     var newObject = {
       id: entry.id,
@@ -666,11 +666,19 @@ DynamicList.prototype.addSummaryData = function(records) {
     };
 
     _this.data['summary-fields'].forEach(function(obj) {
-      newObject[obj.location] = _this.Utils.Record.getDataViewContent({
-        record: entry,
-        field: obj,
-        filterFields: _this.data.filterFields
-      });
+      var content = '';
+
+      if (obj.type === 'image') {
+        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
+      } else if (obj.column === 'custom') {
+        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
+      } else {
+        content = entry.data[obj.column];
+      }
+
+      content = _this.Utils.String.toFormattedString(content);
+
+      newObject[obj.location] = content;
     });
 
     return newObject;
