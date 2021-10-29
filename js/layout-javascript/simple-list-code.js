@@ -1712,7 +1712,7 @@ DynamicList.prototype.searchData = function(options) {
 
       if (!_this.data.forceRenderList
         && !_this.data.sortEnabled
-        && !_this.data.sortFields.length
+        && !(_this.data.sortFields || []).length
         && searchedData.length
         && searchedData.length === _.intersection(searchedDataIds, searchedListItemIds).length) {
         // Search results is a subset of the current render.
