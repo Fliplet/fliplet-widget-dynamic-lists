@@ -25,13 +25,14 @@
     </div>
     <div class="rTableCell select type">
       <select name="detail_field_type" id="detail_select_type_{{id}}" class="form-control" {{#unless editable}}disabled{{/unless}}>
-        <option value="image">Image</option>
         <option value="text" selected>Plain text</option>
         <option value="html">HTML</option>
         <option value="url">URL</option>
         <option value="tel">Telephone</option>
         <option value="mail">Email</option>
+        <option value="number">Number</option>
         <option value="date">Date (e.g. {{date}})</option>
+        <option value="image">Image</option>
         <option value="file">File</option>
       </select>
     </div>
