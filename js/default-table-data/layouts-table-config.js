@@ -1,5 +1,3 @@
-moment.locale('en');
-
 window.flListLayoutTableColumnConfig = {
   'small-card': ['First Name', 'Last Name', 'Title', 'Location', 'Image', 'Email', 'Telephone', 'Linkedin', 'Bio', 'Sectors', 'Expertise'],
   'news-feed': ['Title', 'Date', 'Categories', 'Image', 'Content'],
@@ -78,7 +76,7 @@ window.flListLayoutTableConfig = {
       'Poll': 'Session 1 Poll',
       'Survey': 'Session Survey',
       'Questions': 'Session Questions',
-      'Full Date': moment().add(1, 'month').format('YYYY-MM-DD'),
+      'Full Date': moment().locale('en').add(1, 'month').format('YYYY-MM-DD'),
       'Start Time': '09:00',
       'End Time': '09:45',
       'Location': 'Hotel\'s Restaurant',
@@ -88,7 +86,7 @@ window.flListLayoutTableConfig = {
       'Title': 'What does the future hold',
       'Poll': 'Session 2 Poll',
       'Survey': 'Session Survey',
-      'Full Date': moment().add(1, 'month').format('YYYY-MM-DD'),
+      'Full Date': moment().locale('en').add(1, 'month').format('YYYY-MM-DD'),
       'Start Time': '10:00',
       'End Time': '11:30',
       'Location': 'Room 123',
@@ -97,7 +95,7 @@ window.flListLayoutTableConfig = {
     {
       'Title': 'Team work',
       'Questions': 'Session Questions',
-      'Full Date': moment().add(1, 'month').format('YYYY-MM-DD'),
+      'Full Date': moment().locale('en').add(1, 'month').format('YYYY-MM-DD'),
       'Start Time': '14:00',
       'End Time': '15:00',
       'Location': 'Room 156',
@@ -105,7 +103,7 @@ window.flListLayoutTableConfig = {
     },
     {
       'Title': 'Morning coffee',
-      'Full Date': moment().add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
+      'Full Date': moment().locale('en').add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
       'Start Time': '09:00',
       'End Time': '09:45',
       'Location': 'Hotel\'s Restaurant',
@@ -115,7 +113,7 @@ window.flListLayoutTableConfig = {
       'Title': 'Defining success in our industry',
       'Poll': 'Session 5 Poll',
       'Questions': 'Session Questions',
-      'Full Date': moment().add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
+      'Full Date': moment().locale('en').add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
       'Start Time': '10:00',
       'End Time': '11:30',
       'Location': 'Room 144',
@@ -124,7 +122,7 @@ window.flListLayoutTableConfig = {
     {
       'Title': 'Day 2 round up',
       'Poll': 'Session 6 Poll',
-      'Full Date': moment().add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
+      'Full Date': moment().locale('en').add(1, 'month').add(1, 'day').format('YYYY-MM-DD'),
       'Start Time': '17:00',
       'End Time': '18:00',
       'Location': 'Room 101',
