@@ -1336,7 +1336,7 @@ DynamicList.prototype.addSummaryData = function(records) {
     filterTypes: _this.filterTypes
   });
 
-  // Uses sumamry view settings set by users
+  // Uses summary view settings set by users
   var loopData = _.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
@@ -1368,23 +1368,11 @@ DynamicList.prototype.addSummaryData = function(records) {
     };
 
     _this.data['summary-fields'].forEach(function(obj) {
-      var content = '';
-
-      if (obj.type === 'image') {
-        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
-      } else if (obj.column === 'custom') {
-        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
-      } else {
-        content = entry.data[obj.column];
-      }
-
-      if (obj.location === 'Start Time' || obj.location === 'End Time') {
-        content = TD(content, { format: 'LT' });
-      }
-
-      content = _this.Utils.String.toFormattedString(content);
-
-      newObject[obj.location] = content;
+      newObject[obj.location] = _this.Utils.Record.getDataViewContent({
+        record: entry,
+        field: obj,
+        filterFields: _this.data.filterFields
+      });
     });
 
     var dateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });

@@ -130,6 +130,45 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return Promise.all(formFilesInfoInDetailViewOptions);
   }
 
+  function getDataViewContent(options) {
+    options = options || {};
+
+    var record = options.record || { data: {} };
+    var field = options.field || {};
+    var filterFields = options.filterFields || [];
+
+    var content = record.data[field.column];
+
+    if (field.column === 'custom') {
+      content = new Handlebars.SafeString(Handlebars.compile(field.customField)(record.data));
+    } else if (filterFields.indexOf(field.column) > -1) {
+      content = splitByCommas(content).join(', ');
+    } else {
+      switch (field.type) {
+        case 'image':
+          content = getImageContent(content, true);
+          break;
+        case 'number':
+          content = TN(content, { allowNaN: true });
+          break;
+        case 'time':
+          content = TD(content, { format: 'LT' });
+          break;
+        case 'date':
+          content = TD(content, { format: 'll' });
+          break;
+        case 'html':
+          content = new Handlebars.SafeString(Fliplet.Media.authenticate(content));
+          break;
+        case 'text':
+        default:
+          break;
+      }
+    }
+
+    return toFormattedString(content);
+  }
+
   /**
    * This function is preparing image original data to display images in the detail view
    *
@@ -1314,6 +1353,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       searchResults.push(record);
     });
 
+    // Sort results
+    searchResults = sortByField(_.assign({}, options, { records: searchResults }));
+
     return Promise.resolve({
       records: searchResults,
       truncated: truncated
@@ -2095,9 +2137,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    * @returns {Array} - sorted by field array
    */
   function sortByField(options) {
+    options = options || {};
+
     // If user doesn't set sorting do nothing
     // Or if we have no records (empty search results)
-    if (!options.sortField || !options.records.length || options.sortOrder === 'none') {
+    if (!options.sortField || !options.records.length || ['asc', 'desc'].indexOf(options.sortOrder) === -1) {
+      Fliplet.Page.Context.remove(['dynamicListSortColumn', 'dynamicListSortOrder']);
+
       return options.records;
     }
 
@@ -2202,6 +2248,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  // No longer used but kept to support customized layout JS
   function sortRecordsByField(options) {
     var sortedRecords = sortByField(options);
 
@@ -2545,11 +2592,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function resetSortIcons(options) {
     options.$sortList.each(function() {
       var $listitem = $(this);
-      var listSortOrder = $listitem.data('sortOrder');
-      var $listIcon = $listitem.find('i');
 
-      $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
-      $listitem.data('sortOrder', 'none');
+      $listitem.attr('data-sort-order', 'none');
     });
   }
 
@@ -2773,6 +2817,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
+      getDataViewContent: getDataViewContent,
       getImageContent: getImageContent,
       assignImageContent: assignImageContent
     },
