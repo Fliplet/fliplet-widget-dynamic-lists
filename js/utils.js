@@ -139,10 +139,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var content = record.data[field.column];
 
+    // Use custom template as provided
     if (field.column === 'custom') {
       content = new Handlebars.SafeString(Handlebars.compile(field.customField)(record.data));
-    } else if (filterFields.indexOf(field.column) > -1) {
-      content = splitByCommas(content).join(', ');
     } else {
       switch (field.type) {
         case 'image':
@@ -162,6 +161,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           break;
         case 'text':
         default:
+          // If the field is also used as a filter, separate the filter values using comma
+          if (filterFields.indexOf(field.column) > -1) {
+            content = splitByCommas(content).join(', ');
+          }
+
           break;
       }
     }
