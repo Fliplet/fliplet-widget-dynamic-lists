@@ -137,40 +137,38 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var field = options.field || {};
     var filterFields = options.filterFields || [];
 
-    var content = record.data[field.column];
+    var content = field.column === 'custom'
+      // Use custom template as provided
+      ? Handlebars.compile(field.customField)(record.data)
+      : record.data[field.column];
 
-    // Use custom template as provided
-    if (field.column === 'custom') {
-      content = new Handlebars.SafeString(Handlebars.compile(field.customField)(record.data));
-    } else {
-      switch (field.type) {
-        case 'image':
-          content = getImageContent(content, true);
-          break;
-        case 'number':
-          content = TN(content, { allowNaN: true });
-          break;
-        case 'time':
-          content = TD(content, { format: 'LT' });
-          break;
-        case 'date':
-          content = TD(content, { format: 'll' });
-          break;
-        case 'html':
-          content = new Handlebars.SafeString(Fliplet.Media.authenticate(content));
-          break;
-        case 'text':
-        default:
-          // If the field is also used as a filter, separate the filter values using comma
-          if (filterFields.indexOf(field.column) > -1) {
-            content = splitByCommas(content).join(', ');
-          }
+    switch (field.type) {
+      case 'image':
+        content = getImageContent(content, true);
+        break;
+      case 'number':
+        content = TN(content, { allowNaN: true });
+        break;
+      case 'time':
+        content = TD(content, { format: 'LT' });
+        break;
+      case 'date':
+        content = TD(content, { format: 'll' });
+        break;
+      case 'html':
+        content = Fliplet.Media.authenticate(content);
+        break;
+      case 'text':
+      default:
+        // If the field is also used as a filter, separate the filter values using comma
+        if (filterFields.indexOf(field.column) > -1) {
+          content = splitByCommas(content).join(', ');
+        }
 
-          break;
-      }
+        break;
     }
 
-    return toFormattedString(content);
+    return toFormattedString(new Handlebars.SafeString(content));
   }
 
   /**
