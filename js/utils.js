@@ -137,40 +137,38 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var field = options.field || {};
     var filterFields = options.filterFields || [];
 
-    var content = record.data[field.column];
+    var content = field.column === 'custom'
+      // Use custom template as provided
+      ? Handlebars.compile(field.customField)(record.data)
+      : record.data[field.column];
 
-    // Use custom template as provided
-    if (field.column === 'custom') {
-      content = new Handlebars.SafeString(Handlebars.compile(field.customField)(record.data));
-    } else {
-      switch (field.type) {
-        case 'image':
-          content = getImageContent(content, true);
-          break;
-        case 'number':
-          content = TN(content, { allowNaN: true });
-          break;
-        case 'time':
-          content = TD(content, { format: 'LT' });
-          break;
-        case 'date':
-          content = TD(content, { format: 'll' });
-          break;
-        case 'html':
-          content = new Handlebars.SafeString(Fliplet.Media.authenticate(content));
-          break;
-        case 'text':
-        default:
-          // If the field is also used as a filter, separate the filter values using comma
-          if (filterFields.indexOf(field.column) > -1) {
-            content = splitByCommas(content).join(', ');
-          }
+    switch (field.type) {
+      case 'image':
+        content = getImageContent(content, true);
+        break;
+      case 'number':
+        content = TN(content, { allowNaN: true });
+        break;
+      case 'time':
+        content = TD(content, { format: 'LT' });
+        break;
+      case 'date':
+        content = TD(content, { format: 'll' });
+        break;
+      case 'html':
+        content = Fliplet.Media.authenticate(content);
+        break;
+      case 'text':
+      default:
+        // If the field is also used as a filter, separate the filter values using comma
+        if (filterFields.indexOf(field.column) > -1) {
+          content = splitByCommas(content).join(', ');
+        }
 
-          break;
-      }
+        break;
     }
 
-    return toFormattedString(content);
+    return toFormattedString(new Handlebars.SafeString(content));
   }
 
   /**
@@ -2603,30 +2601,30 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   /**
    * Function is formatting the input values to string
-   * @param {*} options Input values that can be of any type
+   * @param {*} value Input values that can be of any type
    * @returns The formatted input value into string value
    */
 
-  function toFormattedString(options) {
-    switch (typeof options) {
+  function toFormattedString(value) {
+    switch (typeof value) {
       case 'string':
-        return options;
+        return value;
       case 'number':
       case 'boolean':
-        return options.toString();
+        return value.toString();
       case 'object':
-        if (!options) {
+        if (!value) {
           return '';
-        } else if (Array.isArray(options)) {
-          options = _.filter(_.map(options, toFormattedString), function(part) { return part.trim().length; });
+        } else if (Array.isArray(value)) {
+          value = _.filter(_.map(value, toFormattedString), function(part) { return part.trim().length; });
 
-          return options.join(', ');
-        } else if (options instanceof Handlebars.SafeString) {
+          return value.join(', ');
+        } else if (value instanceof Handlebars.SafeString) {
           // Return Handlebars SafeString objects as they are for templates to render
-          return options;
+          return value;
         }
 
-        return JSON.stringify(options);
+        return JSON.stringify(value);
       default:
         return '';
     }
