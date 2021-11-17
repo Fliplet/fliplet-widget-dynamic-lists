@@ -2601,30 +2601,30 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   /**
    * Function is formatting the input values to string
-   * @param {*} options Input values that can be of any type
+   * @param {*} value Input values that can be of any type
    * @returns The formatted input value into string value
    */
 
-  function toFormattedString(options) {
-    switch (typeof options) {
+  function toFormattedString(value) {
+    switch (typeof value) {
       case 'string':
-        return options;
+        return value;
       case 'number':
       case 'boolean':
-        return options.toString();
+        return value.toString();
       case 'object':
-        if (!options) {
+        if (!value) {
           return '';
-        } else if (Array.isArray(options)) {
-          options = _.filter(_.map(options, toFormattedString), function(part) { return part.trim().length; });
+        } else if (Array.isArray(value)) {
+          value = _.filter(_.map(value, toFormattedString), function(part) { return part.trim().length; });
 
-          return options.join(', ');
-        } else if (options instanceof Handlebars.SafeString) {
+          return value.join(', ');
+        } else if (value instanceof Handlebars.SafeString) {
           // Return Handlebars SafeString objects as they are for templates to render
-          return options;
+          return value;
         }
 
-        return JSON.stringify(options);
+        return JSON.stringify(value);
       default:
         return '';
     }
