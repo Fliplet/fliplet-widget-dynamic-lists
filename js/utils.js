@@ -147,7 +147,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         content = getImageContent(content, true);
         break;
       case 'number':
-        content = TN(content, { allowNaN: true });
+        content = TN(content, { forceNumber: false });
         break;
       case 'time':
         content = TD(content, { format: 'LT' });
