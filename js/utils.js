@@ -168,7 +168,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         break;
     }
 
-    return toFormattedString(new Handlebars.SafeString(content));
+    if (field.column === 'custom') {
+      content = new Handlebars.SafeString(content);
+    }
+
+    return toFormattedString(content);
   }
 
   /**
