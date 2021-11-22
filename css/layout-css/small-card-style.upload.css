@@ -1253,6 +1253,14 @@
   .small-card-detail-wrapper .small-card-list-detail-content-scroll-wrapper {
     position: relative;
   }
+
+  .small-card-detail-overlay .small-card-detail-wrapper .small-card-list-detail-image-wrapper ~ .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
+    padding: 40px;
+  }
+
+  .small-card-detail-overlay .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
+    padding: 20px 15px !important;
+  }
 }
 
  .has-bookmarks {

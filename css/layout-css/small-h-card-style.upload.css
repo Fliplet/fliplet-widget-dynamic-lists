@@ -564,6 +564,14 @@
   .small-h-card-detail-wrapper .small-h-card-list-detail-content-scroll-wrapper {
     position: relative;
   }
+
+  .small-h-card-detail-overlay .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper ~ .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
+    padding: 40px;
+  }
+
+  .small-h-card-detail-overlay .small-h-card-detail-wrapper .small-h-card-list-detail-content-wrapper {
+    padding: 20px 15px !important;
+  }
 }
 
 .small-h-card-detail-overlay-wrapper .small-h-card-detail-overlay-close .fa-times-thin {
