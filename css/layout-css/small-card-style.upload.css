@@ -1242,7 +1242,7 @@
   .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper,
   .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
     top: 0;
-    padding-top: 0;
+    padding: 20px 15px;
   }
 
   .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
@@ -1256,10 +1256,6 @@
 
   .small-card-detail-overlay .small-card-detail-wrapper .small-card-list-detail-image-wrapper ~ .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
     padding: 40px;
-  }
-
-  .small-card-detail-overlay .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
-    padding: 20px 15px !important;
   }
 }
 
