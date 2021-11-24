@@ -169,7 +169,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     // No need to escape content if it's using custom template or set as HTML type
-    if (field.column === 'custom' || field.type === 'html') {
+    // undefined and null are skipped to avoid rendering them as strings
+    if (field.column === 'custom' || field.type === 'html' && !_.isNil(content)) {
       content = new Handlebars.SafeString(content);
     }
 
@@ -2621,6 +2622,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         if (!value) {
           return '';
         } else if (Array.isArray(value)) {
+          if (!value.length) {
+            return '';
+          }
+
           value = _.filter(_.map(value, toFormattedString), function(part) { return part.trim().length; });
 
           return value.join(', ');
