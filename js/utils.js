@@ -170,7 +170,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     // No need to escape content if it's using custom template or set as HTML type
     // undefined and null are skipped to avoid rendering them as strings
-    if (field.column === 'custom' || field.type === 'html' && !_.isNil(content)) {
+    if (!_.isNil(content) && (field.column === 'custom' || field.type === 'html')) {
       content = new Handlebars.SafeString(content);
     }
 
