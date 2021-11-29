@@ -615,7 +615,7 @@ var DynamicLists = (function() {
           });
         }
 
-        if (event.data === 'save-widget') {
+        if (event.data === 'save-widget' && userDataSourceProvider) {
           userDataSourceProvider.emit('validation');
         }
       });
