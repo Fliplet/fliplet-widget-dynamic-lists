@@ -57,7 +57,7 @@ function DynamicList(id, data) {
   this.sortOrder = 'none';
   this.imagesData = {};
   this.$closeButton;
-  this.$detailContent;
+  this.$detailsContent;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -381,9 +381,9 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_this.$detailContent || _this.$closeButton) {
-        _this.$detailContent = $('.small-card-detail-overlay');
-        _this.$closeButton = _this.$detailContent.find('.small-card-detail-overlay-close');
+      if (!_this.$detailsContent || _this.$closeButton) {
+        _this.$detailsContent = $('.small-card-detail-overlay');
+        _this.$closeButton = _this.$detailsContent.find('.small-card-detail-overlay-close');
       }
 
       var entryId = $el.data('entry-id');
@@ -2193,7 +2193,7 @@ DynamicList.prototype.expandElement = function(elementToExpand, id, listData) {
       setTimeout(function() {
         elementToExpand.parents('.small-card-list-item').removeClass('opening');
         _this.$closeButton.focus();
-        _this.$detailContent.focusin(function() {
+        _this.$detailsContent.focusin(function() {
           _this.focusCloseButton(false);
         }).focusout(function() {
           _this.focusCloseButton(true);
