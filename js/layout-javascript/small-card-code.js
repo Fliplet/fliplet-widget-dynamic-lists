@@ -56,7 +56,7 @@ function DynamicList(id, data) {
   this.sortField = null;
   this.sortOrder = 'none';
   this.imagesData = {};
-  this.$buttonCloseOverlay;
+  this.$closeButton;
   this.$detailContent;
 
   /**
@@ -95,9 +95,9 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
-DynamicList.prototype.focusButtonClose = _.debounce(function(isAction) {
+DynamicList.prototype.focusCloseButton = _.debounce(function(isAction) {
   if (isAction) {
-    this.$buttonCloseOverlay.focus();
+    this.$closeButton.focus();
   }
 }, 200);
 
@@ -381,9 +381,9 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_this.$detailContent || _this.$buttonCloseOverlay) {
+      if (!_this.$detailContent || _this.$closeButton) {
         _this.$detailContent = $('.small-card-detail-overlay');
-        _this.$buttonCloseOverlay = _this.$detailContent.find('.small-card-detail-overlay-close');
+        _this.$closeButton = _this.$detailContent.find('.small-card-detail-overlay-close');
       }
 
       var entryId = $el.data('entry-id');
@@ -2192,11 +2192,11 @@ DynamicList.prototype.expandElement = function(elementToExpand, id, listData) {
 
       setTimeout(function() {
         elementToExpand.parents('.small-card-list-item').removeClass('opening');
-        _this.$buttonCloseOverlay.focus();
+        _this.$closeButton.focus();
         _this.$detailContent.focusin(function() {
-          _this.focusButtonClose(false);
+          _this.focusCloseButton(false);
         }).focusout(function() {
-          _this.focusButtonClose(true);
+          _this.focusCloseButton(true);
         });
       }, 200); // How long it takes for the overlay to fade in
     });
@@ -2232,7 +2232,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   // Function called when a list item is tapped to close
   var _this = this;
 
-  $('.small-card-list-detail-content-wrapper').off('focusin').off('focusout');
+  $('.small-card-list-detail-content-wrapper').off('focusin focusout');
   $('body').removeClass('lock');
   elementToCollapse = $([]).add(elementToCollapse);
   elementToCollapse.parents('.small-card-list-item').addClass('closing');
