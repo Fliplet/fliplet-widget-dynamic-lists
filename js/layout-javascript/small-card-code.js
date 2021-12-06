@@ -56,6 +56,8 @@ function DynamicList(id, data) {
   this.sortField = null;
   this.sortOrder = 'none';
   this.imagesData = {};
+  this.$buttonCloseOverlay;
+  this.$detailContent;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -92,6 +94,12 @@ function DynamicList(id, data) {
 }
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
+
+DynamicList.prototype.focusButtonClose = _.debounce(function(isAction) {
+  if (isAction) {
+    this.$buttonCloseOverlay.focus();
+  }
+}, 200);
 
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
@@ -373,6 +381,11 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      if (!_this.$detailContent || _this.$buttonCloseOverlay) {
+        _this.$detailContent = $('.small-card-detail-overlay');
+        _this.$buttonCloseOverlay = _this.$detailContent.find('.small-card-detail-overlay-close');
+      }
+
       var entryId = $el.data('entry-id');
       var entryTitle = $el.find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
@@ -409,10 +422,7 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         if (_this.allowClick) {
-          _this.$container.find('.new-small-card-list-container').addClass('hidden');
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
-          $el.parents('.small-card-list-wrapper').addClass('hidden');
         }
 
         // find the element to expand and expand it
@@ -2078,6 +2088,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
         // Trigger animations
         _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
         $overlay.addClass('open');
+
         setTimeout(function() {
           $overlay.addClass('ready');
 
@@ -2181,6 +2192,12 @@ DynamicList.prototype.expandElement = function(elementToExpand, id, listData) {
 
       setTimeout(function() {
         elementToExpand.parents('.small-card-list-item').removeClass('opening');
+        _this.$buttonCloseOverlay.focus();
+        _this.$detailContent.focusin(function() {
+          _this.focusButtonClose(false);
+        }).focusout(function() {
+          _this.focusButtonClose(true);
+        });
       }, 200); // How long it takes for the overlay to fade in
     });
 
@@ -2215,6 +2232,7 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   // Function called when a list item is tapped to close
   var _this = this;
 
+  $('.small-card-list-detail-content-wrapper').off('focusin').off('focusout');
   $('body').removeClass('lock');
   elementToCollapse = $([]).add(elementToCollapse);
   elementToCollapse.parents('.small-card-list-item').addClass('closing');
