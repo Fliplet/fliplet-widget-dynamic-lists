@@ -447,7 +447,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      _this.$container.find('.new-small-card-list-container, .small-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -2104,6 +2104,14 @@ DynamicList.prototype.showDetails = function(id, listData) {
             });
           }
         }, 0);
+        setTimeout(function() {
+          _this.$closeButton.focus();
+          _this.$detailsContent.focusin(function() {
+            _this.focusCloseButton(false);
+          }).focusout(function() {
+            _this.focusCloseButton(true);
+          });
+        }, 200);
       });
     });
 };
@@ -2119,6 +2127,7 @@ DynamicList.prototype.closeDetails = function() {
   var _this = this;
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
 
+  _this.$detailsContent.off('focusin focusout');
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-card-list-container').removeClass('overlay-open');
@@ -2135,7 +2144,7 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
 
-    _this.$container.find('.new-small-card-list-container, .dynamic-list-add-item, .small-card-list-wrapper').removeClass('hidden');
+    _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 
@@ -2192,12 +2201,6 @@ DynamicList.prototype.expandElement = function(elementToExpand, id, listData) {
 
       setTimeout(function() {
         elementToExpand.parents('.small-card-list-item').removeClass('opening');
-        _this.$closeButton.focus();
-        _this.$detailsContent.focusin(function() {
-          _this.focusCloseButton(false);
-        }).focusout(function() {
-          _this.focusCloseButton(true);
-        });
       }, 200); // How long it takes for the overlay to fade in
     });
 
@@ -2232,7 +2235,6 @@ DynamicList.prototype.collapseElement = function(elementToCollapse) {
   // Function called when a list item is tapped to close
   var _this = this;
 
-  $('.small-card-list-detail-content-wrapper').off('focusin focusout');
   $('body').removeClass('lock');
   elementToCollapse = $([]).add(elementToCollapse);
   elementToCollapse.parents('.small-card-list-item').addClass('closing');

@@ -57,6 +57,8 @@ function DynamicList(id, data) {
   this.sortOrder = 'none';
   this.sortField = null;
   this.imagesData = {};
+  this.$closeButton;
+  this.$detailsContent;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -88,6 +90,12 @@ function DynamicList(id, data) {
 }
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
+
+DynamicList.prototype.focusCloseButton = _.debounce(function(isAction) {
+  if (isAction) {
+    this.$closeButton.focus();
+  }
+}, 200);
 
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
@@ -320,6 +328,13 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      if (!_this.$detailsContent || _this.$closeButton) {
+        _this.$detailsContent = $('.simple-list-detail-overlay');
+        _this.$closeButton = $(_.find(_this.$detailsContent.find('.simple-list-detail-overlay-close'), function(element) {
+          return !$(element).hasClass('tablet');
+        }));
+      }
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.list-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -355,10 +370,18 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        $el.parents('.simple-list-container').addClass('hidden');
         _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
-        _this.showDetails(entryId);
+        _this.showDetails(entryId).then(function() {
+          setTimeout(function() {
+            _this.$closeButton.focus();
+            _this.$detailsContent.focusin(function() {
+              _this.focusCloseButton(false);
+            }).focusout(function() {
+              _this.focusCloseButton(true);
+            });
+          }, 200);
+        });
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
         });
@@ -2480,6 +2503,8 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
+
+  _this.$detailsContent.off('focusin focusout');
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $('body').removeClass('lock');

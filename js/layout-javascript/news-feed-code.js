@@ -58,6 +58,8 @@ function DynamicList(id, data) {
   this.sortOrder = 'none';
   this.sortField = null;
   this.imagesData = {};
+  this.$closeButton;
+  this.$detailsContent;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -93,6 +95,12 @@ function DynamicList(id, data) {
 }
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
+
+DynamicList.prototype.focusCloseButton = _.debounce(function(isAction) {
+  if (isAction) {
+    this.$closeButton.focus();
+  }
+}, 200);
 
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
@@ -342,6 +350,13 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      if (!_this.$detailsContent || _this.$closeButton) {
+        _this.$detailsContent = $('.news-feed-detail-overlay');
+        _this.$closeButton = $(_.find(_this.$detailsContent.find('.news-feed-detail-overlay-close'), function(element) {
+          return !$(element).hasClass('tablet');
+        }));
+      }
+
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -379,10 +394,18 @@ DynamicList.prototype.attachObservers = function() {
 
         // find the element to expand and expand it
         if (_this.allowClick) {
-          $el.parents('.new-news-feed-list-container').addClass('hidden');
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
-          _this.showDetails(entryId);
+          _this.showDetails(entryId).then(function() {
+            setTimeout(function() {
+              _this.$closeButton.focus();
+              _this.$detailsContent.focusin(function() {
+                _this.focusCloseButton(false);
+              }).focusout(function() {
+                _this.focusCloseButton(true);
+              });
+            }, 200);
+          });
           Fliplet.Page.Context.update({
             dynamicListOpenId: entryId
           });
@@ -397,7 +420,7 @@ DynamicList.prototype.attachObservers = function() {
       var result;
       var id = _this.$container.find('.news-feed-detail-wrapper[data-entry-id]').data('entry-id');
 
-      _this.$container.find('.new-news-feed-list-container, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.news-feed-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
@@ -2532,6 +2555,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
+  _this.$detailsContent.off('focusin focusout');
   Fliplet.Page.Context.remove('dynamicListOpenId');
   _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');

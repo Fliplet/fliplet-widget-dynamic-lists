@@ -38,6 +38,8 @@ function DynamicList(id, data) {
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
   this.imagesData = {};
+  this.$closeButton;
+  this.$detailsContent;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -63,6 +65,12 @@ function DynamicList(id, data) {
 }
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
+
+DynamicList.prototype.focusCloseButton = _.debounce(function(isAction) {
+  if (isAction) {
+    this.$closeButton.focus();
+  }
+}, 200);
 
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -116,6 +124,13 @@ DynamicList.prototype.attachObservers = function() {
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
       var beforeOpen = Promise.resolve();
 
+      if (!_this.$detailsContent || _this.$closeButton) {
+        _this.$detailsContent = $('.small-h-card-detail-overlay');
+        _this.$closeButton = $(_.find(_this.$detailsContent.find('.small-h-card-detail-overlay-close'), function(element) {
+          return !$(element).hasClass('tablet');
+        }));
+      }
+
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
@@ -148,7 +163,6 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         if (_this.allowClick) {
-          $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
         }
 
@@ -174,7 +188,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -956,6 +970,15 @@ DynamicList.prototype.showDetails = function(id, listData) {
             });
           }
         }, 0);
+
+        setTimeout(function() {
+          _this.$closeButton.focus();
+          _this.$detailsContent.focusin(function() {
+            _this.focusCloseButton(false);
+          }).focusout(function() {
+            _this.focusCloseButton(true);
+          });
+        }, 200);
       });
     });
 };
@@ -971,6 +994,7 @@ DynamicList.prototype.closeDetails = function() {
   var _this = this;
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
 
+  _this.$detailsContent.off('focusin focusout');
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
@@ -986,7 +1010,7 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
 
-    _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+    _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 
