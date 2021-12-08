@@ -381,11 +381,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_this.$detailsContent || _this.$closeButton) {
-        _this.$detailsContent = $('.small-card-detail-overlay');
-        _this.$closeButton = _this.$detailsContent.find('.small-card-detail-overlay-close');
-      }
-
       var entryId = $el.data('entry-id');
       var entryTitle = $el.find('.small-card-list-name').text().trim();
       var beforeOpen = Promise.resolve();
@@ -2027,6 +2022,11 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
+
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.small-card-detail-overlay');
+    this.$closeButton = this.$detailsContent.find('.small-card-detail-overlay-close');
+  }
 
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,

@@ -124,13 +124,6 @@ DynamicList.prototype.attachObservers = function() {
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
       var beforeOpen = Promise.resolve();
 
-      if (!_this.$detailsContent || _this.$closeButton) {
-        _this.$detailsContent = $('.small-h-card-detail-overlay');
-        _this.$closeButton = $(_.find(_this.$detailsContent.find('.small-h-card-detail-overlay-close'), function(element) {
-          return !$(element).hasClass('tablet');
-        }));
-      }
-
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
@@ -896,6 +889,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
+
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.small-h-card-detail-overlay');
+    this.$closeButton = $(_.find(this.$detailsContent.find('.small-h-card-detail-overlay-close'), function(element) {
+      return !$(element).hasClass('tablet');
+    }));
+  }
 
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,

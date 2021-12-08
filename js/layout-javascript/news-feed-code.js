@@ -350,13 +350,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_this.$detailsContent || _this.$closeButton) {
-        _this.$detailsContent = $('.news-feed-detail-overlay');
-        _this.$closeButton = $(_.find(_this.$detailsContent.find('.news-feed-detail-overlay-close'), function(element) {
-          return !$(element).hasClass('tablet');
-        }));
-      }
-
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.news-feed-item-title').text().trim();
       var beforeOpen = Promise.resolve();
@@ -2459,6 +2452,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var entryId = { id: id };
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
   var src = _this.src;
+
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.news-feed-detail-overlay');
+    this.$closeButton = $(_.find(this.$detailsContent.find('.news-feed-detail-overlay-close'), function(element) {
+      return !$(element).hasClass('tablet');
+    }));
+  }
 
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
