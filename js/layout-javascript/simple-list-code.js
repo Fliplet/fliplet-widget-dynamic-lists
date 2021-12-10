@@ -2417,9 +2417,9 @@ DynamicList.prototype.showDetails = function(id, listData) {
 
   if (!this.$detailsContent || !this.$closeButton) {
     this.$detailsContent = $('.simple-list-detail-overlay');
-    this.$closeButton = $(_.find(this.$detailsContent.find('.simple-list-detail-overlay-close'), function(element) {
-      return !$(element).hasClass('tablet');
-    }));
+    this.$closeButton = this.$detailsContent.find('.simple-list-detail-overlay-close').filter(function(i, el) {
+      return !$(el).hasClass('tablet');
+    });
   }
 
   return _this.Utils.Records.getFilesInfo({

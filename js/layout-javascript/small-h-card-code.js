@@ -892,9 +892,9 @@ DynamicList.prototype.showDetails = function(id, listData) {
 
   if (!this.$detailsContent || !this.$closeButton) {
     this.$detailsContent = $('.small-h-card-detail-overlay');
-    this.$closeButton = $(_.find(this.$detailsContent.find('.small-h-card-detail-overlay-close'), function(element) {
-      return !$(element).hasClass('tablet');
-    }));
+    this.$closeButton = this.$detailsContent.find('.small-h-card-detail-overlay-close').filter(function(i, el) {
+      return !$(el).hasClass('tablet');
+    });
   }
 
   return _this.Utils.Records.getFilesInfo({
