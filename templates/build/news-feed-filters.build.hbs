@@ -81,6 +81,22 @@
           </div>
         </fieldset>
       \{{/ifCond}}
+      \{{#ifCond type '===' 'number'}}
+        <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
+          <div class="filter-range-block">
+            <div class="form-group fl-number-input hidden-filter-controls-filter filter-number-from focus-outline" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{min}}">
+              <input type="number" class="form-control" value="\{{min}}">
+            </div>
+            <span class="filter-range-to">to</span>
+          </div>
+          <div class="filter-range-block">
+            <div class="form-group fl-number-input hidden-filter-controls-filter filter-number-to focus-outline" data-type="\{{type}}" data-field="\{{name}}" data-default="\{{max}}">
+              <input type="number" class="form-control" value="\{{max}}">
+            </div>
+            <span class="btn btn-link filter-range-reset" data-field="\{{name}}" tabindex="0">Reset</span>
+          </div>
+        </fieldset>
+      \{{/ifCond}}
       \{{#ifCond type '===' 'toggle'}}
         <fieldset data-filter-group data-type="\{{type}}" data-field="\{{name}}">
           \{{#each [data]}}

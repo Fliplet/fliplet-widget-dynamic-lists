@@ -99,7 +99,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var filterType = $target.data('type');
 
   // Date filters are targeted at the same time
-  if (filterType === 'date') {
+  if (['date', 'number'].indexOf(filterType) > -1) {
     $target = $target.closest('[data-filter-group]').find('.hidden-filter-controls-filter');
   }
 
@@ -109,7 +109,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
     $target[!!toggle ? 'addClass' : 'removeClass']('mixitup-control-active');
   }
 
-  if (filterType === 'date') {
+  if (['date', 'number'].indexOf(filterType) > -1) {
     $target.closest('[data-filter-group]').toggleClass('filter-range-active', $target.hasClass('mixitup-control-active'));
   }
 
@@ -272,7 +272,7 @@ DynamicList.prototype.attachObservers = function() {
       var $filter = $(this);
 
       // Date filters change events are handled differently
-      if (['date'].indexOf($filter.data('type')) > -1) {
+      if (['date', 'number'].indexOf($filter.data('type')) > -1) {
         return;
       }
 
@@ -294,17 +294,22 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.filter-range-reset', function() {
       var $filterGroup = $(this).closest('[data-filter-group]');
       var $filters = $filterGroup.find('.hidden-filter-controls-filter');
+      var type = $filterGroup.data('type');
+      var inputDataNames = {
+        date: 'flDatePicker',
+        number: 'flNumberInput'
+      };
 
       $filters.each(function() {
         var $filter = $(this);
 
-        $filter.data('flDatePicker').set($filter.data('default'), false);
+        $filter.data(inputDataNames[type]).set($filter.data('default'), false);
       });
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
         action: 'filter',
-        label: 'RESET_DATES'
+        label: 'RESET_' + type.toUpperCase() + 'S'
       });
 
       _this.toggleFilterElement($filters, false);
