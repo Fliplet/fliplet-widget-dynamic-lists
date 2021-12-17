@@ -96,12 +96,6 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
-DynamicList.prototype.focusCloseButton = _.debounce(function(isAction) {
-  if (isAction) {
-    this.$closeButton.focus();
-  }
-}, 200);
-
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
   var filterType = $target.data('type');
@@ -392,12 +386,13 @@ DynamicList.prototype.attachObservers = function() {
           _this.showDetails(entryId).then(function() {
             setTimeout(function() {
               _this.$closeButton.focus();
-              _this.$detailsContent.focusin(function() {
-                _this.focusCloseButton(false);
-              }).focusout(function() {
-                _this.focusCloseButton(true);
+              _this.$detailsContent.focusout(function(event) {
+                if (event.currentTarget.contains(event.relatedTarget)) {
+                  return;
+                }
+    
+                _this.$closeButton.focus();
               });
-            }, 200);
           });
           Fliplet.Page.Context.update({
             dynamicListOpenId: entryId
@@ -2555,7 +2550,7 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  _this.$detailsContent.off('focusin focusout');
+  _this.$detailsContent.off('focusout');
   Fliplet.Page.Context.remove('dynamicListOpenId');
   _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
