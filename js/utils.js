@@ -2743,9 +2743,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }));
   }
 
-  function getImagesUrlsByRegex(imageString) {
+  /**
+   * Assesses a string input and return it as an array if it's a valid image URL
+   * @param {String} str - String to be assessed
+   * @returns {Array|null} An array of a single image URL or null if input is not an image URL
+   */
+  function getImagesUrlsByRegex(str) {
     // Regex to detect if line contains URL
-    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/g);
+    return isValidImageUrl(str) ? [str] : null;
   }
 
   function openLinkAction(options) {
