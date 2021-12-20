@@ -390,9 +390,10 @@ DynamicList.prototype.attachObservers = function() {
                 if (event.currentTarget.contains(event.relatedTarget)) {
                   return;
                 }
-    
+
                 _this.$closeButton.focus();
               });
+            }, 200);
           });
           Fliplet.Page.Context.update({
             dynamicListOpenId: entryId
