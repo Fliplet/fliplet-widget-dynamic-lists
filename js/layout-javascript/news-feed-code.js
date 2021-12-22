@@ -98,7 +98,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
   var filterType = $target.data('type');
 
-  // Date filters are targeted at the same time
+  // Range filters are targeted at the same time
   if (['date', 'number'].indexOf(filterType) > -1) {
     $target = $target.closest('[data-filter-group]').find('.hidden-filter-controls-filter');
   }
@@ -271,7 +271,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var $filter = $(this);
 
-      // Date filters change events are handled differently
+      // Range filters change events are handled differently
       if (['date', 'number'].indexOf($filter.data('type')) > -1) {
         return;
       }
@@ -291,7 +291,11 @@ DynamicList.prototype.attachObservers = function() {
         }, 0);
       }
     })
-    .on('click', '.filter-range-reset', function() {
+    .on('click keydown', '.filter-range-reset', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
       var $filterGroup = $(this).closest('[data-filter-group]');
       var $filters = $filterGroup.find('.hidden-filter-controls-filter');
       var type = $filterGroup.data('type');

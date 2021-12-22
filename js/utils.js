@@ -366,6 +366,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       return formattedName;
     });
+
+    Handlebars.registerPartial('filter', Fliplet.Widget.Templates['templates.build.filter']());
   }
 
   function splitByCommas(str, returnNilAsArray) {
@@ -548,6 +550,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         // Set the range values as an array and reverse them if necessary
         query.value[index] = from <= to ? [from, to] : [to, from];
+      } else if (type === 'number') {
+        from = Fliplet.parseNumber(from);
+        to = Fliplet.parseNumber(to);
+
+        if (typeof from !== 'number' || typeof to !== 'number') {
+          delete query.column[index];
+          delete query.value[index];
+
+          return;
+        }
+
+        // Set the range values as an array and reverse them if necessary
+        query.value[index] = from <= to ? [from, to] : [to, from];
       }
     });
 
@@ -649,49 +664,43 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })
       .value();
 
-    var dateFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
+    var inputDataNames = {
+      date: 'flDatePicker',
+      number: 'flNumberInput'
+    };
+    var rangeFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').filter('[data-type="date"], [data-type="number"]'))
       .map(function(el) {
-        return _.pickBy({
-          field: el.dataset.field,
-          value: $(el).data('flDatePicker').get()
-        });
-      })
-      .groupBy('field')
-      .mapValues(function(filters) {
-        // Sort the values to assume the FROM date is not after the TO date
-        return _.compact(_.map(filters, 'value')).sort();
-      })
-      .value();
+        var $el = $(el);
+        var type = $el.data('type');
 
-    // TODO: Join with the above?
-    var numberFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active[data-type="number"]'))
-      .map(function(el) {
         return _.pickBy({
           field: el.dataset.field,
-          value: $(el).data('flNumberInput').get()
+          type: type,
+          value: $el.data(inputDataNames[type]).get()
         });
       })
       .groupBy('field')
       .mapValues(function(filters) {
-        // Sort the values to assume the FROM date is not after the TO date
-        return _.compact(_.map(filters, 'value')).sort();
+        // Sort the values to assume the FROM value is not after the TO value
+        var values = _.compact(_.map(filters, 'value'));
+        var type = filters && filters[0] && filters[0].type;
+
+        return type === 'date'
+          ? values.sort()
+          : values.sort(function(a, b) {
+            return a - b;
+          });
       })
       .value();
 
     // Clean up invalid date filter values
-    _.forIn(dateFilters, function(values, field) {
+    _.forIn(rangeFilters, function(values, field) {
       if (!values || values.length !== 2) {
-        delete dateFilters[field];
+        delete rangeFilters[field];
       }
     });
 
-    _.forIn(numberFilters, function(values, field) {
-      if (!values || values.length !== 2) {
-        delete numberFilters[field];
-      }
-    });
-
-    _.assign(activeFilters, dateFilters, numberFilters);
+    _.assign(activeFilters, rangeFilters);
 
     return activeFilters;
   }
@@ -781,8 +790,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         });
       }).end()
       .find('.fl-number-input').each(function(i, el) {
-        // TODO: Join with the selectors above
-        // Initialize date pickers
+        // Initialize number inputs
         var input = Fliplet.UI.NumberInput(el, { required: true });
 
         input.change(function(value) {
@@ -854,12 +862,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var $filter = $(this);
       var type = $filter.data('type');
 
-      if (type === 'date') {
+      if (['date', 'number'].indexOf(type) > -1) {
         var queryIndex = _.get(instance, 'pvFilterQuery.column', []).indexOf($filter.data('field'));
         var rangeValues = _.get(instance, ['pvFilterQuery', 'value', queryIndex], []);
-        var value = $filter.hasClass('filter-date-from') ? rangeValues[0] : rangeValues[1];
+        var value = $filter.hasClass('filter-' + type + '-from') ? rangeValues[0] : rangeValues[1];
 
-        Fliplet.UI.DatePicker.get($filter).set(value, false);
+        if (type === 'date') {
+          Fliplet.UI.DatePicker.get($filter).set(value, false);
+        } else if (type === 'number') {
+          Fliplet.UI.NumberInput.get($filter).set(value, false);
+        }
       }
 
       instance.toggleFilterElement($filter, true);
@@ -1818,8 +1830,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               return;
             }
 
-            // TODO: Improve number parsing methods
-            var number = Number(value);
+            var number = Fliplet.parseNumber(value, true);
 
             if (typeof number === 'number' && !Number.isNaN(number)) {
               filterData.data.value = number;
@@ -1988,11 +1999,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         var values;
 
         values = options.type === 'date'
-          ? options.$container.find('.fl-date-picker[data-type="date"][data-field="' + options.field + '"]').map(function() {
+          ? options.$container.find('.fl-date-picker[data-type="' + options.type + '"][data-field="' + options.field + '"]').map(function() {
             return Fliplet.UI.DatePicker.get(this).get(true);
           }).get()
-          : options.$container.find('.fl-number-filter[data-type="number"][data-field="' + options.field + '"] input').map(function() {
-            return parseFloat(this.value);
+          : options.$container.find('.fl-number-input[data-type="' + options.type + '"][data-field="' + options.field + '"]').map(function() {
+            return Fliplet.UI.NumberInput.get(this).get();
           }).get();
 
         return '<div class="btn hidden-filter-controls-filter mixitup-control-active applied-filter"'
