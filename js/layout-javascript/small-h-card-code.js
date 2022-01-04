@@ -38,8 +38,8 @@ function DynamicList(id, data) {
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
   this.imagesData = {};
-  this.$closeButton;
-  this.$detailsContent;
+  this.$closeButton = null;
+  this.$detailsContent = null;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
