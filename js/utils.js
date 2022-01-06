@@ -831,9 +831,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       };
 
       $filter.data(inputDataNames[type]).set($filter.data('default'), false);
+    }).end().each(function() {
+      instance.toggleFilterElement(this, false);
     });
-
-    instance.toggleFilterElement(instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
 
     return instance.searchData();
   }
