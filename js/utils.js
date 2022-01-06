@@ -1837,7 +1837,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
             var number = Fliplet.parseNumber(value, true);
 
-            if (typeof number === 'number' && !Number.isNaN(number)) {
+            if (typeof number === 'number' && !_.isNaN(number)) {
               filterData.data.value = number;
             }
 
