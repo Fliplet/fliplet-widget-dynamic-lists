@@ -673,16 +673,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         var $el = $(el);
         var type = $el.data('type');
 
-        return _.pickBy({
+        return _.omitBy({
           field: el.dataset.field,
           type: type,
           value: $el.data(inputDataNames[type]).get()
-        });
+        }, _.isNil);
       })
       .groupBy('field')
       .mapValues(function(filters) {
         // Sort the values to assume the FROM value is not after the TO value
-        var values = _.compact(_.map(filters, 'value'));
+        var values = _.map(filters, 'value');
         var type = filters && filters[0] && filters[0].type;
 
         return type === 'date'
@@ -718,7 +718,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var value = options.value;
 
     // Invalid value. Do nothing.
-    if (!value) {
+    if (_.isNil(value) || value === false) {
       return;
     }
 
