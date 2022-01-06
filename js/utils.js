@@ -822,7 +822,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var instance = options.instance;
 
-    instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active').filter('[data-type="date"], [data-type="number"]').each(function() {
+    instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active').filter('.fl-date-picker[data-type="date"], .fl-number-input[data-type="number"]').each(function() {
       var $filter = $(this);
       var type = $filter.data('type');
       var inputDataNames = {
