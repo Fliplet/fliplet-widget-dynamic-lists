@@ -57,6 +57,8 @@ function DynamicList(id, data) {
   this.sortOrder = 'none';
   this.sortField = null;
   this.imagesData = {};
+  this.$closeButton = null;
+  this.$detailsContent = null;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -355,10 +357,20 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        $el.parents('.simple-list-container').addClass('hidden');
         _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
-        _this.showDetails(entryId);
+        _this.showDetails(entryId).then(function() {
+          setTimeout(function() {
+            _this.$closeButton.focus();
+            _this.$detailsContent.focusout(function(event) {
+              if (event.currentTarget.contains(event.relatedTarget)) {
+                return;
+              }
+
+              _this.$closeButton.focus();
+            });
+          }, 200);
+        });
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
         });
@@ -2399,6 +2411,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
     ? _this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['detail']]();
 
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.simple-list-detail-overlay');
+    this.$closeButton = this.$detailsContent.find('.simple-list-detail-overlay-close').filter(function(i, el) {
+      return !$(el).hasClass('tablet');
+    });
+  }
+
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
@@ -2480,6 +2499,8 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
+
+  _this.$detailsContent.off('focusout');
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $('body').removeClass('lock');

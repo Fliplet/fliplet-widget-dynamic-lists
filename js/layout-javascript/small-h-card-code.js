@@ -38,6 +38,8 @@ function DynamicList(id, data) {
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
   this.imagesData = {};
+  this.$closeButton = null;
+  this.$detailsContent = null;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -148,7 +150,6 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         if (_this.allowClick) {
-          $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
         }
 
@@ -174,7 +175,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -883,6 +884,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
 
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.small-h-card-detail-overlay');
+    this.$closeButton = this.$detailsContent.find('.small-h-card-detail-overlay-close').filter(function(i, el) {
+      return !$(el).hasClass('tablet');
+    });
+  }
+
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
@@ -956,6 +964,17 @@ DynamicList.prototype.showDetails = function(id, listData) {
             });
           }
         }, 0);
+
+        setTimeout(function() {
+          _this.$closeButton.focus();
+          _this.$detailsContent.focusout(function(event) {
+            if (event.currentTarget.contains(event.relatedTarget)) {
+              return;
+            }
+
+            _this.$closeButton.focus();
+          });
+        }, 200);
       });
     });
 };
@@ -971,6 +990,7 @@ DynamicList.prototype.closeDetails = function() {
   var _this = this;
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
 
+  _this.$detailsContent.off('focusout');
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
@@ -986,7 +1006,7 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
 
-    _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+    _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 
