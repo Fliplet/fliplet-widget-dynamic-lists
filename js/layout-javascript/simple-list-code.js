@@ -2500,7 +2500,9 @@ DynamicList.prototype.closeDetails = function() {
   var _this = this;
   var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
 
-  _this.$detailsContent.off('focusout');
+  if (_this.$detailsContent) {
+    _this.$detailsContent.off('focusout');
+  }
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $('body').removeClass('lock');

@@ -990,7 +990,10 @@ DynamicList.prototype.closeDetails = function() {
   var _this = this;
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
 
-  _this.$detailsContent.off('focusout');
+  if (_this.$detailsContent) {
+    _this.$detailsContent.off('focusout');
+  }
+
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
   _this.$container.find('.new-small-h-card-list-container').removeClass('overlay-open');
