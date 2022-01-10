@@ -125,7 +125,8 @@
   width: 40%;
 }
 
-.hidden-filter-controls-filter-wrapper[data-type="date"] {
+.hidden-filter-controls-filter-wrapper[data-type="date"],
+.hidden-filter-controls-filter-wrapper[data-type="number"] {
   white-space: initial !important;
 }
 
@@ -134,7 +135,8 @@
 }
 
 .filter-range-block:first-child,
-.hidden-filter-controls-filter[data-type="date"] {
+.hidden-filter-controls-filter[data-type="date"],
+.hidden-filter-controls-filter[data-type="number"] {
   margin-right: 2px !important;
 }
 
