@@ -1509,7 +1509,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return _.map(_.uniq(getRecordField({
         record: record,
         field: field,
-        useData: true
+        useData: true,
+        filterTypes: filterTypes
       })), convertData);
     });
 
@@ -1740,6 +1741,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var record = options.record;
     var field = options.field;
     var useData = options.useData;
+    var filterTypes = options.filterTypes;
 
     if (!field) {
       return [];
@@ -1759,7 +1761,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return getRecordField({
             record: item,
             field: _.clone(field),
-            useData: false
+            useData: false,
+            filterTypes: filterTypes
           });
         });
       }
@@ -1767,12 +1770,20 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return getRecordField({
         record: record,
         field: path,
-        useData: useData
+        useData: useData,
+        filterTypes: filterTypes
       });
     }
 
     if (typeof field === 'string') {
-      return splitByCommas(_.get(record, (useData ? ['data', field] : [field])));
+      var value = _.get(record, (useData ? ['data', field] : [field]));
+
+      // Avoid splitting values by comma if the field is used as a date/number filter
+      if (filterTypes && ['data', 'number'].indexOf(filterTypes[field]) > -1) {
+        return [value];
+      }
+
+      return splitByCommas(value);
     }
 
     return [];
@@ -1809,7 +1820,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         _.forEach(getRecordField({
           record: record,
           field: field,
-          useData: true
+          useData: true,
+          filterTypes: filterTypes
         }), function(value) {
           var filterData = {
             type: field,
@@ -2550,7 +2562,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       _.set(record, ['data', field], getRecordField({
         record: record,
         field: typeof getter === 'string' ? getter.split(Static.refArraySeparator) : getter,
-        useData: true
+        useData: true,
+        filterTypes: filterTypes
       }));
     });
   }

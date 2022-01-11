@@ -1108,7 +1108,8 @@ DynamicList.prototype.initialize = function() {
     .then(function(records) {
       _this.Utils.Records.addComputedFields({
         records: records,
-        config: _this.data
+        config: _this.data,
+        filterTypes: _this.filterTypes
       });
 
       return Fliplet.Hooks.run('flListDataAfterGetData', {
