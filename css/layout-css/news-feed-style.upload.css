@@ -1529,7 +1529,7 @@ html.ie11 .new-news-feed-list-container .news-feed-list-item:not(.open) .slide-o
 
 @media screen and (min-width: 640px) {
   .news-feed-detail-overlay .news-feed-detail-wrapper .news-feed-item-inner-content {
-    padding: 20px 15px;
+    padding: 60px 15px 20px 15px;
   }
 
   .news-feed-detail-overlay .news-feed-detail-overlay-wrapper {
