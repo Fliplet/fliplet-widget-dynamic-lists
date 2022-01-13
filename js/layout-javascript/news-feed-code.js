@@ -2551,7 +2551,10 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
 
-  _this.$detailsContent.off('focusout');
+  if (_this.$detailsContent) {
+    _this.$detailsContent.off('focusout');
+  }
+
   Fliplet.Page.Context.remove('dynamicListOpenId');
   _this.$overlay.removeClass('open');
   _this.$container.find('.new-news-feed-list-container').removeClass('overlay-open');
