@@ -56,6 +56,8 @@ function DynamicList(id, data) {
   this.sortField = null;
   this.sortOrder = 'none';
   this.imagesData = {};
+  this.$closeButton = null;
+  this.$detailsContent = null;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -418,10 +420,7 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         if (_this.allowClick) {
-          _this.$container.find('.new-small-card-list-container').addClass('hidden');
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
-
-          $el.parents('.small-card-list-wrapper').addClass('hidden');
         }
 
         // find the element to expand and expand it
@@ -446,7 +445,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      _this.$container.find('.new-small-card-list-container, .small-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -2028,6 +2027,11 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
   var src = _this.src;
 
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.small-card-detail-overlay');
+    this.$closeButton = this.$detailsContent.find('.small-card-detail-overlay-close');
+  }
+
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
@@ -2088,6 +2092,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
         // Trigger animations
         _this.$container.find('.new-small-card-list-container').addClass('overlay-open');
         $overlay.addClass('open');
+
         setTimeout(function() {
           $overlay.addClass('ready');
 
@@ -2103,6 +2108,16 @@ DynamicList.prototype.showDetails = function(id, listData) {
             });
           }
         }, 0);
+        setTimeout(function() {
+          _this.$closeButton.focus();
+          _this.$detailsContent.focusout(function(event) {
+            if (event.currentTarget.contains(event.relatedTarget)) {
+              return;
+            }
+
+            _this.$closeButton.focus();
+          });
+        }, 200);
       });
     });
 };
@@ -2117,6 +2132,10 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
+
+  if (_this.$detailsContent) {
+    _this.$detailsContent.off('focusout');
+  }
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
@@ -2134,7 +2153,7 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
 
-    _this.$container.find('.new-small-card-list-container, .dynamic-list-add-item, .small-card-list-wrapper').removeClass('hidden');
+    _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
   }, 300);
 };
 
