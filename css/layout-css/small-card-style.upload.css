@@ -1246,6 +1246,7 @@
     padding: 40px 40px;
   }
 
+  .small-card-detail-overlay-wrapper .small-card-detail-overlay-panel .small-card-detail-overlay-content .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper,
   .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
     padding: 60px 40px 40px 40px;
     border-radius: 0;
