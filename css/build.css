@@ -125,7 +125,8 @@
   width: 40%;
 }
 
-.hidden-filter-controls-filter-wrapper[data-type="date"] {
+.hidden-filter-controls-filter-wrapper[data-type="date"],
+.hidden-filter-controls-filter-wrapper[data-type="number"] {
   white-space: initial !important;
 }
 
@@ -134,28 +135,37 @@
 }
 
 .filter-range-block:first-child,
-.hidden-filter-controls-filter[data-type="date"] {
+.hidden-filter-controls-filter[data-type="date"],
+.hidden-filter-controls-filter[data-type="number"] {
   margin-right: 2px !important;
 }
 
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker,
-.filter-overlay [data-filter-group] .hidden-filter-controls-filter.fl-date-picker {
+.filter-overlay [data-filter-group] .hidden-filter-controls-filter.fl-date-picker,
+[data-filter-group] .hidden-filter-controls-filter.fl-number-input,
+.filter-overlay [data-filter-group] .hidden-filter-controls-filter.fl-number-input {
   padding: 0;
   display: inline-block;
   width: 130px;
   overflow: visible;
 }
 
-[data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
+[data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control,
+[data-filter-group] .hidden-filter-controls-filter.fl-number-input > .form-control {
   border: none;
   background: none;
   color: inherit;
   height: auto;
-  padding: 8px 8px 8px 44px;
+  padding: 8px;
   text-align: center;
 }
 
-.ie11 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
+[data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
+  padding-left: 44px;
+}
+
+.ie11 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control,
+.ie11 [data-filter-group] .hidden-filter-controls-filter.fl-number-filter > .form-control {
   line-height: 1;
 }
 
