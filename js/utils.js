@@ -2563,7 +2563,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         record: record,
         field: typeof getter === 'string' ? getter.split(Static.refArraySeparator) : getter,
         useData: true,
-        filterTypes: filterTypes
+        filterTypes: options.filterTypes
       }));
     });
   }
@@ -2581,7 +2581,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     _.forEach(records, function(record) {
       addRecordComputedFields({
         record: record,
-        computedFields: config.computedFields
+        computedFields: config.computedFields,
+        filterTypes: options.filterTypes
       });
     });
 
