@@ -735,8 +735,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var fromValue = $from && $from.get();
     var toValue = $to && $to.get();
 
+    var valuesAreValid = type === 'number'
+      ? !isNaN(fromValue) && !isNaN(toValue)
+      : fromValue && toValue;
+
     // Validate range values to ensure FROM is not greater than TO
-    if (!isNaN(fromValue) && !isNaN(toValue) && fromValue > toValue) {
+    if (valuesAreValid && fromValue > toValue) {
       if ($filter.hasClass('filter-' + type + '-from')) {
         $to.set(fromValue, false);
       } else if ($filter.hasClass('filter-' + type + '-to')) {
