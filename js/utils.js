@@ -551,10 +551,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         // Set the range values as an array and reverse them if necessary
         query.value[index] = from <= to ? [from, to] : [to, from];
       } else if (type === 'number') {
-        from = Fliplet.parseNumber(from);
-        to = Fliplet.parseNumber(to);
+        from = Fliplet.parseNumber(from, true);
+        to = Fliplet.parseNumber(to, true);
 
-        if (typeof from !== 'number' || typeof to !== 'number') {
+        if (isNaN(from) || isNaN(to)) {
           delete query.column[index];
           delete query.value[index];
 
