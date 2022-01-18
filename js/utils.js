@@ -1558,7 +1558,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
           var date = parseDate(recordFieldValue);
 
-          return moment(date).isBetween(filters[field][0], filters[field][1], undefined, '[]');
+          return date.isValid() && date.isBetween(filters[field][0], filters[field][1], undefined, '[]');
         });
       }
 
