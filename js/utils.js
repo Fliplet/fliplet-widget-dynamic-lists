@@ -20,6 +20,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var div = document.createElement('DIV');
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
+  var parsedDates = {};
+  var parsedNumbers = {};
 
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
@@ -1501,6 +1503,32 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return data;
   }
 
+  /**
+   * Parse and cache values into date objects
+   * @param {*} value - Input to be parsed into moment objects
+   * @returns {moment} Parsed moment object
+   */
+  function parseDate(value)  {
+    if (typeof parsedDates[value] === 'undefined') {
+      parsedDates[value] = moment(value);
+    }
+
+    return parsedDates[value];
+  }
+
+  /**
+   * Parse and cache values into numbers
+   * @param {*} value - Input to be parsed into numbers
+   * @returns {Number} Parsed number value
+   */
+  function parseNumber(value) {
+    if (typeof parsedNumbers[value] === 'undefined') {
+      parsedNumbers[value] = Fliplet.parseNumber(value, true);
+    }
+
+    return parsedNumbers[value];
+  }
+
   function recordMatchesFilters(options) {
     options = options || {};
 
@@ -1528,7 +1556,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
-          return moment(recordFieldValue).isBetween(filters[field][0], filters[field][1], undefined, '[]');
+          var date = parseDate(recordFieldValue);
+
+          return moment(date).isBetween(filters[field][0], filters[field][1], undefined, '[]');
         });
       }
 
@@ -1539,7 +1569,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
-          return recordFieldValue >= filters[field][0] && recordFieldValue <= filters[field][1];
+          var value = parseNumber(recordFieldValue);
+
+          return !isNaN(value) && value >= filters[field][0] && value <= filters[field][1];
         });
       }
 
