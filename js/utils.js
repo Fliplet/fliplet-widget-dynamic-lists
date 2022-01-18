@@ -1783,8 +1783,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var value = _.get(record, (useData ? ['data', field] : [field]));
 
       // Avoid splitting values by comma if the field is used as a date/number filter
-      if (filterTypes && ['data', 'number'].indexOf(filterTypes[field]) > -1) {
         return [value];
+      if (filterTypes && ['date', 'number'].indexOf(filterTypes[field]) > -1) {
       }
 
       return splitByCommas(value);
