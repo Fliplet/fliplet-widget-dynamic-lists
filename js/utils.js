@@ -2931,7 +2931,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return;
     }
 
-    if (options.summaryLinkAction.type === 'url') {
+    if (options.summaryLinkAction.type === 'file') {
+      Fliplet.Navigate.file(value);
+    } else if (options.summaryLinkAction.type === 'url') {
       Fliplet.Navigate.url(value);
     } else {
       var opt = { transition: 'fade' };
