@@ -2206,11 +2206,11 @@ DynamicList.prototype.expandElement = function(elementToExpand, id, listData) {
       'width': expandWidth,
       'max-width': expandWidth
     }, 200, 'linear', function() {
-      _this.showDetails(id, listData);
-
-      setTimeout(function() {
-        elementToExpand.parents('.small-card-list-item').removeClass('opening');
-      }, 200); // How long it takes for the overlay to fade in
+      _this.showDetails(id, listData).then(function() {
+        setTimeout(function() {
+          elementToExpand.parents('.small-card-list-item').removeClass('opening');
+        }, 400); // How long it takes for the overlay to fade in
+      });
     });
 
     elementToExpand.addClass('open');
