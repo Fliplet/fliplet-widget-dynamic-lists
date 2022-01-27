@@ -357,15 +357,10 @@ DynamicList.prototype.attachObservers = function() {
       }, 100);
     })
     .on('click', '.my-profile-container', function() {
-      if ($(window).width() < 640) {
-        _this.directoryDetailWrapper = $(this).find('.small-card-list-detail-wrapper');
-        _this.expandElement(_this.directoryDetailWrapper, _this.modifiedProfileData[0].id, _this.modifiedProfileData);
-      } else {
-        _this.showDetails(_this.modifiedProfileData[0].id, _this.modifiedProfileData);
-        Fliplet.Page.Context.update({
-          dynamicListOpenId: _this.modifiedProfileData[0].id
-        });
-      }
+      _this.showDetails(_this.modifiedProfileData[0].id, _this.modifiedProfileData);
+      Fliplet.Page.Context.update({
+        dynamicListOpenId: _this.modifiedProfileData[0].id
+      });
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -423,13 +418,7 @@ DynamicList.prototype.attachObservers = function() {
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
         }
 
-        // find the element to expand and expand it
-        if (_this.allowClick && $(window).width() < 640) {
-          _this.directoryDetailWrapper = $el.find('.small-card-list-detail-wrapper');
-          _this.expandElement(_this.directoryDetailWrapper, entryId);
-        } else if (_this.allowClick && $(window).width() >= 640) {
-          _this.showDetails(entryId);
-        }
+        _this.showDetails(entryId);
 
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
@@ -2155,89 +2144,6 @@ DynamicList.prototype.closeDetails = function() {
 
     _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
   }, 300);
-};
-
-DynamicList.prototype.expandElement = function(elementToExpand, id, listData) {
-  // Function called when a list item is tapped to expand
-  var _this = this;
-
-  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').not('.filter-overlay').length) {
-    elementToExpand.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
-  }
-
-  // check to see if element is already expanded
-  if (!elementToExpand.hasClass('open')) {
-    // freeze the current scroll position of the background content
-    $('body').addClass('lock');
-    elementToExpand.parents('.small-card-list-item').addClass('opening');
-
-    var currentPosition = elementToExpand.offset();
-    var elementScrollTop = $(window).scrollTop();
-    var netOffset = currentPosition.top - elementScrollTop;
-
-    var expandWidth = $('body').outerWidth();
-    var expandHeight = $('html').outerHeight();
-
-    var directoryDetailImageWrapper = elementToExpand.find('.small-card-list-detail-image-wrapper');
-    var directoryDetailImage = elementToExpand.find('.small-card-list-detail-image');
-
-    // Get the size of the html offset
-    // This get into account phones with notch
-    var computedStyles = window.getComputedStyle(document.getElementsByTagName('html')[0]);
-    var htmlMarginTop = computedStyles.getPropertyValue('margin-top');
-    var toTop = parseInt(htmlMarginTop, 10);
-
-    // convert the expand-item to fixed position with a high z-index without moving it
-    elementToExpand.css({
-      'top': netOffset,
-      'left': currentPosition.left,
-      'height': elementToExpand.height(),
-      'width': elementToExpand.width(),
-      'max-width': expandWidth,
-      'position': 'fixed',
-      'z-index': 1010
-    });
-
-    elementToExpand.animate({
-      'left': 0,
-      'top': !isNaN(toTop) ? toTop : 0,
-      'height': expandHeight,
-      'width': expandWidth,
-      'max-width': expandWidth
-    }, 200, 'linear', function() {
-      _this.showDetails(id, listData).then(function() {
-        setTimeout(function() {
-          elementToExpand.parents('.small-card-list-item').removeClass('opening');
-        }, 400); // How long it takes for the overlay to fade in
-      });
-    });
-
-    elementToExpand.addClass('open');
-    elementToExpand.parents('.small-card-list-item').addClass('open');
-    elementToExpand.find('.small-card-list-detail-content-scroll-wrapper').addClass('open');
-
-    directoryDetailImageWrapper.css({
-      height: directoryDetailImageWrapper.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImageWrapper.animate({
-      height: '70vh'
-    },
-    200,
-    'linear'
-    );
-
-    directoryDetailImage.css({
-      height: directoryDetailImage.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImage.animate({
-      height: '70vh'
-    }, 200, 'linear');
-  }
 };
 
 DynamicList.prototype.collapseElement = function(elementToCollapse) {
