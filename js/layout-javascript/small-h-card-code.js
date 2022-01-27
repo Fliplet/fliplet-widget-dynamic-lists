@@ -153,13 +153,7 @@ DynamicList.prototype.attachObservers = function() {
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
         }
 
-        // find the element to expand and expand it
-        if (_this.allowClick && $(window).width() < 640) {
-          _this.directoryDetailWrapper = _that.find('.small-h-card-list-detail-wrapper');
-          _this.expandElement(_this.directoryDetailWrapper, entryId);
-        } else if (_this.allowClick && $(window).width() >= 640) {
-          _this.showDetails(entryId);
-        }
+        _this.showDetails(entryId);
 
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
@@ -1012,81 +1006,6 @@ DynamicList.prototype.closeDetails = function() {
 
     _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
   }, 300);
-};
-
-DynamicList.prototype.expandElement = function(elementToExpand, id) {
-  // Function called when a list item is tapped to expand
-  var _this = this;
-
-  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').length) {
-    elementToExpand.parents('.panel-group').addClass('remove-transform');
-  }
-
-  // check to see if element is already expanded
-  if (!elementToExpand.hasClass('open')) {
-    // freeze the current scroll position of the background content
-    $('body').addClass('lock');
-
-    var currentPosition = elementToExpand.offset();
-    var elementScrollTop = $(window).scrollTop();
-    var netOffset = currentPosition.top - elementScrollTop;
-
-    var expandPosition = $('body').offset();
-    var expandTop = expandPosition.top;
-    var expandLeft = expandPosition.left;
-    var expandWidth = $('body').outerWidth();
-    var expandHeight = $('html').outerHeight();
-
-    var directoryDetailImageWrapper = elementToExpand.find('.small-h-card-list-detail-image-wrapper');
-    var directoryDetailImage = elementToExpand.find('.small-h-card-list-detail-image');
-
-    // convert the expand-item to fixed position with a high z-index without moving it
-    elementToExpand.css({
-      'top': netOffset,
-      'left': currentPosition.left,
-      'height': elementToExpand.height(),
-      'width': elementToExpand.width(),
-      'max-width': expandWidth,
-      'position': 'fixed',
-      'z-index': 1010
-    });
-
-    elementToExpand.animate({
-      'left': expandLeft,
-      'top': expandTop,
-      'height': expandHeight,
-      'width': expandWidth,
-      'max-width': expandWidth
-    }, 200, 'linear', function() {
-      _this.showDetails(id);
-    });
-
-    elementToExpand.addClass('open');
-    elementToExpand.parents('.small-h-card-list-item').addClass('open');
-    elementToExpand.find('.small-h-card-list-detail-content-scroll-wrapper').addClass('open');
-
-    directoryDetailImageWrapper.css({
-      height: directoryDetailImageWrapper.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImageWrapper.animate({
-      height: '70vh'
-    },
-    200,
-    'linear'
-    );
-
-    directoryDetailImage.css({
-      height: directoryDetailImage.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImage.animate({
-      height: '70vh'
-    }, 200, 'linear');
-  }
 };
 
 DynamicList.prototype.collapseElement = function(elementToCollapse) {
