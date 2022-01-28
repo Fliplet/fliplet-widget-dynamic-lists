@@ -280,6 +280,16 @@
   line-height: 35px;
 }
 
+.simple-list-container .list-search-icon li[data-sort-order] .fa {
+  display: none;
+}
+
+.simple-list-container .list-search-icon li[data-sort-order="none"] .fa.fa-sort,
+.simple-list-container .list-search-icon li[data-sort-order="asc"] .fa.fa-sort-asc,
+.simple-list-container .list-search-icon li[data-sort-order="desc"] .fa.fa-sort-desc  {
+  display: inline-block;
+}
+
 .simple-list-container .list-search-icon .fa-search.active,
 .simple-list-container .list-search-icon .fa-sliders.active {
   display: none;

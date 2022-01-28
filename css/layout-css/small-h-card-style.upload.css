@@ -553,7 +553,7 @@
   .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper + .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper,
   .small-h-card-detail-overlay.ready .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper + .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
     top: 0;
-    padding-top: 0;
+    padding: 20px 15px;
   }
 
   .small-h-card-detail-overlay.ready .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper + .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
@@ -563,6 +563,10 @@
 
   .small-h-card-detail-wrapper .small-h-card-list-detail-content-scroll-wrapper {
     position: relative;
+  }
+
+  .small-h-card-detail-overlay .small-h-card-detail-wrapper .small-h-card-list-detail-image-wrapper ~ .small-h-card-list-detail-content-scroll-wrapper .small-h-card-list-detail-content-wrapper {
+    padding: 40px;
   }
 }
 

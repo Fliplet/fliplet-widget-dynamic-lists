@@ -20,6 +20,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var div = document.createElement('DIV');
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
+  var parsedDates = {};
+  var parsedNumbers = {};
 
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
@@ -130,6 +132,53 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return Promise.all(formFilesInfoInDetailViewOptions);
   }
 
+  function getDataViewContent(options) {
+    options = options || {};
+
+    var record = options.record || { data: {} };
+    var field = options.field || {};
+    var filterFields = options.filterFields || [];
+
+    var content = field.column === 'custom'
+      // Use custom template as provided
+      ? Handlebars.compile(field.customField)(record.data)
+      : record.data[field.column];
+
+    switch (field.type) {
+      case 'image':
+        content = getImageContent(content, true);
+        break;
+      case 'number':
+        content = TN(content, { forceNumber: false });
+        break;
+      case 'time':
+        content = TD(content, { format: 'LT' });
+        break;
+      case 'date':
+        content = TD(content, { format: 'll' });
+        break;
+      case 'html':
+        content = Fliplet.Media.authenticate(content);
+        break;
+      case 'text':
+      default:
+        // If the field is also used as a filter, separate the filter values using comma
+        if (filterFields.indexOf(field.column) > -1) {
+          content = splitByCommas(content).join(', ');
+        }
+
+        break;
+    }
+
+    // No need to escape content if it's using custom template or set as HTML type
+    // undefined and null are skipped to avoid rendering them as strings
+    if (!_.isNil(content) && (field.column === 'custom' || field.type === 'html')) {
+      content = new Handlebars.SafeString(content);
+    }
+
+    return toFormattedString(content);
+  }
+
   /**
    * This function is preparing image original data to display images in the detail view
    *
@@ -216,7 +265,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var filterFields = _.concat(config.filterFields, _.get(instance, 'pvFilterQuery.column'));
     var dataViewFields = _.concat(config['summary-fields'], config.detailViewOptions);
     var filterTypes = _.zipObject(filterFields, _.map(filterFields, function(field) {
-      return _.find(dataViewFields, { column: field, type: 'date' }) ? 'date' : 'toggle';
+      if (_.find(dataViewFields, { column: field, type: 'date' })) {
+        return 'date';
+      }
+
+      if (_.find(dataViewFields, { column: field, type: 'number' })) {
+        return 'number';
+      }
+
+      return 'toggle';
     }));
 
     return filterTypes;
@@ -311,6 +368,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
       return formattedName;
     });
+
+    Handlebars.registerPartial('filter', Fliplet.Widget.Templates['templates.build.filter']());
   }
 
   function splitByCommas(str, returnNilAsArray) {
@@ -493,6 +552,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         // Set the range values as an array and reverse them if necessary
         query.value[index] = from <= to ? [from, to] : [to, from];
+      } else if (type === 'number') {
+        from = Fliplet.parseNumber(from);
+        to = Fliplet.parseNumber(to);
+
+        if (typeof from !== 'number' || typeof to !== 'number') {
+          delete query.column[index];
+          delete query.value[index];
+
+          return;
+        }
+
+        // Set the range values as an array and reverse them if necessary
+        query.value[index] = from <= to ? [from, to] : [to, from];
       }
     });
 
@@ -532,7 +604,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     query.column.forEach(function(field, index) {
       var type = filterTypes[field];
 
-      if (['date'].indexOf(type) > -1) {
+      if (['date', 'number'].indexOf(type) > -1) {
         selectors.push('.hidden-filter-controls-filter[data-field="' + field + '"][data-type="' + type + '"]');
 
         return;
@@ -576,7 +648,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     var $container = options.$container;
-    var activeFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"]'))
+    var activeFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"], [data-type="number"]'))
       .map(function(el) {
         return _.pickBy({
           class: el.dataset.toggle,
@@ -594,28 +666,43 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })
       .value();
 
-    var dateFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active[data-type="date"]'))
+    var inputDataNames = {
+      date: 'flDatePicker',
+      number: 'flNumberInput'
+    };
+    var rangeFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').filter('[data-type="date"], [data-type="number"]'))
       .map(function(el) {
-        return _.pickBy({
+        var $el = $(el);
+        var type = $el.data('type');
+
+        return _.omitBy({
           field: el.dataset.field,
-          value: $(el).data('flDatePicker').get()
-        });
+          type: type,
+          value: $el.data(inputDataNames[type]).get()
+        }, _.isNil);
       })
       .groupBy('field')
       .mapValues(function(filters) {
-        // Sort the values to assume the FROM date is not after the TO date
-        return _.compact(_.map(filters, 'value')).sort();
+        // Sort the values to assume the FROM value is not after the TO value
+        var values = _.map(filters, 'value');
+        var type = filters && filters[0] && filters[0].type;
+
+        return type === 'date'
+          ? values.sort()
+          : values.sort(function(a, b) {
+            return a - b;
+          });
       })
       .value();
 
     // Clean up invalid date filter values
-    _.forIn(dateFilters, function(values, field) {
+    _.forIn(rangeFilters, function(values, field) {
       if (!values || values.length !== 2) {
-        delete dateFilters[field];
+        delete rangeFilters[field];
       }
     });
 
-    _.assign(activeFilters, dateFilters);
+    _.assign(activeFilters, rangeFilters);
 
     return activeFilters;
   }
@@ -633,23 +720,32 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var value = options.value;
 
     // Invalid value. Do nothing.
-    if (!value) {
+    if (_.isNil(value) || value === false) {
       return;
     }
 
     var instance = options.instance;
     var $filter = options.$filter;
     var $filterGroup = $filter.closest('[data-filter-group]');
-    var $from = $filterGroup.find('.hidden-filter-controls-filter.filter-date-from').data('flDatePicker');
-    var $to = $filterGroup.find('.hidden-filter-controls-filter.filter-date-to').data('flDatePicker');
-    var fromValue = $from.get();
-    var toValue = $to.get();
+    var type = $filterGroup.data('type');
+    var inputDataNames = {
+      date: 'flDatePicker',
+      number: 'flNumberInput'
+    };
+    var $from = $filterGroup.find('.hidden-filter-controls-filter.filter-' + type + '-from').data(inputDataNames[type]);
+    var $to = $filterGroup.find('.hidden-filter-controls-filter.filter-' + type + '-to').data(inputDataNames[type]);
+    var fromValue = $from && $from.get();
+    var toValue = $to && $to.get();
+
+    var valuesAreValid = type === 'number'
+      ? !isNaN(fromValue) && !isNaN(toValue)
+      : fromValue && toValue;
 
     // Validate range values to ensure FROM is not greater than TO
-    if (fromValue && toValue && fromValue > toValue) {
-      if ($filter.hasClass('filter-date-from')) {
+    if (valuesAreValid && fromValue > toValue) {
+      if ($filter.hasClass('filter-' + type + '-from')) {
         $to.set(fromValue, false);
-      } else if ($filter.hasClass('filter-date-to')) {
+      } else if ($filter.hasClass('filter-' + type + '-to')) {
         $from.set(toValue, false);
       }
     }
@@ -698,6 +794,26 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             $filter: this.$el
           });
         });
+      }).end()
+      .find('.fl-number-input').each(function(i, el) {
+        // Initialize number inputs
+        var input = Fliplet.UI.NumberInput(el, { required: true });
+
+        input.change(function(value) {
+          var isFrom = this.$el.closest('.hidden-filter-controls-filter').hasClass('filter-number-from');
+
+          Fliplet.Analytics.trackEvent({
+            category: 'list_dynamic_' + instance.data.layout,
+            action: 'filter',
+            label: isFrom ? 'FROM_NUMBER' : 'TO_NUMBER'
+          });
+
+          onFilterRangeChange({
+            value: value,
+            instance: instance,
+            $filter: this.$el
+          });
+        });
       });
   }
 
@@ -712,13 +828,18 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     var instance = options.instance;
 
-    instance.$container.find('.hidden-filter-controls-filter.fl-date-picker.mixitup-control-active[data-type="date"]').each(function() {
+    instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active').filter('.fl-date-picker[data-type="date"], .fl-number-input[data-type="number"]').each(function() {
       var $filter = $(this);
+      var type = $filter.data('type');
+      var inputDataNames = {
+        date: 'flDatePicker',
+        number: 'flNumberInput'
+      };
 
-      $filter.data('flDatePicker').set($filter.data('default'), false);
+      $filter.data(inputDataNames[type]).set($filter.data('default'), false);
+    }).end().each(function() {
+      instance.toggleFilterElement(this, false);
     });
-
-    instance.toggleFilterElement(instance.$container.find('.hidden-filter-controls-filter.mixitup-control-active'), false);
 
     return instance.searchData();
   }
@@ -752,12 +873,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       var $filter = $(this);
       var type = $filter.data('type');
 
-      if (type === 'date') {
+      if (['date', 'number'].indexOf(type) > -1) {
         var queryIndex = _.get(instance, 'pvFilterQuery.column', []).indexOf($filter.data('field'));
         var rangeValues = _.get(instance, ['pvFilterQuery', 'value', queryIndex], []);
-        var value = $filter.hasClass('filter-date-from') ? rangeValues[0] : rangeValues[1];
+        var value = $filter.hasClass('filter-' + type + '-from') ? rangeValues[0] : rangeValues[1];
 
-        Fliplet.UI.DatePicker.get($filter).set(value, false);
+        if (type === 'date') {
+          Fliplet.UI.DatePicker.get($filter).set(value, false);
+        } else if (type === 'number') {
+          Fliplet.UI.NumberInput.get($filter).set(value, false);
+        }
       }
 
       instance.toggleFilterElement($filter, true);
@@ -1314,6 +1439,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       searchResults.push(record);
     });
 
+    // Sort results
+    searchResults = sortByField(_.assign({}, options, { records: searchResults }));
+
     return Promise.resolve({
       records: searchResults,
       truncated: truncated
@@ -1375,6 +1503,32 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return data;
   }
 
+  /**
+   * Parse and cache values into date objects
+   * @param {*} value - Input to be parsed into moment objects
+   * @returns {moment} Parsed moment object
+   */
+  function parseDate(value)  {
+    if (typeof parsedDates[value] === 'undefined') {
+      parsedDates[value] = moment(value);
+    }
+
+    return parsedDates[value];
+  }
+
+  /**
+   * Parse and cache values into numbers
+   * @param {*} value - Input to be parsed into numbers
+   * @returns {Number} Parsed number value
+   */
+  function parseNumber(value) {
+    if (typeof parsedNumbers[value] === 'undefined') {
+      parsedNumbers[value] = Fliplet.parseNumber(value, true);
+    }
+
+    return parsedNumbers[value];
+  }
+
   function recordMatchesFilters(options) {
     options = options || {};
 
@@ -1387,7 +1541,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return _.map(_.uniq(getRecordField({
         record: record,
         field: field,
-        useData: true
+        useData: true,
+        filterTypes: filterTypes
       })), convertData);
     });
 
@@ -1401,7 +1556,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         }
 
         return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
-          return moment(recordFieldValue).isBetween(filters[field][0], filters[field][1], undefined, '[]');
+          var date = parseDate(recordFieldValue);
+
+          return date.isValid() && date.isBetween(filters[field][0], filters[field][1], undefined, '[]');
+        });
+      }
+
+      if (filterTypes[field] === 'number') {
+        // Invalid number filter values, fail silently by passing the filter
+        if (!filters[field] || filters[field].length !== 2) {
+          return true;
+        }
+
+        return _.some(_.get(recordFieldValues, field), function(recordFieldValue) {
+          var value = parseNumber(recordFieldValue);
+
+          return !isNaN(value) && value >= filters[field][0] && value <= filters[field][1];
         });
       }
 
@@ -1544,7 +1714,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       })
       .flatten()
       .uniqBy(function(filter) {
-        // _.uniqBy iteratee
+        // Ignore the filter class name when computing unique filter values
+        if (filter.data && filter.data.class) {
+          delete filter.data.class;
+        }
+
+        // _.uniqBy iteratee, ignoring classes
         return JSON.stringify(filter);
       })
       .orderBy(function(obj) {
@@ -1562,6 +1737,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         switch (filter.type) {
           case 'date':
+          case 'number':
             _.assign(filter, getMinMaxFilterValues(values));
 
             // If min/max values can't be found, render the filter as a toggle
@@ -1601,6 +1777,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var record = options.record;
     var field = options.field;
     var useData = options.useData;
+    var filterTypes = options.filterTypes;
 
     if (!field) {
       return [];
@@ -1620,7 +1797,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return getRecordField({
             record: item,
             field: _.clone(field),
-            useData: false
+            useData: false,
+            filterTypes: filterTypes
           });
         });
       }
@@ -1628,12 +1806,20 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return getRecordField({
         record: record,
         field: path,
-        useData: useData
+        useData: useData,
+        filterTypes: filterTypes
       });
     }
 
     if (typeof field === 'string') {
-      return splitByCommas(_.get(record, (useData ? ['data', field] : [field])));
+      var value = _.get(record, (useData ? ['data', field] : [field]));
+
+      // Avoid splitting values by comma if the field is used as a date/number filter
+      if (filterTypes && ['date', 'number'].indexOf(filterTypes[field]) > -1) {
+        return Array.isArray(value) ? value : [value];
+      }
+
+      return splitByCommas(value);
     }
 
     return [];
@@ -1670,7 +1856,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         _.forEach(getRecordField({
           record: record,
           field: field,
-          useData: true
+          useData: true,
+          filterTypes: filterTypes
         }), function(value) {
           var filterData = {
             type: field,
@@ -1688,6 +1875,18 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
             if (date.isValid()) {
               filterData.data.value = date.format('YYYY-MM-DD');
+            }
+
+            record.data['flFilters'].push(filterData);
+          } else if (filterTypes[field] === 'number') {
+            if (typeof value === 'undefined' || value === null) {
+              return;
+            }
+
+            var number = Fliplet.parseNumber(value, true);
+
+            if (typeof number === 'number' && !_.isNaN(number)) {
+              filterData.data.value = number;
             }
 
             record.data['flFilters'].push(filterData);
@@ -1849,12 +2048,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function getAppliedFilterNode(options) {
     switch (options.type) {
       case 'date':
-        var values = options.$container.find('.fl-date-picker[data-type="date"][data-field="' + options.field + '"]').map(function() {
-          return Fliplet.UI.DatePicker.get(this).get(true);
-        }).get();
+      case 'number':
+        var values;
+
+        values = options.type === 'date'
+          ? options.$container.find('.fl-date-picker[data-type="' + options.type + '"][data-field="' + options.field + '"]').map(function() {
+            return Fliplet.UI.DatePicker.get(this).get(true);
+          }).get()
+          : options.$container.find('.fl-number-input[data-type="' + options.type + '"][data-field="' + options.field + '"]').map(function() {
+            return Fliplet.UI.NumberInput.get(this).get();
+          }).get();
 
         return '<div class="btn hidden-filter-controls-filter mixitup-control-active applied-filter"'
-          + ' data-type="date"'
+          + ' data-type="' + options.type + '"'
           + ' data-field="' + options.field + '"'
           + '>' + values.join(' to ')
           + '<div data-remove-filter class="filter-item-remove" tabindex="0"><span class="fa fa-times"></span></div>'
@@ -1874,7 +2080,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function onActiveFilterClick(options) {
     var $target = options.$target;
     var $container = options.$container;
-    var filterToggleSelector = ['date'].indexOf($target.data('type')) > -1
+    var filterToggleSelector = ['date', 'number'].indexOf($target.data('type')) > -1
       ? options.filterOverlayClass + ' [data-filter-group][data-field="' + $target.data('field') + '"] .filter-range-reset'
       : options.filterOverlayClass + ' [data-filter-group] .mixitup-control-active[data-field="' + $target.data('field') + '"][data-value="' + $target.data('value') + '"]';
     var $filterToggle = $container.find(filterToggleSelector);
@@ -1920,7 +2126,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var appliedFilterNodes = [];
 
     _.forIn(activeFilters, function(values, field) {
-      if (['date'].indexOf(filterTypes[field]) > -1) {
+      if (['date', 'number'].indexOf(filterTypes[field]) > -1) {
         var node = getAppliedFilterNode({
           $container: $container,
           field: field,
@@ -2090,9 +2296,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    * @returns {Array} - sorted by field array
    */
   function sortByField(options) {
+    options = options || {};
+
     // If user doesn't set sorting do nothing
     // Or if we have no records (empty search results)
-    if (!options.sortField || !options.records.length) {
+    if (!options.sortField || !options.records.length || ['asc', 'desc'].indexOf(options.sortOrder) === -1) {
+      Fliplet.Page.Context.remove(['dynamicListSortColumn', 'dynamicListSortOrder']);
+
       return options.records;
     }
 
@@ -2197,6 +2407,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  // No longer used but kept to support customized layout JS
   function sortRecordsByField(options) {
     var sortedRecords = sortByField(options);
 
@@ -2387,7 +2598,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       _.set(record, ['data', field], getRecordField({
         record: record,
         field: typeof getter === 'string' ? getter.split(Static.refArraySeparator) : getter,
-        useData: true
+        useData: true,
+        filterTypes: options.filterTypes
       }));
     });
   }
@@ -2405,7 +2617,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     _.forEach(records, function(record) {
       addRecordComputedFields({
         record: record,
-        computedFields: config.computedFields
+        computedFields: config.computedFields,
+        filterTypes: options.filterTypes
       });
     });
 
@@ -2495,6 +2708,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var filterValues = _.map(_.toPairs(options.activeFilters), function(filter) {
       switch (filterTypes[filter[0]]) {
         case 'date':
+        case 'number':
           return filter[1].join('..');
         case 'toggle':
         default:
@@ -2540,40 +2754,41 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function resetSortIcons(options) {
     options.$sortList.each(function() {
       var $listitem = $(this);
-      var listSortOrder = $listitem.data('sortOrder');
-      var $listIcon = $listitem.find('i');
 
-      $listIcon.removeClass('fa-sort-' + listSortOrder).addClass('fa-sort');
-      $listitem.data('sortOrder', 'none');
+      $listitem.attr('data-sort-order', 'none');
     });
   }
 
   /**
    * Function is formatting the input values to string
-   * @param {*} options Input values that can be of any type
+   * @param {*} value Input values that can be of any type
    * @returns The formatted input value into string value
    */
 
-  function toFormattedString(options) {
-    switch (typeof options) {
+  function toFormattedString(value) {
+    switch (typeof value) {
       case 'string':
-        return options;
+        return value;
       case 'number':
       case 'boolean':
-        return options.toString();
+        return value.toString();
       case 'object':
-        if (!options) {
+        if (!value) {
           return '';
-        } else if (Array.isArray(options)) {
-          options = _.filter(_.map(options, toFormattedString), function(part) { return part.trim().length; });
+        } else if (Array.isArray(value)) {
+          if (!value.length) {
+            return '';
+          }
 
-          return options.join(', ');
-        } else if (options instanceof Handlebars.SafeString) {
+          value = _.filter(_.map(value, toFormattedString), function(part) { return part.trim().length; });
+
+          return value.join(', ');
+        } else if (value instanceof Handlebars.SafeString) {
           // Return Handlebars SafeString objects as they are for templates to render
-          return options;
+          return value;
         }
 
-        return JSON.stringify(options);
+        return JSON.stringify(value);
       default:
         return '';
     }
@@ -2682,9 +2897,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }));
   }
 
-  function getImagesUrlsByRegex(imageString) {
+  /**
+   * Assesses a string input and return it as an array if it's a valid image URL
+   * @param {String} str - String to be assessed
+   * @returns {Array|null} An array of a single image URL or null if input is not an image URL
+   */
+  function getImagesUrlsByRegex(str) {
     // Regex to detect if line contains URL
-    return imageString.match(/((?:ftp|http|https):\/\/(?:\w+:{0,1}\w*@)?(?:\S+)(?::[0-9]+)?(?:\/|\/(?:[\w#!:.?+=&%@!-/]))?)/g);
+    return isValidImageUrl(str) ? [str] : null;
   }
 
   function openLinkAction(options) {
@@ -2711,7 +2931,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return;
     }
 
-    if (options.summaryLinkAction.type === 'url') {
+    if (options.summaryLinkAction.type === 'file') {
+      Fliplet.Navigate.file(value);
+    } else if (options.summaryLinkAction.type === 'url') {
       Fliplet.Navigate.url(value);
     } else {
       var opt = { transition: 'fade' };
@@ -2768,6 +2990,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       isCurrentUser: recordIsCurrentUser,
       matchesFilters: recordMatchesFilters,
       getUniqueId: getRecordUniqueId,
+      getDataViewContent: getDataViewContent,
       getImageContent: getImageContent,
       assignImageContent: assignImageContent
     },

@@ -63,6 +63,7 @@
       "font-awesome",
       "bootstrap",
       "fliplet-ui-datetime",
+      "fliplet-ui-number",
       "moment",
       "lodash",
       "handlebars",

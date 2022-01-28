@@ -3,22 +3,13 @@
   "root": true,
   "globals": {
     "_": "readonly",
-    "Fliplet": "readonly",
-    "interfaceBrowser": "readonly",
-    "buildBrowser": "readonly",
-    "interfaceUrl": "readonly",
-    "buildUrl": "readonly",
-    "widgetInstance": "readonly",
-    "buildSelector": "readonly",
-    "Handlebars": "readonly",
     "DynamicLists": "readonly",
     "flListLayoutConfig": "readonly",
-    "Modernizr": "readonly",
     "LikeButton": "readonly",
     "Hammer": "readonly",
-    "CodeMirror": "readonly",
     "autosize": "readonly",
-    "Raven": "readonly"
+    "Raven": "readonly",
+    "Modernzr": "readonly"
   },
   "rules": {
     "no-eval": 0

@@ -38,6 +38,8 @@ function DynamicList(id, data) {
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
   this.imagesData = {};
+  this.$closeButton = null;
+  this.$detailsContent = null;
 
   /**
    * this specifies the batch size to be used when rendering in chunks
@@ -148,17 +150,10 @@ DynamicList.prototype.attachObservers = function() {
         }
 
         if (_this.allowClick) {
-          $(event.target).parents('.small-h-card-list-wrapper').addClass('hidden');
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
         }
 
-        // find the element to expand and expand it
-        if (_this.allowClick && $(window).width() < 640) {
-          _this.directoryDetailWrapper = _that.find('.small-h-card-list-detail-wrapper');
-          _this.expandElement(_this.directoryDetailWrapper, entryId);
-        } else if (_this.allowClick && $(window).width() >= 640) {
-          _this.showDetails(entryId);
-        }
+        _this.showDetails(entryId);
 
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
@@ -174,7 +169,7 @@ DynamicList.prototype.attachObservers = function() {
 
       var result;
 
-      _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
       var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
@@ -423,7 +418,8 @@ DynamicList.prototype.initialize = function() {
     .then(function(records) {
       _this.Utils.Records.addComputedFields({
         records: records,
-        config: _this.data
+        config: _this.data,
+        filterTypes: _this.filterTypes
       });
 
       return Fliplet.Hooks.run('flListDataAfterGetData', {
@@ -486,8 +482,10 @@ DynamicList.prototype.initialize = function() {
         return item.id;
       });
 
+      return _this.checkIsToOpen();
+    })
+    .then(function() {
       // Render Loop HTML
-      _this.checkIsToOpen();
       _this.modifiedListItems = _this.addSummaryData(_this.listItems);
       _this.renderLoopHTML().then(function() {
         // Update selected highlight size in Edit
@@ -505,7 +503,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   var entry;
 
   if (!_this.queryOpen) {
-    return;
+    return Promise.resolve();
   }
 
   if (_.hasIn(_this.pvOpenQuery, 'id')) {
@@ -519,13 +517,18 @@ DynamicList.prototype.checkIsToOpen = function() {
   if (!entry) {
     Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
 
-    return;
+    return Promise.resolve();
   }
 
   var modifiedData = _this.addSummaryData([entry]);
 
-  _this.showDetails(entry.id, modifiedData).then(function() {
+  return _this.showDetails(entry.id, modifiedData).then(function() {
     _this.openedEntryOnQuery = true;
+
+    // Wait for overlay transition to complete
+    return new Promise(function(resolve) {
+      setTimeout(resolve, 250);
+    });
   });
 };
 
@@ -647,7 +650,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
-  // Uses sumamry view settings set by users
+  // Uses summary view settings set by users
   var loopData = _.map(records, function(entry) {
     var newObject = {
       id: entry.id,
@@ -659,19 +662,11 @@ DynamicList.prototype.addSummaryData = function(records) {
     };
 
     _this.data['summary-fields'].forEach(function(obj) {
-      var content = '';
-
-      if (obj.type === 'image') {
-        content = _this.Utils.Record.getImageContent(entry.data[obj.column], true);
-      } else if (obj.column === 'custom') {
-        content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.data));
-      } else {
-        content = entry.data[obj.column];
-      }
-
-      content = _this.Utils.String.toFormattedString(content);
-
-      newObject[obj.location] = content;
+      newObject[obj.location] = _this.Utils.Record.getDataViewContent({
+        record: entry,
+        field: obj,
+        filterFields: _this.data.filterFields
+      });
     });
 
     return newObject;
@@ -884,6 +879,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
     ? this.data.advancedSettings.detailHTML
     : Fliplet.Widget.Templates[_this.layoutMapping[this.data.layout]['detail']]();
 
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.small-h-card-detail-overlay');
+    this.$closeButton = this.$detailsContent.find('.small-h-card-detail-overlay-close').filter(function(i, el) {
+      return !$(el).hasClass('tablet');
+    });
+  }
+
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
     detailViewOptions: _this.data.detailViewOptions
@@ -957,6 +959,17 @@ DynamicList.prototype.showDetails = function(id, listData) {
             });
           }
         }, 0);
+
+        setTimeout(function() {
+          _this.$closeButton.focus();
+          _this.$detailsContent.focusout(function(event) {
+            if (event.currentTarget.contains(event.relatedTarget)) {
+              return;
+            }
+
+            _this.$closeButton.focus();
+          });
+        }, 200);
       });
     });
 };
@@ -971,6 +984,10 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
+
+  if (_this.$detailsContent) {
+    _this.$detailsContent.off('focusout');
+  }
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
@@ -987,83 +1004,8 @@ DynamicList.prototype.closeDetails = function() {
       _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
     }
 
-    _this.$container.find('.small-h-card-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+    _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
   }, 300);
-};
-
-DynamicList.prototype.expandElement = function(elementToExpand, id) {
-  // Function called when a list item is tapped to expand
-  var _this = this;
-
-  // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-  if (elementToExpand.parents('.panel-group').length) {
-    elementToExpand.parents('.panel-group').addClass('remove-transform');
-  }
-
-  // check to see if element is already expanded
-  if (!elementToExpand.hasClass('open')) {
-    // freeze the current scroll position of the background content
-    $('body').addClass('lock');
-
-    var currentPosition = elementToExpand.offset();
-    var elementScrollTop = $(window).scrollTop();
-    var netOffset = currentPosition.top - elementScrollTop;
-
-    var expandPosition = $('body').offset();
-    var expandTop = expandPosition.top;
-    var expandLeft = expandPosition.left;
-    var expandWidth = $('body').outerWidth();
-    var expandHeight = $('html').outerHeight();
-
-    var directoryDetailImageWrapper = elementToExpand.find('.small-h-card-list-detail-image-wrapper');
-    var directoryDetailImage = elementToExpand.find('.small-h-card-list-detail-image');
-
-    // convert the expand-item to fixed position with a high z-index without moving it
-    elementToExpand.css({
-      'top': netOffset,
-      'left': currentPosition.left,
-      'height': elementToExpand.height(),
-      'width': elementToExpand.width(),
-      'max-width': expandWidth,
-      'position': 'fixed',
-      'z-index': 1010
-    });
-
-    elementToExpand.animate({
-      'left': expandLeft,
-      'top': expandTop,
-      'height': expandHeight,
-      'width': expandWidth,
-      'max-width': expandWidth
-    }, 200, 'linear', function() {
-      _this.showDetails(id);
-    });
-
-    elementToExpand.addClass('open');
-    elementToExpand.parents('.small-h-card-list-item').addClass('open');
-    elementToExpand.find('.small-h-card-list-detail-content-scroll-wrapper').addClass('open');
-
-    directoryDetailImageWrapper.css({
-      height: directoryDetailImageWrapper.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImageWrapper.animate({
-      height: '70vh'
-    },
-    200,
-    'linear'
-    );
-
-    directoryDetailImage.css({
-      height: directoryDetailImage.outerHeight(),
-      'z-index': 12
-    });
-
-    directoryDetailImage.animate({
-      height: '70vh'
-    }, 200, 'linear');
-  }
 };
 
 DynamicList.prototype.collapseElement = function(elementToCollapse) {
