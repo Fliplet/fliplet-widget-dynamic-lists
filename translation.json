@@ -47,7 +47,11 @@
           "clear": "Clear",
           "apply": "Apply",
           "filterBy": "Filter by",
-          "applied": "Filters applied"
+          "applied": "Filters applied",
+          "filterRange": {
+            "to": "to",
+            "action": "Reset"
+          }
         },
         "search": {
           "placeholder": "Search...",
