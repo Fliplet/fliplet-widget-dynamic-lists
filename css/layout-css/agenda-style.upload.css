@@ -2,6 +2,10 @@
   height: 100vh;
 }
 
+[data-dynamic-lists-layout="agenda"] {
+  height: 100vh;
+}
+
 .mode-interact .new-agenda-list-container {
   pointer-events: none;
 }
@@ -362,7 +366,7 @@
 /* SEARCH & FILTER */
 
 .new-agenda-list-container .section-top-wrapper {
-  position: fixed;
+  position: absolute;
   top: 10px;
   top: calc(10px + env(safe-area-inset-top));
   left: 10px;
@@ -630,7 +634,7 @@
 
 /* DATE SELECTOR */
 .new-agenda-list-container .agenda-date-selector {
-  position: fixed;
+  position: absolute;
   top: 0;
   top: env(safe-area-inset-top);
   left: 0;
@@ -727,7 +731,7 @@
 
 /* AGENDA LIST */
 .new-agenda-list-container {
-  position: fixed;
+  position: unset;
   width: 100vw;
   top: 0;
   top: env(safe-area-inset-top);
@@ -814,7 +818,7 @@
 }
 
 .new-agenda-list-container .agenda-list-holder {
-  position: absolute;
+  position: unset;
   top: 0;
   left: 0;
   height: 100%;
@@ -830,7 +834,7 @@
   padding: 15px;
   padding-bottom: calc(15px + env(safe-area-inset-bottom));
   margin: 100px auto 0;
-  width: 100vw;
+  width: 100%;
   height: calc(100% - 100px);
   overflow: auto;
   vertical-align: top;
@@ -1602,7 +1606,7 @@
   .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .win7.fa-times-thin::before {
     content: '\2715';
   }
- 
+
   .search-holder .btn.search-btn {
     height: 32px;
     padding: 6px 12px;
@@ -1678,4 +1682,13 @@
 .android.no-native .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .fa-times-thin {
   padding-top: 2px;
   padding-bottom: 2px;
+}
+
+.agenda-list-day-holder {
+  transition: 200ms;
+  display: none !important;
+}
+
+.agenda-list-day-holder.active{
+  display: block !important;
 }
