@@ -2633,10 +2633,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   function userIsAdmin(config, userData) {
     var adminValue = _.get(userData, config.userAdminColumn);
 
+    // No valid comparison value is given
     if (_.isNil(config.userAdminValue) || config.userAdminValue === '') {
-      // No valid comparison value is given
-      // User is admin if adminValue is truthy
-      return !!adminValue;
+      // User is admin if adminValue is truthy or has at least one truthy value in an array
+      return Array.isArray(adminValue)
+        ? !!_.find(adminValue)
+        : !!adminValue;
     }
 
     // User is admin if adminValue matches comparison value
