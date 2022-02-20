@@ -1618,7 +1618,7 @@ DynamicList.prototype.connectToDataSource = function() {
     uuid: _this.data.uuid,
     container: _this.$container
   }).then(function() {
-    if (_this.data.getData) {
+    if (typeof _this.data.getData === 'function') {
       // eslint-disable-next-line no-func-assign
       getData = _this.data.getData;
 
