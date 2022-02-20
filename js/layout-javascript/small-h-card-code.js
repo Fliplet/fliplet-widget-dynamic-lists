@@ -413,6 +413,11 @@ DynamicList.prototype.initialize = function() {
       // Render Base HTML template
       _this.renderBaseHTML();
 
+      return _this.Utils.Records.setFilterValues({
+        config: _this.data
+      });
+    })
+    .then(function() {
       return _this.connectToDataSource();
     })
     .then(function(records) {
@@ -429,10 +434,6 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
-      }).then(function() {
-        return _this.Utils.Records.setFilterValues({
-          config: _this.data
-        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
