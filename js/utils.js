@@ -952,6 +952,151 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Determines if data source query needs to apply query data
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.config - Configuration settings for the instance
+   * @returns {Boolean} Returns TRUE if data source query needs to apply query data
+   */
+  function needsQueryData(options) {
+    options = options || {};
+
+    var config = options.config || {};
+
+    return config.applyQueryData
+      || (!['function', 'object'].includes(typeof config.dataQuery)
+        && typeof config.getData !== 'function'
+        && _.isEmpty(config.computedFields)
+        && !Fliplet.Hooks.has('flListDataAfterGetData'));
+  }
+
+  /**
+   * Check that a filter configuration is a date typed filter
+   * @param {Object} filter - Filter configuration
+   * @returns {Boolean} Returns TRUE of the filter condition is a date condition logic
+   */
+  function filterIsDateCondition(filter) {
+    return filter
+      && ['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(filter.condition) > -1;
+  }
+
+  /**
+   * Returns filter data that's unique to date filter conditions
+   * @param {Object} filter - Filter configuration
+   * @returns {Object} - Additional date filter data
+   */
+  function getDateFilterData(filter) {
+    filter = filter || {};
+
+    if (filter.condition === 'datebetween') {
+      return {
+        from: getDateFilterData(filter.from),
+        to: getDateFilterData(filter.to)
+      };
+    }
+
+    var DATE_FORMAT = 'YYYY-MM-DD';
+    var DATETIME_LOCAL_MS_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+    // Create current moment value based on timezone, if required
+    var date = filter.useDeviceTimezone
+      ? moment.tz(moment().format(DATETIME_LOCAL_MS_FORMAT), 'UTC')
+      : moment.utc();
+    var adjustedDatePattern = /^(now|today)(add|subtract|plus|minus)(second|minute|hour|day|month|week|year)s?$/i;
+    var dateAdjustParts = filter.value.match(adjustedDatePattern);
+    var offsetUnit = dateAdjustParts && dateAdjustParts[3];
+
+    if (adjustedDatePattern.test(filter.value) && offsetUnit) {
+      var offset = filter.offset || 0;
+
+      switch (dateAdjustParts[2]) {
+        case 'add':
+        case 'plus':
+          date.add(offset, offsetUnit);
+          break;
+        case 'subtract':
+        case 'minus':
+          date.subtract(offset, offsetUnit);
+          break;
+        default:
+          break;
+      }
+    }
+
+    var data = {};
+
+    // Format date HTML5 format before using it for filters
+    // Provide a unit for comparison based on comparison value granularity
+    if (filter.value && filter.value.indexOf('today') === 0) {
+      data.value = date.format(DATE_FORMAT);
+      data.unit = 'day';
+    } else {
+      data.value = date.format(DATETIME_LOCAL_MS_FORMAT);
+      data.unit = 'second';
+    }
+
+
+    // Add timezone to data if necessary (for analysis)
+    if (filter.useDeviceTimezone) {
+      data.timezone = moment.tz.guess();
+    }
+
+    return data;
+  }
+
+  /**
+   * Computes the query data object based on pre-filter settings
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.config - Configuration settings for the instance
+   * @param {Array} [options.filterQueries] - Filters set using query parameters
+   * @returns {Object} Query data to be passed to data source queries
+   */
+  function getQueryData(options) {
+    options = options || {};
+
+    var config = options.config;
+    var filterQueries = options.filterQueries;
+
+    if (!Array.isArray(config.filterOptions)) {
+      config.filterOptions = [config.filterOptions];
+    }
+
+    // Filter data based on filter options and filter queries
+    var filters = _.compact(_.concat(config.filterOptions, filterQueries));
+
+    filters = _.map(filters, function(option) {
+      var filter = {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      };
+
+      // Set up date filter values
+      if (filterIsDateCondition(filter)) {
+        // Value will be set with date filter, if required
+        delete filter.value;
+
+        Object.assign(filter, getDateFilterData({
+          value: option.dateValue,
+          condition: option.logic,
+          offset: option.offsetValue,
+          useDeviceTimezone: option.useDeviceTimezone,
+          from: _.get(option, 'dateFilterModifiers.from'),
+          to: _.get(option, 'dateFilterModifiers.to')
+        }));
+      }
+
+      return filter;
+    });
+
+    return filters.length
+      ? {
+        where: {
+          $filters: filters
+        }
+      }
+      : undefined;
+  }
+
   function removeSymbols(str) {
     // Remove commonly used symbols in text that should be ignored for string matching
     return ('' + str).replace(/[&\/\\#+()$~%.`'‘’"“”:*?<>{}]+/g, '');
@@ -1658,6 +1803,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    * @returns {Object[]} An array of filters and possible values, ready to be rendered through Handlebars template
    */
   function parseRecordFilters(options) {
+    // NOTE: Do not change signature and behavior of function
+    // because it could be used by legacy customized layout script
     options = options || {};
 
     var records = options.records || [];
@@ -2484,21 +2631,31 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       config.filterOptions = [config.filterOptions];
     }
 
-    // Filter data based on filter options, filter queries and PV storage values (deprecated)
-    var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
+    // Filter data based on filter options and filter queries
+    var queryData = !needsQueryData({ config: config })
+      ? getQueryData({
+        config: config,
+        filterQueries: options.filterQueries
+      })
+      : undefined;
 
-    records = runRecordFilters(records, _.map(filters, function(option) {
-      return {
-        column: option.column,
-        condition: option.logic,
-        dateValue: option.dateValue,
-        offsetValue: option.offsetValue,
-        useDeviceTimezone: option.useDeviceTimezone,
-        dateFilterModifiers: option.dateFilterModifiers,
-        valueType: option.valueType,
-        value: option.value
-      };
-    }));
+    if (queryData && typeof queryData.where  === 'object') {
+      try {
+        records = window.sift({ data: queryData.where }, records);
+      } catch (error) {
+        console.error('Error filtering data', Fliplet.parseError(error));
+
+        if (Raven && Raven.captureException) {
+          Raven.captureException(error, 'Error filtering data', {
+            extra: {
+              query: queryData
+            }
+          });
+        }
+
+        throw new Error(error);
+      }
+    }
 
     currentDate = {};
 
@@ -2980,7 +3137,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
-      fetchAndCache: fetchAndCache
+      fetchAndCache: fetchAndCache,
+      needsQueryData: needsQueryData,
+      getQueryData: getQueryData
     },
     Navigate: {
       openLinkAction: openLinkAction

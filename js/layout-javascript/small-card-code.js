@@ -1199,7 +1199,7 @@ DynamicList.prototype.connectToDataSource = function() {
       .then(function(connection) {
         // If you want to do specific queries to return your rows
         // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        var query = {};
+        var query;
 
         if (typeof _this.data.dataQuery === 'function') {
           query = _this.data.dataQuery({
@@ -1210,6 +1210,11 @@ DynamicList.prototype.connectToDataSource = function() {
           });
         } else if (typeof _this.data.dataQuery === 'object') {
           query = _this.data.dataQuery;
+        } else if (_this.Utils.Query.needsQueryData({ config: _this.data })) {
+          query = _this.Utils.Query.getQueryData({
+            config: _this.data,
+            filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+          });
         }
 
         return connection.find(query);
