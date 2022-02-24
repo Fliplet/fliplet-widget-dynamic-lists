@@ -953,21 +953,48 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
+   * Determines why pre-filters are applied client-side instead of using data source query
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.config - Configuration settings for the instance
+   * @returns {Array} A list of reasons
+   */
+  function getQueryAllReasons(options) {
+    options = options || {};
+
+    var config = options.config || {};
+    var reasons = [];
+
+    if (config.useApiFilters) {
+      return reasons;
+    }
+
+    if (['function', 'object'].includes(typeof config.dataQuery)) {
+      reasons.push('dataQuery');
+    }
+
+    if (typeof config.getData === 'function') {
+      reasons.push('getData');
+    }
+
+    if (!_.isEmpty(config.computedFields)) {
+      reasons.push('computedFields');
+    }
+
+    if (Fliplet.Hooks.has('flListDataAfterGetData')) {
+      reasons.push('afterGetDataHook');
+    }
+
+    return reasons;
+  }
+
+  /**
    * Determines if data source query needs to apply query data
    * @param {Object} options - A map of options for the function
    * @param {Object} options.config - Configuration settings for the instance
    * @returns {Boolean} Returns TRUE if data source query needs to apply query data
    */
   function needsQueryData(options) {
-    options = options || {};
-
-    var config = options.config || {};
-
-    return config.applyQueryData
-      || (!['function', 'object'].includes(typeof config.dataQuery)
-        && typeof config.getData !== 'function'
-        && _.isEmpty(config.computedFields)
-        && !Fliplet.Hooks.has('flListDataAfterGetData'));
+    return !getQueryAllReasons(options).length;
   }
 
   /**
@@ -1403,6 +1430,90 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           break;
       }
     }
+  }
+
+  function getDataFromDataSource(connectionOptions, options) {
+    connectionOptions = connectionOptions || { offline: true };
+    options = options || {};
+
+    var config = options.config;
+
+    if (config.defaultData && !config.dataSourceId) {
+      return Promise.resolve(config.defaultEntries);
+    }
+
+    return Fliplet.DataSources.connect(config.dataSourceId, connectionOptions)
+      .then(function(connection) {
+        // If you want to do specific queries to return your rows
+        // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
+        var query;
+
+        if (typeof config.dataQuery === 'function') {
+          query = config.dataQuery({
+            config: config,
+            id: config.id,
+            uuid: config.uuid,
+            container: options.container
+          });
+        } else if (typeof config.dataQuery === 'object') {
+          query = config.dataQuery;
+        } else if (needsQueryData({ config: config })) {
+          query = getQueryData({
+            config: config,
+            filterQueries: options.filterQueries
+          });
+        }
+
+        var reasons = getQueryAllReasons({ config: config });
+
+        if (reasons.length) {
+          query._tags = {
+            queryAllReasons: reasons.join(',')
+          };
+        }
+
+        return connection.find(query);
+      });
+  }
+
+  function loadData(options) {
+    options = options || {};
+
+    var config = options.config;
+
+    return Fliplet.Hooks.run('flListDataBeforeGetData', {
+      instance: options.instance,
+      config: config,
+      id: options.id,
+      uuid: options.uuid,
+      container: options.$container
+    }).then(function() {
+      var getData;
+
+      if (typeof config.getData === 'function') {
+        getData = config.getData;
+      } else {
+        getData = getDataFromDataSource;
+      }
+
+      var connectionOptions = {
+        offline: true
+      };
+
+      if (config.hasOwnProperty('cache')) {
+        connectionOptions.offline = config.cache;
+      }
+
+      return getData(connectionOptions, {
+        config: config,
+        filterQueries: options.filterQueries,
+        container: options.$container
+      });
+    }).catch(function(error) {
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error loading data'
+      });
+    });
   }
 
   function runRecordFilters(records, filters) {
@@ -3153,9 +3264,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
-      fetchAndCache: fetchAndCache,
-      needsQueryData: needsQueryData,
-      getQueryData: getQueryData
+      fetchAndCache: fetchAndCache
     },
     Navigate: {
       openLinkAction: openLinkAction
@@ -3172,6 +3281,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       assignImageContent: assignImageContent
     },
     Records: {
+      loadData: loadData,
       runFilters: runRecordFilters,
       runSearch: runRecordSearch,
       getFields: getRecordFields,

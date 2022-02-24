@@ -113,7 +113,6 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      var _that = $(this);
       var entryId = $(this).data('entry-id');
       var entryTitle = $(this).find('.small-h-card-list-item-text').text().trim();
       var beforeOpen = Promise.resolve();
@@ -418,7 +417,14 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function() {
-      return _this.connectToDataSource();
+      return _this.Utils.Records.loadData({
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        $container: _this.$container,
+        filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+      });
     })
     .then(function(records) {
       _this.Utils.Records.addComputedFields({
@@ -570,67 +576,6 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       return;
     });
-};
-
-DynamicList.prototype.connectToDataSource = function() {
-  var _this = this;
-  var cache = { offline: true };
-
-  function getData(options) {
-    if (_this.data.defaultData && !_this.data.dataSourceId) {
-      return Promise.resolve(_this.data.defaultEntries);
-    }
-
-    options = options || cache;
-
-    return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
-      .then(function(connection) {
-        // If you want to do specific queries to return your rows
-        // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        var query;
-
-        if (typeof _this.data.dataQuery === 'function') {
-          query = _this.data.dataQuery({
-            config: _this.data,
-            id: _this.data.id,
-            uuid: _this.data.uuid,
-            container: _this.$container
-          });
-        } else if (typeof _this.data.dataQuery === 'object') {
-          query = _this.data.dataQuery;
-        } else if (_this.Utils.Query.needsQueryData({ config: _this.data })) {
-          query = _this.Utils.Query.getQueryData({
-            config: _this.data,
-            filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
-          });
-        }
-
-        return connection.find(query);
-      });
-  }
-
-  return Fliplet.Hooks.run('flListDataBeforeGetData', {
-    instance: _this,
-    config: _this.data,
-    id: _this.data.id,
-    uuid: _this.data.uuid,
-    container: _this.$container
-  }).then(function() {
-    if (typeof _this.data.getData === 'function') {
-      // eslint-disable-next-line no-func-assign
-      getData = _this.data.getData;
-
-      if (_this.data.hasOwnProperty('cache')) {
-        cache.offline = _this.data.cache;
-      }
-    }
-
-    return getData(cache);
-  }).catch(function(error) {
-    Fliplet.UI.Toast.error(error, {
-      message: 'Error loading data'
-    });
-  });
 };
 
 DynamicList.prototype.renderBaseHTML = function() {
