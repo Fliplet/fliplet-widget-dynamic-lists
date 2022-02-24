@@ -2641,14 +2641,30 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     if (queryData && typeof queryData.where  === 'object') {
       try {
-        records = window.sift({ data: queryData.where }, records);
-      } catch (error) {
-        console.error('Error filtering data', Fliplet.parseError(error));
+        var totalRows = records.length;
+        var reasons = getQueryAllReasons({ config: config });
 
-        if (Raven && Raven.captureException) {
-          Raven.captureException(error, 'Error filtering data', {
+        records = window.sift({ data: queryData.where }, records);
+
+        var removedRows = totalRows - records.length;
+
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic',
+          action: 'client_prefilter',
+          label: reasons.join(','),
+          value: removedRows,
+          nonInteraction: true
+        });
+      } catch (error) {
+        var message = '[LFD] Error executing pre-filters';
+
+        console.error(message, Fliplet.parseError(error));
+
+        if (typeof Raven !== 'undefined' && Raven.captureMessage) {
+          Raven.captureMessage(message, {
             extra: {
-              query: queryData
+              query: queryData,
+              error: error
             }
           });
         }
