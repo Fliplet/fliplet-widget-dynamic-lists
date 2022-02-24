@@ -1432,6 +1432,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  /**
+   * Connect to data source and retrieves data
+   * @param {Object} connectionOptions - Connection options for connecting to the data source
+   * @param {Object} options - A mapping of options for this function
+   * @returns {Promise} Promise resolves when data is retrieved
+   */
   function getDataFromDataSource(connectionOptions, options) {
     connectionOptions = connectionOptions || { offline: true };
     options = options || {};
@@ -1476,6 +1482,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
   }
 
+  /**
+   * Load data for the list
+   * @param {Object} options - A mapping of options for this function
+   * @returns {Promise} Promise resolves when data is loaded
+   */
   function loadData(options) {
     options = options || {};
 
