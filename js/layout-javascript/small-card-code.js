@@ -2103,8 +2103,6 @@ DynamicList.prototype.showDetails = function(id, listData) {
             if (event.currentTarget.contains(event.relatedTarget)) {
               return;
             }
-
-            _this.$closeButton.focus();
           });
         }, 200);
       });
