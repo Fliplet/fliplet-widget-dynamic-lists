@@ -2065,12 +2065,26 @@ DynamicList.prototype.showDetails = function(id, listData) {
         var template = Handlebars.compile(data.src || src);
         var wrapperTemplate = Handlebars.compile(wrapper);
 
+        function functionFocusout() {
+          _this.$detailsContent.focusout(function(event) {
+            if (event.currentTarget.contains(event.relatedTarget)) {
+              return;
+            }
+
+            _this.$closeButton.focus();
+          });
+        }
+
         // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
         if (_this.$container.parents('.panel-group').not('.filter-overlay').length) {
           _this.$container.parents('.panel-group').not('.filter-overlay').addClass('remove-transform');
         }
 
         $('body').addClass('lock');
+
+        $(_this.$detailsContent).mousedown(function() {
+          _this.$detailsContent.off('focusout');
+        }).mouseup(functionFocusout);
 
         // Adds content to overlay
         $overlay.find('.small-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
@@ -2099,11 +2113,8 @@ DynamicList.prototype.showDetails = function(id, listData) {
         }, 0);
         setTimeout(function() {
           _this.$closeButton.focus();
-          _this.$detailsContent.focusout(function(event) {
-            if (event.currentTarget.contains(event.relatedTarget)) {
-              return;
-            }
-          });
+
+          functionFocusout();
         }, 200);
       });
     });
