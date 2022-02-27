@@ -366,18 +366,27 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
+        function functionFocusout() {
+          _this.$detailsContent.focusout(function(event) {
+            if (event.currentTarget.contains(event.relatedTarget)) {
+              return;
+            }
+
+            _this.$closeButton.focus();
+          });
+        }
+
+        $(_this.$detailsContent).mousedown(function() {
+          _this.$detailsContent.off('focusout');
+        }).mouseup(functionFocusout);
+
         _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
         _this.showDetails(entryId).then(function() {
           setTimeout(function() {
             _this.$closeButton.focus();
-            _this.$detailsContent.focusout(function(event) {
-              if (event.currentTarget.contains(event.relatedTarget)) {
-                return;
-              }
 
-              _this.$closeButton.focus();
-            });
+            functionFocusout();
           }, 200);
         });
         Fliplet.Page.Context.update({
