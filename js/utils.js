@@ -1472,6 +1472,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         var reasons = getQueryAllReasons({ config: config });
 
+        // Add reasons for not using queries
         if (reasons.length) {
           query._tags = {
             queryAllReasons: reasons.join(',')
@@ -2770,6 +2771,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         var removedRows = totalRows - records.length;
 
+        // Track event to understand why client-side filters are run
         Fliplet.Analytics.trackEvent({
           category: 'list_dynamic',
           action: 'client_prefilter',
@@ -2782,9 +2784,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         console.error(message, Fliplet.parseError(error));
 
+        // Client-side filter errors are logged for assessment
         if (typeof Raven !== 'undefined' && Raven.captureMessage) {
           Raven.captureMessage(message, {
             extra: {
+              reasons: reasons.join(','),
               query: queryData,
               error: error
             }
