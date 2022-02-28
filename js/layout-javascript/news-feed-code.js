@@ -388,7 +388,7 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        function functionFocusout() {
+        function focusCloseBtn() {
           _this.$detailsContent.focusout(function(event) {
             if (event.currentTarget.contains(event.relatedTarget)) {
               return;
@@ -400,7 +400,7 @@ DynamicList.prototype.attachObservers = function() {
 
         $(_this.$detailsContent).mousedown(function() {
           _this.$detailsContent.off('focusout');
-        }).mouseup(functionFocusout);
+        }).mouseup(focusCloseBtn);
 
         // find the element to expand and expand it
         if (_this.allowClick) {
@@ -410,7 +410,7 @@ DynamicList.prototype.attachObservers = function() {
             setTimeout(function() {
               _this.$closeButton.focus();
 
-              functionFocusout();
+              focusCloseBtn();
             }, 200);
           });
           Fliplet.Page.Context.update({

@@ -930,7 +930,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
         var template = Handlebars.compile(data.src || src);
         var wrapperTemplate = Handlebars.compile(wrapper);
 
-        function functionFocusout() {
+        function focusCloseBtn() {
           _this.$detailsContent.focusout(function(event) {
             if (event.currentTarget.contains(event.relatedTarget)) {
               return;
@@ -949,7 +949,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
 
         $(_this.$detailsContent).mousedown(function() {
           _this.$detailsContent.off('focusout');
-        }).mouseup(functionFocusout);
+        }).mouseup(focusCloseBtn);
 
         // Adds content to overlay
         $overlay.find('.small-h-card-detail-overlay-content-holder').html(wrapperTemplate(entryId));
@@ -977,7 +977,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
         setTimeout(function() {
           _this.$closeButton.focus();
 
-          functionFocusout();
+          focusCloseBtn();
         }, 200);
       });
     });
