@@ -1301,7 +1301,7 @@
 
 .new-agenda-list-container .agenda-item-bookmark-holder,
 .agenda-detail-overlay .agenda-item-bookmark-holder {
-  color: rgba(51, 51, 51, 0.5);;
+  color: rgba(51, 51, 51, 0.5);
   cursor: pointer;
 }
 
@@ -1456,7 +1456,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.8);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .agenda-detail-overlay .agenda-detail-overlay-wrapper {
@@ -1502,7 +1502,7 @@
   width: 38px;
   line-height: 38px;
   font-size: 24px;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   color: #333333;
   text-align: center;
@@ -1578,7 +1578,6 @@
   }
 }
 
-
 .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .fa-times-thin {
   padding-top: 2px;
   padding-bottom: 4px;
@@ -1586,7 +1585,7 @@
 }
 
 .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .fa-times-thin::before {
-  content: '\002573';
+  content: "\002573";
 }
 
 /* IE11 layout */
@@ -1604,7 +1603,7 @@
   }
 
   .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .win7.fa-times-thin::before {
-    content: '\2715';
+    content: "\2715";
   }
 
   .search-holder .btn.search-btn {
@@ -1623,7 +1622,7 @@
   }
 
   .new-agenda-list-container .agenda-date-selector {
-      width: 100vw;
+    width: 100vw;
   }
 
   .new-agenda-list-container .section-top-wrapper {
@@ -1635,7 +1634,7 @@
 }
 
 /* Safari layout */
-@media not all and (min-resolution:.001dpcm) {
+@media not all and (min-resolution: 0.001dpcm) {
   @media {
     .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .fa-times-thin {
       padding-top: 1px;
@@ -1658,7 +1657,7 @@
 }
 
 /* For MS Edge */
-@supports (-ms-ime-align:auto) {
+@supports (-ms-ime-align: auto) {
   .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .fa-times-thin {
     padding-top: 1px;
     padding-bottom: 3px;
@@ -1689,6 +1688,6 @@
   display: none !important;
 }
 
-.agenda-list-day-holder.active{
+.agenda-list-day-holder.active {
   display: block !important;
 }
