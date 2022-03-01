@@ -1,9 +1,6 @@
-.mode-interact [data-dynamic-lists-layout="agenda"] {
-  height: 100vh;
-}
-
 [data-dynamic-lists-layout="agenda"] {
   height: 100vh;
+  position: relative;
 }
 
 .mode-interact .new-agenda-list-container {
