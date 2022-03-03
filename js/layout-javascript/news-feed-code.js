@@ -2476,7 +2476,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
   $(_this.$detailsContent).mousedown(function(event) {
     event.preventDefault();
     _this.$detailsContent.off('focusout');
-  }).mouseup(_this.focusCloseBtn(_this));
+  }).mouseup(_this.focusCloseBtn.bind(_this));
 
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
