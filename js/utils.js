@@ -1474,6 +1474,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
         // Add reasons for not using queries
         if (reasons.length) {
+          query = query || {};
           query._tags = {
             queryAllReasons: reasons.join(',')
           };
