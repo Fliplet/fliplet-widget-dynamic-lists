@@ -388,20 +388,6 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        function focusCloseBtn() {
-          _this.$detailsContent.focusout(function(event) {
-            if (event.currentTarget.contains(event.relatedTarget)) {
-              return;
-            }
-
-            _this.$closeButton.focus();
-          });
-        }
-
-        $(_this.$detailsContent).mousedown(function() {
-          _this.$detailsContent.off('focusout');
-        }).mouseup(focusCloseBtn);
-
         // find the element to expand and expand it
         if (_this.allowClick) {
           _this.$container.find('.dynamic-list-add-item').addClass('hidden');
@@ -410,7 +396,7 @@ DynamicList.prototype.attachObservers = function() {
             setTimeout(function() {
               _this.$closeButton.focus();
 
-              focusCloseBtn();
+              _this.focusCloseBtn();
             }, 200);
           });
           Fliplet.Page.Context.update({
@@ -2459,6 +2445,18 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   return entry;
 };
 
+DynamicList.prototype.focusCloseBtn = function() {
+  this.$detailsContent.focusout(function(event) {
+    if (event.currentTarget.contains(event.relatedTarget)) {
+      return;
+    }
+
+    setTimeout(function() {
+      $(this.$closeButton).focus();
+    });
+  });
+};
+
 DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
@@ -2474,6 +2472,11 @@ DynamicList.prototype.showDetails = function(id, listData) {
       return !$(el).hasClass('tablet');
     });
   }
+
+  $(_this.$detailsContent).mousedown(function(event) {
+    event.preventDefault();
+    _this.$detailsContent.off('focusout');
+  }).mouseup(_this.focusCloseBtn(_this));
 
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,

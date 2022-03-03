@@ -2071,7 +2071,9 @@ DynamicList.prototype.showDetails = function(id, listData) {
               return;
             }
 
-            _this.$closeButton.focus();
+            setTimeout(function() {
+              $(_this.$closeButton).focus();
+            });
           });
         }
 
@@ -2082,7 +2084,8 @@ DynamicList.prototype.showDetails = function(id, listData) {
 
         $('body').addClass('lock');
 
-        $(_this.$detailsContent).mousedown(function() {
+        $(_this.$detailsContent).mousedown(function(event) {
+          event.preventDefault();
           _this.$detailsContent.off('focusout');
         }).mouseup(focusCloseBtn);
 
