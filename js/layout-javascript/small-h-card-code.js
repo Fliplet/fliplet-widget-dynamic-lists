@@ -216,16 +216,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
 
-      if ($(window).width() < 640) {
-        if (typeof _this.directoryDetailWrapper === 'undefined') {
-          _this.directoryDetailWrapper = _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"] .small-h-card-list-detail-wrapper');
-        }
-
-        _this.collapseElement(_this.directoryDetailWrapper);
-        _this.directoryDetailWrapper = undefined;
-      } else {
-        _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
-      }
+      _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
@@ -349,12 +340,7 @@ DynamicList.prototype.attachObservers = function() {
 
                   _that.text('Delete').removeClass('disabled');
 
-                  if ($(window).width() < 640) {
-                    _this.collapseElement(_this.directoryDetailWrapper);
-                    _this.directoryDetailWrapper = undefined;
-                  } else {
-                    _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
-                  }
+                  _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
 
                   _this.addSummaryData(_this.listItems);
                   _this.renderLoopHTML();
@@ -966,69 +952,7 @@ DynamicList.prototype.closeDetails = function(options) {
 
     // Focus on closed entry
     if (options.focusOnEntry) {
-      _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"]').focus();
+      _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"] [tabindex="0"]').focus();
     }
   }, 300);
-};
-
-DynamicList.prototype.collapseElement = function(elementToCollapse) {
-  // Function called when a list item is tapped to close
-  var _this = this;
-
-  $('body').removeClass('lock');
-  elementToCollapse = $([]).add(elementToCollapse);
-
-  var directoryDetailImageWrapper = elementToCollapse.find('.small-h-card-list-detail-image-wrapper');
-  var directoryDetailImage = elementToCollapse.find('.small-h-card-list-detail-image');
-
-  if (!directoryDetailImageWrapper.length || !directoryDetailImage.length) {
-    _this.closeDetails();
-  }
-
-  var collapseTarget = elementToCollapse.parent();
-  var elementScrollTop = $(window).scrollTop();
-  var targetCollpsePlaceholderTop = collapseTarget.offset().top - elementScrollTop;
-  var targetCollpsePlaceholderLeft = collapseTarget.offset().left;
-  var targetCollapseHeight = collapseTarget.outerHeight();
-  var targetCollapseWidth = collapseTarget.outerWidth();
-
-  elementToCollapse.animate({
-    top: targetCollpsePlaceholderTop,
-    left: targetCollpsePlaceholderLeft,
-    height: targetCollapseHeight,
-    width: targetCollapseWidth
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({
-      // after animating convert the collpase item to position absolute with a low z-index without moving it
-      'position': 'absolute',
-      'z-index': '1',
-      'top': 0,
-      'left': 0,
-      'height': '100%',
-      'width': '100%'
-    });
-  });
-
-  directoryDetailImageWrapper.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear');
-
-  directoryDetailImage.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({ height: '100%' });
-    _this.closeDetails();
-
-    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-    // Only happens when the closing animation finishes
-    if (elementToCollapse.parents('.panel-group').length) {
-      elementToCollapse.parents('.panel-group').removeClass('remove-transform');
-    }
-  });
-
-  elementToCollapse.removeClass('open');
-  elementToCollapse.parents('.small-h-card-list-item').removeClass('open');
-  elementToCollapse.find('.small-h-card-list-detail-content-scroll-wrapper').removeClass('open');
 };
