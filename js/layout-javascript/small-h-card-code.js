@@ -159,6 +159,23 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
+    .on('focusout', '.small-h-card-detail-overlay', function(event) {
+      // Overlay is not open. Do nothing.
+      if (!_this.$container.find('.small-h-card-list-container').hasClass('overlay-open')) {
+        return;
+      }
+
+      var focusTarget = event.relatedTarget || event.target;
+      var focusingOnDetails = _this.$detailsContent.get(0).contains(focusTarget);
+
+      // Focus is moved to valid element. Do nothing.
+      if (focusingOnDetails) {
+        return;
+      }
+
+      // Move focus back to close button
+      $(_this.$closeButton).focus();
+    })
     .on('click keydown', '.small-h-card-detail-overlay-close, .small-h-card-detail-overlay-screen', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
@@ -167,12 +184,9 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
 
       var result;
-
-      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
-
       var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
-      _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"] .small-h-card-list-image').focus();
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -210,7 +224,7 @@ DynamicList.prototype.attachObservers = function() {
         _this.collapseElement(_this.directoryDetailWrapper);
         _this.directoryDetailWrapper = undefined;
       } else {
-        _this.closeDetails();
+        _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
       }
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
@@ -339,7 +353,7 @@ DynamicList.prototype.attachObservers = function() {
                     _this.collapseElement(_this.directoryDetailWrapper);
                     _this.directoryDetailWrapper = undefined;
                   } else {
-                    _this.closeDetails();
+                    _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
                   }
 
                   _this.addSummaryData(_this.listItems);
@@ -909,23 +923,17 @@ DynamicList.prototype.showDetails = function(id, listData) {
               data: data.data || entryData
             });
           }
-        }, 0);
 
-        setTimeout(function() {
-          _this.$closeButton.focus();
-          _this.$detailsContent.focusout(function(event) {
-            if (event.currentTarget.contains(event.relatedTarget)) {
-              return;
-            }
-
+          // Focus on close button after opening overlay
+          setTimeout(function() {
             _this.$closeButton.focus();
-          });
-        }, 200);
+          }, 200);
+        }, 0);
       });
     });
 };
 
-DynamicList.prototype.closeDetails = function() {
+DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
 
@@ -935,10 +943,9 @@ DynamicList.prototype.closeDetails = function() {
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#small-h-card-detail-overlay-' + _this.data.id);
+  var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
-  if (_this.$detailsContent) {
-    _this.$detailsContent.off('focusout');
-  }
+  options = options || {};
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
@@ -956,6 +963,11 @@ DynamicList.prototype.closeDetails = function() {
     }
 
     _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
+
+    // Focus on closed entry
+    if (options.focusOnEntry) {
+      _this.$container.find('.small-h-card-list-item[data-entry-id="' + id + '"]').focus();
+    }
   }, 300);
 };
 

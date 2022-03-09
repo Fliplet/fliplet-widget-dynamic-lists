@@ -368,22 +368,30 @@ DynamicList.prototype.attachObservers = function() {
 
         _this.$container.find('.dynamic-list-add-item').addClass('hidden');
 
-        _this.showDetails(entryId).then(function() {
-          setTimeout(function() {
-            _this.$closeButton.focus();
-            _this.$detailsContent.focusout(function(event) {
-              if (event.currentTarget.contains(event.relatedTarget)) {
-                return;
-              }
-
-              _this.$closeButton.focus();
-            });
-          }, 200);
-        });
+        _this.showDetails(entryId);
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
         });
       });
+    })
+    .on('focusout', '.simple-list-detail-overlay', function(event) {
+      // Overlay is not open. Do nothing.
+      if (!_this.$container.find('.simple-list-container').hasClass('overlay-open')) {
+        return;
+      }
+
+      var focusTarget = event.relatedTarget || event.target;
+      var focusingOnDetails = _this.$detailsContent.get(0).contains(focusTarget);
+      var commentContainer = _this.$container.find('.simple-list-comment-panel').get(0);
+      var focusingOnComments = commentContainer && commentContainer.contains(focusTarget);
+
+      // Focus is moved to valid element. Do nothing.
+      if (focusingOnDetails || focusingOnComments) {
+        return;
+      }
+
+      // Move focus back to close button
+      $(_this.$closeButton).focus();
     })
     .on('click keydown', '.simple-list-detail-overlay-close', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -393,10 +401,6 @@ DynamicList.prototype.attachObservers = function() {
       var result;
 
       _this.$container.find('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
-
-      var id = _this.$container.find('.simple-list-detail-wrapper[data-entry-id]').data('entry-id');
-
-      _this.$container.find('.simple-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -426,7 +430,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
 
-      _this.closeDetails();
+      _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
     })
     .on('click keydown', '.list-search-icon .fa-sliders', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
@@ -965,7 +969,7 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
                   _that.text('Delete').removeClass('disabled');
-                  _this.closeDetails();
+                  _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
                   _this.removeListItemHTML({
                     id: entryId
                   });
@@ -2447,24 +2451,27 @@ DynamicList.prototype.showDetails = function(id, listData) {
             data: data.data || entryData
           });
         }
+
+        // Focus on close button after opening overlay
+        setTimeout(function() {
+          _this.$closeButton.focus();
+        }, 200);
       });
     });
 };
 
-DynamicList.prototype.closeDetails = function() {
+DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
 
     return Fliplet.Navigate.back();
   }
 
-  // Function that closes the overlay
   var _this = this;
+  var id = _this.$container.find('.simple-list-detail-wrapper[data-entry-id]').data('entry-id');
   var $overlay = $('#simple-list-detail-overlay-' + _this.data.id);
 
-  if (_this.$detailsContent) {
-    _this.$detailsContent.off('focusout');
-  }
+  options = options || {};
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $('body').removeClass('lock');
@@ -2481,6 +2488,11 @@ DynamicList.prototype.closeDetails = function() {
     }
 
     _this.$container.find('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
+
+    // Focus on closed entry
+    if (options.focusOnEntry) {
+      _this.$container.find('.simple-list-item[data-entry-id="' + id + '"]').focus();
+    }
   }, 300);
 };
 
