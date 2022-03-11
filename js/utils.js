@@ -1023,10 +1023,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     var DATE_FORMAT = 'YYYY-MM-DD';
-    var DATETIME_LOCAL_MS_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+    var DATETIME_LOCAL_FORMAT = 'YYYY-MM-DD HH:mm';
     // Create current moment value based on timezone, if required
     var date = filter.useDeviceTimezone
-      ? moment.tz(moment().format(DATETIME_LOCAL_MS_FORMAT), 'UTC')
+      ? moment.tz(moment().format(DATETIME_LOCAL_FORMAT), 'UTC')
       : moment.utc();
     var adjustedDatePattern = /^(now|today)(add|subtract|plus|minus)(second|minute|hour|day|month|week|year)s?$/i;
     var dateAdjustParts = filter.value.match(adjustedDatePattern);
@@ -1057,8 +1057,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       data.value = date.format(DATE_FORMAT);
       data.unit = 'day';
     } else {
-      data.value = date.format(DATETIME_LOCAL_MS_FORMAT);
-      data.unit = 'second';
+      data.value = date.format(DATETIME_LOCAL_FORMAT);
+      data.unit = 'minute';
     }
 
 
