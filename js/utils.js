@@ -988,12 +988,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Determines if data source query needs to apply query data
+   * Determines if data source API request needs to apply query data
    * @param {Object} options - A map of options for the function
    * @param {Object} options.config - Configuration settings for the instance
    * @returns {Boolean} Returns TRUE if data source query needs to apply query data
    */
-  function needsQueryData(options) {
+  function needsApiQueryData(options) {
     return !getQueryAllReasons(options).length;
   }
 
@@ -1463,7 +1463,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           });
         } else if (typeof config.dataQuery === 'object') {
           query = config.dataQuery;
-        } else if (needsQueryData({ config: config })) {
+        } else if (needsApiQueryData({ config: config })) {
           query = getQueryData({
             config: config,
             filterQueries: options.filterQueries
@@ -2756,7 +2756,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     // Filter data based on filter options and filter queries
-    var queryData = !needsQueryData({ config: config })
+    var queryData = !needsApiQueryData({ config: config }) || !config.apiFiltersAvailable
       ? getQueryData({
         config: config,
         filterQueries: options.filterQueries

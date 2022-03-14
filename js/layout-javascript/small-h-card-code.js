@@ -15,6 +15,7 @@ function DynamicList(id, data) {
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
+  this.data.apiFiltersAvailable = true;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
 
   // Other variables
