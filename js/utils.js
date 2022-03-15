@@ -968,6 +968,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return reasons;
     }
 
+    if (!config.apiFiltersAvailable) {
+      reasons.push('legacyGetData');
+
+      return reasons;
+    }
+
     if (['function', 'object'].includes(typeof config.dataQuery)) {
       reasons.push('dataQuery');
     }
@@ -2756,7 +2762,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     // Filter data based on filter options and filter queries
-    var queryData = !needsApiQueryData({ config: config }) || !config.apiFiltersAvailable
+    var queryData = !needsApiQueryData({ config: config })
       ? getQueryData({
         config: config,
         filterQueries: options.filterQueries
