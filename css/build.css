@@ -158,6 +158,7 @@
   height: auto;
   padding: 8px;
   text-align: center;
+  min-height: auto;
 }
 
 [data-filter-group] .hidden-filter-controls-filter.fl-date-picker > .form-control {
