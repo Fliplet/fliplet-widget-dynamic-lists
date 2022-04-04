@@ -621,7 +621,8 @@
 
 .new-small-card-list-container .loading-data,
 .new-small-card-list-container .no-results ~ .no-results-holder,
-.new-small-card-list-container .no-bookmarks-holder.show {
+.new-small-card-list-container .no-bookmarks-holder.show,
+.new-small-card-list-container.no-results .no-results-holder {
   padding-top: 25px;
   padding-bottom: 25px;
   display: block;
