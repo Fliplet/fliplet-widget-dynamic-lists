@@ -101,21 +101,7 @@ function DynamicList(id, data) {
     });
 
   window.onresize = function() {
-    var windowWidth = window.innerWidth;
-    var number = parseInt(Fliplet.Navigate.query.dateIndex, 10);
-
-    if (number && windowWidth > _this.windowWidth) {
-      _this.ANIMATION_SPEED = 0;
-
-      var difference = number - _this.activeSlideIndex;
-      var currentAgendaElement = _this.$container.find('.agenda-list-day-holder.active');
-      var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth() * difference);
-
-      _this.animateAgendaForward(currentAgendaElement, currentAgendaElementWidth - _this.scrollValue);
-      _this.ANIMATION_SPEED = 200;
-    }
-
-    _this.windowWidth = windowWidth;
+    _this.positionCorrection();
   };
 }
 
@@ -1796,6 +1782,21 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
   });
 };
 
+DynamicList.prototype.positionCorrection = function() {
+  var windowWidth = window.innerWidth;
+  var number = parseInt(Fliplet.Navigate.query.dateIndex, 10);
+  var difference = number - this.activeSlideIndex;
+  var currentAgendaElement = this.$container.find('.agenda-list-day-holder.active');
+  var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth() * difference);
+
+  this.ANIMATION_SPEED = 0;
+  this.scrollValue = $($('.agenda-cards-wrapper')[0]).scrollLeft();
+  this.copyOfScrollValue = this.scrollValue;
+  this.animateAgendaForward(currentAgendaElement, currentAgendaElementWidth * number - this.scrollValue);
+  this.ANIMATION_SPEED = 200;
+  this.windowWidth = windowWidth;
+};
+
 // animate cards back
 DynamicList.prototype.animateAgendaBack = function(prevAgendaElement, prevAgendaElementWidth) {
   var _this = this;
@@ -2754,4 +2755,5 @@ DynamicList.prototype.closeDetails = function(options) {
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
     }
   }, 300);
+  this.positionCorrection();
 };
