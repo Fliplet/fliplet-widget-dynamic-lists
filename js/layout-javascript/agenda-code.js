@@ -101,7 +101,7 @@ function DynamicList(id, data) {
     });
 
   window.onresize = function() {
-    _this.positionCorrection();
+    _this.correctPosition();
   };
 }
 
@@ -1782,7 +1782,7 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
   });
 };
 
-DynamicList.prototype.positionCorrection = function() {
+DynamicList.prototype.correctPosition = function() {
   var windowWidth = window.innerWidth;
   var number = parseInt(Fliplet.Navigate.query.dateIndex, 10);
   var difference = number - this.activeSlideIndex;
@@ -2755,5 +2755,5 @@ DynamicList.prototype.closeDetails = function(options) {
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
     }
   }, 300);
-  this.positionCorrection();
+  this.correctPosition();
 };
