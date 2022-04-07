@@ -59,7 +59,7 @@ function DynamicList(id, data) {
   this.imagesData = {};
   this.$closeButton = null;
   this.$detailsContent = null;
-
+  this.windowWidth = window.innerWidth;
   /*
    * this specifies the batch size to be used when rendering in chunks
    */
@@ -99,6 +99,24 @@ function DynamicList(id, data) {
         message: 'Error loading agenda'
       });
     });
+
+  window.onresize = function() {
+    var windowWidth = window.innerWidth;
+    var number = parseInt(Fliplet.Navigate.query.dateIndex, 10);
+
+    if (number && windowWidth > _this.windowWidth) {
+      _this.ANIMATION_SPEED = 0;
+
+      var difference = number - _this.activeSlideIndex;
+      var currentAgendaElement = _this.$container.find('.agenda-list-day-holder.active');
+      var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth() * difference);
+
+      _this.animateAgendaForward(currentAgendaElement, currentAgendaElementWidth - _this.scrollValue);
+      _this.ANIMATION_SPEED = 200;
+    }
+
+    _this.windowWidth = windowWidth;
+  };
 }
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
