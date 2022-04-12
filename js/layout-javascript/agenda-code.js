@@ -99,10 +99,6 @@ function DynamicList(id, data) {
         message: 'Error loading agenda'
       });
     });
-
-  window.onresize = function() {
-    _this.correctPosition();
-  };
 }
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
@@ -191,8 +187,8 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
-
     _this.Utils.DOM.adjustAddButtonPosition(_this);
+    _this.correctPosition();
   });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
@@ -1733,14 +1729,14 @@ DynamicList.prototype.animateDateForward = function($nextDateElement, nextDateEl
 };
 
 // animates cards forward
-DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth) {
+DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth, animationSpeed) {
   var _this = this;
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
       scrollLeft: '+=' + nextAgendaElementWidth
     },
-    _this.ANIMATION_SPEED,
+    animationSpeed,
     'swing',  // animation easing
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
@@ -1784,16 +1780,14 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
 
 DynamicList.prototype.correctPosition = function() {
   var windowWidth = window.innerWidth;
-  var number = parseInt(Fliplet.Navigate.query.dateIndex, 10);
-  var difference = number - this.activeSlideIndex;
+  var dateIndex = parseInt(Fliplet.Navigate.query.dateIndex, 10);
+  var difference = dateIndex - this.activeSlideIndex;
   var currentAgendaElement = this.$container.find('.agenda-list-day-holder.active');
   var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth() * difference);
 
-  this.ANIMATION_SPEED = 0;
-  this.scrollValue = $($('.agenda-cards-wrapper')[0]).scrollLeft();
+  this.scrollValue = $('.agenda-cards-wrapper').eq(0).scrollLeft();
   this.copyOfScrollValue = this.scrollValue;
-  this.animateAgendaForward(currentAgendaElement, currentAgendaElementWidth * number - this.scrollValue);
-  this.ANIMATION_SPEED = 200;
+  this.animateAgendaForward(currentAgendaElement, currentAgendaElementWidth * dateIndex - this.scrollValue, 0);
   this.windowWidth = windowWidth;
 };
 
@@ -1842,7 +1836,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
-    _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
+    _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue, _this.ANIMATION_SPEED)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
