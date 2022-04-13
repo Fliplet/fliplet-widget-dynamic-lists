@@ -1866,6 +1866,8 @@ DynamicList.prototype.searchData = function(options) {
         _this.showDetails(searchedData[0].id);
       }
 
+      _this.$container.find('.new-news-feed-list-container').toggleClass('no-results', !searchedData.length);
+
       /**
        * Update search UI
        **/

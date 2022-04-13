@@ -647,7 +647,8 @@ html.ie11 .simple-list-item .list-item-description {
 }
 
 .simple-list-container .no-results ~ .no-results-holder,
-.simple-list-container .no-bookmarks-holder.show {
+.simple-list-container .no-bookmarks-holder.show,
+.simple-list-container.no-results .no-results-holder {
   display: block;
 }
 

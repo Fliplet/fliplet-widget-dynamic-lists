@@ -1228,6 +1228,17 @@
   margin-top: 20vh;
 }
 
+.new-agenda-list-container .no-results-holder {
+  text-align: center;
+  color: #ddd;
+  cursor: default;
+}
+
+.new-agenda-list-container .no-results ~ .no-results-holder,
+.new-agenda-list-container.no-results .no-results-holder {
+  display: block;
+}
+
 .new-agenda-list-container .results-empty-bookmarks,
 .new-agenda-list-container.show-bookmarks .results-empty,
 .new-agenda-list-container .results-empty-filtering,
