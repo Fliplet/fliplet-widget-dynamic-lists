@@ -1097,7 +1097,7 @@ var DynamicLists = (function() {
                 id: index + 1,
                 columns: dataSourceColumns,
                 column: column,
-                type: 'text',
+                type: column === 'Description' ? 'html' : 'text',
                 fieldLabel: 'column-name',
                 editable: true
               };
