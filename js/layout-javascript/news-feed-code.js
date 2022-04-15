@@ -146,6 +146,10 @@ DynamicList.prototype.attachObservers = function() {
 
   $(window).resize(function() {
     _this.Utils.DOM.adjustAddButtonPosition(_this);
+
+    if ($(window).width() < 640) {
+      _this.addContentIndent();
+    }
   });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
@@ -2488,15 +2492,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
 
         // Calculate top position when image finishes loading
         if ($(window).width() < 640) {
-          _this.$container.find('.news-feed-list-detail-image-wrapper img').one('load', function() {
-            var expandedPosition = $(this).outerHeight();
-
-            _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
-          }).each(function() {
-            if (this.complete) {
-              $(this).trigger('load');
-            }
-          });
+          this.addContentIndent();
         }
 
         _this.$overlay.addClass('open');
@@ -2515,6 +2511,20 @@ DynamicList.prototype.showDetails = function(id, listData) {
         }, 200);
       });
     });
+};
+
+DynamicList.prototype.addContentIndent = function() {
+  var _this = this;
+
+  this.$container.find('.news-feed-list-detail-image-wrapper img').one('load', function() {
+    var expandedPosition = $(this).outerHeight();
+
+    _this.$overlay.find('.news-feed-item-inner-content').css({ top: expandedPosition + 'px' });
+  }).each(function() {
+    if (this.complete) {
+      $(this).trigger('load');
+    }
+  });
 };
 
 DynamicList.prototype.closeDetails = function(options) {
