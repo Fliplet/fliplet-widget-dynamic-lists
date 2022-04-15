@@ -1736,7 +1736,7 @@ DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAge
     _this.$container.find('.agenda-cards-wrapper').animate({
       scrollLeft: '+=' + nextAgendaElementWidth
     },
-    animationSpeed,
+    typeof animationSpeed === 'number' ? animationSpeed : _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
@@ -1836,7 +1836,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
-    _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue, _this.ANIMATION_SPEED)
+    _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
