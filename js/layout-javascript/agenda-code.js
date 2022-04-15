@@ -188,7 +188,7 @@ DynamicList.prototype.attachObservers = function() {
   $(window).resize(function() {
     _this.centerDate();
     _this.Utils.DOM.adjustAddButtonPosition(_this);
-    _this.correctPosition();
+    _this.correctAgendaListPosition();
   });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
@@ -1778,7 +1778,7 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
   });
 };
 
-DynamicList.prototype.correctPosition = function() {
+DynamicList.prototype.correctAgendaListPosition = function() {
   var windowWidth = window.innerWidth;
   var dateIndex = parseInt(Fliplet.Navigate.query.dateIndex, 10);
   var difference = dateIndex - this.activeSlideIndex;
@@ -2749,5 +2749,5 @@ DynamicList.prototype.closeDetails = function(options) {
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
     }
   }, 300);
-  this.correctPosition();
+  this.correctAgendaListPosition();
 };
