@@ -2289,6 +2289,8 @@ DynamicList.prototype.searchData = function(options) {
       // Toggle between filtered list view and
       _this.toggleListView();
 
+      _this.$container.find('.new-agenda-list-container').toggleClass('no-results', !searchedData.length);
+
       /**
        * Update search UI
        **/

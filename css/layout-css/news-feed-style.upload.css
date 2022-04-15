@@ -588,7 +588,8 @@
 
 .new-news-feed-list-container.offline .offline-holder,
 .new-news-feed-list-container .no-results ~ .no-results-holder,
-.new-news-feed-list-container .no-bookmarks-holder.show {
+.new-news-feed-list-container .no-bookmarks-holder.show,
+.new-news-feed-list-container.no-results .no-results-holder {
   display: block;
 }
 
