@@ -2492,7 +2492,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
 
         // Calculate top position when image finishes loading
         if ($(window).width() < 640) {
-          this.addContentIndent();
+          _this.addContentIndent();
         }
 
         _this.$overlay.addClass('open');
