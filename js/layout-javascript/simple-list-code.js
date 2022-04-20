@@ -28,7 +28,7 @@ function DynamicList(id, data) {
   this.allowClick = true;
   this.allUsers;
   this.usersToMention;
-  this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>';
+  this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> ' + T('widgets.list.dynamic.loading') + '</div>';
   this.entryClicked = undefined;
   this.isFiltering;
   this.isSearching;
@@ -2613,7 +2613,7 @@ DynamicList.prototype.updateCommentCounter = function(options) {
     return;
   }
 
-  var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">Comment</span>';
+  var commentCounterTemplate = '<span class="count">{{#if count}}{{count}}{{/if}}</span> <i class="fa fa-comment-o fa-lg"></i> <span class="comment-label">' + T('widgets.list.dynamic.comments.title') + '</span>';
   var counterCompiled = Handlebars.compile(commentCounterTemplate);
   var data = {
     count: TN(record.commentCount)

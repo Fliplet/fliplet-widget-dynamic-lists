@@ -40,7 +40,7 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="Search..." required >
+      <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="{{T "widgets.list.dynamic.search.placeholder"}}" required >
       <div class="btn btn-default search-btn">{{ T "widgets.list.dynamic.search.action" }}</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
@@ -194,7 +194,7 @@
 
   <div class="news-feed-comment-input-holder">
     <div class="input-first-row">
-      <textarea class="form-control" rows="1" placeholder="Type comment" data-comment-body></textarea>
+      <textarea class="form-control" rows="1" placeholder="{{T "widgets.list.dynamic.comments.placeholder"}}" data-comment-body></textarea>
     </div>
     <div class="input-second-row">
       <div class="btn btn-primary comment focus-outline" tabindex="0">{{ T "widgets.list.dynamic.comments.title" }}</div>
