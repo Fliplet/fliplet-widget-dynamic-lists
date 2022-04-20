@@ -30,6 +30,7 @@
         "comments": {
           "listTitle": "Comments",
           "offline": "You are offline",
+          "placeholder": "Type comment",
           "title": "Comment",
           "actions": {
             "cancel": "Cancel",
