@@ -365,6 +365,13 @@ window.flListLayoutConfig = {
         location: 'Image',
         type: 'image',
         column: 'Image'
+      },
+      {
+        id: 'RGosNfos',
+        interfaceName: 'Secondary text',
+        location: 'Description',
+        type: 'html',
+        column: 'Description'
       }
     ]
   }
