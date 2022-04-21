@@ -368,7 +368,6 @@ window.flListLayoutConfig = {
       },
       {
         id: 'RGosNfos',
-        interfaceName: 'Secondary text',
         location: 'Description',
         type: 'html',
         column: 'Description'
