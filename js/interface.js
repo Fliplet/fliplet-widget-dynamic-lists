@@ -2523,13 +2523,13 @@ var DynamicLists = (function() {
       return Promise.all([basePromise, loopPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
     toggleTabVisibility: function(id, isInvisible, fromReset) {
-      var $el = document.getElementById(id);
+      var el = document.getElementById(id);
 
-      if (!$el || !fromReset || $el.classList.contains('active')) {
+      if (!el || !fromReset || el.classList.contains('active')) {
         return;
       }
 
-      $el.classList.toggle('invisible', isInvisible);
+      el.classList.toggle('invisible', isInvisible);
     },
     setupCodeEditors: function(selectedLayout, fromReset) {
       var baseTemplate = document.getElementById('base-template');
