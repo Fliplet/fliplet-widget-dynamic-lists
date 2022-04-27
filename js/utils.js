@@ -952,6 +952,184 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Determines why pre-filters are applied client-side instead of using data source query
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.config - Configuration settings for the instance
+   * @returns {Array} A list of reasons
+   */
+  function getQueryAllReasons(options) {
+    options = options || {};
+
+    var config = options.config || {};
+    var reasons = [];
+
+    if (config.useApiFilters) {
+      return reasons;
+    }
+
+    if (!config.apiFiltersAvailable) {
+      reasons.push('legacyGetData');
+
+      return reasons;
+    }
+
+    if (['function', 'object'].includes(typeof config.dataQuery)) {
+      reasons.push('dataQuery');
+    }
+
+    if (typeof config.getData === 'function') {
+      reasons.push('getData');
+    }
+
+    if (!_.isEmpty(config.computedFields)) {
+      reasons.push('computedFields');
+    }
+
+    if (Fliplet.Hooks.has('flListDataAfterGetData')) {
+      reasons.push('afterGetDataHook');
+    }
+
+    return reasons;
+  }
+
+  /**
+   * Determines if data source API request needs to apply query data
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.config - Configuration settings for the instance
+   * @returns {Boolean} Returns TRUE if data source query needs to apply query data
+   */
+  function needsApiQueryData(options) {
+    return !getQueryAllReasons(options).length;
+  }
+
+  /**
+   * Check that a filter configuration is a date typed filter
+   * @param {Object} filter - Filter configuration
+   * @returns {Boolean} Returns TRUE of the filter condition is a date condition logic
+   */
+  function filterIsDateCondition(filter) {
+    return filter
+      && ['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(filter.condition) > -1;
+  }
+
+  /**
+   * Returns filter data that's unique to date filter conditions
+   * @param {Object} filter - Filter configuration
+   * @returns {Object} - Additional date filter data
+   */
+  function getDateFilterData(filter) {
+    filter = filter || {};
+
+    if (filter.condition === 'datebetween') {
+      return {
+        from: getDateFilterData(filter.from),
+        to: getDateFilterData(filter.to)
+      };
+    }
+
+    var DATE_FORMAT = 'YYYY-MM-DD';
+    var DATETIME_LOCAL_FORMAT = 'YYYY-MM-DD HH:mm';
+    // Create current moment value based on timezone, if required
+    var date = filter.useDeviceTimezone
+      ? moment.tz(moment().format(DATETIME_LOCAL_FORMAT), 'UTC')
+      : moment.utc();
+    var adjustedDatePattern = /^(now|today)(add|subtract|plus|minus)(second|minute|hour|day|month|week|year)s?$/i;
+    var dateAdjustParts = filter.value.match(adjustedDatePattern);
+    var offsetUnit = dateAdjustParts && dateAdjustParts[3];
+
+    if (adjustedDatePattern.test(filter.value) && offsetUnit) {
+      var offset = filter.offset || 0;
+
+      switch (dateAdjustParts[2]) {
+        case 'add':
+        case 'plus':
+          date.add(offset, offsetUnit);
+          break;
+        case 'subtract':
+        case 'minus':
+          date.subtract(offset, offsetUnit);
+          break;
+        default:
+          break;
+      }
+    }
+
+    var data = {};
+
+    // Format date HTML5 format before using it for filters
+    // Provide a unit for comparison based on comparison value granularity
+    if (filter.value && filter.value.indexOf('today') === 0) {
+      data.value = date.format(DATE_FORMAT);
+      data.unit = 'day';
+    } else {
+      data.value = date.format(DATETIME_LOCAL_FORMAT);
+      data.unit = 'minute';
+    }
+
+
+    // Add timezone to data if necessary (for analysis)
+    if (filter.useDeviceTimezone) {
+      data.timezone = moment.tz.guess();
+    }
+
+    return data;
+  }
+
+  /**
+   * Computes the query data object based on pre-filter settings
+   * @param {Object} options - A map of options for the function
+   * @param {Object} options.config - Configuration settings for the instance
+   * @param {Array} [options.filterQueries] - Filters set using query parameters
+   * @returns {Object} Query data to be passed to data source queries
+   */
+  function getQueryData(options) {
+    options = options || {};
+
+    var config = options.config;
+    var filterQueries = options.filterQueries;
+
+    if (!Array.isArray(config.filterOptions)) {
+      config.filterOptions = [config.filterOptions];
+    }
+
+    // Filter data based on filter options and filter queries
+    var filters = _.compact(_.concat(config.filterOptions, filterQueries));
+
+    filters = _.map(filters, function(option) {
+      var filter = {
+        column: option.column,
+        condition: option.logic,
+        value: option.value
+      };
+
+      // Set up date filter values
+      if (filterIsDateCondition(filter)) {
+        // Value will be set with date filter, if required
+        delete filter.value;
+
+        Object.assign(filter, getDateFilterData({
+          value: option.dateValue,
+          condition: option.logic,
+          offset: option.offsetValue,
+          useDeviceTimezone: option.useDeviceTimezone,
+          from: _.get(option, 'dateFilterModifiers.from'),
+          to: _.get(option, 'dateFilterModifiers.to')
+        }));
+      }
+
+      return filter;
+    });
+
+    return filters.length
+      ? {
+        where: {
+          $filters: filters
+        }
+      }
+      : undefined;
+  }
+
   function removeSymbols(str) {
     // Remove commonly used symbols in text that should be ignored for string matching
     return ('' + str).replace(/[&\/\\#+()$~%.`'‘’"“”:*?<>{}]+/g, '');
@@ -1258,6 +1436,103 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           break;
       }
     }
+  }
+
+  /**
+   * Connect to data source and retrieves data
+   * @param {Object} connectionOptions - Connection options for connecting to the data source
+   * @param {Object} options - A mapping of options for this function
+   * @returns {Promise} Promise resolves when data is retrieved
+   */
+  function getDataFromDataSource(connectionOptions, options) {
+    connectionOptions = connectionOptions || { offline: true };
+    options = options || {};
+
+    var config = options.config;
+
+    if (config.defaultData && !config.dataSourceId) {
+      return Promise.resolve(config.defaultEntries);
+    }
+
+    return Fliplet.DataSources.connect(config.dataSourceId, connectionOptions)
+      .then(function(connection) {
+        // If you want to do specific queries to return your rows
+        // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
+        var query;
+
+        if (typeof config.dataQuery === 'function') {
+          query = config.dataQuery({
+            config: config,
+            id: config.id,
+            uuid: config.uuid,
+            container: options.container
+          });
+        } else if (typeof config.dataQuery === 'object') {
+          query = config.dataQuery;
+        } else if (needsApiQueryData({ config: config })) {
+          query = getQueryData({
+            config: config,
+            filterQueries: options.filterQueries
+          });
+        }
+
+        var reasons = getQueryAllReasons({ config: config });
+
+        // Add reasons for not using queries
+        if (reasons.length) {
+          query = query || {};
+          query._tags = {
+            queryAllReasons: reasons.join(',')
+          };
+        }
+
+        return connection.find(query);
+      });
+  }
+
+  /**
+   * Load data for the list
+   * @param {Object} options - A mapping of options for this function
+   * @returns {Promise} Promise resolves when data is loaded
+   */
+  function loadData(options) {
+    options = options || {};
+
+    var config = options.config;
+
+    return Fliplet.Hooks.run('flListDataBeforeGetData', {
+      instance: options.instance,
+      config: config,
+      id: options.id,
+      uuid: options.uuid,
+      container: options.$container
+    }).then(function() {
+      var getData;
+
+      if (typeof config.getData === 'function') {
+        getData = config.getData;
+      } else {
+        getData = getDataFromDataSource;
+      }
+
+      var connectionOptions = {
+        offline: true
+      };
+
+      if (config.hasOwnProperty('cache')) {
+        connectionOptions.offline = config.cache;
+      }
+
+      return getData(connectionOptions, {
+        config: config,
+        filterQueries: options.filterQueries,
+        container: options.$container
+      });
+    }).catch(function(error) {
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error loading data'
+      });
+    });
   }
 
   function runRecordFilters(records, filters) {
@@ -1658,6 +1933,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    * @returns {Object[]} An array of filters and possible values, ready to be rendered through Handlebars template
    */
   function parseRecordFilters(options) {
+    // NOTE: Do not change signature and behavior of function
+    // because it could be used by legacy customized layout script
     options = options || {};
 
     var records = options.records || [];
@@ -2484,21 +2761,50 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       config.filterOptions = [config.filterOptions];
     }
 
-    // Filter data based on filter options, filter queries and PV storage values (deprecated)
-    var filters = _.compact(_.concat(config.filterOptions, options.filterQueries));
+    // Filter data based on filter options and filter queries
+    var queryData = !needsApiQueryData({ config: config })
+      ? getQueryData({
+        config: config,
+        filterQueries: options.filterQueries
+      })
+      : undefined;
 
-    records = runRecordFilters(records, _.map(filters, function(option) {
-      return {
-        column: option.column,
-        condition: option.logic,
-        dateValue: option.dateValue,
-        offsetValue: option.offsetValue,
-        useDeviceTimezone: option.useDeviceTimezone,
-        dateFilterModifiers: option.dateFilterModifiers,
-        valueType: option.valueType,
-        value: option.value
-      };
-    }));
+    if (queryData && typeof queryData.where  === 'object') {
+      try {
+        var totalRows = records.length;
+        var reasons = getQueryAllReasons({ config: config });
+
+        records = window.sift({ data: queryData.where }, records);
+
+        var removedRows = totalRows - records.length;
+
+        // Track event to understand why client-side filters are run
+        Fliplet.Analytics.trackEvent({
+          category: 'list_dynamic',
+          action: 'client_prefilter',
+          label: reasons.join(','),
+          value: removedRows,
+          nonInteraction: true
+        });
+      } catch (error) {
+        var message = '[LFD] Error executing pre-filters';
+
+        console.error(message, Fliplet.parseError(error));
+
+        // Client-side filter errors are logged for assessment
+        if (typeof Raven !== 'undefined' && Raven.captureMessage) {
+          Raven.captureMessage(message, {
+            extra: {
+              reasons: reasons.join(','),
+              query: queryData,
+              error: error
+            }
+          });
+        }
+
+        throw new Error(error);
+      }
+    }
 
     currentDate = {};
 
@@ -2997,6 +3303,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       assignImageContent: assignImageContent
     },
     Records: {
+      loadData: loadData,
       runFilters: runRecordFilters,
       runSearch: runRecordSearch,
       getFields: getRecordFields,

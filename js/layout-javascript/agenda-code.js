@@ -19,6 +19,7 @@ function DynamicList(id, data) {
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
   this.data.forceRenderList = false;
+  this.data.apiFiltersAvailable = true;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
 
   // Other variables
@@ -58,6 +59,7 @@ function DynamicList(id, data) {
   this.imagesData = {};
   this.$closeButton = null;
   this.$detailsContent = null;
+  this.windowWidth = window.innerWidth;
 
   /*
    * this specifies the batch size to be used when rendering in chunks
@@ -186,8 +188,8 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
-
     _this.Utils.DOM.adjustAddButtonPosition(_this);
+    _this.correctAgendaListPosition();
   });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
@@ -1058,7 +1060,19 @@ DynamicList.prototype.initialize = function() {
       // Determine filter types from configuration
       _this.filterTypes = _this.Utils.getFilterTypes({ instance: _this });
 
-      return _this.connectToDataSource();
+      return _this.Utils.Records.setFilterValues({
+        config: _this.data
+      });
+    })
+    .then(function() {
+      return _this.Utils.Records.loadData({
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        $container: _this.$container,
+        filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+      });
     })
     .then(function(records) {
       _this.Utils.Records.addComputedFields({
@@ -1074,10 +1088,6 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
-      }).then(function() {
-        return _this.Utils.Records.setFilterValues({
-          config: _this.data
-        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
@@ -1237,58 +1247,6 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   this.Utils.Page.parseFilterQueries({
     instance: this
-  });
-};
-
-DynamicList.prototype.connectToDataSource = function() {
-  var _this = this;
-  var cache = { offline: true };
-
-  function getData(options) {
-    if (_this.data.defaultData && !_this.data.dataSourceId) {
-      return Promise.resolve(_this.data.defaultEntries);
-    }
-
-    options = options || cache;
-
-    return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
-      .then(function(connection) {
-        // If you want to do specific queries to return your rows
-        // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        var query = {};
-
-        if (typeof _this.data.dataQuery === 'function') {
-          query = _this.data.dataQuery({
-            config: _this.data,
-            id: _this.data.id,
-            uuid: _this.data.uuid,
-            container: _this.$container
-          });
-        } else if (typeof _this.data.dataQuery === 'object') {
-          query = _this.data.dataQuery;
-        }
-
-        return connection.find(query);
-      });
-  }
-
-  return Fliplet.Hooks.run('flListDataBeforeGetData', {
-    instance: _this,
-    config: _this.data,
-    id: _this.data.id,
-    uuid: _this.data.uuid,
-    container: _this.$container
-  }).then(function() {
-    if (_this.data.getData) {
-      // eslint-disable-next-line no-func-assign
-      getData = _this.data.getData;
-
-      if (_this.data.hasOwnProperty('cache')) {
-        cache.offline = _this.data.cache;
-      }
-    }
-
-    return getData(cache);
   });
 };
 
@@ -1772,14 +1730,14 @@ DynamicList.prototype.animateDateForward = function($nextDateElement, nextDateEl
 };
 
 // animates cards forward
-DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth) {
+DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth, animationSpeed) {
   var _this = this;
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
       scrollLeft: '+=' + nextAgendaElementWidth
     },
-    _this.ANIMATION_SPEED,
+    typeof animationSpeed === 'number' ? animationSpeed : _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
@@ -1819,6 +1777,19 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
       resolve();
     });
   });
+};
+
+DynamicList.prototype.correctAgendaListPosition = function() {
+  var windowWidth = window.innerWidth;
+  var dateIndex = parseInt(Fliplet.Navigate.query.dateIndex, 10);
+  var difference = dateIndex - this.activeSlideIndex;
+  var currentAgendaElement = this.$container.find('.agenda-list-day-holder.active');
+  var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth() * difference);
+
+  this.scrollValue = $('.agenda-cards-wrapper').eq(0).scrollLeft();
+  this.copyOfScrollValue = this.scrollValue;
+  this.animateAgendaForward(currentAgendaElement, currentAgendaElementWidth * dateIndex - this.scrollValue, 0);
+  this.windowWidth = windowWidth;
 };
 
 // animate cards back
@@ -2319,6 +2290,8 @@ DynamicList.prototype.searchData = function(options) {
       // Toggle between filtered list view and
       _this.toggleListView();
 
+      _this.$container.find('.new-agenda-list-container').toggleClass('no-results', !searchedData.length);
+
       /**
        * Update search UI
        **/
@@ -2779,4 +2752,5 @@ DynamicList.prototype.closeDetails = function(options) {
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
     }
   }, 300);
+  this.correctAgendaListPosition();
 };

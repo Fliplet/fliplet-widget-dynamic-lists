@@ -2522,6 +2522,15 @@ var DynamicLists = (function() {
 
       return Promise.all([basePromise, loopPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
+    toggleTabVisibility: function(id, isInvisible, fromReset) {
+      var el = document.getElementById(id);
+
+      if (!el || !fromReset || el.classList.contains('active')) {
+        return;
+      }
+
+      el.classList.toggle('invisible', isInvisible);
+    },
     setupCodeEditors: function(selectedLayout, fromReset) {
       var baseTemplate = document.getElementById('base-template');
       var baseTemplateType = $(baseTemplate).data('type');
@@ -2542,6 +2551,8 @@ var DynamicLists = (function() {
 
       return _this.getCodeEditorData(selectedLayout, fromReset).then(function() {
         var baseTemplatePromise = new Promise(function(resolve) {
+          _this.toggleTabVisibility('base', true, fromReset);
+
           if (baseTemplateEditor) {
             baseTemplateEditor.getDoc().setValue(baseTemplateCode);
           } else if (baseTemplate) {
@@ -2552,12 +2563,16 @@ var DynamicLists = (function() {
             templateEditors['base'] = baseTemplateEditor;
           }
 
+          _this.toggleTabVisibility('base', false, fromReset);
+
           if (baseTemplateEditor) {
             resolve();
           }
         });
 
         var loopTemplatePromise = new Promise(function(resolve) {
+          _this.toggleTabVisibility('loop', true, fromReset);
+
           if (loopTemplateEditor) {
             loopTemplateEditor.getDoc().setValue(loopTemplateCode);
           } else if (loopTemplate) {
@@ -2568,12 +2583,16 @@ var DynamicLists = (function() {
             templateEditors['loop'] = loopTemplateEditor;
           }
 
+          _this.toggleTabVisibility('loop', false, fromReset);
+
           if (loopTemplateEditor) {
             resolve();
           }
         });
 
         var searchResultsTemplatePromise = new Promise(function(resolve) {
+          _this.toggleTabVisibility('search-results', true, fromReset);
+
           if (searchResultsTemplateEditor) {
             searchResultsTemplateEditor.getDoc().setValue(searchResultsTemplateCode);
           } else if (searchResultsTemplate) {
@@ -2584,12 +2603,16 @@ var DynamicLists = (function() {
             templateEditors['search-results'] = searchResultsTemplateEditor;
           }
 
+          _this.toggleTabVisibility('search-results', false, fromReset);
+
           if (searchResultsTemplateEditor) {
             resolve();
           }
         });
 
         var detailTemplatePromise = new Promise(function(resolve) {
+          _this.toggleTabVisibility('detail-view-tab', true, fromReset);
+
           if (detailTemplateEditor) {
             detailTemplateEditor.getDoc().setValue(detailTemplateCode);
           } else if (detailTemplate) {
@@ -2600,12 +2623,16 @@ var DynamicLists = (function() {
             templateEditors['detail'] = detailTemplateEditor;
           }
 
+          _this.toggleTabVisibility('detail-view-tab', false, fromReset);
+
           if (detailTemplateEditor) {
             resolve();
           }
         });
 
         var filterLoopTemplatePromise = new Promise(function(resolve) {
+          _this.toggleTabVisibility('filter-loop', true, fromReset);
+
           if (filterLoopTemplateEditor) {
             filterLoopTemplateEditor.getDoc().setValue(filterLoopTemplateCode);
           } else if (filterLoopTemplate) {
@@ -2616,12 +2643,16 @@ var DynamicLists = (function() {
             templateEditors['filter'] = filterLoopTemplateEditor;
           }
 
+          _this.toggleTabVisibility('filter-loop', false, fromReset);
+
           if (filterLoopTemplateEditor) {
             resolve();
           }
         });
 
         var otherLoopTemplatePromise = new Promise(function(resolve) {
+          _this.toggleTabVisibility('other-loop', true, fromReset);
+
           if (otherLoopTemplateEditor) {
             otherLoopTemplateEditor.getDoc().setValue(otherLoopTemplateCode);
           } else if (otherLoopTemplate) {
@@ -2631,6 +2662,8 @@ var DynamicLists = (function() {
             );
             templateEditors['other-loop'] = otherLoopTemplateEditor;
           }
+
+          _this.toggleTabVisibility('other-loop', false, fromReset);
 
           if (otherLoopTemplateEditor) {
             resolve();
