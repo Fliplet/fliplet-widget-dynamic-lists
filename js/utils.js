@@ -3162,16 +3162,22 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
                 if (entries.dataSource && entries.dataSource.data) {
                   item.value = entries.dataSource.data[item.fieldValue];
                   resolve();
+
+                  return;
                 }
 
                 if (entries.saml2 && entries.saml2.data) {
                   item.value = entries.saml2.data[item.fieldValue];
                   resolve();
+
+                  return;
                 }
 
                 if (entries.flipletLogin && entries.flipletLogin.data) {
                   item.value = entries.flipletLogin.data[item.fieldValue];
                   resolve();
+
+                  return;
                 }
               }
 
