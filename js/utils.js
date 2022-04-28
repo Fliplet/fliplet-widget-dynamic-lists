@@ -3159,17 +3159,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               var entries = session.entries;
 
               if (session && entries) {
-                if (entries.dataSource) {
+                if (entries.dataSource && entries.dataSource.data) {
                   item.value = entries.dataSource.data[item.fieldValue];
                   resolve();
                 }
 
-                if (entries.saml2) {
+                if (entries.saml2 && entries.saml2.data) {
                   item.value = entries.saml2.data[item.fieldValue];
                   resolve();
                 }
 
-                if (entries.flipletLogin) {
+                if (entries.flipletLogin && entries.flipletLogin.data) {
                   item.value = entries.flipletLogin.data[item.fieldValue];
                   resolve();
                 }
