@@ -446,6 +446,9 @@ DynamicList.prototype.initialize = function() {
           records = [records];
         }
 
+        _this.$container.find('.small-h-card-list-wrapper').toggleClass('hidden', !records.length);
+        _this.$container.find('.new-small-h-card-list-container').toggleClass('no-results', !records.length);
+
         return _this.Utils.Records.prepareData({
           records: records,
           config: _this.data,

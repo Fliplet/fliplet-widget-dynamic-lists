@@ -600,6 +600,12 @@ header .btn,
   opacity: 0.4;
 }
 
+.tab-content > .tab-pane.invisible {
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+
 .margin-15 {
   padding-left: 15px;
   padding-right: 15px;

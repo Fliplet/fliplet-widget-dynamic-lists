@@ -1648,6 +1648,8 @@ DynamicList.prototype.searchData = function(options) {
         _this.showDetails(searchedData[0].id);
       }
 
+      _this.$container.find('.simple-list-container').toggleClass('no-results', !searchedData.length);
+
       /**
        * Update search UI
        **/
