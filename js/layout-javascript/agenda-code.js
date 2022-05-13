@@ -2408,7 +2408,22 @@ DynamicList.prototype.bindTouchEvents = function() {
     _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').removeClass('is-panning');
 
     if (!_this.isPanningHorizontal(e)) {
-      return;
+      // Checks if the element has been scrolled horizontally before being scrolled vertically
+      var wrapperScrollPosition = _this.$container.find('.agenda-cards-wrapper').scrollLeft();
+      var $previousElements = _this.$container
+        .find('.agenda-list-day-holder')
+        .eq(_this.activeSlideIndex)
+        .prevAll();
+      var previousElementsWidth = 0;
+
+      $previousElements.each(function () {
+        previousElementsWidth += $(this).outerWidth();
+      });
+
+      // Stop if element wasn't scrolled horizontally
+      if (previousElementsWidth === wrapperScrollPosition) {
+        return;
+      }
     }
 
     if ( _this.scrollValue > 0 ) {
