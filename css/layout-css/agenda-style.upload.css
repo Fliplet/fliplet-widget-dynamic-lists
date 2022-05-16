@@ -905,8 +905,6 @@
 
 .new-agenda-list-container .agenda-list-card-holder.empty + .agenda-item-empty-state {
   display: block;
-  content: "Nothing bookmarked for this date";
-  display: block;
   text-align: center;
   font-size: 16px;
   color: #333333;

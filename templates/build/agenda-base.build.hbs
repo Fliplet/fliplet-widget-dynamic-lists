@@ -10,15 +10,15 @@
         </div>
         <div class="filter-header-holder">
           <div class="filter-header-btn-controls">
-            <div class="btn clear-filters hidden focus-outline" tabindex="0">Clear</div>
-            <div class="btn apply-filters focus-outline" tabindex="0">Apply</div>
+            <div class="btn clear-filters hidden focus-outline" tabindex="0">{{ T "widgets.list.dynamic.filter.clear" }}</div>
+            <div class="btn apply-filters focus-outline" tabindex="0">{{ T "widgets.list.dynamic.filter.apply" }}</div>
           </div>
         </div>
       </div>
       <div class="agenda-overlay-content">
         <div class="hidden-filter-controls">
           <div class="hidden-filter-controls-content">
-            <div class="filters-header">Filter by</div>
+            <div class="filters-header">{{ T "widgets.list.dynamic.filter.filterBy" }}</div>
             <div class="filter-holder">
               <!-- Filters here -->
             </div>
@@ -35,8 +35,8 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="Search..." required >
-      <div class="btn btn-default search-btn">Search</div>
+      <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="{{T "widgets.list.dynamic.search.placeholder"}}" required >
+      <div class="btn btn-default search-btn">{{T "widgets.list.dynamic.search.action"}}</div>
       <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
     </div>
     \{{/if}}
@@ -63,7 +63,7 @@
       <div class="toggle-agenda" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
-        <div class="agenda-list-label">My Agenda</div>
+        <div class="agenda-list-label">{{T "widgets.list.dynamic.agenda.list.listLabel"}}</div>
       </div>
     </div>
     \{{/unless}}
@@ -84,7 +84,7 @@
     <!-- States messages -->
     <div class="agenda-state-messages">
       <div class="loading-holder">
-        <i class="fa fa-circle-o-notch fa-spin"></i> Loading agenda...
+        <i class="fa fa-circle-o-notch fa-spin"></i>{{ T "widgets.list.dynamic.agenda.loading" }}
       </div>
       <div class="no-results-holder">
         No matches found
@@ -102,7 +102,7 @@
           <div class="hidden-filter-controls-search">
             <div class="search-query-holder">
               <div class="search-query">
-              Searching for <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search focus-outline" tabindex="0"><i class="fa fa-times"></i></span></span>
+                {{T "widgets.list.dynamic.search.searchQuery"}}
               </div>
             </div>
           </div>
@@ -110,7 +110,7 @@
       </div>
       \{{/if}}
       <div class="active-filters hidden">
-        <div class="hidden-filter-controls-label">Filters applied</div>
+        <div class="hidden-filter-controls-label">{{T "widgets.list.dynamic.filter.applied"}}</div>
         <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
           <div class="hidden-filter-controls-filter-wrapper">
             <fieldset data-filter-active-group>

@@ -14,7 +14,7 @@
       <div class="small-h-card-list-detail-button">
         <a href="mailto:\{{[Email]}}" target="_blank" class="focus-outline">
           <div class="small-h-card-list-detail-button-image"><span class="fa fa-envelope-o"></span></div>
-          <div class="small-h-card-list-detail-button-text">EMAIL</div>
+          <div class="small-h-card-list-detail-button-text">{{ T "widgets.list.dynamic.smallCard.email" }}</div>
         </a>
       </div>
       \{{/if}}
@@ -22,7 +22,7 @@
       <div class="small-h-card-list-detail-button">
         <a href="tel:\{{[Telephone]}}" target="_blank" class="focus-outline">
           <div class="small-h-card-list-detail-button-image"><span class="fa fa-phone"></span></div>
-          <div class="small-h-card-list-detail-button-text">CALL</div>
+          <div class="small-h-card-list-detail-button-text">{{ T "widgets.list.dynamic.smallCard.call" }}</div>
         </a>
       </div>
       \{{/if}}
@@ -30,7 +30,7 @@
       <div class="small-h-card-list-detail-button">
         <a href="\{{[Linkedin]}}" target="_blank" class="focus-outline">
           <div class="small-h-card-list-detail-button-image"><span class="fa fa-linkedin"></span></div>
-          <div class="small-h-card-list-detail-button-text">LINKEDIN</div>
+          <div class="small-h-card-list-detail-button-text">{{ T "widgets.list.dynamic.smallCard.linkedin" }}</div>
         </a>
       </div>
       \{{/if}}
@@ -92,7 +92,7 @@
             \{{/if}}
 
             <div class="small-h-card-list-detail-body-text">
-              <a href="\{{{auth content}}}" target="_blank">Tap to open</a>
+              <a href="\{{{auth content}}}" target="_blank">{{ T "widgets.list.dynamic.detail.linkText" }}</a>
             </div>
           \{{/if}}
         \{{/ifCond}}
@@ -156,7 +156,7 @@
                 <li class="file-item">
                   <div class="file-title">\{{this.name}}</div>
                   <div class="file-info">
-                    <span class="file-info-uploaded">Uploaded: \{{formatDate this.uploaded}}</span>
+                    <span class="file-info-uploaded">{{ T "widgets.list.dynamic.detail.uploaded" }}: \{{formatDate this.uploaded}}</span>
                     \{{#if this.size}}<span class="file-info-size">&ndash; \{{humanFileSize this.size}}</span>\{{/if}}
                   </div>
                   <input type="hidden" value=\{{this.url}}>
@@ -176,10 +176,10 @@
     \{{#ifCond editEntry '||' deleteEntry}}
     <div class="dynamic-list-controls">
       \{{#if editEntry}}
-      <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">Edit</div>
+      <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">{{ T "widgets.list.dynamic.detail.edit" }}</div>
       \{{/if}}
       \{{#if deleteEntry}}
-      <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">Delete</div>
+      <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">{{ T "widgets.list.dynamic.detail.delete" }}</div>
       \{{/if}}
     </div>
     \{{/ifCond}}
