@@ -398,6 +398,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
       _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
+      _this.correctAgendaListPosition();
       _this.calculateFiltersHeight(true);
 
       // Clear filters
