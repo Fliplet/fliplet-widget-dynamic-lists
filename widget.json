@@ -41,8 +41,6 @@
       "vendor/jquery-ui.min.css",
       "vendor/bootstrap-tokenfield.min.css",
       "vendor/bootstrap-tokenfield.min.js",
-      "vendor/select2.css",
-      "vendor/select2.full.js",
       "js/interface.templates.js",
       "js/build.templates.js",
       "js/layout-mapping/list-layouts.js",
@@ -98,8 +96,8 @@
       { "compile": false, "path": "js/layout-javascript/agenda-code.js" },
       { "compile": false, "path": "js/layout-javascript/small-h-card-code.js" },
       { "compile": false, "path": "js/layout-javascript/simple-list-code.js" },
-      { "compile": false, "path": "img/cross.svg"},
-      { "compile": false, "path": "img/cross_white.svg"}
+      { "compile": false, "path": "img/cross.svg" },
+      { "compile": false, "path": "img/cross_white.svg" }
     ]
   },
   "references": [

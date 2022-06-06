@@ -1,3 +1,4 @@
+/* global CodeMirror */
 // eslint-disable-next-line no-unused-vars
 var DynamicLists = (function() {
   var _this;
@@ -7,7 +8,6 @@ var DynamicLists = (function() {
   var dataSourceProvider = null;
   var userDataSourceProvider = null;
   var listLayout;
-  var allDataSources = [];
   var newDataSource;
   var dataSourceColumns;
   var userDataSourceColumns;
@@ -56,8 +56,6 @@ var DynamicLists = (function() {
   var cssCode = '';
   var jsCode = '';
 
-  var $dataSources = $('#select_datasource');
-  var $newUserDataSource = $('#select_user_datasource');
   var defaultSettings = window.flListLayoutConfig;
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
@@ -165,10 +163,8 @@ var DynamicLists = (function() {
 
           $('.state.present').addClass('is-loading');
           // Create data source
-          _this.loadDataFromLayout()
-            .then(function() {
-              return _this.loadData();
-            })
+          _this.loadDataFromLayout();
+          _this.loadData()
             .then(function() {
               _this.saveLists(true);
             });
@@ -184,8 +180,6 @@ var DynamicLists = (function() {
 
           _this.goToSettings(context);
         })
-        .on('click', '[data-create-datasource]', _this.createDataSourceData)
-        .on('click', '#manage-data, [data-edit-datasource]', _this.manageAppData)
         .on('click', '[data-reset-template]', function() {
           var id = $('.advanced-tabs-level-two li.active a').data('template-id');
           var name = $('.advanced-tabs-level-two li.active').text().trim().toLowerCase();
@@ -536,104 +530,41 @@ var DynamicLists = (function() {
           _this.addDetailItem(item);
         });
 
-      $dataSources.on( 'change', function() {
-        var selectedDataSourceId = $(this).val();
-
-        if (selectedDataSourceId === 'none') {
-          return;
-        }
-
-        if (selectedDataSourceId === 'new') {
-          $('.create-holder').addClass('hidden');
-          $('.edit-holder').removeClass('hidden');
-          $('.select-datasource-holder').addClass('hidden');
-          _this.createDataSource();
-
-          return;
-        }
-
-        $('.create-holder').addClass('hidden');
-        $('.edit-holder').removeClass('hidden');
-        $('.select-datasource-holder').addClass('hidden');
-        _this.getColumns(selectedDataSourceId);
-      });
-
-      $newUserDataSource.on( 'change', function() {
-        var selectedDataSourceId = $(this).val();
-
-        if (selectedDataSourceId === 'none' || selectedDataSourceId === '') {
-          $('.select-user-firstname-holder').addClass('hidden');
-          $('.select-user-lastname-holder').addClass('hidden');
-          $('.select-user-email-holder').addClass('hidden');
-          $('.select-user-photo-holder').addClass('hidden');
-          $('.select-photo-folder-type').addClass('hidden');
-          $('.select-user-admin-holder').addClass('hidden');
-
-          return;
-        }
-
-        _this.getUserColumns(selectedDataSourceId);
-      });
-
       Fliplet.Studio.onMessage(function(event) {
         if (event.data && event.data.event === 'overlay-close' && event.data.data && event.data.data.dataSourceId) {
           // Saving user data before reload interface
           _this.saveLists();
-          _this.reloadDataSources().then(function(dataSources) {
-            if (!_this.config.dataAlertSeen) {
-              return Fliplet.Modal.confirm({
-                title: 'Data changes',
-                message: 'If you have updated the column names of your data table, please ensure that all your settings are selecting the right fields.',
-                buttons: {
-                  confirm: {
-                    label: 'OK',
-                    className: 'btn-primary'
-                  },
-                  cancel: {
-                    label: 'Don\'t show this again',
-                    className: 'btn-secondary'
-                  }
-                }
-              }).then(function(result) {
-                if (!result) {
-                  _this.config.dataAlertSeen = true;
-                }
 
-                allDataSources = dataSources;
-                _this.getColumns(_this.config.dataSourceId);
-                _this.initSelect2(allDataSources);
-                _this.initSecondSelect2(allDataSources);
-                Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
-              });
-            }
+          if (!_this.config.dataAlertSeen) {
+            return Fliplet.Modal.confirm({
+              title: 'Data changes',
+              message: 'If you have updated the column names of your data table, please ensure that all your settings are selecting the right fields.',
+              buttons: {
+                confirm: {
+                  label: 'OK',
+                  className: 'btn-primary'
+                },
+                cancel: {
+                  label: 'Don\'t show this again',
+                  className: 'btn-secondary'
+                }
+              }
+            }).then(function(result) {
+              if (!result) {
+                _this.config.dataAlertSeen = true;
+              }
 
-            allDataSources = dataSources;
-            _this.getColumns(_this.config.dataSourceId);
-            _this.initSelect2(allDataSources);
-            _this.initSecondSelect2(allDataSources);
-            Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
-          });
+              _this.getColumns(_this.config.dataSourceId);
+              Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
+            });
+          }
+
+          _this.getColumns(_this.config.dataSourceId);
+          Fliplet.Studio.emit('reload-widget-instance', _this.widgetId);
         }
 
         if (event.data === 'save-widget' && userDataSourceProvider) {
           userDataSourceProvider.emit('validation');
-        }
-      });
-    },
-    manageAppData: function() {
-      var dataSourceId = newDataSource.id;
-
-      Fliplet.Studio.emit('overlay', {
-        name: 'widget',
-        options: {
-          size: 'large',
-          package: 'com.fliplet.data-sources',
-          title: 'Edit Data Sources',
-          classes: 'data-source-overlay',
-          data: {
-            context: 'overlay',
-            dataSourceId: dataSourceId
-          }
         }
       });
     },
@@ -892,10 +823,7 @@ var DynamicLists = (function() {
       });
       _this.setupLayoutSelector();
 
-      return _this.getDataSources()
-        .then(function() {
-          return _this.setupCodeEditors();
-        })
+      return _this.setupCodeEditors()
         .then(function() {
           return _this.loadData();
         })
@@ -1248,7 +1176,6 @@ var DynamicLists = (function() {
               _this.config.userFolder && _this.config.userFolder.folder
                 ? 'removeClass'
                 : 'addClass']('hidden');
-            $newUserDataSource.val(_this.config.userDataSourceId ? _this.config.userDataSourceId : 'none').trigger('change');
 
             if (_this.config.social.comments) {
               _this.initUserDatasourceProvider(_this.config.userDataSourceId, true);
@@ -1814,14 +1741,6 @@ var DynamicLists = (function() {
 
       return item;
     },
-    reloadDataSources: function() {
-      return Fliplet.DataSources.get({
-        roles: 'publisher,editor',
-        type: null
-      }, {
-        cache: false
-      });
-    },
     formatState: function(state) {
       if (state.id === 'none') {
         return $(
@@ -1877,138 +1796,21 @@ var DynamicLists = (function() {
       // Return `null` if the term should not be displayed
       return null;
     },
-    initSelect2: function(dataSources) {
-      $dataSources.select2({
-        data: dataSources,
-        placeholder: '-- Select a data source',
-        templateResult: _this.formatState,
-        templateSelection: _this.formatState,
-        width: '100%',
-        matcher: _this.customDsSearch,
-        dropdownAutoWidth: true
-      });
-    },
-    initSecondSelect2: function(dataSources) {
-      $newUserDataSource.select2({
-        data: dataSources,
-        placeholder: '-- Select a data source',
-        templateResult: _this.formatState,
-        templateSelection: _this.formatState,
-        width: '100%',
-        matcher: _this.customDsSearch,
-        dropdownAutoWidth: true
-      });
-    },
     getDataSourceById: function(id) {
       return Fliplet.DataSources.getById(id);
     },
-    getDataSources: function() {
-      // Load the data source
-      return Fliplet.DataSources.get({
-        roles: 'publisher,editor',
-        type: null
-      }, {
-        cache: false
-      }).then(function(dataSources) {
-        allDataSources = dataSources;
-        _this.initSelect2(allDataSources);
-        _this.initSecondSelect2(allDataSources);
-      });
-    },
-    createDataSource: function() {
-      event.preventDefault();
-      Fliplet.Modal.prompt({
-        title: 'Please type a name for your data source:',
-        value: appName + ' - ' + layoutMapping[listLayout].name
-      }).then(function(name) {
-        if (name === null) {
-          $dataSources.val('none').trigger('change');
-
-          return;
-        }
-
-        if (name === '') {
-          $dataSources.val('none').trigger('change');
-          Fliplet.Modal.alert({ message: 'You must enter a data source name' });
-
-          return;
-        }
-
-        Fliplet.DataSources.create({
-          name: name,
-          organizationId: organizationId,
-          entries: defaultEntries[listLayout],
-          columns: defaultColumns[listLayout],
-          bundle: true,
-          definition: {
-            bundleImages: true
-          }
-        }).then(function(ds) {
-          allDataSources.push(ds);
-
-          var newOption = new Option(ds.name, ds.id, true, true);
-
-          $dataSources.append(newOption).trigger('change');
-          _this.config.dataSourceId = ds.id;
-          _this.getColumns(ds.id);
-        });
-      });
-    },
     loadDataFromLayout: function() {
-      return Fliplet.DataSources.get({
-        roles: 'publisher,editor',
-        type: null
-      }, {
-        cache: false
-      }).then(function() {
-        _this.config.layout = listLayout;
-        _this.config.dataSourceId = undefined;
-        _this.config.defaultEntries = [];
-        defaultEntries[listLayout].forEach(function(entry, index) {
-          _this.config.defaultEntries.push({
-            id: index,
-            data: entry
-          });
+      _this.config.layout = listLayout;
+      _this.config.dataSourceId = undefined;
+      _this.config.defaultEntries = [];
+      defaultEntries[listLayout].forEach(function(entry, index) {
+        _this.config.defaultEntries.push({
+          id: index,
+          data: entry
         });
-        _this.config.defaultColumns = defaultColumns[listLayout];
-        _this.config = $.extend(true, _this.config, defaultSettings[listLayout]);
-
-        return;
       });
-    },
-    createDataSourceData: function() {
-      var name = appName + ' - List - ' + layoutMapping[listLayout].name;
-
-      Fliplet.Modal.prompt({
-        title: 'Please type a name for your data source:',
-        value: name
-      }).then(function(name) {
-        if (name === null || name === '') {
-          return Promise.reject();
-        }
-
-        return name;
-      }).then(function(name) {
-        return Fliplet.DataSources.create({
-          name: name,
-          organizationId: organizationId,
-          appId: Fliplet.Env.get('appId'),
-          entries: defaultEntries[listLayout],
-          columns: defaultColumns[listLayout],
-          bundle: true,
-          definition: {
-            bundleImages: true
-          }
-        });
-      }).then(function(ds) {
-        allDataSources.push(ds);
-        _this.config.dataSourceId = ds.id;
-      }).then(function() {
-        return _this.loadData();
-      })
-        .then(function() {
-          _this.saveLists(true);
-        });
+      _this.config.defaultColumns = defaultColumns[listLayout];
+      _this.config = $.extend(true, _this.config, defaultSettings[listLayout]);
     },
     checkSortPanelLength: function() {
       if ($('#sort-accordion .panel').length) {
