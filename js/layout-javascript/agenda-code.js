@@ -663,7 +663,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('focusout', '.agenda-detail-overlay', function(event) {
       // Overlay is not open. Do nothing.
-      if (!_this.$container.find('.agenda-feed-list-container').hasClass('overlay-open')) {
+      if (!_this.isShowDetail) {
         return;
       }
 
@@ -2584,7 +2584,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
     // Define data object
     var newEntryDetail = {
-      id: entry.id,
+      id: dynamicDataObj.id,
       content: content,
       label: label,
       labelEnabled: labelEnabled,
