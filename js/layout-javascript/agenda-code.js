@@ -2419,9 +2419,9 @@ DynamicList.prototype.bindTouchEvents = function() {
       return;
     }
 
-    if ( _this.scrollValue > 0) {
+    if ( _this.scrollValue > 0 ) {
       _this.sliderGoTo( _this.activeSlideIndex + 1 );
-    } else if ( _this.scrollValue < 0) {
+    } else if ( _this.scrollValue < 0 ) {
       _this.sliderGoTo( _this.activeSlideIndex - 1 );
     }
   });
