@@ -1867,7 +1867,6 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   _this.animatingBack = true;
 
   var prevDateElementWidth = Math.floor(prevDateElement.outerWidth() * positiveDifference);
-
   var scrollValue = parseInt(_this.$container.find('.agenda-cards-wrapper').scrollLeft() - prevAgendaElement.outerWidth() * index, 10);
 
   if (!_this.isPanning) {
