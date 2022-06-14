@@ -1835,7 +1835,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   _this.animatingForward = true;
 
   var nextDateElementWidth = Math.floor(nextDateElement.outerWidth() * difference);
-  var scrollValue = nextAgendaElement.outerWidth() * index - _this.$container.find('.agenda-cards-wrapper').scrollLeft();
+  var scrollValue = parseInt(nextAgendaElement.outerWidth() * index - _this.$container.find('.agenda-cards-wrapper').scrollLeft(), 10);
 
   if (!_this.isPanning) {
     _this.scrollValue = 0;
@@ -1843,7 +1843,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
-    _this.animateAgendaForward(nextAgendaElement, parseInt(scrollValue, 10))
+    _this.animateAgendaForward(nextAgendaElement, scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
@@ -1868,7 +1868,7 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
 
   var prevDateElementWidth = Math.floor(prevDateElement.outerWidth() * positiveDifference);
 
-  var scrollValue = _this.$container.find('.agenda-cards-wrapper').scrollLeft() - prevAgendaElement.outerWidth() * index;
+  var scrollValue = parseInt(_this.$container.find('.agenda-cards-wrapper').scrollLeft() - prevAgendaElement.outerWidth() * index, 10);
 
   if (!_this.isPanning) {
     _this.scrollValue = 0;
@@ -1876,7 +1876,7 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
-    _this.animateAgendaBack(prevAgendaElement, parseInt(scrollValue, 10))
+    _this.animateAgendaBack(prevAgendaElement, scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
