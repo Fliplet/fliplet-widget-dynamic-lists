@@ -2583,7 +2583,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
     // Define data object
     var newEntryDetail = {
-      id: entry.id,
+      id: dynamicDataObj.id,
       content: content,
       label: label,
       labelEnabled: labelEnabled,
