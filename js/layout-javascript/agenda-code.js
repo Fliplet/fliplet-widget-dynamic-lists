@@ -1835,7 +1835,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   _this.animatingForward = true;
 
   var nextDateElementWidth = Math.floor(nextDateElement.outerWidth() * difference);
-  var nextAgendaElementWidth = Math.floor(nextAgendaElement.outerWidth() * difference);
+  var scrollValue = nextAgendaElement.outerWidth() * index - _this.$container.find('.agenda-cards-wrapper').scrollLeft();
 
   if (!_this.isPanning) {
     _this.scrollValue = 0;
@@ -1843,7 +1843,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
-    _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
+    _this.animateAgendaForward(nextAgendaElement, parseInt(scrollValue, 10))
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
@@ -1867,7 +1867,8 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   _this.animatingBack = true;
 
   var prevDateElementWidth = Math.floor(prevDateElement.outerWidth() * positiveDifference);
-  var prevAgendaElementWidth = Math.floor(prevAgendaElement.outerWidth() * positiveDifference);
+
+  var scrollValue = _this.$container.find('.agenda-cards-wrapper').scrollLeft() - prevAgendaElement.outerWidth() * index;
 
   if (!_this.isPanning) {
     _this.scrollValue = 0;
@@ -1875,7 +1876,7 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
-    _this.animateAgendaBack(prevAgendaElement, prevAgendaElementWidth + _this.scrollValue)
+    _this.animateAgendaBack(prevAgendaElement, parseInt(scrollValue, 10))
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
@@ -2398,7 +2399,7 @@ DynamicList.prototype.bindTouchEvents = function() {
     touchAction: 'pan-y'
   });
 
-  _this.hammer.on('panright panleft panup pandown', function(e) {
+  _this.hammer.on('panright panleft', function(e) {
     if (!_this.isPanningHorizontal(e)) {
       return;
     }
@@ -2418,9 +2419,9 @@ DynamicList.prototype.bindTouchEvents = function() {
       return;
     }
 
-    if ( _this.scrollValue > 0 ) {
+    if ( _this.scrollValue > 0) {
       _this.sliderGoTo( _this.activeSlideIndex + 1 );
-    } else if ( _this.scrollValue < 0 ) {
+    } else if ( _this.scrollValue < 0) {
       _this.sliderGoTo( _this.activeSlideIndex - 1 );
     }
   });
