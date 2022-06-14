@@ -2398,7 +2398,7 @@ DynamicList.prototype.bindTouchEvents = function() {
     touchAction: 'pan-y'
   });
 
-  _this.hammer.on('panright panleft', function(e) {
+  _this.hammer.on('panright panleft panup pandown', function(e) {
     if (!_this.isPanningHorizontal(e)) {
       return;
     }
@@ -2408,7 +2408,7 @@ DynamicList.prototype.bindTouchEvents = function() {
     _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
     _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').addClass('is-panning');
     _this.scrollValue = -1 * e.deltaX;
-    _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
+    _this.$container.find('.agenda-cards-wrapper').scrollLeft(parseInt(_this.copyOfScrollValue + _this.scrollValue, 10));
   });
 
   _this.hammer.on('panend', function(e) {
