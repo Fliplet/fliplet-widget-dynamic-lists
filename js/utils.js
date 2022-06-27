@@ -1530,7 +1530,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
     }).catch(function(error) {
       Fliplet.UI.Toast.error(error, {
-        message: 'Error loading data'
+        message: T('widgets.list.dynamic.errors.loadFailed')
       });
     });
   }

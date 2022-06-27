@@ -1494,9 +1494,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     for (var i = 0; i < numberOfPlaceholderDays; i++) {
       firstDate.subtract(1, 'days');
       calendarDates.unshift({
-        week: firstDate.format(formats.week),
-        day: firstDate.format(formats.day),
-        month: firstDate.format(formats.month),
+        week: TD(firstDate, { format: formats.week }),
+        day: TD(firstDate, { format: formats.day }),
+        month: TD(firstDate, { format: formats.month }),
         placeholder: true
       });
     }
@@ -1514,9 +1514,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
       _this.agendaDates.push(d.format('YYYY-MM-DD'));
 
       calendarDates.push({
-        week: d.format(formats.week),
-        day: d.format(formats.day),
-        month: d.format(formats.month),
+        week: TD(d, { format: formats.week }),
+        day: TD(d, { format: formats.day }),
+        month: TD(d, { format: formats.month }),
         placeholder: false
       });
     });
@@ -1528,9 +1528,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     for (i = 0; i < numberOfPlaceholderDays; i++) {
       lastDate.add(1, 'days');
       calendarDates.push({
-        week: lastDate.format(formats.week),
-        day: lastDate.format(formats.day),
-        month: lastDate.format(formats.month),
+        week: TD(lastDate, { format: formats.week }),
+        day: TD(lastDate, { format: formats.day }),
+        month: TD(lastDate, { format: formats.month }),
         placeholder: true
       });
     }
