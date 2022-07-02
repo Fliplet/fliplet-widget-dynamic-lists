@@ -1530,7 +1530,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
     }).catch(function(error) {
       Fliplet.UI.Toast.error(error, {
-        message: 'Error loading data'
+        message: T('widgets.list.dynamic.errors.loadFailed')
       });
     });
   }
@@ -3157,25 +3157,31 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
             sessionData.then(function(session) {
               var entries = session.entries;
+              var itemValue;
 
               if (session && entries) {
-                if (entries.dataSource) {
-                  item.value = entries.dataSource.data[item.fieldValue];
-                  resolve();
-                }
+                itemValue = _.get(
+                  entries,
+                  ['dataSource', 'data', item.fieldValue],
+                  _.get(
+                    entries,
+                    ['saml2', 'user', item.fieldValue],
+                    _.get(
+                      entries,
+                      ['flipletLogin', 'data', item.fieldValue]
+                    )
+                  )
+                );
 
-                if (entries.saml2) {
-                  item.value = entries.saml2.data[item.fieldValue];
+                if (typeof itemValue !== 'undefined') {
+                  item.value = itemValue;
                   resolve();
-                }
 
-                if (entries.flipletLogin) {
-                  item.value = entries.flipletLogin.data[item.fieldValue];
-                  resolve();
+                  return;
                 }
               }
 
-              if (!item.value) {
+              if (typeof itemValue === 'undefined') {
                 Fliplet.Profile.get(item.fieldValue)
                   .then(function(result) {
                     item.value = result || '';

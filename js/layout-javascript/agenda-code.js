@@ -97,7 +97,7 @@ function DynamicList(id, data) {
     })
     .catch(function(error) {
       Fliplet.UI.Toast.error(error, {
-        message: 'Error loading agenda'
+        message: T('widgets.list.dynamic.agenda.errors.loadFailed')
       });
     });
 }
@@ -189,6 +189,12 @@ DynamicList.prototype.attachObservers = function() {
   $(window).resize(function() {
     _this.centerDate();
     _this.Utils.DOM.adjustAddButtonPosition(_this);
+    _this.isResized = true;
+
+    if (_this.isShowDetail) {
+      return;
+    }
+
     _this.correctAgendaListPosition();
   });
 
@@ -393,6 +399,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
       _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
+      _this.correctAgendaListPosition();
       _this.calculateFiltersHeight(true);
 
       // Clear filters
@@ -657,7 +664,7 @@ DynamicList.prototype.attachObservers = function() {
     })
     .on('focusout', '.agenda-detail-overlay', function(event) {
       // Overlay is not open. Do nothing.
-      if (!_this.$container.find('.agenda-feed-list-container').hasClass('overlay-open')) {
+      if (!_this.isShowDetail) {
         return;
       }
 
@@ -800,8 +807,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
+          message: T('widgets.list.dynamic.notifications.noConfiguration.message')
         });
 
         return;
@@ -819,13 +826,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
+                message: T('widgets.list.dynamic.errors.addFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
+          message: T('widgets.list.dynamic.errors.addFailed')
         });
       }
     })
@@ -840,8 +847,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
+          message: T('widgets.list.dynamic.notifications.noConfiguration.message')
         });
 
         return;
@@ -861,13 +868,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
+                message: T('widgets.list.dynamic.errors.editFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
+          message: T('widgets.list.dynamic.errors.editFailed')
         });
       }
     })
@@ -879,12 +886,12 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryID = _that.parents('.agenda-item-inner-content').data('entry-id');
       var options = {
-        title: 'Are you sure you want to delete the list entry?',
+        title: T('widgets.list.dynamic.notifications.confirmDelete.title'),
         labels: [
           {
-            label: 'Delete',
+            label: T('widgets.list.dynamic.notifications.confirmDelete.label'),
             action: function() {
-              _that.text('Deleting...').addClass('disabled');
+              _that.text(T('widgets.list.dynamic.notifications.confirmDelete.progress')).addClass('disabled');
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
@@ -907,7 +914,7 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  _that.text('Delete').removeClass('disabled');
+                  _that.text(T('widgets.list.dynamic.notifications.confirmDelete.action')).removeClass('disabled');
                   _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
 
                   _this.removeListItemHTML({
@@ -916,7 +923,7 @@ DynamicList.prototype.attachObservers = function() {
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
+                    message: T('widgets.list.dynamic.errors.deleteFailed')
                   });
                 });
             }
@@ -1155,7 +1162,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (!entry) {
-    Fliplet.UI.Toast('Entry not found');
+    Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
 
     return Promise.resolve();
   }
@@ -1488,9 +1495,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     for (var i = 0; i < numberOfPlaceholderDays; i++) {
       firstDate.subtract(1, 'days');
       calendarDates.unshift({
-        week: firstDate.format(formats.week),
-        day: firstDate.format(formats.day),
-        month: firstDate.format(formats.month),
+        week: TD(firstDate, { format: formats.week }),
+        day: TD(firstDate, { format: formats.day }),
+        month: TD(firstDate, { format: formats.month }),
         placeholder: true
       });
     }
@@ -1508,9 +1515,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
       _this.agendaDates.push(d.format('YYYY-MM-DD'));
 
       calendarDates.push({
-        week: d.format(formats.week),
-        day: d.format(formats.day),
-        month: d.format(formats.month),
+        week: TD(d, { format: formats.week }),
+        day: TD(d, { format: formats.day }),
+        month: TD(d, { format: formats.month }),
         placeholder: false
       });
     });
@@ -1522,9 +1529,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     for (i = 0; i < numberOfPlaceholderDays; i++) {
       lastDate.add(1, 'days');
       calendarDates.push({
-        week: lastDate.format(formats.week),
-        day: lastDate.format(formats.day),
-        month: lastDate.format(formats.month),
+        week: TD(lastDate, { format: formats.week }),
+        day: TD(lastDate, { format: formats.day }),
+        month: TD(lastDate, { format: formats.month }),
         placeholder: true
       });
     }
@@ -1730,14 +1737,14 @@ DynamicList.prototype.animateDateForward = function($nextDateElement, nextDateEl
 };
 
 // animates cards forward
-DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth, animationSpeed) {
+DynamicList.prototype.animateAgendaForward = function(nextAgendaElement, nextAgendaElementWidth) {
   var _this = this;
 
   return new Promise(function(resolve) {
     _this.$container.find('.agenda-cards-wrapper').animate({
       scrollLeft: '+=' + nextAgendaElementWidth
     },
-    typeof animationSpeed === 'number' ? animationSpeed : _this.ANIMATION_SPEED,
+    _this.ANIMATION_SPEED,
     'swing',  // animation easing
     function() {
       _this.$container.find('.agenda-list-day-holder.active').removeClass('active');
@@ -1780,16 +1787,16 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
 };
 
 DynamicList.prototype.correctAgendaListPosition = function() {
-  var windowWidth = window.innerWidth;
-  var dateIndex = parseInt(Fliplet.Navigate.query.dateIndex, 10);
-  var difference = dateIndex - this.activeSlideIndex;
   var currentAgendaElement = this.$container.find('.agenda-list-day-holder.active');
-  var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth() * difference);
+  var currentAgendaElementIndex = this.$container.find('.agenda-list-day-holder').index(currentAgendaElement);
+  var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth());
+  var indexOfActiveDate = this.$container.find('.agenda-date-selector li').not('.placeholder').index(this.$container.find('.agenda-date-selector li.active'));
+  var activeDateElementWidth = this.$container.find('.agenda-date-selector li.active').outerWidth();
 
-  this.scrollValue = $('.agenda-cards-wrapper').eq(0).scrollLeft();
-  this.copyOfScrollValue = this.scrollValue;
-  this.animateAgendaForward(currentAgendaElement, currentAgendaElementWidth * dateIndex - this.scrollValue, 0);
-  this.windowWidth = windowWidth;
+  this.$container.find('.agenda-cards-wrapper').scrollLeft(currentAgendaElementWidth * currentAgendaElementIndex);
+  this.$container.find('.agenda-date-selector ul').scrollLeft(Math.floor(activeDateElementWidth * (indexOfActiveDate + 1)));
+  this.windowWidth = window.innerWidth;
+  this.isResized = false;
 };
 
 // animate cards back
@@ -2577,7 +2584,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
     // Define data object
     var newEntryDetail = {
-      id: entry.id,
+      id: dynamicDataObj.id,
       content: content,
       label: label,
       labelEnabled: labelEnabled,
@@ -2612,6 +2619,8 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 };
 
 DynamicList.prototype.showDetails = function(id, listData) {
+  this.isShowDetail = true;
+
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
   var entryData = _.find(listData, { id: id }) || _(_this.getAgendasByDay())
@@ -2720,6 +2729,8 @@ DynamicList.prototype.closeDetails = function(options) {
     return Fliplet.Navigate.back();
   }
 
+  this.isShowDetail = false;
+
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
@@ -2752,5 +2763,8 @@ DynamicList.prototype.closeDetails = function(options) {
       _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
     }
   }, 300);
-  this.correctAgendaListPosition();
+
+  if (this.isResized) {
+    this.correctAgendaListPosition();
+  }
 };
