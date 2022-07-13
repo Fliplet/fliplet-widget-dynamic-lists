@@ -1,43 +1,45 @@
 \{{#each this}}
-  <div class="agenda-list-day-holder"  role="listitem">
-    <div id="contentArea-\{{@index}}" class="agenda-list-card-holder">
-      \{{#each this}}
-      <div class="agenda-list-item focus-outline" tabindex="0" data-entry-id="\{{id}}">
-        <div class="agenda-list-item-content">
-          <div class="container-fluid slide-over session-container">
-            <div class="agenda-item-inner-content clearfix">
-              <div class="agenda-item-info-holder">
-                <div class="agenda-item-time">\{{[Start Time]}}</div>
-                \{{#ifCond [Start Time] '&&' [End Time]}}
-                <div class="agenda-item-time line">|</div>
-                \{{/ifCond}}
-                <div class="agenda-item-time">\{{[End Time]}}</div>
-              </div>
-              <div class="agenda-item-content-holder">
-                \{{#if [Title]}}
-                <h2 class="agenda-item-title">\{{[Title]}}</h2>
+<div class="agenda-list-day-holder" role="listitem">
+  <div id="contentArea-\{{@index}}" class="agenda-list-card-holder">
+    \{{#each this}}
+    <div class="agenda-list-item focus-outline" tabindex="0" data-entry-id="\{{id}}">
+      <div class="agenda-list-item-content">
+        <div class="container-fluid slide-over session-container">
+          <div class="agenda-item-inner-content clearfix">
+            <div class="agenda-item-info-holder">
+              <div class="agenda-item-time">\{{[Start Time]}}</div>
+              \{{#ifCond [Start Time] '&&' [End Time]}}
+              <div class="agenda-item-time line">|</div>
+              \{{/ifCond}}
+              <div class="agenda-item-time">\{{[End Time]}}</div>
+            </div>
+            <div class="agenda-item-content-holder">
+              \{{#if [Title]}}
+              <h2 class="agenda-item-title">\{{[Title]}}</h2>
+              \{{/if}}
+              <div class="agenda-item-session-location">
+                \{{#if [Location]}}
+                <p class="agenda-item-location">\{{[Location]}}</p>
                 \{{/if}}
-                <div class="agenda-item-session-location">
-                  \{{#if [Location]}}
-                  <p class="agenda-item-location">\{{[Location]}}</p>
-                  \{{/if}}
-                  <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&' [End Time]}} - \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} / \{{/if}}\{{[Full Date]}}</p>
-                </div>
+                <p class="agenda-item-start-date-time">\{{[Start Time]}}\{{#ifCond [Start Time] '&&'
+                  [End Time]}} -
+                  \{{/ifCond}}\{{[End Time]}}\{{#if [Full Date]}} /
+                  \{{/if}}\{{[Full Date]}}</p>
+              </div>
 
-                <div class="agenda-item-bookmark">
-                  <div class="agenda-item-bookmark-holder agenda-item-bookmark-holder-\{{id}}">
-                    <!-- Bookmark button will be here -->
-                    <div class="agenda-item-add-agenda"></div>
-                  </div>
+              <div class="agenda-item-bookmark">
+                <div class="agenda-item-bookmark-holder agenda-item-bookmark-holder-\{{id}}">
+                  <!-- Bookmark button will be here -->
+                  <div class="agenda-item-add-agenda"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      \{{/each}}
     </div>
-    <div class="agenda-item-empty-state">{{T "widgets.list.dynamic.agenda.bookmarksNoResults"}}</div>
+    \{{/each}}
   </div>
-  \{{/each}}
-  
+  <div class="agenda-item-empty-state">\{{ T "widgets.list.dynamic.agenda.bookmarksNoResults"}}</div>
+</div>
+\{{/each}}
