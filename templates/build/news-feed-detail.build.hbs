@@ -1,14 +1,18 @@
 <div class="news-feed-details-content-holder" data-entry-id="\{{id}}">
   \{{#if [Image]}}
   <div class="news-feed-list-detail-image-wrapper">
-    <img src="\{{validateImage [Image]}}">
+    <img src="\{{validateImage [Image]}}" />
   </div>
   \{{/if}}
   <div class="news-feed-list-detail-content-scroll-wrapper">
     <div class="news-feed-item-inner-content">
-      <div class="news-feed-info-holder \{{#ifCond [Date] '||' [Categories]}}has-date-category\{{/ifCond}}">
+      <div
+        class="news-feed-info-holder \{{#ifCond [Date] '||' [Categories]}}has-date-category\{{/ifCond}}"
+      >
         \{{#ifCond [Date] '||' [Categories]}}
-        <div class="news-feed-date-category">\{{[Date]}} \{{#ifCond [Date] '&&' [Categories]}}/\{{/ifCond}} \{{[Categories]}}</div>
+        <div class="news-feed-date-category">\{{[Date]}}
+          \{{#ifCond [Date] '&&' [Categories]}}/\{{/ifCond}}
+          \{{[Categories]}}</div>
         \{{/ifCond}}
         \{{#if likesEnabled}}
         <div class="news-feed-like-holder news-feed-like-holder-\{{id}}">
@@ -33,7 +37,10 @@
         \{{/if}}
 
         \{{#if commentsEnabled}}
-        <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}} focus-outline" tabindex="0">
+        <div
+          class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}} focus-outline"
+          tabindex="0"
+        >
           <!-- Like button will be here -->
           <!-- Like placeholder -->
           <i class="fa fa-comment-o fa-lg comment-placeholder"></i>
@@ -50,152 +57,162 @@
       \{{/if}}
       <div class="news-feed-details-holder">
         \{{#each entryDetails}}
-          <!-- Image template -->
-          \{{#ifCond type '==' 'image'}}
-            \{{#if content}}
-              <div data-detail-entry-id="\{{id}}">
-                \{{#if labelEnabled}}
-                  <div class="news-feed-detail-label">\{{label}}</div>
-                \{{/if}}
-                \{{#if (isSingle contentArray)}}
-                  <div class="news-feed-list-detail-body-text single-image-holder">
-                    <img src="\{{validateImage content}}">
-                  </div>
-                \{{else}}
-                  <div class="multiple-images-holder" >
-                    \{{#each contentArray}}
-                      <div class="multiple-images-item">
-                        <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
-                      </div>
-                    \{{/each}}
-                  </div>
-                \{{/if}}
-              </div>
-            \{{/if}}
-          \{{/ifCond}}
+        <!-- Image template -->
+        \{{#ifCond type '==' 'image'}}
+        \{{#if content}}
+        <div data-detail-entry-id="\{{id}}">
+          \{{#if labelEnabled}}
+          <div class="news-feed-detail-label">\{{label}}</div>
+          \{{/if}}
+          \{{#if (isSingle contentArray)}}
+          <div class="news-feed-list-detail-body-text single-image-holder">
+            <img src="\{{validateImage content}}" />
+          </div>
+          \{{else}}
+          <div class="multiple-images-holder">
+            \{{#each contentArray}}
+            <div class="multiple-images-item">
+              <div class="image" style="background-image: url('\{{validateImage this}}')"></div>
+            </div>
+            \{{/each}}
+          </div>
+          \{{/if}}
+        </div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- Plain text template -->
-          \{{#ifCond type '==' 'text'}}
-            \{{#if content}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+        <!-- Plain text template -->
+        \{{#ifCond type '==' 'text'}}
+        \{{#if content}}
+        \{{#if labelEnabled}}
+        <div class="news-feed-detail-label">\{{label}}</div>
+        \{{/if}}
 
-              <div class="news-feed-detail-value">\{{content}}</div>
-            \{{/if}}
-          \{{/ifCond}}
+        <div class="news-feed-detail-value">\{{content}}</div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- HTML template -->
-          \{{#ifCond type '==' 'html'}}
-            \{{#if content}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+        <!-- HTML template -->
+        \{{#ifCond type '==' 'html'}}
+        \{{#if content}}
+        \{{#if labelEnabled}}
+        <div class="news-feed-detail-label">\{{label}}</div>
+        \{{/if}}
 
-              <div class="news-feed-detail-value">\{{{auth content}}}</div>
-            \{{/if}}
-          \{{/ifCond}}
+        <div class="news-feed-detail-value">\{{{auth content}}}</div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- URL template -->
-          \{{#ifCond type '==' 'url'}}
-            \{{#if content}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+        <!-- URL template -->
+        \{{#ifCond type '==' 'url'}}
+        \{{#if content}}
+        \{{#if labelEnabled}}
+        <div class="news-feed-detail-label">\{{label}}</div>
+        \{{/if}}
 
-              <div class="news-feed-detail-value">
-                <a href="\{{{auth content}}}" target="_blank">{{ T "widgets.list.dynamic.detail.linkText" }}</a>
-              </div>
-            \{{/if}}
-          \{{/ifCond}}
+        <div class="news-feed-detail-value">
+          <a href="\{{{auth content}}}" target="_blank">\{{ T "widgets.list.dynamic.detail.linkText"
+            }}</a>
+        </div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- Telephone template -->
-          \{{#ifCond type '==' 'tel'}}
-            \{{#if content}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+        <!-- Telephone template -->
+        \{{#ifCond type '==' 'tel'}}
+        \{{#if content}}
+        \{{#if labelEnabled}}
+        <div class="news-feed-detail-label">\{{label}}</div>
+        \{{/if}}
 
-              <div class="news-feed-detail-value">
-                <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
-              </div>
-            \{{/if}}
-          \{{/ifCond}}
+        <div class="news-feed-detail-value">
+          <a href="tel:\{{removeSpaces content}}" target="_blank">\{{content}}</a>
+        </div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- Email template -->
-          \{{#ifCond type '==' 'mail'}}
-            \{{#if content}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+        <!-- Email template -->
+        \{{#ifCond type '==' 'mail'}}
+        \{{#if content}}
+        \{{#if labelEnabled}}
+        <div class="news-feed-detail-label">\{{label}}</div>
+        \{{/if}}
 
-              <div class="news-feed-detail-value">
-                <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
-              </div>
-            \{{/if}}
-          \{{/ifCond}}
+        <div class="news-feed-detail-value">
+          <a href="mailto:\{{content}}" target="_blank">\{{content}}</a>
+        </div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- Number template -->
-          \{{#ifCond type '==' 'number'}}
-            \{{#if content includeZero=true}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+        <!-- Number template -->
+        \{{#ifCond type '==' 'number'}}
+        \{{#if content includeZero=true}}
+        \{{#if labelEnabled}}
+        <div class="news-feed-detail-label">\{{label}}</div>
+        \{{/if}}
 
-              <div class="news-feed-detail-value">\{{TN content forceNumber=false}}</div>
-            \{{/if}}
-          \{{/ifCond}}
+        <div class="news-feed-detail-value">\{{TN content forceNumber=false}}</div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- Date template -->
-          \{{#ifCond type '==' 'date'}}
-            \{{#if content}}
-              \{{#if labelEnabled}}
-              <div class="news-feed-detail-label">\{{label}}</div>
-              \{{/if}}
+        <!-- Date template -->
+        \{{#ifCond type '==' 'date'}}
+        \{{#if content}}
+        \{{#if labelEnabled}}
+        <div class="news-feed-detail-label">\{{label}}</div>
+        \{{/if}}
 
-              <div class="news-feed-detail-value">\{{formatDate content}}</div>
-            \{{/if}}
-          \{{/ifCond}}
+        <div class="news-feed-detail-value">\{{formatDate content}}</div>
+        \{{/if}}
+        \{{/ifCond}}
 
-          <!-- File template -->
-          \{{#ifCond type '==' 'file'}}
-            \{{#if content}}
-              <ul class="file-holder">
-                \{{#if labelEnabled}}
-                  <div class="news-feed-detail-label">\{{label}}</div>
-                \{{/if}}
-                \{{#each content}}
-                  <li class="file-item">
-                    <div class="file-title">\{{this.name}}</div>
-                    <div class="file-info">
-                      <span class="file-info-uploaded">{{ T "widgets.list.dynamic.detail.uploaded" }}: \{{formatDate this.uploaded}}</span>
-                      \{{#if this.size}}<span class="file-info-size">&ndash; \{{humanFileSize this.size}}</span>\{{/if}}
-                    </div>
-                    <input type="hidden" value=\{{this.url}}>
-                    <div class="file-icon">
-                      <i class="fa fa-angle-right"></i>
-                    </div>
-                  </li>
-                \{{/each}}
-              </ul>
-            \{{/if}}
-          \{{/ifCond}}
+        <!-- File template -->
+        \{{#ifCond type '==' 'file'}}
+        \{{#if content}}
+        <ul class="file-holder">
+          \{{#if labelEnabled}}
+          <div class="news-feed-detail-label">\{{label}}</div>
+          \{{/if}}
+          \{{#each content}}
+          <li class="file-item">
+            <div class="file-title">\{{this.name}}</div>
+            <div class="file-info">
+              <span class="file-info-uploaded">\{{ T "widgets.list.dynamic.detail.uploaded" }}:
+                \{{formatDate this.uploaded}}</span>
+              \{{#if this.size}}<span class="file-info-size">&ndash;
+                \{{humanFileSize this.size}}</span>\{{/if}}
+            </div>
+            <input type="hidden" value="\{{this.url}}" />
+            <div class="file-icon">
+              <i class="fa fa-angle-right"></i>
+            </div>
+          </li>
+          \{{/each}}
+        </ul>
+        \{{/if}}
+        \{{/ifCond}}
 
         \{{/each}}
       </div>
-      <div class="news-feed-inner-holder \{{#ifCond editEntry '||' deleteEntry}}has-edit-controls\{{/ifCond}}">
+      <div
+        class="news-feed-inner-holder \{{#ifCond editEntry '||' deleteEntry}}has-edit-controls\{{/ifCond}}"
+      >
         \{{#ifCond editEntry '||' deleteEntry}}
         <div class="dynamic-list-controls">
           \{{#if editEntry}}
-          <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">{{ T "widgets.list.dynamic.detail.edit" }}</div>
+          <div class="btn btn-default dynamic-list-edit-item focus-outline" tabindex="0">\{{T
+            "widgets.list.dynamic.detail.edit" }}</div>
           \{{/if}}
           \{{#if deleteEntry}}
-          <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">{{ T "widgets.list.dynamic.detail.delete" }}</div>
+          <div class="btn btn-danger dynamic-list-delete-item focus-outline" tabindex="0">\{{T
+            "widgets.list.dynamic.detail.delete" }}</div>
           \{{/if}}
         </div>
         \{{/ifCond}}
         \{{#if commentsEnabled}}
-        <div class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}} focus-outline" tabindex="0">
+        <div
+          class="news-feed-comment-holder news-feed-comemnt-holder-\{{id}} focus-outline"
+          tabindex="0"
+        >
           <!-- Like button will be here -->
           <!-- Like placeholder -->
           <i class="fa fa-comment-o fa-lg comment-placeholder"></i>

@@ -1,9 +1,10 @@
 <div class="new-small-h-card-list-container">
   <div class="small-h-card-list-wrapper" id="small-h-card-list-wrapper-\{{id}}" role="list">
-      <!-- List items will appear here -->
+    <!-- List items will appear here -->
   </div>
   <div class="loading-data">
-    <i class="fa fa-circle-o-notch fa-spin"></i> {{ T "widgets.list.dynamic.loading" }}
+    <i class="fa fa-circle-o-notch fa-spin"></i>
+    \{{ T "widgets.list.dynamic.loading" }}
   </div>
   <div class="no-results-holder">
     No matches found
@@ -14,8 +15,11 @@
 <div class="small-h-card-detail-overlay" id="small-h-card-detail-overlay-\{{id}}">
   <div class="small-h-card-detail-overlay-wrapper">
     <div class="small-h-card-detail-overlay-panel">
-      <div class="small-h-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline" tabindex="0">
-        <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
+      <div
+        class="small-h-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline"
+        tabindex="0"
+      >
+        <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon" />
       </div>
       <div class="small-h-card-detail-overlay-content">
         <div class="small-h-card-detail-overlay-content-holder">
@@ -23,11 +27,16 @@
         </div>
       </div>
     </div>
-    <div class="small-h-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline" tabindex="0">
-      <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon">
+    <div
+      class="small-h-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline"
+      tabindex="0"
+    >
+      <img src="\{{closeIcon.black.url}}" alt="close icon" class="close-icon" />
     </div>
   </div>
-  <div class="small-h-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
+  <div
+    class="small-h-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"
+  ></div>
 </div>
 
 \{{#if showAddEntry}}
