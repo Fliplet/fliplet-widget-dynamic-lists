@@ -1,31 +1,32 @@
 \{{#if filtersInOverlay}}
-  <div class="panel-group filter-overlay">
-    \{{#each filters}}
-      <div class="panel panel-default agenda-filters-panel focus-outline" tabindex="0">
-        <div class="panel-heading" data-toggle="collapse" data-target="#collapse-\{{id}}-\{{@index}}">
-          <h4 class="panel-title">
-            <span class="panel-title-text">
-              \{{[name]}}
-            </span>
-            <span class="active-filter-count"></span>
-            <span class="fa fa-angle-down"></span>
-          </h4>
-        </div>
-        <div id="collapse-\{{id}}-\{{@index}}" class="panel-collapse collapse">
-          <div class="panel-body">
-            \{{> filter this}}
-          </div>
-        </div>
-      </div>
-    \{{/each}}
-  </div>
-\{{else}}
+<div class="panel-group filter-overlay">
   \{{#each filters}}
-  <div class="hidden-filter-controls-label">{{T "widgets.list.dynamic.filter.filterBy"}} <span>\{{[name]}}</span></div>
-  <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
-    <div class="hidden-filter-controls-filter-wrapper" data-type="\{{type}}">
-      \{{> filter this}}
+  <div class="panel panel-default agenda-filters-panel focus-outline" tabindex="0">
+    <div class="panel-heading" data-toggle="collapse" data-target="#collapse-\{{id}}-\{{@index}}">
+      <h4 class="panel-title">
+        <span class="panel-title-text">
+          \{{[name]}}
+        </span>
+        <span class="active-filter-count"></span>
+        <span class="fa fa-angle-down"></span>
+      </h4>
+    </div>
+    <div id="collapse-\{{id}}-\{{@index}}" class="panel-collapse collapse">
+      <div class="panel-body">
+        \{{> filter this}}
+      </div>
     </div>
   </div>
   \{{/each}}
+</div>
+\{{else}}
+\{{#each filters}}
+<div class="hidden-filter-controls-label">\{{ T "widgets.list.dynamic.filter.filterBy"}}
+  <span>\{{[name]}}</span></div>
+<div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
+  <div class="hidden-filter-controls-filter-wrapper" data-type="\{{type}}">
+    \{{> filter this}}
+  </div>
+</div>
+\{{/each}}
 \{{/if}}
