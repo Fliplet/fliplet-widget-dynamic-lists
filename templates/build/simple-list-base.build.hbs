@@ -167,7 +167,7 @@
     \{{/ifCond}}
     \{{#ifCond limitEntries '>' 0}}
     <p>
-      "widgets.list.dynamic.search.limitItems" limit=limitEntries }}
+      \{{ T "widgets.list.dynamic.search.limitItems" limit=limitEntries }}
       \{{#ifCond searchEnabled '||' filtersEnabled}}
       \{{#if searchEnabled}}
       \{{ T "widgets.list.dynamic.search.title"}}\{{/if}}
