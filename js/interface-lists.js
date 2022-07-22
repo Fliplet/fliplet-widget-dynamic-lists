@@ -774,4 +774,4 @@ function save(notifyComplete) {
   });
 }
 
-initialize();
+Fliplet().then(initialize);

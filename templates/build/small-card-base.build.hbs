@@ -10,15 +10,17 @@
         </div>
         <div class="filter-header-holder">
           <div class="filter-header-btn-controls">
-            <div class="btn clear-filters hidden focus-outline" tabindex="0">Clear</div>
-            <div class="btn apply-filters focus-outline" tabindex="0">Apply</div>
+            <div class="btn clear-filters hidden focus-outline" tabindex="0">\{{ T
+              "widgets.list.dynamic.filter.clear" }}</div>
+            <div class="btn apply-filters focus-outline" tabindex="0">\{{ T
+              "widgets.list.dynamic.filter.apply" }}</div>
           </div>
         </div>
       </div>
       <div class="small-card-overlay-content">
         <div class="hidden-filter-controls">
           <div class="hidden-filter-controls-content">
-            <div class="filters-header">Filter by</div>
+            <div class="filters-header">\{{ T "widgets.list.dynamic.filter.filterBy"}}</div>
             <div class="filter-holder">
               <!-- Filters here -->
             </div>
@@ -45,14 +47,28 @@
     \{{#if searchEnabled}}
     <div class="search-holder">
       <i class="fa fa-search"></i>
-      <input type="search" name="search-feed" class="form-control search-feed focus-outline" tabindex="0" placeholder="Search..." required >
-      <div class="btn btn-default search-btn">Search</div>
-      <div class="btn btn-default search-btn searching-btn"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
+      <input
+        type="search"
+        name="search-feed"
+        class="form-control search-feed focus-outline"
+        tabindex="0"
+        placeholder="\{{ T 'widgets.list.dynamic.search.placeholder'}}"
+        required
+      />
+      <div class="btn btn-default search-btn">\{{ T "widgets.list.dynamic.search.action"}}</div>
+      <div class="btn btn-default search-btn searching-btn"><i
+          class="fa fa-spinner fa-pulse fa-fw"
+        ></i></div>
     </div>
     \{{/if}}
     <div class="list-search-icon">
       \{{#if bookmarksEnabled}}
-      <div class="toggle-bookmarks focus-outline" tabindex="0" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
+      <div
+        class="toggle-bookmarks focus-outline"
+        tabindex="0"
+        data-mixitup-control="\{{id}}"
+        data-toggle=".bookmarked"
+      >
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
@@ -61,14 +77,30 @@
         <span class="fa fa-times"></span>
       </div>
       \{{#if filtersEnabled}}
-      <i class="fa fa-sliders focus-outline" tabindex="0" ></i>
+      <i class="fa fa-sliders focus-outline" tabindex="0"></i>
       \{{/if}}
       \{{#if sortEnabled}}
       <div class="sort-group btn-group">
-        <i class="fa fa-sort-amount-desc focus-outline" tabindex="0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
+        <i
+          class="fa fa-sort-amount-desc focus-outline"
+          tabindex="0"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-hidden="true"
+        ></i>
         <ul class="dropdown-menu list-sort">
           \{{#each sortFields}}
-            <li data-sort-order="none" data-sort-field="\{{ this }}"><span>\{{ this }} \{{#if this}}<i class="fa fa-sort focus-outline" tabindex="0" aria-hidden="true"></i><i class="fa fa-sort-asc focus-outline" tabindex="0" aria-hidden="true"></i><i class="fa fa-sort-desc focus-outline" tabindex="0" aria-hidden="true"></i>\{{/if}}</span></li>
+          <li data-sort-order="none" data-sort-field="\{{ this }}"><span>\{{ this }}
+              \{{#if this}}<i
+                class="fa fa-sort focus-outline"
+                tabindex="0"
+                aria-hidden="true"
+              ></i><i class="fa fa-sort-asc focus-outline" tabindex="0" aria-hidden="true"></i><i
+                class="fa fa-sort-desc focus-outline"
+                tabindex="0"
+                aria-hidden="true"
+              ></i>\{{/if}}</span></li>
           \{{/each}}
         </ul>
       </div>
@@ -84,7 +116,11 @@
       <div class="hidden-filter-controls-search">
         <div class="search-query-holder">
           <div class="search-query">
-          Searching for <span class="current-query-wrapper"><span class="current-query"></span><span class="clear-search focus-outline" tabindex="0"><i class="fa fa-times"></i></span></span>
+            \{{ T "widgets.list.dynamic.search.searchingFor"}}
+            <span class="current-query-wrapper"><span class="current-query"></span><span
+                class="clear-search focus-outline"
+                tabindex="0"
+              ><i class="fa fa-times"></i></span></span>
           </div>
         </div>
       </div>
@@ -92,7 +128,7 @@
   </div>
   \{{/if}}
   <div class="active-filters hidden">
-    <div class="hidden-filter-controls-label">Filters applied</div>
+    <div class="hidden-filter-controls-label">\{{ T "widgets.list.dynamic.filter.applied"}}</div>
     <div class="hidden-filter-controls-filter-container hidden" touch-action="pan-x pan-y">
       <div class="hidden-filter-controls-filter-wrapper">
         <fieldset data-filter-active-group>
@@ -104,11 +140,11 @@
   <div class="hidden-filter-controls">
     <div class="hidden-filter-controls-content">
       \{{#unless filtersInOverlay}}
-        \{{#if filtersEnabled}}
-        <div class="filter-holder inline-filter-holder">
-          <!-- Filters here -->
-        </div>
-        \{{/if}}
+      \{{#if filtersEnabled}}
+      <div class="filter-holder inline-filter-holder">
+        <!-- Filters here -->
+      </div>
+      \{{/if}}
       \{{/unless}}
     </div>
   </div>
@@ -116,30 +152,48 @@
   <!-- End of Inline Search and Filters -->
 
   <div class="small-card-list-wrapper" id="small-card-list-wrapper-\{{id}}">
-      <!-- List items will appear here -->
+    <!-- List items will appear here -->
   </div>
 
   \{{#if enabledLimitEntries}}
   <div class="limit-entries-text">
     \{{#ifCond limitEntries '==' 0}}
-      \{{#ifCond searchEnabled '||' filtersEnabled}}
-      <p>\{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see the list items</p>
+    \{{#ifCond searchEnabled '||' filtersEnabled}}
+    <p>
+      \{{#if searchEnabled}}\{{ T "widgets.list.dynamic.search.title"}}\{{/if}}
+      \{{#ifCond searchEnabled '&&' filtersEnabled}}
+      \{{ T "widgets.list.dynamic.search.andOr"}}
       \{{/ifCond}}
+      \{{#if filtersEnabled}}\{{ T "widgets.list.dynamic.filter.title"}}\{{/if}}
+      \{{ T "widgets.list.dynamic.search.toSeeItems"}}
+    </p>
+    \{{/ifCond}}
     \{{/ifCond}}
     \{{#ifCond limitEntries '>' 0}}
-    <p>Showing the first \{{limitEntries}} list items.\{{#ifCond searchEnabled '||' filtersEnabled}} \{{#if searchEnabled}}Search\{{/if}}\{{#ifCond searchEnabled '&&' filtersEnabled}} and/or \{{/ifCond}}\{{#if filtersEnabled}}Filter\{{/if}} to see more.\{{/ifCond}}</p>
+    <p>
+      \{{ T "widgets.list.dynamic.search.limitItems" limit=limitEntries}}
+      \{{#ifCond searchEnabled '||' filtersEnabled}}
+      \{{#if searchEnabled}}
+      \{{ T "widgets.list.dynamic.search.title"}}\{{/if}}
+      \{{#ifCond searchEnabled '&&' filtersEnabled}}
+      \{{ T "widgets.list.dynamic.search.andOr"}}
+      \{{/ifCond}}
+      \{{#if filtersEnabled}}\{{ T "widgets.list.dynamic.filter.title"}}\{{/if}}
+      \{{ T "widgets.list.dynamic.search.toSeeMore"}}\{{/ifCond}}
+    </p>
     \{{/ifCond}}
   </div>
   \{{/if}}
 
   <div class="loading-data">
-    <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+    <i class="fa fa-circle-o-notch fa-spin"></i>
+    \{{ T "widgets.list.dynamic.loading"}}
   </div>
   <div class="no-results-holder">
-    No matches found
+    \{{ T "widgets.list.dynamic.search.noMatches"}}
   </div>
   <div class="no-bookmarks-holder">
-    Nothing bookmarked
+    \{{ T "widgets.list.dynamic.search.noBookmarked"}}
   </div>
 </div>
 
@@ -147,8 +201,11 @@
 <div class="small-card-detail-overlay" id="small-card-detail-overlay-\{{id}}">
   <div class="small-card-detail-overlay-wrapper">
     <div class="small-card-detail-overlay-panel">
-      <div class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline" tabindex="0">
-        <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon">
+      <div
+        class="small-card-detail-overlay-close \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline"
+        tabindex="0"
+      >
+        <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon" />
       </div>
       <div class="small-card-detail-overlay-content">
         <div class="small-card-detail-overlay-content-holder">
@@ -156,11 +213,16 @@
         </div>
       </div>
     </div>
-    <div class="small-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline" tabindex="0">
-      <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon">
+    <div
+      class="small-card-detail-overlay-close tablet \{{#if previousScreen}}go-previous-screen\{{/if}} focus-outline"
+      tabindex="0"
+    >
+      <img src="\{{closeIcon.black.url}}" class="close-icon" alt="close icon" />
     </div>
   </div>
-  <div class="small-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"></div>
+  <div
+    class="small-card-detail-overlay-screen \{{#if previousScreen}}go-previous-screen\{{/if}}"
+  ></div>
 </div>
 
 \{{#if showAddEntry}}

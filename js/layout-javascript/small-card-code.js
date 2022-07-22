@@ -19,6 +19,7 @@ function DynamicList(id, data) {
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
   this.data.forceRenderList = false;
+  this.data.apiFiltersAvailable = true;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
 
   // Other variables
@@ -425,6 +426,23 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
+    .on('focusout', '.small-card-detail-overlay', function(event) {
+      // Overlay is not open. Do nothing.
+      if (!_this.$container.find('.new-small-card-list-container').hasClass('overlay-open')) {
+        return;
+      }
+
+      var focusTarget = event.relatedTarget || event.target;
+      var focusingOnDetails = _this.$detailsContent.get(0).contains(focusTarget);
+
+      // Focus is moved to valid element. Do nothing.
+      if (focusingOnDetails) {
+        return;
+      }
+
+      // Move focus back to close button
+      $(_this.$closeButton).focus();
+    })
     .on('click keydown', '.small-card-detail-overlay-close, .small-card-detail-overlay-screen', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
@@ -433,12 +451,9 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
 
       var result;
-
-      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
-
       var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
-      _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"]').focus();
+      _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -468,16 +483,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
 
-      if ($(window).width() < 640) {
-        if (typeof _this.directoryDetailWrapper === 'undefined') {
-          _this.directoryDetailWrapper = _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"] .small-card-list-detail-wrapper');
-        }
-
-        _this.collapseElement(_this.directoryDetailWrapper);
-        _this.directoryDetailWrapper = undefined;
-      } else {
-        _this.closeDetails();
-      }
+      _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
 
       Fliplet.Page.Context.remove('dynamicListOpenId');
     })
@@ -688,8 +694,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
+          message: T('widgets.list.dynamic.notifications.noConfiguration.message')
         });
 
         return;
@@ -707,13 +713,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
+                message: T('widgets.list.dynamic.errors.addFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
+          message: T('widgets.list.dynamic.errors.addFailed')
         });
       }
     })
@@ -728,8 +734,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
+          message: T('widgets.list.dynamic.notifications.noConfiguration.message')
         });
 
         return;
@@ -749,13 +755,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
+                message: T('widgets.list.dynamic.errors.editFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
+          message: T('widgets.list.dynamic.errors.editFailed')
         });
       }
     })
@@ -767,12 +773,12 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryID = $(this).parents('.small-card-detail-overlay').find('.small-card-list-detail-content-scroll-wrapper').data('entry-id');
       var options = {
-        title: 'Are you sure you want to delete the list entry?',
+        title: T('widgets.list.dynamic.notifications.confirmDelete.title'),
         labels: [
           {
-            label: 'Delete',
+            label: T('widgets.list.dynamic.notifications.confirmDelete.label'),
             action: function() {
-              _that.text('Deleting...').addClass('disabled');
+              _that.text(T('widgets.list.dynamic.notifications.confirmDelete.progress')).addClass('disabled');
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
@@ -795,14 +801,9 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  _that.text('Delete').removeClass('disabled');
+                  _that.text(T('widgets.list.dynamic.notifications.confirmDelete.action')).removeClass('disabled');
 
-                  if ($(window).width() < 640) {
-                    _this.collapseElement(_this.directoryDetailWrapper);
-                    _this.directoryDetailWrapper = undefined;
-                  } else {
-                    _this.closeDetails();
-                  }
+                  _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
 
                   _this.removeListItemHTML({
                     id: entryId
@@ -810,7 +811,7 @@ DynamicList.prototype.attachObservers = function() {
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
+                    message: T('widgets.list.dynamic.errors.deleteFailed')
                   });
                 });
             }
@@ -923,7 +924,19 @@ DynamicList.prototype.initialize = function() {
       // Determine filter types from configuration
       _this.filterTypes = _this.Utils.getFilterTypes({ instance: _this });
 
-      return _this.connectToDataSource();
+      return _this.Utils.Records.setFilterValues({
+        config: _this.data
+      });
+    })
+    .then(function() {
+      return _this.Utils.Records.loadData({
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        $container: _this.$container,
+        filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+      });
     })
     .then(function(records) {
       _this.Utils.Records.addComputedFields({
@@ -939,10 +952,6 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
-      }).then(function() {
-        return _this.Utils.Records.setFilterValues({
-          config: _this.data
-        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
@@ -1034,7 +1043,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (!entry) {
-    Fliplet.UI.Toast('Entry not found');
+    Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
 
     return Promise.resolve();
   }
@@ -1181,62 +1190,6 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       return;
     });
-};
-
-DynamicList.prototype.connectToDataSource = function() {
-  var _this = this;
-  var cache = { offline: true };
-
-  function getData(options) {
-    if (_this.data.defaultData && !_this.data.dataSourceId) {
-      return Promise.resolve(_this.data.defaultEntries);
-    }
-
-    options = options || cache;
-
-    return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
-      .then(function(connection) {
-        // If you want to do specific queries to return your rows
-        // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        var query = {};
-
-        if (typeof _this.data.dataQuery === 'function') {
-          query = _this.data.dataQuery({
-            config: _this.data,
-            id: _this.data.id,
-            uuid: _this.data.uuid,
-            container: _this.$container
-          });
-        } else if (typeof _this.data.dataQuery === 'object') {
-          query = _this.data.dataQuery;
-        }
-
-        return connection.find(query);
-      });
-  }
-
-  return Fliplet.Hooks.run('flListDataBeforeGetData', {
-    instance: _this,
-    config: _this.data,
-    id: _this.data.id,
-    uuid: _this.data.uuid,
-    container: _this.$container
-  }).then(function() {
-    if (_this.data.getData) {
-      // eslint-disable-next-line no-func-assign
-      getData = _this.data.getData;
-
-      if (_this.data.hasOwnProperty('cache')) {
-        cache.offline = _this.data.cache;
-      }
-    }
-
-    return getData(cache);
-  }).catch(function(error) {
-    Fliplet.UI.Toast.error(error, {
-      message: 'Error loading data'
-    });
-  });
 };
 
 DynamicList.prototype.renderBaseHTML = function() {
@@ -1509,6 +1462,8 @@ DynamicList.prototype.searchData = function(options) {
       if (openSingleEntry && searchedData.length === 1) {
         _this.showDetails(searchedData[0].id);
       }
+
+      _this.$container.find('.new-small-card-list-container').toggleClass('no-results', !searchedData.length);
 
       /**
        * Update search UI
@@ -2096,35 +2051,28 @@ DynamicList.prototype.showDetails = function(id, listData) {
               data: data.data || entryData
             });
           }
-        }, 0);
-        setTimeout(function() {
-          _this.$closeButton.focus();
-          _this.$detailsContent.focusout(function(event) {
-            if (event.currentTarget.contains(event.relatedTarget)) {
-              return;
-            }
 
+          // Focus on close button after opening overlay
+          setTimeout(function() {
             _this.$closeButton.focus();
-          });
-        }, 200);
+          }, 200);
+        }, 0);
       });
     });
 };
 
-DynamicList.prototype.closeDetails = function() {
+DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
 
     return Fliplet.Navigate.back();
   }
 
-  // Function that closes the overlay
   var _this = this;
   var $overlay = $('#small-card-detail-overlay-' + _this.data.id);
+  var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
-  if (_this.$detailsContent) {
-    _this.$detailsContent.off('focusout');
-  }
+  options = options || {};
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
@@ -2143,74 +2091,10 @@ DynamicList.prototype.closeDetails = function() {
     }
 
     _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
-  }, 300);
-};
 
-DynamicList.prototype.collapseElement = function(elementToCollapse) {
-  // Function called when a list item is tapped to close
-  var _this = this;
-
-  $('body').removeClass('lock');
-  elementToCollapse = $([]).add(elementToCollapse);
-  elementToCollapse.parents('.small-card-list-item').addClass('closing');
-
-  var directoryDetailImageWrapper = elementToCollapse.find('.small-card-list-detail-image-wrapper');
-  var directoryDetailImage = elementToCollapse.find('.small-card-list-detail-image');
-
-  if (!directoryDetailImageWrapper.length || !directoryDetailImage.length) {
-    _this.closeDetails();
-  }
-
-  var collapseTarget = elementToCollapse.parent();
-
-  if (!collapseTarget.length) {
-    return;
-  }
-
-  var elementScrollTop = $(window).scrollTop();
-  var targetCollpsePlaceholderTop = collapseTarget.offset().top - elementScrollTop;
-  var targetCollpsePlaceholderLeft = collapseTarget.offset().left;
-  var targetCollapseHeight = collapseTarget.outerHeight();
-  var targetCollapseWidth = collapseTarget.outerWidth();
-
-  elementToCollapse.animate({
-    top: targetCollpsePlaceholderTop,
-    left: targetCollpsePlaceholderLeft,
-    height: targetCollapseHeight,
-    width: targetCollapseWidth
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({
-      // after animating convert the collpase item to position absolute with a low z-index without moving it
-      'position': 'absolute',
-      'z-index': '1',
-      'top': 0,
-      'left': 0,
-      'height': '100%',
-      'width': '100%'
-    });
-  });
-
-  directoryDetailImageWrapper.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear');
-
-  directoryDetailImage.animate({
-    height: targetCollapseHeight
-  }, 200, 'linear',
-  function() {
-    elementToCollapse.css({ height: '100%' });
-    _this.closeDetails();
-    elementToCollapse.parents('.small-card-list-item').removeClass('opening');
-
-    // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
-    // Only happens when the closing animation finishes
-    if (elementToCollapse.parents('.panel-group').not('.filter-overlay').length) {
-      elementToCollapse.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
+    // Focus on closed entry
+    if (options.focusOnEntry) {
+      _this.$container.find('.small-card-list-item[data-entry-id="' + id + '"]').focus();
     }
-  });
-
-  elementToCollapse.removeClass('open');
-  elementToCollapse.parents('.small-card-list-item').removeClass('open');
-  elementToCollapse.find('.small-card-list-detail-content-scroll-wrapper').removeClass('open');
+  }, 300);
 };

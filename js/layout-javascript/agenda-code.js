@@ -19,6 +19,7 @@ function DynamicList(id, data) {
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
   this.data.forceRenderList = false;
+  this.data.apiFiltersAvailable = true;
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
 
   // Other variables
@@ -56,7 +57,9 @@ function DynamicList(id, data) {
   this.pvOpenQuery;
   this.openedEntryOnQuery = false;
   this.imagesData = {};
-
+  this.$closeButton = null;
+  this.$detailsContent = null;
+  this.windowWidth = window.innerWidth;
   /*
    * this specifies the batch size to be used when rendering in chunks
    */
@@ -93,7 +96,7 @@ function DynamicList(id, data) {
     })
     .catch(function(error) {
       Fliplet.UI.Toast.error(error, {
-        message: 'Error loading agenda'
+        message: T('widgets.list.dynamic.agenda.errors.loadFailed')
       });
     });
 }
@@ -184,8 +187,14 @@ DynamicList.prototype.attachObservers = function() {
   // Attach your event listeners here
   $(window).resize(function() {
     _this.centerDate();
-
     _this.Utils.DOM.adjustAddButtonPosition(_this);
+    _this.isResized = true;
+
+    if (_this.isShowDetail) {
+      return;
+    }
+
+    _this.correctAgendaListPosition();
   });
 
   Fliplet.Hooks.on('flListDataAfterRenderList', function() {
@@ -389,6 +398,7 @@ DynamicList.prototype.attachObservers = function() {
       _this.$container.find('.hidden-filter-controls').removeClass('active');
       _this.$container.find('.list-search-icon .fa-sliders').removeClass('active').focus();
       _this.$container.find('.hidden-filter-controls-filter-container').addClass('hidden');
+      _this.correctAgendaListPosition();
       _this.calculateFiltersHeight(true);
 
       // Clear filters
@@ -651,17 +661,32 @@ DynamicList.prototype.attachObservers = function() {
         });
       });
     })
+    .on('focusout', '.agenda-detail-overlay', function(event) {
+      // Overlay is not open. Do nothing.
+      if (!_this.isShowDetail) {
+        return;
+      }
+
+      var focusTarget = event.relatedTarget || event.target;
+      var focusingOnDetails = _this.$detailsContent.get(0).contains(focusTarget);
+
+      // Focus is moved to valid element. Do nothing.
+      if (focusingOnDetails) {
+        return;
+      }
+
+      // Move focus back to close button
+      $(_this.$closeButton).focus();
+    })
     .on('click keydown', '.agenda-detail-overlay-close, .agenda-detail-overlay-screen', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
         return;
       }
 
       var result;
-      var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
 
       _this.$container.find('.agenda-list-holder').removeClass('hidden');
       _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
-      _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -692,7 +717,7 @@ DynamicList.prototype.attachObservers = function() {
         });
       }
 
-      _this.closeDetails();
+      _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
     })
     .on('keydown', function(e) {
       var indexOfActiveDate;
@@ -781,8 +806,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
+          message: T('widgets.list.dynamic.notifications.noConfiguration.message')
         });
 
         return;
@@ -800,13 +825,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error adding entry'
+                message: T('widgets.list.dynamic.errors.addFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error adding entry'
+          message: T('widgets.list.dynamic.errors.addFailed')
         });
       }
     })
@@ -821,8 +846,8 @@ DynamicList.prototype.attachObservers = function() {
 
       if (!_.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
-          title: 'Link not configured',
-          message: 'Form not found. Please check the component\'s configuration.'
+          title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
+          message: T('widgets.list.dynamic.notifications.noConfiguration.message')
         });
 
         return;
@@ -842,13 +867,13 @@ DynamicList.prototype.attachObservers = function() {
           navigate
             .catch(function(error) {
               Fliplet.UI.Toast(error, {
-                message: 'Error editing entry'
+                message: T('widgets.list.dynamic.errors.editFailed')
               });
             });
         }
       } catch (error) {
         Fliplet.UI.Toast(error, {
-          message: 'Error editing entry'
+          message: T('widgets.list.dynamic.errors.editFailed')
         });
       }
     })
@@ -860,12 +885,12 @@ DynamicList.prototype.attachObservers = function() {
       var _that = $(this);
       var entryID = _that.parents('.agenda-item-inner-content').data('entry-id');
       var options = {
-        title: 'Are you sure you want to delete the list entry?',
+        title: T('widgets.list.dynamic.notifications.confirmDelete.title'),
         labels: [
           {
-            label: 'Delete',
+            label: T('widgets.list.dynamic.notifications.confirmDelete.label'),
             action: function() {
-              _that.text('Deleting...').addClass('disabled');
+              _that.text(T('widgets.list.dynamic.notifications.confirmDelete.progress')).addClass('disabled');
 
               // Run Hook
               Fliplet.Hooks.run('flListDataBeforeDeleteEntry', {
@@ -888,8 +913,8 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  _that.text('Delete').removeClass('disabled');
-                  _this.closeDetails();
+                  _that.text(T('widgets.list.dynamic.notifications.confirmDelete.action')).removeClass('disabled');
+                  _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
 
                   _this.removeListItemHTML({
                     id: entryId
@@ -897,7 +922,7 @@ DynamicList.prototype.attachObservers = function() {
                 })
                 .catch(function(error) {
                   Fliplet.UI.Toast.error(error, {
-                    message: 'Error deleting entry'
+                    message: T('widgets.list.dynamic.errors.deleteFailed')
                   });
                 });
             }
@@ -1041,7 +1066,19 @@ DynamicList.prototype.initialize = function() {
       // Determine filter types from configuration
       _this.filterTypes = _this.Utils.getFilterTypes({ instance: _this });
 
-      return _this.connectToDataSource();
+      return _this.Utils.Records.setFilterValues({
+        config: _this.data
+      });
+    })
+    .then(function() {
+      return _this.Utils.Records.loadData({
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        $container: _this.$container,
+        filterQueries: _this.queryPreFilter ? _this.pvPreFilterQuery : undefined
+      });
     })
     .then(function(records) {
       _this.Utils.Records.addComputedFields({
@@ -1057,10 +1094,6 @@ DynamicList.prototype.initialize = function() {
         uuid: _this.data.uuid,
         container: _this.$container,
         records: records
-      }).then(function() {
-        return _this.Utils.Records.setFilterValues({
-          config: _this.data
-        });
       }).then(function() {
         if (records && !Array.isArray(records)) {
           records = [records];
@@ -1128,7 +1161,7 @@ DynamicList.prototype.checkIsToOpen = function() {
   }
 
   if (!entry) {
-    Fliplet.UI.Toast('Entry not found');
+    Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
 
     return Promise.resolve();
   }
@@ -1220,58 +1253,6 @@ DynamicList.prototype.parseFilterQueries = function() {
 
   this.Utils.Page.parseFilterQueries({
     instance: this
-  });
-};
-
-DynamicList.prototype.connectToDataSource = function() {
-  var _this = this;
-  var cache = { offline: true };
-
-  function getData(options) {
-    if (_this.data.defaultData && !_this.data.dataSourceId) {
-      return Promise.resolve(_this.data.defaultEntries);
-    }
-
-    options = options || cache;
-
-    return Fliplet.DataSources.connect(_this.data.dataSourceId, options)
-      .then(function(connection) {
-        // If you want to do specific queries to return your rows
-        // See the documentation here: https://developers.fliplet.com/API/fliplet-datasources.html
-        var query = {};
-
-        if (typeof _this.data.dataQuery === 'function') {
-          query = _this.data.dataQuery({
-            config: _this.data,
-            id: _this.data.id,
-            uuid: _this.data.uuid,
-            container: _this.$container
-          });
-        } else if (typeof _this.data.dataQuery === 'object') {
-          query = _this.data.dataQuery;
-        }
-
-        return connection.find(query);
-      });
-  }
-
-  return Fliplet.Hooks.run('flListDataBeforeGetData', {
-    instance: _this,
-    config: _this.data,
-    id: _this.data.id,
-    uuid: _this.data.uuid,
-    container: _this.$container
-  }).then(function() {
-    if (_this.data.getData) {
-      // eslint-disable-next-line no-func-assign
-      getData = _this.data.getData;
-
-      if (_this.data.hasOwnProperty('cache')) {
-        cache.offline = _this.data.cache;
-      }
-    }
-
-    return getData(cache);
   });
 };
 
@@ -1513,9 +1494,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     for (var i = 0; i < numberOfPlaceholderDays; i++) {
       firstDate.subtract(1, 'days');
       calendarDates.unshift({
-        week: firstDate.format(formats.week),
-        day: firstDate.format(formats.day),
-        month: firstDate.format(formats.month),
+        week: TD(firstDate, { format: formats.week }),
+        day: TD(firstDate, { format: formats.day }),
+        month: TD(firstDate, { format: formats.month }),
         placeholder: true
       });
     }
@@ -1533,9 +1514,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
       _this.agendaDates.push(d.format('YYYY-MM-DD'));
 
       calendarDates.push({
-        week: d.format(formats.week),
-        day: d.format(formats.day),
-        month: d.format(formats.month),
+        week: TD(d, { format: formats.week }),
+        day: TD(d, { format: formats.day }),
+        month: TD(d, { format: formats.month }),
         placeholder: false
       });
     });
@@ -1547,9 +1528,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     for (i = 0; i < numberOfPlaceholderDays; i++) {
       lastDate.add(1, 'days');
       calendarDates.push({
-        week: lastDate.format(formats.week),
-        day: lastDate.format(formats.day),
-        month: lastDate.format(formats.month),
+        week: TD(lastDate, { format: formats.week }),
+        day: TD(lastDate, { format: formats.day }),
+        month: TD(lastDate, { format: formats.month }),
         placeholder: true
       });
     }
@@ -1802,6 +1783,19 @@ DynamicList.prototype.animateDateBack = function($prevDateElement, prevDateEleme
       resolve();
     });
   });
+};
+
+DynamicList.prototype.correctAgendaListPosition = function() {
+  var currentAgendaElement = this.$container.find('.agenda-list-day-holder.active');
+  var currentAgendaElementIndex = this.$container.find('.agenda-list-day-holder').index(currentAgendaElement);
+  var currentAgendaElementWidth = Math.floor(currentAgendaElement.outerWidth());
+  var indexOfActiveDate = this.$container.find('.agenda-date-selector li').not('.placeholder').index(this.$container.find('.agenda-date-selector li.active'));
+  var activeDateElementWidth = this.$container.find('.agenda-date-selector li.active').outerWidth();
+
+  this.$container.find('.agenda-cards-wrapper').scrollLeft(currentAgendaElementWidth * currentAgendaElementIndex);
+  this.$container.find('.agenda-date-selector ul').scrollLeft(Math.floor(activeDateElementWidth * (indexOfActiveDate + 1)));
+  this.windowWidth = window.innerWidth;
+  this.isResized = false;
 };
 
 // animate cards back
@@ -2302,6 +2296,8 @@ DynamicList.prototype.searchData = function(options) {
       // Toggle between filtered list view and
       _this.toggleListView();
 
+      _this.$container.find('.new-agenda-list-container').toggleClass('no-results', !searchedData.length);
+
       /**
        * Update search UI
        **/
@@ -2587,7 +2583,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
     // Define data object
     var newEntryDetail = {
-      id: entry.id,
+      id: dynamicDataObj.id,
       content: content,
       label: label,
       labelEnabled: labelEnabled,
@@ -2622,6 +2618,8 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 };
 
 DynamicList.prototype.showDetails = function(id, listData) {
+  this.isShowDetail = true;
+
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
   var entryData = _.find(listData, { id: id }) || _(_this.getAgendasByDay())
@@ -2638,6 +2636,11 @@ DynamicList.prototype.showDetails = function(id, listData) {
   var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
   var src = _this.src;
+
+  if (!this.$detailsContent || !this.$closeButton) {
+    this.$detailsContent = $('.agenda-detail-overlay');
+    this.$closeButton = this.$detailsContent.find('.agenda-detail-overlay-close');
+  }
 
   return _this.Utils.Records.getFilesInfo({
     entryData: entryData,
@@ -2708,21 +2711,31 @@ DynamicList.prototype.showDetails = function(id, listData) {
               data: data.data || entryData
             });
           }
+
+          // Focus on close button after opening overlay
+          setTimeout(function() {
+            _this.$closeButton.focus();
+          }, 200);
         }, 0);
       });
     });
 };
 
-DynamicList.prototype.closeDetails = function() {
+DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
 
     return Fliplet.Navigate.back();
   }
 
+  this.isShowDetail = false;
+
   // Function that closes the overlay
   var _this = this;
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
+  var id = _this.$container.find('.agenda-detail-wrapper[data-entry-id]').data('entry-id');
+
+  options = options || {};
 
   Fliplet.Page.Context.remove('dynamicListOpenId');
   $overlay.removeClass('open');
@@ -2743,5 +2756,14 @@ DynamicList.prototype.closeDetails = function() {
     _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
 
     _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
+
+    // Focus on closed entry
+    if (options.focusOnEntry) {
+      _this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').focus();
+    }
   }, 300);
+
+  if (this.isResized) {
+    this.correctAgendaListPosition();
+  }
 };
