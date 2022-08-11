@@ -1153,7 +1153,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     // Remove HTML entities
-    record = record.replace(/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/ig, '');
+    record = typeof record === 'string'
+      ? record.replace(/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/ig, '')
+      : (record + '');
 
     // Attempt to strip HTML if any potential HTML tag is detected
     if (record.match(/<[a-z0-9]+?>/i)) {
