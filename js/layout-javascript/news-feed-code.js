@@ -2885,7 +2885,7 @@ DynamicList.prototype.sendComment = function(id, value) {
 
     _this.appendTempComment(id, value, guid, userFromDataSource);
 
-    if (_.get(record, 'commentCount')) {
+    if (typeof _.get(record, 'commentCount') === 'number') {
       record.commentCount++;
     }
 
