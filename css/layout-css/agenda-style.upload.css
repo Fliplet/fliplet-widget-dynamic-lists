@@ -94,12 +94,18 @@
 }
 
 .new-agenda-list-container .agenda-list-controls .toggle-agenda .fa.fa-bookmark,
-.new-agenda-list-container .agenda-list-controls .toggle-agenda.mixitup-control-active .fa.fa-bookmark-o {
+.new-agenda-list-container
+  .agenda-list-controls
+  .toggle-agenda.mixitup-control-active
+  .fa.fa-bookmark-o {
   display: none;
 }
 
 .new-agenda-list-container .agenda-list-controls .toggle-agenda .fa.fa-bookmark-o,
-.new-agenda-list-container .agenda-list-controls .toggle-agenda.mixitup-control-active .fa.fa-bookmark {
+.new-agenda-list-container
+  .agenda-list-controls
+  .toggle-agenda.mixitup-control-active
+  .fa.fa-bookmark {
   display: block;
 }
 
@@ -296,7 +302,7 @@
 
 .new-agenda-search-filter-overlay .hidden-filter-controls-filter:hover,
 .new-agenda-search-filter-overlay .hidden-filter-controls-filter:focus {
-  color: rgba(255 ,255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .new-agenda-search-filter-overlay .hidden-filter-controls-filter.mixitup-control-active {
@@ -854,7 +860,10 @@
   padding-bottom: calc(15px + 34px);
 }
 
-.new-agenda-list-container .agenda-date-selector.is-panning ~ .agenda-cards-wrapper .agenda-list-day-holder {
+.new-agenda-list-container
+  .agenda-date-selector.is-panning
+  ~ .agenda-cards-wrapper
+  .agenda-list-day-holder {
   overflow: hidden;
 }
 
@@ -864,8 +873,15 @@
   height: calc(100% - 148px);
 }
 
-.new-agenda-list-container .agenda-list-controls ~ .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
-.new-agenda-list-container.has-add-entry .agenda-cards-wrapper .agenda-list-day-holder .agenda-list-card-holder,
+.new-agenda-list-container
+  .agenda-list-controls
+  ~ .agenda-cards-wrapper
+  .agenda-list-day-holder
+  .agenda-list-card-holder,
+.new-agenda-list-container.has-add-entry
+  .agenda-cards-wrapper
+  .agenda-list-day-holder
+  .agenda-list-card-holder,
 .new-agenda-list-container.has-add-entry .search-results,
 .new-agenda-list-container .agenda-list-controls ~ .search-results-wrapper .search-results {
   /* My Agenda (Legacy) */
@@ -1028,7 +1044,11 @@
   border-top-right-radius: 20px;
 }
 
-[data-has-notch].platform-web .new-agenda-list-container .agenda-list-item.open .slide-over .agenda-item-inner-content {
+[data-has-notch].platform-web
+  .new-agenda-list-container
+  .agenda-list-item.open
+  .slide-over
+  .agenda-item-inner-content {
   padding-bottom: calc(20px + 34px); /* For Fliplet Studio */
 }
 
@@ -1078,9 +1098,13 @@
   font-size: 27px;
 }
 
-.new-agenda-list-container .agenda-list-item.open .slide-over .agenda-item-inner-content h2.agenda-item-title:after,
+.new-agenda-list-container
+  .agenda-list-item.open
+  .slide-over
+  .agenda-item-inner-content
+  h2.agenda-item-title:after,
 .agenda-detail-overlay .agenda-item-inner-content h2.agenda-item-title:after {
-  content: '';
+  content: "";
   display: block;
   width: 60%;
   height: 4px;
@@ -1103,15 +1127,26 @@
   white-space: normal;
 }
 
-.new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-session-location .agenda-item-location {
+.new-agenda-list-container
+  .slide-over
+  .agenda-item-inner-content
+  .agenda-item-session-location
+  .agenda-item-location {
   margin-bottom: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-session-location .agenda-item-location,
-.agenda-detail-overlay .agenda-item-inner-content .agenda-item-session-location .agenda-item-location {
+.new-agenda-list-container
+  .agenda-list-item.open
+  .agenda-item-inner-content
+  .agenda-item-session-location
+  .agenda-item-location,
+.agenda-detail-overlay
+  .agenda-item-inner-content
+  .agenda-item-session-location
+  .agenda-item-location {
   margin-bottom: 5px;
   font-size: 20px;
   word-wrap: break-word;
@@ -1119,8 +1154,15 @@
   word-break: break-word;
 }
 
-.new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-session-location .agenda-item-start-date-time,
-.agenda-detail-overlay .agenda-item-inner-content .agenda-item-session-location .agenda-item-start-date-time {
+.new-agenda-list-container
+  .agenda-list-item.open
+  .agenda-item-inner-content
+  .agenda-item-session-location
+  .agenda-item-start-date-time,
+.agenda-detail-overlay
+  .agenda-item-inner-content
+  .agenda-item-session-location
+  .agenda-item-start-date-time {
   display: block;
   margin: 0 0 4px 0;
 }
@@ -1138,27 +1180,53 @@
   line-height: 1.4;
 }
 
-.new-agenda-list-container .agenda-list-item.open .slide-over .agenda-item-inner-content .agenda-item-description,
+.new-agenda-list-container
+  .agenda-list-item.open
+  .slide-over
+  .agenda-item-inner-content
+  .agenda-item-description,
 .agenda-detail-overlay .agenda-item-inner-content .agenda-item-description {
   font-size: 1em;
   line-height: 1.6;
 }
 
-.new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-description,
+.new-agenda-list-container
+  .agenda-list-item.open
+  .agenda-item-inner-content
+  .agenda-item-description,
 .agenda-detail-overlay .agenda-item-inner-content .agenda-item-description {
   margin-top: 20px;
 }
 
-.new-agenda-list-container .agenda-list-item:not(.open) .slide-over .agenda-item-inner-content .agenda-item-description {
+.new-agenda-list-container
+  .agenda-list-item:not(.open)
+  .slide-over
+  .agenda-item-inner-content
+  .agenda-item-description {
   overflow: hidden;
   display: none;
   color: #999999;
 }
 
-.new-agenda-list-container .agenda-list-item.open .agenda-item-inner-content .agenda-item-info-holder,
-.new-agenda-list-container .agenda-list-item:not(.open) .slide-over .agenda-item-inner-content .agenda-item-time-date,
-.new-agenda-list-container .agenda-list-item:not(.open) .slide-over .agenda-item-inner-content .agenda-item-session,
-.new-agenda-list-container .slide-over .agenda-item-inner-content .agenda-item-session-location .agenda-item-start-date-time {
+.new-agenda-list-container
+  .agenda-list-item.open
+  .agenda-item-inner-content
+  .agenda-item-info-holder,
+.new-agenda-list-container
+  .agenda-list-item:not(.open)
+  .slide-over
+  .agenda-item-inner-content
+  .agenda-item-time-date,
+.new-agenda-list-container
+  .agenda-list-item:not(.open)
+  .slide-over
+  .agenda-item-inner-content
+  .agenda-item-session,
+.new-agenda-list-container
+  .slide-over
+  .agenda-item-inner-content
+  .agenda-item-session-location
+  .agenda-item-start-date-time {
   display: none;
 }
 
