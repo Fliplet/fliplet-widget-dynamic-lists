@@ -1,8 +1,3 @@
-[data-dynamic-lists-layout="agenda"] {
-  height: 100vh;
-  position: relative;
-}
-
 .mode-interact .new-agenda-list-container {
   pointer-events: none;
 }
@@ -48,23 +43,6 @@
   border-radius: 50%;
   box-shadow: 0px 6px 20px 0px rgba(0, 0, 0, 0.2);
   background-color: #ffffff;
-}
-
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls {
-  bottom: calc(15px + env(safe-area-inset-bottom));
-}
-
-[data-has-notch] .new-agenda-list-container .agenda-list-controls,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-controls,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-controls {
-  bottom: calc(15px + 34px);
-}
-
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls,
-[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .agenda-list-controls {
-  /* Bottom menu */
-  bottom: 15px;
 }
 
 .new-agenda-list-container.has-add-entry .agenda-list-controls,
@@ -369,23 +347,14 @@
 /* SEARCH & FILTER */
 
 .new-agenda-list-container .section-top-wrapper {
-  position: absolute;
-  top: 10px;
-  top: calc(10px + env(safe-area-inset-top));
-  left: 10px;
-  right: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
   max-width: 600px;
-  margin: 0 auto 10px;
-  padding: 0;
+  margin: 10px auto;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   z-index: 10;
-}
-
-.fl-with-top-menu .new-agenda-list-container .section-top-wrapper {
-  top: 54px;
-  top: calc(54px + env(safe-area-inset-top));
 }
 
 .new-agenda-list-container .list-search-icon {
@@ -637,44 +606,15 @@
 
 /* DATE SELECTOR */
 .new-agenda-list-container .agenda-date-selector {
-  position: absolute;
-  top: 0;
-  top: env(safe-area-inset-top);
-  left: 0;
-  right: 0;
   display: flex;
   padding: 10px 0 0;
   background-color: #ffffff;
   z-index: 9;
-  -webkit-transition: opacity 0.2s ease-out;
-  -ms-transition: opacity 0.2s ease-out;
-  transition: opacity 0.2s ease-out;
-  -webkit-transition-delay: 0.2s;
-  -ms-transition-delay: 0.2s;
-  transition-delay: 0.2s;
 }
 
-[data-view="search-results"] .new-agenda-list-container .agenda-date-selector {
-  -webkit-transition: none;
-  -ms-transition: none;
-  transition: none;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.new-agenda-list-container.has-top-bar .agenda-date-selector {
-  top: 48px;
-  top: calc(48px + env(safe-area-inset-top));
-}
-
-.fl-with-top-menu .new-agenda-list-container .agenda-date-selector {
-  top: 44px;
-  top: calc(44px + env(safe-area-inset-top));
-}
-
-.fl-with-top-menu .new-agenda-list-container.has-top-bar .agenda-date-selector {
-  top: 92px;
-  top: calc(92px + env(safe-area-inset-top));
+[data-view="search-results"] .new-agenda-list-container .agenda-date-selector,
+[data-view="search-results"] .new-agenda-list-container .agenda-list-holder {
+  display: none;
 }
 
 .new-agenda-list-container .agenda-date-selector ul {
@@ -734,14 +674,6 @@
 
 /* AGENDA LIST */
 .new-agenda-list-container {
-  position: unset;
-  width: 100vw;
-  top: 0;
-  top: env(safe-area-inset-top);
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: none !important;
   /* Top menus are also fixed, so we're increasing the z-index here to display the UI correctly */
   z-index: 10;
   -webkit-transition: z-index 0s linear;
@@ -769,41 +701,7 @@
   transition-delay: 0s;
 }
 
-.fl-with-top-menu .new-agenda-list-container {
-  /* Top menu */
-  top: 44px;
-  top: calc(44px + env(safe-area-inset-top));
-}
-
-.fl-with-bottom-menu .new-agenda-list-container {
-  /* Bottom menu */
-  bottom: 65px;
-  bottom: calc(65px + env(safe-area-inset-bottom));
-}
-
-[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container {
-  bottom: calc(65px + 34px);
-}
-
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container {
-  /* Circle menu */
-  bottom: 0;
-}
-
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container {
-  bottom: 0;
-}
-
 .new-agenda-list-container .agenda-cards-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  margin: auto;
   -webkit-transition: opacity 0.2s ease-out;
   -ms-transition: opacity 0.2s ease-out;
   transition: opacity 0.2s ease-out;
@@ -820,44 +718,22 @@
   pointer-events: none;
 }
 
-.new-agenda-list-container .agenda-list-holder {
-  position: unset;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: auto;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 0;
-}
-
 .new-agenda-list-container .agenda-list-day-holder {
-  display: inline-block;
+  display: none;
   font-size: 16px;
   padding: 15px;
-  padding-bottom: calc(15px + env(safe-area-inset-bottom));
-  margin: 100px auto 0;
+  margin: 0 auto;
   width: 100%;
-  height: calc(100% - 100px);
-  overflow: auto;
+  overflow: visible;
   vertical-align: top;
 }
 
-.fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder,
-[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder {
+.new-agenda-list-container .agenda-list-day-holder.active {
+  display: block;
+}
+
+.fl-with-bottom-menu .new-agenda-list-container .agenda-list-day-holder {
   padding-bottom: 15px;
-}
-
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-day-holder,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-day-holder {
-  padding: 15px;
-  padding-bottom: calc(15px + env(safe-area-inset-bottom));
-}
-
-[data-has-notch] .new-agenda-list-container .agenda-list-day-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .agenda-list-day-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .agenda-list-day-holder {
-  padding-bottom: calc(15px + 34px);
 }
 
 .new-agenda-list-container
@@ -865,12 +741,6 @@
   ~ .agenda-cards-wrapper
   .agenda-list-day-holder {
   overflow: hidden;
-}
-
-.new-agenda-list-container.has-top-bar .agenda-list-day-holder {
-  /* Top bar */
-  margin-top: 148px;
-  height: calc(100% - 148px);
 }
 
 .new-agenda-list-container
@@ -1232,19 +1102,10 @@
 
 .new-agenda-list-container .search-results-wrapper {
   margin: 0 auto;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
   margin-top: 0;
-  overflow: auto;
+  overflow: visible;
   opacity: 0;
   pointer-events: none;
-}
-
-.new-agenda-list-container.has-top-bar  .search-results-wrapper {
-  margin-top: 58px;
 }
 
 [data-view="search-results"] .new-agenda-list-container .search-results-wrapper {
@@ -1264,22 +1125,8 @@
   padding-left: 8px;
 }
 
-.new-agenda-list-container .search-results-holder,
-.fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-holder,
-.fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-holder {
+.new-agenda-list-container .search-results-holder {
   padding-bottom: 15px;
-  padding-bottom: calc(15px + env(safe-area-inset-bottom));
-}
-
-.fl-with-bottom-menu .new-agenda-list-container .search-results-holder,
-[data-has-notch] .fl-with-bottom-menu .new-agenda-list-container .search-results-holder {
-  padding-bottom: 15px;
-}
-
-[data-has-notch] .new-agenda-list-container .search-results-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-left .new-agenda-list-container .search-results-holder,
-[data-has-notch] .fl-with-bottom-menu.fl-menu-circle-right .new-agenda-list-container .search-results-holder {
-  padding-bottom: calc(15px + 34px);
 }
 
 .new-agenda-list-container .search-results {
@@ -1755,13 +1602,4 @@
 .android.no-native .agenda-detail-overlay-wrapper .agenda-detail-overlay-close .fa-times-thin {
   padding-top: 2px;
   padding-bottom: 2px;
-}
-
-.agenda-list-day-holder {
-  transition: 200ms;
-  display: none !important;
-}
-
-.agenda-list-day-holder.active {
-  display: block !important;
 }
