@@ -909,15 +909,69 @@ DynamicList.prototype.attachObservers = function() {
                   return _this.deleteEntry(entryID);
                 })
                 .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
+                  var removedEntry = _.first(_.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
-                  });
+                  }));
 
                   _that.text(T('widgets.list.dynamic.notifications.confirmDelete.action')).removeClass('disabled');
                   _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
 
                   _this.removeListItemHTML({
                     id: entryId
+                  });
+
+                  // make agenda layout empty if no entry left
+                  if (!_this.listItems.length) {
+                    _this.$container.find('.agenda-date-selector').addClass('hidden');
+                    _this.$container.find('.agenda-list-holder').addClass('hidden');
+                    // Toggle between filtered list view and
+                    _this.toggleListView();
+
+                    _this.$container.find('.new-agenda-list-container').toggleClass('no-results', !_this.listItems.length);
+
+                    return;
+                  }
+
+                  // delete list item from agendasByDay as well
+                  var foundDateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
+                  var dateField = _.get(foundDateField, 'column');
+                  var agendasDayIndex = _this.getDateIndex(removedEntry.data[dateField]);
+                  var agendaDay = _this.agendasByDay[agendasDayIndex];
+
+                  _.remove(agendaDay, function(entry) {
+                    return entry.id === parseInt(entryId, 10);
+                  });
+
+                  // do not change date if selected date has agendas to display
+                  if (agendaDay.length) {
+                    return;
+                  }
+
+                  // update the date as selected date left with no agendas
+                  var indexToBeSet =  _this.$container
+                    .find('.agenda-date-selector li')
+                    .not('.placeholder')
+                    .index(_this.$container.find('.agenda-date-selector li.active'));
+                  var isNextIndexNotAvailable = _this.$container.find('.agenda-date-selector li.active').next().hasClass('placeholder');
+                  var isPrevIndexNotAvailable = _this.$container.find('.agenda-date-selector li.active').prev().hasClass('placeholder');
+
+                  if (isNextIndexNotAvailable && !isPrevIndexNotAvailable) {
+                    indexToBeSet = indexToBeSet - 1;
+                  }
+
+                  // empty agendaDates and agendasByDay to render it with new data
+                  _this.agendaDates = [];
+                  _this.agendasByDay = [];
+
+                  _this.renderDatesHTML(_this.listItems, indexToBeSet);
+                  _this.updateDateIndexContext(indexToBeSet);
+
+                  _this.modifiedListItems = _this.addSummaryData(_this.listItems);
+                  _this.setAgendasByDay(_this.groupLoopDataByDate(_this.modifiedListItems, _this.dateFieldLocation));
+
+                  // Render the full list
+                  _this.renderLoopHTML().then(function() {
+                    _this.cacheSearchedData(_this.listItems);
                   });
                 })
                 .catch(function(error) {
@@ -1544,8 +1598,14 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
   // Selects the first date
   this.sliderCount = this.agendaDates.length;
   this.activeSlideIndex = typeof index === 'number' ? index : 0;
-  this.$container.find('.agenda-date-selector li').not('.placeholder').eq(this.activeSlideIndex).addClass('active');
-  this.centerDate();
+
+  if (this.activeSlideIndex >= 0) {
+    this.$container.find('.agenda-date-selector li').not('.placeholder').eq(this.activeSlideIndex).addClass('active');
+  }
+
+  if (typeof index !== 'number') {
+    this.centerDate();
+  }
 };
 
 DynamicList.prototype.getAddPermission = function(data) {
