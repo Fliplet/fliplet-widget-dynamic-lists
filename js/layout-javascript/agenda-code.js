@@ -924,6 +924,7 @@ DynamicList.prototype.attachObservers = function() {
                   if (!_this.listItems.length) {
                     _this.$container.find('.agenda-date-selector').addClass('hidden');
                     _this.$container.find('.agenda-list-holder').addClass('hidden');
+
                     // Toggle between filtered list view and
                     _this.toggleListView();
 
