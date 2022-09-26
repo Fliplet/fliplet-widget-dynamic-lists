@@ -920,12 +920,12 @@ DynamicList.prototype.attachObservers = function() {
                     id: entryId
                   });
 
-                  // make agenda layout empty if no entry left
+                  // Make agenda layout empty if no entry left
                   if (!_this.listItems.length) {
                     _this.$container.find('.agenda-date-selector').addClass('hidden');
                     _this.$container.find('.agenda-list-holder').addClass('hidden');
 
-                    // Toggle between filtered list view and
+                    // Toggle between filtered list and search view
                     _this.toggleListView();
 
                     _this.$container.find('.new-agenda-list-container').toggleClass('no-results', !_this.listItems.length);
@@ -933,7 +933,7 @@ DynamicList.prototype.attachObservers = function() {
                     return;
                   }
 
-                  // delete list item from agendasByDay as well
+                  // Delete list item from agendasByDay as well
                   var foundDateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
                   var dateField = _.get(foundDateField, 'column');
                   var agendasDayIndex = _this.getDateIndex(removedEntry.data[dateField]);
@@ -943,12 +943,12 @@ DynamicList.prototype.attachObservers = function() {
                     return entry.id === parseInt(entryId, 10);
                   });
 
-                  // do not change date if selected date has agendas to display
+                  // Do not change date if selected date has agendas to display
                   if (agendaDay.length) {
                     return;
                   }
 
-                  // update the date as selected date left with no agendas
+                  // Update the date as selected date left with no agendas
                   var indexToBeSet =  _this.$container
                     .find('.agenda-date-selector li')
                     .not('.placeholder')
@@ -960,7 +960,7 @@ DynamicList.prototype.attachObservers = function() {
                     indexToBeSet = indexToBeSet - 1;
                   }
 
-                  // empty agendaDates and agendasByDay to render it with new data
+                  // Empty agendaDates and agendasByDay to render it with new data
                   _this.agendaDates = [];
                   _this.agendasByDay = [];
 
@@ -2354,7 +2354,7 @@ DynamicList.prototype.searchData = function(options) {
         _this.showDetails(searchedData[0].id);
       }
 
-      // Toggle between filtered list view and
+      // Toggle between filtered list and search view
       _this.toggleListView();
 
       _this.$container.find('.new-agenda-list-container').toggleClass('no-results', !searchedData.length);
