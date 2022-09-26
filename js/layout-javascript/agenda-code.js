@@ -949,14 +949,15 @@ DynamicList.prototype.attachObservers = function() {
                   }
 
                   // Update the date as selected date left with no agendas
+                  var $currentActiveDate = _this.$container.find('.agenda-date-selector li.active');
                   var indexToBeSet =  _this.$container
                     .find('.agenda-date-selector li')
                     .not('.placeholder')
-                    .index(_this.$container.find('.agenda-date-selector li.active'));
-                  var isNextIndexNotAvailable = _this.$container.find('.agenda-date-selector li.active').next().hasClass('placeholder');
-                  var isPrevIndexNotAvailable = _this.$container.find('.agenda-date-selector li.active').prev().hasClass('placeholder');
+                    .index($currentActiveDate);
+                  var isNextIndexAvailable = !$currentActiveDate.next().hasClass('placeholder');
+                  var isPrevIndexAvailable = !$currentActiveDate.prev().hasClass('placeholder');
 
-                  if (isNextIndexNotAvailable && !isPrevIndexNotAvailable) {
+                  if (!isNextIndexAvailable && isPrevIndexAvailable) {
                     indexToBeSet = indexToBeSet - 1;
                   }
 
