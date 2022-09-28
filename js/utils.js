@@ -279,6 +279,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return filterTypes;
   }
 
+  /**
+   * Sanitizes string by encoding HTML content
+   * @param {String} str - String value to be sanitized
+   * @returns {String} Sanitized HTML string
+   */
+  function sanitizeHtml(str) {
+    if (typeof str !== 'string') {
+      return str;
+    }
+
+    var textarea = document.createElement('textarea');
+
+    textarea.innerText = str;
+
+    return textarea.innerHTML;
+  }
+
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -336,7 +353,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     Handlebars.registerHelper('validateImage', validateImageUrl);
 
     Handlebars.registerHelper('formatComment', function(text) {
-      var res = text;
+      var res = sanitizeHtml(text);
 
       /* capture email addresses and turn into mailto links */
       res = res.replace(Static.RegExp.email, '<a href="mailto:$&">$&</a>');
