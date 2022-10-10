@@ -1,3 +1,7 @@
+[data-widget-package="com.fliplet.dynamic-lists"][data-settings-layout="agenda"] {
+  max-width: 100%;
+}
+
 .mode-interact .new-agenda-list-container {
   pointer-events: none;
 }
@@ -674,6 +678,9 @@
 
 /* AGENDA LIST */
 .new-agenda-list-container {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
   /* Top menus are also fixed, so we're increasing the z-index here to display the UI correctly */
   z-index: 10;
   -webkit-transition: z-index 0s linear;
@@ -757,13 +764,6 @@
   /* My Agenda (Legacy) */
   /* Add Entry */
   padding-bottom: 65px;
-}
-
-.new-agenda-list-container .agenda-state-messages {
-  position: absolute;
-  top: 160px;
-  left: 0;
-  right: 0;
 }
 
 .new-agenda-list-container .loading-holder {
