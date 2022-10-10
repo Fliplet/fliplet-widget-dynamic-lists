@@ -1472,7 +1472,7 @@ DynamicList.prototype.searchData = function(options) {
       $inputField.blur();
       _this.$container.find('.new-small-card-list-container').removeClass('searching');
       // Adds search query to HTML
-      _this.$container.find('.current-query').html(_this.searchValue);
+      _this.$container.find('.current-query').text(_this.searchValue);
       // Search value is provided
       _this.$container.find('.hidden-search-controls')
         [value.length ? 'addClass' : 'removeClass']('search-results');
