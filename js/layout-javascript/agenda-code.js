@@ -653,8 +653,6 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
-
         _this.showDetails(entryId);
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
@@ -684,9 +682,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var result;
-
-      _this.$container.find('.agenda-list-holder').removeClass('hidden');
-      _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -2816,8 +2811,6 @@ DynamicList.prototype.closeDetails = function(options) {
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
-
-    _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
 
     // Focus on closed entry
     if (options.focusOnEntry) {
