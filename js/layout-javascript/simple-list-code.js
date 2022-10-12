@@ -1657,7 +1657,7 @@ DynamicList.prototype.searchData = function(options) {
       $inputField.blur();
       _this.$container.find('.simple-list-container').removeClass('searching');
       // Adds search query to HTML
-      _this.$container.find('.current-query').html(_this.searchValue);
+      _this.$container.find('.current-query').text(_this.searchValue);
       // Search value is provided
       _this.$container.find('.hidden-search-controls')[value.length ? 'addClass' : 'removeClass']('search-results');
       _this.calculateSearchHeight(_this.$container.find('.simple-list-container'), !value.length);
@@ -2823,7 +2823,7 @@ DynamicList.prototype.sendComment = function(id, value) {
 
     _this.appendTempComment(id, value, guid, userFromDataSource);
 
-    if (_.get(record, 'commentCount')) {
+    if (typeof _.get(record, 'commentCount') === 'number') {
       record.commentCount++;
     }
 
