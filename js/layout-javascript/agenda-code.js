@@ -67,7 +67,7 @@ function DynamicList(id, data) {
   this.ANIMATION_SPEED = 200;
 
   this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
-  this.data.hasTopBar = this.data.searchEnabled || this.data.filtersEnabled;
+  this.data.hasTopBar = this.data.searchEnabled || this.data.filtersEnabled || this.data.bookmarksEnabled;
 
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
