@@ -137,6 +137,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+  this.$container.find('.new-agenda-list-container').removeClass('overlay-active');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -318,8 +319,12 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').addClass('hidden');
+        // Wait till overlay is displayed before hiding list view UI
+        setTimeout(function() {
+          _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').addClass('hidden');
+        }, 200);
         _this.$container.find('.agenda-overlay-close').focus();
+        _this.$container.find('.new-agenda-list-container').addClass('overlay-active');
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -353,6 +358,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.list-search-icon .fa-sliders').focus();
+      _this.$container.find('.new-agenda-list-container').removeClass('overlay-active');
       $('body').removeClass('lock has-filter-overlay');
 
       // Clear all selected filters

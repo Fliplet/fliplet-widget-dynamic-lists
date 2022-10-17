@@ -681,8 +681,7 @@
   position: relative;
   max-width: 600px;
   margin: 0 auto;
-  /* Top menus are also fixed, so we're increasing the z-index here to display the UI correctly */
-  z-index: 10;
+  z-index: 0;
   -webkit-transition: z-index 0s linear;
   -ms-transition: z-index 0s linear;
   transition: z-index 0s linear;
@@ -694,13 +693,12 @@
 .has-push-menu .new-agenda-list-container,
 .has-overlay-menu .new-agenda-list-container,
 .has-slide-menu .new-agenda-list-container {
-  z-index: 9;
   -webkit-transition-delay: 0s;
   -ms-transition-delay: 0s;
   transition-delay: 0s;
 }
 
-.has-filter-overlay .new-agenda-list-container {
+.new-agenda-list-container.overlay-active {
   /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
   z-index: 1010;
   -webkit-transition-delay: 0s;
