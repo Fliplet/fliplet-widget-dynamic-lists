@@ -1147,8 +1147,8 @@
   cursor: default;
 }
 
-.new-agenda-list-container .no-results ~ .no-results-holder,
-.new-agenda-list-container.no-results .no-results-holder {
+.new-agenda-list-container[data-view="loop"] .no-results ~ .no-results-holder,
+.new-agenda-list-container.no-results[data-view="loop"] .no-results-holder {
   display: block;
 }
 
