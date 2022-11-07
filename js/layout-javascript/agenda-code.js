@@ -335,6 +335,21 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
+      var $scrollEl = $([]);
+
+      // Find the closest scrollable parent and remember the scroll position
+      $(_this.$container).parents().each(function(i, el) {
+        if ($(el).scrollTop() > 0) {
+          $scrollEl = $(el);
+
+          return false;
+        }
+      });
+
+      if ($scrollEl.length) {
+        var scrollPos = $scrollEl.scrollTop();
+      }
+
       _this.$container.find('.agenda-date-selector').addClass('hidden');
       _this.$container.find('.agenda-list-holder').addClass('hidden');
       _this.$container.find('.hidden-filter-controls').addClass('active');
@@ -344,6 +359,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.toggleListView();
       _this.calculateFiltersHeight();
+
+      // Restore the scroll position for the closest scrollable parent
+      if ($scrollEl.length) {
+        $scrollEl.scrollTop(scrollPos);
+      }
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
