@@ -67,7 +67,7 @@ function DynamicList(id, data) {
   this.ANIMATION_SPEED = 200;
 
   this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
-  this.data.hasTopBar = this.data.searchEnabled || this.data.filtersEnabled;
+  this.data.hasTopBar = this.data.searchEnabled || this.data.filtersEnabled || this.data.bookmarksEnabled;
 
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
     ? this.data.advancedSettings.detailHTML
@@ -137,6 +137,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
+  this.$container.find('.new-agenda-list-container').removeClass('overlay-active');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -318,8 +319,12 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         _this.$container.find('.new-agenda-search-filter-overlay').addClass('display');
-        _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').addClass('hidden');
+        // Wait till overlay is displayed before hiding list view UI
+        setTimeout(function() {
+          _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').addClass('hidden');
+        }, 200);
         _this.$container.find('.agenda-overlay-close').focus();
+        _this.$container.find('.new-agenda-list-container').addClass('overlay-active');
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -328,6 +333,21 @@ DynamicList.prototype.attachObservers = function() {
         });
 
         return;
+      }
+
+      var $scrollEl = $([]);
+
+      // Find the closest scrollable parent and remember the scroll position
+      $(_this.$container).parents().each(function(i, el) {
+        if ($(el).scrollTop() > 0) {
+          $scrollEl = $(el);
+
+          return false;
+        }
+      });
+
+      if ($scrollEl.length) {
+        var scrollPos = $scrollEl.scrollTop();
       }
 
       _this.$container.find('.agenda-date-selector').addClass('hidden');
@@ -339,6 +359,11 @@ DynamicList.prototype.attachObservers = function() {
 
       _this.toggleListView();
       _this.calculateFiltersHeight();
+
+      // Restore the scroll position for the closest scrollable parent
+      if ($scrollEl.length) {
+        $scrollEl.scrollTop(scrollPos);
+      }
 
       Fliplet.Analytics.trackEvent({
         category: 'list_dynamic_' + _this.data.layout,
@@ -353,6 +378,7 @@ DynamicList.prototype.attachObservers = function() {
       $(this).parents('.new-agenda-search-filter-overlay').removeClass('display');
       _this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.list-search-icon .fa-sliders').focus();
+      _this.$container.find('.new-agenda-list-container').removeClass('overlay-active');
       $('body').removeClass('lock has-filter-overlay');
 
       // Clear all selected filters
@@ -653,8 +679,6 @@ DynamicList.prototype.attachObservers = function() {
           return;
         }
 
-        _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').addClass('hidden');
-
         _this.showDetails(entryId);
         Fliplet.Page.Context.update({
           dynamicListOpenId: entryId
@@ -684,9 +708,6 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var result;
-
-      _this.$container.find('.agenda-list-holder').removeClass('hidden');
-      _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
 
       if ($(this).hasClass('go-previous-screen')) {
         if (!_this.pvPreviousScreen) {
@@ -2816,8 +2837,6 @@ DynamicList.prototype.closeDetails = function(options) {
 
     // This bit of code will only be useful if this component is added inside a Fliplet's Accordion component
     _this.$container.parents('.panel-group').not('.filter-overlay').removeClass('remove-transform');
-
-    _this.$container.find('.new-agenda-list-container, .dynamic-list-add-item').removeClass('hidden');
 
     // Focus on closed entry
     if (options.focusOnEntry) {
