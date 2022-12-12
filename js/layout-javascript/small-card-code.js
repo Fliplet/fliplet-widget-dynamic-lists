@@ -37,6 +37,7 @@ function DynamicList(id, data) {
 
   this.listItems;
   this.modifiedListItems;
+  this.renderListItems = [];
   this.searchedListItems;
   this.dataSourceColumns;
   this.directoryDetailWrapper;
@@ -1251,29 +1252,15 @@ DynamicList.prototype.addSummaryData = function(records) {
   return loopData;
 };
 
-DynamicList.prototype.renderLoopHTML = function() {
-  // Function that renders the List template
+DynamicList.prototype.renderLoopSegment = function(options) {
+  options = options || {};
+
   var _this = this;
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
-    ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
-    : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
-  var limitedList;
-  var isSorting = this.sortField && ['asc', 'desc'].indexOf(this.sortOrder) > -1;
-
-  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
-    && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks && !isSorting) {
-    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
-
-    // Hides the entry limit warning if the number of entries to show is less than the limit value
-    if (_this.data.limitEntries > _this.modifiedListItems.length) {
-      _this.$container.find('.limit-entries-text').addClass('hidden');
-    }
-  }
-
-  $('#small-card-list-wrapper-' + _this.data.id).empty();
-
+  var data = options.data;
   var renderLoopIndex = 0;
-  var data = limitedList || _this.modifiedListItems;
+  var template = this.data.advancedSettings && this.data.advancedSettings.loopHTML
+    ? Handlebars.compile(this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[this.layoutMapping[this.data.layout]['loop']]());
 
   return new Promise(function(resolve) {
     function render() {
@@ -1289,19 +1276,145 @@ DynamicList.prototype.renderLoopHTML = function() {
         // if the browser is ready, render
         requestAnimationFrame(render);
       } else {
-        _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
-
-        // Changing close icon in the fa-times-thin class for windows 7 IE11
-        if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
-          $('.fa-times-thin').addClass('win7');
-        }
-
         resolve(data);
       }
     }
 
     // start the initial render
     requestAnimationFrame(render);
+  });
+};
+
+DynamicList.prototype.lazyLoadMore = function() {
+  var _this = this;
+  var render = this.renderListItems.length
+    ? this.renderLoopSegment({
+      data: this.renderListItems.splice(0, this.data.lazyLoadBatchSize)
+    })
+    : Promise.resolve([]);
+
+  return render.then(function(renderedRecords) {
+    _this.$container.find('.list-load-more').toggleClass('hidden', !_this.renderListItems.length);
+
+    _this.attachLazyLoadObserver({
+      renderedRecords: renderedRecords
+    });
+
+    _this.initializeSocials(renderedRecords).then(function() {
+      return Fliplet.Hooks.run('flListDataAfterRenderMoreListSocial', {
+        instance: _this,
+        records: _this.searchedListItems,
+        renderedRecords: renderedRecords,
+        config: _this.data,
+        activeFilters: _this.activeFilters,
+        showBookmarks: _this.showBookmarks,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
+      });
+    });
+
+    // Update selected highlight size in Edit
+    Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
+    return Fliplet.Hooks.run('flListDataAfterRenderMoreList', {
+      instance: _this,
+      records: _this.searchedListItems,
+      renderedRecords: renderedRecords,
+      config: _this.data,
+      activeFilters: _this.activeFilters,
+      showBookmarks: _this.showBookmarks,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container
+    });
+  });
+};
+
+DynamicList.prototype.attachLazyLoadObserver = function(options) {
+  options = options || {};
+
+  var renderedRecords = options.renderedRecords || [];
+
+  if (!renderedRecords.length || !('IntersectionObserver' in window)) {
+    return;
+  }
+
+  var _this = this;
+
+  var lazyLoadThresholdIndex = Math.floor(renderedRecords.length * 0.9);
+  var triggerRecord = renderedRecords[lazyLoadThresholdIndex];
+
+  if (!triggerRecord) {
+    return;
+  }
+
+  var $triggerEntry = _this.$container.find('.small-card-list-item[data-entry-id="' + triggerRecord.id + '"]');
+  var observer = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) {
+        return;
+      }
+
+      observer.disconnect();
+      _this.lazyLoadMore();
+    });
+  });
+
+  requestAnimationFrame(function() {
+    observer.observe($triggerEntry.get(0));
+  });
+};
+
+DynamicList.prototype.renderLoopHTML = function() {
+  // Function that renders the List template
+  var _this = this;
+  var limitedList;
+  var isSorting = this.sortField && ['asc', 'desc'].indexOf(this.sortOrder) > -1;
+
+  if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
+    && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks && !isSorting) {
+    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+
+    // Hides the entry limit warning if the number of entries to show is less than the limit value
+    if (_this.data.limitEntries > _this.modifiedListItems.length) {
+      _this.$container.find('.limit-entries-text').addClass('hidden');
+    }
+  }
+
+  $('#small-card-list-wrapper-' + _this.data.id).empty();
+
+  this.renderListItems = _.clone(limitedList || _this.modifiedListItems || []);
+
+  var data = this.renderListItems.splice(0, this.data.lazyLoadBatchSize || this.renderListItems.length);
+
+  return this.renderLoopSegment({
+    data: data
+  }).then(function(renderedRecords) {
+    if (_this.data.lazyLoadBatchSize) {
+      var $loadMore = $('<div class="list-load-more" style="text-align:center;padding-bottom:20px;margin-bottom:10px;">Load more</div>');
+
+      $loadMore.on('click', function() {
+        _this.lazyLoadMore();
+      });
+
+      _this.attachLazyLoadObserver({
+        renderedRecords: renderedRecords
+      });
+
+      _this.$container.find('.small-card-list-wrapper').after($loadMore);
+
+      $loadMore.toggleClass('hidden', !_this.renderListItems.length);
+    }
+
+    _this.$container.find('.new-small-card-list-container').removeClass('loading').addClass('ready');
+
+    // Changing close icon in the fa-times-thin class for windows 7 IE11
+    if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
+      $('.fa-times-thin').addClass('win7');
+    }
+
+    return renderedRecords;
   });
 };
 
@@ -1545,6 +1658,7 @@ DynamicList.prototype.searchData = function(options) {
           instance: _this,
           value: value,
           records: _this.searchedListItems,
+          renderedRecords: renderedRecords,
           config: _this.data,
           activeFilters: _this.activeFilters,
           showBookmarks: _this.showBookmarks,
@@ -1569,6 +1683,7 @@ DynamicList.prototype.searchData = function(options) {
         instance: _this,
         value: value,
         records: _this.searchedListItems,
+        renderedRecords: renderedRecords,
         config: _this.data,
         activeFilters: _this.activeFilters,
         showBookmarks: _this.showBookmarks,
