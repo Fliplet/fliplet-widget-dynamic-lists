@@ -1287,13 +1287,16 @@ DynamicList.prototype.renderLoopSegment = function(options) {
 
 DynamicList.prototype.lazyLoadMore = function() {
   var _this = this;
-  var render = this.renderListItems.length
-    ? this.renderLoopSegment({
-      data: this.renderListItems.splice(0, this.data.lazyLoadBatchSize)
-    })
-    : Promise.resolve([]);
 
-  return render.then(function(renderedRecords) {
+  if (!this.renderListItems.length) {
+    this.$container.find('.list-load-more').addClass('hidden');
+
+    return Promise.resolve();
+  }
+
+  return this.renderLoopSegment({
+    data: this.renderListItems.splice(0, this.data.lazyLoadBatchSize)
+  }).then(function(renderedRecords) {
     _this.$container.find('.list-load-more').toggleClass('hidden', !_this.renderListItems.length);
 
     _this.attachLazyLoadObserver({
