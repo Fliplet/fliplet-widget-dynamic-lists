@@ -1395,17 +1395,21 @@ DynamicList.prototype.renderLoopHTML = function() {
     data: data
   }).then(function(renderedRecords) {
     if (_this.data.lazyLoadBatchSize) {
-      var $loadMore = $('<div class="list-load-more" style="text-align:center;padding-bottom:20px;margin-bottom:10px;">Load more</div>');
+      var $loadMore = _this.$container.find('.list-load-more');
 
-      $loadMore.on('click', function() {
-        _this.lazyLoadMore();
-      });
+      if (!$loadMore.length) {
+        $loadMore = $('<div class="list-load-more" style="text-align:center;padding-bottom:20px;margin-bottom:10px;">Load more</div>');
+
+        $loadMore.on('click', function() {
+          _this.lazyLoadMore();
+        });
+
+        _this.$container.find('.small-card-list-wrapper').after($loadMore);
+      }
 
       _this.attachLazyLoadObserver({
         renderedRecords: renderedRecords
       });
-
-      _this.$container.find('.small-card-list-wrapper').after($loadMore);
 
       $loadMore.toggleClass('hidden', !_this.renderListItems.length);
     }
