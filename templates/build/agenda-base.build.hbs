@@ -42,12 +42,12 @@
     \{{/if}}
     \{{#ifCond filtersEnabled '||' bookmarksEnabled}}
     <div class="list-search-icon">
-      \{{#ifCond bookmarksEnabled '&&' hasTopBar}}
+      \{{#if bookmarksEnabled}}
       <div class="toggle-bookmarks focus-outline" tabindex="0" data-mixitup-control="\{{id}}" data-toggle=".bookmarked" >
         <span class="fa fa-bookmark-o"></span>
         <span class="fa fa-bookmark"></span>
       </div>
-      \{{/ifCond}}
+      \{{/if}}
       <div class="list-search-cancel focus-outline" tabindex="0" ><span class="fa fa-times"></span></div>
       \{{#if filtersEnabled}}
       <i class="fa fa-sliders focus-outline" tabindex="0"></i>
@@ -56,18 +56,6 @@
     \{{/ifCond}}
   </div>
   <!-- End of Top bar -->
-
-  \{{#if bookmarksEnabled}}
-    \{{#unless hasTopBar}}
-    <div class="agenda-list-controls focus-outline" tabindex="1">
-      <div class="toggle-agenda" data-mixitup-control="\{{id}}" data-toggle=".bookmarked">
-        <span class="fa fa-bookmark-o"></span>
-        <span class="fa fa-bookmark"></span>
-        <div class="agenda-list-label">\{{ T "widgets.list.dynamic.agenda.list.listLabel"}}</div>
-      </div>
-    </div>
-    \{{/unless}}
-  \{{/if}}
 
   <!-- Days slider -->
   <div class="agenda-date-selector">
