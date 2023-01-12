@@ -115,7 +115,10 @@
   overflow-x: hidden;
 }
 
-[data-has-notch].platform-web .new-small-card-list-container .small-card-search-filter-overlay .small-card-overlay-content {
+[data-has-notch].platform-web
+  .new-small-card-list-container
+  .small-card-search-filter-overlay
+  .small-card-overlay-content {
   padding-bottom: calc(15px + 34px); /* For Fliplet Studio */
 }
 
@@ -152,7 +155,10 @@
   line-height: 1;
 }
 
-.new-small-card-list-container .small-card-search-filter-overlay .current-query-wrapper .clear-search {
+.new-small-card-list-container
+  .small-card-search-filter-overlay
+  .current-query-wrapper
+  .clear-search {
   position: absolute;
   right: 0;
   top: 0;
@@ -179,18 +185,26 @@
   overflow: hidden;
 }
 
-.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls-filter:hover,
-.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls-filter:focus {
-  color: rgba(255 ,255, 255, 0.7);
+.new-small-card-list-container
+  .small-card-search-filter-overlay
+  .hidden-filter-controls-filter:hover,
+.new-small-card-list-container
+  .small-card-search-filter-overlay
+  .hidden-filter-controls-filter:focus {
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls-filter.mixitup-control-active {
+.new-small-card-list-container
+  .small-card-search-filter-overlay
+  .hidden-filter-controls-filter.mixitup-control-active {
   background-color: #337ab7;
   color: #ffffff;
   border-color: #337ab7;
 }
 
-.new-small-card-list-container .small-card-search-filter-overlay .hidden-filter-controls-filter:last-child {
+.new-small-card-list-container
+  .small-card-search-filter-overlay
+  .hidden-filter-controls-filter:last-child {
   margin: 0;
 }
 
@@ -271,7 +285,7 @@
   min-width: 45px;
   height: 45px;
   min-height: 45px;
-  color: rgba(51,51,51,0.4);
+  color: rgba(51, 51, 51, 0.4);
   border: 1px solid rgba(51, 51, 51, 0.2);
   border-radius: 50%;
   text-align: center;
@@ -337,7 +351,7 @@
 
 .new-small-card-list-container .list-search-icon li[data-sort-order="none"] .fa.fa-sort,
 .new-small-card-list-container .list-search-icon li[data-sort-order="asc"] .fa.fa-sort-asc,
-.new-small-card-list-container .list-search-icon li[data-sort-order="desc"] .fa.fa-sort-desc  {
+.new-small-card-list-container .list-search-icon li[data-sort-order="desc"] .fa.fa-sort-desc {
   display: inline-block;
 }
 
@@ -524,7 +538,9 @@
   padding: 0 0 5px;
 }
 
-.new-small-card-list-container .hidden-filter-controls-filter-container + .hidden-filter-controls-label {
+.new-small-card-list-container
+  .hidden-filter-controls-filter-container
+  + .hidden-filter-controls-label {
   padding-top: 10px;
 }
 
@@ -645,7 +661,7 @@
   align-items: center;
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0px 6px 20px 0px rgba(0,0,0,0.1);
+  box-shadow: 0px 6px 20px 0px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: box-shadow 0.15s ease-out;
   position: relative;
@@ -655,7 +671,7 @@
 .no-touchevents .new-small-card-list-container .small-card-list-item:focus,
 .no-touchevents .new-small-card-list-container .small-card-list-item:active:focus,
 .new-small-card-list-container .small-card-list-item.hover {
-  box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.1);
 }
 
 .new-small-card-list-container .small-card-list-item.open {
@@ -689,20 +705,25 @@
   border-radius: 15px 0 0 15px;
 }
 
-.new-small-card-list-container .small-card-list-image .small-card-list-detail-wrapper.open .small-card-list-detail-image {
+.new-small-card-list-container
+  .small-card-list-image
+  .small-card-list-detail-wrapper.open
+  .small-card-list-detail-image {
   border-radius: 0;
 }
 
 .small-card-list-text-wrapper {
-  width: calc(100% - 61px)
+  width: calc(100% - 61px);
 }
 
-.small-card-list-name, .small-card-list-role, .small-card-list-location {
+.small-card-list-name,
+.small-card-list-role,
+.small-card-list-location {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
-  padding-right: 15px
+  padding-right: 15px;
 }
 
 .new-small-card-list-container .small-card-list-text-wrapper {
@@ -761,7 +782,7 @@
   font-size: 25px;
 }
 
-.has-filter-overlay .new-small-card-list-container {
+.new-small-card-list-container.overlay-active {
   /* Cover circle menu toggle and bottom menu bar when filter overlay is active  */
   z-index: 1010;
   -webkit-transition-delay: 0s;
@@ -779,7 +800,7 @@
 
 .new-small-card-list-container .small-card-bookmark-holder .fa-bookmark-o,
 .small-card-list-detail-content-wrapper .small-card-bookmark-holder .fa-bookmark-o {
-  color: rgba(51,51,51,0.2);
+  color: rgba(51, 51, 51, 0.2);
 }
 
 .new-small-card-list-container .small-card-bookmark-holder .fa-bookmark,
@@ -804,8 +825,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  color: rgba(51,51,51,0.1);
-  background-color: rgba(51,51,51,0.04);
+  color: rgba(51, 51, 51, 0.1);
+  background-color: rgba(51, 51, 51, 0.04);
 }
 
 .small-card-detail-wrapper .small-card-list-detail-image-wrapper {
@@ -848,8 +869,8 @@
   pointer-events: none;
   background-color: #ffffff;
   overflow: hidden;
-  -webkit-transform: translate3d(0,0,0);
-  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .new-small-card-list-container .small-card-list-detail-image,
@@ -883,8 +904,8 @@
   z-index: 12;
   overflow: auto;
   transition: all 0.2s ease-out;
-  -webkit-transform: translate3d(0,0,0);
-  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .new-small-card-list-container .small-card-list-detail-content-scroll-wrapper.open,
@@ -903,7 +924,9 @@
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
-[data-has-notch].platform-web .new-small-card-list-container .small-card-list-detail-content-wrapper,
+[data-has-notch].platform-web
+  .new-small-card-list-container
+  .small-card-list-detail-content-wrapper,
 [data-has-notch].platform-web .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
   padding-bottom: calc(20px + 34px); /* For Fliplet Studio */
 }
@@ -913,17 +936,26 @@
   padding-top: 60px;
 }
 
-.small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
+.small-card-detail-wrapper
+  .small-card-list-detail-image-wrapper
+  + .small-card-list-detail-content-scroll-wrapper
+  .small-card-list-detail-content-wrapper {
   top: calc(100vw + 20px);
   transition: top 0.2s ease-out;
 }
 
-.small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-content-wrapper {
+.small-card-detail-overlay.ready
+  .small-card-detail-wrapper
+  .small-card-list-detail-content-wrapper {
   top: 0;
   padding-top: 60px;
 }
 
-.small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
+.small-card-detail-overlay.ready
+  .small-card-detail-wrapper
+  .small-card-list-detail-image-wrapper
+  + .small-card-list-detail-content-scroll-wrapper
+  .small-card-list-detail-content-wrapper {
   top: calc(100vw - 20px);
 }
 
@@ -953,7 +985,7 @@
 }
 
 .small-card-detail-overlay .small-card-list-detail-name:after {
-  content: '';
+  content: "";
   display: block;
   width: 60%;
   height: 4px;
@@ -1000,8 +1032,12 @@
 
 .small-card-detail-overlay .small-card-list-detail-button a,
 .small-card-detail-overlay .small-card-list-detail-button a:hover,
-.small-card-detail-overlay .small-card-list-detail-button a:focus
-.small-card-detail-overlay .small-card-list-detail-button a:active,
+.small-card-detail-overlay
+  .small-card-list-detail-button
+  a:focus
+  .small-card-detail-overlay
+  .small-card-list-detail-button
+  a:active,
 .small-card-detail-overlay .small-card-list-detail-button a:active:hover,
 .small-card-detail-overlay .small-card-list-detail-button a:active:focus {
   text-decoration: none;
@@ -1062,7 +1098,10 @@
     margin: 0 auto;
   }
 
-  .new-small-card-list-container .small-card-list-image .small-card-list-detail-wrapper.open .small-card-list-detail-image {
+  .new-small-card-list-container
+    .small-card-list-image
+    .small-card-list-detail-wrapper.open
+    .small-card-list-detail-image {
     border-radius: 20px 20px 0 0;
   }
 
@@ -1119,7 +1158,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.8);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .small-card-detail-overlay .small-card-detail-overlay-wrapper {
@@ -1165,7 +1204,7 @@
   width: 38px;
   line-height: 38px;
   font-size: 24px;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   color: #333333;
   text-align: center;
@@ -1240,15 +1279,32 @@
   }
 
   .small-card-detail-wrapper .small-card-list-detail-content-wrapper,
-  .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-content-wrapper,
-  .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper,
-  .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
+  .small-card-detail-overlay.ready
+    .small-card-detail-wrapper
+    .small-card-list-detail-content-wrapper,
+  .small-card-detail-wrapper
+    .small-card-list-detail-image-wrapper
+    + .small-card-list-detail-content-scroll-wrapper
+    .small-card-list-detail-content-wrapper,
+  .small-card-detail-overlay.ready
+    .small-card-detail-wrapper
+    .small-card-list-detail-image-wrapper
+    + .small-card-list-detail-content-scroll-wrapper
+    .small-card-list-detail-content-wrapper {
     top: 0;
     padding: 40px 40px;
   }
 
-  .small-card-detail-overlay-wrapper .small-card-detail-overlay-panel .small-card-detail-overlay-content .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper,
-  .small-card-detail-overlay.ready .small-card-detail-wrapper .small-card-list-detail-image-wrapper + .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
+  .small-card-detail-overlay-wrapper
+    .small-card-detail-overlay-panel
+    .small-card-detail-overlay-content
+    .small-card-list-detail-content-scroll-wrapper
+    .small-card-list-detail-content-wrapper,
+  .small-card-detail-overlay.ready
+    .small-card-detail-wrapper
+    .small-card-list-detail-image-wrapper
+    + .small-card-list-detail-content-scroll-wrapper
+    .small-card-list-detail-content-wrapper {
     padding: 60px 40px 40px 40px;
     border-radius: 0;
   }
@@ -1257,12 +1313,16 @@
     position: relative;
   }
 
-  .small-card-detail-overlay .small-card-detail-wrapper .small-card-list-detail-image-wrapper ~ .small-card-list-detail-content-scroll-wrapper .small-card-list-detail-content-wrapper {
+  .small-card-detail-overlay
+    .small-card-detail-wrapper
+    .small-card-list-detail-image-wrapper
+    ~ .small-card-list-detail-content-scroll-wrapper
+    .small-card-list-detail-content-wrapper {
     padding: 40px;
   }
 }
 
- .has-bookmarks {
+.has-bookmarks {
   padding-right: 20px !important;
 }
 
@@ -1273,7 +1333,7 @@
 }
 
 .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin::before {
-  content: '\002573';
+  content: "\002573";
 }
 
 /* IE11 layout */
@@ -1291,13 +1351,12 @@
   }
 
   .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .win7.fa-times-thin::before {
-    content: '\2715';
+    content: "\2715";
   }
-
 }
 
 /* Safari layout */
-@media not all and (min-resolution:.001dpcm) {
+@media not all and (min-resolution: 0.001dpcm) {
   @media {
     .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
       padding-top: 1px;
@@ -1320,7 +1379,7 @@
 }
 
 /* For MS Edge */
-@supports (-ms-ime-align:auto) {
+@supports (-ms-ime-align: auto) {
   .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
     padding-top: 1px;
     padding-bottom: 3px;
@@ -1341,7 +1400,10 @@
 }
 
 /* For Android Chrome browser*/
-.android.no-native .small-card-detail-overlay-wrapper .small-card-detail-overlay-close .fa-times-thin {
+.android.no-native
+  .small-card-detail-overlay-wrapper
+  .small-card-detail-overlay-close
+  .fa-times-thin {
   padding-top: 2px;
   padding-bottom: 2px;
 }

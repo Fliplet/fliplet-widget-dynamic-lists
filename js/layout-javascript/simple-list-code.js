@@ -126,6 +126,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.simple-list-search-filter-overlay').removeClass('display');
+  this.$container.find('.simple-list-container').removeClass('overlay-active');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -446,6 +447,7 @@ DynamicList.prototype.attachObservers = function() {
 
       if (_this.data.filtersInOverlay) {
         $parentElement.find('.simple-list-search-filter-overlay').addClass('display');
+        _this.$container.find('.simple-list-container').addClass('overlay-active');
         $('body').addClass('lock has-filter-overlay');
 
         _this.$container.find('.simple-list-search-filter-overlay .simple-list-overlay-close').focus();
@@ -482,6 +484,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.removeClass('display');
 
       _this.$container.find('.simple-list-container, .dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.simple-list-container').removeClass('overlay-active');
       $('body').removeClass('lock has-filter-overlay');
       _this.$container.find('.list-search-icon .fa-sliders').focus();
 

@@ -130,6 +130,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.small-card-search-filter-overlay').removeClass('display');
+  this.$container.find('.new-small-card-list-container').removeClass('overlay-active');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -503,6 +504,7 @@ DynamicList.prototype.attachObservers = function() {
 
         _this.$container.find('.small-card-search-filter-overlay .small-card-overlay-close').focus();
         _this.$container.find('.dynamic-list-add-item').addClass('hidden');
+        _this.$container.find('.new-small-card-list-container').addClass('overlay-active');
 
         $('body').addClass('lock has-filter-overlay');
 
@@ -536,6 +538,7 @@ DynamicList.prototype.attachObservers = function() {
 
       $parentElement.removeClass('display');
       $('.dynamic-list-add-item').removeClass('hidden');
+      _this.$container.find('.new-small-card-list-container').removeClass('overlay-active');
       $('body').removeClass('lock has-filter-overlay');
       $('.list-search-icon .fa-sliders').focus();
 

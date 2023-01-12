@@ -132,6 +132,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.news-feed-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
+  this.$container.find('.new-news-feed-list-container').removeClass('overlay-active');
   $('body').removeClass('lock has-filter-overlay');
 };
 
@@ -477,6 +478,7 @@ DynamicList.prototype.attachObservers = function() {
         $parentElement.find('.news-feed-search-filter-overlay').addClass('display');
         _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').addClass('hidden');
         _this.$container.find('.news-feed-search-filter-overlay .news-feed-overlay-close').focus();
+        _this.$container.find('.new-news-feed-list-container').addClass('overlay-active');
         $('body').addClass('lock has-filter-overlay');
 
         Fliplet.Analytics.trackEvent({
@@ -510,6 +512,7 @@ DynamicList.prototype.attachObservers = function() {
       $parentElement.removeClass('display');
       _this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
       _this.$container.find('.list-search-icon .fa-sliders').focus();
+      _this.$container.find('.new-news-feed-list-container').removeClass('overlay-active');
       $('body').removeClass('lock has-filter-overlay');
 
       // Clear all selected filters
