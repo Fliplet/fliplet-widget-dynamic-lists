@@ -3064,7 +3064,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     if (options.filterControlsActive) {
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
     } else if (filterColumns || filterValues) {
-      pageCtx.dynamicListFilterHideControls = true;
+      pageCtx.dynamicListFilterHideControls = 'true';
     }
 
     Fliplet.Page.Context.update(pageCtx);
