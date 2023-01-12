@@ -80,7 +80,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     id: parseInt(Fliplet.Navigate.query['dynamicListOpenId'], 10),
     column: Fliplet.Navigate.query['dynamicListOpenColumn'],
     value: Fliplet.Navigate.query['dynamicListOpenValue'],
-    openComments: (Fliplet.Navigate.query['dynamicListOpenComments'] || '').toLowerCase() === 'true',
+    openComments: (('' + Fliplet.Navigate.query['dynamicListOpenComments']) || '').toLowerCase() === 'true',
     commentId: parseInt(Fliplet.Navigate.query['dynamicListCommentId'], 10)
   });
   this.queryOpen = _(this.pvOpenQuery).size() > 0;
@@ -96,7 +96,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   if (this.querySearch) {
     // check if a comma separated list of columns were passed as column
     this.pvSearchQuery.column = _this.Utils.String.splitByCommas(this.pvSearchQuery.column, false);
-    this.pvSearchQuery.openSingleEntry = (this.pvSearchQuery.openSingleEntry || '').toLowerCase() === 'true';
+    this.pvSearchQuery.openSingleEntry = (('' + this.pvSearchQuery.openSingleEntry) || '').toLowerCase() === 'true';
     this.data.searchEnabled = this.querySearch;
   } else {
     this.querySearch = null;
@@ -123,7 +123,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     }
 
     // cast to boolean
-    this.pvFilterQuery.hideControls = (this.pvFilterQuery.hideControls || '').toLowerCase() === 'true';
+    this.pvFilterQuery.hideControls = (('' + this.pvFilterQuery.hideControls) || '').toLowerCase() === 'true';
     this.data.filtersEnabled = this.data.filtersEnabled || this.queryFilter;
   } else {
     this.queryFilter = null;
