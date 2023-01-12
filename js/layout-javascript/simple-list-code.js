@@ -37,6 +37,7 @@ function DynamicList(id, data) {
 
   this.listItems;
   this.modifiedListItems;
+  this.renderListItems = [];
   this.searchedListItems;
   this.entryOverlay;
   this.myUserData = {};
@@ -1436,6 +1437,127 @@ DynamicList.prototype.addSummaryData = function(records) {
   return loopData;
 };
 
+DynamicList.prototype.renderLoopSegment = function(options) {
+  options = options || {};
+
+  var _this = this;
+  var data = options.data;
+  var renderLoopIndex = 0;
+  var template = this.data.advancedSettings && this.data.advancedSettings.loopHTML
+    ? Handlebars.compile(this.data.advancedSettings.loopHTML)
+    : Handlebars.compile(Fliplet.Widget.Templates[this.layoutMapping[this.data.layout]['loop']]());
+
+  return new Promise(function(resolve) {
+    function render() {
+      // get the next batch of items to render
+      var nextBatch = data.slice(
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
+        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
+      );
+
+      if (nextBatch.length) {
+        $('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
+        renderLoopIndex++;
+        // if the browser is ready, render
+        requestAnimationFrame(render);
+      } else {
+        resolve(data);
+      }
+    }
+
+    // start the initial render
+    requestAnimationFrame(render);
+  });
+};
+
+DynamicList.prototype.lazyLoadMore = function() {
+  var _this = this;
+
+  if (!this.renderListItems.length) {
+    this.$container.find('.list-load-more').addClass('hidden');
+
+    return Promise.resolve();
+  }
+
+  return this.renderLoopSegment({
+    data: this.renderListItems.splice(0, this.data.lazyLoadBatchSize)
+  }).then(function(renderedRecords) {
+    _this.$container.find('.list-load-more').toggleClass('hidden', !_this.renderListItems.length);
+
+    _this.attachLazyLoadObserver({
+      renderedRecords: renderedRecords
+    });
+
+    _this.initializeSocials(renderedRecords).then(function() {
+      return Fliplet.Hooks.run('flListDataAfterRenderMoreListSocial', {
+        instance: _this,
+        records: _this.searchedListItems,
+        renderedRecords: renderedRecords,
+        config: _this.data,
+        sortField: _this.sortField,
+        sortOrder: _this.sortOrder,
+        activeFilters: _this.activeFilters,
+        showBookmarks: _this.showBookmarks,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
+      });
+    });
+
+    // Update selected highlight size in Edit
+    Fliplet.Widget.updateHighlightDimensions(_this.data.id);
+
+    return Fliplet.Hooks.run('flListDataAfterRenderMoreList', {
+      instance: _this,
+      records: _this.searchedListItems,
+      renderedRecords: renderedRecords,
+      config: _this.data,
+      sortField: _this.sortField,
+      sortOrder: _this.sortOrder,
+      activeFilters: _this.activeFilters,
+      showBookmarks: _this.showBookmarks,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container
+    });
+  });
+};
+
+DynamicList.prototype.attachLazyLoadObserver = function(options) {
+  options = options || {};
+
+  var renderedRecords = options.renderedRecords || [];
+
+  if (!renderedRecords.length || !('IntersectionObserver' in window)) {
+    return;
+  }
+
+  var _this = this;
+
+  var lazyLoadThresholdIndex = Math.floor(renderedRecords.length * 0.9);
+  var triggerRecord = renderedRecords[lazyLoadThresholdIndex];
+
+  if (!triggerRecord) {
+    return;
+  }
+
+  var $triggerEntry = _this.$container.find('.simple-list-item[data-entry-id="' + triggerRecord.id + '"]');
+  var observer = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) {
+        return;
+      }
+
+      observer.disconnect();
+      _this.lazyLoadMore();
+    });
+  });
+
+  requestAnimationFrame(function() {
+    observer.observe($triggerEntry.get(0));
+  });
+};
+
 DynamicList.prototype.renderLoopHTML = function() {
   // Function that renders the List template
   var _this = this;
@@ -1457,37 +1579,41 @@ DynamicList.prototype.renderLoopHTML = function() {
 
   $('#simple-list-wrapper-' + _this.data.id).empty();
 
-  var renderLoopIndex = 0;
-  var data = limitedList || _this.modifiedListItems;
+  this.renderListItems = _.clone(limitedList || _this.modifiedListItems || []);
 
-  return new Promise(function(resolve) {
-    function render() {
-      // get the next batch of items to render
-      var nextBatch = data.slice(
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE,
-        renderLoopIndex * _this.INCREMENTAL_RENDERING_BATCH_SIZE + _this.INCREMENTAL_RENDERING_BATCH_SIZE
-      );
+  var data = this.renderListItems.splice(0, this.data.lazyLoadBatchSize || this.renderListItems.length);
 
-      if (nextBatch.length) {
-        $('#simple-list-wrapper-' + _this.data.id).append(template(nextBatch));
-        renderLoopIndex++;
+  return this.renderLoopSegment({
+    data: data
+  }).then(function(renderedRecords) {
+    if (_this.data.lazyLoadBatchSize) {
+      var $loadMore = _this.$container.find('.list-load-more');
 
-        // if the browser is ready, render
-        requestAnimationFrame(render);
-      } else {
-        _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+      if (!$loadMore.length) {
+        $loadMore = $('<div class="list-load-more" style="text-align:center;padding-bottom:20px;margin-bottom:10px;">Load more</div>');
 
-        // Changing close icon in the fa-times-thin class for windows 7 IE11
-        if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
-          $('.fa-times-thin').addClass('win7');
-        }
+        $loadMore.on('click', function() {
+          _this.lazyLoadMore();
+        });
 
-        resolve(data);
+        _this.$container.find('.simple-list-wrapper').after($loadMore);
       }
+
+      _this.attachLazyLoadObserver({
+        renderedRecords: renderedRecords
+      });
+
+      $loadMore.toggleClass('hidden', !_this.renderListItems.length);
     }
 
-    // start the initial render
-    requestAnimationFrame(render);
+    _this.$container.find('.simple-list-container').removeClass('loading').addClass('ready');
+
+    // Changing close icon in the fa-times-thin class for windows 7 IE11
+    if (/Windows NT 6.1/g.test(navigator.appVersion) && Modernizr.ie11) {
+      $('.fa-times-thin').addClass('win7');
+    }
+
+    return renderedRecords;
   });
 };
 
@@ -1638,6 +1764,8 @@ DynamicList.prototype.searchData = function(options) {
       config: _this.data,
       activeFilters: _this.activeFilters,
       showBookmarks: _this.showBookmarks,
+      sortField: _this.sortField,
+      sortOrder: _this.sortOrder,
       limit: limit
     }).then(function() {
       searchedData = searchedData || [];
@@ -1715,7 +1843,10 @@ DynamicList.prototype.searchData = function(options) {
           instance: _this,
           value: value,
           records: _this.searchedListItems,
+          renderedRecords: renderedRecords,
           config: _this.data,
+          sortField: _this.sortField,
+          sortOrder: _this.sortOrder,
           activeFilters: _this.activeFilters,
           showBookmarks: _this.showBookmarks,
           id: _this.data.id,
@@ -1739,7 +1870,10 @@ DynamicList.prototype.searchData = function(options) {
         instance: _this,
         value: value,
         records: _this.searchedListItems,
+        renderedRecords: renderedRecords,
         config: _this.data,
+        sortField: _this.sortField,
+        sortOrder: _this.sortOrder,
         activeFilters: _this.activeFilters,
         showBookmarks: _this.showBookmarks,
         id: _this.data.id,
