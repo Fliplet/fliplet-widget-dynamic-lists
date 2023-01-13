@@ -1120,6 +1120,25 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         value: option.value
       };
 
+      // Add filter values as different types
+      if (Array.isArray(filter.value)) {
+        filter.value.forEach(function(value) {
+          if (typeof value !== 'string') {
+            return;
+          }
+
+          // Add number strings as numbers
+          if (!isNaN(value)) {
+            filter.value.push(+value);
+          } else if (/^true|false$/i.test(value)) {
+            // Add boolean strings as booleans
+            filter.value.push(value.toLowerCase() === 'true');
+          }
+        });
+
+        filter.value = _.uniq(filter.value);
+      }
+
       // Set up date filter values
       if (filterIsDateCondition(filter)) {
         // Value will be set with date filter, if required
@@ -3064,7 +3083,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     if (options.filterControlsActive) {
       Fliplet.Page.Context.remove('dynamicListFilterHideControls');
     } else if (filterColumns || filterValues) {
-      pageCtx.dynamicListFilterHideControls = true;
+      pageCtx.dynamicListFilterHideControls = 'true';
     }
 
     Fliplet.Page.Context.update(pageCtx);
