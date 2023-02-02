@@ -1772,7 +1772,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     records.unshift({});
-    fields = _.keys(_.extend.apply({}, _.map(records, 'data')));
+
+    var res = {};
+
+    _.forEach(records, function(record) {
+      _.extend(res, record && record.data);
+    });
+
+    fields = _.keys(res);
     records.shift();
 
     if (key) {
