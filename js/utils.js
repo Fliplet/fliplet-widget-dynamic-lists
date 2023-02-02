@@ -1765,22 +1765,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     records = records || [];
 
     var cachedFields = {};
-    var fields;
+    var fields = [];
 
     if (key && cachedFields[key]) {
       return Promise.resolve(cachedFields[key]);
     }
 
-    records.unshift({});
-
-    var res = {};
-
-    _.forEach(records, function(record) {
-      _.extend(res, record && record.data);
+    records.forEach(function(record) {
+      Object.keys(record && record.data || {}).forEach(function(key) {
+        if (fields.indexOf(key) === -1) {
+          fields.push(key);
+        }
+      });
     });
-
-    fields = _.keys(res);
-    records.shift();
 
     if (key) {
       cachedFields[key] = fields;
