@@ -2247,6 +2247,24 @@ var DynamicLists = (function() {
         resolve();
       });
 
+      var searchResultsPromise = new Promise(function(resolve) {
+        var searchResultsTemplateCompiler;
+
+        if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout]['search-results']) {
+          searchResultsTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout]['search-results']];
+        }
+
+        if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.loopHTML !== 'undefined') {
+          searchResultsTemplateCode = !fromReset ? _this.config.advancedSettings.searchResultsHTML : searchResultsTemplateEditor.getValue();
+        } else if (typeof searchResultsTemplateCompiler !== 'undefined') {
+          searchResultsTemplateCode = searchResultsTemplateCompiler();
+        } else {
+          searchResultsTemplateCode = '';
+        }
+
+        resolve();
+      });
+
       var detailPromise = new Promise(function(resolve) {
         var detailTemplateCompiler;
 
@@ -2322,7 +2340,7 @@ var DynamicLists = (function() {
           });
       }
 
-      return Promise.all([basePromise, loopPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
+      return Promise.all([basePromise, loopPromise, searchResultsPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
     toggleTabVisibility: function(id, isInvisible, fromReset) {
       var el = document.getElementById(id);
