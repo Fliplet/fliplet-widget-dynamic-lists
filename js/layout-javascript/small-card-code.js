@@ -925,6 +925,11 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
+
+      // Check if it's meant to directly open a single record
+      return _this.checkIsToOpen();
+    })
+    .then(function() {
       // Determine filter types from configuration
       _this.filterTypes = _this.Utils.getFilterTypes({ instance: _this });
 
@@ -1002,8 +1007,6 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
-
-      return _this.checkIsToOpen();
     })
     .then(function() {
       _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
@@ -1029,37 +1032,127 @@ DynamicList.prototype.changeSortOrder = function() {
   }
 };
 
+DynamicList.prototype.getDataSourceConnection = function() {
+  return Fliplet.DataSources.connect(this.data.dataSourceId, {
+    offline: this.data.hasOwnProperty('cache') ? this.data.cache : undefined
+  });
+};
+
+DynamicList.prototype.loadSingleRecordData = function() {
+  var _this = this;
+
+  // Hook: flListDataBeforeGetRecord
+  return Fliplet.Hooks.run('flListDataBeforeGetRecord', {
+    instance: this,
+    config: this.data,
+    id: this.data.id,
+    uuid: this.data.uuid,
+    container: this.$container,
+    openQuery: this.pvOpenQuery
+  }).then(function() {
+    return _this.getDataSourceConnection();
+  }).then(function(connection) {
+    // Get single record
+    if (_.hasIn(_this.pvOpenQuery, 'id')) {
+      return connection.findById(_this.pvOpenQuery.id);
+    } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+      var query = { where: {} };
+
+      query.where[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
+
+      return connection.findOne(query);
+    }
+  }).then(function(record) {
+    var records = [record];
+
+    // Add computed fields
+    _this.Utils.Records.addComputedFields({
+      records: records,
+      config: _this.data,
+      filterTypes: _this.filterTypes
+    });
+
+    return Fliplet.Hooks.run('flListDataAfterGetRecord', {
+      instance: _this,
+      config: _this.data,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container,
+      openQuery: _this.pvOpenQuery,
+      record: records[0]
+    }).then(function() {
+      // Add permissions
+      records = _this.getPermissions(records);
+
+      return records;
+    });
+  }).then(function(records) {
+    // Get full list of aggregated columns
+    return _this.Utils.Records.getFields(records, _this.data.dataSourceId)
+      .then(function(columns) {
+        _this.dataSourceColumns = columns;
+
+        return records;
+      });
+  }).then(function(records) {
+    // Update files for media fields
+    return _this.Utils.Records.updateFiles({
+      records: records,
+      config: _this.data
+    });
+  }).then(function(response) {
+    return _.uniqBy(response, 'id')[0];
+  });
+};
+
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
+  var loadSingleRecordData;
 
   if (!_this.queryOpen) {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
-      // eslint-disable-next-line eqeqeq
-      return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
-    });
+  if (typeof this.listItems !== 'undefined') {
+    if (_.hasIn(this.pvOpenQuery, 'id')) {
+      entry = _.find(this.listItems, { id: this.pvOpenQuery.id });
+    } else if (_.hasIn(this.pvOpenQuery, 'value') && _.hasIn(this.pvOpenQuery, 'column')) {
+      entry = _.find(this.listItems, function(row) {
+        // eslint-disable-next-line eqeqeq
+        return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
+      });
+    }
+
+    if (!entry) {
+      Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
+
+      return Promise.resolve();
+    }
+
+    loadSingleRecordData = Promise.resolve(entry);
+  } else {
+    loadSingleRecordData = this.loadSingleRecordData();
   }
 
-  if (!entry) {
-    Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
+  return loadSingleRecordData.then(function(record) {
+    if (!record) {
+      Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
 
-    return Promise.resolve();
-  }
+      return Promise.resolve();
+    }
 
-  var modifiedData = _this.addSummaryData([entry]);
+    var modifiedData = _this.addSummaryData([record]);
 
-  return _this.showDetails(entry.id, modifiedData).then(function() {
-    _this.openedEntryOnQuery = true;
+    return _this.showDetails(record.id, modifiedData).then(function() {
+      _this.openedEntryOnQuery = true;
 
-    // Wait for overlay transition to complete
-    return new Promise(function(resolve) {
-      setTimeout(resolve, 250);
+      // Wait for overlay transition to complete
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          resolve(true);
+        }, 250);
+      });
     });
   });
 };
