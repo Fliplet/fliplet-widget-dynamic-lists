@@ -1675,7 +1675,8 @@ DynamicList.prototype.searchData = function(options) {
       showBookmarks: _this.showBookmarks,
       sortField: _this.sortField,
       sortOrder: _this.sortOrder,
-      limit: limit
+      limit: limit,
+      initialRender: !!options.initialRender
     }).then(function() {
       searchedData = searchedData || [];
 
