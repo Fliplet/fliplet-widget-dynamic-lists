@@ -926,6 +926,15 @@ DynamicList.prototype.initialize = function() {
       // Render Base HTML template
       _this.renderBaseHTML();
 
+      return Fliplet.Hooks.run('flListDataBeforeInit', {
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
+      });
+    })
+    .then(function() {
       // Check if it's meant to directly open a single record
       return _this.checkIsToOpen();
     })
@@ -1041,7 +1050,6 @@ DynamicList.prototype.getDataSourceConnection = function() {
 DynamicList.prototype.loadSingleRecordData = function() {
   var _this = this;
 
-  // Hook: flListDataBeforeGetRecord
   return Fliplet.Hooks.run('flListDataBeforeGetRecord', {
     instance: this,
     config: this.data,
