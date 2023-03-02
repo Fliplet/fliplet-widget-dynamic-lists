@@ -1050,13 +1050,14 @@ DynamicList.prototype.getDataSourceConnection = function() {
 DynamicList.prototype.loadSingleRecordData = function() {
   var _this = this;
 
-  return Fliplet.Hooks.run('flListDataBeforeGetRecord', {
+  return Fliplet.Hooks.run('flListDataBeforeGetData', {
     instance: this,
     config: this.data,
     id: this.data.id,
     uuid: this.data.uuid,
     container: this.$container,
-    openQuery: this.pvOpenQuery
+    openQuery: this.pvOpenQuery,
+    getSingleEntry: true
   }).then(function() {
     return _this.getDataSourceConnection();
   }).then(function(connection) {
@@ -1080,13 +1081,14 @@ DynamicList.prototype.loadSingleRecordData = function() {
       filterTypes: _this.filterTypes
     });
 
-    return Fliplet.Hooks.run('flListDataAfterGetRecord', {
+    return Fliplet.Hooks.run('flListDataAfterGetData', {
       instance: _this,
       config: _this.data,
       id: _this.data.id,
       uuid: _this.data.uuid,
       container: _this.$container,
       openQuery: _this.pvOpenQuery,
+      getSingleEntry: true,
       record: records[0]
     }).then(function() {
       // Add permissions
