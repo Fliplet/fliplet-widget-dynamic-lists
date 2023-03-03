@@ -1152,9 +1152,7 @@ DynamicList.prototype.checkIsToOpen = function() {
       return Promise.resolve();
     }
 
-    var modifiedData = _this.addSummaryData([record]);
-
-    return _this.showDetails(record.id, modifiedData).then(function() {
+    return _this.showDetails(record.id, [record]).then(function() {
       _this.openedEntryOnQuery = true;
 
       // Wait for overlay transition to complete
@@ -1368,6 +1366,8 @@ DynamicList.prototype.renderLoopSegment = function(options) {
     ? Handlebars.compile(this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[this.layoutMapping[this.data.layout]['loop']]());
 
+  data = this.addSummaryData(data);
+
   return new Promise(function(resolve) {
     function render() {
       // get the next batch of items to render
@@ -1479,25 +1479,28 @@ DynamicList.prototype.attachLazyLoadObserver = function(options) {
   });
 };
 
-DynamicList.prototype.renderLoopHTML = function() {
+DynamicList.prototype.renderLoopHTML = function(options) {
+  options = options || {};
+
   // Function that renders the List template
   var _this = this;
+  var records = options.records || [];
   var limitedList;
   var isSorting = this.sortField && ['asc', 'desc'].indexOf(this.sortOrder) > -1;
 
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
     && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks && !isSorting) {
-    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+    limitedList = records.slice(0, _this.data.limitEntries);
 
     // Hides the entry limit warning if the number of entries to show is less than the limit value
-    if (_this.data.limitEntries > _this.modifiedListItems.length) {
+    if (_this.data.limitEntries > records.length) {
       _this.$container.find('.limit-entries-text').addClass('hidden');
     }
   }
 
   $('#small-card-list-wrapper-' + _this.data.id).empty();
 
-  this.renderListItems = _.clone(limitedList || _this.modifiedListItems || []);
+  this.renderListItems = _.clone(limitedList || records || []);
 
   var data = this.renderListItems.splice(0, this.data.lazyLoadBatchSize || this.renderListItems.length);
 
@@ -1752,9 +1755,9 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
-      _this.modifiedListItems = _this.addSummaryData(searchedData);
-
-      return _this.renderLoopHTML().then(function(records) {
+      return _this.renderLoopHTML({
+        records: searchedData
+      }).then(function(records) {
         _this.searchedListItems = searchedData;
 
         // Render user profile
@@ -2220,6 +2223,10 @@ DynamicList.prototype.showDetails = function(id, listData) {
     detailViewOptions: _this.data.detailViewOptions
   })
     .then(function(files) {
+      if (typeof entryData.originalData === 'undefined') {
+        entryData = _this.addSummaryData([entryData])[0];
+      }
+
       entryData = _this.addDetailViewData(entryData);
 
       if (files && Array.isArray(files)) {
