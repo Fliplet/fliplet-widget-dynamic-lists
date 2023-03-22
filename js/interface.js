@@ -2219,7 +2219,7 @@ var DynamicLists = (function() {
         }
 
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.baseHTML !== 'undefined') {
-          baseTemplateCode = !fromReset ? _this.config.advancedSettings.baseHTML : baseTemplateEditor.getValue();
+          baseTemplateCode = !fromReset ? _this.config.advancedSettings.baseHTML || '' : baseTemplateEditor.getValue();
         } else if (typeof baseTemplateCompiler !== 'undefined') {
           baseTemplateCode = baseTemplateCompiler();
         } else {
@@ -2237,11 +2237,29 @@ var DynamicLists = (function() {
         }
 
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.loopHTML !== 'undefined') {
-          loopTemplateCode = !fromReset ? _this.config.advancedSettings.loopHTML : loopTemplateEditor.getValue();
+          loopTemplateCode = !fromReset ? _this.config.advancedSettings.loopHTML || '' : loopTemplateEditor.getValue();
         } else if (typeof loopTemplateCompiler !== 'undefined') {
           loopTemplateCode = loopTemplateCompiler();
         } else {
           loopTemplateCode = '';
+        }
+
+        resolve();
+      });
+
+      var searchResultsPromise = new Promise(function(resolve) {
+        var searchResultsTemplateCompiler;
+
+        if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout]['search-results']) {
+          searchResultsTemplateCompiler = Fliplet.Widget.Templates[layoutMapping[selectedLayout]['search-results']];
+        }
+
+        if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.loopHTML !== 'undefined') {
+          searchResultsTemplateCode = !fromReset ? _this.config.advancedSettings.searchResultsHTML || '' : searchResultsTemplateEditor.getValue();
+        } else if (typeof searchResultsTemplateCompiler !== 'undefined') {
+          searchResultsTemplateCode = searchResultsTemplateCompiler();
+        } else {
+          searchResultsTemplateCode = '';
         }
 
         resolve();
@@ -2255,7 +2273,7 @@ var DynamicLists = (function() {
         }
 
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.detailHTML !== 'undefined') {
-          detailTemplateCode = !fromReset ? _this.config.advancedSettings.detailHTML : detailTemplateEditor.getValue();
+          detailTemplateCode = !fromReset ? _this.config.advancedSettings.detailHTML || '' : detailTemplateEditor.getValue();
         } else if (typeof detailTemplateCompiler !== 'undefined') {
           detailTemplateCode = detailTemplateCompiler();
         } else {
@@ -2273,7 +2291,7 @@ var DynamicLists = (function() {
         }
 
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.filterHTML !== 'undefined') {
-          filterLoopTemplateCode = !fromReset ? _this.config.advancedSettings.filterHTML : filterLoopTemplateEditor.getValue();
+          filterLoopTemplateCode = !fromReset ? _this.config.advancedSettings.filterHTML || '' : filterLoopTemplateEditor.getValue();
         } else if (typeof filterLoopTemplateCompiler !== 'undefined') {
           filterLoopTemplateCode = filterLoopTemplateCompiler();
         } else {
@@ -2291,7 +2309,7 @@ var DynamicLists = (function() {
         }
 
         if (_this.config.advancedSettings.htmlEnabled && typeof _this.config.advancedSettings.otherLoopHTML !== 'undefined') {
-          otherLoopTemplateCode = !fromReset ? _this.config.advancedSettings.otherLoopHTML : otherLoopTemplateEditor.getValue();
+          otherLoopTemplateCode = !fromReset ? _this.config.advancedSettings.otherLoopHTML || '' : otherLoopTemplateEditor.getValue();
         } else if (typeof otherLoopTemplateCompiler !== 'undefined') {
           otherLoopTemplateCode = otherLoopTemplateCompiler();
         } else {
@@ -2302,7 +2320,7 @@ var DynamicLists = (function() {
       });
 
       if (_this.config.advancedSettings.cssEnabled && typeof _this.config.advancedSettings.cssCode !== 'undefined') {
-        cssCode = !fromReset ? _this.config.advancedSettings.cssCode : cssStyleEditor.getValue();
+        cssCode = !fromReset ? _this.config.advancedSettings.cssCode || '' : cssStyleEditor.getValue();
       } else if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].css) {
         var cssUrl = $('[data-' + layoutMapping[selectedLayout].css + '-css-url]').data(layoutMapping[selectedLayout].css + '-css-url');
         var cssPromise = Fliplet.API.request('v1/communicate/proxy/' + cssUrl).then(function(response) {
@@ -2313,7 +2331,7 @@ var DynamicLists = (function() {
       }
 
       if (_this.config.advancedSettings.jsEnabled && typeof _this.config.advancedSettings.jsCode !== 'undefined') {
-        jsCode = !fromReset ? _this.config.advancedSettings.jsCode : javascriptEditor.getValue();
+        jsCode = !fromReset ? _this.config.advancedSettings.jsCode || '' : javascriptEditor.getValue();
       } else if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].js) {
         var jsUrl = $('[data-' + layoutMapping[selectedLayout].js + '-js-url]').data(layoutMapping[selectedLayout].js + '-js-url');
         var jsPromise = Fliplet.API.request('v1/communicate/proxy/' + jsUrl )
@@ -2322,7 +2340,7 @@ var DynamicLists = (function() {
           });
       }
 
-      return Promise.all([basePromise, loopPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
+      return Promise.all([basePromise, loopPromise, searchResultsPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
     toggleTabVisibility: function(id, isInvisible, fromReset) {
       var el = document.getElementById(id);
