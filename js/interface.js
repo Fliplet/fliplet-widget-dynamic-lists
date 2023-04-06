@@ -1284,7 +1284,7 @@ var DynamicLists = (function() {
         if (item.imageField === 'all-folders' && item.folder) {
           $summaryRowContainer.find('[data-id="' + item.id + '"]')
             .find('.file-picker-btn').text('Replace folder').end()
-            .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+            .find('.selected-folder span').text(_.get(item, 'folder.selectFiles[0].name', '')).end()
             .find('.selected-folder').removeClass('hidden');
         }
       });
@@ -1311,7 +1311,7 @@ var DynamicLists = (function() {
         if (item.imageField === 'all-folders' && item.folder) {
           $detailsRowContainer.find('[data-id="' + item.id + '"]')
             .find('.file-picker-btn').text('Replace folder').end()
-            .find('.selected-folder span').text(item.folder.selectFiles[0].name).end()
+            .find('.selected-folder span').text(_.get(item, 'folder.selectFiles[0].name', '')).end()
             .find('.selected-folder').removeClass('hidden');
         }
       });
