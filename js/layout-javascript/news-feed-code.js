@@ -2793,7 +2793,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
 
   return Fliplet.DataSources.connect(_this.data.userDataSourceId, options)
     .then(function(connection) {
-      return connection.find();
+      return connection.find(_this.data.commentUsersQuery);
     });
 };
 
