@@ -18,6 +18,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   };
   var computedFieldClashes = [];
   var div = document.createElement('DIV');
+  var searchValueMap = {};
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
   var parsedDates = {};
@@ -1200,7 +1201,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     record = removeSymbols(record).toLowerCase();
-    value = removeSymbols(value).toLowerCase().trim();
+
+    if (!searchValueMap[value]) {
+      // Attempt to strip HTML if any potential HTML tag is detected
+      if (value.match(/<[a-z0-9]+?>/i)) {
+        div.innerHTML = value;
+        value = div.innerText.toLowerCase().trim();
+      }
+
+      value = removeSymbols(value).toLowerCase().trim();
+
+      // Cache the processed value to avoid over-processing
+      searchValueMap[value] = value;
+    }
 
     return record.indexOf(value) > -1;
   }
