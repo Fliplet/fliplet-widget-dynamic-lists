@@ -17,7 +17,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     refArraySeparator: '.$.'
   };
   var computedFieldClashes = [];
-  var div = document.createElement('DIV');
   var searchValueMap = {};
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
@@ -1184,7 +1183,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     str = str.replace(htmlTagPattern, ' ');
 
     // Clean-up
-    str = removeSymbols(str).replace(/ +/g, ' ').toLowerCase().trim();
+    str = removeSymbols(str).replace(/[\s\n]+/g, ' ').toLowerCase().trim();
 
     return str;
   }
