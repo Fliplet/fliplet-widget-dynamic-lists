@@ -3074,7 +3074,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           return filter[1].join('..');
         case 'toggle':
         default:
-          return filter[1].length > 1 ? '[' + filter[1].join(',') + ']' : filter[1].join(',');
+          var values = _.map(filter[1], function(value) {
+            return value.indexOf(',') > -1 ? '"' + value + '"' : value;
+          }).join(',');
+
+          return filter[1].length > 1 ? '[' + values + ']' : values;
       }
     }).join(',');
 
