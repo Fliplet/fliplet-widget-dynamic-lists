@@ -17,7 +17,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     refArraySeparator: '.$.'
   };
   var computedFieldClashes = [];
-  var div = document.createElement('DIV');
   var searchValueMap = {};
   var currentDate = {};
   var LOCAL_FORMAT = 'YYYY-MM-DD';
@@ -1172,6 +1171,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return ('' + str).replace(/[&\/\\#+()$~%.`'‘’"“”:*?<>{}]+/g, '');
   }
 
+  function normalizeStringForSearch(str) {
+    var htmlTagPattern = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+
+    // Remove HTML entities
+    str = typeof str === 'string'
+      ? str.replace(/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/ig, '')
+      : (str + '');
+
+    // Attempt to strip HTML if any potential HTML tag is detected
+    str = str.replace(htmlTagPattern, ' ');
+
+    // Clean-up
+    str = removeSymbols(str).replace(/[\s\n]+/g, ' ').toLowerCase().trim();
+
+    return str;
+  }
+
   function recordContains(record, value) {
     if (_.isNil(record)) {
       return false;
@@ -1189,27 +1205,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
     }
 
-    // Remove HTML entities
-    record = typeof record === 'string'
-      ? record.replace(/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/ig, '')
-      : (record + '');
+    record = normalizeStringForSearch(record);
 
-    // Attempt to strip HTML if any potential HTML tag is detected
-    if (record.match(/<[a-z0-9]+?>/i)) {
-      div.innerHTML = record;
-      record = div.innerText;
-    }
-
-    record = removeSymbols(record).toLowerCase();
-
-    if (!searchValueMap[value]) {
-      // Attempt to strip HTML if any potential HTML tag is detected
-      if (value.match(/<[a-z0-9]+?>/i)) {
-        div.innerHTML = value;
-        value = div.innerText.toLowerCase().trim();
-      }
-
-      value = removeSymbols(value).toLowerCase().trim();
+    if (typeof searchValueMap[value] === 'undefined') {
+      value = normalizeStringForSearch(value);
 
       // Cache the processed value to avoid over-processing
       searchValueMap[value] = value;
