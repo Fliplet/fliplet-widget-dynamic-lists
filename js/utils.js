@@ -1536,6 +1536,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           };
         }
 
+        if (!query) {
+          query = {
+            order: [
+              ['order', 'ASC'],
+              ['id', 'ASC']
+            ]
+          };
+        }
+
         return connection.find(query);
       });
   }
