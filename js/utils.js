@@ -2034,7 +2034,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
             type: field,
             data: {
               name: value,
-              class: 'filter-' + _.kebabCase(value)
+              class: _.kebabCase(value)
             }
           });
         });
@@ -2231,7 +2231,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
             record.data['flFilters'].push(filterData);
           } else {
-            var filterClass = 'filter-' + _.kebabCase(value);
+            var filterClass = _.kebabCase(value);
 
             filterData.data.class = filterClass;
 
