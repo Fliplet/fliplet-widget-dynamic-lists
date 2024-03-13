@@ -925,6 +925,20 @@ DynamicList.prototype.initialize = function() {
     .then(function() {
       // Render Base HTML template
       _this.renderBaseHTML();
+
+      return Fliplet.Hooks.run('flListDataBeforeInit', {
+        instance: _this,
+        config: _this.data,
+        id: _this.data.id,
+        uuid: _this.data.uuid,
+        container: _this.$container
+      });
+    })
+    .then(function() {
+      // Check if it's meant to directly open a single record
+      return _this.checkIsToOpen();
+    })
+    .then(function() {
       // Determine filter types from configuration
       _this.filterTypes = _this.Utils.getFilterTypes({ instance: _this });
 
@@ -1002,8 +1016,6 @@ DynamicList.prototype.initialize = function() {
     })
     .then(function(response) {
       _this.listItems = _.uniqBy(response, 'id');
-
-      return _this.checkIsToOpen();
     })
     .then(function() {
       _this.modifiedListItems = _this.Utils.Records.addFilterProperties({
@@ -1029,37 +1041,126 @@ DynamicList.prototype.changeSortOrder = function() {
   }
 };
 
+DynamicList.prototype.getDataSourceConnection = function() {
+  return Fliplet.DataSources.connect(this.data.dataSourceId, {
+    offline: this.data.hasOwnProperty('cache') ? this.data.cache : undefined
+  });
+};
+
+DynamicList.prototype.loadSingleRecordData = function() {
+  var _this = this;
+
+  return Fliplet.Hooks.run('flListDataBeforeGetData', {
+    instance: this,
+    config: this.data,
+    id: this.data.id,
+    uuid: this.data.uuid,
+    container: this.$container,
+    openQuery: this.pvOpenQuery,
+    getSingleEntry: true
+  }).then(function() {
+    return _this.getDataSourceConnection();
+  }).then(function(connection) {
+    // Get single record
+    if (_.hasIn(_this.pvOpenQuery, 'id')) {
+      return connection.findById(_this.pvOpenQuery.id);
+    } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
+      var query = { where: {} };
+
+      query.where[_this.pvOpenQuery.column] = _this.pvOpenQuery.value;
+
+      return connection.findOne(query);
+    }
+  }).then(function(record) {
+    var records = [record];
+
+    // Add computed fields
+    _this.Utils.Records.addComputedFields({
+      records: records,
+      config: _this.data,
+      filterTypes: _this.filterTypes
+    });
+
+    return Fliplet.Hooks.run('flListDataAfterGetData', {
+      instance: _this,
+      config: _this.data,
+      id: _this.data.id,
+      uuid: _this.data.uuid,
+      container: _this.$container,
+      openQuery: _this.pvOpenQuery,
+      getSingleEntry: true,
+      record: records[0]
+    }).then(function() {
+      // Add permissions
+      records = _this.getPermissions(records);
+
+      return records;
+    });
+  }).then(function(records) {
+    // Get full list of aggregated columns
+    return _this.Utils.Records.getFields(records, _this.data.dataSourceId)
+      .then(function(columns) {
+        _this.dataSourceColumns = columns;
+
+        return records;
+      });
+  }).then(function(records) {
+    // Update files for media fields
+    return _this.Utils.Records.updateFiles({
+      records: records,
+      config: _this.data
+    });
+  }).then(function(response) {
+    return _.uniqBy(response, 'id')[0];
+  });
+};
+
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
+  var loadSingleRecordData;
 
   if (!_this.queryOpen) {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
-      // eslint-disable-next-line eqeqeq
-      return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
-    });
+  if (typeof this.listItems !== 'undefined') {
+    if (_.hasIn(this.pvOpenQuery, 'id')) {
+      entry = _.find(this.listItems, { id: this.pvOpenQuery.id });
+    } else if (_.hasIn(this.pvOpenQuery, 'value') && _.hasIn(this.pvOpenQuery, 'column')) {
+      entry = _.find(this.listItems, function(row) {
+        // eslint-disable-next-line eqeqeq
+        return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
+      });
+    }
+
+    if (!entry) {
+      Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
+
+      return Promise.resolve();
+    }
+
+    loadSingleRecordData = Promise.resolve(entry);
+  } else {
+    loadSingleRecordData = this.loadSingleRecordData();
   }
 
-  if (!entry) {
-    Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
+  return loadSingleRecordData.then(function(record) {
+    if (!record) {
+      Fliplet.UI.Toast(T('widgets.list.dynamic.notifications.notFound'));
 
-    return Promise.resolve();
-  }
+      return Promise.resolve();
+    }
 
-  var modifiedData = _this.addSummaryData([entry]);
+    return _this.showDetails(record.id, [record]).then(function() {
+      _this.openedEntryOnQuery = true;
 
-  return _this.showDetails(entry.id, modifiedData).then(function() {
-    _this.openedEntryOnQuery = true;
-
-    // Wait for overlay transition to complete
-    return new Promise(function(resolve) {
-      setTimeout(resolve, 250);
+      // Wait for overlay transition to complete
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          resolve(true);
+        }, 250);
+      });
     });
   });
 };
@@ -1265,6 +1366,8 @@ DynamicList.prototype.renderLoopSegment = function(options) {
     ? Handlebars.compile(this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[this.layoutMapping[this.data.layout]['loop']]());
 
+  data = this.addSummaryData(data);
+
   return new Promise(function(resolve) {
     function render() {
       // get the next batch of items to render
@@ -1376,25 +1479,28 @@ DynamicList.prototype.attachLazyLoadObserver = function(options) {
   });
 };
 
-DynamicList.prototype.renderLoopHTML = function() {
+DynamicList.prototype.renderLoopHTML = function(options) {
+  options = options || {};
+
   // Function that renders the List template
   var _this = this;
+  var records = options.records || [];
   var limitedList;
   var isSorting = this.sortField && ['asc', 'desc'].indexOf(this.sortOrder) > -1;
 
   if (_this.data.enabledLimitEntries && _this.data.limitEntries >= 0
     && !_this.isSearching && !_this.isFiltering && !_this.showBookmarks && !isSorting) {
-    limitedList = _this.modifiedListItems.slice(0, _this.data.limitEntries);
+    limitedList = records.slice(0, _this.data.limitEntries);
 
     // Hides the entry limit warning if the number of entries to show is less than the limit value
-    if (_this.data.limitEntries > _this.modifiedListItems.length) {
+    if (_this.data.limitEntries > records.length) {
       _this.$container.find('.limit-entries-text').addClass('hidden');
     }
   }
 
   $('#small-card-list-wrapper-' + _this.data.id).empty();
 
-  this.renderListItems = _.clone(limitedList || _this.modifiedListItems || []);
+  this.renderListItems = _.clone(limitedList || records || []);
 
   var data = this.renderListItems.splice(0, this.data.lazyLoadBatchSize || this.renderListItems.length);
 
@@ -1582,7 +1688,8 @@ DynamicList.prototype.searchData = function(options) {
       showBookmarks: _this.showBookmarks,
       sortField: _this.sortField,
       sortOrder: _this.sortOrder,
-      limit: limit
+      limit: limit,
+      initialRender: !!options.initialRender
     }).then(function() {
       searchedData = searchedData || [];
 
@@ -1648,9 +1755,9 @@ DynamicList.prototype.searchData = function(options) {
 
       $('#small-card-list-wrapper-' + _this.data.id).html('');
 
-      _this.modifiedListItems = _this.addSummaryData(searchedData);
-
-      return _this.renderLoopHTML().then(function(records) {
+      return _this.renderLoopHTML({
+        records: searchedData
+      }).then(function(records) {
         _this.searchedListItems = searchedData;
 
         // Render user profile
@@ -2116,6 +2223,10 @@ DynamicList.prototype.showDetails = function(id, listData) {
     detailViewOptions: _this.data.detailViewOptions
   })
     .then(function(files) {
+      if (typeof entryData.originalData === 'undefined') {
+        entryData = _this.addSummaryData([entryData])[0];
+      }
+
       entryData = _this.addDetailViewData(entryData);
 
       if (files && Array.isArray(files)) {
