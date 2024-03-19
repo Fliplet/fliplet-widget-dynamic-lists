@@ -2462,7 +2462,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     });
 };
 
-DynamicList.prototype.addDetailViewData = function(entry) {
+DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
@@ -2480,7 +2480,17 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     var content = '';
 
     if (obj.type === 'file') {
-      return;
+      if (files && Array.isArray(files)) {
+
+        files.filter(Boolean).forEach((file) => {
+          const fileAlreadyAdded = entry.entryDetails.some(({ id }) => id === file.id);
+
+          if (!fileAlreadyAdded) {
+            entry.entryDetails.push(file);
+          }
+        })
+      }
+      return
     }
 
     // Define label
@@ -2570,21 +2580,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
     detailViewOptions: _this.data.detailViewOptions
   })
     .then(function(files) {
-      entryData = _this.addDetailViewData(entryData);
-
-      if (files && Array.isArray(files)) {
-        _.forEach(files, function(file) {
-          if (!file) {
-            return;
-          }
-
-          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
-
-          if (!isFileAdded) {
-            entryData.entryDetails.push(file);
-          }
-        });
-      }
+      entryData = _this.addDetailViewData(entryData, files);
 
       var beforeShowDetails = Promise.resolve({
         src: src,
