@@ -2481,8 +2481,8 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 
     if (obj.type === 'file') {
       if (files && Array.isArray(files)) {
-        var file = files.find(function(file) {
-          return file.id === obj.id;
+        var file = files.find(function(fileEntry) {
+          return fileEntry.id === obj.id;
         });
 
         if (file) {
