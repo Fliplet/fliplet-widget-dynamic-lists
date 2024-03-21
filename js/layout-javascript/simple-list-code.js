@@ -2418,7 +2418,7 @@ DynamicList.prototype.getCommentUsers = function() {
     });
 };
 
-DynamicList.prototype.addDetailViewData = function(entry) {
+DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
 
   if (_.isArray(entry.data) && entry.data.length) {
@@ -2436,6 +2436,16 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     var content = '';
 
     if (obj.type === 'file') {
+      if (files && Array.isArray(files)) {
+        var file = files.find(function(file) {
+          return file.id === obj.id;
+        });
+
+        if (file) {
+          entry.entryDetails.push(file);
+        }
+      }
+
       return;
     }
 
@@ -2529,21 +2539,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
     detailViewOptions: _this.data.detailViewOptions
   })
     .then(function(files) {
-      entryData = _this.addDetailViewData(entryData);
-
-      if (files && Array.isArray(files)) {
-        _.forEach(files, function(file) {
-          if (!file) {
-            return;
-          }
-
-          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
-
-          if (!isFileAdded) {
-            entryData.entryDetails.push(file);
-          }
-        });
-      }
+      entryData = _this.addDetailViewData(entryData, files);
 
       var beforeShowDetails = Promise.resolve({
         src: src,

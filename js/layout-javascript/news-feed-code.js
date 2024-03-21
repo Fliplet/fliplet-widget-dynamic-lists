@@ -2481,16 +2481,16 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 
     if (obj.type === 'file') {
       if (files && Array.isArray(files)) {
+        var file = files.find(function(file) {
+          return file.id === obj.id;
+        });
 
-        files.filter(Boolean).forEach((file) => {
-          const fileAlreadyAdded = entry.entryDetails.some(({ id }) => id === file.id);
-
-          if (!fileAlreadyAdded) {
-            entry.entryDetails.push(file);
-          }
-        })
+        if (file) {
+          entry.entryDetails.push(file);
+        }
       }
-      return
+
+      return;
     }
 
     // Define label
