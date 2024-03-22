@@ -1985,7 +1985,7 @@ DynamicList.prototype.initializeSocials = function(records) {
   });
 };
 
-DynamicList.prototype.addDetailViewData = function(entry) {
+DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
@@ -2027,6 +2027,16 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     var content = '';
 
     if (dynamicDataObj.type === 'file') {
+      if (files && Array.isArray(files)) {
+        var file = files.find(function(fileEntry) {
+          return fileEntry.id === dynamicDataObj.id;
+        });
+
+        if (file) {
+          entry.entryDetails.push(file);
+        }
+      }
+
       return;
     }
 
@@ -2116,21 +2126,7 @@ DynamicList.prototype.showDetails = function(id, listData) {
     detailViewOptions: _this.data.detailViewOptions
   })
     .then(function(files) {
-      entryData = _this.addDetailViewData(entryData);
-
-      if (files && Array.isArray(files)) {
-        _.forEach(files, function(file) {
-          if (!file) {
-            return;
-          }
-
-          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
-
-          if (!isFileAdded) {
-            entryData.entryDetails.push(file);
-          }
-        });
-      }
+      entryData = _this.addDetailViewData(entryData, files);
 
       var beforeShowDetails = Promise.resolve({
         src: src,
