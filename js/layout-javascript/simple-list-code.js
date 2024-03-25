@@ -2420,6 +2420,7 @@ DynamicList.prototype.getCommentUsers = function() {
 
 DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
+  var fileList = files && Array.isArray(files) ? files.filter(Boolean) : null;
 
   if (_.isArray(entry.data) && entry.data.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
@@ -2436,14 +2437,16 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
     var content = '';
 
     if (obj.type === 'file') {
-      if (files && Array.isArray(files)) {
-        var file = files.find(function(fileEntry) {
-          return fileEntry.id === obj.id;
-        });
+      if (!fileList) {
+        return;
+      }
 
-        if (file) {
-          entry.entryDetails.push(file);
-        }
+      var file = fileList.find(function(fileEntry) {
+        return fileEntry.id === obj.id;
+      });
+
+      if (file) {
+        entry.entryDetails.push(file);
       }
 
       return;

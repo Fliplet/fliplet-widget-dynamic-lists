@@ -1987,6 +1987,7 @@ DynamicList.prototype.initializeSocials = function(records) {
 
 DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
+  var fileList = files && Array.isArray(files) ? files.filter(Boolean) : null;
 
   if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
@@ -2027,14 +2028,16 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
     var content = '';
 
     if (dynamicDataObj.type === 'file') {
-      if (files && Array.isArray(files)) {
-        var file = files.find(function(fileEntry) {
-          return fileEntry.id === dynamicDataObj.id;
-        });
+      if (!fileList) {
+        return;
+      }
 
-        if (file) {
-          entry.entryDetails.push(file);
-        }
+      var file = fileList.find(function(fileEntry) {
+        return fileEntry.id === dynamicDataObj.id;
+      });
+
+      if (file) {
+        entry.entryDetails.push(file);
       }
 
       return;
