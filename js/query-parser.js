@@ -91,14 +91,19 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     value: Fliplet.Navigate.query['dynamicListSearchValue'],
     openSingleEntry: Fliplet.Navigate.query['dynamicListOpenSingleEntry']
   });
-  this.querySearch = !_.isUndefined(_.get(this.pvSearchQuery, 'value'));
+  // Check if the search query parameter exists
+  const hasSearchQueryValue = !_.isUndefined(_.get(this.pvSearchQuery, 'value'));
+
+  // Determine if query-based search should be active
+  // If user has disabled search in settings, then no search query should be parsed and processed
+  this.querySearch = this.data.searchEnabled && hasSearchQueryValue;
 
   if (this.querySearch) {
     // check if a comma separated list of columns were passed as column
     this.pvSearchQuery.column = _this.Utils.String.splitByCommas(this.pvSearchQuery.column, false);
     this.pvSearchQuery.openSingleEntry = (('' + this.pvSearchQuery.openSingleEntry) || '').toLowerCase() === 'true';
-    this.data.searchEnabled = this.querySearch;
   } else {
+    this.pvSearchQuery = this.data.searchEnabled ? this.pvSearchQuery : null;
     this.querySearch = null;
   }
 
@@ -107,7 +112,10 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     value: Fliplet.Navigate.query['dynamicListFilterValue'],
     hideControls: Fliplet.Navigate.query['dynamicListFilterHideControls']
   });
-  this.queryFilter = !_.isUndefined(_.get(this.pvFilterQuery, 'value'));
+
+  const hasFilterQueryValue = !_.isUndefined(_.get(this.pvFilterQuery, 'value'));
+
+  this.queryFilter = this.data.filtersEnabled && hasFilterQueryValue;
 
   if (this.queryFilter) {
     // check if a comma separated list of columns/values were passed as column/value
@@ -126,6 +134,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     this.pvFilterQuery.hideControls = (('' + this.pvFilterQuery.hideControls) || '').toLowerCase() === 'true';
     this.data.filtersEnabled = this.data.filtersEnabled || this.queryFilter;
   } else {
+    this.pvFilterQuery = this.data.filtersEnabled ? this.pvFilterQuery : null;
     this.queryFilter = null;
   }
 
@@ -138,8 +147,10 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     order: Fliplet.Navigate.query['dynamicListSortOrder']
   });
 
-  // Validate sort queries
-  if (this.pvPreSortQuery.order) {
+  if (!this.data.sortEnabled) {
+    this.pvPreSortQuery = null;
+  } else if (this.pvPreSortQuery.order) {
+    // Validate sort queries
     this.pvPreSortQuery.order = this.pvPreSortQuery.order.toLowerCase().trim();
 
     if (!this.pvPreSortQuery.column
