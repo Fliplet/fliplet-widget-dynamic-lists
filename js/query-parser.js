@@ -91,7 +91,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     value: Fliplet.Navigate.query['dynamicListSearchValue'],
     openSingleEntry: Fliplet.Navigate.query['dynamicListOpenSingleEntry']
   });
-  // Check if the search query parameter exists
+
   const hasSearchQueryValue = !_.isUndefined(_.get(this.pvSearchQuery, 'value'));
 
   // Determine if query-based search should be active
