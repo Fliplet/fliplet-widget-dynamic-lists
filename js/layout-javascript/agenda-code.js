@@ -1919,7 +1919,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
   _this.animatingForward = true;
 
   var nextDateElementWidth = Math.floor(nextDateElement.outerWidth() * difference);
-  var nextAgendaElementWidth = Math.floor(nextAgendaElement.outerWidth() * difference);
+  var scrollValue = parseInt(nextAgendaElement.outerWidth() * index - _this.$container.find('.agenda-cards-wrapper').scrollLeft(), 10);
 
   if (!_this.isPanning) {
     _this.scrollValue = 0;
@@ -1927,7 +1927,7 @@ DynamicList.prototype.moveForwardDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateForward(nextDateElement, nextDateElementWidth),
-    _this.animateAgendaForward(nextAgendaElement, nextAgendaElementWidth - _this.scrollValue)
+    _this.animateAgendaForward(nextAgendaElement, scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingForward = false;
@@ -1951,7 +1951,7 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
   _this.animatingBack = true;
 
   var prevDateElementWidth = Math.floor(prevDateElement.outerWidth() * positiveDifference);
-  var prevAgendaElementWidth = Math.floor(prevAgendaElement.outerWidth() * positiveDifference);
+  var scrollValue = parseInt(_this.$container.find('.agenda-cards-wrapper').scrollLeft() - prevAgendaElement.outerWidth() * index, 10);
 
   if (!_this.isPanning) {
     _this.scrollValue = 0;
@@ -1959,7 +1959,7 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
 
   Promise.all([
     _this.animateDateBack(prevDateElement, prevDateElementWidth),
-    _this.animateAgendaBack(prevAgendaElement, prevAgendaElementWidth + _this.scrollValue)
+    _this.animateAgendaBack(prevAgendaElement, scrollValue)
   ]).then(function() {
     _this.isPanning = false;
     _this.animatingBack = false;
@@ -2492,7 +2492,7 @@ DynamicList.prototype.bindTouchEvents = function() {
     _this.activeSlideIndex = _this.$container.find('.agenda-list-day-holder').index(_this.$container.find('.agenda-list-day-holder.active'));
     _this.$container.find('.agenda-date-selector, .agenda-date-selector ul').addClass('is-panning');
     _this.scrollValue = -1 * e.deltaX;
-    _this.$container.find('.agenda-cards-wrapper').scrollLeft(_this.copyOfScrollValue + _this.scrollValue);
+    _this.$container.find('.agenda-cards-wrapper').scrollLeft(parseInt(_this.copyOfScrollValue + _this.scrollValue, 10));
   });
 
   _this.hammer.on('panend', function(e) {
