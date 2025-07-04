@@ -67,7 +67,7 @@ function DynamicList(id, data) {
    */
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
 
-  this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
+  this.data.bookmarksEnabled = NativeUtils.get(this, 'data.social.bookmark');
 
   this.data.searchIconsEnabled = this.data.filtersEnabled || this.data.bookmarksEnabled || this.data.sortEnabled;
 
@@ -76,14 +76,14 @@ function DynamicList(id, data) {
 
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (_.get(session, 'entries.saml2.user')) {
-      _this.myUserData = _.get(session, 'entries.saml2.user');
+    if (NativeUtils.get(session, 'entries.saml2.user')) {
+      _this.myUserData = NativeUtils.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
 
-    if (_.get(session, 'entries.dataSource.data')) {
-      _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+    if (NativeUtils.get(session, 'entries.dataSource.data')) {
+      Object.assign(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
@@ -341,7 +341,7 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
+          entry: _this.listItems.find(function(item) { return item.id === entryId; }),
           entryId: entryId,
           entryTitle: entryTitle,
           event: event
@@ -492,19 +492,20 @@ DynamicList.prototype.attachObservers = function() {
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected
-      if (_.isEmpty(_this.activeFilters)) {
+      if (NativeUtils.isEmpty(_this.activeFilters)) {
         _this.$container.find('.clear-filters').addClass('hidden');
 
         return;
       }
 
-      if (!_.has(_this.activeFilters, 'undefined')) {
+      if (!NativeUtils.has(_this.activeFilters, 'undefined')) {
         // Select filters based on existing settings
-        var selectors = _.flatten(_.map(_this.activeFilters, function(values, field) {
-          return _.map(values, function(value) {
+        var selectors = Object.keys(_this.activeFilters).map(function(field) {
+          var values = _this.activeFilters[field];
+          return values.map(function(value) {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
-        })).join(',');
+        }).reduce(function(acc, val) { return acc.concat(val); }, []).join(',');
 
         _this.toggleFilterElement(_this.$container.find(selectors), true);
 
@@ -865,7 +866,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -905,7 +906,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -970,7 +971,7 @@ DynamicList.prototype.attachObservers = function() {
                   return _this.deleteEntry(entryID);
                 })
                 .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
+                  NativeUtils.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
                   _that.text(T('widgets.list.dynamic.notifications.confirmDelete.action')).removeClass('disabled');
@@ -1022,7 +1023,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var id = $(this).parents('.simple-list-details-holder').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+      var record = _this.listItems.find(function(item) { return item.id === id; });
 
       if (!record || !record.bookmarkButton) {
         return;
@@ -1044,7 +1045,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var id = $(this).parents('.simple-list-details-holder').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+      var record = _this.listItems.find(function(item) { return item.id === id; });
 
       if (!record || !record.likeButton) {
         return;
@@ -1182,7 +1183,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, 'id');
+      _this.listItems = NativeUtils.uniqBy(response, 'id');
 
       return _this.checkIsToOpen();
     })
@@ -1205,7 +1206,7 @@ DynamicList.prototype.initialize = function() {
 };
 
 DynamicList.prototype.changeSort = function() {
-  if (_.has(this.pvPreSortQuery, 'column') && _.has(this.pvPreSortQuery, 'order')) {
+  if (NativeUtils.has(this.pvPreSortQuery, 'column') && NativeUtils.has(this.pvPreSortQuery, 'order')) {
     $('[data-sort-field="' + this.pvPreSortQuery.column + '"]')
       .attr('data-sort-order', this.pvPreSortQuery.order);
   }
@@ -1219,10 +1220,10 @@ DynamicList.prototype.checkIsToOpen = function() {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
+  if (NativeUtils.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = _this.listItems.find(function(item) { return item.id === _this.pvOpenQuery.id; });
+  } else if (NativeUtils.hasIn(_this.pvOpenQuery, 'value') && NativeUtils.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _this.listItems.find(function(row) {
       // eslint-disable-next-line eqeqeq
       return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
@@ -1253,13 +1254,13 @@ DynamicList.prototype.checkIsToOpen = function() {
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
-  if (!_.get(_this.pvSearchQuery, 'value')) {
+  if (!NativeUtils.get(_this.pvSearchQuery, 'value')) {
     return _this.searchData({
       initialRender: true
     });
   }
 
-  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+  if (NativeUtils.hasIn(_this.pvSearchQuery, 'column')) {
     return _this.searchData({
       value: _this.pvSearchQuery.value,
       openSingleEntry: _this.pvSearchQuery.openSingleEntry,
@@ -1349,23 +1350,23 @@ DynamicList.prototype.parsePVQueryVars = function() {
         _this.navigateBackEvent();
       }
 
-      if (_.hasIn(value, 'prefilter')) {
+      if (NativeUtils.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
       }
 
-      if (_.hasIn(value, 'open')) {
+      if (NativeUtils.hasIn(value, 'open')) {
         _this.queryOpen = true;
         _this.pvOpenQuery = value.open;
       }
 
-      if (_.hasIn(value, 'search')) {
+      if (NativeUtils.hasIn(value, 'search')) {
         _this.querySearch = true;
         _this.pvSearchQuery = value.search;
         _this.data.searchEnabled = true;
       }
 
-      if (_.hasIn(value, 'filter')) {
+      if (NativeUtils.hasIn(value, 'filter')) {
         _this.queryFilter = true;
         _this.pvFilterQuery = value.filter;
         _this.data.filtersEnabled = true;
@@ -1412,7 +1413,7 @@ DynamicList.prototype.addSummaryData = function(records) {
     config: _this.data,
     filterTypes: _this.filterTypes
   });
-  var loopData = _.map(modifiedData, function(entry) {
+  var loopData = modifiedData.map(function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1582,7 +1583,7 @@ DynamicList.prototype.renderLoopHTML = function() {
 
   $('#simple-list-wrapper-' + _this.data.id).empty();
 
-  this.renderListItems = _.clone(limitedList || _this.modifiedListItems || []);
+  this.renderListItems = NativeUtils.clone(limitedList || _this.modifiedListItems || []);
 
   var data = this.renderListItems.splice(0, this.data.lazyLoadBatchSize || this.renderListItems.length);
 
@@ -1630,7 +1631,7 @@ DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
+  entries.forEach(function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
@@ -1665,8 +1666,8 @@ DynamicList.prototype.addFilters = function(records) {
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
 
-    _.remove(filters, function(filter) {
-      return _.isEmpty(filter.data);
+    NativeUtils.remove(filters, function(filter) {
+      return NativeUtils.isEmpty(filter.data);
     });
     _this.Utils.Page.renderFilters({
       instance: _this,
@@ -1711,7 +1712,7 @@ DynamicList.prototype.searchData = function(options) {
   options = options || {};
 
   var _this = this;
-  var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var value = NativeUtils.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -1720,7 +1721,7 @@ DynamicList.prototype.searchData = function(options) {
   value = value.toLowerCase();
   _this.activeFilters = _this.Utils.Page.getActiveFilters({ $container: _this.$container });
   _this.isSearching = value !== '';
-  _this.isFiltering = !_.isEmpty(_this.activeFilters);
+  _this.isFiltering = !NativeUtils.isEmpty(_this.activeFilters);
   _this.showBookmarks = _this.$container.find('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
@@ -1795,12 +1796,12 @@ DynamicList.prototype.searchData = function(options) {
       _this.$container.find('.hidden-search-controls').addClass('active');
       _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      var searchedDataIds = _.map(searchedData, 'id');
-      var searchedListItemIds = _.map(_this.searchedListItems, 'id');
+      var searchedDataIds = NativeUtils.map(searchedData, function(item) { return item.id; });
+      var searchedListItemIds = NativeUtils.map(_this.searchedListItems, function(item) { return item.id; });
 
       if (!_this.data.forceRenderList
         && searchedData.length
-        && _.isEqual(searchedDataIds, searchedListItemIds)) {
+        && NativeUtils.isEqual(searchedDataIds, searchedListItemIds)) {
         // Same results returned. Do nothing.
         return;
       }
@@ -1816,10 +1817,10 @@ DynamicList.prototype.searchData = function(options) {
         && !_this.data.sortEnabled
         && !(_this.data.sortFields || []).length
         && searchedData.length
-        && searchedData.length === _.intersection(searchedDataIds, searchedListItemIds).length) {
+        && searchedData.length === NativeUtils.intersection(searchedDataIds, searchedListItemIds).length) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
-        _this.$container.find(_.map(_.difference(searchedListItemIds, searchedDataIds), function(record) {
+        _this.$container.find(NativeUtils.map(NativeUtils.difference(searchedListItemIds, searchedDataIds), function(record) {
           return '.simple-list-item[data-entry-id="' + record.id + '"]';
         }).join(',')).remove();
         _this.searchedListItems = searchedData;
@@ -1922,7 +1923,7 @@ DynamicList.prototype.getLikeIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupLikeButton = function(options) {
-  if (!_.get(this.data, 'social.likes')) {
+  if (!NativeUtils.get(this.data, 'social.likes')) {
     return Promise.resolve();
   }
 
@@ -1931,7 +1932,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
   var _this = this;
   var id = options.id;
   var title = options.title;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || NativeUtils.find(_this.listItems, { id: id });
 
   if (!record) {
     return Promise.resolve();
@@ -2104,7 +2105,7 @@ DynamicList.prototype.getBookmarkIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
-  if (!_.get(this.data, 'social.bookmark')) {
+  if (!NativeUtils.get(this.data, 'social.bookmark')) {
     return Promise.resolve();
   }
 
@@ -2113,7 +2114,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
   var _this = this;
   var id = options.id;
   var title = options.title;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || NativeUtils.find(_this.listItems, { id: id });
 
   if (!record) {
     return Promise.resolve();
@@ -2237,7 +2238,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
 
 DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
-  var record = _.find(_this.listItems, { id: id });
+  var record = _this.listItems.find(function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -2295,7 +2296,7 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
-  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (_this.fetchedAllBookmarks || !NativeUtils.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -2320,14 +2321,14 @@ DynamicList.prototype.getAllBookmarks = function() {
       });
     })
   }).then(function(results) {
-    var bookmarkedIds = _.compact(_.map(results.data, function(record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+    var bookmarkedIds = NativeUtils.compact(NativeUtils.map(results.data, function(record) {
+      var match = NativeUtils.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));
 
     if (results.fromCache) {
-      _.forEach(_this.listItems, function(record) {
+      NativeUtils.forEach(_this.listItems, function(record) {
         if (bookmarkedIds.indexOf(record.id) === -1) {
           return;
         }
@@ -2335,7 +2336,7 @@ DynamicList.prototype.getAllBookmarks = function() {
         record.bookmarked = true;
       });
     } else {
-      _.forEach(_this.listItems, function(record) {
+      NativeUtils.forEach(_this.listItems, function(record) {
         record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
       });
     }
@@ -2348,9 +2349,9 @@ DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
   return _this.getAllBookmarks().then(function() {
-    return Promise.all(_.flatten(_.map(records, function(record) {
+    return Promise.all(NativeUtils.flatten(NativeUtils.map(records, function(record) {
       var title = _this.$container.find('.simple-list-item[data-entry-id="' + record.id + '"] .list-item-title').text().trim();
-      var masterRecord = _.find(_this.listItems, { id: record.id });
+      var masterRecord = NativeUtils.find(_this.listItems, { id: record.id });
 
       return [
         _this.setupLikeButton({
@@ -2375,7 +2376,7 @@ DynamicList.prototype.initializeSocials = function(records) {
 };
 
 DynamicList.prototype.getCommentUsers = function() {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!NativeUtils.get(this.data, 'social.comments')) {
     return Promise.resolve();
   }
 
@@ -2398,8 +2399,8 @@ DynamicList.prototype.getCommentUsers = function() {
       _this.allUsers = users;
 
       // Update my user data
-      if (!_.isEmpty(_this.myUserData)) {
-        var myUser = _.find(_this.allUsers, function(user) {
+      if (!NativeUtils.isEmpty(_this.myUserData)) {
+        var myUser = NativeUtils.find(_this.allUsers, function(user) {
           return _this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn];
         });
 
@@ -2422,7 +2423,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
   var fileList = files && Array.isArray(files) ? files.filter(Boolean) : null;
 
-  if (_.isArray(entry.data) && entry.data.length) {
+  if (NativeUtils.isArray(entry.data) && entry.data.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 
     return entry;
@@ -2499,10 +2500,10 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
   });
 
   if (_this.data.detailViewAutoUpdate) {
-    var savedColumns = _.map(_this.data.detailViewOptions, 'column');
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    var savedColumns = NativeUtils.map(_this.data.detailViewOptions, function(option) { return option.column; });
+    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns);
 
-    _.forEach(extraColumns, function(column) {
+    NativeUtils.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
         content: entry.originalData[column],
@@ -2521,7 +2522,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
+  var entryData = NativeUtils.find(listData || _this.modifiedListItems, { id: id });
   // Process template with data
   var entryId = { id: id };
   var wrapper = '<div class="simple-list-detail-wrapper" data-entry-id="{{id}}"></div>';
@@ -2675,7 +2676,7 @@ DynamicList.prototype.getCommentIdentifier = function(record) {
 };
 
 DynamicList.prototype.getEntryComments = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!NativeUtils.get(this.data, 'social.comments')) {
     return Promise.resolve();
   }
 
@@ -2683,7 +2684,7 @@ DynamicList.prototype.getEntryComments = function(options) {
 
   var _this = this;
   var id = options.id;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || NativeUtils.find(_this.listItems, { id: id });
 
   if (!record) {
     return Promise.resolve();
@@ -2737,7 +2738,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
 };
 
 DynamicList.prototype.updateCommentCounter = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!NativeUtils.get(this.data, 'social.comments')) {
     return;
   }
 
@@ -2745,7 +2746,7 @@ DynamicList.prototype.updateCommentCounter = function(options) {
 
   var _this = this;
   var id = options.id;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || NativeUtils.find(_this.listItems, { id: id });
 
   if (!record) {
     return;
@@ -2789,16 +2790,16 @@ DynamicList.prototype.showComments = function(id, commentId) {
     });
   }).then(function() {
     // Get comments for entry
-    var entry = _.find(_this.listItems, { id: id });
-    var entryComments = _.get(entry, 'comments');
+    var entry = NativeUtils.find(_this.listItems, { id: id });
+    var entryComments = NativeUtils.get(entry, 'comments');
 
     // Display comments
     entryComments.forEach(function(entry, index) {
       // Convert data/time
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
-      var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
-        return _.get(entry, 'data.settings.user.' + name);
+      var userName = NativeUtils.compact(NativeUtils.map(_this.data.userNameFields, function(name) {
+        return NativeUtils.get(entry, 'data.settings.user.' + name);
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
@@ -2809,7 +2810,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
 
       var myEmail = '';
 
-      if (!_.isEmpty(_this.myUserData)) {
+      if (!NativeUtils.isEmpty(_this.myUserData)) {
         myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
       }
 
@@ -2833,7 +2834,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
         entryComments[index].currentUser = true;
       }
     });
-    entryComments = _.orderBy(entryComments, ['timeInMilliseconds'], ['asc']);
+    entryComments = NativeUtils.orderBy(entryComments, ['timeInMilliseconds'], ['asc']);
 
     if (!_this.autosizeInit) {
       autosize(_this.$container.find('simple-list-comment-input-holder textarea'));
@@ -2892,7 +2893,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
 };
 
 DynamicList.prototype.sendComment = function(id, value) {
-  var record = _.find(this.listItems, { id: id });
+  var record = NativeUtils.find(this.listItems, { id: id });
 
   if (!record) {
     return Promise.resolve();
@@ -2902,7 +2903,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (_.isEmpty(_this.myUserData) || (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email'] && !_this.myUserData['Email'])) {
+  if (NativeUtils.isEmpty(_this.myUserData) || (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email'] && !_this.myUserData['Email'])) {
     if (typeof Raven !== 'undefined' && Raven.captureMessage) {
       Fliplet.User.getCachedSession().then(function(session) {
         Raven.captureMessage('User data not found for commenting', {
@@ -2919,7 +2920,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
-  var userFromDataSource = _.find(_this.allUsers, function(user) {
+  var userFromDataSource = NativeUtils.find(_this.allUsers, function(user) {
     /**
      * there could be users with null for Email
      */
@@ -2959,7 +2960,7 @@ DynamicList.prototype.sendComment = function(id, value) {
 
     _this.appendTempComment(id, value, guid, userFromDataSource);
 
-    if (typeof _.get(record, 'commentCount') === 'number') {
+    if (typeof NativeUtils.get(record, 'commentCount') === 'number') {
       record.commentCount++;
     }
 
@@ -2968,9 +2969,9 @@ DynamicList.prototype.sendComment = function(id, value) {
       record: record
     });
 
-    userName = _.compact(_.map(_this.data.userNameFields, function(name) {
+    userName = NativeUtils.compact(NativeUtils.map(_this.data.userNameFields, function(name) {
       return _this.myUserData.isSaml2
-        ? _.get(userFromDataSource, 'data.' + name)
+        ? NativeUtils.get(userFromDataSource, 'data.' + name)
         : _this.myUserData[name];
     })).join(' ').trim();
 
@@ -2979,7 +2980,7 @@ DynamicList.prototype.sendComment = function(id, value) {
       user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
     };
 
-    _.assignIn(comment, { contentDataSourceEntryId: id });
+    NativeUtils.assignIn(comment, { contentDataSourceEntryId: id });
 
     var timestamp = (new Date()).toISOString();
 
@@ -2989,13 +2990,13 @@ DynamicList.prototype.sendComment = function(id, value) {
     var usersMentioned = [];
 
     if (mentions && mentions.length) {
-      var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
+      var filteredUsers = NativeUtils.filter(_this.usersToMention, function(userToMention) {
         return mentions.indexOf('@' + userToMention.username) > -1;
       });
 
       if (filteredUsers && filteredUsers.length) {
         filteredUsers.forEach(function(filteredUser) {
-          var foundUser = _.find(_this.allUsers, function(user) {
+          var foundUser = NativeUtils.find(_this.allUsers, function(user) {
             return user.id === filteredUser.id;
           });
 
@@ -3053,7 +3054,7 @@ DynamicList.prototype.sendComment = function(id, value) {
     // Reverses count if error occurs
     console.error(error);
 
-    if (_.get(record, 'commentCount')) {
+    if (NativeUtils.get(record, 'commentCount')) {
       record.commentCount--;
     }
 
@@ -3067,9 +3068,9 @@ DynamicList.prototype.sendComment = function(id, value) {
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
-  var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
+  var userName = NativeUtils.compact(NativeUtils.map(_this.data.userNameFields, function(name) {
     return _this.myUserData.isSaml2
-      ? _.get(userFromDataSource, 'data.' + name)
+      ? NativeUtils.get(userFromDataSource, 'data.' + name)
       : _this.myUserData[name];
   })).join(' ').trim();
 
@@ -3094,8 +3095,8 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
-  var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
-    return _.get(commentData, 'data.settings.user.' + name);
+  var userName = NativeUtils.compact(NativeUtils.map(_this.data.userNameFields, function(name) {
+    return NativeUtils.get(commentData, 'data.settings.user.' + name);
   })).join(' ').trim();
 
   if (!commentData.literalDate) {
@@ -3153,7 +3154,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
   var entryId = _this.$container.find('.simple-list-details-holder').data('entry-id') || _this.entryClicked;
-  var entry = _.find(_this.listItems, { id: entryId });
+  var entry = NativeUtils.find(_this.listItems, { id: entryId });
   var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
   var options = {
     instance: _this,
@@ -3172,7 +3173,9 @@ DynamicList.prototype.deleteComment = function(id) {
     return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function(connection) {
       return connection.removeById(id, { ack: true });
     }).then(function onRemove() {
-      _.remove(entry.comments, { id: id });
+      NativeUtils.remove(entry.comments, function(comment) {
+        return comment.id === id;
+      });
       entry.commentCount--;
       _this.updateCommentCounter({
         id: entryId,
@@ -3191,15 +3194,15 @@ DynamicList.prototype.deleteComment = function(id) {
 
 DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   var _this = this;
-  var entry = _.find(_this.listItems, { id: entryId });
-  var entryComments = _.get(entry, 'comments', []);
-  var commentData = _.find(entryComments, { id: commentId });
+  var entry = NativeUtils.find(_this.listItems, { id: entryId });
+  var entryComments = NativeUtils.get(entry, 'comments', []);
+  var commentData = NativeUtils.find(entryComments, { id: commentId });
 
   if (!commentData) {
     return Promise.reject('Comment not found');
   }
 
-  var oldCommentData = _.clone(commentData);
+  var oldCommentData = NativeUtils.clone(commentData);
   var options = {
     instance: _this,
     config: _this.data,

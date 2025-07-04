@@ -18,11 +18,11 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   this.previousScreen = Fliplet.Navigate.query['dynamicListPreviousScreen'] === 'true';
 
   // action is intentionally ommited so we don't open ourselves up to an xss attack
-  this.pvGoBack = _.pickBy({
+  this.pvGoBack = NativeUtils.pickBy({
     enableButton: Fliplet.Navigate.query['dynamicListEnableButton'],
     hijackBack: Fliplet.Navigate.query['dynamicListHijackBack']
-  });
-  this.queryGoBack = _(this.pvGoBack).size() > 0;
+  }, function(value) { return value != null; });
+  this.queryGoBack = NativeUtils.size(this.pvGoBack) > 0;
 
   // cast to booleans
   this.pvGoBack.enableButton = this.pvGoBack.enableButton === 'true';
@@ -31,12 +31,12 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   // example input
   // ?dynamicListPrefilterColumn=Name,Age&dynamicListPrefilterLogic=contains,<&dynamicListPrefilterValue=Angel,2
-  this.pvPreFilterQuery = _.pickBy({
+  this.pvPreFilterQuery = NativeUtils.pickBy({
     column: Fliplet.Navigate.query['dynamicListPrefilterColumn'],
     logic: Fliplet.Navigate.query['dynamicListPrefilterLogic'],
     value: Fliplet.Navigate.query['dynamicListPrefilterValue']
-  });
-  this.queryPreFilter = _(this.pvPreFilterQuery).size() > 0;
+  }, function(value) { return value != null; });
+  this.queryPreFilter = NativeUtils.size(this.pvPreFilterQuery) > 0;
 
   if (this.queryPreFilter) {
     // take the query parameters and parse them down to arrays
@@ -76,23 +76,23 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   // dataSourceEntryId is always numeric
   // we cast the one coming from query to a number
   // so the equality check later passes
-  this.pvOpenQuery = _.pickBy({
+  this.pvOpenQuery = NativeUtils.pickBy({
     id: parseInt(Fliplet.Navigate.query['dynamicListOpenId'], 10),
     column: Fliplet.Navigate.query['dynamicListOpenColumn'],
     value: Fliplet.Navigate.query['dynamicListOpenValue'],
     openComments: (('' + Fliplet.Navigate.query['dynamicListOpenComments']) || '').toLowerCase() === 'true',
     commentId: parseInt(Fliplet.Navigate.query['dynamicListCommentId'], 10)
-  });
-  this.queryOpen = _(this.pvOpenQuery).size() > 0;
+  }, function(value) { return value != null && value !== false; });
+  this.queryOpen = NativeUtils.size(this.pvOpenQuery) > 0;
   this.pvOpenQuery = this.queryOpen ? this.pvOpenQuery : null;
 
-  this.pvSearchQuery = _.pickBy({
+  this.pvSearchQuery = NativeUtils.pickBy({
     column: Fliplet.Navigate.query['dynamicListSearchColumn'],
     value: Fliplet.Navigate.query['dynamicListSearchValue'],
     openSingleEntry: Fliplet.Navigate.query['dynamicListOpenSingleEntry']
-  });
+  }, function(value) { return value != null; });
 
-  const hasSearchQueryValue = !_.isUndefined(_.get(this.pvSearchQuery, 'value'));
+  const hasSearchQueryValue = !NativeUtils.isUndefined(NativeUtils.get(this.pvSearchQuery, 'value'));
 
   // Determine if query-based search should be active
   // If user has disabled search in settings, then no search query should be parsed and processed
@@ -107,13 +107,13 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     this.querySearch = null;
   }
 
-  this.pvFilterQuery = _.pickBy({
+  this.pvFilterQuery = NativeUtils.pickBy({
     column: Fliplet.Navigate.query['dynamicListFilterColumn'],
     value: Fliplet.Navigate.query['dynamicListFilterValue'],
     hideControls: Fliplet.Navigate.query['dynamicListFilterHideControls']
-  });
+  }, function(value) { return value != null; });
 
-  const hasFilterQueryValue = !_.isUndefined(_.get(this.pvFilterQuery, 'value'));
+  const hasFilterQueryValue = !NativeUtils.isUndefined(NativeUtils.get(this.pvFilterQuery, 'value'));
 
   this.queryFilter = this.data.filtersEnabled && hasFilterQueryValue;
 
@@ -122,7 +122,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     this.pvFilterQuery.column = _this.Utils.String.splitByCommas(this.pvFilterQuery.column);
     this.pvFilterQuery.value = _this.Utils.String.splitByCommas(this.pvFilterQuery.value);
 
-    if (!_.isEmpty(this.pvFilterQuery.column) && !_.isEmpty(this.pvFilterQuery.value)
+    if (!NativeUtils.isEmpty(this.pvFilterQuery.column) && !NativeUtils.isEmpty(this.pvFilterQuery.value)
       && this.pvFilterQuery.column.length !== this.pvFilterQuery.value.length) {
       this.pvFilterQuery.column = undefined;
       this.pvFilterQuery.value = undefined;
@@ -142,10 +142,10 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   // ?dynamicListSortColumn=Name,Age&dynamicListSortOrder=asc
   // Correct example is
   // ?dynamicListSortColumn=Name&dynamicListSortOrder=asc
-  this.pvPreSortQuery = _.pickBy({
+  this.pvPreSortQuery = NativeUtils.pickBy({
     column: Fliplet.Navigate.query['dynamicListSortColumn'],
     order: Fliplet.Navigate.query['dynamicListSortOrder']
-  });
+  }, function(value) { return value != null; });
 
   if (!this.data.sortEnabled) {
     this.pvPreSortQuery = null;
@@ -159,12 +159,12 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     }
   }
 
-  this.querySort = _(this.pvPreSortQuery).size() === 2;
+  this.querySort = NativeUtils.size(this.pvPreSortQuery) === 2;
 
   if (this.querySort) {
     // Ensures sorting is configured correctly to match the query
     this.data.sortEnabled = true;
-    this.data.sortFields = _.uniq(_.concat(this.data.sortFields, [this.pvPreSortQuery.column]));
+    this.data.sortFields = NativeUtils.uniq([].concat(this.data.sortFields, [this.pvPreSortQuery.column]));
     this.data.searchIconsEnabled = true;
 
     this.sortOrder = this.pvPreSortQuery.order || 'asc';

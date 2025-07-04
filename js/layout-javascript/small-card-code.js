@@ -80,14 +80,14 @@ function DynamicList(id, data) {
 
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (_.get(session, 'entries.saml2.user')) {
-      _this.myUserData = _.get(session, 'entries.saml2.user');
+    if (NativeUtils.get(session, 'entries.saml2.user')) {
+      _this.myUserData = NativeUtils.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
 
-    if (_.get(session, 'entries.dataSource.data')) {
-      _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+    if (NativeUtils.get(session, 'entries.dataSource.data')) {
+      NativeUtils.extend(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
@@ -389,7 +389,7 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
+          entry: NativeUtils.find(_this.listItems, function(item) { return item.id === entryId; }),
           entryId: entryId,
           entryTitle: entryTitle,
           event: event
@@ -547,14 +547,14 @@ DynamicList.prototype.attachObservers = function() {
 
       // Select filters based on existing settings
       if (_this.activeFilters) {
-        if (_.isEmpty(_this.activeFilters)) {
+        if (NativeUtils.isEmpty(_this.activeFilters)) {
           _this.$container.find('.clear-filters').addClass('hidden');
 
           return;
         }
 
-        var selectors = _.flatten(_.map(_this.activeFilters, function(values, key) {
-          return _.map(values, function(value) {
+        var selectors = NativeUtils.flatten(NativeUtils.map(_this.activeFilters, function(values, key) {
+          return NativeUtils.map(values, function(value) {
             return '.hidden-filter-controls-filter[data-field="' + key + '"][data-value="' + value + '"]';
           });
         })).join(',');
@@ -696,7 +696,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -736,7 +736,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -801,7 +801,7 @@ DynamicList.prototype.attachObservers = function() {
                   return _this.deleteEntry(entryID);
                 })
                 .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
+                  NativeUtils.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
 
@@ -856,7 +856,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var id = $(this).parents('.small-card-detail-wrapper').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+      var record = NativeUtils.find(_this.listItems, function(item) { return item.id === id; });
 
       if (!record || !record.bookmarkButton) {
         return;
@@ -972,7 +972,7 @@ DynamicList.prototype.initialize = function() {
       records = _this.getPermissions(records);
 
       // Get user profile
-      if (!_.isEmpty(_this.myUserData)) {
+      if (!NativeUtils.isEmpty(_this.myUserData)) {
         // Create flag for current user
         records.forEach(function(record) {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
@@ -1001,7 +1001,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, 'id');
+      _this.listItems = NativeUtils.uniqBy(response, 'id');
 
       return _this.checkIsToOpen();
     })
@@ -1023,7 +1023,7 @@ DynamicList.prototype.initialize = function() {
 };
 
 DynamicList.prototype.changeSortOrder = function() {
-  if (_.has(this.pvPreSortQuery, 'column') && _.has(this.pvPreSortQuery, 'order')) {
+  if (NativeUtils.has(this.pvPreSortQuery, 'column') && NativeUtils.has(this.pvPreSortQuery, 'order')) {
     $('[data-sort-field="' + this.pvPreSortQuery.column + '"]')
       .attr('data-sort-order', this.pvPreSortQuery.order);
   }
@@ -1037,10 +1037,10 @@ DynamicList.prototype.checkIsToOpen = function() {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
+  if (NativeUtils.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = NativeUtils.find(_this.listItems, function(item) { return item.id === _this.pvOpenQuery.id; });
+  } else if (NativeUtils.hasIn(_this.pvOpenQuery, 'value') && NativeUtils.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = NativeUtils.find(_this.listItems, function(row) {
       // eslint-disable-next-line eqeqeq
       return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
@@ -1067,13 +1067,13 @@ DynamicList.prototype.checkIsToOpen = function() {
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
-  if (!_.get(_this.pvSearchQuery, 'value')) {
+  if (!NativeUtils.get(_this.pvSearchQuery, 'value')) {
     return _this.searchData({
       initialRender: true
     });
   }
 
-  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+  if (NativeUtils.hasIn(_this.pvSearchQuery, 'column')) {
     return _this.searchData({
       value: _this.pvSearchQuery.value,
       openSingleEntry: _this.pvSearchQuery.openSingleEntry,
@@ -1163,23 +1163,23 @@ DynamicList.prototype.parsePVQueryVars = function() {
         _this.navigateBackEvent();
       }
 
-      if (_.hasIn(value, 'prefilter')) {
+      if (NativeUtils.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
       }
 
-      if (_.hasIn(value, 'open')) {
+      if (NativeUtils.hasIn(value, 'open')) {
         _this.queryOpen = true;
         _this.pvOpenQuery = value.open;
       }
 
-      if (_.hasIn(value, 'search')) {
+      if (NativeUtils.hasIn(value, 'search')) {
         _this.querySearch = true;
         _this.pvSearchQuery = value.search;
         _this.data.searchEnabled = true;
       }
 
-      if (_.hasIn(value, 'filter')) {
+      if (NativeUtils.hasIn(value, 'filter')) {
         _this.queryFilter = true;
         _this.pvFilterQuery = value.filter;
         _this.data.filtersEnabled = true;
@@ -1227,7 +1227,7 @@ DynamicList.prototype.addSummaryData = function(records) {
     config: _this.data,
     filterTypes: _this.filterTypes
   });
-  var loopData = _.map(modifiedData, function(entry) {
+  var loopData = NativeUtils.map(modifiedData, function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1394,7 +1394,7 @@ DynamicList.prototype.renderLoopHTML = function() {
 
   $('#small-card-list-wrapper-' + _this.data.id).empty();
 
-  this.renderListItems = _.clone(limitedList || _this.modifiedListItems || []);
+  this.renderListItems = NativeUtils.clone(limitedList || _this.modifiedListItems || []);
 
   var data = this.renderListItems.splice(0, this.data.lazyLoadBatchSize || this.renderListItems.length);
 
@@ -1442,7 +1442,7 @@ DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
+  NativeUtils.forEach(entries, function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
@@ -1478,8 +1478,8 @@ DynamicList.prototype.addFilters = function(records) {
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
 
-    _.remove(filters, function(filter) {
-      return _.isEmpty(filter.data);
+    NativeUtils.remove(filters, function(filter) {
+      return NativeUtils.isEmpty(filter.data);
     });
     _this.Utils.Page.renderFilters({
       instance: _this,
@@ -1524,7 +1524,7 @@ DynamicList.prototype.searchData = function(options) {
   options = options || {};
 
   var _this = this;
-  var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var value = NativeUtils.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -1533,7 +1533,7 @@ DynamicList.prototype.searchData = function(options) {
   value = value.toLowerCase();
   _this.activeFilters = _this.Utils.Page.getActiveFilters({ $container: _this.$container });
   _this.isSearching = value !== '';
-  _this.isFiltering = !_.isEmpty(_this.activeFilters);
+  _this.isFiltering = !NativeUtils.isEmpty(_this.activeFilters);
   _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
@@ -1610,12 +1610,12 @@ DynamicList.prototype.searchData = function(options) {
         .addClass('active')
         [searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      var searchedDataIds = _.map(searchedData, 'id');
-      var searchedListItemIds = _.map(_this.searchedListItems, 'id');
+      var searchedDataIds = NativeUtils.map(searchedData, 'id');
+      var searchedListItemIds = NativeUtils.map(_this.searchedListItems, 'id');
 
       if (!_this.data.forceRenderList
         && searchedData.length
-        && _.isEqual(searchedDataIds, searchedListItemIds)) {
+        && NativeUtils.isEqual(searchedDataIds, searchedListItemIds)) {
         // Same results returned. Do nothing.
         return;
       }
@@ -1631,10 +1631,10 @@ DynamicList.prototype.searchData = function(options) {
         && !_this.data.sortEnabled
         && !(_this.data.sortFields || []).length
         && searchedData.length
-        && searchedData.length === _.intersection(searchedDataIds, searchedListItemIds).length) {
+        && searchedData.length === NativeUtils.intersection(searchedDataIds, searchedListItemIds).length) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
-        _this.$container.find(_.map(_.difference(_this.searchedListItemIds, searchedDataIds), function(record) {
+        _this.$container.find(NativeUtils.map(NativeUtils.difference(_this.searchedListItemIds, searchedDataIds), function(record) {
           return '.small-card-list-item[data-entry-id="' + record.id + '"]';
         }).join(',')).remove();
         _this.searchedListItems = searchedData;
@@ -1654,7 +1654,7 @@ DynamicList.prototype.searchData = function(options) {
         _this.searchedListItems = searchedData;
 
         // Render user profile
-        if (!_.isEmpty(_this.myProfileData)) {
+        if (!NativeUtils.isEmpty(_this.myProfileData)) {
           var myProfileTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['user-profile']];
           var myProfileTemplateCompiled = Handlebars.compile(myProfileTemplate());
           var profileIconTemplate = Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['profile-icon']];
@@ -1750,7 +1750,7 @@ DynamicList.prototype.getBookmarkIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
-  if (!_.get(this.data, 'social.bookmark')) {
+  if (!NativeUtils.get(this.data, 'social.bookmark')) {
     return Promise.resolve();
   }
 
@@ -1760,7 +1760,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
   var id = options.id;
   var title = options.title;
   var target = options.target;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || NativeUtils.find(_this.listItems, function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -1884,7 +1884,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
 
 DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
-  var record = _.find(_this.listItems, { id: id });
+  var record = NativeUtils.find(_this.listItems, function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -1914,7 +1914,7 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
-  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (_this.fetchedAllBookmarks || !NativeUtils.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -1939,14 +1939,14 @@ DynamicList.prototype.getAllBookmarks = function() {
       });
     })
   }).then(function(results) {
-    var bookmarkedIds = _.compact(_.map(results.data, function(record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+    var bookmarkedIds = NativeUtils.compact(NativeUtils.map(results.data, function(record) {
+      var match = NativeUtils.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));
 
     if (results.fromCache) {
-      _.forEach(_this.listItems, function(record) {
+      NativeUtils.forEach(_this.listItems, function(record) {
         if (bookmarkedIds.indexOf(record.id) === -1) {
           return;
         }
@@ -1954,7 +1954,7 @@ DynamicList.prototype.getAllBookmarks = function() {
         record.bookmarked = true;
       });
     } else {
-      _.forEach(_this.listItems, function(record) {
+      NativeUtils.forEach(_this.listItems, function(record) {
         record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
       });
     }
@@ -1966,14 +1966,14 @@ DynamicList.prototype.getAllBookmarks = function() {
 DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
-  if (!_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (!NativeUtils.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
   return _this.getAllBookmarks().then(function() {
-    return Promise.all(_.map(records, function(record) {
+    return Promise.all(NativeUtils.map(records, function(record) {
       var title = _this.$container.find('.small-card-list-item[data-entry-id="' + record.id + '"] .small-card-list-name').text().trim();
-      var masterRecord = _.find(_this.listItems, { id: record.id });
+      var masterRecord = NativeUtils.find(_this.listItems, function(item) { return item.id === record.id; });
 
       return _this.setupBookmarkButton({
         target: '.new-small-card-list-container .small-card-bookmark-holder-' + record.id,
@@ -1989,16 +1989,16 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
   var fileList = files && Array.isArray(files) ? files.filter(Boolean) : null;
 
-  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+  if (NativeUtils.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 
     return entry;
   }
 
-  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var notDynamicData = NativeUtils.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
   });
-  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var dynamicData = NativeUtils.filter(_this.data.detailViewOptions, function(option) {
     return option.editable;
   });
 
@@ -2090,10 +2090,10 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
   });
 
   if (_this.data.detailViewAutoUpdate) {
-    var savedColumns = _.map(dynamicData, 'column');
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    var savedColumns = NativeUtils.map(dynamicData, 'column');
+    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns);
 
-    _.forEach(extraColumns, function(column) {
+    NativeUtils.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
         content: entry.originalData[column],
@@ -2112,7 +2112,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
+  var entryData = NativeUtils.find(listData || _this.modifiedListItems, function(item) { return item.id === id; });
   // Process template with data
   var entryId = { id: id };
   var wrapper = '<div class="small-card-detail-wrapper" data-entry-id="{{id}}"></div>';

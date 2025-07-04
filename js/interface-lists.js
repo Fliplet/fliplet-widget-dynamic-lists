@@ -112,7 +112,7 @@ function initUserFilePickerProvider(userFolder) {
     userFolder.folder.selectFiles = data.data.length ? data.data : [];
     widgetData.userFolder = userFolder;
 
-    _.remove(filePickerPromises, { id: userFolder.folder.provId });
+    NativeUtils.remove(filePickerPromises, function(item) { return item.id === userFolder.folder.provId; });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
@@ -183,7 +183,7 @@ function initFilePickerProvider(field) {
       });
     }
 
-    _.remove(filePickerPromises, { id: field.folder.provId });
+    NativeUtils.remove(filePickerPromises, function(item) { return item.id === field.folder.provId; });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
@@ -256,7 +256,7 @@ function attachObservers() {
     })
     .on('click', '[data-file-picker-summary]', function() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = _.find(widgetData['summary-fields'], { id: fieldId });
+      var field = widgetData['summary-fields'].find(function(item) { return item.id === fieldId; });
 
       highlightError(selectedFieldId, true);
 
@@ -274,7 +274,7 @@ function attachObservers() {
     })
     .on('click', '[data-file-picker-details]', function() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = _.find(widgetData.detailViewOptions, { id: fieldId });
+      var field = widgetData.detailViewOptions.find(function(item) { return item.id === fieldId; });
 
       highlightError(selectedFieldId, true);
 
@@ -300,7 +300,7 @@ function attachObservers() {
           selectedFieldId.push(fieldId);
           break;
         case 'url':
-          selectedFieldId = _.filter(selectedFieldId, function(item) {
+          selectedFieldId = selectedFieldId.filter(function(item) {
             return item !== fieldId;
           });
           break;
@@ -315,7 +315,7 @@ function attachObservers() {
       var fieldIdInSelectedFields = selectedFieldId.indexOf(fieldId) !== -1;
 
       if (fieldName !== 'image' && fieldIdInSelectedFields) {
-        selectedFieldId = _.filter(selectedFieldId, function(item) {
+        selectedFieldId = selectedFieldId.filter(function(item) {
           // eslint-disable-next-line eqeqeq
           return item != fieldId;
         });
@@ -556,7 +556,7 @@ function attachObservers() {
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
+          if (!widgetData.userNameFields || !widgetData.userNameFields.filter(function(name) { return name; }).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 
@@ -712,7 +712,7 @@ function attachObservers() {
   function highlightError(fieldIds, showError) {
     var action = showError ? 'removeClass' : 'addClass';
 
-    _.each(fieldIds, function(id) {
+    fieldIds.forEach(function(id) {
       $('[data-field-id="' + id + '"] .text-danger')[action]('hidden');
     });
   }
@@ -724,9 +724,9 @@ function attachObservers() {
       return selectedFieldId.length === 0;
     }
 
-    var totalArray = _.concat(widgetData.detailViewOptions, widgetData['summary-fields']);
-    var errorInputIds = _.filter(selectedFieldId, function(id) {
-      return !_.some(totalArray, function(item) {
+    var totalArray = [].concat(widgetData.detailViewOptions, widgetData['summary-fields']);
+    var errorInputIds = selectedFieldId.filter(function(id) {
+      return !totalArray.some(function(item) {
         return item.id === id && item.folder;
       });
     });

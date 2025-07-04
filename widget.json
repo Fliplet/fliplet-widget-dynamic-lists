@@ -63,7 +63,6 @@
       "fliplet-ui-datetime",
       "fliplet-ui-number",
       "moment",
-      "lodash",
       "handlebars",
       "animate-css",
       "fliplet-like:0.2",
@@ -71,6 +70,7 @@
       "hammer.js"
     ],
     "assets": [
+      "js/native-utils.js",
       "js/utils.js",
       "js/query-parser.js",
       "js/build.templates.js",

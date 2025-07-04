@@ -50,14 +50,14 @@ function DynamicList(id, data) {
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (_.get(session, 'entries.saml2.user')) {
-      _this.myUserData = _.get(session, 'entries.saml2.user');
+    if (NativeUtils.get(session, 'entries.saml2.user')) {
+      _this.myUserData = NativeUtils.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
 
-    if (_.get(session, 'entries.dataSource.data')) {
-      _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+    if (NativeUtils.get(session, 'entries.dataSource.data')) {
+      NativeUtils.extend(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
@@ -121,7 +121,7 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
+          entry: NativeUtils.find(_this.listItems, function(item) { return item.id === entryId; }),
           entryId: entryId,
           entryTitle: entryTitle,
           event: event
@@ -230,7 +230,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -270,7 +270,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -335,7 +335,7 @@ DynamicList.prototype.attachObservers = function() {
                   return _this.deleteEntry(entryID);
                 })
                 .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
+                  NativeUtils.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
 
@@ -460,13 +460,13 @@ DynamicList.prototype.initialize = function() {
       records = _this.getPermissions(records);
 
       // Get user profile
-      if (!_.isEmpty(_this.myUserData)) {
+      if (!NativeUtils.isEmpty(_this.myUserData)) {
         // Create flag for current user
         records.forEach(function(record) {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
         });
 
-        _this.myProfileData = _.filter(records, function(row) {
+        _this.myProfileData = NativeUtils.filter(records, function(row) {
           return row.isCurrentUser;
         });
       }
@@ -489,7 +489,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, function(item) {
+      _this.listItems = NativeUtils.uniqBy(response, function(item) {
         return item.id;
       });
 
@@ -517,10 +517,10 @@ DynamicList.prototype.checkIsToOpen = function() {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
+  if (NativeUtils.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = NativeUtils.find(_this.listItems, function(item) { return item.id === _this.pvOpenQuery.id; });
+  } else if (NativeUtils.hasIn(_this.pvOpenQuery, 'value') && NativeUtils.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = NativeUtils.find(_this.listItems, function(row) {
       return row.data[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
     });
   }
@@ -561,12 +561,12 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       _this.pvPreviousScreen = value.previousScreen;
 
-      if (_.hasIn(value, 'prefilter')) {
+      if (NativeUtils.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
       }
 
-      if (_.hasIn(value, 'open')) {
+      if (NativeUtils.hasIn(value, 'open')) {
         _this.queryOpen = true;
         _this.pvOpenQuery = value.open;
       }
@@ -606,7 +606,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   // Uses summary view settings set by users
-  var loopData = _.map(records, function(entry) {
+  var loopData = NativeUtils.map(records, function(entry) {
     var newObject = {
       id: entry.id,
       editEntry: entry.editEntry,
@@ -707,7 +707,7 @@ DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
+  NativeUtils.forEach(entries, function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
@@ -718,16 +718,16 @@ DynamicList.prototype.getPermissions = function(entries) {
 DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
-  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+  if (NativeUtils.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 
     return entry;
   }
 
-  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var notDynamicData = NativeUtils.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
   });
-  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var dynamicData = NativeUtils.filter(_this.data.detailViewOptions, function(option) {
     return option.editable;
   });
 
@@ -803,10 +803,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   });
 
   if (_this.data.detailViewAutoUpdate) {
-    var savedColumns = _.map(dynamicData, 'data');
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    var savedColumns = NativeUtils.map(dynamicData, 'data');
+    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns);
 
-    _.forEach(extraColumns, function(column) {
+    NativeUtils.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
         content: entry.originalData[column],
@@ -825,7 +825,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
+  var entryData = NativeUtils.find(listData || _this.modifiedListItems, function(item) { return item.id === id; });
   // Process template with data
   var entryId = { id: id };
   var wrapper = '<div class="small-h-card-detail-wrapper" data-entry-id="{{id}}"></div>';
@@ -849,12 +849,12 @@ DynamicList.prototype.showDetails = function(id, listData) {
       entryData = _this.addDetailViewData(entryData);
 
       if (files && Array.isArray(files)) {
-        _.forEach(files, function(file) {
+        NativeUtils.forEach(files, function(file) {
           if (!file) {
             return;
           }
 
-          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
+          var isFileAdded = !!NativeUtils.find(entryData.entryDetails, function(detail) { return detail.id === file.id; });
 
           if (!isFileAdded) {
             entryData.entryDetails.push(file);
