@@ -1,3 +1,29 @@
+/**
+ * Layout Mapping Configuration
+ * 
+ * Maps layout IDs to their corresponding template, CSS, and JavaScript files.
+ * This configuration defines how each layout is assembled from its components:
+ * 
+ * - name: Display name for the layout
+ * - base: Base template that provides the main structure
+ * - loop: Template for rendering individual items in the list
+ * - detail: Template for detailed view of individual items
+ * - filter: Template for filter controls (if applicable)
+ * - css: CSS file identifier for layout-specific styling
+ * - js: JavaScript file identifier for layout-specific behavior
+ * 
+ * Additional templates may be defined for specific layouts:
+ * - profile-icon: User profile icon template
+ * - user-profile: User profile template
+ * - comment: Comment display template
+ * - single-comment: Individual comment template
+ * - temp-comment: Temporary comment template
+ * - search-results: Search results template
+ * - dates-loop: Date grouping template (agenda layout)
+ * - cards-loop: Card grouping template (agenda layout)
+ * - cards-detail: Card detail template (agenda layout)
+ * - cards-search-results: Card search results template (agenda layout)
+ */
 window.flLayoutMapping = {
   'small-card': {
     'name': 'Small expandable cards',

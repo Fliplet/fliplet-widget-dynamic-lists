@@ -1,10 +1,40 @@
 /**
- * This gets data out of the URL as an INPUT,
- * parses it, and as an OUTPUT sets all the required variables used by LFD
- * for prepopulating, prefiltering and opening an entry
+ * Dynamic List Query Parser
+ * 
+ * This module gets data out of the URL as an INPUT, parses it, and as an OUTPUT 
+ * sets all the required variables used by LFD (List from Data source) for:
+ * - Prepopulating form fields
+ * - Prefiltering list content
+ * - Opening specific entries
+ * - Handling navigation state
  *
+ * URL Query Parameters Supported:
+ * - dynamicListPreviousScreen: Boolean flag for previous screen navigation
+ * - dynamicListEnableButton: Boolean flag for enabling go-back button
+ * - dynamicListHijackBack: Boolean flag for hijacking back navigation
+ * - dynamicListOpenEntry: Entry ID to open automatically
+ * - dynamicListPrefilter: JSON object with filter conditions
+ * - dynamicListQuery: Search query string
+ * - dynamicListUserId: User ID for filtering
+ * - dynamicListUserColumn: Column name for user filtering
+ * - dynamicListAppendFilters: JSON object with additional filters
+ * - dynamicListIgnoreFilters: JSON object with filters to ignore
+ * - dynamicListLimitData: Number to limit data entries
+ * - dynamicListView: Data source view ID
+ * - dynamicListOpenBookmarks: Boolean flag to show only bookmarked items
+ * - dynamicListSort: JSON object with sort configuration
+ * - dynamicListPrepopulate: JSON object with prepopulation data
+ * - dynamicListSourceId: Override data source ID
+ * - dynamicListCommentsDataSourceId: Override comments data source ID
+ * - dynamicListLikesDataSourceId: Override likes data source ID
+ * - dynamicListBookmarksDataSourceId: Override bookmarks data source ID
+ * - dynamicListPassthrough: JSON object with additional data
+ * 
  * Note: Boolean flags are treated as strings as Fliplet.Navigate.query
  * does not parse the values into boolean values.
+ * 
+ * Security: XSS prevention is implemented by limiting which query parameters
+ * are processed and avoiding direct execution of user-provided data.
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
   var _this = this;

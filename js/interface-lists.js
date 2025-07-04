@@ -1,17 +1,37 @@
-var widgetId = Fliplet.Widget.getDefaultId();
-var widgetData = Fliplet.Widget.getData(widgetId) || {};
-var page = Fliplet.Widget.getPage();
-var dynamicLists;
-var dataSourceProvider;
+/**
+ * Interface Lists Module
+ * 
+ * Handles the widget configuration interface for dynamic lists, including:
+ * - Link action configuration for add/edit entry buttons
+ * - File picker integration for media fields
+ * - Widget data management and validation
+ * - Page navigation setup
+ * - Interface state management
+ * 
+ * This module is loaded in the Fliplet Studio interface and manages the 
+ * configuration UI for dynamic list widgets.
+ */
 
-var omitPages = page ? [page.id] : [];
-var addEntryLinkAction;
-var editEntryLinkAction;
-var linkAddEntryProvider;
-var linkEditEntryProvider;
-var filePickerPromises = [];
-var withError = false;
-var selectedFieldId = [];
+// Core widget configuration variables
+var widgetId = Fliplet.Widget.getDefaultId(); // Current widget instance ID
+var widgetData = Fliplet.Widget.getData(widgetId) || {}; // Widget configuration data
+var page = Fliplet.Widget.getPage(); // Current page context
+var dynamicLists; // Dynamic lists instance
+var dataSourceProvider; // Data source provider instance
+
+// Navigation configuration
+var omitPages = page ? [page.id] : []; // Pages to exclude from navigation options
+
+// Link action providers and configurations
+var addEntryLinkAction; // Provider for add entry link action
+var editEntryLinkAction; // Provider for edit entry link action
+var linkAddEntryProvider; // Link provider for adding entries
+var linkEditEntryProvider; // Link provider for editing entries
+
+// File and interface state management
+var filePickerPromises = []; // Array to track file picker promises
+var withError = false; // Flag to track validation errors
+var selectedFieldId = []; // Array of selected field IDs for configuration
 
 var addEntryLinkData = $.extend(true, {
   action: 'screen',

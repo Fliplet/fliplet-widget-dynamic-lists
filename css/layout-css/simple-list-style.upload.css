@@ -1,3 +1,29 @@
+/**
+ * Simple List Layout CSS
+ * 
+ * Specific styling for the Simple List layout of the Dynamic Lists widget.
+ * This layout focuses on clean, minimalist design with emphasis on content readability.
+ * 
+ * Key Features:
+ * - Clean list-style item display
+ * - Overlay-based filter and search interfaces
+ * - Responsive design for all screen sizes
+ * - Smooth animations and transitions
+ * - Accessibility-compliant interactions
+ * - Touch-optimized mobile experience
+ * 
+ * Layout Structure:
+ * - .simple-list-container: Main container
+ * - .simple-list-item: Individual list items
+ * - .simple-list-detail-overlay: Detail view overlay
+ * - .simple-list-search-filter-overlay: Filter overlay
+ * - .simple-list-social-holder: Social interaction buttons
+ */
+
+/* ==========================================================================
+   Studio/Edit Mode Styles
+   ========================================================================== */
+
 .mode-interact .simple-list-container {
   pointer-events: none;
 }
@@ -6,7 +32,10 @@
   overflow: hidden !important;
 }
 
-/* SEARCH FILTER OVERLAY */
+/* ==========================================================================
+   Search Filter Overlay
+   ========================================================================== */
+
 .simple-list-search-filter-overlay {
   position: fixed;
   top: 0;

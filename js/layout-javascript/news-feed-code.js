@@ -1,17 +1,52 @@
-// Constructor
+/**
+ * News Feed Layout - Dynamic List Implementation
+ * 
+ * This file contains the specific implementation for the News Feed layout.
+ * It extends the base Dynamic List functionality with social media features:
+ * 
+ * - Social media-style feed design
+ * - Rich media support (images, videos)
+ * - Full commenting system with replies
+ * - Like and bookmark functionality
+ * - User mentions and notifications
+ * - Real-time updates and interactions
+ * - Card-based layout with content emphasis
+ * 
+ * The News Feed layout is ideal for social applications, news feeds,
+ * content sharing platforms, and community-driven content.
+ */
+
+/**
+ * DynamicList Constructor for News Feed Layout
+ * 
+ * @param {string} id - Unique widget instance identifier
+ * @param {Object} data - Widget configuration data including:
+ *   - layout: Layout type ('news-feed')
+ *   - social: Enhanced social features configuration
+ *   - commentsEnabled: Boolean for comments functionality
+ *   - likesEnabled: Boolean for likes functionality
+ *   - bookmarksEnabled: Boolean for bookmarks functionality
+ *   - summary-fields: Array of fields to display in feed view
+ *   - detailViewOptions: Array of fields to display in detail view
+ *   - userDataSourceId: User data source for social features
+ * @constructor
+ */
 function DynamicList(id, data) {
   var _this = this;
 
+  // Reference to global layout configurations
   this.flListLayoutConfig = window.flListLayoutConfig;
+  
+  // Template mapping specific to news-feed layout
   this.layoutMapping = {
     'news-feed': {
-      'base': 'templates.build.news-feed-base',
-      'loop': 'templates.build.news-feed-loop',
-      'detail': 'templates.build.news-feed-detail',
-      'filter': 'templates.build.news-feed-filters',
-      'comments': 'templates.build.news-feed-comment',
-      'single-comment': 'templates.build.news-feed-single-comment',
-      'temp-comment': 'templates.build.news-feed-temp-comment'
+      'base': 'templates.build.news-feed-base',                 // Main feed structure template
+      'loop': 'templates.build.news-feed-loop',                 // Individual feed item template
+      'detail': 'templates.build.news-feed-detail',             // Detail view template
+      'filter': 'templates.build.news-feed-filters',            // Filter controls template
+      'comments': 'templates.build.news-feed-comment',          // Comments display template
+      'single-comment': 'templates.build.news-feed-single-comment',  // Individual comment template
+      'temp-comment': 'templates.build.news-feed-temp-comment'        // Temporary comment template
     }
   };
 

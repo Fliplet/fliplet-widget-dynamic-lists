@@ -1,33 +1,69 @@
-// Constructor
+/**
+ * Simple List Layout - Dynamic List Implementation
+ * 
+ * This file contains the specific implementation for the Simple List layout.
+ * It extends the base Dynamic List functionality with layout-specific features:
+ * 
+ * - Minimalist design focused on content readability
+ * - Basic social interactions (likes, bookmarks, comments)
+ * - Clean list-style display of data entries
+ * - Responsive design optimized for mobile and desktop
+ * - Search, filter, and sort capabilities
+ * - Detail view overlay for expanded content
+ * 
+ * The Simple List layout is ideal for basic data display scenarios where
+ * content clarity and simplicity are prioritized over visual complexity.
+ */
+
+/**
+ * DynamicList Constructor for Simple List Layout
+ * 
+ * @param {string} id - Unique widget instance identifier
+ * @param {Object} data - Widget configuration data including:
+ *   - layout: Layout type ('simple-list')
+ *   - summary-fields: Array of fields to display in list view
+ *   - detailViewOptions: Array of fields to display in detail view
+ *   - filterOptions: Array of filter configurations
+ *   - sortOptions: Array of sort configurations
+ *   - social: Social features configuration
+ *   - searchEnabled: Boolean for search functionality
+ *   - filtersEnabled: Boolean for filter functionality
+ *   - dataSourceId: Connected data source ID
+ * @constructor
+ */
 function DynamicList(id, data) {
   var _this = this;
 
+  // Reference to global layout configurations
   this.flListLayoutConfig = window.flListLayoutConfig;
+  
+  // Template mapping specific to simple-list layout
   this.layoutMapping = {
     'simple-list': {
-      'base': 'templates.build.simple-list-base',
-      'loop': 'templates.build.simple-list-loop',
-      'detail': 'templates.build.simple-list-detail',
-      'filter': 'templates.build.simple-list-filters',
-      'comments': 'templates.build.simple-list-comment',
-      'single-comment': 'templates.build.simple-list-single-comment',
-      'temp-comment': 'templates.build.simple-list-temp-comment'
+      'base': 'templates.build.simple-list-base',           // Main structure template
+      'loop': 'templates.build.simple-list-loop',           // Individual item template
+      'detail': 'templates.build.simple-list-detail',       // Detail view template
+      'filter': 'templates.build.simple-list-filters',      // Filter controls template
+      'comments': 'templates.build.simple-list-comment',    // Comments display template
+      'single-comment': 'templates.build.simple-list-single-comment',  // Individual comment template
+      'temp-comment': 'templates.build.simple-list-temp-comment'       // Temporary comment template
     }
   };
 
-  // Makes data and the component container available to Public functions
+  // Store widget configuration data and apply defaults
   this.data = data;
   this.data['summary-fields'] = this.data['summary-fields'] || this.flListLayoutConfig[this.data.layout]['summary-fields'];
   this.data.computedFields = this.data.computedFields || {};
   this.data.forceRenderList = false;
   this.data.apiFiltersAvailable = true;
+  
+  // Get the widget container element
   this.$container = $('[data-dynamic-lists-id="' + id + '"]');
 
-  // Other variables
-  // Global variables
-  this.allowClick = true;
-  this.allUsers;
-  this.usersToMention;
+  // Initialize component state variables
+  this.allowClick = true;        // Flag to control click interactions
+  this.allUsers;                 // Cache for all users data
+  this.usersToMention;           // Cache for users available for mentions
   this.commentsLoadingHTML = '<div class="loading-holder"><i class="fa fa-circle-o-notch fa-spin"></i> ' + T('widgets.list.dynamic.loading') + '</div>';
   this.entryClicked = undefined;
   this.isFiltering;

@@ -1,3 +1,24 @@
+/**
+ * Dynamic Lists Widget - Main Build CSS
+ * 
+ * This file contains the core styling for all dynamic list layouts including:
+ * - Common component styles (buttons, controls, placeholders)
+ * - Responsive design utilities
+ * - Animation and transition effects
+ * - Social interaction styling (likes, bookmarks, comments)
+ * - Search and filter interface styling
+ * - Detail view overlay styling
+ * - Mobile-optimized touch interactions
+ * - Accessibility enhancements (focus states, screen reader support)
+ * 
+ * Layout-specific styles are in separate CSS files in the layout-css/ directory.
+ * This file provides the foundation that all layouts build upon.
+ */
+
+/* ==========================================================================
+   Common Component Styles
+   ========================================================================== */
+
 .btn.disabled {
   pointer-events: none;
 }
