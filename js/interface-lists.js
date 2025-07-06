@@ -32,6 +32,11 @@ var editEntryLinkData = $.extend(true, {
   }
 }, widgetData.editEntryLinkAction, { action: 'screen' });
 
+/**
+ * Initializes the link providers for add and edit entry actions
+ * @description Sets up the link providers for adding and editing entries,
+ * handling interface validation and forwarding save requests
+ */
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
     // If provided, the iframe will be appended here,
@@ -71,6 +76,14 @@ function linkProviderInit() {
   });
 }
 
+/**
+ * Initializes the file picker provider for user folder selection
+ * @description Sets up the file picker interface for selecting user folders,
+ * handles file selection events and updates the UI accordingly
+ * @param {Object} userFolder - The user folder configuration object
+ * @param {string} userFolder.id - The unique identifier for the user folder
+ * @param {Object} userFolder.folder - The folder configuration with selection settings
+ */
 function initUserFilePickerProvider(userFolder) {
   Fliplet.Widget.toggleSaveButton(userFolder.folder && userFolder.folder.selectFiles && userFolder.folder.selectFiles.length > 0);
   Fliplet.Studio.emit('widget-save-label-update', {
@@ -128,6 +141,15 @@ function initUserFilePickerProvider(userFolder) {
   filePickerPromises.push(providerFilePickerInstance);
 }
 
+/**
+ * Initializes the file picker provider for field-specific folder selection
+ * @description Sets up the file picker interface for selecting folders for specific fields,
+ * handles file selection events and updates widget data accordingly
+ * @param {Object} field - The field configuration object
+ * @param {string} field.id - The unique identifier for the field
+ * @param {Object} field.folder - The folder configuration with selection settings
+ * @param {string} field.from - The source of the field ('summary' or 'details')
+ */
 function initFilePickerProvider(field) {
   Fliplet.Widget.toggleSaveButton(field.folder && field.folder.selectFiles && field.folder.selectFiles.length > 0);
 
@@ -199,6 +221,11 @@ function initFilePickerProvider(field) {
   filePickerPromises.push(providerFilePickerInstance);
 }
 
+/**
+ * Initializes the widget interface and sets up the dynamic lists
+ * @description Main initialization function that sets up link providers,
+ * attaches event observers, creates dynamic lists instance, and configures data source provider
+ */
 function initialize() {
   linkProviderInit();
   attachObservers();
@@ -206,6 +233,13 @@ function initialize() {
   dataSourceProvider = Fliplet.Registry.get('datasource-provider');
 }
 
+/**
+ * Validates a form field value
+ * @description Checks if a value is valid for form submission, handling arrays,
+ * strings, and special cases like 'none' values
+ * @param {*} value - The value to validate (can be array, string, or other type)
+ * @returns {boolean} Returns true if the value is valid, false otherwise
+ */
 function validate(value) {
   // token field returns always an array with one element even if we didn't past any data in the field
   // that is why we are checking a value of the first element if no data past it will be an empty
@@ -220,6 +254,13 @@ function validate(value) {
   return false;
 }
 
+/**
+ * Toggles error state display for form elements
+ * @description Shows or hides error styling on form elements and their containers,
+ * handles special cases for token fields and panel styling
+ * @param {boolean} showError - Whether to show or hide the error state
+ * @param {string|Element} element - The element selector or DOM element to toggle error state on
+ */
 function toggleError(showError, element) {
   if (showError) {
     var $element = $(element);
@@ -243,6 +284,11 @@ function toggleError(showError, element) {
   $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
 }
 
+/**
+ * Attaches event observers to the interface elements
+ * @description Sets up event listeners for file picker buttons, form changes,
+ * data source initialization, and form submission handling
+ */
 function attachObservers() {
   $(document)
     .on('click', '[data-file-picker-user]', function() {
@@ -709,6 +755,13 @@ function attachObservers() {
       });
   });
 
+  /**
+   * Highlights or removes error styling from specified field IDs
+   * @description Toggles error highlighting for fields based on their IDs,
+   * used for image folder selection validation
+   * @param {string[]} fieldIds - Array of field IDs to highlight or unhighlight
+   * @param {boolean} showError - Whether to show or hide error highlighting
+   */
   function highlightError(fieldIds, showError) {
     var action = showError ? 'removeClass' : 'addClass';
 
@@ -717,6 +770,12 @@ function attachObservers() {
     });
   }
 
+  /**
+   * Validates that all required image folders have been selected
+   * @description Checks if all fields requiring folder selection have proper folder configuration,
+   * highlights errors for missing selections
+   * @returns {boolean} Returns true if all required image folders are selected, false otherwise
+   */
   function validateImageFoldersSelection() {
     if (!widgetData['summary-fields']) {
       highlightError(selectedFieldId, true);
@@ -760,6 +819,12 @@ function attachObservers() {
   });
 }
 
+/**
+ * Saves the widget data and handles completion notification
+ * @description Saves the current widget configuration including link actions,
+ * and optionally notifies completion or reloads the widget instance
+ * @param {boolean} notifyComplete - Whether to notify completion and reload the page
+ */
 function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;

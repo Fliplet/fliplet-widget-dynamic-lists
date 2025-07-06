@@ -23,12 +23,23 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   var parsedDates = {};
   var parsedNumbers = {};
 
+  /**
+   * Checks if a string is a valid image URL
+   * @param {string} str - The string to validate
+   * @returns {boolean} True if the string is a valid image URL, false otherwise
+   */
   function isValidImageUrl(str) {
     return Static.RegExp.httpUrl.test(str)
       || Static.RegExp.base64Image.test(str)
       || Static.RegExp.dataSourcesPath.test(str);
   }
 
+  /**
+   * Intelligently parses a value to a float if it represents a valid number
+   * Replaces lodash-based number parsing with native JavaScript
+   * @param {*} value - The value to parse
+   * @returns {number|*} The parsed float if valid, otherwise the original value
+   */
   function smartParseFloat(value) {
     // Convert strings to numbers where possible so that
     // strings that represent numbers are compared as numbers
@@ -47,6 +58,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return parseFloat(value);
   }
 
+  /**
+   * Comparator function for sorting files by name (case-insensitive)
+   * Used with native Array.sort() method
+   * @param {Object} a - First file object with name property
+   * @param {Object} b - Second file object with name property
+   * @returns {number} -1 if a < b, 1 if a > b, 0 if equal
+   */
   function sortFilesByName(a, b) {
     var aFileName = a.name.toUpperCase();
     var bFileName = b.name.toUpperCase();
@@ -389,6 +407,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     Handlebars.registerPartial('filter', Fliplet.Widget.Templates['templates.build.filter']());
   }
 
+  /**
+   * Splits a string by commas while preserving quoted values and nested arrays
+   * Uses native Array.map(), Array.flat(), and Array.filter() methods
+   * @param {string|Array|*} str - The string to split, or array to flatten, or other value
+   * @param {boolean} [returnNilAsArray=true] - Whether to return null/undefined as empty array
+   * @returns {Array} Array of split values, with nested arrays preserved
+   * @example
+   * splitByCommas('a,b,c') // ['a', 'b', 'c']
+   * splitByCommas('a,"b,c",d') // ['a', 'b,c', 'd']
+   * splitByCommas('a,[b,c],d') // ['a', ['b', 'c'], 'd']
+   */
   function splitByCommas(str, returnNilAsArray) {
     if (str === undefined || str === null) {
       return returnNilAsArray === false ? str : [];
@@ -432,6 +461,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Validates and processes image URLs, handling both single URLs and arrays
+   * Uses native Array.map() method for array processing
+   * @param {string|Array} url - URL string or array of URLs to validate
+   * @returns {string|Array} Processed URL(s) with validation applied
+   */
   function validateImageUrl(url) {
     if (Array.isArray(url)) {
       return url.map(function(val) {
@@ -453,6 +488,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   /**
    * Append a URL query with additional queries
+   * Uses native Array.concat() and NativeUtils.compact() to replace lodash methods
    * @param {String} query Original query
    * @param {String} newQuery Additional query
    * @returns {String} Result query with both sets of queries
@@ -467,6 +503,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return NativeUtils.compact(queryParts).join('&');
   }
 
+  /**
+   * Creates a moment.js date object from various input types
+   * Uses NativeUtils.get() to safely access object properties
+   * @param {*} date - Input date (can be moment object, Date object, string, or null)
+   * @returns {Object} Moment.js date object
+   */
   function getMomentDate(date) {
     if (!date) {
       return moment();
@@ -1167,11 +1209,21 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       : undefined;
   }
 
+  /**
+   * Removes commonly used symbols from text for string matching
+   * @param {*} str - Input value to process (will be converted to string)
+   * @returns {string} String with symbols removed
+   */
   function removeSymbols(str) {
     // Remove commonly used symbols in text that should be ignored for string matching
     return ('' + str).replace(/[&\/\\#+()$~%.`'‘’"“”:*?<>{}]+/g, '');
   }
 
+  /**
+   * Normalizes strings for search operations by removing HTML, entities, and symbols
+   * @param {*} str - Input value to normalize (will be converted to string)
+   * @returns {string} Normalized string ready for search matching
+   */
   function normalizeStringForSearch(str) {
     var htmlTagPattern = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
 
@@ -1189,6 +1241,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return str;
   }
 
+  /**
+   * Recursively checks if a record contains a search value
+   * Uses native Array.some() and Object.values() methods
+   * @param {*} record - Record to search within (can be object, array, or primitive)
+   * @param {string} value - Search value to look for
+   * @returns {boolean} True if record contains the value, false otherwise
+   */
   function recordContains(record, value) {
     if (NativeUtils.isNil(record)) {
       return false;
@@ -1595,6 +1654,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Filters records based on provided filter criteria
+   * Uses native Array.filter() method
+   * @param {Array} records - Array of records to filter
+   * @param {Array} filters - Array of filter objects with criteria
+   * @returns {Array} Filtered array of records
+   */
   function runRecordFilters(records, filters) {
     if (!filters || NativeUtils.isEmpty(filters)) {
       return records;
@@ -1682,6 +1748,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Searches records based on search criteria
+   * Uses native Array.filter() and string search methods
+   * @param {Object} options - Search configuration options
+   * @param {Array} options.records - Array of records to search
+   * @param {string} options.searchValue - Search term to look for
+   * @param {Array} [options.searchFields] - Specific fields to search within
+   * @returns {Array} Array of records matching search criteria
+   */
   function runRecordSearch(options) {
     options = options || {};
 
@@ -1951,6 +2026,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return NativeUtils.get(options, ['record', 'id']);
   }
 
+  /**
+   * Extracts field values from records for filter generation
+   * Uses native Array.map() and NativeUtils.zipObject() and NativeUtils.uniq() methods
+   * @param {Array} records - Array of data records
+   * @param {string|Array} fields - Field name or array of field names to extract values for
+   * @returns {Object} Object mapping field names to arrays of unique values
+   */
   function getRecordFieldValues(records, fields) {
     // Extract a list of filter values based on a list of records and filter fields
     if (NativeUtils.isUndefined(fields) || NativeUtils.isNull(fields)) {
@@ -1968,8 +2050,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
   /**
    * Gets the minimum and maximum values from a list of filter values
-   * @param {Array} values - List of filter values
-   * @returns {Object} Minimum and maximum values
+   * Uses native Array.reduce() method to replace lodash min/max functions
+   * @param {Array} values - List of filter values with data.value properties
+   * @returns {Object} Object with min and max properties, or empty object if no values
    */
   function getMinMaxFilterValues(values) {
     var min = values.reduce(function(min, value) {
@@ -2751,6 +2834,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   // No longer used but kept to support customized layout JS
+  /**
+   * Sorts records by a specified field
+   * Uses native Array.sort() method with custom comparator
+   * @param {Object} options - Sort configuration options
+   * @param {Array} options.records - Array of records to sort
+   * @param {string} options.field - Field name to sort by
+   * @param {string} [options.order] - Sort order ('asc' or 'desc')
+   * @returns {Array} Sorted array of records
+   */
   function sortRecordsByField(options) {
     var sortedRecords = sortByField(options);
 
@@ -3139,11 +3231,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Function is formatting the input values to string
-   * @param {*} value Input values that can be of any type
-   * @returns The formatted input value into string value
+   * Formats input values to string representation
+   * Uses native Array.map(), Array.filter(), and Array.join() methods
+   * @param {*} value - Input values that can be of any type
+   * @returns {string|Handlebars.SafeString} The formatted input value as string
    */
-
   function toFormattedString(value) {
     switch (typeof value) {
       case 'string':
@@ -3173,6 +3265,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  /**
+   * Processes user data for mention functionality
+   * Uses native Array.map() and Array.forEach() methods
+   * @param {Object} options - Configuration options
+   * @param {Array} options.allUsers - Array of all user objects
+   * @param {Object} options.config - Configuration object with user field mappings
+   * @returns {Array} Array of processed user objects with name and image properties
+   */
   function getUsersToMention(options) {
     options = options || {};
 
@@ -3209,6 +3309,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Sets filter values from various data sources (user profile, query params, app storage)
+   * Uses native Array.map() and Promise.all() methods
+   * @param {Object} options - Configuration options
+   * @param {Object} options.config - Configuration object with filterOptions
+   * @returns {Promise} Promise that resolves when all filter values are set
+   */
   function setFilterValues(options) {
     var sessionData;
 
@@ -3292,6 +3399,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return isValidImageUrl(str) ? [str] : null;
   }
 
+  /**
+   * Opens a link action (file, URL, or screen navigation) based on configuration
+   * Uses native Array.find() method to locate records
+   * @param {Object} options - Configuration options
+   * @param {Array} options.records - Array of records to search through
+   * @param {number} options.recordId - ID of the record to find
+   * @param {Object} options.summaryLinkAction - Link action configuration
+   * @returns {void} This function performs navigation side effects
+   */
   function openLinkAction(options) {
     if (!options.summaryLinkAction || !options.summaryLinkAction.column || !options.summaryLinkAction.type) {
       return;

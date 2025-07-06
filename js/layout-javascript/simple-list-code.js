@@ -1,3 +1,15 @@
+/**
+ * Dynamic List constructor for simple-list layout
+ * Initializes a simple list component with basic list functionality
+ * 
+ * @constructor
+ * @param {string} id - The unique identifier for the dynamic list instance
+ * @param {Object} data - Configuration data for the dynamic list
+ * @param {string} data.layout - Layout type ('simple-list')
+ * @param {Array} data.filterFields - Fields available for filtering
+ * @param {Array} data.searchFields - Fields available for searching
+ * @param {Object} data.advancedSettings - Advanced HTML template settings
+ */
 // Constructor
 function DynamicList(id, data) {
   var _this = this;
@@ -93,6 +105,13 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+/**
+ * Toggles the active state of a filter element
+ * Handles both individual filters and range filters (date/number)
+ * 
+ * @param {HTMLElement|string} target - The filter element or selector to toggle
+ * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
   var filterType = $target.data('type');
@@ -124,12 +143,20 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   });
 };
 
+/**
+ * Hides the filter overlay and restores normal page state
+ * Removes overlay classes and unlocks body scroll for simple list layout
+ */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.simple-list-search-filter-overlay').removeClass('display');
   this.$container.find('.simple-list-container').removeClass('overlay-active');
   $('body').removeClass('lock has-filter-overlay');
 };
 
+/**
+ * Attaches all event listeners and observers for the simple list
+ * Sets up handlers for user interactions, filtering, searching, and navigation
+ */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -1083,6 +1110,12 @@ DynamicList.prototype.attachObservers = function() {
     });
 };
 
+/**
+ * Deletes an entry from the data source
+ * 
+ * @param {string|number} entryID - The ID of the entry to delete
+ * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
+ */
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
@@ -1093,6 +1126,12 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 };
 
+/**
+ * Removes an entry's HTML element from the DOM
+ * 
+ * @param {Object} options - Options object
+ * @param {string|number} options.id - The ID of the entry to remove from DOM
+ */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
 
@@ -1105,6 +1144,12 @@ DynamicList.prototype.removeListItemHTML = function(options) {
   this.$container.find('.simple-list-item[data-entry-id="' + id + '"]').remove();
 };
 
+/**
+ * Initializes the simple list component
+ * Processes query parameters, loads data, renders templates, and sets up functionality
+ * 
+ * @returns {Promise} Promise that resolves when initialization is complete
+ */
 DynamicList.prototype.initialize = function() {
   var _this = this;
   var shouldInitFromQuery = _this.parseQueryVars();
@@ -1406,6 +1451,13 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$container.html(template(data));
 };
 
+/**
+ * Processes records and adds summary data for simple list rendering
+ * Maps record fields to display locations based on layout configuration
+ * 
+ * @param {Array<Object>} records - Array of data records to process
+ * @returns {Array<Object>} Processed records with summary data for template rendering
+ */
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
@@ -1441,6 +1493,14 @@ DynamicList.prototype.addSummaryData = function(records) {
   return loopData;
 };
 
+/**
+ * Renders a batch of list items incrementally to improve performance
+ * Uses requestAnimationFrame for smooth rendering of large datasets
+ * 
+ * @param {Object} options - Rendering options
+ * @param {Array<Object>} options.data - Array of records to render
+ * @returns {Promise<Array<Object>>} Promise resolving to the rendered data
+ */
 DynamicList.prototype.renderLoopSegment = function(options) {
   options = options || {};
 
@@ -1702,6 +1762,17 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   }, 200);
 };
 
+/**
+ * Performs search and filtering operations on the simple list data
+ * Handles text search, filters, and sorting with real-time list updates
+ * 
+ * @param {Object|string} options - Search options or search value string
+ * @param {string} [options.value] - Search term to filter records
+ * @param {Array<string>} [options.fields] - Fields to search in
+ * @param {boolean} [options.openSingleEntry] - Whether to auto-open if only one result
+ * @param {boolean} [options.initialRender] - Whether this is the initial render
+ * @returns {Promise} Promise that resolves when search and render is complete
+ */
 DynamicList.prototype.searchData = function(options) {
   if (typeof options === 'string') {
     options = {

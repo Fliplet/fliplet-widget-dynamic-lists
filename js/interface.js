@@ -60,7 +60,19 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  // Constructor
+  /**
+   * Constructor for DynamicLists widget interface
+   * Initializes configuration, sets up event listeners, and manages data sources
+   * Uses jQuery.extend() for deep object merging instead of lodash extend
+   * 
+   * @param {Object} configuration - Widget configuration object
+   * @param {string} configuration.id - Widget instance ID
+   * @param {Array} [configuration.sortOptions=[]] - Sort configuration options
+   * @param {Array} [configuration.filterOptions=[]] - Filter configuration options
+   * @param {Array} [configuration.detailViewOptions=[]] - Detail view field options
+   * @param {Object} [configuration.social={}] - Social features configuration
+   * @param {Object} [configuration.advancedSettings={}] - Advanced template settings
+   */
   function DynamicLists(configuration) {
     _this = this;
 
@@ -132,6 +144,14 @@ var DynamicLists = (function() {
     // Public functions
     constructor: DynamicLists,
 
+    /**
+     * Toggles visibility of custom image field options based on field and type selection
+     * Uses native Array.indexOf() method for checking field values
+     * 
+     * @param {jQuery} $row - The jQuery row element containing the form controls
+     * @param {string} field - The selected field value
+     * @param {string} type - The field type (e.g., 'image')
+     */
     toggleCustomImageFields: function($row, field, type) {
       if (type === 'image' && ['none', 'custom', 'empty'].indexOf(field) === -1) {
         $row.find('.image-type-select').removeClass('hidden');
@@ -583,9 +603,23 @@ var DynamicLists = (function() {
         dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
       }
     },
+    /**
+     * Determines if offset field should be shown based on date value
+     * Uses native Array.indexOf() method instead of lodash includes
+     * 
+     * @param {string} value - The date value to check
+     * @returns {boolean} True if offset field should be shown
+     */
     showOffsetField: function(value) {
       return ['today', 'now'].indexOf(value) !== -1;
     },
+    /**
+     * Determines if timezone field should be shown based on date value
+     * Uses native Array.indexOf() method instead of lodash includes
+     * 
+     * @param {string} value - The date value to check
+     * @returns {boolean} True if timezone field should be shown
+     */
     showTimezoneField: function(value) {
       return [
         'now',
@@ -595,6 +629,13 @@ var DynamicLists = (function() {
         'nowsubtracthours'
       ].indexOf(value) !== -1;
     },
+    /**
+     * Determines if value fields should be hidden based on logic type
+     * Uses native Array.indexOf() method instead of lodash includes
+     * 
+     * @param {string} value - The logic value to check
+     * @returns {boolean} True if value fields should be hidden
+     */
     showValueFields: function(value) {
       return [
         'empty',
@@ -748,6 +789,11 @@ var DynamicLists = (function() {
         }
       }
     },
+    /**
+     * Renders filter column accordions based on current configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each filter option and populates UI controls
+     */
     renderFilterColumns: function() {
       $filterAccordionContainer.empty();
       _this.config.filterOptions.forEach(function(item) {
@@ -783,6 +829,11 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Renders sort column accordions based on current configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each sort option and populates UI controls
+     */
     renderSortColumns: function() {
       dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
       $sortAccordionContainer.empty();
@@ -1255,6 +1306,11 @@ var DynamicLists = (function() {
           _this.goToSettings('layouts');
         });
     },
+    /**
+     * Updates the summary row container with current field configurations
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each summary field and updates UI elements
+     */
     updateSummaryRowContainer: function() {
       $summaryRowContainer.empty();
       _this.config['summary-fields'].forEach(function(item) {
@@ -1289,6 +1345,11 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Updates the details row container with current field configurations
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each detail view option and updates UI elements
+     */
     updateDetailsRowContainer: function() {
       $detailsRowContainer.empty();
       _this.config.detailViewOptions.forEach(function(item) {
@@ -1318,12 +1379,12 @@ var DynamicLists = (function() {
     },
     /**
      * Validates a column name from field settings
+     * Uses native Array.indexOf() method instead of lodash includes
      *
-     * @param {Object} item - object with settings for sort list items
-     *        keys:
-     *          column {String} - selected column name
-     *          columns {Array} - array datasource or default columns
-     * @returns {String} column name
+     * @param {Object} item - Object with settings for sort list items
+     * @param {string} item.column - Selected column name
+     * @param {Array} item.columns - Array of datasource or default columns
+     * @returns {string} Valid column name or 'none' if invalid
      */
     validateColumn: function(item) {
       if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
@@ -1429,6 +1490,11 @@ var DynamicLists = (function() {
     removeFocusFromTokenInput: function() {
       $('input.token-input.ui-autocomplete-input').blur();
     },
+    /**
+     * Handles token field selection events and updates autocomplete sources
+     * Uses native Array methods (filter, some, concat, map) instead of lodash
+     * Manages token creation/removal and updates available options dynamically
+     */
     handleTokensSelection: function() {
       $('input.tokenfield').on('tokenfield:createdtoken tokenfield:removedtoken', function() {
         var field = $(this);
@@ -1482,6 +1548,14 @@ var DynamicLists = (function() {
       _this.handleTokensSelection();
       _this.loadUserTokenFields();
     },
+    /**
+     * Retrieves columns from a data source and updates field options
+     * Uses Promise-based data fetching with callback functions
+     * Updates UI fields with retrieved column information
+     * 
+     * @param {string} dataSourceId - The ID of the data source to fetch columns from
+     * @returns {Promise|undefined} Promise that resolves when columns are updated
+     */
     getColumns: function(dataSourceId) {
       if (dataSourceId && dataSourceId !== '') {
         return Fliplet.DataSources.getById(dataSourceId, {
@@ -1507,6 +1581,13 @@ var DynamicLists = (function() {
 
       return Promise.resolve();
     },
+    /**
+     * Updates form field options with available data source columns
+     * Uses native Array.forEach() method instead of lodash each
+     * Populates select dropdowns with column options while preserving selected values
+     * 
+     * @param {Array} dataSourceColumns - Array of available column names
+     */
     updateFieldsWithColumns: function(dataSourceColumns) {
       if (!dataSourceColumns) {
         return;
@@ -1656,6 +1737,13 @@ var DynamicLists = (function() {
 
       _this.setUpTokenFields();
     },
+    /**
+     * Updates user-related field options with available data source columns
+     * Uses native Array.forEach() method instead of lodash each for iterating columns
+     * Populates user-specific dropdowns (first name, last name, email, photo, admin)
+     * 
+     * @param {Array} userDataSourceColumns - Array of available user column names
+     */
     updateUserFieldsWithColumns: function(userDataSourceColumns) {
       userDataSourceColumns = userDataSourceColumns || [];
 
@@ -1807,6 +1895,11 @@ var DynamicLists = (function() {
     getDataSourceById: function(id) {
       return Fliplet.DataSources.getById(id);
     },
+    /**
+     * Loads default data configuration from the selected layout
+     * Uses native Array.forEach() method instead of lodash each
+     * Initializes layout-specific default entries and columns
+     */
     loadDataFromLayout: function() {
       _this.config.layout = listLayout;
       _this.config.dataSourceId = undefined;
@@ -1834,6 +1927,13 @@ var DynamicLists = (function() {
         $('.filter-panels-holder').addClass('empty');
       }
     },
+    /**
+     * Generates a random string ID of specified length
+     * Uses native string operations instead of lodash random utilities
+     * 
+     * @param {number} length - The desired length of the generated ID
+     * @returns {string} A random alphanumeric string
+     */
     makeid: function(length) {
       var text = '';
       var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -1914,12 +2014,26 @@ var DynamicLists = (function() {
         }
       }
     },
+    /**
+     * Determines if a field location is editable based on layout configuration
+     * Uses native Array.find() method instead of lodash find
+     * 
+     * @param {string} location - The field location to check
+     * @returns {boolean} True if the field location is editable
+     */
     fieldLocationIsEditable: function(location) {
       var layout = this.config.layout;
       var field = defaultSettings[layout]['summary-fields'].find(function(item) { return item.location === location; });
 
       return field && field.editable;
     },
+    /**
+     * Adds a summary item to the interface with appropriate field type options
+     * Uses NativeUtils.remove() instead of lodash remove for filtering options
+     * Configures field options based on editability and adds to summary container
+     * 
+     * @param {Object} data - The summary item data configuration
+     */
     addSummaryItem: function(data) {
       var now = new Date();
 
@@ -2014,8 +2128,6 @@ var DynamicLists = (function() {
             var aOrder = a.order || 0;
             var bOrder = b.order || 0;
             return aOrder - bOrder;
-          });
-            return sortedIds.indexOf(item.id);
           });
           $('.panel').not(ui.item).removeClass('faded');
         },
@@ -2707,7 +2819,7 @@ var DynamicLists = (function() {
         item.orderBy = $('#order-by-field-' + item.id).val();
       });
 
-      // Get filter options
+      // Get filter options - uses native forEach instead of lodash each
       _this.config.filterOptions.forEach(function(item) {
         item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
@@ -2973,6 +3085,11 @@ var DynamicLists = (function() {
 
       return Promise.all([likesPromise, bookmarksPromise, commentsPromise]);
     },
+    /**
+     * Saves summary view field options from the interface to configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes form values and updates configuration object
+     */
     saveSummaryViewOptions: function() {
       _this.config['summary-fields'].forEach(function(item) {
         item.column = $('#summary_select_field_' + item.id).val();
@@ -3001,6 +3118,11 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Saves detailed view field options from the interface to configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes form values and updates detail view configuration
+     */
     saveDetailedViewOptions: function() {
       _this.config.detailViewOptions.forEach(function(item) {
         item.column = $('#detail_select_field_' + item.id).val();
@@ -3033,6 +3155,11 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Saves token field values (search, sort, filter fields) to configuration
+     * Uses native Array.map() method instead of lodash map for processing values
+     * Splits comma-separated values and trims whitespace from each field
+     */
     saveTokenFields: function() {
       _this.config.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined' ?
         $('#search-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];

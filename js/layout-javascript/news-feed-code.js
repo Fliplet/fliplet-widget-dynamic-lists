@@ -1,3 +1,18 @@
+/**
+ * Dynamic List constructor for news-feed layout
+ * Initializes a news feed component with social features like comments and bookmarks
+ * 
+ * @constructor
+ * @param {string} id - The unique identifier for the dynamic list instance
+ * @param {Object} data - Configuration data for the dynamic list
+ * @param {string} data.layout - Layout type ('news-feed')
+ * @param {Object} data.social - Social features configuration
+ * @param {boolean} data.social.bookmark - Whether bookmarking is enabled
+ * @param {boolean} data.social.comments - Whether comments are enabled
+ * @param {Array} data.filterFields - Fields available for filtering
+ * @param {Array} data.searchFields - Fields available for searching
+ * @param {Object} data.advancedSettings - Advanced HTML template settings
+ */
 // Constructor
 function DynamicList(id, data) {
   var _this = this;
@@ -98,6 +113,13 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+/**
+ * Toggles the active state of a filter element
+ * Handles both individual filters and range filters (date/number)
+ * 
+ * @param {HTMLElement|string} target - The filter element or selector to toggle
+ * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
   var filterType = $target.data('type');
@@ -129,6 +151,10 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   });
 };
 
+/**
+ * Hides the filter overlay and restores normal page state
+ * Removes overlay classes and unlocks body scroll for news feed layout
+ */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.news-feed-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
@@ -136,6 +162,10 @@ DynamicList.prototype.hideFilterOverlay = function() {
   $('body').removeClass('lock has-filter-overlay');
 };
 
+/**
+ * Attaches all event listeners and observers for the news feed
+ * Sets up handlers for user interactions, filtering, searching, comments, and navigation
+ */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -1115,6 +1145,12 @@ DynamicList.prototype.attachObservers = function() {
     });
 };
 
+/**
+ * Deletes an entry from the data source
+ * 
+ * @param {string|number} entryID - The ID of the entry to delete
+ * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
+ */
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
@@ -1125,6 +1161,12 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 };
 
+/**
+ * Removes an entry's HTML element from the DOM
+ * 
+ * @param {Object} options - Options object
+ * @param {string|number} options.id - The ID of the entry to remove from DOM
+ */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
 
@@ -1249,6 +1291,13 @@ DynamicList.prototype.getAllBookmarks = function() {
   });
 };
 
+/**
+ * Initializes social features (bookmarks, comments) for rendered records
+ * Sets up bookmark buttons, comment functionality, and social interaction handlers
+ * 
+ * @param {Array<Object>} records - Array of records to initialize social features for
+ * @returns {Promise} Promise that resolves when all social features are initialized
+ */
 DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
@@ -1275,10 +1324,16 @@ DynamicList.prototype.initializeSocials = function(records) {
           record: masterRecord
         })
       ];
-    }).reduce(function(acc, val) { return acc.concat(val); }, []));
+    }).flat());
   });
 };
 
+/**
+ * Retrieves and caches user data for comment functionality
+ * Loads all users from the data source for user mentions and comments
+ * 
+ * @returns {Promise<Array<Object>>} Promise resolving to array of user data
+ */
 DynamicList.prototype.getCommentUsers = function() {
   if (!NativeUtils.get(this.data, 'social.comments')) {
     return Promise.resolve();
@@ -1323,6 +1378,12 @@ DynamicList.prototype.getCommentUsers = function() {
     });
 };
 
+/**
+ * Initializes the news feed component
+ * Processes query parameters, loads data, renders templates, and sets up social functionality
+ * 
+ * @returns {Promise} Promise that resolves when initialization is complete
+ */
 DynamicList.prototype.initialize = function() {
   var _this = this;
   var shouldInitFromQuery = _this.parseQueryVars();
@@ -1627,6 +1688,13 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$overlay = $('#news-feed-detail-overlay-' + _this.data.id);
 };
 
+/**
+ * Processes records and adds summary data for news feed rendering
+ * Applies field mappings, filter properties, and social data based on layout configuration
+ * 
+ * @param {Array<Object>} records - Array of data records to process
+ * @returns {Array<Object>} Processed records with summary data for template rendering
+ */
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
@@ -1663,6 +1731,14 @@ DynamicList.prototype.addSummaryData = function(records) {
   return loopData;
 };
 
+/**
+ * Renders a batch of news feed items incrementally to improve performance
+ * Uses requestAnimationFrame for smooth rendering of large datasets
+ * 
+ * @param {Object} options - Rendering options
+ * @param {Array<Object>} options.data - Array of records to render
+ * @returns {Promise<Array<Object>>} Promise resolving to the rendered data
+ */
 DynamicList.prototype.renderLoopSegment = function(options) {
   options = options || {};
 
@@ -1921,6 +1997,17 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   }, 200);
 };
 
+/**
+ * Performs search and filtering operations on the news feed data
+ * Handles text search, filters, bookmarks, and sorting with real-time feed updates
+ * 
+ * @param {Object|string} options - Search options or search value string
+ * @param {string} [options.value] - Search term to filter records
+ * @param {Array<string>} [options.fields] - Fields to search in
+ * @param {boolean} [options.openSingleEntry] - Whether to auto-open if only one result
+ * @param {boolean} [options.initialRender] - Whether this is the initial render
+ * @returns {Promise} Promise that resolves when search and render is complete
+ */
 DynamicList.prototype.searchData = function(options) {
   if (typeof options === 'string') {
     options = {

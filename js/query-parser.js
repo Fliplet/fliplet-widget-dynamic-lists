@@ -5,6 +5,11 @@
  *
  * Note: Boolean flags are treated as strings as Fliplet.Navigate.query
  * does not parse the values into boolean values.
+ *
+ * @description Parses URL query parameters for dynamic list functionality including
+ * search, filter, sort, prefilter, and entry opening operations
+ * @returns {boolean} Returns true if any query parameters were parsed and processed,
+ * false if no relevant query parameters were found or if in interact mode
  */
 Fliplet.Registry.set('dynamicListQueryParser', function() {
   var _this = this;

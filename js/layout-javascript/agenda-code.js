@@ -1,3 +1,18 @@
+/**
+ * Dynamic List constructor for agenda layout
+ * Initializes an agenda component with date-based organization and calendar navigation
+ * 
+ * @constructor
+ * @param {string} id - The unique identifier for the dynamic list instance
+ * @param {Object} data - Configuration data for the dynamic list
+ * @param {string} data.layout - Layout type ('agenda')
+ * @param {Object} data.social - Social features configuration
+ * @param {boolean} data.social.bookmark - Whether bookmarking is enabled
+ * @param {Array} data.filterFields - Fields available for filtering
+ * @param {Array} data.searchFields - Fields available for searching
+ * @param {Object} data.advancedSettings - Advanced HTML template settings
+ * @param {string} data.dateField - Field name containing the date information
+ */
 // Constructor
 function DynamicList(id, data) {
   var _this = this;
@@ -104,6 +119,13 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+/**
+ * Toggles the active state of a filter element for agenda items
+ * Handles both individual filters and range filters (date/number)
+ * 
+ * @param {HTMLElement|string} target - The filter element or selector to toggle
+ * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
   var filterType = $target.data('type');
@@ -135,6 +157,10 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   });
 };
 
+/**
+ * Hides the filter overlay and restores normal page state
+ * Removes overlay classes and unlocks body scroll for agenda layout
+ */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
@@ -142,6 +168,14 @@ DynamicList.prototype.hideFilterOverlay = function() {
   $('body').removeClass('lock has-filter-overlay');
 };
 
+/**
+ * Navigates to a specific agenda feature or date
+ * Handles agenda-specific navigation and date positioning
+ * 
+ * @param {Object} options - Navigation options
+ * @param {number|string} [options.date] - Target date to navigate to
+ * @param {string} [options.feature] - Specific agenda feature to navigate to
+ */
 DynamicList.prototype.goToAgendaFeature = function(options) {
   options = options || {};
 
@@ -183,6 +217,10 @@ DynamicList.prototype.goToAgendaFeature = function(options) {
     });
 };
 
+/**
+ * Attaches all event listeners and observers for the agenda
+ * Sets up handlers for user interactions, filtering, searching, date navigation, and touch gestures
+ */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -934,7 +972,7 @@ DynamicList.prototype.attachObservers = function() {
                   var removedEntries = NativeUtils.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
-                  var removedEntry = removedEntries[0];
+                  var removedEntry = removedEntries && removedEntries.length > 0 ? removedEntries[0] : null;
 
                   _that.text(T('widgets.list.dynamic.notifications.confirmDelete.action')).removeClass('disabled');
                   _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
@@ -957,6 +995,12 @@ DynamicList.prototype.attachObservers = function() {
                   }
 
                   // Delete list item from agendasByDay as well
+                  // Only proceed if we successfully removed an entry
+                  if (!removedEntry) {
+                    console.warn('No entry was removed with ID:', entryId);
+                    return;
+                  }
+
                   var foundDateField = NativeUtils.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
                   var dateField = NativeUtils.get(foundDateField, 'column');
                   var agendasDayIndex = _this.getDateIndex(removedEntry.data[dateField]);
@@ -1069,6 +1113,12 @@ DynamicList.prototype.attachObservers = function() {
     });
 };
 
+/**
+ * Deletes an entry from the data source
+ * 
+ * @param {string|number} entryID - The ID of the entry to delete
+ * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
+ */
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
@@ -1079,6 +1129,12 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 };
 
+/**
+ * Removes an entry's HTML element from the DOM and updates agenda structure
+ * 
+ * @param {Object} options - Options object
+ * @param {string|number} options.id - The ID of the entry to remove from DOM
+ */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
 
@@ -1113,6 +1169,12 @@ DynamicList.prototype.scrollEvent = function() {
   });
 };
 
+/**
+ * Updates the date index context for agenda navigation
+ * Manages the current date position in the agenda timeline
+ * 
+ * @param {number} indexOfClickedDate - Index of the selected date in the agenda dates array
+ */
 DynamicList.prototype.updateDateIndexContext = function(indexOfClickedDate) {
   var defaultDateIndex = this.getDateIndex(this.Utils.Date.moment());
 
@@ -1125,6 +1187,12 @@ DynamicList.prototype.updateDateIndexContext = function(indexOfClickedDate) {
   }
 };
 
+/**
+ * Initializes the agenda component
+ * Processes query parameters, loads data, organizes by dates, renders templates, and sets up navigation
+ * 
+ * @returns {Promise} Promise that resolves when initialization is complete
+ */
 DynamicList.prototype.initialize = function() {
   var _this = this;
   var shouldInitFromQuery = _this.parseQueryVars();
@@ -1400,6 +1468,13 @@ DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
     .map(function(pair) { return pair[1]; });
 };
 
+/**
+ * Processes records and adds summary data for agenda rendering
+ * Applies field mappings and filter properties based on agenda layout configuration
+ * 
+ * @param {Array<Object>} records - Array of data records to process
+ * @returns {Array<Object>} Processed records with summary data for template rendering
+ */
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
@@ -1772,6 +1847,13 @@ DynamicList.prototype.getAllBookmarks = function() {
   });
 };
 
+/**
+ * Initializes social features (bookmarks) for agenda records
+ * Sets up bookmark buttons and handles bookmark state synchronization
+ * 
+ * @param {Array<Object>} records - Array of records to initialize social features for
+ * @returns {Promise} Promise that resolves when all social features are initialized
+ */
 DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
@@ -2304,6 +2386,17 @@ DynamicList.prototype.cacheSearchedData = function(data) {
   }
 };
 
+/**
+ * Performs search and filtering operations on the agenda data
+ * Handles text search, filters, bookmarks, and sorting with date-based reorganization
+ * 
+ * @param {Object|string} options - Search options or search value string
+ * @param {string} [options.value] - Search term to filter records
+ * @param {Array<string>} [options.fields] - Fields to search in
+ * @param {boolean} [options.openSingleEntry] - Whether to auto-open if only one result
+ * @param {boolean} [options.initialRender] - Whether this is the initial render
+ * @returns {Promise} Promise that resolves when search and render is complete
+ */
 DynamicList.prototype.searchData = function(options) {
   if (typeof options === 'string') {
     options = {
@@ -2704,6 +2797,14 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   return entry;
 };
 
+/**
+ * Shows the detail overlay for a specific agenda entry
+ * Loads entry data, processes detail view configuration, and displays overlay
+ * 
+ * @param {string|number} id - The ID of the entry to show details for
+ * @param {Array<Object>} [listData] - Optional array of list data to search in
+ * @returns {Promise} Promise that resolves when detail view is displayed
+ */
 DynamicList.prototype.showDetails = function(id, listData) {
   this.isShowDetail = true;
 
@@ -2806,6 +2907,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
     });
 };
 
+/**
+ * Closes the detail overlay and returns to agenda view
+ * Handles cleanup, focus management, and navigation context
+ * 
+ * @param {Object} [options] - Close options
+ * @param {boolean} [options.focusOnEntry] - Whether to focus on the closed entry in the agenda
+ */
 DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
