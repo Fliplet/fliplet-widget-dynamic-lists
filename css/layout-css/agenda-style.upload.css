@@ -626,7 +626,9 @@
   padding: 0;
   list-style: none;
   width: 100%;
-  overflow-x: auto;
+  overflow-x: scroll; 
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   overflow-y: hidden;
   white-space: nowrap;
   font-size: 0;
@@ -659,6 +661,7 @@
 .new-agenda-list-container .agenda-date-selector ul li.active {
   cursor: default;
   pointer-events: none;
+  scroll-snap-align: center;
   color: rgba(51, 122, 183, 0.5);
 }
 
