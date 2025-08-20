@@ -1967,22 +1967,36 @@ DynamicList.prototype.moveBackDate = function(index, difference) {
 };
 
 // Function to center date
-DynamicList.prototype.centerDate = function() {
+DynamicList.prototype.centerDate = function () {
   // resets position - this will only be used when resizing
-  var _this = this;
+  const _this = this;
 
-  _this.$container.find('.agenda-date-selector ul').scrollLeft(0);
+  const containerSelector = _this.$container.find(".agenda-date-selector ul");
 
-  var halfWindowWidth = $(window).width() / 2;
-  var activePosition = _this.$container.find('.agenda-date-selector li.active').position();
-  var activeWidth = _this.$container.find('.agenda-date-selector li.active').outerWidth();
-  var halfWidth = activeWidth / 2;
+  containerSelector?.scrollLeft(0);
 
-  if (!activePosition || isNaN(activePosition.left) || isNaN(halfWindowWidth) || isNaN(halfWidth)) {
+  const containerWidth = containerSelector.width();
+
+  const halfContainerWidth = containerWidth / 2;
+
+  const activeElement = containerSelector.find(".agenda-date-selector li.active");
+
+  const activePosition = activeElement.position();
+
+  const activeWidth = activeElement.outerWidth();
+
+  const halfWidth = activeWidth / 2;
+
+  if (
+    !activePosition ||
+    isNaN(activePosition.left) ||
+    isNaN(halfContainerWidth) ||
+    isNaN(halfWidth)
+  ) {
     return;
   }
 
-  _this.$container.find('.agenda-date-selector ul').scrollLeft(activePosition.left - (halfWindowWidth - halfWidth));
+  containerSelector.scrollLeft(activePosition.left - (halfContainerWidth - halfWidth));
 };
 
 DynamicList.prototype.toggleBookmarkStatus = function(record) {
