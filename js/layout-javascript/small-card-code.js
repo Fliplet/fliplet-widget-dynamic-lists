@@ -52,7 +52,7 @@ function DynamicList(id, data) {
   this.listItems;
   this.modifiedListItems;
   this.renderListItems = [];
-  this.searchedListItems;
+  this.searchedListItems = [];
   this.dataSourceColumns;
   this.directoryDetailWrapper;
   this.searchValue = '';

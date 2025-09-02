@@ -2157,11 +2157,9 @@ var DynamicLists = (function() {
           });
 
           _this.config.filterOptions = _this.config.filterOptions.sort(function(a, b) {
-            var aOrder = a.order || 0;
-            var bOrder = b.order || 0;
+            var aOrder = sortedIds.indexOf(a.id);
+            var bOrder = sortedIds.indexOf(b.id);
             return aOrder - bOrder;
-          });
-            return sortedIds.indexOf(item.id);
           });
           $('.panel').not(ui.item).removeClass('faded');
         },

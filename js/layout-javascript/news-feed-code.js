@@ -47,7 +47,7 @@ function DynamicList(id, data) {
   this.listItems;
   this.modifiedListItems;
   this.renderListItems = [];
-  this.searchedListItems;
+  this.searchedListItems = [];
   this.dataSourceColumns;
   this.allUsers;
   this.usersToMention;
@@ -103,7 +103,7 @@ function DynamicList(id, data) {
     }
 
     if (NativeUtils.get(session, 'entries.dataSource.data')) {
-      Object.assign(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
+      NativeUtils.extend(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions

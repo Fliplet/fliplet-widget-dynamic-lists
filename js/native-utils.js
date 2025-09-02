@@ -573,6 +573,11 @@ window.NativeUtils = {
    * // [{a: 1, b: 2}, {a: 2, b: 1}]
    */
   orderBy: function(array, iteratees, orders) {
+    // Ensure iteratees is an array
+    if (!Array.isArray(iteratees)) {
+      iteratees = [iteratees];
+    }
+    
     const getters = iteratees.map(iter => 
       typeof iter === 'function' ? iter : (item) => this.get(item, iter)
     );
@@ -853,8 +858,17 @@ window.NativeUtils = {
    * @example
    * NativeUtils.assignIn({a: 1}, {b: 2}, {c: 3}); // {a: 1, b: 2, c: 3}
    */
-  assignIn: function(target, ...sources) {
-    return Object.assign(target, ...sources);
+  assignIn: function(target) {
+    var sources = Array.prototype.slice.call(arguments, 1);
+    for (var i = 0; i < sources.length; i++) {
+      var source = sources[i];
+      for (var key in source) {
+        if (source.hasOwnProperty(key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
   },
 
   /**
@@ -934,13 +948,25 @@ window.NativeUtils = {
    * Map array to new array
    * Replacement for _.map()
    * @param {Array} array - The array to map
-   * @param {Function} iteratee - The function to call for each element
+   * @param {Function|string} iteratee - The function to call for each element or property path
    * @returns {Array} A new mapped array
    * @description Creates a new array with the results of calling the iteratee on every element
    * @example
    * NativeUtils.map([1, 2, 3], x => x * 2); // [2, 4, 6]
+   * NativeUtils.map([{id: 1}, {id: 2}], 'id'); // [1, 2]
    */
   map: function(array, iteratee) {
+    if (!array || !Array.isArray(array)) {
+      return [];
+    }
+    if (typeof iteratee === 'string') {
+      return array.map(function(item) {
+        return this.get(item, iteratee);
+      }.bind(this));
+    }
+    if (typeof iteratee !== 'function') {
+      throw new Error('NativeUtils.map: iteratee must be a function or string, got ' + typeof iteratee);
+    }
     return array.map(iteratee);
   },
 

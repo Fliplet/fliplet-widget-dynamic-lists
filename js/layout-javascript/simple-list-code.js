@@ -50,7 +50,7 @@ function DynamicList(id, data) {
   this.listItems;
   this.modifiedListItems;
   this.renderListItems = [];
-  this.searchedListItems;
+  this.searchedListItems = [];
   this.entryOverlay;
   this.myUserData = {};
   this.dataSourceColumns;
