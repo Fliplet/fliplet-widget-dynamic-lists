@@ -1,20 +1,37 @@
+/**
+ * Dynamic List Utilities
+ * Provides common utility functions for dynamic list widgets including:
+ * - Data parsing and validation
+ * - String manipulation and formatting
+ * - Date and number handling
+ * - Image URL validation
+ * - File handling
+ * - Search and filtering helpers
+ * 
+ * Registered in Fliplet.Registry as 'dynamicListUtils'
+ */
 Fliplet.Registry.set('dynamicListUtils', (function() {
+  // Flag to track if ISO date warning has been issued
   var isoDateWarningIssued = false;
+  
+  // Cache for file data to improve performance
   var cachedFiles = {};
+  
+  // Static configuration and regular expressions
   var Static = {
     RegExp: {
-      httpUrl: /^https?:\/\//i,
-      base64Image: /^data:image\/[^;]+;base64,/i,
-      dataSourcesPath: /^datasources\//i,
-      number: /^\d+$/i,
-      linebreak: /(\r\n|\n|\r)/gm,
-      email: /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
-      phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
-      url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,32})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig,
-      mention: /\B@[a-z0-9_-]+/ig,
-      date: /^[0-9]{4}-([0]?[1-9]|[1][0-2])-([0]?[1-9]|[1|2][0-9]|[3][0|1])$/
+      httpUrl: /^https?:\/\//i, // HTTP/HTTPS URLs
+      base64Image: /^data:image\/[^;]+;base64,/i, // Base64 encoded images
+      dataSourcesPath: /^datasources\//i, // Fliplet datasources path
+      number: /^\d+$/i, // Pure numeric strings
+      linebreak: /(\r\n|\n|\r)/gm, // Line breaks (cross-platform)
+      email: /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm, // Email addresses
+      phone: /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm, // Phone numbers
+      url: /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,32})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig, // URLs
+      mention: /\B@[a-z0-9_-]+/ig, // Social media mentions
+      date: /^[0-9]{4}-([0]?[1-9]|[1][0-2])-([0]?[1-9]|[1|2][0-9]|[3][0|1])$/ // ISO date format
     },
-    refArraySeparator: '.$.'
+    refArraySeparator: '.$.' // Separator for array references in data paths
   };
   var computedFieldClashes = [];
   var searchValueMap = {};

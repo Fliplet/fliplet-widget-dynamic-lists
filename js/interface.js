@@ -1,3 +1,37 @@
+/**
+ * Dynamic Lists Widget Configuration Interface
+ * 
+ * This module provides the complete configuration interface for dynamic list widgets
+ * in Fliplet Studio. It handles all aspects of widget setup including:
+ * 
+ * Core Features:
+ * - Layout selection and preview
+ * - Data source integration and field mapping
+ * - Search and filter configuration
+ * - Sort options setup
+ * - Social features configuration (likes, bookmarks, comments)
+ * - Field display customization (summary and detail views)
+ * - Template editing with CodeMirror integration
+ * - CSS and JavaScript customization
+ * - Real-time preview and validation
+ * 
+ * Interface Components:
+ * - Layout selection grid with animated previews
+ * - Data source provider integration
+ * - Drag-and-drop field configuration
+ * - Filter and sort panel builders
+ * - Template editors with syntax highlighting
+ * - Style customization panels
+ * - Advanced settings configuration
+ * 
+ * Dependencies:
+ * - CodeMirror for template editing
+ * - jQuery UI for drag-and-drop functionality
+ * - Bootstrap for UI components
+ * - Handlebars for template compilation
+ * - Fliplet core APIs for data source integration
+ */
+
 /* global CodeMirror */
 // eslint-disable-next-line no-unused-vars
 var DynamicLists = (function() {
@@ -60,10 +94,33 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  // Constructor
+  /**
+   * DynamicLists Interface Constructor
+   * 
+   * Initializes the widget configuration interface in Fliplet Studio.
+   * This constructor sets up the configuration UI including:
+   * - Data source provider integration
+   * - Layout selection interface
+   * - Field mapping and configuration
+   * - Filter and sort option setup
+   * - Social features configuration
+   * - Template editor initialization
+   * 
+   * @param {Object} configuration - Widget configuration object including:
+   *   - id: Widget instance ID
+   *   - layout: Selected layout type
+   *   - dataSourceId: Connected data source ID
+   *   - sortOptions: Array of sort configurations
+   *   - filterOptions: Array of filter configurations
+   *   - detailViewOptions: Array of detail view field configurations
+   *   - social: Social features configuration
+   *   - advancedSettings: Advanced widget settings
+   * @constructor
+   */
   function DynamicLists(configuration) {
     _this = this;
 
+    // Merge configuration with defaults
     _this.config = $.extend(true, {
       sortOptions: [],
       filterOptions: [],
@@ -75,9 +132,11 @@ var DynamicLists = (function() {
     _this.widgetId = configuration.id;
     _this.isLoaded = false;
 
+    // Initialize interface
     _this.attachListeners();
     _this.init();
 
+    // Register data source provider for external access
     Fliplet.Registry.set('datasource-provider', function() {
       return dataSourceProvider;
     });

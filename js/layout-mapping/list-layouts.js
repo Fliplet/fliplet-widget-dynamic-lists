@@ -1,5 +1,23 @@
+/**
+ * Layout Definitions for Dynamic Lists Widget
+ * Defines all available layout options with their metadata and preview assets
+ */
+
+// Get the widget ID for asset URL construction
 var widgetId = Fliplet.Widget.getDefaultId();
 
+/**
+ * Array of available layout configurations
+ * Each layout includes:
+ * - id: Unique identifier used in code
+ * - name: Display name shown in interface
+ * - description: Brief description of use case
+ * - gif: Animated preview image URL
+ * - image: Static preview image URL
+ * - warning: Optional warning message for layout requirements
+ * 
+ * @type {Array<Object>}
+ */
 window.flWidgetLayout = [
   {
     'id': 'small-card',

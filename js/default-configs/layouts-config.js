@@ -1,3 +1,18 @@
+/**
+ * Default Layout Configurations
+ * 
+ * Defines the default settings for each layout type in the dynamic lists widget.
+ * Each layout includes configuration for:
+ * - Filter settings and default filter fields
+ * - Search configuration and searchable fields
+ * - Sort options with column mappings
+ * - Summary and detail view field configurations
+ * - Social features (comments, likes, bookmarks)
+ * - Layout-specific styling options
+ * 
+ * These configurations are used when creating new widgets or resetting to defaults.
+ * They provide sensible defaults based on the intended use case for each layout.
+ */
 window.flListLayoutConfig = {
   'small-card': {
     'filtersEnabled': true,
