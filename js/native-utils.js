@@ -294,6 +294,9 @@ window.NativeUtils = {
    * // arr is now [1, 3]
    */
   remove: function(array, predicate) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     const removed = [];
     const indicesToRemove = [];
 
@@ -323,6 +326,9 @@ window.NativeUtils = {
    * NativeUtils.compact([0, 1, false, 2, '', 3]); // [1, 2, 3]
    */
   compact: function(array) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     return array.filter(Boolean);
   },
 
@@ -336,6 +342,9 @@ window.NativeUtils = {
    * NativeUtils.uniq([1, 2, 2, 3, 3, 3]); // [1, 2, 3]
    */
   uniq: function(array) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     return [...new Set(array)];
   },
 
@@ -351,9 +360,12 @@ window.NativeUtils = {
    * NativeUtils.uniqBy([{id: 1}, {id: 2}, {id: 1}], x => x.id); // [{id: 1}, {id: 2}]
    */
   uniqBy: function(array, iteratee) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     const seen = new Set();
     const getKey = typeof iteratee === 'function' ? iteratee : (item) => this.get(item, iteratee);
-    
+
     return array.filter(item => {
       const key = getKey(item);
       if (seen.has(key)) {
@@ -376,7 +388,10 @@ window.NativeUtils = {
    * NativeUtils.difference([1, 2, 3], [2], [3]); // [1]
    */
   difference: function(array, ...values) {
-    const excludeSet = new Set(values.flat());
+    if (!Array.isArray(array)) {
+      return [];
+    }
+    const excludeSet = new Set(values.reduce(function(acc, val) { return acc.concat(val); }, []));
     return array.filter(item => !excludeSet.has(item));
   },
 
@@ -392,6 +407,9 @@ window.NativeUtils = {
    * NativeUtils.intersection([1, 2, 3], [2, 3], [3, 4]); // [3]
    */
   intersection: function(array, ...arrays) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     const sets = arrays.map(a => new Set(a));
     return array.filter(item => sets.every(s => s.has(item)));
   },
@@ -406,7 +424,7 @@ window.NativeUtils = {
    * NativeUtils.union([1, 2], [2, 3], [3, 4]); // [1, 2, 3, 4]
    */
   union: function(...arrays) {
-    return this.uniq(arrays.flat());
+    return this.uniq(arrays.reduce(function(acc, val) { return acc.concat(val); }, []));
   },
 
   /**
@@ -541,6 +559,9 @@ window.NativeUtils = {
    * NativeUtils.pickBy({a: 1, b: 2, c: 3}, x => x > 1); // {b: 2, c: 3}
    */
   pickBy: function(obj, predicate) {
+    if (!obj || typeof obj !== 'object') {
+      return {};
+    }
     const result = {};
     for (let key in obj) {
       if (obj.hasOwnProperty(key) && predicate(obj[key], key)) {
@@ -561,6 +582,9 @@ window.NativeUtils = {
    * NativeUtils.omitBy({a: 1, b: 2, c: 3}, x => x > 1); // {a: 1}
    */
   omitBy: function(obj, predicate) {
+    if (!obj || typeof obj !== 'object') {
+      return {};
+    }
     const result = {};
     for (let key in obj) {
       if (obj.hasOwnProperty(key) && !predicate(obj[key], key)) {
@@ -583,22 +607,25 @@ window.NativeUtils = {
    * // [{a: 1, b: 2}, {a: 2, b: 1}]
    */
   orderBy: function(array, iteratees, orders) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     // Ensure iteratees is an array
     if (!Array.isArray(iteratees)) {
       iteratees = [iteratees];
     }
-    
-    const getters = iteratees.map(iter => 
+
+    const getters = iteratees.map(iter =>
       typeof iter === 'function' ? iter : (item) => this.get(item, iter)
     );
     const directions = orders || iteratees.map(() => 'asc');
-    
+
     return [...array].sort((a, b) => {
       for (let i = 0; i < getters.length; i++) {
         const valueA = getters[i](a);
         const valueB = getters[i](b);
         const direction = directions[i] === 'desc' ? -1 : 1;
-        
+
         if (valueA < valueB) return -1 * direction;
         if (valueA > valueB) return 1 * direction;
       }
@@ -618,8 +645,11 @@ window.NativeUtils = {
    * // {a: [{type: 'a'}, {type: 'a'}], b: [{type: 'b'}]}
    */
   groupBy: function(array, iteratee) {
+    if (!Array.isArray(array)) {
+      return {};
+    }
     const getKey = typeof iteratee === 'function' ? iteratee : (item) => this.get(item, iteratee);
-    
+
     return array.reduce((groups, item) => {
       const key = getKey(item);
       if (!groups[key]) groups[key] = [];
@@ -639,6 +669,9 @@ window.NativeUtils = {
    * NativeUtils.kebabCase('snake_case'); // 'snake-case'
    */
   kebabCase: function(str) {
+    if (typeof str !== 'string') {
+      return '';
+    }
     return str
       .replace(/([a-z])([A-Z])/g, '$1-$2')
       .replace(/[\s_]+/g, '-')
@@ -656,6 +689,9 @@ window.NativeUtils = {
    * NativeUtils.capitalize('HELLO'); // 'Hello'
    */
   capitalize: function(str) {
+    if (typeof str !== 'string' || str.length === 0) {
+      return '';
+    }
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   },
 
@@ -689,6 +725,9 @@ window.NativeUtils = {
    * NativeUtils.first([]); // undefined
    */
   first: function(array) {
+    if (!Array.isArray(array)) {
+      return undefined;
+    }
     return array[0];
   },
 
@@ -705,7 +744,13 @@ window.NativeUtils = {
    * NativeUtils.fill([1, 2, 3], 'a'); // ['a', 'a', 'a']
    * NativeUtils.fill([1, 2, 3], 'a', 1, 2); // [1, 'a', 3]
    */
-  fill: function(array, value, start = 0, end = array.length) {
+  fill: function(array, value, start = 0, end) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
+    if (end === undefined) {
+      end = array.length;
+    }
     return array.fill(value, start, end);
   },
 
@@ -721,6 +766,9 @@ window.NativeUtils = {
    * NativeUtils.findIndex([1, 2, 3], x => x > 5); // -1
    */
   findIndex: function(array, predicate) {
+    if (!Array.isArray(array)) {
+      return -1;
+    }
     return array.findIndex(predicate);
   },
 
@@ -757,6 +805,9 @@ window.NativeUtils = {
    * NativeUtils.find([1, 2, 3], 2); // 2
    */
   find: function(array, predicate) {
+    if (!Array.isArray(array)) {
+      return undefined;
+    }
     if (typeof predicate === 'function') {
       return array.find(predicate);
     }
@@ -785,6 +836,9 @@ window.NativeUtils = {
    * NativeUtils.some([1, 2, 3], x => x > 5); // false
    */
   some: function(array, predicate) {
+    if (!Array.isArray(array)) {
+      return false;
+    }
     return array.some(predicate);
   },
 
@@ -800,6 +854,9 @@ window.NativeUtils = {
    * NativeUtils.sortBy([3, 1, 2], x => x); // [1, 2, 3]
    */
   sortBy: function(array, iteratee) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     const getKey = typeof iteratee === 'function' ? iteratee : (item) => this.get(item, iteratee);
     return [...array].sort((a, b) => {
       const valueA = getKey(a);
@@ -821,6 +878,9 @@ window.NativeUtils = {
    * NativeUtils.uniqWith([{a: 1}, {a: 1}, {a: 2}], (a, b) => a.a === b.a); // [{a: 1}, {a: 2}]
    */
   uniqWith: function(array, comparator) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     const result = [];
     for (let i = 0; i < array.length; i++) {
       const item = array[i];
@@ -850,10 +910,13 @@ window.NativeUtils = {
    * NativeUtils.xorBy([{a: 1}, {a: 2}], [{a: 2}, {a: 3}], 'a'); // [{a: 1}, {a: 3}]
    */
   xorBy: function(array, other, iteratee) {
+    if (!Array.isArray(array) || !Array.isArray(other)) {
+      return [];
+    }
     const getKey = typeof iteratee === 'function' ? iteratee : (item) => this.get(item, iteratee);
     const leftKeys = new Set(array.map(getKey));
     const rightKeys = new Set(other.map(getKey));
-    
+
     return array.filter(item => !rightKeys.has(getKey(item)))
       .concat(other.filter(item => !leftKeys.has(getKey(item))));
   },
@@ -869,12 +932,17 @@ window.NativeUtils = {
    * NativeUtils.assignIn({a: 1}, {b: 2}, {c: 3}); // {a: 1, b: 2, c: 3}
    */
   assignIn: function(target) {
+    if (!target || typeof target !== 'object') {
+      return target;
+    }
     var sources = Array.prototype.slice.call(arguments, 1);
     for (var i = 0; i < sources.length; i++) {
       var source = sources[i];
-      for (var key in source) {
-        if (source.hasOwnProperty(key)) {
-          target[key] = source[key];
+      if (source && typeof source === 'object') {
+        for (var key in source) {
+          if (source.hasOwnProperty(key)) {
+            target[key] = source[key];
+          }
         }
       }
     }
@@ -905,6 +973,9 @@ window.NativeUtils = {
    * NativeUtils.flatten([1, [2, 3], [4, [5]]]); // [1, 2, 3, 4, [5]]
    */
   flatten: function(array) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     return array.reduce((acc, val) => acc.concat(val), []);
   },
 
@@ -920,9 +991,12 @@ window.NativeUtils = {
    * NativeUtils.forEach({a: 1, b: 2}, (value, key) => console.log(key, value)); // logs 'a 1', 'b 2'
    */
   forEach: function(collection, iteratee) {
+    if (!collection) {
+      return;
+    }
     if (Array.isArray(collection)) {
       collection.forEach(iteratee);
-    } else if (collection && typeof collection === 'object') {
+    } else if (typeof collection === 'object') {
       Object.keys(collection).forEach(key => iteratee(collection[key], key));
     }
   },
@@ -951,6 +1025,9 @@ window.NativeUtils = {
    * NativeUtils.keys({a: 1, b: 2}); // ['a', 'b']
    */
   keys: function(obj) {
+    if (!obj || typeof obj !== 'object') {
+      return [];
+    }
     return Object.keys(obj);
   },
 
@@ -993,6 +1070,9 @@ window.NativeUtils = {
    * NativeUtils.filter([1, 2, 1], 1); // [1, 1]
    */
   filter: function(array, predicate) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
     if (typeof predicate === 'function') {
       return array.filter(predicate);
     }
@@ -1022,6 +1102,9 @@ window.NativeUtils = {
    * NativeUtils.differenceBy([{a: 1}, {a: 2}], [{a: 1}], x => x.a); // [{a: 2}]
    */
   differenceBy: function(array, other, iteratee) {
+    if (!Array.isArray(array) || !Array.isArray(other)) {
+      return Array.isArray(array) ? array : [];
+    }
     const getKey = typeof iteratee === 'function' ? iteratee : (item) => this.get(item, iteratee);
     const otherKeys = new Set(other.map(getKey));
     return array.filter(item => !otherKeys.has(getKey(item)));
@@ -1040,6 +1123,9 @@ window.NativeUtils = {
    * NativeUtils.intersectionBy([{a: 1}, {a: 2}], [{a: 1}], x => x.a); // [{a: 1}]
    */
   intersectionBy: function(array, other, iteratee) {
+    if (!Array.isArray(array) || !Array.isArray(other)) {
+      return [];
+    }
     const getKey = typeof iteratee === 'function' ? iteratee : (item) => this.get(item, iteratee);
     const otherKeys = new Set(other.map(getKey));
     return array.filter(item => otherKeys.has(getKey(item)));
@@ -1058,6 +1144,9 @@ window.NativeUtils = {
    * NativeUtils.indexOf([1, 2, 3, 2], 2, 2); // 3
    */
   indexOf: function(array, value, fromIndex = 0) {
+    if (!Array.isArray(array)) {
+      return -1;
+    }
     return array.indexOf(value, fromIndex);
   }
 };

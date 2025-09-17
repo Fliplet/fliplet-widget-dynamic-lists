@@ -1707,8 +1707,8 @@ DynamicList.prototype.searchData = function(options) {
         && searchedData.length === NativeUtils.intersection(searchedDataIds, searchedListItemIds).length) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
-        _this.$container.find(NativeUtils.map(NativeUtils.difference(_this.searchedListItemIds, searchedDataIds), function(record) {
-          return '.small-card-list-item[data-entry-id="' + record.id + '"]';
+        _this.$container.find(NativeUtils.map(NativeUtils.difference(_this.searchedListItemIds, searchedDataIds), function(id) {
+          return '.small-card-list-item[data-entry-id="' + id + '"]';
         }).join(',')).remove();
         _this.searchedListItems = searchedData;
 

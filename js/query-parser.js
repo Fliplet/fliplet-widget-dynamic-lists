@@ -183,5 +183,6 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     || this.queryPreFilter
     || this.queryOpen
     || this.querySearch
-    || this.queryFilter;
+    || this.queryFilter
+    || this.querySort;
 });
