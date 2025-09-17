@@ -95,7 +95,7 @@ function DynamicList(id, data) {
     }
 
     if (NativeUtils.get(session, 'entries.dataSource.data')) {
-      Object.assign(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
+      NativeUtils.extend(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions

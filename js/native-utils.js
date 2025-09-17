@@ -295,11 +295,21 @@ window.NativeUtils = {
    */
   remove: function(array, predicate) {
     const removed = [];
-    for (let i = array.length - 1; i >= 0; i--) {
+    const indicesToRemove = [];
+
+    // Collect indices first
+    for (let i = 0; i < array.length; i++) {
       if (predicate(array[i], i, array)) {
-        removed.unshift(array.splice(i, 1)[0]);
+        indicesToRemove.push(i);
+        removed.push(array[i]);
       }
     }
+
+    // Remove in reverse order to maintain indices
+    for (let i = indicesToRemove.length - 1; i >= 0; i--) {
+      array.splice(indicesToRemove[i], 1);
+    }
+
     return removed;
   },
 
@@ -382,8 +392,8 @@ window.NativeUtils = {
    * NativeUtils.intersection([1, 2, 3], [2, 3], [3, 4]); // [3]
    */
   intersection: function(array, ...arrays) {
-    const otherArrays = arrays.flat();
-    return array.filter(item => otherArrays.every(arr => arr.includes(item)));
+    const sets = arrays.map(a => new Set(a));
+    return array.filter(item => sets.every(s => s.has(item)));
   },
 
   /**

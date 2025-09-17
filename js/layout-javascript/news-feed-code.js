@@ -562,7 +562,7 @@ DynamicList.prototype.attachObservers = function() {
           return values.map(function(value) {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
-        }).flat().join(',');
+        }).reduce(function(acc, val) { return acc.concat(val); }, []).join(',');
 
         _this.toggleFilterElement(_this.$container.find(selectors), true);
 
@@ -1324,7 +1324,7 @@ DynamicList.prototype.initializeSocials = function(records) {
           record: masterRecord
         })
       ];
-    }).flat());
+    }).reduce(function(acc, val) { return acc.concat(val); }, []));
   });
 };
 

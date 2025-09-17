@@ -1463,9 +1463,9 @@ DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
     delete recordGroups[merge.from];
   });
 
-  return Object.entries(recordGroups)
-    .sort(function(a, b) { return a[0].localeCompare(b[0]); })
-    .map(function(pair) { return pair[1]; });
+  return Object.keys(recordGroups)
+    .sort()
+    .map(function(key) { return recordGroups[key]; });
 };
 
 /**
@@ -2828,7 +2828,10 @@ DynamicList.prototype.showDetails = function(id, listData) {
   
   if (!entryData) {
     var agendasByDay = _this.getAgendasByDay();
-    var allAgendas = NativeUtils.union(agendasByDay, agendasByDay.map(function(item) { return item.children; }).filter(Boolean));
+    var childAgendas = NativeUtils.compact(NativeUtils.map(agendasByDay, function(item) {
+      return item.children;
+    }));
+    var allAgendas = NativeUtils.union(agendasByDay, childAgendas);
     var flattenedAgendas = NativeUtils.flatten(allAgendas);
     entryData = NativeUtils.find(flattenedAgendas, { id: id });
   }

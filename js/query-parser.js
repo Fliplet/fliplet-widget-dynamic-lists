@@ -81,12 +81,14 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   // dataSourceEntryId is always numeric
   // we cast the one coming from query to a number
   // so the equality check later passes
+  const openId = parseInt(Fliplet.Navigate.query['dynamicListOpenId'], 10);
+  const commentId = parseInt(Fliplet.Navigate.query['dynamicListCommentId'], 10);
   this.pvOpenQuery = NativeUtils.pickBy({
-    id: parseInt(Fliplet.Navigate.query['dynamicListOpenId'], 10),
+    id: NativeUtils.isFinite(openId) ? openId : undefined,
     column: Fliplet.Navigate.query['dynamicListOpenColumn'],
     value: Fliplet.Navigate.query['dynamicListOpenValue'],
     openComments: (('' + Fliplet.Navigate.query['dynamicListOpenComments']) || '').toLowerCase() === 'true',
-    commentId: parseInt(Fliplet.Navigate.query['dynamicListCommentId'], 10)
+    commentId: NativeUtils.isFinite(commentId) ? commentId : undefined
   }, function(value) { return value != null && value !== false; });
   this.queryOpen = NativeUtils.size(this.pvOpenQuery) > 0;
   this.pvOpenQuery = this.queryOpen ? this.pvOpenQuery : null;
