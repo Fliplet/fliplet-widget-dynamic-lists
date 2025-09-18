@@ -1157,6 +1157,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return filter;
     });
 
+    console.log('CONSOLE [DEBUG] filters', filters);
+
     return filters.length
       ? {
         where: {
