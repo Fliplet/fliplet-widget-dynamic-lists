@@ -1,3 +1,18 @@
+/**
+ * Dynamic List constructor for agenda layout
+ * Initializes an agenda component with date-based organization and calendar navigation
+ * 
+ * @constructor
+ * @param {string} id - The unique identifier for the dynamic list instance
+ * @param {Object} data - Configuration data for the dynamic list
+ * @param {string} data.layout - Layout type ('agenda')
+ * @param {Object} data.social - Social features configuration
+ * @param {boolean} data.social.bookmark - Whether bookmarking is enabled
+ * @param {Array} data.filterFields - Fields available for filtering
+ * @param {Array} data.searchFields - Fields available for searching
+ * @param {Object} data.advancedSettings - Advanced HTML template settings
+ * @param {string} data.dateField - Field name containing the date information
+ */
 // Constructor
 function DynamicList(id, data) {
   var _this = this;
@@ -67,7 +82,7 @@ function DynamicList(id, data) {
   this.INCREMENTAL_RENDERING_BATCH_SIZE = 100;
   this.ANIMATION_SPEED = 200;
 
-  this.data.bookmarksEnabled = _.get(this, 'data.social.bookmark');
+  this.data.bookmarksEnabled = NativeUtils.get(this, 'data.social.bookmark');
   this.data.hasTopBar = this.data.searchEnabled || this.data.filtersEnabled || this.data.bookmarksEnabled;
 
   this.src = this.data.advancedSettings && this.data.advancedSettings.detailHTML
@@ -82,14 +97,14 @@ function DynamicList(id, data) {
   // Get the current session data
   Fliplet.User.getCachedSession()
     .then(function(session) {
-      if (_.get(session, 'entries.saml2.user')) {
-        _this.myUserData = _.get(session, 'entries.saml2.user');
+      if (NativeUtils.get(session, 'entries.saml2.user')) {
+        _this.myUserData = NativeUtils.get(session, 'entries.saml2.user');
         _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
         _this.myUserData.isSaml2 = true;
       }
 
-      if (_.get(session, 'entries.dataSource.data')) {
-        _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+      if (NativeUtils.get(session, 'entries.dataSource.data')) {
+        NativeUtils.extend(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
       }
 
       // Start running the Public functions
@@ -104,6 +119,13 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+/**
+ * Toggles the active state of a filter element for agenda items
+ * Handles both individual filters and range filters (date/number)
+ * 
+ * @param {HTMLElement|string} target - The filter element or selector to toggle
+ * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
   var filterType = $target.data('type');
@@ -135,6 +157,10 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   });
 };
 
+/**
+ * Hides the filter overlay and restores normal page state
+ * Removes overlay classes and unlocks body scroll for agenda layout
+ */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.new-agenda-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .agenda-cards-wrapper, .dynamic-list-add-item').removeClass('hidden');
@@ -142,6 +168,14 @@ DynamicList.prototype.hideFilterOverlay = function() {
   $('body').removeClass('lock has-filter-overlay');
 };
 
+/**
+ * Navigates to a specific agenda feature or date
+ * Handles agenda-specific navigation and date positioning
+ * 
+ * @param {Object} options - Navigation options
+ * @param {number|string} [options.date] - Target date to navigate to
+ * @param {string} [options.feature] - Specific agenda feature to navigate to
+ */
 DynamicList.prototype.goToAgendaFeature = function(options) {
   options = options || {};
 
@@ -160,7 +194,7 @@ DynamicList.prototype.goToAgendaFeature = function(options) {
     return;
   }
 
-  var screen = _.find(Fliplet.Env.get('appPages'), { title: screenName });
+  var screen = NativeUtils.find(Fliplet.Env.get('appPages'), { title: screenName });
 
   if (!screen) {
     return;
@@ -183,6 +217,10 @@ DynamicList.prototype.goToAgendaFeature = function(options) {
     });
 };
 
+/**
+ * Attaches all event listeners and observers for the agenda
+ * Sets up handlers for user interactions, filtering, searching, date navigation, and touch gestures
+ */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -386,16 +424,16 @@ DynamicList.prototype.attachObservers = function() {
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected
-      if (_.isEmpty(_this.activeFilters)) {
+      if (NativeUtils.isEmpty(_this.activeFilters)) {
         _this.$container.find('.clear-filters').addClass('hidden');
 
         return;
       }
 
-      if (!_.has(_this.activeFilters, 'undefined')) {
+      if (!NativeUtils.has(_this.activeFilters, 'undefined')) {
         // Select filters based on existing settings
-        var selectors = _.flatten(_.map(_this.activeFilters, function(values, field) {
-          return _.map(values, function(value) {
+        var selectors = NativeUtils.flatten(NativeUtils.map(_this.activeFilters, function(values, field) {
+          return NativeUtils.map(values, function(value) {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
         })).join(',');
@@ -520,7 +558,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
+      var entry = NativeUtils.find(_this.listItems, function(entry) {
         return entry.id === entryId;
       });
 
@@ -539,7 +577,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
+      var entry = NativeUtils.find(_this.listItems, function(entry) {
         return entry.id === entryId;
       });
 
@@ -558,7 +596,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var entryId = $(this).parents('.agenda-item-inner-content').data('entry-id');
-      var entry = _.find(_this.listItems, function(entry) {
+      var entry = NativeUtils.find(_this.listItems, function(entry) {
         return entry.id === entryId;
       });
 
@@ -652,7 +690,7 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
+          entry: NativeUtils.find(_this.listItems, { id: entryId }),
           entryId: entryId,
           entryTitle: entryTitle,
           event: event
@@ -826,7 +864,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -866,7 +904,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -931,9 +969,10 @@ DynamicList.prototype.attachObservers = function() {
                   return _this.deleteEntry(entryID);
                 })
                 .then(function onRemove(entryId) {
-                  var removedEntry = _.first(_.remove(_this.listItems, function(entry) {
+                  var removedEntries = NativeUtils.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
-                  }));
+                  });
+                  var removedEntry = removedEntries && removedEntries.length > 0 ? removedEntries[0] : null;
 
                   _that.text(T('widgets.list.dynamic.notifications.confirmDelete.action')).removeClass('disabled');
                   _this.closeDetails({ focusOnEntry: event.type === 'keydown' });
@@ -956,12 +995,18 @@ DynamicList.prototype.attachObservers = function() {
                   }
 
                   // Delete list item from agendasByDay as well
-                  var foundDateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
-                  var dateField = _.get(foundDateField, 'column');
+                  // Only proceed if we successfully removed an entry
+                  if (!removedEntry) {
+                    console.warn('No entry was removed with ID:', entryId);
+                    return;
+                  }
+
+                  var foundDateField = NativeUtils.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
+                  var dateField = NativeUtils.get(foundDateField, 'column');
                   var agendasDayIndex = _this.getDateIndex(removedEntry.data[dateField]);
                   var agendaDay = _this.agendasByDay[agendasDayIndex];
 
-                  _.remove(agendaDay, function(entry) {
+                  NativeUtils.remove(agendaDay, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
 
@@ -1034,7 +1079,7 @@ DynamicList.prototype.attachObservers = function() {
       var id = $(this)
         .parents('.agenda-detail-wrapper, .agenda-list-item')
         .data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+      var record = NativeUtils.find(_this.listItems, { id: id });
 
       if (!record || !record.bookmarkButton) {
         return;
@@ -1068,6 +1113,12 @@ DynamicList.prototype.attachObservers = function() {
     });
 };
 
+/**
+ * Deletes an entry from the data source
+ * 
+ * @param {string|number} entryID - The ID of the entry to delete
+ * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
+ */
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
@@ -1078,6 +1129,12 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 };
 
+/**
+ * Removes an entry's HTML element from the DOM and updates agenda structure
+ * 
+ * @param {Object} options - Options object
+ * @param {string|number} options.id - The ID of the entry to remove from DOM
+ */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
 
@@ -1112,6 +1169,12 @@ DynamicList.prototype.scrollEvent = function() {
   });
 };
 
+/**
+ * Updates the date index context for agenda navigation
+ * Manages the current date position in the agenda timeline
+ * 
+ * @param {number} indexOfClickedDate - Index of the selected date in the agenda dates array
+ */
 DynamicList.prototype.updateDateIndexContext = function(indexOfClickedDate) {
   var defaultDateIndex = this.getDateIndex(this.Utils.Date.moment());
 
@@ -1124,6 +1187,12 @@ DynamicList.prototype.updateDateIndexContext = function(indexOfClickedDate) {
   }
 };
 
+/**
+ * Initializes the agenda component
+ * Processes query parameters, loads data, organizes by dates, renders templates, and sets up navigation
+ * 
+ * @returns {Promise} Promise that resolves when initialization is complete
+ */
 DynamicList.prototype.initialize = function() {
   var _this = this;
   var shouldInitFromQuery = _this.parseQueryVars();
@@ -1202,7 +1271,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, 'id');
+      _this.listItems = NativeUtils.uniqBy(response, 'id');
 
       return _this.checkIsToOpen();
     })
@@ -1230,10 +1299,10 @@ DynamicList.prototype.checkIsToOpen = function() {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
+  if (NativeUtils.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = NativeUtils.find(_this.listItems, { id: _this.pvOpenQuery.id });
+  } else if (NativeUtils.hasIn(_this.pvOpenQuery, 'value') && NativeUtils.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = NativeUtils.find(_this.listItems, function(row) {
       return row.data[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
     });
   }
@@ -1274,12 +1343,12 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       _this.pvPreviousScreen = value.previousScreen;
 
-      if (_.hasIn(value, 'prefilter')) {
+      if (NativeUtils.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
       }
 
-      if (_.hasIn(value, 'open')) {
+      if (NativeUtils.hasIn(value, 'open')) {
         _this.queryOpen = true;
         _this.pvOpenQuery = value.open;
       }
@@ -1298,14 +1367,14 @@ DynamicList.prototype.parsePVQueryVars = function() {
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
-  if (!_.get(_this.pvSearchQuery, 'value')) {
+  if (!NativeUtils.get(_this.pvSearchQuery, 'value')) {
     return _this.searchData({
       initialRender: true,
       goToToday: true
     });
   }
 
-  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+  if (NativeUtils.hasIn(_this.pvSearchQuery, 'column')) {
     return _this.searchData({
       value: _this.pvSearchQuery.value,
       openSingleEntry: _this.pvSearchQuery.openSingleEntry,
@@ -1359,18 +1428,18 @@ DynamicList.prototype.renderBaseHTML = function() {
 DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
   var _this = this;
   // Group data by date field
-  var recordGroups = _.groupBy(loopData, function(row) {
+  var recordGroups = NativeUtils.groupBy(loopData, function(row) {
     // Format date value as it could be in various formats
     return _this.Utils.Date.moment(row[dateField]).format('YYYY-MM-DD');
   });
   var recordMerges = [];
-  var recordDates = _.orderBy(_.keys(recordGroups));
+  var recordDates = NativeUtils.orderBy(Object.keys(recordGroups));
 
   // Prepare a merge if the date values are parsed as the same date
-  _.forEach(recordDates, function(key, i) {
+  NativeUtils.forEach(recordDates, function(key, i) {
     var date = _this.Utils.Date.moment(key);
 
-    _.forEach(recordDates, function(comp, j) {
+    NativeUtils.forEach(recordDates, function(comp, j) {
       if (j >= i) {
         return false;
       }
@@ -1389,14 +1458,23 @@ DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
   });
 
   // Merge data
-  _.forEach(recordMerges, function(merge) {
-    recordGroups[merge.to] = _.concat(recordGroups[merge.to], recordGroups[merge.from]);
+  NativeUtils.forEach(recordMerges, function(merge) {
+    recordGroups[merge.to] = recordGroups[merge.to].concat(recordGroups[merge.from]);
     delete recordGroups[merge.from];
   });
 
-  return _(recordGroups).toPairs().sortBy(0).map(1).value();
+  return Object.keys(recordGroups)
+    .sort()
+    .map(function(key) { return recordGroups[key]; });
 };
 
+/**
+ * Processes records and adds summary data for agenda rendering
+ * Applies field mappings and filter properties based on agenda layout configuration
+ * 
+ * @param {Array<Object>} records - Array of data records to process
+ * @returns {Array<Object>} Processed records with summary data for template rendering
+ */
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
@@ -1406,7 +1484,7 @@ DynamicList.prototype.addSummaryData = function(records) {
   });
 
   // Uses summary view settings set by users
-  var loopData = _.map(modifiedData, function(entry) {
+  var loopData = modifiedData.map(function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1444,7 +1522,7 @@ DynamicList.prototype.addSummaryData = function(records) {
       });
     });
 
-    var dateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
+    var dateField = NativeUtils.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
 
     if (dateField) {
       newObject[_this.dateFieldLocation] = entry.data[dateField.column];
@@ -1499,7 +1577,7 @@ DynamicList.prototype.renderLoopHTML = function() {
 
       // Break render cycle if there is no more data
       if (!nextBatch.length && renderLoopIndex > 0) {
-        resolve(_.flatten(_this.getAgendasByDay()));
+        resolve(NativeUtils.flatten(_this.getAgendasByDay()));
 
         return;
       }
@@ -1545,18 +1623,18 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     day: 'DD',
     month: 'MMM'
   };
-  var foundDateField = _.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
-  var dateField = _.get(foundDateField, 'column');
+  var foundDateField = NativeUtils.find(_this.data.detailViewOptions, { location: _this.dateFieldLocation });
+  var dateField = NativeUtils.get(foundDateField, 'column');
 
   if (!dateField
     || _this.dataSourceColumns.indexOf(dateField) === -1) {
     throw new Error('Date field is misconfigured. Please check your component settings.');
   }
 
-  var clonedRecords = _.clone(records);
+  var clonedRecords = NativeUtils.clone(records);
 
   // Keep only records with valid dates when rendering dates selectors
-  clonedRecords = _.orderBy(_.filter(clonedRecords, function(record) {
+  clonedRecords = NativeUtils.orderBy(clonedRecords.filter(function(record) {
     return _this.Utils.Date.moment(record.data[dateField]).isValid();
   }), 'data.' + dateField);
 
@@ -1580,9 +1658,9 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
     }
 
     // Get only the unique dates
-    var uniqueDates = _.map(_.uniqBy(clonedRecords, function(obj) {
+    var uniqueDates = NativeUtils.uniqBy(clonedRecords, function(obj) {
       return _this.Utils.Date.moment(obj.data[dateField]).format('YYYY-MM-DD');
-    }), 'data.' + dateField);
+    }).map(function(item) { return item.data[dateField]; });
 
     // Get the event dates
     // Save in an array
@@ -1599,7 +1677,7 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
       });
     });
 
-    this.agendaDates = _.orderBy(this.agendaDates);
+    this.agendaDates = NativeUtils.orderBy(this.agendaDates);
 
     // Adds (numberOfPlaceholderDays) days after the last date
     // Save them in an array
@@ -1642,7 +1720,7 @@ DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
+  NativeUtils.forEach(entries, function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
@@ -1677,8 +1755,8 @@ DynamicList.prototype.addFilters = function(records) {
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
 
-    _.remove(filters, function(filter) {
-      return _.isEmpty(filter.data);
+    NativeUtils.remove(filters, function(filter) {
+      return NativeUtils.isEmpty(filter.data);
     });
     _this.Utils.Page.renderFilters({
       instance: _this,
@@ -1745,14 +1823,14 @@ DynamicList.prototype.getAllBookmarks = function() {
       });
     })
   }).then(function(results) {
-    var bookmarkedIds = _.compact(_.map(results.data, function(record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+    var bookmarkedIds = NativeUtils.compact(results.data.map(function(record) {
+      var match = NativeUtils.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));
 
     if (results.fromCache) {
-      _.forEach(_this.listItems, function(record) {
+      NativeUtils.forEach(_this.listItems, function(record) {
         if (bookmarkedIds.indexOf(record.id) === -1) {
           return;
         }
@@ -1760,7 +1838,7 @@ DynamicList.prototype.getAllBookmarks = function() {
         record.bookmarked = true;
       });
     } else {
-      _.forEach(_this.listItems, function(record) {
+      NativeUtils.forEach(_this.listItems, function(record) {
         record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
       });
     }
@@ -1769,13 +1847,20 @@ DynamicList.prototype.getAllBookmarks = function() {
   });
 };
 
+/**
+ * Initializes social features (bookmarks) for agenda records
+ * Sets up bookmark buttons and handles bookmark state synchronization
+ * 
+ * @param {Array<Object>} records - Array of records to initialize social features for
+ * @returns {Promise} Promise that resolves when all social features are initialized
+ */
 DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
   return _this.getAllBookmarks().then(function() {
-    return Promise.all(_.map(_.flatten(records), function(record) {
+    return Promise.all(NativeUtils.flatten(records).map(function(record) {
       var title = _this.$container.find('.agenda-cards-wrapper .agenda-list-item[data-entry-id="' + record.id + '"] .agenda-item-title').text().trim();
-      var masterRecord = _.find(_this.listItems, { id: record.id });
+      var masterRecord = NativeUtils.find(_this.listItems, { id: record.id });
       var $listView = _this.isInLoopView()
         ? _this.$container.find('.agenda-cards-wrapper')
         : _this.$container.find('.search-results-wrapper');
@@ -2065,7 +2150,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
   var id = options.id;
   var title = options.title;
   var target = options.target;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || NativeUtils.find(_this.listItems, { id: id });
 
   if (!record) {
     return Promise.resolve();
@@ -2201,7 +2286,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
 
 DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
-  var record = _.find(_this.listItems, { id: id });
+  var record = NativeUtils.find(_this.listItems, { id: id });
 
   if (!record) {
     return Promise.resolve();
@@ -2263,11 +2348,11 @@ DynamicList.prototype.getListItems = function() {
 };
 
 DynamicList.prototype.isSameResult = function(data) {
-  return data.length && !_.xorBy(data, this.getListItems(), 'id').length;
+  return data.length && !NativeUtils.xorBy(data, this.getListItems(), 'id').length;
 };
 
 DynamicList.prototype.isSubsetResult = function(data) {
-  return data.length && data.length === _.intersectionBy(data, this.getListItems(), 'id').length;
+  return data.length && data.length === NativeUtils.intersectionBy(data, this.getListItems(), 'id').length;
 };
 
 DynamicList.prototype.isInLoopView = function() {
@@ -2282,18 +2367,18 @@ DynamicList.prototype.removeFilteredEntries = function(data) {
   if (this.isInLoopView()) {
     // Search results is a subset of the current render.
     // Remove the extra records without re-render.
-    var recordIdsToShow = _.map(data, 'id');
-    var recordIdsToHide = _.difference(_.map(this.filteredListItemsByDay, 'id'), recordIdsToShow);
+    var recordIdsToShow = data.map(function(item) { return item.id; });
+    var recordIdsToHide = NativeUtils.difference(this.filteredListItemsByDay.map(function(item) { return item.id; }), recordIdsToShow);
 
     // Hide and show content based on existing render
-    this.$container.find('.agenda-cards-wrapper').find(_.map(recordIdsToShow, function(id) {
+    this.$container.find('.agenda-cards-wrapper').find(recordIdsToShow.map(function(id) {
       return '.agenda-list-item[data-entry-id="' + id + '"]';
     }).join(',')).show();
-    this.$container.find('.agenda-cards-wrapper').find(_.map(recordIdsToHide, function(id) {
+    this.$container.find('.agenda-cards-wrapper').find(recordIdsToHide.map(function(id) {
       return '.agenda-list-item[data-entry-id="' + id + '"]';
     }).join(',')).hide();
   } else {
-    this.$container.find('.search-results-list-day-holder').find(_.map(_.differenceBy(this.filteredListItems, data, 'id'), function(record) {
+    this.$container.find('.search-results-list-day-holder').find(NativeUtils.differenceBy(this.filteredListItems, data, 'id').map(function(record) {
       return '.agenda-list-item[data-entry-id="' + record.id + '"]';
     }).join(',')).remove();
     this.$container.find('.search-results-list-day-holder').each(function() {
@@ -2315,6 +2400,17 @@ DynamicList.prototype.cacheSearchedData = function(data) {
   }
 };
 
+/**
+ * Performs search and filtering operations on the agenda data
+ * Handles text search, filters, bookmarks, and sorting with date-based reorganization
+ * 
+ * @param {Object|string} options - Search options or search value string
+ * @param {string} [options.value] - Search term to filter records
+ * @param {Array<string>} [options.fields] - Fields to search in
+ * @param {boolean} [options.openSingleEntry] - Whether to auto-open if only one result
+ * @param {boolean} [options.initialRender] - Whether this is the initial render
+ * @returns {Promise} Promise that resolves when search and render is complete
+ */
 DynamicList.prototype.searchData = function(options) {
   if (typeof options === 'string') {
     options = {
@@ -2325,7 +2421,7 @@ DynamicList.prototype.searchData = function(options) {
   options = options || {};
 
   var _this = this;
-  var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var value = NativeUtils.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -2334,7 +2430,7 @@ DynamicList.prototype.searchData = function(options) {
   value = value.toLowerCase();
   _this.activeFilters = _this.Utils.Page.getActiveFilters({ $container: _this.$container });
   _this.isSearching = value !== '';
-  _this.isFiltering = !_.isEmpty(_this.activeFilters);
+  _this.isFiltering = !NativeUtils.isEmpty(_this.activeFilters);
   _this.showBookmarks = !!_this.$container.find('.toggle-agenda.mixitup-control-active, .toggle-bookmarks.mixitup-control-active').length;
 
   if (_this.isFiltering) {
@@ -2536,7 +2632,7 @@ DynamicList.prototype.getDateIndex = function(date) {
   }
 
   var formattedDate = d.format('YYYY-MM-DD');
-  var index = _.indexOf(this.agendaDates, formattedDate);
+  var index = this.agendaDates.indexOf(formattedDate);
 
   if (index !== -1) {
     return index;
@@ -2607,16 +2703,16 @@ DynamicList.prototype.sliderGoTo = function(number) {
 DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
-  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+  if (Array.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 
     return entry;
   }
 
-  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var notDynamicData = _this.data.detailViewOptions.filter(function(option) {
     return !option.editable;
   });
-  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var dynamicData = _this.data.detailViewOptions.filter(function(option) {
     return option.editable;
   });
 
@@ -2696,10 +2792,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   });
 
   if (_this.data.detailViewAutoUpdate) {
-    var savedColumns = _.map(dynamicData, 'column');
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    var savedColumns = dynamicData.map(function(item) { return item.column; });
+    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns);
 
-    _.forEach(extraColumns, function(column) {
+    NativeUtils.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
         content: entry.originalData[column],
@@ -2715,21 +2811,30 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   return entry;
 };
 
+/**
+ * Shows the detail overlay for a specific agenda entry
+ * Loads entry data, processes detail view configuration, and displays overlay
+ * 
+ * @param {string|number} id - The ID of the entry to show details for
+ * @param {Array<Object>} [listData] - Optional array of list data to search in
+ * @returns {Promise} Promise that resolves when detail view is displayed
+ */
 DynamicList.prototype.showDetails = function(id, listData) {
   this.isShowDetail = true;
 
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(listData, { id: id }) || _(_this.getAgendasByDay())
-    .chain()
-    .thru(function(coll) {
-      return _.union(coll, _.map(coll, 'children'));
-    })
-    .flatten()
-    .find({
-      id: id
-    })
-    .value();
+  var entryData = NativeUtils.find(listData, { id: id });
+  
+  if (!entryData) {
+    var agendasByDay = _this.getAgendasByDay();
+    var childAgendas = NativeUtils.compact(NativeUtils.map(agendasByDay, function(item) {
+      return item.children;
+    }));
+    var allAgendas = NativeUtils.union(agendasByDay, childAgendas);
+    var flattenedAgendas = NativeUtils.flatten(allAgendas);
+    entryData = NativeUtils.find(flattenedAgendas, { id: id });
+  }
   var entryId = { id: id };
   var wrapper = '<div class="agenda-detail-wrapper" data-entry-id="{{id}}"></div>';
   var $overlay = $('#agenda-detail-overlay-' + _this.data.id);
@@ -2748,12 +2853,12 @@ DynamicList.prototype.showDetails = function(id, listData) {
       entryData = _this.addDetailViewData(entryData);
 
       if (files && Array.isArray(files)) {
-        _.forEach(files, function(file) {
+        NativeUtils.forEach(files, function(file) {
           if (!file) {
             return;
           }
 
-          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
+          var isFileAdded = !!NativeUtils.find(entryData.entryDetails, { id: file.id });
 
           if (!isFileAdded) {
             entryData.entryDetails.push(file);
@@ -2819,6 +2924,13 @@ DynamicList.prototype.showDetails = function(id, listData) {
     });
 };
 
+/**
+ * Closes the detail overlay and returns to agenda view
+ * Handles cleanup, focus management, and navigation context
+ * 
+ * @param {Object} [options] - Close options
+ * @param {boolean} [options.focusOnEntry] - Whether to focus on the closed entry in the agenda
+ */
 DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');

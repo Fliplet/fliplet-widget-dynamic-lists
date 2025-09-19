@@ -41,6 +41,7 @@
       "vendor/jquery-ui.min.css",
       "vendor/bootstrap-tokenfield.min.css",
       "vendor/bootstrap-tokenfield.min.js",
+      "js/native-utils.js",
       "js/interface.templates.js",
       "js/build.templates.js",
       "js/layout-mapping/list-layouts.js",
@@ -63,7 +64,6 @@
       "fliplet-ui-datetime",
       "fliplet-ui-number",
       "moment",
-      "lodash",
       "handlebars",
       "animate-css",
       "fliplet-like:0.2",
@@ -71,6 +71,7 @@
       "hammer.js"
     ],
     "assets": [
+      "js/native-utils.js",
       "js/utils.js",
       "js/query-parser.js",
       "js/build.templates.js",
