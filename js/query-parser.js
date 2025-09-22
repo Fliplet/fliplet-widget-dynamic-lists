@@ -119,7 +119,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     column: Fliplet.Navigate.query['dynamicListFilterColumn'],
     value: Fliplet.Navigate.query['dynamicListFilterValue'],
     hideControls: Fliplet.Navigate.query['dynamicListFilterHideControls']
-  }, function(value) { return value != null; });
+  }, function(value) { return !NativeUtils.isNil(value); });
 
   const hasFilterQueryValue = !NativeUtils.isUndefined(NativeUtils.get(this.pvFilterQuery, 'value'));
 
@@ -153,7 +153,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   this.pvPreSortQuery = NativeUtils.pickBy({
     column: Fliplet.Navigate.query['dynamicListSortColumn'],
     order: Fliplet.Navigate.query['dynamicListSortOrder']
-  }, function(value) { return value != null; });
+  }, function(value) { return !NativeUtils.isNil(value); });
 
   if (!this.data.sortEnabled) {
     this.pvPreSortQuery = null;
