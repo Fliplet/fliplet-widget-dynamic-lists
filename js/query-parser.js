@@ -26,7 +26,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   this.pvGoBack = NativeUtils.pickBy({
     enableButton: Fliplet.Navigate.query['dynamicListEnableButton'],
     hijackBack: Fliplet.Navigate.query['dynamicListHijackBack']
-  }, function(value) { return value != null; });
+  }, function(value) { return !NativeUtils.isNil(value); });
   this.queryGoBack = NativeUtils.size(this.pvGoBack) > 0;
 
   // cast to booleans
@@ -40,7 +40,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     column: Fliplet.Navigate.query['dynamicListPrefilterColumn'],
     logic: Fliplet.Navigate.query['dynamicListPrefilterLogic'],
     value: Fliplet.Navigate.query['dynamicListPrefilterValue']
-  }, function(value) { return value != null; });
+  }, function(value) { return !NativeUtils.isNil(value); });
   this.queryPreFilter = NativeUtils.size(this.pvPreFilterQuery) > 0;
 
   if (this.queryPreFilter) {
@@ -83,13 +83,14 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
   // so the equality check later passes
   const openId = parseInt(Fliplet.Navigate.query['dynamicListOpenId'], 10);
   const commentId = parseInt(Fliplet.Navigate.query['dynamicListCommentId'], 10);
+
   this.pvOpenQuery = NativeUtils.pickBy({
     id: NativeUtils.isFinite(openId) ? openId : undefined,
     column: Fliplet.Navigate.query['dynamicListOpenColumn'],
     value: Fliplet.Navigate.query['dynamicListOpenValue'],
     openComments: (('' + Fliplet.Navigate.query['dynamicListOpenComments']) || '').toLowerCase() === 'true',
     commentId: NativeUtils.isFinite(commentId) ? commentId : undefined
-  }, function(value) { return value != null && value !== false; });
+  }, function(value) { return !NativeUtils.isNil(value) && value !== false; });
   this.queryOpen = NativeUtils.size(this.pvOpenQuery) > 0;
   this.pvOpenQuery = this.queryOpen ? this.pvOpenQuery : null;
 
@@ -97,7 +98,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
     column: Fliplet.Navigate.query['dynamicListSearchColumn'],
     value: Fliplet.Navigate.query['dynamicListSearchValue'],
     openSingleEntry: Fliplet.Navigate.query['dynamicListOpenSingleEntry']
-  }, function(value) { return value != null; });
+  }, function(value) { return !NativeUtils.isNil(value); });
 
   const hasSearchQueryValue = !NativeUtils.isUndefined(NativeUtils.get(this.pvSearchQuery, 'value'));
 
