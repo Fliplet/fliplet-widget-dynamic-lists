@@ -756,9 +756,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
     // Clean up invalid date filter values
     for (var field in rangeFilters) {
-      var values = rangeFilters[field];
-      if (!values || values.length !== 2) {
-        delete rangeFilters[field];
+      if (Object.prototype.hasOwnProperty.call(rangeFilters, field)) {
+        var values = rangeFilters[field];
+
+        if (!values || values.length !== 2) {
+          delete rangeFilters[field];
+        }
       }
     }
 
@@ -1954,13 +1957,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var filterTypes = options.filterTypes || {};
 
     var recordFieldValues = {};
+
     for (var field in filters) {
-      recordFieldValues[field] = NativeUtils.uniq(getRecordField({
-        record: record,
-        field: field,
-        useData: true,
-        filterTypes: filterTypes
-      })).map(convertData);
+      if (Object.prototype.hasOwnProperty.call(filters, field)) {
+        recordFieldValues[field] = NativeUtils.uniq(getRecordField({
+          record: record,
+          field: field,
+          useData: true,
+          filterTypes: filterTypes
+        })).map(convertData);
+      }
     }
 
     // Returns true if record matches all of provided filters
@@ -2553,21 +2559,25 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var appliedFilterNodes = [];
 
     for (var field in activeFilters) {
+      if (!Object.prototype.hasOwnProperty.call(activeFilters, field)) { continue; }
+
       var values = activeFilters[field];
+
       if (['date', 'number'].indexOf(filterTypes[field]) > -1) {
-        var node = getAppliedFilterNode({
+        var appliedNode = getAppliedFilterNode({
           $container: $container,
           field: field,
           value: values,
           type: filterTypes[field]
         });
 
-        appliedFilterNodes.push(node);
+        appliedFilterNodes.push(appliedNode);
 
         return;
       }
 
-      values.forEach(function(value) {
+      for (var i = 0; i < values.length; i++) {
+        var value = values[i];
         var node = getAppliedFilterNode({
           $container: $container,
           field: field,
@@ -2576,7 +2586,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
         });
 
         appliedFilterNodes.push(node);
-      });
+      }
     }
 
     $filtersGroup.html(appliedFilterNodes.join(''));
@@ -3057,7 +3067,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var computedFields = options.computedFields || {};
 
     for (var field in computedFields) {
+      if (!Object.prototype.hasOwnProperty.call(computedFields, field)) { continue; }
+
       var getter = computedFields[field];
+
       if (NativeUtils.has(record, ['data', field]) && computedFieldClashes.indexOf(field) === -1) {
         computedFieldClashes.push(field);
       }

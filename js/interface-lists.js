@@ -36,6 +36,7 @@ var editEntryLinkData = $.extend(true, {
  * Initializes the link providers for add and edit entry actions
  * @description Sets up the link providers for adding and editing entries,
  * handling interface validation and forwarding save requests
+ * @returns {void}
  */
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
@@ -83,6 +84,7 @@ function linkProviderInit() {
  * @param {Object} userFolder - The user folder configuration object
  * @param {string} userFolder.id - The unique identifier for the user folder
  * @param {Object} userFolder.folder - The folder configuration with selection settings
+ * @returns {void}
  */
 function initUserFilePickerProvider(userFolder) {
   Fliplet.Widget.toggleSaveButton(userFolder.folder && userFolder.folder.selectFiles && userFolder.folder.selectFiles.length > 0);
@@ -149,6 +151,7 @@ function initUserFilePickerProvider(userFolder) {
  * @param {string} field.id - The unique identifier for the field
  * @param {Object} field.folder - The folder configuration with selection settings
  * @param {string} field.from - The source of the field ('summary' or 'details')
+ * @returns {void}
  */
 function initFilePickerProvider(field) {
   Fliplet.Widget.toggleSaveButton(field.folder && field.folder.selectFiles && field.folder.selectFiles.length > 0);
@@ -225,6 +228,7 @@ function initFilePickerProvider(field) {
  * Initializes the widget interface and sets up the dynamic lists
  * @description Main initialization function that sets up link providers,
  * attaches event observers, creates dynamic lists instance, and configures data source provider
+ * @returns {void}
  */
 function initialize() {
   linkProviderInit();
@@ -260,6 +264,7 @@ function validate(value) {
  * handles special cases for token fields and panel styling
  * @param {boolean} showError - Whether to show or hide the error state
  * @param {string|Element} element - The element selector or DOM element to toggle error state on
+ * @returns {void}
  */
 function toggleError(showError, element) {
   if (showError) {
@@ -288,6 +293,7 @@ function toggleError(showError, element) {
  * Attaches event observers to the interface elements
  * @description Sets up event listeners for file picker buttons, form changes,
  * data source initialization, and form submission handling
+ * @returns {void}
  */
 function attachObservers() {
   $(document)
@@ -761,6 +767,7 @@ function attachObservers() {
    * used for image folder selection validation
    * @param {string[]} fieldIds - Array of field IDs to highlight or unhighlight
    * @param {boolean} showError - Whether to show or hide error highlighting
+   * @returns {void}
    */
   function highlightError(fieldIds, showError) {
     var action = showError ? 'removeClass' : 'addClass';
@@ -824,6 +831,7 @@ function attachObservers() {
  * @description Saves the current widget configuration including link actions,
  * and optionally notifies completion or reloads the widget instance
  * @param {boolean} notifyComplete - Whether to notify completion and reload the page
+ * @returns {void}
  */
 function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;

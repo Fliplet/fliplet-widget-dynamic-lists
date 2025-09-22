@@ -9,7 +9,8 @@
     "Hammer": "readonly",
     "autosize": "readonly",
     "Raven": "readonly",
-    "Modernzr": "readonly"
+    "Modernzr": "readonly",
+    "NativeUtils": "writable"
   },
   "rules": {
     "no-eval": 0

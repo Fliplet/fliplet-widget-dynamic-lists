@@ -1,7 +1,7 @@
 /**
  * Dynamic List constructor for news-feed layout
  * Initializes a news feed component with social features like comments and bookmarks
- * 
+ *
  * @constructor
  * @param {string} id - The unique identifier for the dynamic list instance
  * @param {Object} data - Configuration data for the dynamic list
@@ -116,9 +116,10 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 /**
  * Toggles the active state of a filter element
  * Handles both individual filters and range filters (date/number)
- * 
+ *
  * @param {HTMLElement|string} target - The filter element or selector to toggle
  * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ * @returns {void}
  */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
@@ -154,6 +155,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 /**
  * Hides the filter overlay and restores normal page state
  * Removes overlay classes and unlocks body scroll for news feed layout
+ * @returns {void}
  */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.news-feed-search-filter-overlay').removeClass('display');
@@ -165,6 +167,7 @@ DynamicList.prototype.hideFilterOverlay = function() {
 /**
  * Attaches all event listeners and observers for the news feed
  * Sets up handlers for user interactions, filtering, searching, comments, and navigation
+ * @returns {void}
  */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -559,6 +562,7 @@ DynamicList.prototype.attachObservers = function() {
         // Select filters based on existing settings
         var selectors = Object.keys(_this.activeFilters).map(function(field) {
           var values = _this.activeFilters[field];
+
           return values.map(function(value) {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
@@ -1147,7 +1151,7 @@ DynamicList.prototype.attachObservers = function() {
 
 /**
  * Deletes an entry from the data source
- * 
+ *
  * @param {string|number} entryID - The ID of the entry to delete
  * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
  */
@@ -1163,9 +1167,10 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 /**
  * Removes an entry's HTML element from the DOM
- * 
+ *
  * @param {Object} options - Options object
  * @param {string|number} options.id - The ID of the entry to remove from DOM
+ * @returns {void}
  */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
@@ -1294,7 +1299,7 @@ DynamicList.prototype.getAllBookmarks = function() {
 /**
  * Initializes social features (bookmarks, comments) for rendered records
  * Sets up bookmark buttons, comment functionality, and social interaction handlers
- * 
+ *
  * @param {Array<Object>} records - Array of records to initialize social features for
  * @returns {Promise} Promise that resolves when all social features are initialized
  */
@@ -1331,7 +1336,7 @@ DynamicList.prototype.initializeSocials = function(records) {
 /**
  * Retrieves and caches user data for comment functionality
  * Loads all users from the data source for user mentions and comments
- * 
+ *
  * @returns {Promise<Array<Object>>} Promise resolving to array of user data
  */
 DynamicList.prototype.getCommentUsers = function() {
@@ -1381,7 +1386,7 @@ DynamicList.prototype.getCommentUsers = function() {
 /**
  * Initializes the news feed component
  * Processes query parameters, loads data, renders templates, and sets up social functionality
- * 
+ *
  * @returns {Promise} Promise that resolves when initialization is complete
  */
 DynamicList.prototype.initialize = function() {
@@ -1691,7 +1696,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 /**
  * Processes records and adds summary data for news feed rendering
  * Applies field mappings, filter properties, and social data based on layout configuration
- * 
+ *
  * @param {Array<Object>} records - Array of data records to process
  * @returns {Array<Object>} Processed records with summary data for template rendering
  */
@@ -1734,7 +1739,7 @@ DynamicList.prototype.addSummaryData = function(records) {
 /**
  * Renders a batch of news feed items incrementally to improve performance
  * Uses requestAnimationFrame for smooth rendering of large datasets
- * 
+ *
  * @param {Object} options - Rendering options
  * @param {Array<Object>} options.data - Array of records to render
  * @returns {Promise<Array<Object>>} Promise resolving to the rendered data
@@ -2000,7 +2005,7 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
 /**
  * Performs search and filtering operations on the news feed data
  * Handles text search, filters, bookmarks, and sorting with real-time feed updates
- * 
+ *
  * @param {Object|string} options - Search options or search value string
  * @param {string} [options.value] - Search term to filter records
  * @param {Array<string>} [options.fields] - Fields to search in

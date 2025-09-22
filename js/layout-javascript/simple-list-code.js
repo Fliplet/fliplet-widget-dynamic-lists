@@ -1,7 +1,7 @@
 /**
  * Dynamic List constructor for simple-list layout
  * Initializes a simple list component with basic list functionality
- * 
+ *
  * @constructor
  * @param {string} id - The unique identifier for the dynamic list instance
  * @param {Object} data - Configuration data for the dynamic list
@@ -108,9 +108,10 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 /**
  * Toggles the active state of a filter element
  * Handles both individual filters and range filters (date/number)
- * 
+ *
  * @param {HTMLElement|string} target - The filter element or selector to toggle
  * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ * @returns {void}
  */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
@@ -146,6 +147,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 /**
  * Hides the filter overlay and restores normal page state
  * Removes overlay classes and unlocks body scroll for simple list layout
+ * @returns {void}
  */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.simple-list-search-filter-overlay').removeClass('display');
@@ -156,6 +158,7 @@ DynamicList.prototype.hideFilterOverlay = function() {
 /**
  * Attaches all event listeners and observers for the simple list
  * Sets up handlers for user interactions, filtering, searching, and navigation
+ * @returns {void}
  */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -529,6 +532,7 @@ DynamicList.prototype.attachObservers = function() {
         // Select filters based on existing settings
         var selectors = Object.keys(_this.activeFilters).map(function(field) {
           var values = _this.activeFilters[field];
+
           return values.map(function(value) {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
@@ -1112,7 +1116,7 @@ DynamicList.prototype.attachObservers = function() {
 
 /**
  * Deletes an entry from the data source
- * 
+ *
  * @param {string|number} entryID - The ID of the entry to delete
  * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
  */
@@ -1128,9 +1132,10 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 /**
  * Removes an entry's HTML element from the DOM
- * 
+ *
  * @param {Object} options - Options object
  * @param {string|number} options.id - The ID of the entry to remove from DOM
+ * @returns {void}
  */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
@@ -1147,7 +1152,7 @@ DynamicList.prototype.removeListItemHTML = function(options) {
 /**
  * Initializes the simple list component
  * Processes query parameters, loads data, renders templates, and sets up functionality
- * 
+ *
  * @returns {Promise} Promise that resolves when initialization is complete
  */
 DynamicList.prototype.initialize = function() {
@@ -1454,7 +1459,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 /**
  * Processes records and adds summary data for simple list rendering
  * Maps record fields to display locations based on layout configuration
- * 
+ *
  * @param {Array<Object>} records - Array of data records to process
  * @returns {Array<Object>} Processed records with summary data for template rendering
  */
@@ -1496,7 +1501,7 @@ DynamicList.prototype.addSummaryData = function(records) {
 /**
  * Renders a batch of list items incrementally to improve performance
  * Uses requestAnimationFrame for smooth rendering of large datasets
- * 
+ *
  * @param {Object} options - Rendering options
  * @param {Array<Object>} options.data - Array of records to render
  * @returns {Promise<Array<Object>>} Promise resolving to the rendered data
@@ -1625,9 +1630,11 @@ DynamicList.prototype.attachLazyLoadObserver = function(options) {
 DynamicList.prototype.renderLoopHTML = function() {
   // Function that renders the List template
   var _this = this;
-  var template = _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
+
+  _this.data.advancedSettings && _this.data.advancedSettings.loopHTML
     ? Handlebars.compile(_this.data.advancedSettings.loopHTML)
     : Handlebars.compile(Fliplet.Widget.Templates[_this.layoutMapping[_this.data.layout]['loop']]());
+
   var limitedList;
   var isSorting = this.sortField && ['asc', 'desc'].indexOf(this.sortOrder) > -1;
 
@@ -1765,7 +1772,7 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
 /**
  * Performs search and filtering operations on the simple list data
  * Handles text search, filters, and sorting with real-time list updates
- * 
+ *
  * @param {Object|string} options - Search options or search value string
  * @param {string} [options.value] - Search term to filter records
  * @param {Array<string>} [options.fields] - Fields to search in

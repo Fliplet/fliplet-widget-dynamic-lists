@@ -1,7 +1,7 @@
 /**
  * Dynamic List constructor for small-card layout
  * Initializes a dynamic list component with small card layout
- * 
+ *
  * @constructor
  * @param {string} id - The unique identifier for the dynamic list instance
  * @param {Object} data - Configuration data for the dynamic list
@@ -114,9 +114,10 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 /**
  * Toggles the active state of a filter element
  * Handles both individual filters and range filters (date/number)
- * 
+ *
  * @param {HTMLElement|string} target - The filter element or selector to toggle
  * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ * @returns {void}
  */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
@@ -152,6 +153,7 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
 /**
  * Hides the filter overlay and restores normal page state
  * Removes overlay classes and unlocks body scroll
+ * @returns {void}
  */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.small-card-search-filter-overlay').removeClass('display');
@@ -162,6 +164,7 @@ DynamicList.prototype.hideFilterOverlay = function() {
 /**
  * Attaches all event listeners and observers for the dynamic list
  * Sets up handlers for user interactions, filtering, searching, and navigation
+ * @returns {void}
  */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -482,7 +485,6 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
 
       var result;
-      var id = _this.$container.find('.small-card-detail-wrapper[data-entry-id]').data('entry-id');
 
       _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
@@ -917,7 +919,7 @@ DynamicList.prototype.attachObservers = function() {
 
 /**
  * Deletes an entry from the data source
- * 
+ *
  * @param {string|number} entryID - The ID of the entry to delete
  * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
  */
@@ -933,9 +935,10 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 
 /**
  * Removes an entry's HTML element from the DOM
- * 
+ *
  * @param {Object} options - Options object
  * @param {string|number} options.id - The ID of the entry to remove from DOM
+ * @returns {void}
  */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
@@ -952,7 +955,7 @@ DynamicList.prototype.removeListItemHTML = function(options) {
 /**
  * Initializes the dynamic list component
  * Processes query parameters, loads data, renders templates, and sets up functionality
- * 
+ *
  * @returns {Promise} Promise that resolves when initialization is complete
  */
 DynamicList.prototype.initialize = function() {
@@ -1270,7 +1273,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 /**
  * Processes records and adds summary data for rendering
  * Applies field mappings and filter properties based on layout configuration
- * 
+ *
  * @param {Array<Object>} records - Array of data records to process
  * @returns {Array<Object>} Processed records with summary data for template rendering
  */
@@ -1312,7 +1315,7 @@ DynamicList.prototype.addSummaryData = function(records) {
 /**
  * Renders a batch of list items incrementally to improve performance
  * Uses requestAnimationFrame for smooth rendering of large datasets
- * 
+ *
  * @param {Object} options - Rendering options
  * @param {Array<Object>} options.data - Array of records to render
  * @returns {Promise<Array<Object>>} Promise resolving to the rendered data
@@ -1579,7 +1582,7 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
 /**
  * Performs search and filtering operations on the list data
  * Handles text search, filters, bookmarks, and sorting with real-time updates
- * 
+ *
  * @param {Object|string} options - Search options or search value string
  * @param {string} [options.value] - Search term to filter records
  * @param {Array<string>} [options.fields] - Fields to search in
@@ -2039,7 +2042,7 @@ DynamicList.prototype.getAllBookmarks = function() {
 /**
  * Initializes social features (bookmarks) for rendered records
  * Sets up bookmark buttons and handles bookmark state synchronization
- * 
+ *
  * @param {Array<Object>} records - Array of records to initialize social features for
  * @returns {Promise} Promise that resolves when all social features are initialized
  */
@@ -2192,7 +2195,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 /**
  * Shows the detail overlay for a specific entry
  * Loads entry data, processes detail view configuration, and displays overlay
- * 
+ *
  * @param {string|number} id - The ID of the entry to show details for
  * @param {Array<Object>} [listData] - Optional array of list data to search in
  * @returns {Promise} Promise that resolves when detail view is displayed
@@ -2286,9 +2289,10 @@ DynamicList.prototype.showDetails = function(id, listData) {
 /**
  * Closes the detail overlay and returns to list view
  * Handles cleanup, focus management, and navigation context
- * 
+ *
  * @param {Object} [options] - Close options
  * @param {boolean} [options.focusOnEntry] - Whether to focus on the closed entry in the list
+ * @returns {void}
  */
 DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {

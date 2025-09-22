@@ -1,7 +1,7 @@
 /**
  * Dynamic List constructor for small-h-card layout
  * Initializes a small horizontal card component with simplified functionality
- * 
+ *
  * @constructor
  * @param {string} id - The unique identifier for the dynamic list instance
  * @param {Object} data - Configuration data for the dynamic list
@@ -82,6 +82,7 @@ DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 /**
  * Attaches all event listeners and observers for the small horizontal card list
  * Sets up handlers for user interactions and navigation
+ * @returns {void}
  */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
@@ -201,7 +202,6 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
 
       var result;
-      var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
       _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
@@ -405,7 +405,7 @@ DynamicList.prototype.attachObservers = function() {
 
 /**
  * Deletes an entry from the data source
- * 
+ *
  * @param {string|number} entryID - The ID of the entry to delete
  * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
  */
@@ -422,7 +422,7 @@ DynamicList.prototype.deleteEntry = function(entryID) {
 /**
  * Initializes the small horizontal card component
  * Processes query parameters, loads data, renders templates, and sets up functionality
- * 
+ *
  * @returns {Promise} Promise that resolves when initialization is complete
  */
 DynamicList.prototype.initialize = function() {
@@ -634,7 +634,7 @@ DynamicList.prototype.renderBaseHTML = function() {
 /**
  * Processes records and adds summary data for small horizontal card rendering
  * Maps record fields to display locations based on layout configuration
- * 
+ *
  * @param {Array<Object>} records - Array of data records to process
  * @returns {Array<Object>} Processed records with summary data for template rendering
  */
@@ -668,7 +668,7 @@ DynamicList.prototype.addSummaryData = function(records) {
 /**
  * Renders the list items using incremental rendering
  * Uses requestAnimationFrame for smooth rendering performance
- * 
+ *
  * @param {Function} [iterateeCb] - Optional callback function called during rendering iterations
  * @returns {Promise} Promise that resolves when rendering is complete
  */
@@ -760,7 +760,7 @@ DynamicList.prototype.getPermissions = function(entries) {
 /**
  * Processes and adds detail view data to an entry
  * Handles dynamic and static field mappings for detail overlay display
- * 
+ *
  * @param {Object} entry - The entry object to add detail data to
  * @returns {Object} Entry object with processed detail view data
  */
@@ -874,7 +874,7 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 /**
  * Shows the detail overlay for a specific entry
  * Loads entry data, processes detail view configuration, and displays overlay
- * 
+ *
  * @param {string|number} id - The ID of the entry to show details for
  * @param {Array<Object>} [listData] - Optional array of list data to search in
  * @returns {Promise} Promise that resolves when detail view is displayed
@@ -983,9 +983,10 @@ DynamicList.prototype.showDetails = function(id, listData) {
 /**
  * Closes the detail overlay and returns to list view
  * Handles cleanup, focus management, and navigation context
- * 
+ *
  * @param {Object} [options] - Close options
  * @param {boolean} [options.focusOnEntry] - Whether to focus on the closed entry in the list
+ * @returns {void}
  */
 DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
