@@ -60,7 +60,20 @@ var DynamicLists = (function() {
   var defaultColumns = window.flListLayoutTableColumnConfig;
   var defaultEntries = window.flListLayoutTableConfig;
 
-  // Constructor
+  /**
+   * Constructor for DynamicLists widget interface
+   * Initializes configuration, sets up event listeners, and manages data sources
+   * Uses jQuery.extend() for deep object merging instead of lodash extend
+   *
+   * @param {Object} configuration - Widget configuration object
+   * @param {string} configuration.id - Widget instance ID
+   * @param {Array} [configuration.sortOptions=[]] - Sort configuration options
+   * @param {Array} [configuration.filterOptions=[]] - Filter configuration options
+   * @param {Array} [configuration.detailViewOptions=[]] - Detail view field options
+   * @param {Object} [configuration.social={}] - Social features configuration
+   * @param {Object} [configuration.advancedSettings={}] - Advanced template settings
+   * @returns {void}
+   */
   function DynamicLists(configuration) {
     _this = this;
 
@@ -132,6 +145,15 @@ var DynamicLists = (function() {
     // Public functions
     constructor: DynamicLists,
 
+    /**
+     * Toggles visibility of custom image field options based on field and type selection
+     * Uses native Array.indexOf() method for checking field values
+     *
+     * @param {jQuery} $row - The jQuery row element containing the form controls
+     * @param {string} field - The selected field value
+     * @param {string} type - The field type (e.g., 'image')
+     * @returns {void}
+     */
     toggleCustomImageFields: function($row, field, type) {
       if (type === 'image' && ['none', 'custom', 'empty'].indexOf(field) === -1) {
         $row.find('.image-type-select').removeClass('hidden');
@@ -312,8 +334,8 @@ var DynamicLists = (function() {
           var $item = $(this).closest('[data-id], .panel');
           var id = $item.data('id');
 
-          _.remove(_this.config.sortOptions, {
-            id: id
+          NativeUtils.remove(_this.config.sortOptions, function(item) {
+            return item.id === id;
           });
 
           $(this).parents('.panel').remove();
@@ -323,8 +345,8 @@ var DynamicLists = (function() {
           var $item = $(this).closest('[data-id], .panel');
           var id = $item.data('id');
 
-          _.remove(_this.config.filterOptions, {
-            id: id
+          NativeUtils.remove(_this.config.filterOptions, function(item) {
+            return item.id === id;
           });
 
           $(this).parents('.panel').remove();
@@ -509,7 +531,7 @@ var DynamicLists = (function() {
           var fieldId = $(this).parents('.rTableRow').data('id');
           var $row = $(this).parents('.rTableRow');
 
-          _.remove(_this.config.detailViewOptions, function(option) {
+          NativeUtils.remove(_this.config.detailViewOptions, function(option) {
             return option.id === fieldId;
           });
 
@@ -583,9 +605,23 @@ var DynamicLists = (function() {
         dataSourceProvider.emit('update-security-rules', { accessRules: accessRules });
       }
     },
+    /**
+     * Determines if offset field should be shown based on date value
+     * Uses native Array.indexOf() method instead of lodash includes
+     *
+     * @param {string} value - The date value to check
+     * @returns {boolean} True if offset field should be shown
+     */
     showOffsetField: function(value) {
       return ['today', 'now'].indexOf(value) !== -1;
     },
+    /**
+     * Determines if timezone field should be shown based on date value
+     * Uses native Array.indexOf() method instead of lodash includes
+     *
+     * @param {string} value - The date value to check
+     * @returns {boolean} True if timezone field should be shown
+     */
     showTimezoneField: function(value) {
       return [
         'now',
@@ -595,6 +631,13 @@ var DynamicLists = (function() {
         'nowsubtracthours'
       ].indexOf(value) !== -1;
     },
+    /**
+     * Determines if value fields should be hidden based on logic type
+     * Uses native Array.indexOf() method instead of lodash includes
+     *
+     * @param {string} value - The logic value to check
+     * @returns {boolean} True if value fields should be hidden
+     */
     showValueFields: function(value) {
       return [
         'empty',
@@ -748,9 +791,15 @@ var DynamicLists = (function() {
         }
       }
     },
+    /**
+     * Renders filter column accordions based on current configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each filter option and populates UI controls
+     * @returns {void}
+     */
     renderFilterColumns: function() {
       $filterAccordionContainer.empty();
-      _.forEach(_this.config.filterOptions, function(item) {
+      _this.config.filterOptions.forEach(function(item) {
         item.fromLoading = true; // Flag to close accordions
         item.columns = dataSourceColumns;
         _this.addFilterItem(item);
@@ -783,10 +832,16 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Renders sort column accordions based on current configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each sort option and populates UI controls
+     * @returns {void}
+     */
     renderSortColumns: function() {
       dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
       $sortAccordionContainer.empty();
-      _.forEach(_this.config.sortOptions, function(item) {
+      _this.config.sortOptions.forEach(function(item) {
         item.fromLoading = true; // Flag to close accordions
         item.columns = dataSourceColumns;
         _this.addSortItem(item);
@@ -843,9 +898,9 @@ var DynamicLists = (function() {
         return Promise.resolve();
       }
 
-      _this.config['style-specific'] = _.get(flListLayoutConfig, [_this.config.layout, 'style-specific'], []);
+      _this.config['style-specific'] = NativeUtils.get(flListLayoutConfig, [_this.config.layout, 'style-specific'], []);
 
-      _.forEach(_this.config['style-specific'], function(item) {
+      _this.config['style-specific'].forEach(function(item) {
         $('.' + item).removeClass('hidden');
 
         switch (item) {
@@ -1020,7 +1075,7 @@ var DynamicLists = (function() {
 
           if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
             fromStart = true;
-            _.forEach(dataSourceColumns, function(column, index) {
+            dataSourceColumns.forEach(function(column, index) {
               var item = {
                 id: index + 1,
                 columns: dataSourceColumns,
@@ -1047,7 +1102,7 @@ var DynamicLists = (function() {
                 helper: field.helper
               };
 
-              var foundMatch = _.find(_this.config.detailViewOptions, function(detailField) {
+              var foundMatch = _this.config.detailViewOptions.find(function(detailField) {
                 return detailField.column === item.column;
               });
 
@@ -1064,8 +1119,8 @@ var DynamicLists = (function() {
           }
 
           if (_this.config.detailViewAutoUpdate) {
-            _.forEach(dataSourceColumns, function(column) {
-              var foundColumn = _.find(_this.config.detailViewOptions, function(item) {
+            dataSourceColumns.forEach(function(column) {
+              var foundColumn = _this.config.detailViewOptions.find(function(item) {
                 return column === item.column;
               });
 
@@ -1088,7 +1143,7 @@ var DynamicLists = (function() {
 
           // Remove fields from detail view that are to be ignored - Only on first load
           if (fromStart && defaultSettings[listLayout]['detail-fields-ignore']) {
-            _.remove(_this.config.detailViewOptions, function(field) {
+            NativeUtils.remove(_this.config.detailViewOptions, function(field) {
               return defaultSettings[listLayout]['detail-fields-ignore'].indexOf(field.column) >= 0;
             });
           }
@@ -1101,7 +1156,7 @@ var DynamicLists = (function() {
                 return;
               }
 
-              _.remove(_this.config.detailViewOptions, function(option) {
+              NativeUtils.remove(_this.config.detailViewOptions, function(option) {
                 return !option.paranoid && field.column === option.column;
               });
             });
@@ -1110,7 +1165,7 @@ var DynamicLists = (function() {
           // TRY TO RESTORE LOST LOCKED FIELDS
           var foundLockedFields = [];
           var foundLockedFieldsIndices = [];
-          var defaultLockedFields = _.filter(defaultDetailFields, { paranoid: true });
+          var defaultLockedFields = defaultDetailFields.filter(function(item) { return item.paranoid === true; });
 
           if (defaultLockedFields.length) {
             // Tries to find each location in the saved detail fields
@@ -1138,14 +1193,14 @@ var DynamicLists = (function() {
               });
 
               // We extend the found fields with the missing defaults
-              foundLockedFields = _.map(defaultLockedFields, function(field) {
-                return _.merge(field, _.find(foundLockedFields, { location: field.location }));
+              foundLockedFields = defaultLockedFields.map(function(field) {
+                return Object.assign({}, field, foundLockedFields.find(function(item) { return item.location === field.location; }));
               });
 
               // Prepend locked fields in the beginning
-              _this.config.detailViewOptions = _.concat(
+              _this.config.detailViewOptions = [].concat(
                 foundLockedFields,
-                _.filter(_this.config.detailViewOptions, function(option, index) {
+                _this.config.detailViewOptions.filter(function(option, index) {
                   return foundLockedFieldsIndices.indexOf(index) === -1;
                 })
               );
@@ -1255,12 +1310,18 @@ var DynamicLists = (function() {
           _this.goToSettings('layouts');
         });
     },
+    /**
+     * Updates the summary row container with current field configurations
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each summary field and updates UI elements
+     * @returns {void}
+     */
     updateSummaryRowContainer: function() {
       $summaryRowContainer.empty();
-      _.forEach(_this.config['summary-fields'], function(item) {
+      _this.config['summary-fields'].forEach(function(item) {
         // Backwards compatibility
         if (typeof item.interfaceName === 'undefined') {
-          var defaultInterfaceName = _.find(defaultSettings[listLayout]['summary-fields'], function(defaultItem) {
+          var defaultInterfaceName = defaultSettings[listLayout]['summary-fields'].find(function(defaultItem) {
             return defaultItem.location === item.location;
           });
 
@@ -1284,14 +1345,20 @@ var DynamicLists = (function() {
         if (item.imageField === 'all-folders' && item.folder) {
           $summaryRowContainer.find('[data-id="' + item.id + '"]')
             .find('.file-picker-btn').text('Replace folder').end()
-            .find('.selected-folder span').text(_.get(item, 'folder.selectFiles[0].name', '')).end()
+            .find('.selected-folder span').text(NativeUtils.get(item, 'folder.selectFiles[0].name', '')).end()
             .find('.selected-folder').removeClass('hidden');
         }
       });
     },
+    /**
+     * Updates the details row container with current field configurations
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes each detail view option and updates UI elements
+     * @returns {void}
+     */
     updateDetailsRowContainer: function() {
       $detailsRowContainer.empty();
-      _.forEach(_this.config.detailViewOptions, function(item) {
+      _this.config.detailViewOptions.forEach(function(item) {
         item.columns = dataSourceColumns;
         item.column = _this.validateColumn({
           column: item.column,
@@ -1311,19 +1378,19 @@ var DynamicLists = (function() {
         if (item.imageField === 'all-folders' && item.folder) {
           $detailsRowContainer.find('[data-id="' + item.id + '"]')
             .find('.file-picker-btn').text('Replace folder').end()
-            .find('.selected-folder span').text(_.get(item, 'folder.selectFiles[0].name', '')).end()
+            .find('.selected-folder span').text(NativeUtils.get(item, 'folder.selectFiles[0].name', '')).end()
             .find('.selected-folder').removeClass('hidden');
         }
       });
     },
     /**
      * Validates a column name from field settings
+     * Uses native Array.indexOf() method instead of lodash includes
      *
-     * @param {Object} item - object with settings for sort list items
-     *        keys:
-     *          column {String} - selected column name
-     *          columns {Array} - array datasource or default columns
-     * @returns {String} column name
+     * @param {Object} item - Object with settings for sort list items
+     * @param {string} item.column - Selected column name
+     * @param {Array} item.columns - Array of datasource or default columns
+     * @returns {string} Valid column name or 'none' if invalid
      */
     validateColumn: function(item) {
       if (item.columns.indexOf(item.column) !== -1 || item.column === 'empty' || item.column === 'custom') {
@@ -1429,6 +1496,12 @@ var DynamicLists = (function() {
     removeFocusFromTokenInput: function() {
       $('input.token-input.ui-autocomplete-input').blur();
     },
+    /**
+     * Handles token field selection events and updates autocomplete sources
+     * Uses native Array methods (filter, some, concat, map) instead of lodash
+     * Manages token creation/removal and updates available options dynamically
+     * @returns {void}
+     */
     handleTokensSelection: function() {
       $('input.tokenfield').on('tokenfield:createdtoken tokenfield:removedtoken', function() {
         var field = $(this);
@@ -1436,7 +1509,15 @@ var DynamicLists = (function() {
         var originalSource = field.data('bs.tokenfield').options.autocomplete.source;
 
         // Remove the token from the newSource
-        var newSource = _.xorBy(originalSource, currentTokens, function(item) {
+        var newSource = originalSource.filter(function(item) {
+          return !currentTokens.some(function(token) {
+            return token.value === item.value;
+          });
+        }).concat(currentTokens.filter(function(item) {
+          return !originalSource.some(function(source) {
+            return source.value === item.value;
+          });
+        })).map(function(item) {
           return item.label || item;
         });
 
@@ -1447,7 +1528,7 @@ var DynamicLists = (function() {
 
       $('input.tokenfield').on('tokenfield:createtoken', function(event) {
         var currentTokens = $(this).tokenfield('getTokens');
-        var tokenExists = _.some(currentTokens, function(item) {
+        var tokenExists = currentTokens.some(function(item) {
           return item.label === event.attrs.label;
         });
 
@@ -1474,6 +1555,14 @@ var DynamicLists = (function() {
       _this.handleTokensSelection();
       _this.loadUserTokenFields();
     },
+    /**
+     * Retrieves columns from a data source and updates field options
+     * Uses Promise-based data fetching with callback functions
+     * Updates UI fields with retrieved column information
+     *
+     * @param {string} dataSourceId - The ID of the data source to fetch columns from
+     * @returns {Promise|undefined} Promise that resolves when columns are updated
+     */
     getColumns: function(dataSourceId) {
       if (dataSourceId && dataSourceId !== '') {
         return Fliplet.DataSources.getById(dataSourceId, {
@@ -1499,6 +1588,14 @@ var DynamicLists = (function() {
 
       return Promise.resolve();
     },
+    /**
+     * Updates form field options with available data source columns
+     * Uses native Array.forEach() method instead of lodash each
+     * Populates select dropdowns with column options while preserving selected values
+     *
+     * @param {Array} dataSourceColumns - Array of available column names
+     * @returns {void}
+     */
     updateFieldsWithColumns: function(dataSourceColumns) {
       if (!dataSourceColumns) {
         return;
@@ -1561,7 +1658,7 @@ var DynamicLists = (function() {
           '<option value="custom">Custom</option>',
           '<option disabled>------</option>'
         ];
-        var options = _.concat(defaultOptions, _.map(dataSourceColumns, function(value) {
+        var options = [].concat(defaultOptions, dataSourceColumns.map(function(value) {
           return '<option value="' + value + '">' + value + '</option>';
         }));
 
@@ -1581,7 +1678,7 @@ var DynamicLists = (function() {
           '<option value="custom">Custom</option>',
           '<option disabled>------</option>'
         ];
-        var options = _.concat(defaultOptions, _.map(dataSourceColumns, function(value) {
+        var options = [].concat(defaultOptions, dataSourceColumns.map(function(value) {
           return '<option value="' + value + '">' + value + '</option>';
         }));
 
@@ -1648,6 +1745,14 @@ var DynamicLists = (function() {
 
       _this.setUpTokenFields();
     },
+    /**
+     * Updates user-related field options with available data source columns
+     * Uses native Array.forEach() method instead of lodash each for iterating columns
+     * Populates user-specific dropdowns (first name, last name, email, photo, admin)
+     *
+     * @param {Array} userDataSourceColumns - Array of available user column names
+     * @returns {void}
+     */
     updateUserFieldsWithColumns: function(userDataSourceColumns) {
       userDataSourceColumns = userDataSourceColumns || [];
 
@@ -1799,6 +1904,12 @@ var DynamicLists = (function() {
     getDataSourceById: function(id) {
       return Fliplet.DataSources.getById(id);
     },
+    /**
+     * Loads default data configuration from the selected layout
+     * Uses native Array.forEach() method instead of lodash each
+     * Initializes layout-specific default entries and columns
+     * @returns {void}
+     */
     loadDataFromLayout: function() {
       _this.config.layout = listLayout;
       _this.config.dataSourceId = undefined;
@@ -1826,6 +1937,13 @@ var DynamicLists = (function() {
         $('.filter-panels-holder').addClass('empty');
       }
     },
+    /**
+     * Generates a random string ID of specified length
+     * Uses native string operations instead of lodash random utilities
+     *
+     * @param {number} length - The desired length of the generated ID
+     * @returns {string} A random alphanumeric string
+     */
     makeid: function(length) {
       var text = '';
       var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -1906,12 +2024,27 @@ var DynamicLists = (function() {
         }
       }
     },
+    /**
+     * Determines if a field location is editable based on layout configuration
+     * Uses native Array.find() method instead of lodash find
+     *
+     * @param {string} location - The field location to check
+     * @returns {boolean} True if the field location is editable
+     */
     fieldLocationIsEditable: function(location) {
       var layout = this.config.layout;
-      var field = _.find(defaultSettings[layout]['summary-fields'], { location: location });
+      var field = defaultSettings[layout]['summary-fields'].find(function(item) { return item.location === location; });
 
       return field && field.editable;
     },
+    /**
+     * Adds a summary item to the interface with appropriate field type options
+     * Uses NativeUtils.remove() instead of lodash remove for filtering options
+     * Configures field options based on editability and adds to summary container
+     *
+     * @param {Object} data - The summary item data configuration
+     * @returns {void}
+     */
     addSummaryItem: function(data) {
       var now = new Date();
 
@@ -1927,7 +2060,9 @@ var DynamicLists = (function() {
 
       // Images aren't used in editable fields
       if (data.editable) {
-        _.remove(data.options, { value: 'image' });
+        NativeUtils.remove(data.options, function(option) {
+          return option.value === 'image';
+        });
       }
 
       $summaryRowContainer.append(summaryRowTemplate(data));
@@ -1954,12 +2089,12 @@ var DynamicLists = (function() {
           ui.item.parents('.detail-table-panels-holder').addClass('sorting');
         },
         stop: function(event, ui) {
-          var sortedIds = $detailsRowContainer.sortable('toArray', {
+          $detailsRowContainer.sortable('toArray', {
             attribute: 'data-id'
           });
 
           ui.item.parents('.detail-table-panels-holder').removeClass('sorting');
-          _this.config.detailViewOptions = _.concat.apply(this, _(_this.config.detailViewOptions)
+          _this.config.detailViewOptions = [].concat.apply(this, _this.config.detailViewOptions
             .partition(function(option) {
               return !option.editable;
             })
@@ -1970,8 +2105,11 @@ var DynamicLists = (function() {
               }
 
               // Sort editable items by sorted IDs
-              return _.sortBy(items, function(item) {
-                return sortedIds.indexOf(item.id.toString());
+              return items.sort(function(a, b) {
+                var aOrder = a.order || 0;
+                var bOrder = b.order || 0;
+
+                return aOrder - bOrder;
               });
             })
             .value());
@@ -1998,8 +2136,8 @@ var DynamicLists = (function() {
             attribute: 'data-id'
           });
 
-          _this.config.sortOptions = _.sortBy(_this.config.sortOptions, function(item) {
-            return sortedIds.indexOf(item.id);
+          _this.config.sortOptions = _this.config.sortOptions.sort(function(a, b) {
+            return sortedIds.indexOf(a.id) - sortedIds.indexOf(b.id);
           });
           $('.panel').not(ui.item).removeClass('faded');
         },
@@ -2028,8 +2166,11 @@ var DynamicLists = (function() {
             attribute: 'data-id'
           });
 
-          _this.config.filterOptions = _.sortBy(_this.config.filterOptions, function(item) {
-            return sortedIds.indexOf(item.id);
+          _this.config.filterOptions = _this.config.filterOptions.sort(function(a, b) {
+            var aOrder = sortedIds.indexOf(a.id);
+            var bOrder = sortedIds.indexOf(b.id);
+
+            return aOrder - bOrder;
           });
           $('.panel').not(ui.item).removeClass('faded');
         },
@@ -2577,7 +2718,7 @@ var DynamicLists = (function() {
 
         Fliplet.Modal.alert({
           title: 'Reset complete',
-          message: _.capitalize(name) + ' has been reset to default.'
+          message: NativeUtils.capitalize(name) + ' has been reset to default.'
         });
       });
     },
@@ -2681,14 +2822,14 @@ var DynamicLists = (function() {
       data.defaultData = toReload || !data.dataSourceId ? true : false;
 
       // Get sorting options
-      _.forEach(_this.config.sortOptions, function(item) {
+      _this.config.sortOptions.forEach(function(item) {
         item.column = $('#select-data-field-' + item.id).val();
         item.sortBy = $('#sort-by-field-' + item.id).val();
         item.orderBy = $('#order-by-field-' + item.id).val();
       });
 
-      // Get filter options
-      _.forEach(_this.config.filterOptions, function(item) {
+      // Get filter options - uses native forEach instead of lodash each
+      _this.config.filterOptions.forEach(function(item) {
         item.fieldValue = $('#value-field-' + item.id).val();
         item.column = $('#select-data-field-' + item.id).val();
         item.logic = $('#logic-field-' + item.id).val();
@@ -2899,7 +3040,7 @@ var DynamicLists = (function() {
           });
 
           // Ensure we don't store the same view twice
-          _this.config.dataSourceViews = _.uniqWith(_this.config.dataSourceViews, _.isEqual);
+          _this.config.dataSourceViews = NativeUtils.uniqBy(_this.config.dataSourceViews, function(item) { return JSON.stringify(item); });
         });
       } else if (!_this.config.social.bookmark && _this.config.bookmarkDataSourceId) {
         _this.config.bookmarkDataSourceId = '';
@@ -2953,8 +3094,14 @@ var DynamicLists = (function() {
 
       return Promise.all([likesPromise, bookmarksPromise, commentsPromise]);
     },
+    /**
+     * Saves summary view field options from the interface to configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes form values and updates configuration object
+     * @returns {void}
+     */
     saveSummaryViewOptions: function() {
-      _.forEach(_this.config['summary-fields'], function(item) {
+      _this.config['summary-fields'].forEach(function(item) {
         item.column = $('#summary_select_field_' + item.id).val();
         item.type = $('#summary_select_type_' + item.id).val();
         item.customFieldEnabled = item.column === 'custom';
@@ -2981,8 +3128,14 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Saves detailed view field options from the interface to configuration
+     * Uses native Array.forEach() method instead of lodash each
+     * Processes form values and updates detail view configuration
+     * @returns {void}
+     */
     saveDetailedViewOptions: function() {
-      _.forEach(_this.config.detailViewOptions, function(item) {
+      _this.config.detailViewOptions.forEach(function(item) {
         item.column = $('#detail_select_field_' + item.id).val();
         item.type = $('#detail_select_type_' + item.id).val();
         item.fieldLabel = $('#detail_select_label_' + item.id).val();
@@ -3013,6 +3166,12 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Saves token field values (search, sort, filter fields) to configuration
+     * Uses native Array.map() method instead of lodash map for processing values
+     * Splits comma-separated values and trims whitespace from each field
+     * @returns {void}
+     */
     saveTokenFields: function() {
       _this.config.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined' ?
         $('#search-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];

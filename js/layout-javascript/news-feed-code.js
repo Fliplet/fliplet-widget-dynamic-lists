@@ -1,3 +1,18 @@
+/**
+ * Dynamic List constructor for news-feed layout
+ * Initializes a news feed component with social features like comments and bookmarks
+ *
+ * @constructor
+ * @param {string} id - The unique identifier for the dynamic list instance
+ * @param {Object} data - Configuration data for the dynamic list
+ * @param {string} data.layout - Layout type ('news-feed')
+ * @param {Object} data.social - Social features configuration
+ * @param {boolean} data.social.bookmark - Whether bookmarking is enabled
+ * @param {boolean} data.social.comments - Whether comments are enabled
+ * @param {Array} data.filterFields - Fields available for filtering
+ * @param {Array} data.searchFields - Fields available for searching
+ * @param {Object} data.advancedSettings - Advanced HTML template settings
+ */
 // Constructor
 function DynamicList(id, data) {
   var _this = this;
@@ -32,7 +47,7 @@ function DynamicList(id, data) {
   this.listItems;
   this.modifiedListItems;
   this.renderListItems = [];
-  this.searchedListItems;
+  this.searchedListItems = [];
   this.dataSourceColumns;
   this.allUsers;
   this.usersToMention;
@@ -81,14 +96,14 @@ function DynamicList(id, data) {
 
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (_.get(session, 'entries.saml2.user')) {
-      _this.myUserData = _.get(session, 'entries.saml2.user');
+    if (NativeUtils.get(session, 'entries.saml2.user')) {
+      _this.myUserData = NativeUtils.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
 
-    if (_.get(session, 'entries.dataSource.data')) {
-      _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+    if (NativeUtils.get(session, 'entries.dataSource.data')) {
+      NativeUtils.extend(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
@@ -98,6 +113,14 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+/**
+ * Toggles the active state of a filter element
+ * Handles both individual filters and range filters (date/number)
+ *
+ * @param {HTMLElement|string} target - The filter element or selector to toggle
+ * @param {boolean} [toggle] - Optional explicit toggle state. If undefined, toggles current state
+ * @returns {void}
+ */
 DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   var $target = this.Utils.DOM.$(target);
   var filterType = $target.data('type');
@@ -129,6 +152,11 @@ DynamicList.prototype.toggleFilterElement = function(target, toggle) {
   });
 };
 
+/**
+ * Hides the filter overlay and restores normal page state
+ * Removes overlay classes and unlocks body scroll for news feed layout
+ * @returns {void}
+ */
 DynamicList.prototype.hideFilterOverlay = function() {
   this.$container.find('.news-feed-search-filter-overlay').removeClass('display');
   this.$container.find('.section-top-wrapper, .news-feed-list-wrapper, .dynamic-list-add-item').removeClass('hidden');
@@ -136,6 +164,11 @@ DynamicList.prototype.hideFilterOverlay = function() {
   $('body').removeClass('lock has-filter-overlay');
 };
 
+/**
+ * Attaches all event listeners and observers for the news feed
+ * Sets up handlers for user interactions, filtering, searching, comments, and navigation
+ * @returns {void}
+ */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -146,7 +179,7 @@ DynamicList.prototype.attachObservers = function() {
     }
   });
 
-  $(window).resize(_.debounce(function() {
+  $(window).resize(NativeUtils.debounce(function() {
     _this.Utils.DOM.adjustAddButtonPosition(_this);
 
     if ($(window).width() < 640) {
@@ -367,7 +400,7 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
+          entry: _this.listItems.find(function(item) { return item.id === entryId; }),
           entryId: entryId,
           entryTitle: entryTitle,
           event: event
@@ -519,19 +552,21 @@ DynamicList.prototype.attachObservers = function() {
       _this.toggleFilterElement(_this.$container.find('.mixitup-control-active:not(.toggle-bookmarks)'), false);
 
       // No filters selected
-      if (_.isEmpty(_this.activeFilters)) {
+      if (NativeUtils.isEmpty(_this.activeFilters)) {
         _this.$container.find('.clear-filters').addClass('hidden');
 
         return;
       }
 
-      if (!_.has(_this.activeFilters, 'undefined')) {
+      if (!NativeUtils.has(_this.activeFilters, 'undefined')) {
         // Select filters based on existing settings
-        var selectors = _.flatten(_.map(_this.activeFilters, function(values, field) {
-          return _.map(values, function(value) {
+        var selectors = Object.keys(_this.activeFilters).map(function(field) {
+          var values = _this.activeFilters[field];
+
+          return values.map(function(value) {
             return '.hidden-filter-controls-filter[data-field="' + field + '"][data-value="' + value + '"]';
           });
-        })).join(',');
+        }).reduce(function(acc, val) { return acc.concat(val); }, []).join(',');
 
         _this.toggleFilterElement(_this.$container.find(selectors), true);
 
@@ -896,7 +931,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -936,7 +971,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -1001,7 +1036,7 @@ DynamicList.prototype.attachObservers = function() {
                   return _this.deleteEntry(entryID);
                 })
                 .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
+                  NativeUtils.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
 
@@ -1054,7 +1089,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+      var record = _this.listItems.find(function(item) { return item.id === id; });
 
       if (!record || !record.bookmarkButton) {
         return;
@@ -1076,7 +1111,7 @@ DynamicList.prototype.attachObservers = function() {
       }
 
       var id = $(this).parents('.news-feed-details-content-holder').data('entry-id');
-      var record = _.find(_this.listItems, { id: id });
+      var record = _this.listItems.find(function(item) { return item.id === id; });
 
       if (!record || !record.likeButton) {
         return;
@@ -1114,6 +1149,12 @@ DynamicList.prototype.attachObservers = function() {
     });
 };
 
+/**
+ * Deletes an entry from the data source
+ *
+ * @param {string|number} entryID - The ID of the entry to delete
+ * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
+ */
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
@@ -1124,6 +1165,13 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 };
 
+/**
+ * Removes an entry's HTML element from the DOM
+ *
+ * @param {Object} options - Options object
+ * @param {string|number} options.id - The ID of the entry to remove from DOM
+ * @returns {void}
+ */
 DynamicList.prototype.removeListItemHTML = function(options) {
   options = options || {};
 
@@ -1138,7 +1186,7 @@ DynamicList.prototype.removeListItemHTML = function(options) {
 
 DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
-  var record = _.find(_this.listItems, { id: id });
+  var record = _this.listItems.find(function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -1199,7 +1247,7 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
-  if (_this.fetchedAllBookmarks || !_.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
+  if (_this.fetchedAllBookmarks || !NativeUtils.get(_this.data, 'social.bookmark') || !_this.data.bookmarkDataSourceId) {
     return Promise.resolve();
   }
 
@@ -1224,14 +1272,14 @@ DynamicList.prototype.getAllBookmarks = function() {
       });
     })
   }).then(function(results) {
-    var bookmarkedIds = _.compact(_.map(results.data, function(record) {
-      var match = _.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
+    var bookmarkedIds = NativeUtils.compact(results.data.map(function(record) {
+      var match = NativeUtils.get(record, 'data.content.entryId', '').match(/(\d*)-bookmark/);
 
       return match ? parseInt(match[1], 10) : '';
     }));
 
     if (results.fromCache) {
-      _.forEach(_this.listItems, function(record) {
+      _this.listItems.forEach(function(record) {
         if (bookmarkedIds.indexOf(record.id) === -1) {
           return;
         }
@@ -1239,7 +1287,7 @@ DynamicList.prototype.getAllBookmarks = function() {
         record.bookmarked = true;
       });
     } else {
-      _.forEach(_this.listItems, function(record) {
+      _this.listItems.forEach(function(record) {
         record.bookmarked = bookmarkedIds.indexOf(record.id) > -1;
       });
     }
@@ -1248,13 +1296,20 @@ DynamicList.prototype.getAllBookmarks = function() {
   });
 };
 
+/**
+ * Initializes social features (bookmarks, comments) for rendered records
+ * Sets up bookmark buttons, comment functionality, and social interaction handlers
+ *
+ * @param {Array<Object>} records - Array of records to initialize social features for
+ * @returns {Promise} Promise that resolves when all social features are initialized
+ */
 DynamicList.prototype.initializeSocials = function(records) {
   var _this = this;
 
   return _this.getAllBookmarks().then(function() {
-    return Promise.all(_.flatten(_.map(records, function(record) {
+    return Promise.all(records.map(function(record) {
       var title = _this.$container.find('.news-feed-list-item[data-entry-id="' + record.id + '"] .news-feed-item-title').text().trim();
-      var masterRecord = _.find(_this.listItems, { id: record.id });
+      var masterRecord = _this.listItems.find(function(item) { return item.id === record.id; });
 
       return [
         _this.setupLikeButton({
@@ -1274,12 +1329,18 @@ DynamicList.prototype.initializeSocials = function(records) {
           record: masterRecord
         })
       ];
-    })));
+    }).reduce(function(acc, val) { return acc.concat(val); }, []));
   });
 };
 
+/**
+ * Retrieves and caches user data for comment functionality
+ * Loads all users from the data source for user mentions and comments
+ *
+ * @returns {Promise<Array<Object>>} Promise resolving to array of user data
+ */
 DynamicList.prototype.getCommentUsers = function() {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!NativeUtils.get(this.data, 'social.comments')) {
     return Promise.resolve();
   }
 
@@ -1302,8 +1363,8 @@ DynamicList.prototype.getCommentUsers = function() {
       _this.allUsers = users;
 
       // Update my user data
-      if (!_.isEmpty(_this.myUserData)) {
-        var myUser = _.find(_this.allUsers, function(user) {
+      if (!NativeUtils.isEmpty(_this.myUserData)) {
+        var myUser = _this.allUsers.find(function(user) {
           return _this.myUserData[_this.data.userEmailColumn] === user.data[_this.data.userEmailColumn];
         });
 
@@ -1322,6 +1383,12 @@ DynamicList.prototype.getCommentUsers = function() {
     });
 };
 
+/**
+ * Initializes the news feed component
+ * Processes query parameters, loads data, renders templates, and sets up social functionality
+ *
+ * @returns {Promise} Promise that resolves when initialization is complete
+ */
 DynamicList.prototype.initialize = function() {
   var _this = this;
   var shouldInitFromQuery = _this.parseQueryVars();
@@ -1400,7 +1467,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, 'id');
+      _this.listItems = NativeUtils.uniqBy(response, 'id');
 
       return _this.checkIsToOpen();
     })
@@ -1422,7 +1489,7 @@ DynamicList.prototype.initialize = function() {
 };
 
 DynamicList.prototype.changeSort = function() {
-  if (_.has(this.pvPreSortQuery, 'column') && _.has(this.pvPreSortQuery, 'order')) {
+  if (NativeUtils.has(this.pvPreSortQuery, 'column') && NativeUtils.has(this.pvPreSortQuery, 'order')) {
     $('[data-sort-field="' + this.pvPreSortQuery.column + '"]')
       .attr('data-sort-order', this.pvPreSortQuery.order);
   }
@@ -1436,10 +1503,10 @@ DynamicList.prototype.checkIsToOpen = function() {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
+  if (NativeUtils.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = _this.listItems.find(function(item) { return item.id === _this.pvOpenQuery.id; });
+  } else if (NativeUtils.hasIn(_this.pvOpenQuery, 'value') && NativeUtils.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = _this.listItems.find(function(row) {
       // eslint-disable-next-line eqeqeq
       return row.data[_this.pvOpenQuery.column] == _this.pvOpenQuery.value;
     });
@@ -1470,14 +1537,14 @@ DynamicList.prototype.checkIsToOpen = function() {
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
-  if (!_.get(_this.pvSearchQuery, 'value')) {
+  if (!NativeUtils.get(_this.pvSearchQuery, 'value')) {
     // Continue to execute query filters
     return _this.searchData({
       initialRender: true
     });
   }
 
-  if (_.hasIn(_this.pvSearchQuery, 'column')) {
+  if (NativeUtils.hasIn(_this.pvSearchQuery, 'column')) {
     // Query search column and value provided
     return _this.searchData({
       value: _this.pvSearchQuery.value,
@@ -1568,23 +1635,23 @@ DynamicList.prototype.parsePVQueryVars = function() {
         _this.navigateBackEvent();
       }
 
-      if (_.hasIn(value, 'prefilter')) {
+      if (NativeUtils.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
       }
 
-      if (_.hasIn(value, 'open')) {
+      if (NativeUtils.hasIn(value, 'open')) {
         _this.queryOpen = true;
         _this.pvOpenQuery = value.open;
       }
 
-      if (_.hasIn(value, 'search')) {
+      if (NativeUtils.hasIn(value, 'search')) {
         _this.querySearch = true;
         _this.pvSearchQuery = value.search;
         _this.data.searchEnabled = true;
       }
 
-      if (_.hasIn(value, 'filter')) {
+      if (NativeUtils.hasIn(value, 'filter')) {
         _this.queryFilter = true;
         _this.pvFilterQuery = value.filter;
         _this.data.filtersEnabled = true;
@@ -1626,6 +1693,13 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$overlay = $('#news-feed-detail-overlay-' + _this.data.id);
 };
 
+/**
+ * Processes records and adds summary data for news feed rendering
+ * Applies field mappings, filter properties, and social data based on layout configuration
+ *
+ * @param {Array<Object>} records - Array of data records to process
+ * @returns {Array<Object>} Processed records with summary data for template rendering
+ */
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   var modifiedData = _this.Utils.Records.addFilterProperties({
@@ -1633,7 +1707,7 @@ DynamicList.prototype.addSummaryData = function(records) {
     config: _this.data,
     filterTypes: _this.filterTypes
   });
-  var loopData = _.map(modifiedData, function(entry) {
+  var loopData = modifiedData.map(function(entry) {
     var newObject = {
       id: entry.id,
       flClasses: entry.data['flClasses'],
@@ -1662,6 +1736,14 @@ DynamicList.prototype.addSummaryData = function(records) {
   return loopData;
 };
 
+/**
+ * Renders a batch of news feed items incrementally to improve performance
+ * Uses requestAnimationFrame for smooth rendering of large datasets
+ *
+ * @param {Object} options - Rendering options
+ * @param {Array<Object>} options.data - Array of records to render
+ * @returns {Promise<Array<Object>>} Promise resolving to the rendered data
+ */
 DynamicList.prototype.renderLoopSegment = function(options) {
   options = options || {};
 
@@ -1801,7 +1883,7 @@ DynamicList.prototype.renderLoopHTML = function() {
 
   $('#news-feed-list-wrapper-' + _this.data.id).empty();
 
-  this.renderListItems = _.clone(limitedList || _this.modifiedListItems || []);
+  this.renderListItems = NativeUtils.clone(limitedList || _this.modifiedListItems || []);
 
   var data = this.renderListItems.splice(0, this.data.lazyLoadBatchSize || this.renderListItems.length);
 
@@ -1849,7 +1931,7 @@ DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
+  entries.forEach(function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
@@ -1884,8 +1966,8 @@ DynamicList.prototype.addFilters = function(records) {
       ? Handlebars.compile(_this.data.advancedSettings.filterHTML)
       : Handlebars.compile(filtersTemplate());
 
-    _.remove(filters, function(filter) {
-      return _.isEmpty(filter.data);
+    NativeUtils.remove(filters, function(filter) {
+      return NativeUtils.isEmpty(filter.data);
     });
     _this.Utils.Page.renderFilters({
       instance: _this,
@@ -1920,6 +2002,17 @@ DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   }, 200);
 };
 
+/**
+ * Performs search and filtering operations on the news feed data
+ * Handles text search, filters, bookmarks, and sorting with real-time feed updates
+ *
+ * @param {Object|string} options - Search options or search value string
+ * @param {string} [options.value] - Search term to filter records
+ * @param {Array<string>} [options.fields] - Fields to search in
+ * @param {boolean} [options.openSingleEntry] - Whether to auto-open if only one result
+ * @param {boolean} [options.initialRender] - Whether this is the initial render
+ * @returns {Promise} Promise that resolves when search and render is complete
+ */
 DynamicList.prototype.searchData = function(options) {
   if (typeof options === 'string') {
     options = {
@@ -1930,7 +2023,7 @@ DynamicList.prototype.searchData = function(options) {
   options = options || {};
 
   var _this = this;
-  var value = _.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
+  var value = NativeUtils.isUndefined(options.value) ? _this.searchValue : ('' + options.value).trim();
   var fields = options.fields || _this.data.searchFields;
   var openSingleEntry = options.openSingleEntry;
   var $inputField = _this.$container.find('.search-holder input');
@@ -1939,7 +2032,7 @@ DynamicList.prototype.searchData = function(options) {
   value = value.toLowerCase();
   _this.activeFilters = _this.Utils.Page.getActiveFilters({ $container: _this.$container });
   _this.isSearching = value !== '';
-  _this.isFiltering = !_.isEmpty(_this.activeFilters);
+  _this.isFiltering = !NativeUtils.isEmpty(_this.activeFilters);
   _this.showBookmarks = $('.toggle-bookmarks').hasClass('mixitup-control-active');
 
   var limitEntriesEnabled = _this.data.enabledLimitEntries && !isNaN(_this.data.limitEntries);
@@ -2014,12 +2107,12 @@ DynamicList.prototype.searchData = function(options) {
       _this.$container.find('.hidden-search-controls').addClass('active');
       _this.$container.find('.hidden-search-controls')[searchedData.length || truncated ? 'removeClass' : 'addClass']('no-results');
 
-      var searchedDataIds = _.map(searchedData, 'id');
-      var searchedListItemIds = _.map(_this.searchedListItems, 'id');
+      var searchedDataIds = searchedData.map(function(item) { return item.id; });
+      var searchedListItemIds = _this.searchedListItems.map(function(item) { return item.id; });
 
       if (!_this.data.forceRenderList
         && searchedData.length
-        && _.isEqual(searchedDataIds, searchedListItemIds)) {
+        && NativeUtils.isEqual(searchedDataIds, searchedListItemIds)) {
         // Same results returned. Do nothing.
         return;
       }
@@ -2035,11 +2128,11 @@ DynamicList.prototype.searchData = function(options) {
         && !_this.data.sortEnabled
         && !(_this.data.sortFields || []).length
         && searchedData.length
-        && searchedData.length === _.intersection(searchedDataIds, searchedListItemIds).length) {
+        && searchedData.length === NativeUtils.intersection(searchedDataIds, searchedListItemIds).length) {
         // Search results is a subset of the current render.
         // Remove the extra records without re-render.
-        _this.$container.find(_.map(_.difference(searchedListItemIds, searchedDataIds), function(record) {
-          return '.news-feed-list-item[data-entry-id="' + record.id + '"]';
+        _this.$container.find(NativeUtils.difference(searchedListItemIds, searchedDataIds).map(function(id) {
+          return '.news-feed-list-item[data-entry-id="' + id + '"]';
         }).join(',')).remove();
         _this.searchedListItems = searchedData;
 
@@ -2148,7 +2241,7 @@ DynamicList.prototype.getLikeIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupLikeButton = function(options) {
-  if (!_.get(this.data, 'social.likes')) {
+  if (!NativeUtils.get(this.data, 'social.likes')) {
     return Promise.resolve();
   }
 
@@ -2158,7 +2251,7 @@ DynamicList.prototype.setupLikeButton = function(options) {
   var id = options.id;
   var title = options.title;
   var target = options.target;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || _this.listItems.find(function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -2330,7 +2423,7 @@ DynamicList.prototype.getBookmarkIdentifier = function(record) {
 };
 
 DynamicList.prototype.setupBookmarkButton = function(options) {
-  if (!_.get(this.data, 'social.bookmark')) {
+  if (!NativeUtils.get(this.data, 'social.bookmark')) {
     return Promise.resolve();
   }
 
@@ -2340,7 +2433,7 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
   var id = options.id;
   var title = options.title;
   var target = options.target;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || _this.listItems.find(function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -2466,7 +2559,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
   var fileList = files && Array.isArray(files) ? files.filter(Boolean) : null;
 
-  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+  if (Array.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 
     return entry;
@@ -2543,10 +2636,10 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
   });
 
   if (_this.data.detailViewAutoUpdate) {
-    var savedColumns = _.map(_this.data.detailViewOptions, 'column');
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    var savedColumns = _this.data.detailViewOptions.map(function(option) { return option.column; });
+    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns);
 
-    _.forEach(extraColumns, function(column) {
+    extraColumns.forEach(function(column) {
       var newColumnData = {
         id: entry.id,
         content: entry.originalData[column],
@@ -2565,7 +2658,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
+  var entryData = (listData || _this.modifiedListItems).find(function(item) { return item.id === id; });
   // Process template with data
   var entryId = { id: id };
   var wrapper = '<div class="news-feed-detail-wrapper" data-entry-id="{{id}}"></div>';
@@ -2735,7 +2828,7 @@ DynamicList.prototype.getCommentIdentifier = function(record) {
 };
 
 DynamicList.prototype.getEntryComments = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!NativeUtils.get(this.data, 'social.comments')) {
     return Promise.resolve();
   }
 
@@ -2743,7 +2836,7 @@ DynamicList.prototype.getEntryComments = function(options) {
 
   var _this = this;
   var id = options.id;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || _this.listItems.find(function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -2797,7 +2890,7 @@ DynamicList.prototype.connectToUsersDataSource = function() {
 };
 
 DynamicList.prototype.updateCommentCounter = function(options) {
-  if (!_.get(this.data, 'social.comments')) {
+  if (!NativeUtils.get(this.data, 'social.comments')) {
     return;
   }
 
@@ -2805,7 +2898,7 @@ DynamicList.prototype.updateCommentCounter = function(options) {
 
   var _this = this;
   var id = options.id;
-  var record = options.record || _.find(_this.listItems, { id: id });
+  var record = options.record || _this.listItems.find(function(item) { return item.id === id; });
 
   if (!record) {
     return;
@@ -2848,16 +2941,16 @@ DynamicList.prototype.showComments = function(id, commentId) {
     });
   }).then(function() {
     // Get comments for entry
-    var entry = _.find(_this.listItems, { id: id });
-    var entryComments = _.get(entry, 'comments');
+    var entry = _this.listItems.find(function(item) { return item.id === id; });
+    var entryComments = NativeUtils.get(entry, 'comments');
 
     // Display comments
     entryComments.forEach(function(entry, index) {
       // Convert data/time
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
-      var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
-        return _.get(entry, 'data.settings.user.' + name);
+      var userName = NativeUtils.compact(_this.data.userNameFields.map(function(name) {
+        return NativeUtils.get(entry, 'data.settings.user.' + name);
       })).join(' ').trim();
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
@@ -2868,7 +2961,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
 
       var myEmail = '';
 
-      if (!_.isEmpty(_this.myUserData)) {
+      if (!NativeUtils.isEmpty(_this.myUserData)) {
         myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
       }
 
@@ -2892,7 +2985,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
         entryComments[index].currentUser = true;
       }
     });
-    entryComments = _.orderBy(entryComments, ['timeInMilliseconds'], ['asc']);
+    entryComments = NativeUtils.orderBy(entryComments, ['timeInMilliseconds'], ['asc']);
 
     if (!_this.autosizeInit) {
       autosize(_this.$container.find('.news-feed-comment-input-holder textarea'));
@@ -2951,7 +3044,7 @@ DynamicList.prototype.showComments = function(id, commentId) {
 };
 
 DynamicList.prototype.sendComment = function(id, value) {
-  var record = _.find(this.listItems, { id: id });
+  var record = this.listItems.find(function(item) { return item.id === id; });
 
   if (!record) {
     return Promise.resolve();
@@ -2961,7 +3054,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   var guid = Fliplet.guid();
   var userName = '';
 
-  if (_.isEmpty(_this.myUserData) || (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email'] && !_this.myUserData['Email'])) {
+  if (NativeUtils.isEmpty(_this.myUserData) || (!_this.myUserData[_this.data.userEmailColumn] && !_this.myUserData['email'] && !_this.myUserData['Email'])) {
     if (typeof Raven !== 'undefined' && Raven.captureMessage) {
       Fliplet.User.getCachedSession().then(function(session) {
         Raven.captureMessage('User data not found for commenting', {
@@ -2978,7 +3071,7 @@ DynamicList.prototype.sendComment = function(id, value) {
   }
 
   var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
-  var userFromDataSource = _.find(_this.allUsers, function(user) {
+  var userFromDataSource = _this.allUsers.find(function(user) {
     /**
      * there could be users with null for Email
      */
@@ -3018,7 +3111,7 @@ DynamicList.prototype.sendComment = function(id, value) {
 
     _this.appendTempComment(id, value, guid, userFromDataSource);
 
-    if (typeof _.get(record, 'commentCount') === 'number') {
+    if (typeof NativeUtils.get(record, 'commentCount') === 'number') {
       record.commentCount++;
     }
 
@@ -3027,9 +3120,9 @@ DynamicList.prototype.sendComment = function(id, value) {
       record: record
     });
 
-    userName = _.compact(_.map(_this.data.userNameFields, function(name) {
+    userName = NativeUtils.compact(_this.data.userNameFields.map(function(name) {
       return _this.myUserData.isSaml2
-        ? _.get(userFromDataSource, 'data.' + name)
+        ? NativeUtils.get(userFromDataSource, 'data.' + name)
         : _this.myUserData[name];
     })).join(' ').trim();
 
@@ -3038,7 +3131,7 @@ DynamicList.prototype.sendComment = function(id, value) {
       user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
     };
 
-    _.assignIn(comment, { contentDataSourceEntryId: id });
+    Object.assign(comment, { contentDataSourceEntryId: id });
 
     var timestamp = (new Date()).toISOString();
 
@@ -3048,13 +3141,13 @@ DynamicList.prototype.sendComment = function(id, value) {
     var usersMentioned = [];
 
     if (mentions && mentions.length) {
-      var filteredUsers = _.filter(_this.usersToMention, function(userToMention) {
+      var filteredUsers = _this.usersToMention.filter(function(userToMention) {
         return mentions.indexOf('@' + userToMention.username) > -1;
       });
 
       if (filteredUsers && filteredUsers.length) {
         filteredUsers.forEach(function(filteredUser) {
-          var foundUser = _.find(_this.allUsers, function(user) {
+          var foundUser = _this.allUsers.find(function(user) {
             return user.id === filteredUser.id;
           });
 
@@ -3112,7 +3205,7 @@ DynamicList.prototype.sendComment = function(id, value) {
     // Reverses count if error occurs
     console.error(error);
 
-    if (_.get(record, 'commentCount')) {
+    if (NativeUtils.get(record, 'commentCount')) {
       record.commentCount--;
     }
 
@@ -3126,9 +3219,9 @@ DynamicList.prototype.sendComment = function(id, value) {
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
-  var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
+  var userName = NativeUtils.compact(_this.data.userNameFields.map(function(name) {
     return _this.myUserData.isSaml2
-      ? _.get(userFromDataSource, 'data.' + name)
+      ? NativeUtils.get(userFromDataSource, 'data.' + name)
       : _this.myUserData[name];
   })).join(' ').trim();
 
@@ -3152,8 +3245,8 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
-  var userName = _.compact(_.map(_this.data.userNameFields, function(name) {
-    return _.get(commentData, 'data.settings.user.' + name);
+  var userName = NativeUtils.compact(_this.data.userNameFields.map(function(name) {
+    return NativeUtils.get(commentData, 'data.settings.user.' + name);
   })).join(' ').trim();
 
   if (!commentData.literalDate) {
@@ -3211,7 +3304,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
   var entryId = _this.$container.find('.news-feed-details-content-holder').data('entry-id') || _this.entryClicked;
-  var entry = _.find(_this.listItems, { id: entryId });
+  var entry = _this.listItems.find(function(item) { return item.id === entryId; });
   var commentHolder = _this.$container.find('.fl-individual-comment[data-id="' + id + '"]');
   var options = {
     instance: _this,
@@ -3230,7 +3323,7 @@ DynamicList.prototype.deleteComment = function(id) {
     return Fliplet.DataSources.connect(_this.data.commentsDataSourceId).then(function(connection) {
       return connection.removeById(id, { ack: true });
     }).then(function onRemove() {
-      _.remove(entry.comments, { id: id });
+      NativeUtils.remove(entry.comments, function(comment) { return comment.id === id; });
       entry.commentCount--;
       _this.updateCommentCounter({
         id: entryId,
@@ -3249,15 +3342,15 @@ DynamicList.prototype.deleteComment = function(id) {
 
 DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   var _this = this;
-  var entry = _.find(_this.listItems, { id: entryId });
-  var entryComments = _.get(entry, 'comments', []);
-  var commentData = _.find(entryComments, { id: commentId });
+  var entry = _this.listItems.find(function(item) { return item.id === entryId; });
+  var entryComments = NativeUtils.get(entry, 'comments', []);
+  var commentData = entryComments.find(function(comment) { return comment.id === commentId; });
 
   if (!commentData) {
     return Promise.reject('Comment not found');
   }
 
-  var oldCommentData = _.clone(commentData);
+  var oldCommentData = NativeUtils.clone(commentData);
   var options = {
     instance: _this,
     config: _this.data,

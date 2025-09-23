@@ -1,3 +1,15 @@
+/**
+ * Dynamic List constructor for small-h-card layout
+ * Initializes a small horizontal card component with simplified functionality
+ *
+ * @constructor
+ * @param {string} id - The unique identifier for the dynamic list instance
+ * @param {Object} data - Configuration data for the dynamic list
+ * @param {string} data.layout - Layout type ('small-h-card')
+ * @param {Array} data.filterFields - Fields available for filtering
+ * @param {Array} data.searchFields - Fields available for searching
+ * @param {Object} data.advancedSettings - Advanced HTML template settings
+ */
 // Constructor
 function DynamicList(id, data) {
   var _this = this;
@@ -50,14 +62,14 @@ function DynamicList(id, data) {
   this.Utils.registerHandlebarsHelpers();
   // Get the current session data
   Fliplet.User.getCachedSession().then(function(session) {
-    if (_.get(session, 'entries.saml2.user')) {
-      _this.myUserData = _.get(session, 'entries.saml2.user');
+    if (NativeUtils.get(session, 'entries.saml2.user')) {
+      _this.myUserData = NativeUtils.get(session, 'entries.saml2.user');
       _this.myUserData[_this.data.userEmailColumn] = _this.myUserData.email;
       _this.myUserData.isSaml2 = true;
     }
 
-    if (_.get(session, 'entries.dataSource.data')) {
-      _.extend(_this.myUserData, _.get(session, 'entries.dataSource.data'));
+    if (NativeUtils.get(session, 'entries.dataSource.data')) {
+      NativeUtils.extend(_this.myUserData, NativeUtils.get(session, 'entries.dataSource.data'));
     }
 
     // Start running the Public functions
@@ -67,6 +79,11 @@ function DynamicList(id, data) {
 
 DynamicList.prototype.Utils = Fliplet.Registry.get('dynamicListUtils');
 
+/**
+ * Attaches all event listeners and observers for the small horizontal card list
+ * Sets up handlers for user interactions and navigation
+ * @returns {void}
+ */
 DynamicList.prototype.attachObservers = function() {
   var _this = this;
 
@@ -121,7 +138,7 @@ DynamicList.prototype.attachObservers = function() {
       if (typeof _this.data.beforeOpen === 'function') {
         beforeOpen = _this.data.beforeOpen({
           config: _this.data,
-          entry: _.find(_this.listItems, { id: entryId }),
+          entry: NativeUtils.find(_this.listItems, function(item) { return item.id === entryId; }),
           entryId: entryId,
           entryTitle: entryTitle,
           event: event
@@ -185,7 +202,6 @@ DynamicList.prototype.attachObservers = function() {
       event.stopPropagation();
 
       var result;
-      var id = _this.$container.find('.small-h-card-detail-wrapper[data-entry-id]').data('entry-id');
 
       _this.$container.find('.dynamic-list-add-item').removeClass('hidden');
 
@@ -230,7 +246,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.addEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.addEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -270,7 +286,7 @@ DynamicList.prototype.attachObservers = function() {
         return;
       }
 
-      if (!_.get(_this, 'data.editEntryLinkAction.page')) {
+      if (!NativeUtils.get(_this, 'data.editEntryLinkAction.page')) {
         Fliplet.UI.Toast({
           title: T('widgets.list.dynamic.notifications.noConfiguration.title'),
           message: T('widgets.list.dynamic.notifications.noConfiguration.message')
@@ -335,7 +351,7 @@ DynamicList.prototype.attachObservers = function() {
                   return _this.deleteEntry(entryID);
                 })
                 .then(function onRemove(entryId) {
-                  _.remove(_this.listItems, function(entry) {
+                  NativeUtils.remove(_this.listItems, function(entry) {
                     return entry.id === parseInt(entryId, 10);
                   });
 
@@ -387,6 +403,12 @@ DynamicList.prototype.attachObservers = function() {
     });
 };
 
+/**
+ * Deletes an entry from the data source
+ *
+ * @param {string|number} entryID - The ID of the entry to delete
+ * @returns {Promise<string|number>} Promise resolving to the deleted entry ID
+ */
 DynamicList.prototype.deleteEntry = function(entryID) {
   var _this = this;
 
@@ -397,6 +419,12 @@ DynamicList.prototype.deleteEntry = function(entryID) {
   });
 };
 
+/**
+ * Initializes the small horizontal card component
+ * Processes query parameters, loads data, renders templates, and sets up functionality
+ *
+ * @returns {Promise} Promise that resolves when initialization is complete
+ */
 DynamicList.prototype.initialize = function() {
   var _this = this;
   var shouldInitFromQuery = _this.parseQueryVars();
@@ -460,13 +488,13 @@ DynamicList.prototype.initialize = function() {
       records = _this.getPermissions(records);
 
       // Get user profile
-      if (!_.isEmpty(_this.myUserData)) {
+      if (!NativeUtils.isEmpty(_this.myUserData)) {
         // Create flag for current user
         records.forEach(function(record) {
           record.isCurrentUser = _this.Utils.Record.isCurrentUser(record, _this.data, _this.myUserData);
         });
 
-        _this.myProfileData = _.filter(records, function(row) {
+        _this.myProfileData = NativeUtils.filter(records, function(row) {
           return row.isCurrentUser;
         });
       }
@@ -489,7 +517,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(response) {
-      _this.listItems = _.uniqBy(response, function(item) {
+      _this.listItems = NativeUtils.uniqBy(response, function(item) {
         return item.id;
       });
 
@@ -517,10 +545,10 @@ DynamicList.prototype.checkIsToOpen = function() {
     return Promise.resolve();
   }
 
-  if (_.hasIn(_this.pvOpenQuery, 'id')) {
-    entry = _.find(_this.listItems, { id: _this.pvOpenQuery.id });
-  } else if (_.hasIn(_this.pvOpenQuery, 'value') && _.hasIn(_this.pvOpenQuery, 'column')) {
-    entry = _.find(_this.listItems, function(row) {
+  if (NativeUtils.hasIn(_this.pvOpenQuery, 'id')) {
+    entry = NativeUtils.find(_this.listItems, function(item) { return item.id === _this.pvOpenQuery.id; });
+  } else if (NativeUtils.hasIn(_this.pvOpenQuery, 'value') && NativeUtils.hasIn(_this.pvOpenQuery, 'column')) {
+    entry = NativeUtils.find(_this.listItems, function(row) {
       return row.data[_this.pvOpenQuery.column] === _this.pvOpenQuery.value;
     });
   }
@@ -561,12 +589,12 @@ DynamicList.prototype.parsePVQueryVars = function() {
 
       _this.pvPreviousScreen = value.previousScreen;
 
-      if (_.hasIn(value, 'prefilter')) {
+      if (NativeUtils.hasIn(value, 'prefilter')) {
         _this.queryPreFilter = true;
         _this.pvPreFilterQuery = value.prefilter;
       }
 
-      if (_.hasIn(value, 'open')) {
+      if (NativeUtils.hasIn(value, 'open')) {
         _this.queryOpen = true;
         _this.pvOpenQuery = value.open;
       }
@@ -603,10 +631,17 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.$container.html(template(data));
 };
 
+/**
+ * Processes records and adds summary data for small horizontal card rendering
+ * Maps record fields to display locations based on layout configuration
+ *
+ * @param {Array<Object>} records - Array of data records to process
+ * @returns {Array<Object>} Processed records with summary data for template rendering
+ */
 DynamicList.prototype.addSummaryData = function(records) {
   var _this = this;
   // Uses summary view settings set by users
-  var loopData = _.map(records, function(entry) {
+  var loopData = NativeUtils.map(records, function(entry) {
     var newObject = {
       id: entry.id,
       editEntry: entry.editEntry,
@@ -630,6 +665,13 @@ DynamicList.prototype.addSummaryData = function(records) {
   return loopData;
 };
 
+/**
+ * Renders the list items using incremental rendering
+ * Uses requestAnimationFrame for smooth rendering performance
+ *
+ * @param {Function} [iterateeCb] - Optional callback function called during rendering iterations
+ * @returns {Promise} Promise that resolves when rendering is complete
+ */
 DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   // Function that renders the List template
   var _this = this;
@@ -707,7 +749,7 @@ DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
   // Adds flag for Edit and Delete buttons
-  _.forEach(entries, function(entry) {
+  NativeUtils.forEach(entries, function(entry) {
     entry.editEntry = _this.Utils.Record.isEditable(entry, _this.data, _this.myUserData);
     entry.deleteEntry = _this.Utils.Record.isDeletable(entry, _this.data, _this.myUserData);
   });
@@ -715,19 +757,26 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 };
 
+/**
+ * Processes and adds detail view data to an entry
+ * Handles dynamic and static field mappings for detail overlay display
+ *
+ * @param {Object} entry - The entry object to add detail data to
+ * @returns {Object} Entry object with processed detail view data
+ */
 DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
-  if (_.isArray(entry.entryDetails) && entry.entryDetails.length) {
+  if (NativeUtils.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 
     return entry;
   }
 
-  var notDynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var notDynamicData = NativeUtils.filter(_this.data.detailViewOptions, function(option) {
     return !option.editable;
   });
-  var dynamicData = _.filter(_this.data.detailViewOptions, function(option) {
+  var dynamicData = NativeUtils.filter(_this.data.detailViewOptions, function(option) {
     return option.editable;
   });
 
@@ -803,10 +852,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   });
 
   if (_this.data.detailViewAutoUpdate) {
-    var savedColumns = _.map(dynamicData, 'data');
-    var extraColumns = _.difference(_this.dataSourceColumns, savedColumns);
+    var savedColumns = NativeUtils.map(dynamicData, 'data');
+    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns);
 
-    _.forEach(extraColumns, function(column) {
+    NativeUtils.forEach(extraColumns, function(column) {
       var newColumnData = {
         id: entry.id,
         content: entry.originalData[column],
@@ -822,10 +871,18 @@ DynamicList.prototype.addDetailViewData = function(entry) {
   return entry;
 };
 
+/**
+ * Shows the detail overlay for a specific entry
+ * Loads entry data, processes detail view configuration, and displays overlay
+ *
+ * @param {string|number} id - The ID of the entry to show details for
+ * @param {Array<Object>} [listData] - Optional array of list data to search in
+ * @returns {Promise} Promise that resolves when detail view is displayed
+ */
 DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
-  var entryData = _.find(listData || _this.modifiedListItems, { id: id });
+  var entryData = NativeUtils.find(listData || _this.modifiedListItems, function(item) { return item.id === id; });
   // Process template with data
   var entryId = { id: id };
   var wrapper = '<div class="small-h-card-detail-wrapper" data-entry-id="{{id}}"></div>';
@@ -849,12 +906,12 @@ DynamicList.prototype.showDetails = function(id, listData) {
       entryData = _this.addDetailViewData(entryData);
 
       if (files && Array.isArray(files)) {
-        _.forEach(files, function(file) {
+        NativeUtils.forEach(files, function(file) {
           if (!file) {
             return;
           }
 
-          var isFileAdded = !!_.find(entryData.entryDetails, { id: file.id });
+          var isFileAdded = !!NativeUtils.find(entryData.entryDetails, function(detail) { return detail.id === file.id; });
 
           if (!isFileAdded) {
             entryData.entryDetails.push(file);
@@ -923,6 +980,14 @@ DynamicList.prototype.showDetails = function(id, listData) {
     });
 };
 
+/**
+ * Closes the detail overlay and returns to list view
+ * Handles cleanup, focus management, and navigation context
+ *
+ * @param {Object} [options] - Close options
+ * @param {boolean} [options.focusOnEntry] - Whether to focus on the closed entry in the list
+ * @returns {void}
+ */
 DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
