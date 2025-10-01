@@ -559,15 +559,38 @@ window.NativeUtils = {
    * NativeUtils.pickBy({a: 1, b: 2, c: 3}, x => x > 1); // {b: 2, c: 3}
    */
   pickBy: function(obj, predicate) {
-    if (!obj || typeof obj !== 'object') {
+    if (obj === null || obj === undefined) {
       return {};
     }
+
+    // Convert to object if primitive
+    const source = Object(obj);
     const result = {};
-    for (let key in obj) {
-      if (obj.hasOwnProperty(key) && predicate(obj[key], key)) {
-        result[key] = obj[key];
+
+    // Handle null/undefined predicate
+    if (predicate === null || predicate === undefined) {
+      predicate = (value) => value;
+    }
+
+    // Get all enumerable properties including inherited ones
+    const keys = [];
+
+    // Use for...in to get all enumerable properties including inherited ones
+    for (const key in source) {
+      if (keys.indexOf(key) === -1) {
+        keys.push(key);
       }
     }
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = source[key];
+
+      if (predicate(value, key, source)) {
+        result[key] = value;
+      }
+    }
+
     return result;
   },
 
