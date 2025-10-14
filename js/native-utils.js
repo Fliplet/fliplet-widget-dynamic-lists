@@ -8,7 +8,7 @@ window.NativeUtils = {
    * Safely get a nested property from an object
    * Replacement for _.get()
    * @param {Object} object - The object to query
-   * @param {string|Array} path - The path to the property (dot notation string or array of keys)
+   * @param {string|Array|number} path - The path to the property (dot notation string, array of keys, or numeric key)
    * @param {*} [defaultValue] - The value returned if the path is not found
    * @returns {*} The resolved value or defaultValue
    * @description Safely retrieves a nested property value from an object using dot notation or array path
@@ -685,8 +685,8 @@ window.NativeUtils = {
    * Creates an array of elements, sorted in ascending or descending order by the results of running each element through an iteratee
    * Replacement for _.orderBy()
    * @param {Array|Object} collection - Collection to iterate over
-   * @param {Array|Function|string} iteratees - Iteratees to sort by
-   * @param {Array|string} orders - Sort orders ('asc' or 'desc')
+   * @param {Array|Function|string|number} iteratees - Iteratees (function or path: string|number|array). Arrays can also be arrays of iteratees.
+   * @param {Array<string>|string} orders - Sort orders ('asc' or 'desc')
    * @returns {Array} Returns the new sorted array
    */
   orderBy: function(collection, iteratees, orders) {
@@ -750,14 +750,14 @@ window.NativeUtils = {
       } else if (typeof iteratee === 'string' || typeof iteratee === 'number') {
         const path = iteratee;
 
-        return (value) => Utils.get(value, path);
+        return (value) => this.get(value, path);
       }
 
       if (Array.isArray(iteratee)) {
         // Handle nested array paths like [['address', 'zipCode']]
         const path = iteratee;
 
-        return (value) => Utils.get(value, path);
+        return (value) => this.get(value, path);
       }
 
       return (value) => value;
