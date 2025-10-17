@@ -7,8 +7,8 @@ window.NativeUtils = {
   /**
    * Safely get a nested property from an object
    * Replacement for _.get()
-   * @param {Object} obj - The object to query
-   * @param {string|Array} path - The path to the property (dot notation string or array of keys)
+   * @param {Object} object - The object to query
+   * @param {string|Array|number} path - The path to the property (dot notation string, array of keys, or numeric key)
    * @param {*} [defaultValue] - The value returned if the path is not found
    * @returns {*} The resolved value or defaultValue
    * @description Safely retrieves a nested property value from an object using dot notation or array path
@@ -17,19 +17,83 @@ window.NativeUtils = {
    * NativeUtils.get({a: {b: 2}}, ['a', 'b']); // 2
    * NativeUtils.get({a: {b: 2}}, 'a.c', 'default'); // 'default'
    */
-  get: function(obj, path, defaultValue) {
-    if (!obj || typeof obj !== 'object') {
+  get: function(object, path, defaultValue) {
+    // Handle null or undefined object
+    if (object === null || object === undefined) {
       return defaultValue;
     }
-    
-    const keys = Array.isArray(path) ? path : path.split('.');
-    let result = obj;
-    
-    for (let i = 0; i < keys.length; i++) {
-      if (result == null || typeof result !== 'object') {
+
+    // Handle empty array path - return default value if provided, otherwise undefined
+    if (Array.isArray(path) && path.length === 0) {
+      return defaultValue !== undefined ? defaultValue : undefined;
+    }
+
+    // Convert path to array if it's a string
+    let pathArray;
+
+    if (typeof path === 'string') {
+      // Check if the key exists as a direct property first (key over path behavior)
+      if (object.hasOwnProperty(path)) {
+        return object[path];
+      }
+
+      // Handle bracket notation like 'a[]' or 'a[1]'
+      if (path.includes('[') && path.includes(']')) {
+        // Split on brackets and handle empty brackets specially
+        const parts = path.split(/\[|\]/);
+
+        pathArray = [];
+
+        for (let i = 0; i < parts.length; i++) {
+          if (i % 2 === 0) {
+            // Even indices are the parts before brackets
+            if (parts[i] !== '') {
+              const dotParts = parts[i].split('.');
+
+              for (let j = 0; j < dotParts.length; j++) {
+                if (dotParts[j] !== '') {
+                  pathArray.push(dotParts[j]);
+                }
+              }
+            }
+          } else if (parts[i] === '') {
+            // Odd indices are the bracket contents - empty bracket means empty string key
+            pathArray.push('');
+          } else {
+            pathArray.push(parts[i]);
+          }
+        }
+      } else if (path === '') {
+        // Empty string should create a property with empty string key
+        pathArray = [''];
+      } else {
+        pathArray = path.split('.').filter(part => part !== '');
+      }
+    } else if (Array.isArray(path)) {
+      pathArray = path;
+    } else {
+      // Handle other types
+      pathArray = [path];
+    }
+
+    // If path array is empty, return undefined (like lodash baseGet)
+    if (pathArray.length === 0) {
+      return defaultValue !== undefined ? defaultValue : undefined;
+    }
+
+    // Navigate through the object using the path
+    let result = object;
+
+    for (let i = 0; i < pathArray.length; i++) {
+      const key = pathArray[i];
+
+      // If result is null or undefined, return default value
+      if (result === null || result === undefined) {
         return defaultValue;
       }
-      result = result[keys[i]];
+
+      // Get the value at the current key
+      result = result[key];
     }
     
     return result === undefined ? defaultValue : result;
@@ -618,40 +682,128 @@ window.NativeUtils = {
   },
 
   /**
-   * Sort array by multiple criteria
+   * Creates an array of elements, sorted in ascending or descending order by the results of running each element through an iteratee
    * Replacement for _.orderBy()
-   * @param {Array} array - The array to sort
-   * @param {Array} iteratees - The iteratees to sort by (functions or property paths)
-   * @param {Array} [orders] - The sort orders ('asc' or 'desc')
-   * @returns {Array} A new sorted array
-   * @description Creates a new array sorted by multiple criteria
-   * @example
-   * NativeUtils.orderBy([{a: 2, b: 1}, {a: 1, b: 2}], ['a', 'b'], ['asc', 'desc']);
-   * // [{a: 1, b: 2}, {a: 2, b: 1}]
+   * @param {Array|Object} collection - Collection to iterate over
+   * @param {Array|Function|string|number} iteratees - Iteratees (function or path: string|number|array). Arrays can also be arrays of iteratees.
+   * @param {Array<string>|string} orders - Sort orders ('asc' or 'desc')
+   * @returns {Array} Returns the new sorted array
    */
-  orderBy: function(array, iteratees, orders) {
-    if (!Array.isArray(array)) {
+  orderBy: function(collection, iteratees, orders) {
+    // Handle null/undefined collection
+    if (collection === null || collection === undefined) {
       return [];
     }
-    // Ensure iteratees is an array
-    if (!Array.isArray(iteratees)) {
-      iteratees = [iteratees];
+
+    // Handle non-array, non-object input (treat as empty)
+    if (!Array.isArray(collection) && (typeof collection !== 'object' || collection === null)) {
+      return [];
     }
 
-    const getters = iteratees.map(iter =>
-      typeof iter === 'function' ? iter : (item) => this.get(item, iter)
-    );
-    const directions = orders || iteratees.map(() => 'asc');
+    // Convert to array if it's an object
+    let array;
 
-    return [...array].sort((a, b) => {
-      for (let i = 0; i < getters.length; i++) {
-        const valueA = getters[i](a);
-        const valueB = getters[i](b);
-        const direction = directions[i] === 'desc' ? -1 : 1;
+    if (Array.isArray(collection)) {
+      array = collection.slice(); // Create a copy to avoid mutating original
+    } else {
+      // Handle objects - convert to array of values
+      array = [];
 
-        if (valueA < valueB) return -1 * direction;
-        if (valueA > valueB) return 1 * direction;
+      const keys = Object.keys(collection);
+
+      for (let i = 0; i < keys.length; i++) {
+        array.push(collection[keys[i]]);
       }
+    }
+
+    // Normalize iteratees parameter
+    let normalizedIteratees;
+
+    if (iteratees === null || iteratees === undefined) {
+      normalizedIteratees = [(value) => value];
+    } else if (!Array.isArray(iteratees)) {
+      normalizedIteratees = [iteratees];
+    } else {
+      normalizedIteratees = iteratees.slice();
+    }
+
+    // Normalize orders parameter
+    let normalizedOrders;
+
+    if (orders === null || orders === undefined) {
+      normalizedOrders = [];
+    } else if (!Array.isArray(orders)) {
+      normalizedOrders = [orders];
+    } else {
+      normalizedOrders = orders.slice();
+    }
+
+    // Fill missing orders with 'asc'
+    while (normalizedOrders.length < normalizedIteratees.length) {
+      normalizedOrders.push('asc');
+    }
+
+    // Convert iteratees to functions
+    const iterateeFunctions = normalizedIteratees.map(iteratee => {
+      if (typeof iteratee === 'function') {
+        return iteratee;
+      } else if (typeof iteratee === 'string' || typeof iteratee === 'number') {
+        const path = iteratee;
+
+        return (value) => this.get(value, path);
+      }
+
+      if (Array.isArray(iteratee)) {
+        // Handle nested array paths like [['address', 'zipCode']]
+        const path = iteratee;
+
+        return (value) => this.get(value, path);
+      }
+
+      return (value) => value;
+    });
+
+    // Sort the array
+    return array.sort((a, b) => {
+      for (let i = 0; i < iterateeFunctions.length; i++) {
+        const iterateeFunc = iterateeFunctions[i];
+        const order = String(normalizedOrders[i]).toLowerCase();
+        const isDesc = order === 'desc';
+
+        const aValue = iterateeFunc(a);
+        const bValue = iterateeFunc(b);
+
+        // Handle NaN values (move to end)
+        const aIsNaN = Number.isNaN(aValue);
+        const bIsNaN = Number.isNaN(bValue);
+
+        if (aIsNaN && bIsNaN) continue;
+        if (aIsNaN) return 1;
+        if (bIsNaN) return -1;
+
+        // Handle null/undefined values (move to end)
+        const aIsNullish = aValue === null || aValue === undefined;
+        const bIsNullish = bValue === null || bValue === undefined;
+
+        if (aIsNullish && bIsNullish) continue;
+        if (aIsNullish) return 1;
+        if (bIsNullish) return -1;
+
+        // Normal comparison
+        let comparison = 0;
+
+        if (aValue < bValue) {
+          comparison = -1;
+        } else if (aValue > bValue) {
+          comparison = 1;
+        }
+
+        // Apply order direction
+        if (comparison !== 0) {
+          return isDesc ? -comparison : comparison;
+        }
+      }
+
       return 0;
     });
   },
