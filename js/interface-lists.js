@@ -32,6 +32,12 @@ var editEntryLinkData = $.extend(true, {
   }
 }, widgetData.editEntryLinkAction, { action: 'screen' });
 
+/**
+ * Initializes the link providers for add and edit entry actions
+ * @description Sets up the link providers for adding and editing entries,
+ * handling interface validation and forwarding save requests
+ * @returns {void}
+ */
 function linkProviderInit() {
   linkAddEntryProvider = Fliplet.Widget.open('com.fliplet.link', {
     // If provided, the iframe will be appended here,
@@ -71,6 +77,15 @@ function linkProviderInit() {
   });
 }
 
+/**
+ * Initializes the file picker provider for user folder selection
+ * @description Sets up the file picker interface for selecting user folders,
+ * handles file selection events and updates the UI accordingly
+ * @param {Object} userFolder - The user folder configuration object
+ * @param {string} userFolder.id - The unique identifier for the user folder
+ * @param {Object} userFolder.folder - The folder configuration with selection settings
+ * @returns {void}
+ */
 function initUserFilePickerProvider(userFolder) {
   Fliplet.Widget.toggleSaveButton(userFolder.folder && userFolder.folder.selectFiles && userFolder.folder.selectFiles.length > 0);
   Fliplet.Studio.emit('widget-save-label-update', {
@@ -112,7 +127,7 @@ function initUserFilePickerProvider(userFolder) {
     userFolder.folder.selectFiles = data.data.length ? data.data : [];
     widgetData.userFolder = userFolder;
 
-    _.remove(filePickerPromises, { id: userFolder.folder.provId });
+    NativeUtils.remove(filePickerPromises, function(item) { return item.id === userFolder.folder.provId; });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
@@ -128,6 +143,16 @@ function initUserFilePickerProvider(userFolder) {
   filePickerPromises.push(providerFilePickerInstance);
 }
 
+/**
+ * Initializes the file picker provider for field-specific folder selection
+ * @description Sets up the file picker interface for selecting folders for specific fields,
+ * handles file selection events and updates widget data accordingly
+ * @param {Object} field - The field configuration object
+ * @param {string} field.id - The unique identifier for the field
+ * @param {Object} field.folder - The folder configuration with selection settings
+ * @param {string} field.from - The source of the field ('summary' or 'details')
+ * @returns {void}
+ */
 function initFilePickerProvider(field) {
   Fliplet.Widget.toggleSaveButton(field.folder && field.folder.selectFiles && field.folder.selectFiles.length > 0);
 
@@ -183,7 +208,7 @@ function initFilePickerProvider(field) {
       });
     }
 
-    _.remove(filePickerPromises, { id: field.folder.provId });
+    NativeUtils.remove(filePickerPromises, function(item) { return item.id === field.folder.provId; });
     Fliplet.Studio.emit('widget-save-label-update', {
       text: 'Save & Close'
     });
@@ -199,6 +224,12 @@ function initFilePickerProvider(field) {
   filePickerPromises.push(providerFilePickerInstance);
 }
 
+/**
+ * Initializes the widget interface and sets up the dynamic lists
+ * @description Main initialization function that sets up link providers,
+ * attaches event observers, creates dynamic lists instance, and configures data source provider
+ * @returns {void}
+ */
 function initialize() {
   linkProviderInit();
   attachObservers();
@@ -206,6 +237,13 @@ function initialize() {
   dataSourceProvider = Fliplet.Registry.get('datasource-provider');
 }
 
+/**
+ * Validates a form field value
+ * @description Checks if a value is valid for form submission, handling arrays,
+ * strings, and special cases like 'none' values
+ * @param {*} value - The value to validate (can be array, string, or other type)
+ * @returns {boolean} Returns true if the value is valid, false otherwise
+ */
 function validate(value) {
   // token field returns always an array with one element even if we didn't past any data in the field
   // that is why we are checking a value of the first element if no data past it will be an empty
@@ -220,6 +258,14 @@ function validate(value) {
   return false;
 }
 
+/**
+ * Toggles error state display for form elements
+ * @description Shows or hides error styling on form elements and their containers,
+ * handles special cases for token fields and panel styling
+ * @param {boolean} showError - Whether to show or hide the error state
+ * @param {string|Element} element - The element selector or DOM element to toggle error state on
+ * @returns {void}
+ */
 function toggleError(showError, element) {
   if (showError) {
     var $element = $(element);
@@ -243,6 +289,12 @@ function toggleError(showError, element) {
   $('.panel-danger').removeClass('panel-danger').addClass('panel-default');
 }
 
+/**
+ * Attaches event observers to the interface elements
+ * @description Sets up event listeners for file picker buttons, form changes,
+ * data source initialization, and form submission handling
+ * @returns {void}
+ */
 function attachObservers() {
   $(document)
     .on('click', '[data-file-picker-user]', function() {
@@ -256,7 +308,7 @@ function attachObservers() {
     })
     .on('click', '[data-file-picker-summary]', function() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = _.find(widgetData['summary-fields'], { id: fieldId });
+      var field = widgetData['summary-fields'].find(function(item) { return item.id === fieldId; });
 
       highlightError(selectedFieldId, true);
 
@@ -274,7 +326,7 @@ function attachObservers() {
     })
     .on('click', '[data-file-picker-details]', function() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = _.find(widgetData.detailViewOptions, { id: fieldId });
+      var field = widgetData.detailViewOptions.find(function(item) { return item.id === fieldId; });
 
       highlightError(selectedFieldId, true);
 
@@ -300,7 +352,7 @@ function attachObservers() {
           selectedFieldId.push(fieldId);
           break;
         case 'url':
-          selectedFieldId = _.filter(selectedFieldId, function(item) {
+          selectedFieldId = selectedFieldId.filter(function(item) {
             return item !== fieldId;
           });
           break;
@@ -315,7 +367,7 @@ function attachObservers() {
       var fieldIdInSelectedFields = selectedFieldId.indexOf(fieldId) !== -1;
 
       if (fieldName !== 'image' && fieldIdInSelectedFields) {
-        selectedFieldId = _.filter(selectedFieldId, function(item) {
+        selectedFieldId = selectedFieldId.filter(function(item) {
           // eslint-disable-next-line eqeqeq
           return item != fieldId;
         });
@@ -556,7 +608,7 @@ function attachObservers() {
             field: '#select_user_email'
           });
 
-          if (!widgetData.userNameFields || !_.filter(widgetData.userNameFields, function(name) { return name; }).length) {
+          if (!widgetData.userNameFields || !widgetData.userNameFields.filter(function(name) { return name; }).length) {
             errors.push('#user-name-column-fields-tokenfield');
           }
 
@@ -709,14 +761,28 @@ function attachObservers() {
       });
   });
 
+  /**
+   * Highlights or removes error styling from specified field IDs
+   * @description Toggles error highlighting for fields based on their IDs,
+   * used for image folder selection validation
+   * @param {string[]} fieldIds - Array of field IDs to highlight or unhighlight
+   * @param {boolean} showError - Whether to show or hide error highlighting
+   * @returns {void}
+   */
   function highlightError(fieldIds, showError) {
     var action = showError ? 'removeClass' : 'addClass';
 
-    _.each(fieldIds, function(id) {
+    fieldIds.forEach(function(id) {
       $('[data-field-id="' + id + '"] .text-danger')[action]('hidden');
     });
   }
 
+  /**
+   * Validates that all required image folders have been selected
+   * @description Checks if all fields requiring folder selection have proper folder configuration,
+   * highlights errors for missing selections
+   * @returns {boolean} Returns true if all required image folders are selected, false otherwise
+   */
   function validateImageFoldersSelection() {
     if (!widgetData['summary-fields']) {
       highlightError(selectedFieldId, true);
@@ -724,9 +790,9 @@ function attachObservers() {
       return selectedFieldId.length === 0;
     }
 
-    var totalArray = _.concat(widgetData.detailViewOptions, widgetData['summary-fields']);
-    var errorInputIds = _.filter(selectedFieldId, function(id) {
-      return !_.some(totalArray, function(item) {
+    var totalArray = [].concat(widgetData.detailViewOptions, widgetData['summary-fields']);
+    var errorInputIds = selectedFieldId.filter(function(id) {
+      return !totalArray.some(function(item) {
         return item.id === id && item.folder;
       });
     });
@@ -760,6 +826,13 @@ function attachObservers() {
   });
 }
 
+/**
+ * Saves the widget data and handles completion notification
+ * @description Saves the current widget configuration including link actions,
+ * and optionally notifies completion or reloads the widget instance
+ * @param {boolean} notifyComplete - Whether to notify completion and reload the page
+ * @returns {void}
+ */
 function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
