@@ -2094,7 +2094,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 
       if (obj.column === 'custom') {
         content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
-      } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
+      } else if (_this.data.filterFields.indexOf(obj.column) > -1 && obj.type !== 'html') {
         content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
       } else {
         content = entry.originalData[obj.column];
@@ -2142,7 +2142,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
     // Define content
     if (dynamicDataObj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(dynamicDataObj.customField)(entry.originalData));
-    } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1) {
+    } else if (_this.data.filterFields.indexOf(dynamicDataObj.column) > -1 && dynamicDataObj.type !== 'html') {
       content = _this.Utils.String.splitByCommas(entry.originalData[dynamicDataObj.column]).join(', ');
     } else {
       content = entry.originalData[dynamicDataObj.column];
