@@ -2547,7 +2547,7 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
     // Define content
     if (obj.customFieldEnabled) {
       content = new Handlebars.SafeString(Handlebars.compile(obj.customField)(entry.originalData));
-    } else if (_this.data.filterFields.indexOf(obj.column) > -1 && obj.type !== 'html') {
+    } else if (_this.data.filterFields.indexOf(obj.column) > -1) {
       content = _this.Utils.String.splitByCommas(entry.originalData[obj.column]).join(', ');
     } else {
       content = entry.originalData[obj.column];
