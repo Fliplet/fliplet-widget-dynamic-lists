@@ -17,8 +17,11 @@
   },
   "homepage": "https://github.com/Fliplet/fliplet-widget-dynamic-lists#readme",
   "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/eslint-parser": "^7.28.5",
+    "@stylistic/eslint-plugin-js": "^2.12.1",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.32.0",
-    "eslint-config-fliplet": "^1.0.8"
+    "eslint": "^8.57.0",
+    "eslint-config-fliplet": "^1.0.12"
   }
 }
