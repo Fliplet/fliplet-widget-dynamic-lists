@@ -26,24 +26,24 @@ Fliplet.Registry.set(
     var parsedNumbers = {};
 
     /**
-		 * Checks if a string is a valid image URL
-		 * @param {string} str - The string to validate
-		 * @returns {boolean} True if the string is a valid image URL, false otherwise
-		 */
+     * Checks if a string is a valid image URL
+     * @param {string} str - The string to validate
+     * @returns {boolean} True if the string is a valid image URL, false otherwise
+     */
     function isValidImageUrl(str) {
       return (
         Static.RegExp.httpUrl.test(str)
-				|| Static.RegExp.base64Image.test(str)
-				|| Static.RegExp.dataSourcesPath.test(str)
+        || Static.RegExp.base64Image.test(str)
+        || Static.RegExp.dataSourcesPath.test(str)
       );
     }
 
     /**
-		 * Intelligently parses a value to a float if it represents a valid number
-		 * Replaces lodash-based number parsing with native JavaScript
-		 * @param {*} value - The value to parse
-		 * @returns {number|*} The parsed float if valid, otherwise the original value
-		 */
+     * Intelligently parses a value to a float if it represents a valid number
+     * Replaces lodash-based number parsing with native JavaScript
+     * @param {*} value - The value to parse
+     * @returns {number|*} The parsed float if valid, otherwise the original value
+     */
     function smartParseFloat(value) {
       // Convert strings to numbers where possible so that
       // strings that represent numbers are compared as numbers
@@ -63,12 +63,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Comparator function for sorting files by name (case-insensitive)
-		 * Used with native Array.sort() method
-		 * @param {Object} a - First file object with name property
-		 * @param {Object} b - Second file object with name property
-		 * @returns {number} -1 if a < b, 1 if a > b, 0 if equal
-		 */
+     * Comparator function for sorting files by name (case-insensitive)
+     * Used with native Array.sort() method
+     * @param {Object} a - First file object with name property
+     * @param {Object} b - Second file object with name property
+     * @returns {number} -1 if a < b, 1 if a > b, 0 if equal
+     */
     function sortFilesByName(a, b) {
       var aFileName = a.name.toUpperCase();
       var bFileName = b.name.toUpperCase();
@@ -98,17 +98,17 @@ Fliplet.Registry.set(
             var label = '';
             var labelEnabled = true;
             var files
-							= typeof entry.originalData[
-							  detailViewFileOption.column
-							] === 'string'
-							  ? splitByCommas(
-							    entry.originalData[
-							      detailViewFileOption.column
-							    ]
-								  )
-							  : entry.originalData[
-							    detailViewFileOption.column
-								  ];
+              = typeof entry.originalData[
+                detailViewFileOption.column
+              ] === 'string'
+                ? splitByCommas(
+                  entry.originalData[
+                    detailViewFileOption.column
+                  ]
+                )
+                : entry.originalData[
+                  detailViewFileOption.column
+                ];
 
             if (!files) {
               return resolve();
@@ -139,7 +139,7 @@ Fliplet.Registry.set(
 
             var fileIDs = files.map(function(file) {
               var url
-								= typeof file === 'string' ? file : file.url;
+                = typeof file === 'string' ? file : file.url;
 
               return Fliplet.Media.getIdFromRemoteUrl(url);
             });
@@ -184,10 +184,10 @@ Fliplet.Registry.set(
       var filterFields = options.filterFields || [];
 
       var content
-				= field.column === 'custom'
-				  ? // Use custom template as provided
-					  Handlebars.compile(field.customField)(record.data)
-				  : record.data[field.column];
+        = field.column === 'custom'
+          ? // Use custom template as provided
+          Handlebars.compile(field.customField)(record.data)
+          : record.data[field.column];
 
       switch (field.type) {
         case 'image':
@@ -219,7 +219,7 @@ Fliplet.Registry.set(
       // undefined and null are skipped to avoid rendering them as strings
       if (
         !NativeUtils.isNil(content)
-				&& (field.column === 'custom' || field.type === 'html')
+        && (field.column === 'custom' || field.type === 'html')
       ) {
         content = new Handlebars.SafeString(content);
       }
@@ -228,14 +228,14 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * This function is preparing image original data to display images in the detail view
-		 *
-		 * @param {String | Array} content - content data that we get from originalData
-		 * @param {Boolean} isSummary - flag that show us from where this function was called
-		 * @returns {Object | String} in case isSummary is true then we will return only the first image URL.
-		 *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
-		 *  And 'imagesArray' {Array} to display multiple images in the detail view
-		 */
+     * This function is preparing image original data to display images in the detail view
+     *
+     * @param {String | Array} content - content data that we get from originalData
+     * @param {Boolean} isSummary - flag that show us from where this function was called
+     * @returns {Object | String} in case isSummary is true then we will return only the first image URL.
+     *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
+     *  And 'imagesArray' {Array} to display multiple images in the detail view
+     */
     function getImageContent(content, isSummary) {
       var imageContent;
       var imagesArray = [];
@@ -272,12 +272,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * This function adds selected LFD item's images to the layout context
-		 *
-		 * @param {Object} ctx - current layout context
-		 * @param {Object} entry - selected LFD entry
-		 * @return {void} this function doesn't return anything it commits modifications to layout context
-		 */
+     * This function adds selected LFD item's images to the layout context
+     *
+     * @param {Object} ctx - current layout context
+     * @param {Object} entry - selected LFD entry
+     * @return {void} this function doesn't return anything it commits modifications to layout context
+     */
     function assignImageContent(ctx, entry) {
       var dynamicData = ctx.data.detailViewOptions.filter(function(
         option
@@ -296,17 +296,17 @@ Fliplet.Registry.set(
           );
 
           ctx.imagesData[dynamicDataObj.id]
-						= imagesContentData.imagesData;
+            = imagesContentData.imagesData;
         }
       });
     }
 
     /**
-		 * Determine filter types based on configuration
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.instance - Instance of the layout
-		 * @returns {Object} A map of filter types
-		 */
+     * Determine filter types based on configuration
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.instance - Instance of the layout
+     * @returns {Object} A map of filter types
+     */
     function getFilterTypes(options) {
       options = options || {};
 
@@ -348,10 +348,10 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Sanitizes string by encoding HTML content
-		 * @param {String} str - String value to be sanitized
-		 * @returns {String} Sanitized HTML string
-		 */
+     * Sanitizes string by encoding HTML content
+     * @param {String} str - String value to be sanitized
+     * @returns {String} Sanitized HTML string
+     */
     function sanitizeHtml(str) {
       if (typeof str !== 'string') {
         return str;
@@ -441,27 +441,27 @@ Fliplet.Registry.set(
           function(match, p1, p2, p3, p4, p5, offset, string) {
             return Static.RegExp.linebreak.test(string)
               ? ' <a href="'
-									+ (typeof p1 !== 'undefined'
-									  ? p1
-									  : 'http://')
-									+ p3
-									+ (typeof p5 !== 'undefined' ? p5 : '')
-									+ '">'
-									+ (typeof p1 !== 'undefined' ? p1 : '')
-									+ p3
-									+ (typeof p5 !== 'undefined' ? p5 : '')
-									+ '</a><br>'
+                  + (typeof p1 !== 'undefined'
+                    ? p1
+                    : 'http://')
+                  + p3
+                  + (typeof p5 !== 'undefined' ? p5 : '')
+                  + '">'
+                  + (typeof p1 !== 'undefined' ? p1 : '')
+                  + p3
+                  + (typeof p5 !== 'undefined' ? p5 : '')
+                  + '</a><br>'
               : ' <a href="'
-									+ (typeof p1 !== 'undefined'
-									  ? p1
-									  : 'http://')
-									+ p3
-									+ (typeof p5 !== 'undefined' ? p5 : '')
-									+ '">'
-									+ (typeof p1 !== 'undefined' ? p1 : '')
-									+ p3
-									+ (typeof p5 !== 'undefined' ? p5 : '')
-									+ '</a>';
+                  + (typeof p1 !== 'undefined'
+                    ? p1
+                    : 'http://')
+                  + p3
+                  + (typeof p5 !== 'undefined' ? p5 : '')
+                  + '">'
+                  + (typeof p1 !== 'undefined' ? p1 : '')
+                  + p3
+                  + (typeof p5 !== 'undefined' ? p5 : '')
+                  + '</a>';
           }
         );
 
@@ -491,16 +491,16 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Splits a string by commas while preserving quoted values and nested arrays
-		 * Uses native Array.map(), Array.flat(), and Array.filter() methods
-		 * @param {string|Array|*} str - The string to split, or array to flatten, or other value
-		 * @param {boolean} [returnNilAsArray=true] - Whether to return null/undefined as empty array
-		 * @returns {Array} Array of split values, with nested arrays preserved
-		 * @example
-		 * splitByCommas('a,b,c') // ['a', 'b', 'c']
-		 * splitByCommas('a,"b,c",d') // ['a', 'b,c', 'd']
-		 * splitByCommas('a,[b,c],d') // ['a', ['b', 'c'], 'd']
-		 */
+     * Splits a string by commas while preserving quoted values and nested arrays
+     * Uses native Array.map(), Array.flat(), and Array.filter() methods
+     * @param {string|Array|*} str - The string to split, or array to flatten, or other value
+     * @param {boolean} [returnNilAsArray=true] - Whether to return null/undefined as empty array
+     * @returns {Array} Array of split values, with nested arrays preserved
+     * @example
+     * splitByCommas('a,b,c') // ['a', 'b', 'c']
+     * splitByCommas('a,"b,c",d') // ['a', 'b,c', 'd']
+     * splitByCommas('a,[b,c],d') // ['a', ['b', 'c'], 'd']
+     */
     function splitByCommas(str, returnNilAsArray) {
       if (str === undefined || str === null) {
         return returnNilAsArray === false ? str : [];
@@ -548,17 +548,17 @@ Fliplet.Registry.set(
         .filter(function(value) {
           return (
             Array.isArray(value)
-						|| [undefined, null, '', NaN].indexOf(value) === -1
+            || [undefined, null, '', NaN].indexOf(value) === -1
           );
         });
     }
 
     /**
-		 * Validates and processes image URLs, handling both single URLs and arrays
-		 * Uses native Array.map() method for array processing
-		 * @param {string|Array} url - URL string or array of URLs to validate
-		 * @returns {string|Array} Processed URL(s) with validation applied
-		 */
+     * Validates and processes image URLs, handling both single URLs and arrays
+     * Uses native Array.map() method for array processing
+     * @param {string|Array} url - URL string or array of URLs to validate
+     * @returns {string|Array} Processed URL(s) with validation applied
+     */
     function validateImageUrl(url) {
       if (Array.isArray(url)) {
         return url.map(function(val) {
@@ -573,7 +573,7 @@ Fliplet.Registry.set(
       // Validate thumbnail against URL and Base64 patterns
       if (
         !Static.RegExp.httpUrl.test(url)
-				&& !Static.RegExp.base64Image.test(url)
+        && !Static.RegExp.base64Image.test(url)
       ) {
         return url;
       }
@@ -582,12 +582,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Append a URL query with additional queries
-		 * Uses native Array.concat() and NativeUtils.compact() to replace lodash methods
-		 * @param {String} query Original query
-		 * @param {String} newQuery Additional query
-		 * @returns {String} Result query with both sets of queries
-		 */
+     * Append a URL query with additional queries
+     * Uses native Array.concat() and NativeUtils.compact() to replace lodash methods
+     * @param {String} query Original query
+     * @param {String} newQuery Additional query
+     * @returns {String} Result query with both sets of queries
+     */
     function appendUrlQuery(query, newQuery) {
       var queryParts = [].concat(
         // Replace ? with & to avoid multiple ? characters
@@ -599,11 +599,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Creates a moment.js date object from various input types
-		 * Uses NativeUtils.get() to safely access object properties
-		 * @param {*} date - Input date (can be moment object, Date object, string, or null)
-		 * @returns {Object} Moment.js date object
-		 */
+     * Creates a moment.js date object from various input types
+     * Uses NativeUtils.get() to safely access object properties
+     * @param {*} date - Input date (can be moment object, Date object, string, or null)
+     * @returns {Object} Moment.js date object
+     */
     function getMomentDate(date) {
       if (!date) {
         return moment();
@@ -634,7 +634,7 @@ Fliplet.Registry.set(
         /* eslint-disable-next-line no-console */
         console.warn(
           'Date input is not provided in ISO format. This may create inconsistency in the app. We recommend ensuring the date is formatted in ISO format, e.g. '
-						+ new Date().toISOString().substr(0, 10)
+            + new Date().toISOString().substr(0, 10)
         );
         isoDateWarningIssued = true;
       }
@@ -643,21 +643,21 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Checks if the value is a valid date string in YYYY-MM-DD format
-		 * @param {String} value - Date string
-		 * @returns {Boolean} Returns TRUE if the date is a valid date string
-		 */
+     * Checks if the value is a valid date string in YYYY-MM-DD format
+     * @param {String} value - Date string
+     * @returns {Boolean} Returns TRUE if the date is a valid date string
+     */
     function isValidDate(value) {
       return value.match(Static.RegExp.date) && moment(value).isValid();
     }
 
     /**
-		 * Validate filter queries
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.query - Filter queries
-		 * @param {Object} options.filterTypes - A map of filter types
-		 * @returns {undefined}
-		 */
+     * Validate filter queries
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.query - Filter queries
+     * @param {Object} options.filterTypes - A map of filter types
+     * @returns {undefined}
+     */
     function validateFilterQueries(options) {
       options = options || {};
 
@@ -733,12 +733,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Generate a list of jQuery selectors for the filter elements based on the filter query
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.query - Filter queries
-		 * @param {Object} options.filterTypes - A map of filter types
-		 * @returns {Array} A list of jQuery selectors
-		 */
+     * Generate a list of jQuery selectors for the filter elements based on the filter query
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.query - Filter queries
+     * @param {Object} options.filterTypes - A map of filter types
+     * @returns {Array} A list of jQuery selectors
+     */
     function getFilterQuerySelectors(options) {
       options = options || {};
 
@@ -764,10 +764,10 @@ Fliplet.Registry.set(
         if (['date', 'number'].indexOf(type) > -1) {
           selectors.push(
             '.hidden-filter-controls-filter[data-field="'
-							+ field
-							+ '"][data-type="'
-							+ type
-							+ '"]'
+              + field
+              + '"][data-type="'
+              + type
+              + '"]'
           );
 
           return;
@@ -776,10 +776,10 @@ Fliplet.Registry.set(
         query.value[index].forEach(function(value) {
           selectors.push(
             '.hidden-filter-controls-filter[data-field="'
-							+ field
-							+ '"][data-value="'
-							+ value
-							+ '"]'
+              + field
+              + '"][data-value="'
+              + value
+              + '"]'
           );
         });
       });
@@ -788,17 +788,17 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Update the number of selected filters
-		 * @param {Object} options - A map of options for the function
-		 * @param {Boolean} options.filtersInOverlay - If TRUE, filters are displayed in an overlay
-		 * @param {jQuery} options.$target - jQuery instance on which user has pressed
-		 * @returns {undefined}
-		 */
+     * Update the number of selected filters
+     * @param {Object} options - A map of options for the function
+     * @param {Boolean} options.filtersInOverlay - If TRUE, filters are displayed in an overlay
+     * @param {jQuery} options.$target - jQuery instance on which user has pressed
+     * @returns {undefined}
+     */
     function updateActiveFilterCount(options) {
       if (
         !options.filtersInOverlay
-				|| !options.$target
-				|| !options.$target.length
+        || !options.$target
+        || !options.$target.length
       ) {
         return;
       }
@@ -818,11 +818,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Gets the active filters
-		 * @param {Object} options - A map of options for the function
-		 * @param {jQuery} options.$container - Container node for the layout instance
-		 * @returns {Object} Active filters
-		 */
+     * Gets the active filters
+     * @param {Object} options - A map of options for the function
+     * @param {jQuery} options.$container - Container node for the layout instance
+     * @returns {Object} Active filters
+     */
     function getActiveFilters(options) {
       options = options || {};
 
@@ -845,7 +845,7 @@ Fliplet.Registry.set(
         .mapValues(function(filters) {
           return filters.map(function(filter) {
             return NativeUtils.has(filter, 'field')
-							&& NativeUtils.has(filter, 'value')
+              && NativeUtils.has(filter, 'value')
               ? filter.value
               : filter.class;
           });
@@ -888,7 +888,7 @@ Fliplet.Registry.set(
             ? values.sort()
             : values.sort(function(a, b) {
               return a - b;
-						  });
+            });
         })
         .value();
 
@@ -909,12 +909,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Process changes in filter ranges. This should be triggered whenever a filter range is updated.
-		 * @param {Object} options - A map of options for the function
-		 * @param {*} value - New value for the updated filter
-		 * @param {*} instance - Instance of the layout
-		 * @returns {undefined}
-		 */
+     * Process changes in filter ranges. This should be triggered whenever a filter range is updated.
+     * @param {Object} options - A map of options for the function
+     * @param {*} value - New value for the updated filter
+     * @param {*} instance - Instance of the layout
+     * @returns {undefined}
+     */
     function onFilterRangeChange(options) {
       options = options || {};
 
@@ -943,9 +943,9 @@ Fliplet.Registry.set(
       var toValue = $to && $to.get();
 
       var valuesAreValid
-				= type === 'number'
-				  ? !isNaN(fromValue) && !isNaN(toValue)
-				  : fromValue && toValue;
+        = type === 'number'
+          ? !isNaN(fromValue) && !isNaN(toValue)
+          : fromValue && toValue;
 
       // Validate range values to ensure FROM is not greater than TO
       if (valuesAreValid && fromValue > toValue) {
@@ -967,12 +967,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Renders filters and initializes range filter UI
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.instance - Instance of the layout
-		 * @param {String} options.html - Filter HTML
-		 * @returns {undefined}
-		 */
+     * Renders filters and initializes range filter UI
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.instance - Instance of the layout
+     * @param {String} options.html - Filter HTML
+     * @returns {undefined}
+     */
     function renderFilters(options) {
       options = options || {};
 
@@ -1032,11 +1032,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Clears filters and re-render data
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.instance - Instance of the layout
-		 * @returns {undefined}
-		 */
+     * Clears filters and re-render data
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.instance - Instance of the layout
+     * @returns {undefined}
+     */
     function clearFilters(options) {
       options = options || {};
 
@@ -1068,11 +1068,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Process the filter queries and prepare the filter UI accordingly
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.instance - Instance of the layout
-		 * @returns {undefined}
-		 */
+     * Process the filter queries and prepare the filter UI accordingly
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.instance - Instance of the layout
+     * @returns {undefined}
+     */
     function parseFilterQueries(options) {
       options = options || {};
 
@@ -1200,11 +1200,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Determines why pre-filters are applied client-side instead of using data source query
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.config - Configuration settings for the instance
-		 * @returns {Array} A list of reasons
-		 */
+     * Determines why pre-filters are applied client-side instead of using data source query
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.config - Configuration settings for the instance
+     * @returns {Array} A list of reasons
+     */
     function getQueryAllReasons(options) {
       options = options || {};
 
@@ -1241,34 +1241,34 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Determines if data source API request needs to apply query data
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.config - Configuration settings for the instance
-		 * @returns {Boolean} Returns TRUE if data source query needs to apply query data
-		 */
+     * Determines if data source API request needs to apply query data
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.config - Configuration settings for the instance
+     * @returns {Boolean} Returns TRUE if data source query needs to apply query data
+     */
     function needsApiQueryData(options) {
       return !getQueryAllReasons(options).length;
     }
 
     /**
-		 * Check that a filter configuration is a date typed filter
-		 * @param {Object} filter - Filter configuration
-		 * @returns {Boolean} Returns TRUE of the filter condition is a date condition logic
-		 */
+     * Check that a filter configuration is a date typed filter
+     * @param {Object} filter - Filter configuration
+     * @returns {Boolean} Returns TRUE of the filter condition is a date condition logic
+     */
     function filterIsDateCondition(filter) {
       return (
         filter
-				&& ['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(
-				  filter.condition
-				) > -1
+        && ['dateis', 'datebefore', 'dateafter', 'datebetween'].indexOf(
+          filter.condition
+        ) > -1
       );
     }
 
     /**
-		 * Returns filter data that's unique to date filter conditions
-		 * @param {Object} filter - Filter configuration
-		 * @returns {Object} - Additional date filter data
-		 */
+     * Returns filter data that's unique to date filter conditions
+     * @param {Object} filter - Filter configuration
+     * @returns {Object} - Additional date filter data
+     */
     function getDateFilterData(filter) {
       filter = filter || {};
 
@@ -1286,7 +1286,7 @@ Fliplet.Registry.set(
         ? moment.tz(moment().format(DATETIME_LOCAL_FORMAT), 'UTC')
         : moment.utc();
       var adjustedDatePattern
-				= /^(now|today)(add|subtract|plus|minus)(second|minute|hour|day|month|week|year)s?$/i;
+        = /^(now|today)(add|subtract|plus|minus)(second|minute|hour|day|month|week|year)s?$/i;
       var dateAdjustParts = filter.value.match(adjustedDatePattern);
       var offsetUnit = dateAdjustParts && dateAdjustParts[3];
 
@@ -1328,12 +1328,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Computes the query data object based on pre-filter settings
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.config - Configuration settings for the instance
-		 * @param {Array} [options.filterQueries] - Filters set using query parameters
-		 * @returns {Object} Query data to be passed to data source queries
-		 */
+     * Computes the query data object based on pre-filter settings
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.config - Configuration settings for the instance
+     * @param {Array} [options.filterQueries] - Filters set using query parameters
+     * @returns {Object} Query data to be passed to data source queries
+     */
     function getQueryData(options) {
       options = options || {};
 
@@ -1409,36 +1409,36 @@ Fliplet.Registry.set(
           where: {
             $filters: filters
           }
-				  }
+        }
         : undefined;
     }
 
     /**
-		 * Removes commonly used symbols from text for string matching
-		 * @param {*} str - Input value to process (will be converted to string)
-		 * @returns {string} String with symbols removed
-		 */
+     * Removes commonly used symbols from text for string matching
+     * @param {*} str - Input value to process (will be converted to string)
+     * @returns {string} String with symbols removed
+     */
     function removeSymbols(str) {
       // Remove commonly used symbols in text that should be ignored for string matching
       return ('' + str).replace(/[&\/\\#+()$~%.`'‘’"“”:*?<>{}]+/g, '');
     }
 
     /**
-		 * Normalizes strings for search operations by removing HTML, entities, and symbols
-		 * @param {*} str - Input value to normalize (will be converted to string)
-		 * @returns {string} Normalized string ready for search matching
-		 */
+     * Normalizes strings for search operations by removing HTML, entities, and symbols
+     * @param {*} str - Input value to normalize (will be converted to string)
+     * @returns {string} Normalized string ready for search matching
+     */
     function normalizeStringForSearch(str) {
       var htmlTagPattern = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
 
       // Remove HTML entities
       str
-				= typeof str === 'string'
-				  ? str.replace(
-				    /&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/gi,
-				    ''
-					  )
-				  : str + '';
+        = typeof str === 'string'
+          ? str.replace(
+            /&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/gi,
+            ''
+          )
+          : str + '';
 
       // Attempt to strip HTML if any potential HTML tag is detected
       str = str.replace(htmlTagPattern, ' ');
@@ -1453,12 +1453,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Recursively checks if a record contains a search value
-		 * Uses native Array.some() and Object.values() methods
-		 * @param {*} record - Record to search within (can be object, array, or primitive)
-		 * @param {string} value - Search value to look for
-		 * @returns {boolean} True if record contains the value, false otherwise
-		 */
+     * Recursively checks if a record contains a search value
+     * Uses native Array.some() and Object.values() methods
+     * @param {*} record - Record to search within (can be object, array, or primitive)
+     * @param {string} value - Search value to look for
+     * @returns {boolean} True if record contains the value, false otherwise
+     */
     function recordContains(record, value) {
       if (NativeUtils.isNil(record)) {
         return false;
@@ -1491,7 +1491,7 @@ Fliplet.Registry.set(
     function recordIsEditable(record, config, userData) {
       if (
         NativeUtils.isNil(config.editEntry)
-				|| NativeUtils.isNil(config.editPermissions)
+        || NativeUtils.isNil(config.editPermissions)
       ) {
         return false;
       }
@@ -1508,7 +1508,7 @@ Fliplet.Registry.set(
         case 'users-admins':
           return (
             recordIsCurrentUser(record, config, userData)
-						|| userIsAdmin(config, userData)
+            || userIsAdmin(config, userData)
           );
         case 'admins':
           return userIsAdmin(config, userData);
@@ -1520,15 +1520,15 @@ Fliplet.Registry.set(
     function isExecute(event) {
       return (
         event.which === 13
-				|| event.which === 32
-				|| event.type === 'click'
+        || event.which === 32
+        || event.type === 'click'
       );
     }
 
     function recordIsDeletable(record, config, userData) {
       if (
         NativeUtils.isNil(config.deleteEntry)
-				|| NativeUtils.isNil(config.deletePermissions)
+        || NativeUtils.isNil(config.deletePermissions)
       ) {
         return false;
       }
@@ -1545,7 +1545,7 @@ Fliplet.Registry.set(
         case 'users-admins':
           return (
             recordIsCurrentUser(record, config, userData)
-						|| userIsAdmin(config, userData)
+            || userIsAdmin(config, userData)
           );
         case 'admins':
           return userIsAdmin(config, userData);
@@ -1570,8 +1570,8 @@ Fliplet.Registry.set(
       );
       var screenCenter = Math.floor($('body').innerWidth() / 2);
       var rightPosition
-				= screenCenter
-				- (halfListWrapperWidth + elementSpace + addButtonWidth);
+        = screenCenter
+        - (halfListWrapperWidth + elementSpace + addButtonWidth);
 
       $addButton.css('right', rightPosition);
     }
@@ -1795,22 +1795,22 @@ Fliplet.Registry.set(
 
       if (offsetType !== 'now' && offsetType.indexOf('now') !== -1) {
         currentDate[offsetType]
-					= offsetType.indexOf('add') !== -1
-					  ? getDate()
-					    .add(period, smartParseFloat(offsetValue))
-					    .startOf('minute')
-					  : getDate()
-					    .subtract(period, smartParseFloat(offsetValue))
-					    .startOf('minute');
+          = offsetType.indexOf('add') !== -1
+            ? getDate()
+              .add(period, smartParseFloat(offsetValue))
+              .startOf('minute')
+            : getDate()
+              .subtract(period, smartParseFloat(offsetValue))
+              .startOf('minute');
       } else if (offsetType.indexOf('today') !== -1) {
         currentDate[offsetType]
-					= offsetType.indexOf('add') !== -1
-					  ? moment()
-					    .add(period, smartParseFloat(offsetValue))
-					    .startOf('day')
-					  : moment()
-					    .subtract(period, smartParseFloat(offsetValue))
-					    .startOf('day');
+          = offsetType.indexOf('add') !== -1
+            ? moment()
+              .add(period, smartParseFloat(offsetValue))
+              .startOf('day')
+            : moment()
+              .subtract(period, smartParseFloat(offsetValue))
+              .startOf('day');
       }
 
       return currentDate[offsetType];
@@ -1845,33 +1845,33 @@ Fliplet.Registry.set(
             var comparisonDateFrom = getDateModifiedValues({
               date: options.date,
               dateFilterModifiers:
-								options.dateFilterModifiers.from.value,
+                options.dateFilterModifiers.from.value,
               offsetValue:
-								options.dateFilterModifiers.from.offset,
+                options.dateFilterModifiers.from.offset,
               useDeviceTimezone:
-								options.dateFilterModifiers.from
-								  .useDeviceTimezone
+                options.dateFilterModifiers.from
+                  .useDeviceTimezone
             }).comparisonDate;
 
             var comparisonDateTo = getDateModifiedValues({
               date: options.date,
               dateFilterModifiers:
-								options.dateFilterModifiers.to.value,
+                options.dateFilterModifiers.to.value,
               offsetValue: options.dateFilterModifiers.to.offset,
               useDeviceTimezone:
-								options.dateFilterModifiers.to
-								  .useDeviceTimezone
+                options.dateFilterModifiers.to
+                  .useDeviceTimezone
             }).comparisonDate;
 
             var entryDate = getDateModifiedValues({
               date: options.date,
               dateFilterModifiers:
-								options.dateFilterModifiers.from.value,
+                options.dateFilterModifiers.from.value,
               offsetValue:
-								options.dateFilterModifiers.from.offset,
+                options.dateFilterModifiers.from.offset,
               useDeviceTimezone:
-								options.dateFilterModifiers.from
-								  .useDeviceTimezone
+                options.dateFilterModifiers.from
+                  .useDeviceTimezone
             }).entryDate;
 
             return moment(entryDate).isBetween(
@@ -1887,11 +1887,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Connect to data source and retrieves data
-		 * @param {Object} connectionOptions - Connection options for connecting to the data source
-		 * @param {Object} options - A mapping of options for this function
-		 * @returns {Promise} Promise resolves when data is retrieved
-		 */
+     * Connect to data source and retrieves data
+     * @param {Object} connectionOptions - Connection options for connecting to the data source
+     * @param {Object} options - A mapping of options for this function
+     * @returns {Promise} Promise resolves when data is retrieved
+     */
     function getDataFromDataSource(connectionOptions, options) {
       connectionOptions = connectionOptions || { offline: true };
       options = options || {};
@@ -1950,10 +1950,10 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Load data for the list
-		 * @param {Object} options - A mapping of options for this function
-		 * @returns {Promise} Promise resolves when data is loaded
-		 */
+     * Load data for the list
+     * @param {Object} options - A mapping of options for this function
+     * @returns {Promise} Promise resolves when data is loaded
+     */
     function loadData(options) {
       options = options || {};
 
@@ -1997,12 +1997,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Filters records based on provided filter criteria
-		 * Uses native Array.filter() method
-		 * @param {Array} records - Array of records to filter
-		 * @param {Array} filters - Array of filter objects with criteria
-		 * @returns {Array} Filtered array of records
-		 */
+     * Filters records based on provided filter criteria
+     * Uses native Array.filter() method
+     * @param {Array} records - Array of records to filter
+     * @param {Array} filters - Array of filter objects with criteria
+     * @returns {Array} Filtered array of records
+     */
     function runRecordFilters(records, filters) {
       if (!filters || NativeUtils.isEmpty(filters)) {
         return records;
@@ -2047,26 +2047,26 @@ Fliplet.Registry.set(
           if (condition === 'empty') {
             return (
               NativeUtils.isEmpty(rowData)
-							&& !NativeUtils.isFinite(rowData)
-							&& typeof rowData !== 'boolean'
+              && !NativeUtils.isFinite(rowData)
+              && typeof rowData !== 'boolean'
             );
           }
 
           if (condition === 'notempty') {
             return (
               !NativeUtils.isEmpty(rowData)
-							|| NativeUtils.isFinite(rowData)
-							|| typeof rowData === 'boolean'
+              || NativeUtils.isFinite(rowData)
+              || typeof rowData === 'boolean'
             );
           }
 
           if (condition === 'between') {
             return (
               rowData
-								>= smartParseFloat(filter.value.from.trim())
-							&& rowData
-								<= (smartParseFloat(filter.value.to.trim())
-									|| rowData)
+                >= smartParseFloat(filter.value.from.trim())
+              && rowData
+                <= (smartParseFloat(filter.value.to.trim())
+                  || rowData)
             );
           }
 
@@ -2077,10 +2077,10 @@ Fliplet.Registry.set(
 
             return (
               splittedFilterValue.includes(rowData)
-							|| !!NativeUtils.intersection(
-							  splittedFilterValue,
-							  splittedRowData
-							).length
+              || !!NativeUtils.intersection(
+                splittedFilterValue,
+                splittedRowData
+              ).length
             );
           }
 
@@ -2122,14 +2122,14 @@ Fliplet.Registry.set(
             case 'contains':
               return (
                 rowData !== null
-								&& typeof rowData !== 'undefined'
-								&& rowData.indexOf(filter.value) > -1
+                && typeof rowData !== 'undefined'
+                && rowData.indexOf(filter.value) > -1
               );
             case 'notcontain':
               return (
                 rowData !== null
-								&& typeof rowData !== 'undefined'
-								&& rowData.indexOf(filter.value) === -1
+                && typeof rowData !== 'undefined'
+                && rowData.indexOf(filter.value) === -1
               );
             case 'regex':
               var pattern = new RegExp(filter.value, 'gi');
@@ -2145,14 +2145,14 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Searches records based on search criteria
-		 * Uses native Array.filter() and string search methods
-		 * @param {Object} options - Search configuration options
-		 * @param {Array} options.records - Array of records to search
-		 * @param {string} options.searchValue - Search term to look for
-		 * @param {Array} [options.searchFields] - Specific fields to search within
-		 * @returns {Array} Array of records matching search criteria
-		 */
+     * Searches records based on search criteria
+     * Uses native Array.filter() and string search methods
+     * @param {Object} options - Search configuration options
+     * @param {Array} options.records - Array of records to search
+     * @param {string} options.searchValue - Search term to look for
+     * @param {Array} [options.searchFields] - Specific fields to search within
+     * @returns {Array} Array of records matching search criteria
+     */
     function runRecordSearch(options) {
       options = options || {};
 
@@ -2163,8 +2163,8 @@ Fliplet.Registry.set(
       var activeFilters = options.activeFilters || {};
       var filterTypes = options.filterTypes || {};
       var showBookmarks
-				= NativeUtils.get(config, 'social.bookmark')
-				&& options.showBookmarks;
+        = NativeUtils.get(config, 'social.bookmark')
+        && options.showBookmarks;
       var limit = NativeUtils.get(options, 'limit', -1);
 
       if (!Array.isArray(fields)) {
@@ -2322,10 +2322,10 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Parse and cache values into date objects
-		 * @param {*} value - Input to be parsed into moment objects
-		 * @returns {moment} Parsed moment object
-		 */
+     * Parse and cache values into date objects
+     * @param {*} value - Input to be parsed into moment objects
+     * @returns {moment} Parsed moment object
+     */
     function parseDate(value) {
       if (typeof parsedDates[value] === 'undefined') {
         parsedDates[value] = moment(value);
@@ -2335,10 +2335,10 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Parse and cache values into numbers
-		 * @param {*} value - Input to be parsed into numbers
-		 * @returns {Number} Parsed number value
-		 */
+     * Parse and cache values into numbers
+     * @param {*} value - Input to be parsed into numbers
+     * @returns {Number} Parsed number value
+     */
     function parseNumber(value) {
       if (typeof parsedNumbers[value] === 'undefined') {
         parsedNumbers[value] = Fliplet.parseNumber(value, true);
@@ -2385,12 +2385,12 @@ Fliplet.Registry.set(
 
               return (
                 date.isValid()
-								&& date.isBetween(
-								  filters[field][0],
-								  filters[field][1],
-								  undefined,
-								  '[]'
-								)
+                && date.isBetween(
+                  filters[field][0],
+                  filters[field][1],
+                  undefined,
+                  '[]'
+                )
               );
             }
           );
@@ -2408,8 +2408,8 @@ Fliplet.Registry.set(
 
               return (
                 !isNaN(value)
-								&& value >= filters[field][0]
-								&& value <= filters[field][1]
+                && value >= filters[field][0]
+                && value <= filters[field][1]
               );
             }
           );
@@ -2460,12 +2460,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Extracts field values from records for filter generation
-		 * Uses native Array.map() and NativeUtils.zipObject() and NativeUtils.uniq() methods
-		 * @param {Array} records - Array of data records
-		 * @param {string|Array} fields - Field name or array of field names to extract values for
-		 * @returns {Object} Object mapping field names to arrays of unique values
-		 */
+     * Extracts field values from records for filter generation
+     * Uses native Array.map() and NativeUtils.zipObject() and NativeUtils.uniq() methods
+     * @param {Array} records - Array of data records
+     * @param {string|Array} fields - Field name or array of field names to extract values for
+     * @returns {Object} Object mapping field names to arrays of unique values
+     */
     function getRecordFieldValues(records, fields) {
       // Extract a list of filter values based on a list of records and filter fields
       if (NativeUtils.isUndefined(fields) || NativeUtils.isNull(fields)) {
@@ -2491,11 +2491,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Gets the minimum and maximum values from a list of filter values
-		 * Uses native Array.reduce() method to replace lodash min/max functions
-		 * @param {Array} values - List of filter values with data.value properties
-		 * @returns {Object} Object with min and max properties, or empty object if no values
-		 */
+     * Gets the minimum and maximum values from a list of filter values
+     * Uses native Array.reduce() method to replace lodash min/max functions
+     * @param {Array} values - List of filter values with data.value properties
+     * @returns {Object} Object with min and max properties, or empty object if no values
+     */
     function getMinMaxFilterValues(values) {
       var min = values.reduce(function(min, value) {
         return min === null || value.data.value < min.data.value
@@ -2518,14 +2518,14 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Takes the list of data records and the page query parameter to return a list of filter and filter options to render
-		 * @param {Object} options - A mapping of options for this function
-		 * @param {Object[]} options.records - Records from which to derive the filter values
-		 * @param {Object[]} options.filters - List of filters configured by the user
-		 * @param {Number} options.id - Widget instance ID
-		 * @param {Object} [options.query] - Filter query found in the page URL
-		 * @returns {Object[]} An array of filters and possible values, ready to be rendered through Handlebars template
-		 */
+     * Takes the list of data records and the page query parameter to return a list of filter and filter options to render
+     * @param {Object} options - A mapping of options for this function
+     * @param {Object[]} options.records - Records from which to derive the filter values
+     * @param {Object[]} options.filters - List of filters configured by the user
+     * @param {Number} options.id - Widget instance ID
+     * @param {Object} [options.query] - Filter query found in the page URL
+     * @returns {Object[]} An array of filters and possible values, ready to be rendered through Handlebars template
+     */
     function parseRecordFilters(options) {
       // NOTE: Do not change signature and behavior of function
       // because it could be used by legacy customized layout script
@@ -2586,7 +2586,7 @@ Fliplet.Registry.set(
         .map(function(record) {
           return (
             (record.data && record.data.flFilters)
-						|| record.flFilters
+            || record.flFilters
           );
         })
         .flatten()
@@ -2627,7 +2627,7 @@ Fliplet.Registry.set(
               // If min/max values can't be found, render the filter as a toggle
               if (
                 !NativeUtils.has(filter, 'min')
-								|| !NativeUtils.has(filter, 'max')
+                || !NativeUtils.has(filter, 'max')
               ) {
                 filterTypes[field] = 'toggle';
                 filter.type = 'toggle';
@@ -2710,7 +2710,7 @@ Fliplet.Registry.set(
         // Avoid splitting values by comma if the field is used as a date/number filter
         if (
           filterTypes
-					&& ['date', 'number'].indexOf(filterTypes[field]) > -1
+          && ['date', 'number'].indexOf(filterTypes[field]) > -1
         ) {
           return Array.isArray(value) ? value : [value];
         }
@@ -2744,7 +2744,7 @@ Fliplet.Registry.set(
           Array.isArray(
             NativeUtils.get(record, ['data', 'flFilters'])
           )
-					&& !options.force
+          && !options.force
         ) {
           // If filters are already present, skip unless it's forced
           return;
@@ -2776,14 +2776,14 @@ Fliplet.Registry.set(
 
               if (date.isValid()) {
                 filterData.data.value
-									= date.format('YYYY-MM-DD');
+                  = date.format('YYYY-MM-DD');
               }
 
               record.data['flFilters'].push(filterData);
             } else if (filterTypes[field] === 'number') {
               if (
                 typeof value === 'undefined'
-								|| value === null
+                || value === null
               ) {
                 return;
               }
@@ -2792,7 +2792,7 @@ Fliplet.Registry.set(
 
               if (
                 typeof number === 'number'
-								&& !NativeUtils.isNaN(number)
+                && !NativeUtils.isNaN(number)
               ) {
                 filterData.data.value = number;
               }
@@ -2800,7 +2800,7 @@ Fliplet.Registry.set(
               record.data['flFilters'].push(filterData);
             } else {
               var filterClass
-								= 'filter-' + NativeUtils.kebabCase(value);
+                = 'filter-' + NativeUtils.kebabCase(value);
 
               filterData.data.class = filterClass;
 
@@ -2835,11 +2835,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Function to strip query params from the url string
-		 *
-		 * @param {String} url - incoming url string with query params
-		 * @returns {String} returns url without query params
-		 */
+     * Function to strip query params from the url string
+     *
+     * @param {String} url - incoming url string with query params
+     * @returns {String} returns url without query params
+     */
     function stripQueryParametersFromUrl(url) {
       return url.split('?')[0];
     }
@@ -2895,30 +2895,30 @@ Fliplet.Registry.set(
 
             images.forEach(function(image) {
               /* The regular expression below matches any of these on a Fliplet domain:
-							 * - /v1/media/files/123/contents
-							 * - /v1/media/files/123/contents?
-							 * - /v1/media/files/123/contents/fileName
-							 * - /v1/media/files/123/contents/filename?
-							 */
+               * - /v1/media/files/123/contents
+               * - /v1/media/files/123/contents?
+               * - /v1/media/files/123/contents/fileName
+               * - /v1/media/files/123/contents/filename?
+               */
               var imageIdFromURL
-								= Fliplet.Media.getIdFromRemoteUrl(image);
+                = Fliplet.Media.getIdFromRemoteUrl(image);
               var imageNameFromURL = image.match(fileNameRegex);
               var imageName = imageNameFromURL
                 ? stripQueryParametersFromUrl(
                   imageNameFromURL[0]
-								  )
+                )
                 : stripQueryParametersFromUrl(image);
               var matchMethod
-								= imageIdFromURL
-								|| Static.RegExp.number.test(image)
-								  ? 'id'
-								  : 'name';
+                = imageIdFromURL
+                || Static.RegExp.number.test(image)
+                  ? 'id'
+                  : 'name';
 
               if (matchMethod === 'id') {
                 // Image ID extracted from URL matches file ID
                 if (
                   imageIdFromURL
-									&& imageIdFromURL === file.id
+                  && imageIdFromURL === file.id
                 ) {
                   imageFiles.push(file.url);
                 } else if (parseInt(image, 10) === file.id) {
@@ -2927,8 +2927,8 @@ Fliplet.Registry.set(
                 }
               } else if (
                 imageName
-								&& (file.name === imageName
-									|| fileName === imageName)
+                && (file.name === imageName
+                  || fileName === imageName)
               ) {
                 // File ID not found. Use file name matching.
                 // Image name extracted from URL matches file name
@@ -2961,7 +2961,7 @@ Fliplet.Registry.set(
 
             if (
               image
-							&& (file.name === image || fileName === image)
+              && (file.name === image || fileName === image)
             ) {
               // File found
               NativeUtils.set(
@@ -2973,7 +2973,7 @@ Fliplet.Registry.set(
               return true;
             } else if (
               Static.RegExp.number.test(image)
-							&& parseInt(image, 10) === file.id
+              && parseInt(image, 10) === file.id
             ) {
               NativeUtils.set(
                 data,
@@ -3005,64 +3005,64 @@ Fliplet.Registry.set(
           var values;
 
           values
-						= options.type === 'date'
-						  ? options.$container
-						    .find(
-						      '.fl-date-picker[data-type="'
-											+ options.type
-											+ '"][data-field="'
-											+ options.field
-											+ '"]'
-						    )
-						    .map(function() {
-						      return Fliplet.UI.DatePicker.get(
-						        this
-						      ).get(true);
-						    })
-						    .get()
-						  : options.$container
-						    .find(
-						      '.fl-number-input[data-type="'
-											+ options.type
-											+ '"][data-field="'
-											+ options.field
-											+ '"]'
-						    )
-						    .map(function() {
-						      return Fliplet.UI.NumberInput.get(
-						        this
-						      ).get();
-						    })
-						    .get();
+            = options.type === 'date'
+              ? options.$container
+                .find(
+                  '.fl-date-picker[data-type="'
+                      + options.type
+                      + '"][data-field="'
+                      + options.field
+                      + '"]'
+                )
+                .map(function() {
+                  return Fliplet.UI.DatePicker.get(
+                    this
+                  ).get(true);
+                })
+                .get()
+              : options.$container
+                .find(
+                  '.fl-number-input[data-type="'
+                      + options.type
+                      + '"][data-field="'
+                      + options.field
+                      + '"]'
+                )
+                .map(function() {
+                  return Fliplet.UI.NumberInput.get(
+                    this
+                  ).get();
+                })
+                .get();
 
           return (
             '<div class="btn hidden-filter-controls-filter mixitup-control-active applied-filter"'
-						+ ' data-type="'
-						+ options.type
-						+ '"'
-						+ ' data-field="'
-						+ options.field
-						+ '"'
-						+ '>'
-						+ values.join(' to ')
-						+ '<div data-remove-filter class="filter-item-remove" tabindex="0"><span class="fa fa-times"></span></div>'
-						+ '</div>'
+            + ' data-type="'
+            + options.type
+            + '"'
+            + ' data-field="'
+            + options.field
+            + '"'
+            + '>'
+            + values.join(' to ')
+            + '<div data-remove-filter class="filter-item-remove" tabindex="0"><span class="fa fa-times"></span></div>'
+            + '</div>'
           );
         case 'toggle':
         default:
           return (
             '<div class="btn hidden-filter-controls-filter mixitup-control-active applied-filter"'
-						+ ' data-type="toggle"'
-						+ ' data-field="'
-						+ options.field
-						+ '"'
-						+ ' data-value="'
-						+ options.value
-						+ '"'
-						+ '>'
-						+ options.value
-						+ '<div data-remove-filter class="filter-item-remove" tabindex="0"><span class="fa fa-times"></span></div>'
-						+ '</div>'
+            + ' data-type="toggle"'
+            + ' data-field="'
+            + options.field
+            + '"'
+            + ' data-value="'
+            + options.value
+            + '"'
+            + '>'
+            + options.value
+            + '<div data-remove-filter class="filter-item-remove" tabindex="0"><span class="fa fa-times"></span></div>'
+            + '</div>'
           );
       }
     }
@@ -3071,17 +3071,17 @@ Fliplet.Registry.set(
       var $target = options.$target;
       var $container = options.$container;
       var filterToggleSelector
-				= ['date', 'number'].indexOf($target.data('type')) > -1
-				  ? options.filterOverlayClass
-					  + ' [data-filter-group][data-field="'
-					  + $target.data('field')
-					  + '"] .filter-range-reset'
-				  : options.filterOverlayClass
-					  + ' [data-filter-group] .mixitup-control-active[data-field="'
-					  + $target.data('field')
-					  + '"][data-value="'
-					  + $target.data('value')
-					  + '"]';
+        = ['date', 'number'].indexOf($target.data('type')) > -1
+          ? options.filterOverlayClass
+            + ' [data-filter-group][data-field="'
+            + $target.data('field')
+            + '"] .filter-range-reset'
+          : options.filterOverlayClass
+            + ' [data-filter-group] .mixitup-control-active[data-field="'
+            + $target.data('field')
+            + '"][data-value="'
+            + $target.data('value')
+            + '"]';
       var $filterToggle = $container.find(filterToggleSelector);
 
       // Toggle filter
@@ -3098,14 +3098,14 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * This function designed to show users filters that were activated in the filters overlay
-		 *
-		 * @param {Object} options - A map of options for the function
-		 * @param {Object} options.context - The layout instance
-		 * @param {Boolean} options.filtersInOverlay - If TRUE, the filters are configured to be shown in an overlay
-		 * @param {String} options.filterOverlayClass - CSS class of the layout filter overlay
-		 * @returns {undefined}
-		 */
+     * This function designed to show users filters that were activated in the filters overlay
+     *
+     * @param {Object} options - A map of options for the function
+     * @param {Object} options.context - The layout instance
+     * @param {Boolean} options.filtersInOverlay - If TRUE, the filters are configured to be shown in an overlay
+     * @param {String} options.filterOverlayClass - CSS class of the layout filter overlay
+     * @returns {undefined}
+     */
     function updateActiveFilters(options) {
       if (!options.filtersInOverlay) {
         return;
@@ -3230,7 +3230,7 @@ Fliplet.Registry.set(
                       Object.assign({}, defaultData, {
                         query: {
                           organizationId:
-														field.organizationFolderId
+                            field.organizationFolderId
                         },
                         field: field
                       })
@@ -3295,7 +3295,7 @@ Fliplet.Registry.set(
                   Object.assign({}, defaultData, {
                     query: {
                       organizationId:
-												config.userOrgFolder
+                        config.userOrgFolder
                     },
                     field: {
                       column: config.userPhotoColumn
@@ -3345,15 +3345,15 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Sort items by field witch user have selected
-		 *
-		 * @param {Object} options - object with settings for sort list items
-		 *        keys:
-		 *          sortField {String} - name of the field to sort
-		 *          sortOrder {String} - sort order of
-		 *          records {Array} - array of records to sort
-		 * @returns {Array} - sorted by field array
-		 */
+     * Sort items by field witch user have selected
+     *
+     * @param {Object} options - object with settings for sort list items
+     *        keys:
+     *          sortField {String} - name of the field to sort
+     *          sortOrder {String} - sort order of
+     *          records {Array} - array of records to sort
+     * @returns {Array} - sorted by field array
+     */
     function sortByField(options) {
       options = options || {};
 
@@ -3361,8 +3361,8 @@ Fliplet.Registry.set(
       // Or if we have no records (empty search results)
       if (
         !options.sortField
-				|| !options.records.length
-				|| ['asc', 'desc'].indexOf(options.sortOrder) === -1
+        || !options.records.length
+        || ['asc', 'desc'].indexOf(options.sortOrder) === -1
       ) {
         Fliplet.Page.Context.remove([
           'dynamicListSortColumn',
@@ -3395,9 +3395,9 @@ Fliplet.Registry.set(
         switch (sortType) {
           case 'string':
             /**
-						 * By adding '{' to the start of the string we are pushing that string to the end the sort order,
-						 * and when we are adding '}' we push it even further to the end
-						 */
+             * By adding '{' to the start of the string we are pushing that string to the end the sort order,
+             * and when we are adding '}' we push it even further to the end
+             */
             aValue = aValue ? aValue.toUpperCase() : '}';
             bValue = bValue ? bValue.toUpperCase() : '}';
 
@@ -3421,14 +3421,14 @@ Fliplet.Registry.set(
           case 'number':
             if (
               !parseFloat(aValue, 10)
-							&& parseFloat(aValue, 10) !== 0
+              && parseFloat(aValue, 10) !== 0
             ) {
               return isSortAsc ? -1 : 1;
             }
 
             if (
               !parseFloat(bValue, 10)
-							&& parseFloat(bValue, 10) !== 0
+              && parseFloat(bValue, 10) !== 0
             ) {
               return isSortAsc ? 1 : -1;
             }
@@ -3488,14 +3488,14 @@ Fliplet.Registry.set(
 
     // No longer used but kept to support customized layout JS
     /**
-		 * Sorts records by a specified field
-		 * Uses native Array.sort() method with custom comparator
-		 * @param {Object} options - Sort configuration options
-		 * @param {Array} options.records - Array of records to sort
-		 * @param {string} options.field - Field name to sort by
-		 * @param {string} [options.order] - Sort order ('asc' or 'desc')
-		 * @returns {Array} Sorted array of records
-		 */
+     * Sorts records by a specified field
+     * Uses native Array.sort() method with custom comparator
+     * @param {Object} options - Sort configuration options
+     * @param {Array} options.records - Array of records to sort
+     * @param {string} options.field - Field name to sort by
+     * @param {string} [options.order] - Sort order ('asc' or 'desc')
+     * @returns {Array} Sorted array of records
+     */
     function sortRecordsByField(options) {
       var sortedRecords = sortByField(options);
 
@@ -3573,7 +3573,7 @@ Fliplet.Registry.set(
 
       if (
         !Array.isArray(config.filterOptions)
-				&& NativeUtils.isObject(config.filterOptions)
+        && NativeUtils.isObject(config.filterOptions)
       ) {
         config.filterOptions = [config.filterOptions];
       }
@@ -3583,7 +3583,7 @@ Fliplet.Registry.set(
         ? getQueryData({
           config: config,
           filterQueries: options.filterQueries
-				  })
+        })
         : undefined;
 
       if (queryData && typeof queryData.where === 'object') {
@@ -3715,11 +3715,11 @@ Fliplet.Registry.set(
 
         // Add bookmarks flag
         record.bookmarksEnabled
-					= config.social && config.social.bookmark;
+          = config.social && config.social.bookmark;
 
         // Add comments flag
         record.commentsEnabled
-					= config.social && config.social.comments;
+          = config.social && config.social.comments;
       });
 
       return records;
@@ -3742,7 +3742,7 @@ Fliplet.Registry.set(
 
         if (
           NativeUtils.has(record, ['data', field])
-					&& computedFieldClashes.indexOf(field) === -1
+          && computedFieldClashes.indexOf(field) === -1
         ) {
           computedFieldClashes.push(field);
         }
@@ -3753,9 +3753,9 @@ Fliplet.Registry.set(
           getRecordField({
             record: record,
             field:
-							typeof getter === 'string'
-							  ? getter.split(Static.refArraySeparator)
-							  : getter,
+              typeof getter === 'string'
+                ? getter.split(Static.refArraySeparator)
+                : getter,
             useData: true,
             filterTypes: options.filterTypes
           })
@@ -3787,8 +3787,8 @@ Fliplet.Registry.set(
         /* eslint-disable-next-line no-console */
         console.warn(
           'Computed field(s) "'
-						+ clashedFields
-						+ '" are already defined as a property for one or more records. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten.'
+            + clashedFields
+            + '" are already defined as a property for one or more records. All computed fields will overwrite existing properties. Use a different computed field name if you want to prevent the data from being overwritten.'
         );
       }
     }
@@ -3799,13 +3799,13 @@ Fliplet.Registry.set(
       // No valid comparison value is given
       if (
         NativeUtils.isNil(config.userAdminValue)
-				|| config.userAdminValue === ''
+        || config.userAdminValue === ''
       ) {
         // User is admin if adminValue is truthy or has at least one truthy value in an array
         return Array.isArray(adminValue)
           ? !!adminValue.find(function(v) {
             return v;
-					  })
+          })
           : !!adminValue;
       }
 
@@ -3820,27 +3820,27 @@ Fliplet.Registry.set(
     function recordIsCurrentUser(record, config, userData) {
       return (
         config.userEmailColumn !== 'none'
-				&& !NativeUtils.isEmpty(
-				  NativeUtils.get(userData, config.userEmailColumn)
-				)
-				&& !NativeUtils.isEmpty(
-				  NativeUtils.get(record, [
-				    'data',
-				    config.userListEmailColumn
-				  ])
-				)
-				&& NativeUtils.get(userData, config.userEmailColumn)
-					=== NativeUtils.get(record, [
-					  'data',
-					  config.userListEmailColumn
-					])
+        && !NativeUtils.isEmpty(
+          NativeUtils.get(userData, config.userEmailColumn)
+        )
+        && !NativeUtils.isEmpty(
+          NativeUtils.get(record, [
+            'data',
+            config.userListEmailColumn
+          ])
+        )
+        && NativeUtils.get(userData, config.userEmailColumn)
+          === NativeUtils.get(record, [
+            'data',
+            config.userListEmailColumn
+          ])
       );
     }
 
     function userCanAddRecord(config, userData) {
       if (
         NativeUtils.isNil(config.addEntry)
-				|| NativeUtils.isNil(config.addPermissions)
+        || NativeUtils.isNil(config.addPermissions)
       ) {
         return false;
       }
@@ -3922,7 +3922,7 @@ Fliplet.Registry.set(
         Fliplet.Page.Context.remove('dynamicListSearchValue');
       } else if (
         Fliplet.Page.Context.get('dynamicListSearchValue')
-				!== options.searchValue
+        !== options.searchValue
       ) {
         pageCtx.dynamicListSearchValue = options.searchValue;
       }
@@ -3931,7 +3931,7 @@ Fliplet.Registry.set(
         Fliplet.Page.Context.remove('dynamicListFilterColumn');
       } else if (
         Fliplet.Page.Context.get('dynamicListFilterColumn')
-				!== filterColumns
+        !== filterColumns
       ) {
         pageCtx.dynamicListFilterColumn = filterColumns;
       }
@@ -3940,7 +3940,7 @@ Fliplet.Registry.set(
         Fliplet.Page.Context.remove('dynamicListFilterValue');
       } else if (
         Fliplet.Page.Context.get('dynamicListFilterValue')
-				!== filterValues
+        !== filterValues
       ) {
         pageCtx.dynamicListFilterValue = filterValues;
       }
@@ -3957,7 +3957,7 @@ Fliplet.Registry.set(
     function updateFilterControlsContext() {
       if (
         Fliplet.Navigate.query.dynamicListFilterColumn
-				|| Fliplet.Navigate.query.dynamicListFilterValue
+        || Fliplet.Navigate.query.dynamicListFilterValue
       ) {
         Fliplet.Page.Context.update({
           dynamicListFilterHideControls: true
@@ -3974,11 +3974,11 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Formats input values to string representation
-		 * Uses native Array.map(), Array.filter(), and Array.join() methods
-		 * @param {*} value - Input values that can be of any type
-		 * @returns {string|Handlebars.SafeString} The formatted input value as string
-		 */
+     * Formats input values to string representation
+     * Uses native Array.map(), Array.filter(), and Array.join() methods
+     * @param {*} value - Input values that can be of any type
+     * @returns {string|Handlebars.SafeString} The formatted input value as string
+     */
     function toFormattedString(value) {
       switch (typeof value) {
         case 'string':
@@ -4013,13 +4013,13 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Processes user data for mention functionality
-		 * Uses native Array.map() and Array.forEach() methods
-		 * @param {Object} options - Configuration options
-		 * @param {Array} options.allUsers - Array of all user objects
-		 * @param {Object} options.config - Configuration object with user field mappings
-		 * @returns {Array} Array of processed user objects with name and image properties
-		 */
+     * Processes user data for mention functionality
+     * Uses native Array.map() and Array.forEach() methods
+     * @param {Object} options - Configuration options
+     * @param {Array} options.allUsers - Array of all user objects
+     * @param {Object} options.config - Configuration object with user field mappings
+     * @returns {Array} Array of processed user objects with name and image properties
+     */
     function getUsersToMention(options) {
       options = options || {};
 
@@ -4035,13 +4035,13 @@ Fliplet.Registry.set(
           config.userNameFields.forEach(function(name) {
             userName += user.data[name] + ' ';
             userNickname
-							+= counter === 1
-							  ? (user.data[name] || '')
-							    .toLowerCase()
-							    .charAt(0) + ' '
-							  : (user.data[name] || '')
-							    .toLowerCase()
-							    .replace(/\s/g, '') + ' ';
+              += counter === 1
+                ? (user.data[name] || '')
+                  .toLowerCase()
+                  .charAt(0) + ' '
+                : (user.data[name] || '')
+                  .toLowerCase()
+                  .replace(/\s/g, '') + ' ';
           });
           userName = userName.trim();
           userNickname = userNickname.trim();
@@ -4064,12 +4064,12 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Sets filter values from various data sources (user profile, query params, app storage)
-		 * Uses native Array.map() and Promise.all() methods
-		 * @param {Object} options - Configuration options
-		 * @param {Object} options.config - Configuration object with filterOptions
-		 * @returns {Promise} Promise that resolves when all filter values are set
-		 */
+     * Sets filter values from various data sources (user profile, query params, app storage)
+     * Uses native Array.map() and Promise.all() methods
+     * @param {Object} options - Configuration options
+     * @param {Object} options.config - Configuration object with filterOptions
+     * @returns {Promise} Promise that resolves when all filter values are set
+     */
     function setFilterValues(options) {
       var sessionData;
 
@@ -4086,7 +4086,7 @@ Fliplet.Registry.set(
               case 'user-profile-data':
                 if (!sessionData) {
                   sessionData
-										= Fliplet.User.getCachedSession();
+                    = Fliplet.User.getCachedSession();
                 }
 
                 sessionData.then(function(session) {
@@ -4137,7 +4137,7 @@ Fliplet.Registry.set(
 
               case 'link-query-parameter':
                 item.value
-									= Fliplet.Navigate.query[item.fieldValue];
+                  = Fliplet.Navigate.query[item.fieldValue];
                 resolve();
                 break;
 
@@ -4159,29 +4159,29 @@ Fliplet.Registry.set(
     }
 
     /**
-		 * Assesses a string input and return it as an array if it's a valid image URL
-		 * @param {String} str - String to be assessed
-		 * @returns {Array|null} An array of a single image URL or null if input is not an image URL
-		 */
+     * Assesses a string input and return it as an array if it's a valid image URL
+     * @param {String} str - String to be assessed
+     * @returns {Array|null} An array of a single image URL or null if input is not an image URL
+     */
     function getImagesUrlsByRegex(str) {
       // Regex to detect if line contains URL
       return isValidImageUrl(str) ? [str] : null;
     }
 
     /**
-		 * Opens a link action (file, URL, or screen navigation) based on configuration
-		 * Uses native Array.find() method to locate records
-		 * @param {Object} options - Configuration options
-		 * @param {Array} options.records - Array of records to search through
-		 * @param {number} options.recordId - ID of the record to find
-		 * @param {Object} options.summaryLinkAction - Link action configuration
-		 * @returns {void} This function performs navigation side effects
-		 */
+     * Opens a link action (file, URL, or screen navigation) based on configuration
+     * Uses native Array.find() method to locate records
+     * @param {Object} options - Configuration options
+     * @param {Array} options.records - Array of records to search through
+     * @param {number} options.recordId - ID of the record to find
+     * @param {Object} options.summaryLinkAction - Link action configuration
+     * @returns {void} This function performs navigation side effects
+     */
     function openLinkAction(options) {
       if (
         !options.summaryLinkAction
-				|| !options.summaryLinkAction.column
-				|| !options.summaryLinkAction.type
+        || !options.summaryLinkAction.column
+        || !options.summaryLinkAction.type
       ) {
         return;
       }
