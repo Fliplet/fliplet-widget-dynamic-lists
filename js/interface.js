@@ -61,18 +61,18 @@ var DynamicLists = (function() {
   var defaultEntries = window.flListLayoutTableConfig;
 
   /**
-   * Constructor for DynamicLists widget interface
-   * Initializes configuration, sets up event listeners, and manages data sources
-   * Uses jQuery.extend() for deep object merging instead of lodash extend
+   * Constructor for DynamicLists widget interface.
+   * Initializes configuration, sets up event listeners, and manages data sources.
+   * Uses jQuery.extend() for deep object merging instead of lodash extend.
    *
-   * @param {Object} configuration - Widget configuration object
-   * @param {string} configuration.id - Widget instance ID
-   * @param {Array} [configuration.sortOptions=[]] - Sort configuration options
-   * @param {Array} [configuration.filterOptions=[]] - Filter configuration options
-   * @param {Array} [configuration.detailViewOptions=[]] - Detail view field options
-   * @param {Object} [configuration.social={}] - Social features configuration
-   * @param {Object} [configuration.advancedSettings={}] - Advanced template settings
-   * @returns {void}
+   * @constructor
+   * @param {Object} configuration - Widget configuration object.
+   * @param {string} configuration.id - Widget instance ID.
+   * @param {Array} [configuration.sortOptions=[]] - Sort configuration options.
+   * @param {Array} [configuration.filterOptions=[]] - Filter configuration options.
+   * @param {Array} [configuration.detailViewOptions=[]] - Detail view field options.
+   * @param {Object} [configuration.social={}] - Social features configuration.
+   * @param {Object} [configuration.advancedSettings={}] - Advanced template settings.
    */
   function DynamicLists(configuration) {
     _this = this;
@@ -96,6 +96,11 @@ var DynamicLists = (function() {
     });
   }
 
+  /**
+   * Initializes the data source provider widget.
+   * @param {number} currentDataSourceId - The ID of the current data source.
+   * @returns {void}
+   */
   function initDataSourceProvider(currentDataSourceId) {
     if (dataSourceProvider) {
       return;
@@ -146,12 +151,12 @@ var DynamicLists = (function() {
     constructor: DynamicLists,
 
     /**
-     * Toggles visibility of custom image field options based on field and type selection
-     * Uses native Array.indexOf() method for checking field values
+ * Toggles visibility of custom image field options based on field and type selection.
+ * Uses native Array.indexOf() method for checking field values.
      *
-     * @param {jQuery} $row - The jQuery row element containing the form controls
-     * @param {string} field - The selected field value
-     * @param {string} type - The field type (e.g., 'image')
+ * @param {jQuery} $row - The jQuery row element containing the form controls.
+ * @param {string} field - The selected field value.
+ * @param {string} type - The field type (e.g., 'image').
      * @returns {void}
      */
     toggleCustomImageFields: function($row, field, type) {
@@ -168,6 +173,10 @@ var DynamicLists = (function() {
       }
     },
 
+    /**
+     * Attaches event listeners for the widget interface.
+     * @returns {void}
+     */
     attachListeners: function() {
       window.addEventListener('resize', _this.resizeCodeEditors);
 
@@ -590,6 +599,14 @@ var DynamicLists = (function() {
         }
       });
     },
+    /**
+     * Manages the permission list based on the provided options.
+     * @param {object} options - The options for managing the permission list.
+     * @param {boolean} options.isAddEntryActive - `true` if adding entries is active.
+     * @param {boolean} options.isEditEntryActive - `true` if editing entries is active.
+     * @param {boolean} options.isDeleteEntryActive - `true` if deleting entries is active.
+     * @returns {void}
+     */
     managePermissionList: function(options) {
       $('.add-entry-checkbox').find('.hidden-settings').toggleClass('active', options.isAddEntryActive);
       $('.edit-entry-checkbox').find('.hidden-settings').toggleClass('active', options.isEditEntryActive);
@@ -649,12 +666,27 @@ var DynamicLists = (function() {
         'datebetween'
       ].indexOf(value) !== -1;
     },
+    /**
+     * Toggles the visibility of the user email list.
+     * @param {boolean} showUserEmailList - `true` to show the user email list, `false` to hide it.
+     * @returns {void}
+     */
     toggleUserEmail: function(showUserEmailList) {
       $('.select-user-email-list-holder').toggleClass('hidden', !showUserEmailList);
     },
+    /**
+     * Toggles the visibility of the admin identification section.
+     * @param {boolean} showUserAdminHolder - `true` to show the admin holder, `false` to hide it.
+     * @returns {void}
+     */
     toggleAdminIdentification: function(showUserAdminHolder) {
       $('.select-user-admin-holder').toggleClass('hidden', !showUserAdminHolder);
     },
+    /**
+     * Updates the permissions based on the selected permission type.
+     * @param {string} permissionType - The type of permission to update (e.g., 'list', 'add', 'edit', 'delete').
+     * @returns {void}
+     */
     updatePermission: function(permissionType) {
       var controlValues = [];
 
@@ -708,6 +740,12 @@ var DynamicLists = (function() {
           break;
       }
     },
+    /**
+     * Initializes the user data source provider.
+     * @param {number} dataSourceId - The ID of the user data source.
+     * @param {boolean} showUsersDataSource - `true` to show the user data source provider, `false` to hide it.
+     * @returns {void}
+     */
     initUserDatasourceProvider: function(dataSourceId, showUsersDataSource) {
       $('.user-datasource-options').toggleClass('hidden', !showUsersDataSource);
 
@@ -762,6 +800,14 @@ var DynamicLists = (function() {
         userDataSourceProvider = null;
       }
     },
+    /**
+     * Toggles the rule types for data source access.
+     * @param {object} options - The options for toggling rule types.
+     * @param {boolean} options.insert - `true` to allow insert operations.
+     * @param {boolean} options.update - `true` to allow update operations.
+     * @param {boolean} options.delete - `true` to allow delete operations.
+     * @returns {void}
+     */
     toggleRuleTypes: function(options) {
       for (var type in options) {
         if (!options.hasOwnProperty(type)) {
@@ -850,6 +896,11 @@ var DynamicLists = (function() {
         $('#order-by-field-' + item.id).val(item.orderBy);
       });
     },
+    /**
+     * Validates the image field option.
+     * @param {string} value - The value of the image field option.
+     * @returns {string} The validated image field option ('url' or 'all-folders').
+     */
     validateImageFieldOption: function(value) {
       if (!value) {
         return 'url';
@@ -861,6 +912,10 @@ var DynamicLists = (function() {
 
       return value;
     },
+    /**
+     * Sets up the layout selector.
+     * @returns {void}
+     */
     setupLayoutSelector: function() {
       if (_this.config.layout) {
         return;
@@ -870,6 +925,10 @@ var DynamicLists = (function() {
       Fliplet.Studio.emit('widget-mode', 'wide');
       $('.state').removeClass('loading is-loading');
     },
+    /**
+     * Initializes the widget interface.
+     * @returns {Promise} A promise that resolves when the initialization is complete.
+     */
     init: function() {
       _this.toggleRuleTypes({
         insert: _this.config.addEntry,
@@ -889,10 +948,18 @@ var DynamicLists = (function() {
           _this.initializeDetailViewSortable();
         });
     },
+    /**
+     * Initializes the default data source provider.
+     * @returns {void}
+     */
     initDefaultDatasourceProvider: function() {
       _this.updateFieldsWithColumns(_this.config.defaultColumns);
       initDataSourceProvider(_this.config.dataSourceId);
     },
+    /**
+     * Loads the widget data and initializes the interface.
+     * @returns {Promise} A promise that resolves when the data is loaded and the interface is initialized.
+     */
     loadData: function() {
       if (!_this.config.layout) {
         return Promise.resolve();
@@ -2185,6 +2252,12 @@ var DynamicLists = (function() {
         to: editor.getCursor(false)
       };
     },
+
+    /**
+     * Auto-formats the selected code in the CodeMirror editor.
+     * @param {CodeMirror.Editor} editor - The CodeMirror editor instance.
+     * @returns {void}
+     */
     autoFormatSelection: function(editor) {
       if (editor && typeof editor === 'boolean') {
         if (baseTemplateEditor) {
@@ -2319,16 +2392,34 @@ var DynamicLists = (function() {
         { line: 0, ch: 0 }
       );
     },
+
+    /**
+     * Comments the selected code in the CodeMirror editor.
+     * @param {CodeMirror.Editor} editor - The CodeMirror editor instance.
+     * @returns {void}
+     */
     commentSelection: function(editor) {
       var range = _this.getSelectedRange(editor);
 
       editor.commentRange(true, range.from, range.to);
     },
+
+    /**
+     * Uncomments the selected code in the CodeMirror editor.
+     * @param {CodeMirror.Editor} editor - The CodeMirror editor instance.
+     * @returns {void}
+     */
     removeCommentSelection: function(editor) {
       var range = _this.getSelectedRange(editor);
 
       editor.commentRange(false, range.from, range.to);
     },
+
+    /**
+     * Returns the configuration for the CodeMirror editor.
+     * @param {string} mode - The mode to use for the editor (e.g., 'htmlmixed', 'css', 'javascript').
+     * @returns {object} The CodeMirror configuration object.
+     */
     codeMirrorConfig: function(mode) {
       return {
         mode: {
@@ -2351,6 +2442,13 @@ var DynamicLists = (function() {
         }
       };
     },
+
+    /**
+     * Gets the code editor data for the specified layout.
+     * @param {string} selectedLayout - The selected layout.
+     * @param {boolean} fromReset - `true` if the data is being loaded after a reset.
+     * @returns {Promise} A promise that resolves when the code editor data is loaded.
+     */
     getCodeEditorData: function(selectedLayout, fromReset) {
       var basePromise = new Promise(function(resolve) {
         var baseTemplateCompiler;
@@ -2483,6 +2581,14 @@ var DynamicLists = (function() {
 
       return Promise.all([basePromise, loopPromise, searchResultsPromise, detailPromise, filterLoopPromise, otherLoopPromise, cssPromise, jsPromise]);
     },
+
+    /**
+     * Toggles the visibility of a tab.
+     * @param {string} id - The ID of the tab.
+     * @param {boolean} isInvisible - `true` to make the tab invisible.
+     * @param {boolean} fromReset - `true` if the visibility is being toggled after a reset.
+     * @returns {void}
+     */
     toggleTabVisibility: function(id, isInvisible, fromReset) {
       var el = document.getElementById(id);
 
@@ -2667,6 +2773,14 @@ var DynamicLists = (function() {
           });
       });
     },
+    /**
+     * Resizes the CodeMirror editors to fit the available space.
+     * @returns {void}
+     */
+    /**
+     * Resizes the CodeMirror editors to fit the available space.
+     * @returns {void}
+     */
     resizeCodeEditors: function() {
       var baseContentHeight = $('.action-control-holder').outerHeight(true) + $('.advanced-tabs-level-one').outerHeight(true) + $('.advanced-tabs-level-two').outerHeight(true);
       var contentHeight = $('.action-control-holder').outerHeight(true) + $('.advanced-tabs-level-one').outerHeight(true);
@@ -2687,6 +2801,13 @@ var DynamicLists = (function() {
         });
       }, 1);
     },
+
+    /**
+     * Resets a specific template to its default content.
+     * @param {string} id - The ID of the template to reset.
+     * @param {string} name - The name of the template to reset.
+     * @returns {void}
+     */
     resetTemplate: function(id, name) {
       if (!id || !name) {
         return;
@@ -2722,6 +2843,11 @@ var DynamicLists = (function() {
         });
       });
     },
+    /**
+     * Resets a specific setting to its default value.
+     * @param {string} id - The ID of the setting to reset.
+     * @returns {void}
+     */
     resetToDefaults: function(id) {
       var confirmOptions = {
         'enable-templates': {

@@ -80,6 +80,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return 0;
   }
 
+  /**
+   * Retrieves information for files associated with a record.
+   * @param {object} options - The options for retrieving file info.
+   * @param {object} options.entryData - The record entry data.
+   * @param {Array} options.detailViewOptions - The detail view configuration options.
+   * @returns {Promise<Array>} A promise that resolves with an array of file information objects.
+   */
   function getFilesInfo(options) {
     var entry = options.entryData;
     var detailViewFileOptions = options.detailViewOptions.filter(function(option) { return option.type === 'file'; });
@@ -150,6 +157,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return Promise.all(formFilesInfoInDetailViewOptions);
   }
 
+  /**
+   * Gets the content for a specific field in the data view.
+   * @param {object} options - The options for getting the data view content.
+   * @param {object} options.record - The record object.
+   * @param {object} options.field - The field configuration object.
+   * @param {Array} options.filterFields - An array of filter fields.
+   * @returns {string|Handlebars.SafeString} The formatted content for the data view.
+   */
   function getDataViewContent(options) {
     options = options || {};
 
@@ -197,15 +212,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return toFormattedString(content);
   }
 
-  /**
-   * This function is preparing image original data to display images in the detail view
-   *
-   * @param {String | Array} content - content data that we get from originalData
-   * @param {Boolean} isSummary - flag that show us from where this function was called
-   * @returns {Object | String} in case isSummary is true then we will return only the first image URL.
-   *  And when it false we will return an Object with keys 'imageContent' {String} to display single image in detail view
-   *  And 'imagesArray' {Array} to display multiple images in the detail view
-   */
   function getImageContent(content, isSummary) {
     var imageContent;
     var imagesArray = [];
@@ -243,13 +249,6 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     };
   }
 
-  /**
-   * This function adds selected LFD item's images to the layout context
-   *
-   * @param {Object} ctx - current layout context
-   * @param {Object} entry - selected LFD entry
-   * @return {void} this function doesn't return anything it commits modifications to layout context
-   */
   function assignImageContent(ctx, entry) {
     var dynamicData = ctx.data.detailViewOptions.filter(function(option) {
       return option.editable;
@@ -314,6 +313,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return textarea.innerHTML;
   }
 
+  /**
+   * Registers custom Handlebars helpers for template formatting.
+   */
   function registerHandlebarsHelpers() {
     Handlebars.registerHelper('humanFileSize', function(bytes) {
       if (!bytes) {
@@ -554,11 +556,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Validate filter queries
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.query - Filter queries
-   * @param {Object} options.filterTypes - A map of filter types
-   * @returns {undefined}
+   * Validates and sanitizes filter queries.
+   * @param {object} options - The options for validating filter queries.
+   * @param {object} options.query - The filter query object.
+   * @param {object} options.filterTypes - A map of filter types.
+   * @returns {object} The validated and sanitized filter query object.
    */
   function validateFilterQueries(options) {
     options = options || {};
@@ -635,11 +637,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Generate a list of jQuery selectors for the filter elements based on the filter query
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.query - Filter queries
-   * @param {Object} options.filterTypes - A map of filter types
-   * @returns {Array} A list of jQuery selectors
+   * Generates a list of jQuery selectors for filter elements based on a filter query.
+   * @param {object} options - The options for generating filter query selectors.
+   * @param {object} options.query - The filter query object.
+   * @param {object} options.filterTypes - A map of filter types.
+   * @returns {Array<string>} An array of jQuery selectors for the filter elements.
    */
   function getFilterQuerySelectors(options) {
     options = options || {};
@@ -678,11 +680,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Update the number of selected filters
-   * @param {Object} options - A map of options for the function
-   * @param {Boolean} options.filtersInOverlay - If TRUE, filters are displayed in an overlay
-   * @param {jQuery} options.$target - jQuery instance on which user has pressed
-   * @returns {undefined}
+   * Updates the displayed count of active filters.
+   * @param {object} options - The options for updating the active filter count.
+   * @param {boolean} options.filtersInOverlay - Indicates if filters are displayed in an overlay.
+   * @param {jQuery} options.$target - The jQuery object of the target element.
+   * @returns {void}
    */
   function updateActiveFilterCount(options) {
     if (!options.filtersInOverlay || !options.$target || !options.$target.length) {
@@ -698,10 +700,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Gets the active filters
-   * @param {Object} options - A map of options for the function
-   * @param {jQuery} options.$container - Container node for the layout instance
-   * @returns {Object} Active filters
+   * Retrieves the currently active filters.
+   * @param {object} options - The options for getting active filters.
+   * @param {jQuery} options.$container - The jQuery object of the container element.
+   * @returns {object} An object representing the active filters.
    */
   function getActiveFilters(options) {
     options = options || {};
@@ -771,11 +773,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Process changes in filter ranges. This should be triggered whenever a filter range is updated.
-   * @param {Object} options - A map of options for the function
-   * @param {*} value - New value for the updated filter
-   * @param {*} instance - Instance of the layout
-   * @returns {undefined}
+   * Handles changes in filter range inputs.
+   * @param {object} options - The options for handling filter range changes.
+   * @param {*} options.value - The new value of the filter.
+   * @param {object} options.instance - The layout instance.
+   * @param {jQuery} options.$filter - The jQuery object of the filter element.
+   * @returns {void}
    */
   function onFilterRangeChange(options) {
     options = options || {};
@@ -824,11 +827,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Renders filters and initializes range filter UI
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.instance - Instance of the layout
-   * @param {String} options.html - Filter HTML
-   * @returns {undefined}
+   * Renders the filter HTML and initializes filter UI components.
+   * @param {object} options - The options for rendering filters.
+   * @param {object} options.instance - The layout instance.
+   * @param {string} options.html - The HTML content of the filters.
+   * @returns {void}
    */
   function renderFilters(options) {
     options = options || {};
@@ -881,10 +884,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Clears filters and re-render data
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.instance - Instance of the layout
-   * @returns {undefined}
+   * Clears all active filters and re-renders the data.
+   * @param {object} options - The options for clearing filters.
+   * @param {object} options.instance - The layout instance.
+   * @returns {Promise} A promise that resolves when the data is re-rendered.
    */
   function clearFilters(options) {
     options = options || {};
@@ -908,10 +911,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Process the filter queries and prepare the filter UI accordingly
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.instance - Instance of the layout
-   * @returns {undefined}
+   * Parses filter queries and applies them to the filter UI.
+   * @param {object} options - The options for parsing filter queries.
+   * @param {object} options.instance - The layout instance.
+   * @returns {void}
    */
   function parseFilterQueries(options) {
     options = options || {};
@@ -969,6 +972,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  /**
+   * Fetches data and caches the result.
+   * @param {object} options - The options for fetching and caching.
+   * @param {Promise|function} options.request - The request promise or a function that returns a promise.
+   * @param {string} options.key - The key to use for caching.
+   * @param {number} [options.waitFor=0] - The time in milliseconds to wait for the request before returning cached data.
+   * @returns {Promise<object>} A promise that resolves with an object containing the data and a `fromCache` flag.
+   */
   function fetchAndCache(options) {
     options = options || {};
 
@@ -1016,10 +1027,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Determines why pre-filters are applied client-side instead of using data source query
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.config - Configuration settings for the instance
-   * @returns {Array} A list of reasons
+   * Determines the reasons why pre-filters are applied client-side instead of using a data source query.
+   * @param {object} options - The options for getting query all reasons.
+   * @param {object} options.config - The configuration object for the instance.
+   * @returns {Array<string>} An array of strings representing the reasons.
    */
   function getQueryAllReasons(options) {
     options = options || {};
@@ -1057,19 +1068,19 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Determines if data source API request needs to apply query data
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.config - Configuration settings for the instance
-   * @returns {Boolean} Returns TRUE if data source query needs to apply query data
+   * Determines if the data source API request needs to apply query data.
+   * @param {object} options - The options for checking if API query data is needed.
+   * @param {object} options.config - The configuration object for the instance.
+   * @returns {boolean} `true` if the data source query needs to apply query data, `false` otherwise.
    */
   function needsApiQueryData(options) {
     return !getQueryAllReasons(options).length;
   }
 
   /**
-   * Check that a filter configuration is a date typed filter
-   * @param {Object} filter - Filter configuration
-   * @returns {Boolean} Returns TRUE of the filter condition is a date condition logic
+   * Checks if a filter configuration is a date-typed filter.
+   * @param {object} filter - The filter configuration object.
+   * @returns {boolean} `true` if the filter condition is a date condition logic, `false` otherwise.
    */
   function filterIsDateCondition(filter) {
     return filter
@@ -1077,9 +1088,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Returns filter data that's unique to date filter conditions
-   * @param {Object} filter - Filter configuration
-   * @returns {Object} - Additional date filter data
+   * Returns filter data that is unique to date filter conditions.
+   * @param {object} filter - The filter configuration object.
+   * @returns {object} An object containing additional date filter data.
    */
   function getDateFilterData(filter) {
     filter = filter || {};
@@ -1140,11 +1151,11 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Computes the query data object based on pre-filter settings
-   * @param {Object} options - A map of options for the function
-   * @param {Object} options.config - Configuration settings for the instance
-   * @param {Array} [options.filterQueries] - Filters set using query parameters
-   * @returns {Object} Query data to be passed to data source queries
+   * Computes the query data object based on pre-filter settings.
+   * @param {object} options - The options for getting query data.
+   * @param {object} options.config - The configuration object for the instance.
+   * @param {Array} [options.filterQueries] - An array of filters set using query parameters.
+   * @returns {object} The query data object to be passed to data source queries.
    */
   function getQueryData(options) {
     options = options || {};
@@ -1215,9 +1226,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Removes commonly used symbols from text for string matching
-   * @param {*} str - Input value to process (will be converted to string)
-   * @returns {string} String with symbols removed
+   * Removes commonly used symbols from a string for matching purposes.
+   * @param {*} str - The input value to process (will be converted to a string).
+   * @returns {string} The string with symbols removed.
    */
   function removeSymbols(str) {
     // Remove commonly used symbols in text that should be ignored for string matching
@@ -1225,9 +1236,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Normalizes strings for search operations by removing HTML, entities, and symbols
-   * @param {*} str - Input value to normalize (will be converted to string)
-   * @returns {string} Normalized string ready for search matching
+   * Normalizes a string for search operations by removing HTML, entities, and symbols.
+   * @param {*} str - The input value to normalize (will be converted to a string).
+   * @returns {string} The normalized string, ready for search matching.
    */
   function normalizeStringForSearch(str) {
     var htmlTagPattern = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
@@ -1247,11 +1258,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Recursively checks if a record contains a search value
-   * Uses native Array.some() and Object.values() methods
-   * @param {*} record - Record to search within (can be object, array, or primitive)
-   * @param {string} value - Search value to look for
-   * @returns {boolean} True if record contains the value, false otherwise
+   * Recursively checks if a record contains a specified search value.
+   * @param {*} record - The record to search within (can be an object, array, or primitive).
+   * @param {string} value - The search value to look for.
+   * @returns {boolean} `true` if the record contains the value, `false` otherwise.
    */
   function recordContains(record, value) {
     if (NativeUtils.isNil(record)) {
@@ -1282,6 +1292,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return record.indexOf(value) > -1;
   }
 
+  /**
+   * Checks if a record is editable based on the provided configuration and user data.
+   * @param {object} record - The record to check.
+   * @param {object} config - The configuration object.
+   * @param {object} userData - The user data object.
+   * @returns {boolean} `true` if the record is editable, `false` otherwise.
+   */
   function recordIsEditable(record, config, userData) {
     if (NativeUtils.isNil(config.editEntry) || NativeUtils.isNil(config.editPermissions)) {
       return false;
@@ -1309,6 +1326,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return event.which === 13 || event.which === 32 || event.type === 'click';
   }
 
+  /**
+   * Checks if a record is deletable based on the provided configuration and user data.
+   * @param {object} record - The record to check.
+   * @param {object} config - The configuration object.
+   * @param {object} userData - The user data object.
+   * @returns {boolean} `true` if the record is deletable, `false` otherwise.
+   */
   function recordIsDeletable(record, config, userData) {
     if (NativeUtils.isNil(config.deleteEntry) || NativeUtils.isNil(config.deletePermissions)) {
       return false;
@@ -1332,6 +1356,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  /**
+   * Moves the position of the "Add" button.
+   * @param {object} options - The options for moving the button.
+   * @param {jQuery} options.$container - The jQuery object of the container element.
+   * @param {object} options.data - The data object containing layout information.
+   * @returns {void}
+   */
   function moveAddButtonPosition(options) {
     var $addButton = options.$container.find('.dynamic-list-add-item');
     var layout = options.data.layout;
@@ -1350,6 +1381,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     $addButton.css('right', rightPosition);
   }
 
+  /**
+   * Resets the position of the "Add" button.
+   * @param {object} options - The options for resetting the button position.
+   * @param {jQuery} options.$container - The jQuery object of the container element.
+   * @returns {void}
+   */
   function resetAddButtonPosition(options) {
     options.$container.find('.dynamic-list-add-item').css('right', '');
   }
@@ -1362,6 +1399,14 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  /**
+   * Gets the input date based on the provided parameters.
+   * @param {string} date - The date string.
+   * @param {function} getDate - The function to get the date.
+   * @param {boolean} timeOnly - `true` if only the time should be considered.
+   * @param {boolean} dateOnly - `true` if only the date should be considered.
+   * @returns {string|null} The formatted input date, or `null` if not applicable.
+   */
   function getInputDate(date, getDate, timeOnly, dateOnly) {
     var inputDate = null;
 
@@ -1374,6 +1419,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return inputDate;
   }
 
+  /**
+   * Gets the modified date values based on the provided options.
+   * @param {object} options - The options for getting modified date values.
+   * @param {string} options.date - The date string.
+   * @param {string} options.dateFilterModifiers - The date filter modifiers.
+   * @param {number} options.offsetValue - The offset value.
+   * @param {boolean} options.useDeviceTimezone - `true` to use the device timezone.
+   * @returns {object|undefined} An object containing the comparison date and entry date, or `undefined` if not applicable.
+   */
   function getDateModifiedValues(options) {
     var timestamp = options.date;
     var timeOnly = /^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(timestamp);
@@ -1473,6 +1527,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  /**
+   * Gets a cached date value based on the offset type.
+   * @param {string} offsetType - The type of offset to apply.
+   * @param {number} offsetValue - The value of the offset.
+   * @param {function} getDate - The function to get the current date.
+   * @returns {moment.Moment} The cached moment object.
+   */
   function getCachedDate(offsetType, offsetValue, getDate) {
     // Memoization method was used in this function
 
@@ -1505,6 +1566,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     return currentDate[offsetType];
   }
 
+  /**
+   * Checks if a date matches the specified conditions.
+   * @param {object} options - The options for checking the date.
+   * @param {string} options.date - The date string to check.
+   * @param {string} options.condition - The condition to check against (e.g., 'dateis', 'datebefore', 'dateafter', 'datebetween').
+   * @param {string} options.dateValue - The date value to compare with.
+   * @param {number} options.offsetValue - The offset value for date calculations.
+   * @param {boolean} options.useDeviceTimezone - `true` to use the device's timezone.
+   * @param {object} options.dateFilterModifiers - Additional modifiers for date filtering.
+   * @returns {boolean|undefined} `true` if the date matches, `false` otherwise, or `undefined` if options are not provided.
+   */
   function isDateMatches(options) {
     if (options) {
       var result = getDateModifiedValues({
@@ -1554,10 +1626,13 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Connect to data source and retrieves data
-   * @param {Object} connectionOptions - Connection options for connecting to the data source
-   * @param {Object} options - A mapping of options for this function
-   * @returns {Promise} Promise resolves when data is retrieved
+   * Connects to a data source and retrieves data.
+   * @param {object} connectionOptions - Connection options for the data source.
+   * @param {object} options - A map of options for this function.
+   * @param {object} options.config - The configuration object.
+   * @param {Array} options.filterQueries - An array of filter queries.
+   * @param {jQuery} options.container - The jQuery object for the container.
+   * @returns {Promise<Array>} A promise that resolves with an array of data entries.
    */
   function getDataFromDataSource(connectionOptions, options) {
     connectionOptions = connectionOptions || { offline: true };
@@ -1615,9 +1690,15 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Load data for the list
-   * @param {Object} options - A mapping of options for this function
-   * @returns {Promise} Promise resolves when data is loaded
+   * Loads data for the list.
+   * @param {object} options - A map of options for this function.
+   * @param {object} options.instance - The layout instance.
+   * @param {object} options.config - The configuration object.
+   * @param {string} options.id - The widget ID.
+   * @param {string} options.uuid - The widget UUID.
+   * @param {jQuery} options.$container - The jQuery object for the container.
+   * @param {Array} options.filterQueries - An array of filter queries.
+   * @returns {Promise<Array>} A promise that resolves with an array of data entries.
    */
   function loadData(options) {
     options = options || {};
@@ -1660,11 +1741,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Filters records based on provided filter criteria
-   * Uses native Array.filter() method
-   * @param {Array} records - Array of records to filter
-   * @param {Array} filters - Array of filter objects with criteria
-   * @returns {Array} Filtered array of records
+   * Filters an array of records based on a set of filter criteria.
+   * @param {Array<object>} records - The array of records to filter.
+   * @param {Array<object>} filters - The array of filter objects with criteria.
+   * @returns {Array<object>} The filtered array of records.
    */
   function runRecordFilters(records, filters) {
     if (!filters || NativeUtils.isEmpty(filters)) {
@@ -1754,13 +1834,17 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
-   * Searches records based on search criteria
-   * Uses native Array.filter() and string search methods
-   * @param {Object} options - Search configuration options
-   * @param {Array} options.records - Array of records to search
-   * @param {string} options.searchValue - Search term to look for
-   * @param {Array} [options.searchFields] - Specific fields to search within
-   * @returns {Array} Array of records matching search criteria
+   * Searches an array of records based on the provided search criteria.
+   * @param {object} options - The search configuration options.
+   * @param {Array<object>} options.records - The array of records to search.
+   * @param {string} options.value - The search term to look for.
+   * @param {Array<string>} [options.fields] - The specific fields to search within.
+   * @param {object} [options.config] - The component configuration object.
+   * @param {object} [options.activeFilters] - The currently active filters.
+   * @param {object} [options.filterTypes] - The types of filters.
+   * @param {boolean} [options.showBookmarks] - Whether to show bookmarked items only.
+   * @param {number} [options.limit] - The maximum number of results to return.
+   * @returns {Promise<object>} A promise that resolves with an object containing the filtered records and a truncated flag.
    */
   function runRecordSearch(options) {
     options = options || {};
@@ -1863,6 +1947,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     });
   }
 
+  /**
+   * Gets all unique field keys from an array of records.
+   * @param {Array<object>} records - The array of records.
+   * @param {string} [key] - A key for caching the result.
+   * @returns {Promise<Array<string>>} A promise that resolves with an array of unique field keys.
+   */
   function getRecordFields(records, key) {
     records = records || [];
 

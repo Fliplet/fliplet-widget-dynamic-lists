@@ -1244,6 +1244,10 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
   ]);
 };
 
+/**
+ * Gets all bookmarks for the current user.
+ * @returns {Promise} A promise that resolves when the bookmarks are fetched.
+ */
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
@@ -1488,6 +1492,10 @@ DynamicList.prototype.initialize = function() {
     });
 };
 
+/**
+ * Changes the sort order based on a pre-sort query.
+ * @returns {void}
+ */
 DynamicList.prototype.changeSort = function() {
   if (NativeUtils.has(this.pvPreSortQuery, 'column') && NativeUtils.has(this.pvPreSortQuery, 'order')) {
     $('[data-sort-field="' + this.pvPreSortQuery.column + '"]')
@@ -1495,6 +1503,10 @@ DynamicList.prototype.changeSort = function() {
   }
 };
 
+/**
+ * Checks if an entry should be opened based on the query variables.
+ * @returns {Promise} A promise that resolves when the check is complete.
+ */
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
@@ -1534,6 +1546,10 @@ DynamicList.prototype.checkIsToOpen = function() {
   });
 };
 
+/**
+ * Parses search queries from the query variables and initiates a search.
+ * @returns {Promise} A promise from the searchData method.
+ */
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
@@ -1565,6 +1581,10 @@ DynamicList.prototype.parseSearchQueries = function() {
   });
 };
 
+/**
+ * Parses and applies filter queries from the query variables.
+ * @returns {void}
+ */
 DynamicList.prototype.parseFilterQueries = function() {
   if (!this.queryFilter) {
     return;
@@ -1575,6 +1595,10 @@ DynamicList.prototype.parseFilterQueries = function() {
   });
 };
 
+/**
+ * Handles the custom back button navigation event.
+ * @returns {void}
+ */
 DynamicList.prototype.navigateBackEvent = function() {
   var _this = this;
   var result;
@@ -1612,8 +1636,15 @@ DynamicList.prototype.navigateBackEvent = function() {
   });
 };
 
+/**
+ * Parses query variables from the URL.
+ */
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
+/**
+ * Parses persistent view query variables from storage.
+ * @returns {Promise} A promise that resolves when the PV query variables are parsed.
+ */
 DynamicList.prototype.parsePVQueryVars = function() {
   var _this = this;
   var pvValue;
@@ -1668,6 +1699,10 @@ DynamicList.prototype.parsePVQueryVars = function() {
     });
 };
 
+/**
+ * Renders the base HTML structure for the news feed.
+ * @returns {void}
+ */
 DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
   var _this = this;
@@ -1865,6 +1900,10 @@ DynamicList.prototype.attachLazyLoadObserver = function(options) {
   });
 };
 
+/**
+ * Renders the HTML for the list of items.
+ * @returns {Promise<Array>} A promise that resolves with the rendered records.
+ */
 DynamicList.prototype.renderLoopHTML = function() {
   // Function that renders the List template
   var _this = this;
@@ -1921,12 +1960,22 @@ DynamicList.prototype.renderLoopHTML = function() {
   });
 };
 
+/**
+ * Gets the add permission for the current user.
+ * @param {object} data - The widget data.
+ * @returns {object} The widget data with the `showAddEntry` property.
+ */
 DynamicList.prototype.getAddPermission = function(data) {
   data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
 
   return data;
 };
 
+/**
+ * Gets the permissions for the given entries.
+ * @param {Array} entries - The entries to get permissions for.
+ * @returns {Array} The entries with permission flags.
+ */
 DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
@@ -1939,6 +1988,11 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 };
 
+/**
+ * Adds and renders the filters.
+ * @param {Array} records - The records to generate filters from.
+ * @returns {Promise} A promise that resolves when the filters are rendered.
+ */
 DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
@@ -1982,6 +2036,10 @@ DynamicList.prototype.addFilters = function(records) {
   });
 };
 
+/**
+ * Calculates and sets the height of the filter controls.
+ * @returns {void}
+ */
 DynamicList.prototype.calculateFiltersHeight = function() {
   this.$container.find('.hidden-filter-controls').each(function() {
     $(this).animate({
@@ -1990,6 +2048,12 @@ DynamicList.prototype.calculateFiltersHeight = function() {
   });
 };
 
+/**
+ * Calculates and sets the height of the search controls.
+ * @param {jQuery} element - The container element of the search controls.
+ * @param {boolean} isClearSearch - `true` if the search is being cleared.
+ * @returns {void}
+ */
 DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   var totalHeight = element.find('.hidden-search-controls-content').height();
 
@@ -2206,6 +2270,11 @@ DynamicList.prototype.searchData = function(options) {
   });
 };
 
+/**
+ * Gets the identifier for a like.
+ * @param {object} record - The record to get the like identifier for.
+ * @returns {Promise<object>} A promise that resolves with the like identifier.
+ */
 DynamicList.prototype.getLikeIdentifier = function(record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
@@ -2240,6 +2309,15 @@ DynamicList.prototype.getLikeIdentifier = function(record) {
   });
 };
 
+/**
+ * Sets up a like button for a record.
+ * @param {object} options - The options for the like button.
+ * @param {string} options.target - The target selector for the like button.
+ * @param {number} options.id - The ID of the record.
+ * @param {string} options.title - The title of the record.
+ * @param {object} options.record - The record object.
+ * @returns {Promise} A promise that resolves when the like button is set up.
+ */
 DynamicList.prototype.setupLikeButton = function(options) {
   if (!NativeUtils.get(this.data, 'social.likes')) {
     return Promise.resolve();
@@ -2389,6 +2467,11 @@ DynamicList.prototype.setupLikeButton = function(options) {
     });
 };
 
+/**
+ * Gets the identifier for a bookmark.
+ * @param {object} record - The record to get the bookmark identifier for.
+ * @returns {Promise<object>} A promise that resolves with the bookmark identifier.
+ */
 DynamicList.prototype.getBookmarkIdentifier = function(record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
@@ -2422,6 +2505,15 @@ DynamicList.prototype.getBookmarkIdentifier = function(record) {
   });
 };
 
+/**
+ * Sets up a bookmark button for a record.
+ * @param {object} options - The options for the bookmark button.
+ * @param {string} options.target - The target selector for the bookmark button.
+ * @param {number} options.id - The ID of the record.
+ * @param {string} options.title - The title of the record.
+ * @param {object} options.record - The record object.
+ * @returns {Promise} A promise that resolves when the bookmark button is set up.
+ */
 DynamicList.prototype.setupBookmarkButton = function(options) {
   if (!NativeUtils.get(this.data, 'social.bookmark')) {
     return Promise.resolve();
@@ -2555,6 +2647,12 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     });
 };
 
+/**
+ * Adds detail view data to an entry.
+ * @param {object} entry - The entry to add detail view data to.
+ * @param {Array} [files] - An array of file information.
+ * @returns {object} The entry with detail view data.
+ */
 DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
   var fileList = files && Array.isArray(files) ? files.filter(Boolean) : null;
@@ -2655,6 +2753,12 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
   return entry;
 };
 
+/**
+ * Shows the detail view for an entry.
+ * @param {number} id - The ID of the entry to show.
+ * @param {Array} [listData] - The list of data to find the entry in.
+ * @returns {Promise} A promise that resolves when the detail view is shown.
+ */
 DynamicList.prototype.showDetails = function(id, listData) {
   // Function that loads the selected entry data into an overlay for more details
   var _this = this;
@@ -2739,6 +2843,10 @@ DynamicList.prototype.showDetails = function(id, listData) {
     });
 };
 
+/**
+ * Adds an indent to the content based on the height of the detail view image.
+ * @returns {void}
+ */
 DynamicList.prototype.addContentIndent = function() {
   var _this = this;
 
@@ -2753,6 +2861,12 @@ DynamicList.prototype.addContentIndent = function() {
   });
 };
 
+/**
+ * Closes the detail view.
+ * @param {object} [options] - Options for closing the detail view.
+ * @param {boolean} [options.focusOnEntry=false] - Whether to focus on the entry after closing.
+ * @returns {void}
+ */
 DynamicList.prototype.closeDetails = function(options) {
   if (this.openedEntryOnQuery && Fliplet.Navigate.query.dynamicListPreviousScreen === 'true') {
     Fliplet.Page.Context.remove('dynamicListPreviousScreen');
@@ -2792,6 +2906,11 @@ DynamicList.prototype.closeDetails = function(options) {
 /** ** COMMENTS ****/
 /** ****************/
 
+/**
+ * Gets the identifier for a comment.
+ * @param {object} record - The record to get the comment identifier for.
+ * @returns {Promise<object>} A promise that resolves with the comment identifier.
+ */
 DynamicList.prototype.getCommentIdentifier = function(record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
@@ -2827,6 +2946,14 @@ DynamicList.prototype.getCommentIdentifier = function(record) {
   });
 };
 
+/**
+ * Gets the comments for an entry.
+ * @param {object} options - The options for getting comments.
+ * @param {number} options.id - The ID of the entry.
+ * @param {object} [options.record] - The record object.
+ * @param {boolean} [options.force=false] - Whether to force a refresh of the comments.
+ * @returns {Promise} A promise that resolves when the comments are fetched.
+ */
 DynamicList.prototype.getEntryComments = function(options) {
   if (!NativeUtils.get(this.data, 'social.comments')) {
     return Promise.resolve();
@@ -2877,6 +3004,10 @@ DynamicList.prototype.getEntryComments = function(options) {
     });
 };
 
+/**
+ * Connects to the users data source.
+ * @returns {Promise<Array>} A promise that resolves with the user data.
+ */
 DynamicList.prototype.connectToUsersDataSource = function() {
   var _this = this;
   var options = {
@@ -2889,6 +3020,13 @@ DynamicList.prototype.connectToUsersDataSource = function() {
     });
 };
 
+/**
+ * Updates the comment counter for an entry.
+ * @param {object} options - The options for updating the comment counter.
+ * @param {number} options.id - The ID of the entry.
+ * @param {object} [options.record] - The record object.
+ * @returns {void}
+ */
 DynamicList.prototype.updateCommentCounter = function(options) {
   if (!NativeUtils.get(this.data, 'social.comments')) {
     return;
@@ -2915,6 +3053,12 @@ DynamicList.prototype.updateCommentCounter = function(options) {
   _this.$container.find('.news-feed-comemnt-holder-' + id).html(html);
 };
 
+/**
+ * Shows the comments for an entry.
+ * @param {number} id - The ID of the entry.
+ * @param {number} [commentId] - The ID of a specific comment to scroll to.
+ * @returns {Promise} A promise that resolves when the comments are shown.
+ */
 DynamicList.prototype.showComments = function(id, commentId) {
   var _this = this;
 
@@ -3043,6 +3187,12 @@ DynamicList.prototype.showComments = function(id, commentId) {
   });
 };
 
+/**
+ * Sends a comment for an entry.
+ * @param {number} id - The ID of the entry.
+ * @param {string} value - The comment text.
+ * @returns {Promise} A promise that resolves when the comment is sent.
+ */
 DynamicList.prototype.sendComment = function(id, value) {
   var record = this.listItems.find(function(item) { return item.id === id; });
 
@@ -3216,6 +3366,14 @@ DynamicList.prototype.sendComment = function(id, value) {
   });
 };
 
+/**
+ * Appends a temporary comment to the comment area.
+ * @param {number} id - The ID of the entry.
+ * @param {string} value - The comment text.
+ * @param {string} guid - The GUID of the temporary comment.
+ * @param {object} userFromDataSource - The user data from the data source.
+ * @returns {void}
+ */
 DynamicList.prototype.appendTempComment = function(id, value, guid, userFromDataSource) {
   var _this = this;
   var timestamp = (new Date()).toISOString();
@@ -3243,6 +3401,13 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
   }, 250);
 };
 
+/**
+ * Replaces a temporary comment with the final comment.
+ * @param {string} guid - The GUID of the temporary comment.
+ * @param {object} commentData - The data of the final comment.
+ * @param {string} context - The context ('final' or 'temp').
+ * @returns {void}
+ */
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
   var userName = NativeUtils.compact(_this.data.userNameFields.map(function(name) {
@@ -3301,6 +3466,11 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   _this.$container.find('.fl-individual-comment[data-id="' + guid + '"]').replaceWith(commentHTML);
 };
 
+/**
+ * Deletes a comment.
+ * @param {number} id - The ID of the comment to delete.
+ * @returns {Promise} A promise that resolves when the comment is deleted.
+ */
 DynamicList.prototype.deleteComment = function(id) {
   var _this = this;
   var entryId = _this.$container.find('.news-feed-details-content-holder').data('entry-id') || _this.entryClicked;
@@ -3340,6 +3510,13 @@ DynamicList.prototype.deleteComment = function(id) {
   });
 };
 
+/**
+ * Saves an edited comment.
+ * @param {number} entryId - The ID of the entry the comment belongs to.
+ * @param {number} commentId - The ID of the comment to save.
+ * @param {string} newComment - The new text of the comment.
+ * @returns {Promise} A promise that resolves when the comment is saved.
+ */
 DynamicList.prototype.saveComment = function(entryId, commentId, newComment) {
   var _this = this;
   var entry = _this.listItems.find(function(item) { return item.id === entryId; });
