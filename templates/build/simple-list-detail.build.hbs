@@ -54,7 +54,7 @@
   \{{/if}}
 
   <div class="simple-list-detail-value">
-    <a href="\{{{auth content}}}" target="_blank">\{{ T "widgets.list.dynamic.detail.linkText" }}</a>
+    <a href="\{{{auth (ensureProtocol content)}}}" target="_blank">\{{ T "widgets.list.dynamic.detail.linkText" }}</a>
   </div>
   \{{/if}}
   \{{/ifCond}}
