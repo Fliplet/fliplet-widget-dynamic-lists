@@ -308,7 +308,7 @@ var DynamicLists = (function() {
               $('#filter-value-type-' + id).toggleClass('hidden', hideValueFields);
 
               $('#logic-comparison-' + id).toggleClass('hidden', !isBetween);
-              $('#date-logic-' + id).toggleClass('hidden', !isDateLogic );
+              $('#date-logic-' + id).toggleClass('hidden', !isDateLogic);
               $('#date-between-' + id).toggleClass('hidden', !isDateBetween);
 
               if (isDateBetween) {
@@ -702,11 +702,11 @@ var DynamicLists = (function() {
       var canDeleteEntry = $('[name="delete-permissions"]:checked').val();
       var isAdminsCanAddEntry = canAddEntry === 'admins' && isAddEntryActive;
       var isAdminsCanEditEntry = (canEditEntry === 'admins' || canEditEntry === 'users-admins') && isEditEntryActive;
-      var isAdminsCanDeleteEntry =
-        (canDeleteEntry === 'admins' || canDeleteEntry === 'users-admins') && isDeleteEntryActive;
+      var isAdminsCanDeleteEntry
+        = (canDeleteEntry === 'admins' || canDeleteEntry === 'users-admins') && isDeleteEntryActive;
       var isUsersCanEditEntry = (canEditEntry === 'user' || canEditEntry === 'users-admins') && isEditEntryActive;
-      var isUsersCanDeleteEntry =
-        (canDeleteEntry === 'user' || canDeleteEntry === 'users-admins') && isDeleteEntryActive;
+      var isUsersCanDeleteEntry
+        = (canDeleteEntry === 'user' || canDeleteEntry === 'users-admins') && isDeleteEntryActive;
       var showUserEmailList = isUsersCanEditEntry || isUsersCanDeleteEntry;
       var showUserAdminHolder = isAdminsCanAddEntry
         || isAdminsCanEditEntry
@@ -857,7 +857,7 @@ var DynamicLists = (function() {
           $('#date-field-' + item.id).val(item.dateValue);
           $('#number-field-' + item.id).val(item.offsetValue);
           $('#enable-timezone-default-' + item.id).prop('checked', item.useDeviceTimezone).trigger('change');
-          $('#value-field-' + item.id).val(item.fieldValue || item.value );
+          $('#value-field-' + item.id).val(item.fieldValue || item.value);
           $('#value-type-field-' + item.id).val(!item.valueType ? 'enter-value' : item.valueType);
 
           return;
@@ -1468,20 +1468,20 @@ var DynamicLists = (function() {
     },
     loadTokenFields: function() {
       if (_this.config.searchEnabled) {
-        $('#search-column-fields-tokenfield').tokenfield('setTokens', _this.config.searchFields );
+        $('#search-column-fields-tokenfield').tokenfield('setTokens', _this.config.searchFields);
       }
 
       if (_this.config.filtersEnabled) {
-        $('#filter-column-fields-tokenfield').tokenfield('setTokens', _this.config.filterFields );
+        $('#filter-column-fields-tokenfield').tokenfield('setTokens', _this.config.filterFields);
       }
 
       if (_this.config.sortEnabled) {
-        $('#sort-column-fields-tokenfield').tokenfield('setTokens', _this.config.sortFields );
+        $('#sort-column-fields-tokenfield').tokenfield('setTokens', _this.config.sortFields);
       }
     },
     loadUserTokenFields: function() {
       if (_this.config.userNameFields) {
-        $('#user-name-column-fields-tokenfield').tokenfield('setTokens', _this.config.userNameFields );
+        $('#user-name-column-fields-tokenfield').tokenfield('setTokens', _this.config.userNameFields);
       }
     },
     goToSettings: function(context) {
@@ -2573,7 +2573,7 @@ var DynamicLists = (function() {
         jsCode = !fromReset ? _this.config.advancedSettings.jsCode || '' : javascriptEditor.getValue();
       } else if (layoutMapping[selectedLayout] && layoutMapping[selectedLayout].js) {
         var jsUrl = $('[data-' + layoutMapping[selectedLayout].js + '-js-url]').data(layoutMapping[selectedLayout].js + '-js-url');
-        var jsPromise = Fliplet.API.request('v1/communicate/proxy/' + jsUrl )
+        var jsPromise = Fliplet.API.request('v1/communicate/proxy/' + jsUrl)
           .then(function(response) {
             jsCode = response;
           });
@@ -2773,10 +2773,6 @@ var DynamicLists = (function() {
           });
       });
     },
-    /**
-     * Resizes the CodeMirror editors to fit the available space.
-     * @returns {void}
-     */
     /**
      * Resizes the CodeMirror editors to fit the available space.
      * @returns {void}
@@ -3096,8 +3092,8 @@ var DynamicLists = (function() {
       data.social = _this.config.social;
 
       data.userDataSourceId = _this.config.userDataSourceId;
-      data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined' ?
-        $('#user-name-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      data.userNameFields = typeof $('#user-name-column-fields-tokenfield').val()  !== 'undefined'
+        ? $('#user-name-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
       data.userEmailColumn = $('#select_user_email').val();
       data.userPhotoColumn = $('#select_user_photo').val();
       data.userFolderOption = $('#select_user_folder_type').val();
@@ -3299,12 +3295,12 @@ var DynamicLists = (function() {
      * @returns {void}
      */
     saveTokenFields: function() {
-      _this.config.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined' ?
-        $('#search-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
-      _this.config.sortFields = typeof $('#sort-column-fields-tokenfield').val() !== 'undefined' ?
-        $('#sort-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
-      _this.config.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined' ?
-        $('#filter-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      _this.config.searchFields = typeof $('#search-column-fields-tokenfield').val() !== 'undefined'
+        ? $('#search-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      _this.config.sortFields = typeof $('#sort-column-fields-tokenfield').val() !== 'undefined'
+        ? $('#sort-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
+      _this.config.filterFields = typeof $('#filter-column-fields-tokenfield').val()  !== 'undefined'
+        ? $('#filter-column-fields-tokenfield').val().split(',').map(function(x) { return x.trim(); }) : [];
       _this.config.filtersInOverlay = $('#enable-filter-overlay').is(':checked');
     }
   };
