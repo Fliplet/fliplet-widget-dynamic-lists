@@ -50,14 +50,14 @@ This component is built to be extended and customized by developers.
 
 The component's source code is organized as follows:
 
--   `css/`: Contains the stylesheets for all layouts.
--   `js/`: Contains the core JavaScript logic.
-    -   `interface.js`: The main public interface for the component, responsible for initializing the correct layout.
-    -   `build.js`: Core logic for fetching data and building the list structure.
-    -   `build-lists.js`: Handles rendering the list items.
-    -   `utils.js`: A collection of shared utility functions for record management, user permissions, navigation, and more.
-    -   `layout-javascript/`: Contains the layout-specific JavaScript logic. Each file corresponds to a layout and handles its unique rendering and event listeners.
--   `templates/`: Contains the Handlebars.js templates for the base HTML, list item loops, and detail views for each layout.
+- `css/`: Contains the stylesheets for all layouts.
+- `js/`: Contains the core JavaScript logic.
+  - `interface.js`: The main public interface for the component, responsible for initializing the correct layout.
+  - `build.js`: Core logic for fetching data and building the list structure.
+  - `build-lists.js`: Handles rendering the list items.
+  - `utils.js`: A collection of shared utility functions for record management, user permissions, navigation, and more.
+  - `layout-javascript/`: Contains the layout-specific JavaScript logic. Each file corresponds to a layout and handles its unique rendering and event listeners.
+- `templates/`: Contains the Handlebars.js templates for the base HTML, list item loops, and detail views for each layout.
 
 ### Customization with Hooks
 
@@ -76,20 +76,72 @@ Fliplet.Hooks.on('flListDataAfterGetData', function (data) {
 
 **Available Hooks:**
 
--   `flListDataBeforeGetData(options)`: Runs before data is fetched from the data source.
--   `flListDataAfterGetData(data)`: Runs after data has been fetched but before it is rendered. A great place to manipulate the data.
--   `flListDataBeforeRenderList(data)`: Runs just before the list items are rendered to the DOM.
--   `flListDataAfterRenderList(data)`: Runs after the list has been rendered. Useful for attaching third-party plugins.
--   `flListDataBeforeDeleteConfirmation(options)`: Runs before the "Are you sure?" delete confirmation is shown.
--   `flListDataBeforeDeleteEntry(options)`: Runs after the user confirms deletion but before the entry is removed from the data source.
+### Data Retrieval
+
+- `flListDataBeforeGetData(options)`: Runs before data is fetched from the data source.
+- `flListDataAfterGetData(data)`: Runs after data has been fetched but before it is rendered. A great place to manipulate the data.
+
+### List Rendering
+
+- `flListDataBeforeRenderList(data)`: Runs just before the list items are rendered to the DOM.
+- `flListDataAfterRenderList(data)`: Runs after the list has been rendered. Useful for attaching third-party plugins.
+- `flListDataAfterRenderListSocial(data)`: Runs after the list has been rendered and social features (likes, bookmarks) have been initialized.
+- `flListDataAfterRenderMoreList(data)`: Runs after additional list items are loaded via pagination or lazy loading.
+- `flListDataAfterRenderMoreListSocial(data)`: Runs after additional list items are loaded and their social features have been initialized.
+
+### Filters
+
+- `flListDataBeforeRenderFilters(data)`: Runs before filter controls are rendered to the DOM.
+- `flListDataAfterRenderFilters(data)`: Runs after filter controls have been rendered.
+
+### Search
+
+- `flListDataSearchKeyUp(options)`: Runs when a key is released in the search input field.
+- `flListDataSearchInput(options)`: Runs when the search input value changes.
+
+### Entry Actions
+
+- `flListDataBeforeDeleteConfirmation(options)`: Runs before the "Are you sure?" delete confirmation is shown.
+- `flListDataBeforeDeleteEntry(options)`: Runs after the user confirms deletion but before the entry is removed from the data source.
+
+### Comments
+
+- `flListDataBeforeShowComments(options)`: Runs before comments are displayed for an entry.
+- `flListDataAfterShowComments(data)`: Runs after comments have been displayed for an entry.
+- `flListDataBeforeNewComment(options)`: Runs before a new comment is created. You can modify the comment text via `options.comment`.
+- `flListDataAfterNewComment(options)`: Runs after a new comment has been saved to the data source but before it's rendered.
+- `flListDataAfterNewCommentShown(options)`: Runs after the new comment has been rendered in the DOM.
+- `flListDataBeforeUpdateComment(options)`: Runs before a comment is updated. You can modify the comment text via `options.newComment`.
+- `flListDataAfterUpdateComment(options)`: Runs after a comment has been updated in the data source but before it's re-rendered.
+- `flListDataAfterUpdateCommentShown(options)`: Runs after the updated comment has been rendered in the DOM.
+- `flListDataBeforeDeleteComment(options)`: Runs before a comment is deleted from the data source.
+- `flListDataAfterDeleteComment(options)`: Runs after a comment has been deleted from the data source.
+
+### Social Features - Likes
+
+- `flListDataEntryLike(data)`: Runs when a user likes an entry.
+- `flListDataEntryLikeSuccess(data)`: Runs after a like action completes successfully.
+- `flListDataEntryLikeFail(data)`: Runs if a like action fails.
+- `flListDataEntryUnlike(data)`: Runs when a user removes their like from an entry.
+- `flListDataEntryUnlikeSuccess(data)`: Runs after an unlike action completes successfully.
+- `flListDataEntryUnlikeFail(data)`: Runs if an unlike action fails.
+
+### Social Features - Bookmarks
+
+- `flListDataEntryBookmark(data)`: Runs when a user bookmarks an entry.
+- `flListDataEntryBookmarkSuccess(data)`: Runs after a bookmark action completes successfully.
+- `flListDataEntryBookmarkFail(data)`: Runs if a bookmark action fails.
+- `flListDataEntryUnbookmark(data)`: Runs when a user removes a bookmark from an entry.
+- `flListDataEntryUnbookmarkSuccess(data)`: Runs after an unbookmark action completes successfully.
+- `flListDataEntryUnbookmarkFail(data)`: Runs if an unbookmark action fails.
 
 ### Advanced Templating
 
 For ultimate control over the markup, you can provide your own Handlebars.js templates in the component's advanced settings. You can override the templates for:
 
--   **Base HTML:** The main container for the list.
--   **Loop HTML:** The template for a single list item.
--   **Detail HTML:** The template for the detail view overlay.
+- **Base HTML:** The main container for the list.
+- **Loop HTML:** The template for a single list item.
+- **Detail HTML:** The template for the detail view overlay.
 
 When writing custom templates, you have access to the data passed by the component. Use the existing templates in the `/templates` directory as a starting point.
 
@@ -97,8 +149,8 @@ When writing custom templates, you have access to the data passed by the compone
 
 This component includes the following layouts out of the box:
 
--   **Agenda:** A layout optimized for displaying events or appointments, typically grouped by date.
--   **News Feed:** A classic feed-style layout for articles or updates.
--   **Simple List:** A basic, clean list format.
--   **Small Card:** A compact card-based layout.
--   **Small Horizontal Card:** A card-based layout with a horizontal orientation, ideal for showing a thumbnail next to text content.
+- **Agenda:** A layout optimized for displaying events or appointments, typically grouped by date.
+- **News Feed:** A classic feed-style layout for articles or updates.
+- **Simple List:** A basic, clean list format.
+- **Small Card:** A compact card-based layout.
+- **Small Horizontal Card:** A card-based layout with a horizontal orientation, ideal for showing a thumbnail next to text content.
