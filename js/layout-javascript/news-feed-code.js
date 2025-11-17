@@ -1493,7 +1493,7 @@ DynamicList.prototype.initialize = function() {
 };
 
 /**
- * Changes the sort order based on a pre-sort query.
+ * Applies the pre-sort query to the sort UI by updating data-sort-order attributes.
  * @returns {void}
  */
 DynamicList.prototype.changeSort = function() {
@@ -1638,6 +1638,8 @@ DynamicList.prototype.navigateBackEvent = function() {
 
 /**
  * Parses query variables from the URL.
+ * @returns {Boolean} Returns true if any query parameters were parsed and processed,
+ * false if no relevant query parameters were found or if in interact mode
  */
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
