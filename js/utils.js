@@ -2796,10 +2796,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           }
 
           if (isSortAsc) {
-            return aValue - bValue;
+            return parseFloat(aValue) - parseFloat(bValue);
           }
 
-          return bValue - aValue;
+          return parseFloat(bValue) - parseFloat(aValue);
         case 'time':
           if (!aValue) {
             return isSortAsc ? 1 : -1;
@@ -3007,7 +3007,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               break;
             case 'numerical':
               record.data[sortField] = record.data[sortField].match(/[0-9]/)
-                ? parseInt(record.data[sortField], 10)
+                ? parseFloat(record.data[sortField])
                 : record.data[sortField];
               break;
             case 'date':
