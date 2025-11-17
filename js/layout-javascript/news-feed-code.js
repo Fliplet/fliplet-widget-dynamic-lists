@@ -1146,6 +1146,36 @@ DynamicList.prototype.attachObservers = function() {
       _this.imagesData[id].options.index = $this.index();
 
       Fliplet.Navigate.previewImages(_this.imagesData[id]);
+    })
+    .on('click keydown', '.news-feed-detail-wrapper a[href^="#"]', function(event) {
+      if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
+        return;
+      }
+
+      var href = this.getAttribute('href');
+
+      if (!href || href === '#') {
+        return;
+      }
+
+      var targetId = decodeURIComponent(href.slice(1));
+      var selector = '#' + (window.CSS && window.CSS.escape ? window.CSS.escape(targetId) : targetId);
+      var $target = _this.$overlay.find(selector);
+      var $container = $target.closest('.news-feed-list-detail-content-scroll-wrapper');
+
+      if (!$container.length) {
+        $container = _this.$overlay.find('.news-feed-detail-overlay-content');
+      }
+
+      if (!$target.length || !$container.length) {
+        return;
+      }
+
+      event.preventDefault();
+
+      var targetTop = ($target.offset().top - $container.offset().top) + $container.scrollTop();
+
+      $container.stop().animate({ scrollTop: targetTop }, 300);
     });
 };
 
