@@ -2089,30 +2089,26 @@ var DynamicLists = (function() {
           ui.item.parents('.detail-table-panels-holder').addClass('sorting');
         },
         stop: function(event, ui) {
-          $detailsRowContainer.sortable('toArray', {
+          let sortedIds = $detailsRowContainer.sortable('toArray', {
             attribute: 'data-id'
           });
 
           ui.item.parents('.detail-table-panels-holder').removeClass('sorting');
-          _this.config.detailViewOptions = [].concat.apply(this, _this.config.detailViewOptions
-            .partition(function(option) {
-              return !option.editable;
-            })
-            .map(function(items, i) {
-              if (i === 0) {
-                // Keep non-editable items as is
-                return items;
-              }
 
-              // Sort editable items by sorted IDs
-              return items.sort(function(a, b) {
-                var aOrder = a.order || 0;
-                var bOrder = b.order || 0;
+          let options = _this.config.detailViewOptions || [];
+          let nonEditable = options.filter(function(option) {
+            return !option.editable;
+          });
+          let editable = options.filter(function(option) {
+            return !!option.editable;
+          }).sort(function(a, b) {
+            let aOrder = sortedIds.indexOf(String(a.id));
+            let bOrder = sortedIds.indexOf(String(b.id));
 
-                return aOrder - bOrder;
-              });
-            })
-            .value());
+            return aOrder - bOrder;
+          });
+
+          _this.config.detailViewOptions = nonEditable.concat(editable);
         }
       });
     },
@@ -2137,7 +2133,10 @@ var DynamicLists = (function() {
           });
 
           _this.config.sortOptions = _this.config.sortOptions.sort(function(a, b) {
-            return sortedIds.indexOf(a.id) - sortedIds.indexOf(b.id);
+            let aOrder = sortedIds.indexOf(a.id);
+            let bOrder = sortedIds.indexOf(b.id);
+
+            return aOrder - bOrder;
           });
           $('.panel').not(ui.item).removeClass('faded');
         },
