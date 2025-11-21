@@ -212,9 +212,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var isString = typeof content === 'string';
 
     if (isString) {
-      imagesArray = getImagesUrlsByRegex(content);
+      imagesArray = getImagesUrlsByRegex(content) || [];
     } else {
-      imagesArray = content;
+      imagesArray = content || [];
     }
 
     imageContent = imagesArray
@@ -232,9 +232,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       }
     };
 
-    imagesData.images = imagesArray.map(function(imgUrl) {
+    imagesData.images = Array.isArray(imagesArray) ? imagesArray.map(function(imgUrl) {
       return { url: imgUrl };
-    });
+    }) : [];
 
     return {
       imageContent: imageContent,
