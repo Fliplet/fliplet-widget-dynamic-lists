@@ -217,7 +217,12 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       imagesArray = content;
     }
 
-    imageContent = imagesArray
+    // Ensure imagesArray is always an array to prevent null/undefined errors
+    if (!Array.isArray(imagesArray)) {
+      imagesArray = [];
+    }
+
+    imageContent = imagesArray.length > 0
       ? imagesArray[0]
       : '';
 
