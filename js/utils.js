@@ -207,17 +207,38 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
    *  And 'imagesArray' {Array} to display multiple images in the detail view
    */
   function getImageContent(content, isSummary) {
+    // Handle null, undefined, or empty content
+    if (!content || content === '') {
+      if (isSummary) {
+        return '';
+      }
+
+      return {
+        imageContent: '',
+        imagesArray: [],
+        imagesData: {
+          images: [],
+          options: {
+            index: null
+          }
+        }
+      };
+    }
+
     var imageContent;
     var imagesArray = [];
     var isString = typeof content === 'string';
 
     if (isString) {
       imagesArray = getImagesUrlsByRegex(content) || [];
-    } else {
+    } else if (Array.isArray(content)) {
       imagesArray = content || [];
+    } else {
+      // If content is not a string or array, default to empty array
+      imagesArray = [];
     }
 
-    imageContent = imagesArray
+    imageContent = imagesArray && imagesArray.length
       ? imagesArray[0]
       : '';
 
@@ -232,13 +253,16 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       }
     };
 
-    imagesData.images = Array.isArray(imagesArray) ? imagesArray.map(function(imgUrl) {
-      return { url: imgUrl };
-    }) : [];
+    // Ensure imagesArray is always an array before calling map
+    imagesData.images = (imagesArray && Array.isArray(imagesArray))
+      ? imagesArray.map(function(imgUrl) {
+          return { url: imgUrl };
+        })
+      : [];
 
     return {
       imageContent: imageContent,
-      imagesArray: imagesArray,
+      imagesArray: imagesArray || [],
       imagesData: imagesData
     };
   }
