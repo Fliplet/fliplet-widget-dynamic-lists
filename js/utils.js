@@ -230,9 +230,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var isString = typeof content === 'string';
 
     if (isString) {
-      imagesArray = getImagesUrlsByRegex(content);
+      imagesArray = getImagesUrlsByRegex(content) || [];
     } else if (Array.isArray(content)) {
-      imagesArray = content;
+      imagesArray = content || [];
     } else {
       // If content is not a string or array, default to empty array
       imagesArray = [];
