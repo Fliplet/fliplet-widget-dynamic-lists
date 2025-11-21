@@ -1072,6 +1072,10 @@ DynamicList.prototype.initialize = function() {
     });
 };
 
+/**
+ * Changes the sort order based on a pre-sort query.
+ * @returns {void}
+ */
 DynamicList.prototype.changeSortOrder = function() {
   if (NativeUtils.has(this.pvPreSortQuery, 'column') && NativeUtils.has(this.pvPreSortQuery, 'order')) {
     $('[data-sort-field="' + this.pvPreSortQuery.column + '"]')
@@ -1079,6 +1083,10 @@ DynamicList.prototype.changeSortOrder = function() {
   }
 };
 
+/**
+ * Checks if an entry should be opened based on the query variables.
+ * @returns {Promise} A promise that resolves when the check is complete.
+ */
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
@@ -1114,6 +1122,10 @@ DynamicList.prototype.checkIsToOpen = function() {
   });
 };
 
+/**
+ * Parses search queries from the query variables and initiates a search.
+ * @returns {Promise} A promise from the searchData method.
+ */
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
@@ -1142,6 +1154,10 @@ DynamicList.prototype.parseSearchQueries = function() {
   });
 };
 
+/**
+ * Parses and applies filter queries from the query variables.
+ * @returns {void}
+ */
 DynamicList.prototype.parseFilterQueries = function() {
   if (!this.queryFilter) {
     return;
@@ -1152,6 +1168,10 @@ DynamicList.prototype.parseFilterQueries = function() {
   });
 };
 
+/**
+ * Handles the custom back button navigation event.
+ * @returns {void}
+ */
 DynamicList.prototype.navigateBackEvent = function() {
   var _this = this;
   var result;
@@ -1190,8 +1210,17 @@ DynamicList.prototype.navigateBackEvent = function() {
   });
 };
 
+/**
+ * Parses query variables from the URL.
+ * @returns {Boolean} Returns true if any query parameters were parsed and processed,
+ * false if no relevant query parameters were found or if in interact mode
+ */
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
+/**
+ * Parses persistent view query variables from storage.
+ * @returns {Promise} A promise that resolves when the PV query variables are parsed.
+ */
 DynamicList.prototype.parsePVQueryVars = function() {
   var _this = this;
   var pvValue;
@@ -1246,6 +1275,10 @@ DynamicList.prototype.parsePVQueryVars = function() {
     });
 };
 
+/**
+ * Renders the base HTML structure for the small card list.
+ * @returns {void}
+ */
 DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
   var _this = this;
@@ -1353,6 +1386,10 @@ DynamicList.prototype.renderLoopSegment = function(options) {
   });
 };
 
+/**
+ * Lazily loads more items into the list.
+ * @returns {Promise} A promise that resolves when more items are loaded.
+ */
 DynamicList.prototype.lazyLoadMore = function() {
   var _this = this;
 
@@ -1406,6 +1443,12 @@ DynamicList.prototype.lazyLoadMore = function() {
   });
 };
 
+/**
+ * Attaches a lazy load observer to the list.
+ * @param {object} options - The options for the lazy load observer.
+ * @param {Array} options.renderedRecords - The records that have been rendered.
+ * @returns {void}
+ */
 DynamicList.prototype.attachLazyLoadObserver = function(options) {
   options = options || {};
 
@@ -1441,6 +1484,10 @@ DynamicList.prototype.attachLazyLoadObserver = function(options) {
   });
 };
 
+/**
+ * Renders the HTML for the list of items.
+ * @returns {Promise<Array>} A promise that resolves with the rendered records.
+ */
 DynamicList.prototype.renderLoopHTML = function() {
   // Function that renders the List template
   var _this = this;
@@ -1497,12 +1544,22 @@ DynamicList.prototype.renderLoopHTML = function() {
   });
 };
 
+/**
+ * Gets the add permission for the current user.
+ * @param {object} data - The widget data.
+ * @returns {object} The widget data with the `showAddEntry` property.
+ */
 DynamicList.prototype.getAddPermission = function(data) {
   data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
 
   return data;
 };
 
+/**
+ * Gets the permissions for the given entries.
+ * @param {Array} entries - The entries to get permissions for.
+ * @returns {Array} The entries with permission flags.
+ */
 DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
@@ -1515,6 +1572,11 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 };
 
+/**
+ * Adds and renders the filters.
+ * @param {Array} records - The records to generate filters from.
+ * @returns {Promise} A promise that resolves when the filters are rendered.
+ */
 DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
@@ -1559,6 +1621,10 @@ DynamicList.prototype.addFilters = function(records) {
   });
 };
 
+/**
+ * Calculates and sets the height of the filter controls.
+ * @returns {void}
+ */
 DynamicList.prototype.calculateFiltersHeight = function() {
   this.$container.find('.hidden-filter-controls').each(function() {
     $(this).animate({
@@ -1567,6 +1633,12 @@ DynamicList.prototype.calculateFiltersHeight = function() {
   });
 };
 
+/**
+ * Calculates and sets the height of the search controls.
+ * @param {jQuery} element - The container element of the search controls.
+ * @param {boolean} isClearSearch - `true` if the search is being cleared.
+ * @returns {void}
+ */
 DynamicList.prototype.calculateSearchHeight = function(element, isClearSearch) {
   var totalHeight = element.find('.hidden-search-controls-content').height();
 
@@ -1792,6 +1864,11 @@ DynamicList.prototype.searchData = function(options) {
   });
 };
 
+/**
+ * Gets the identifier for a bookmark.
+ * @param {object} record - The record to get the bookmark identifier for.
+ * @returns {Promise<object>} A promise that resolves with the bookmark identifier.
+ */
 DynamicList.prototype.getBookmarkIdentifier = function(record) {
   var uniqueId = this.Utils.Record.getUniqueId({
     record: record,
@@ -1825,6 +1902,15 @@ DynamicList.prototype.getBookmarkIdentifier = function(record) {
   });
 };
 
+/**
+ * Sets up a bookmark button for a record.
+ * @param {object} options - The options for the bookmark button.
+ * @param {string} options.target - The target selector for the bookmark button.
+ * @param {number} options.id - The ID of the record.
+ * @param {string} options.title - The title of the record.
+ * @param {object} options.record - The record object.
+ * @returns {Promise} A promise that resolves when the bookmark button is set up.
+ */
 DynamicList.prototype.setupBookmarkButton = function(options) {
   if (!NativeUtils.get(this.data, 'social.bookmark')) {
     return Promise.resolve();
@@ -1958,6 +2044,11 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
     });
 };
 
+/**
+ * Initializes the social buttons in the detail overlay.
+ * @param {number} id - The ID of the entry.
+ * @returns {Promise} A promise that resolves when the social buttons are initialized.
+ */
 DynamicList.prototype.initializeOverlaySocials = function(id) {
   var _this = this;
   var record = NativeUtils.find(_this.listItems, function(item) { return item.id === id; });
@@ -1987,6 +2078,10 @@ DynamicList.prototype.initializeOverlaySocials = function(id) {
   });
 };
 
+/**
+ * Gets all bookmarks for the current user.
+ * @returns {Promise} A promise that resolves when the bookmarks are fetched.
+ */
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
@@ -2068,6 +2163,12 @@ DynamicList.prototype.initializeSocials = function(records) {
   });
 };
 
+/**
+ * Adds detail view data to an entry.
+ * @param {object} entry - The entry to add detail view data to.
+ * @param {Array} [files] - An array of file information.
+ * @returns {object} The entry with detail view data.
+ */
 DynamicList.prototype.addDetailViewData = function(entry, files) {
   var _this = this;
   var fileList = files && Array.isArray(files) ? files.filter(Boolean) : null;
