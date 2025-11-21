@@ -616,8 +616,9 @@
   z-index: 9;
 }
 
-[data-view="search-results"] .new-agenda-list-container .agenda-date-selector,
-[data-view="search-results"] .new-agenda-list-container .agenda-list-holder {
+/* View toggling via classes (replaces legacy [data-view]) */
+.view-search-results .new-agenda-list-container .agenda-date-selector,
+.view-search-results .new-agenda-list-container .agenda-list-holder {
   display: none;
 }
 
@@ -715,7 +716,7 @@
   transition-delay: 0.2s;
 }
 
-[data-view="search-results"] .new-agenda-list-container .agenda-cards-wrapper {
+.view-search-results .new-agenda-list-container .agenda-cards-wrapper {
   -webkit-transition: none;
   -ms-transition: none;
   transition: none;
@@ -1106,7 +1107,7 @@
   pointer-events: none;
 }
 
-[data-view="search-results"] .new-agenda-list-container .search-results-wrapper {
+.view-search-results .new-agenda-list-container .search-results-wrapper {
   -webkit-transition: opacity 0.2s ease-out;
   -ms-transition: opacity 0.2s ease-out;
   transition: opacity 0.2s ease-out;
@@ -1145,8 +1146,8 @@
   cursor: default;
 }
 
-.new-agenda-list-container[data-view="loop"] .no-results ~ .no-results-holder,
-.new-agenda-list-container.no-results[data-view="loop"] .no-results-holder {
+.view-loop .new-agenda-list-container .no-results ~ .no-results-holder,
+.view-loop .new-agenda-list-container.no-results .no-results-holder {
   display: block;
 }
 
