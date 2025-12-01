@@ -192,12 +192,14 @@ function initFilePickerProvider(field) {
     Fliplet.Widget.toggleCancelButton(true);
     Fliplet.Widget.toggleSaveButton(true);
 
+    const widgetSummaryFields = widgetData['summary-fields'] || [];
+
     field.folder.selectFiles = data.data.length ? data.data : [];
 
     if (field.from === 'summary') {
-      widgetData['summary-fields'].forEach(function(item, index) {
+      widgetSummaryFields.forEach(function(item, index) {
         if (item.id === field.id) {
-          widgetData['summary-fields'][index].folder = field.folder;
+          widgetSummaryFields[index].folder = field.folder;
         }
       });
     } else if (field.from === 'details') {
@@ -307,8 +309,9 @@ function attachObservers() {
       initUserFilePickerProvider(userFolder);
     })
     .on('click', '[data-file-picker-summary]', function() {
+      const widgetSummaryFields = widgetData['summary-fields'] || [];
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = widgetData['summary-fields'].find(function(item) { return item.id === fieldId; });
+      var field = widgetSummaryFields.find(function(item) { return item.id === fieldId; });
 
       highlightError(selectedFieldId, true);
 
