@@ -2425,8 +2425,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
 
           if (typeof image === 'string') {
             images = splitByCommas(image);
-          } else {
+          } else if (Array.isArray(image)) {
             images = image;
+          } else {
+            images = [];
           }
 
           response.files.forEach(function(file) {
@@ -2485,7 +2487,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               NativeUtils.set(data, ['record', 'data', data.field.column], file.url);
 
               return true;
-            } else if (Static.RegExp.number.test(image)
+            } else if (image && Static.RegExp.number.test(image)
             && parseInt(image, 10) === file.id) {
               NativeUtils.set(data, ['record', 'data', data.field.column], file.url);
 
