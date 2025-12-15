@@ -132,7 +132,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               name: file.name,
               size: file.metadata.size,
               uploaded: file.createdAt,
-              url: file.url
+              url: Fliplet.Media.authenticate(file.url)
             };
           }).sort(sortFilesByName);
 
@@ -3448,7 +3448,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     if (options.summaryLinkAction.type === 'file') {
-      Fliplet.Navigate.file(value);
+      Fliplet.Navigate.file(Fliplet.Media.authenticate(value));
     } else if (options.summaryLinkAction.type === 'url') {
       Fliplet.Navigate.url(value);
     } else {
