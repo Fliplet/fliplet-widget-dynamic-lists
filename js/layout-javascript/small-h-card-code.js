@@ -537,6 +537,10 @@ DynamicList.prototype.initialize = function() {
     });
 };
 
+/**
+ * Checks if an entry should be opened based on the query variables.
+ * @returns {Promise} A promise that resolves when the check is complete.
+ */
 DynamicList.prototype.checkIsToOpen = function() {
   var _this = this;
   var entry;
@@ -571,8 +575,17 @@ DynamicList.prototype.checkIsToOpen = function() {
   });
 };
 
+/**
+ * Parses query variables from the URL.
+ * @returns {Boolean} Returns true if any query parameters were parsed and processed,
+ * false if no relevant query parameters were found or if in interact mode
+ */
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
+/**
+ * Parses persistent view query variables from storage.
+ * @returns {Promise} A promise that resolves when the PV query variables are parsed.
+ */
 DynamicList.prototype.parsePVQueryVars = function() {
   var _this = this;
   var pvValue;
@@ -610,6 +623,10 @@ DynamicList.prototype.parsePVQueryVars = function() {
     });
 };
 
+/**
+ * Renders the base HTML structure for the small horizontal card list.
+ * @returns {void}
+ */
 DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
   var _this = this;
@@ -739,12 +756,22 @@ DynamicList.prototype.renderLoopHTML = function(iterateeCb) {
   });
 };
 
+/**
+ * Gets the add permission for the current user.
+ * @param {object} data - The widget data.
+ * @returns {object} The widget data with the `showAddEntry` property.
+ */
 DynamicList.prototype.getAddPermission = function(data) {
   data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
 
   return data;
 };
 
+/**
+ * Gets the permissions for the given entries.
+ * @param {Array} entries - The entries to get permissions for.
+ * @returns {Array} The entries with permission flags.
+ */
 DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
