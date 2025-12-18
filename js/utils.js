@@ -404,6 +404,20 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       return formattedName;
     });
 
+    Handlebars.registerHelper('ensureProtocol', function(url) {
+      if (!url) {
+        return '';
+      }
+
+      // Check if URL already has a protocol (http://, https://, //, or other protocols like mailto:, tel:)
+      if (/^(https?:\/\/|\/\/|[a-zA-Z][a-zA-Z\d+\-.]*:)/i.test(url)) {
+        return url;
+      }
+
+      // Add https:// protocol for URLs without one
+      return 'https://' + url;
+    });
+
     Handlebars.registerPartial('filter', Fliplet.Widget.Templates['templates.build.filter']());
   }
 
