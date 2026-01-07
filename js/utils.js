@@ -707,52 +707,55 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     options = options || {};
 
     var $container = options.$container;
-    var activeFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"], [data-type="number"]'))
-      .map(function(el) {
-        return NativeUtils.pickBy({
-          class: el.dataset.toggle,
-          field: el.dataset.field,
-          value: el.dataset.value
-        });
-      })
-      .groupBy('field')
-      .mapValues(function(filters) {
-        return filters.map(function(filter) {
-          return NativeUtils.has(filter, 'field') && NativeUtils.has(filter, 'value')
-            ? filter.value
-            : filter.class;
-        });
-      })
-      .value();
+    var elements = $container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').not('[data-type="date"], [data-type="number"]');
+    var mappedFilters = Array.from(elements).map(function(el) {
+      return NativeUtils.pickBy({
+        class: el.dataset.toggle,
+        field: el.dataset.field,
+        value: el.dataset.value
+      });
+    });
+    var groupedFilters = NativeUtils.groupBy(mappedFilters, 'field');
+    var activeFilters = Object.keys(groupedFilters).reduce(function(result, key) {
+      result[key] = groupedFilters[key].map(function(filter) {
+        return NativeUtils.has(filter, 'field') && NativeUtils.has(filter, 'value')
+          ? filter.value
+          : filter.class;
+      });
+
+      return result;
+    }, {});
 
     var inputDataNames = {
       date: 'flDatePicker',
       number: 'flNumberInput'
     };
-    var rangeFilters = _($container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').filter('[data-type="date"], [data-type="number"]'))
-      .map(function(el) {
-        var $el = $(el);
-        var type = $el.data('type');
+    var rangeElements = $container.find('[data-filter-group] .hidden-filter-controls-filter.mixitup-control-active').filter('[data-type="date"], [data-type="number"]');
+    var mappedRangeFilters = Array.from(rangeElements).map(function(el) {
+      var $el = $(el);
+      var type = $el.data('type');
 
-        return NativeUtils.omitBy({
-          field: el.dataset.field,
-          type: type,
-          value: $el.data(inputDataNames[type]).get()
-        }, NativeUtils.isNil);
-      })
-      .groupBy('field')
-      .mapValues(function(filters) {
-        // Sort the values to assume the FROM value is not after the TO value
-        var values = filters.map(function(f) { return f.value; });
-        var type = filters && filters[0] && filters[0].type;
+      return NativeUtils.omitBy({
+        field: el.dataset.field,
+        type: type,
+        value: $el.data(inputDataNames[type]).get()
+      }, NativeUtils.isNil);
+    });
+    var groupedRangeFilters = NativeUtils.groupBy(mappedRangeFilters, 'field');
+    var rangeFilters = Object.keys(groupedRangeFilters).reduce(function(result, key) {
+      var filters = groupedRangeFilters[key];
+      // Sort the values to assume the FROM value is not after the TO value
+      var values = filters.map(function(f) { return f.value; });
+      var type = filters && filters[0] && filters[0].type;
 
-        return type === 'date'
-          ? values.sort()
-          : values.sort(function(a, b) {
-            return a - b;
-          });
-      })
-      .value();
+      result[key] = type === 'date'
+        ? values.sort()
+        : values.sort(function(a, b) {
+          return a - b;
+        });
+
+      return result;
+    }, {});
 
     // Clean up invalid date filter values
     for (var field in rangeFilters) {
@@ -2141,60 +2144,59 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     // Parse legacy flFilters from records to generate a list of filter values
-    var result = _(records)
-      .map(function(record) {
-        return (record.data && record.data.flFilters) || record.flFilters;
-      })
-      .flatten()
-      .uniqBy(function(filter) {
-        // Ignore the filter class name when computing unique filter values
-        if (filter.data && filter.data.class) {
-          delete filter.data.class;
-        }
+    var mappedRecords = records.map(function(record) {
+      return (record.data && record.data.flFilters) || record.flFilters;
+    });
+    var flattenedFilters = NativeUtils.flatten(mappedRecords);
+    var uniqueFilters = NativeUtils.uniqBy(flattenedFilters, function(filter) {
+      // Ignore the filter class name when computing unique filter values
+      if (filter.data && filter.data.class) {
+        delete filter.data.class;
+      }
 
-        // uniqBy iteratee, ignoring classes
-        return JSON.stringify(filter);
-      })
-      .orderBy(function(obj) {
-        return (NativeUtils.get(obj, ['data', 'name'], '') + '').toLowerCase();
-      })
-      .groupBy('type')
-      .map(function(values, field) {
-        // map iteratee for defining of each filter field
-        var filter  = {
-          id: id,
-          name: field,
-          data: values.map(function(v) { return v.data; }),
-          type: filterTypes[field]
-        };
+      // uniqBy iteratee, ignoring classes
+      return JSON.stringify(filter);
+    });
+    var orderedFilters = NativeUtils.orderBy(uniqueFilters, function(obj) {
+      return (NativeUtils.get(obj, ['data', 'name'], '') + '').toLowerCase();
+    });
+    var groupedByType = NativeUtils.groupBy(orderedFilters, 'type');
+    var mappedFilters = Object.keys(groupedByType).map(function(field) {
+      var values = groupedByType[field];
+      // map iteratee for defining of each filter field
+      var filter  = {
+        id: id,
+        name: field,
+        data: values.map(function(v) { return v.data; }),
+        type: filterTypes[field]
+      };
 
-        switch (filter.type) {
-          case 'date':
-          case 'number':
-            Object.assign(filter, getMinMaxFilterValues(values));
+      switch (filter.type) {
+        case 'date':
+        case 'number':
+          Object.assign(filter, getMinMaxFilterValues(values));
 
-            // If min/max values can't be found, render the filter as a toggle
-            if (!NativeUtils.has(filter, 'min') || !NativeUtils.has(filter, 'max')) {
-              filterTypes[field] = 'toggle';
-              filter.type = 'toggle';
-            }
+          // If min/max values can't be found, render the filter as a toggle
+          if (!NativeUtils.has(filter, 'min') || !NativeUtils.has(filter, 'max')) {
+            filterTypes[field] = 'toggle';
+            filter.type = 'toggle';
+          }
 
-            break;
-          case 'toggle':
-          default:
-            break;
-        }
+          break;
+        case 'toggle':
+        default:
+          break;
+      }
 
-        return filter;
-      })
-      .filter(function(filter) {
-        return filter.name && NativeUtils.size(filter.data);
-      })
-      .orderBy(function(filter) {
-        // orderBy iteratee
-        return filters.indexOf(filter.name);
-      })
-      .value();
+      return filter;
+    });
+    var filteredResults = mappedFilters.filter(function(filter) {
+      return filter.name && NativeUtils.size(filter.data);
+    });
+    var result = NativeUtils.orderBy(filteredResults, function(filter) {
+      // orderBy iteratee
+      return filters.indexOf(filter.name);
+    });
 
     // Remove the fake entry added from filter query
     if (hasFilterQuery) {
