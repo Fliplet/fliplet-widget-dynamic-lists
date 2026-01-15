@@ -1433,7 +1433,7 @@ DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
   var _this = this;
   // Filter out entries with invalid or missing dates to avoid misalignment
   var validRows = NativeUtils.filter(loopData, function(row) {
-    return _this.Utils.Date.moment(row[dateField]).isValid();
+    return row[dateField] && _this.Utils.Date.moment(row[dateField]).isValid();
   });
 
   if (!validRows.length) {
@@ -1813,7 +1813,7 @@ DynamicList.prototype.filterRecordsWithValidDateTime = function(records) {
 
   return records.filter(function(record) {
     var dateValue = NativeUtils.get(record, ['data', dateFieldColumn]);
-    var hasValidDate = _this.Utils.Date.moment(dateValue).isValid();
+    var hasValidDate = dateValue && _this.Utils.Date.moment(dateValue).isValid();
 
     if (!hasValidDate) {
       return false;
@@ -1824,20 +1824,17 @@ DynamicList.prototype.filterRecordsWithValidDateTime = function(records) {
       return true;
     }
 
-    // Keep the record if at least one configured time column has a value
+    // Hide the record if any configured time column is empty
     for (var i = 0; i < timeColumns.length; i++) {
       var v = NativeUtils.get(record, ['data', timeColumns[i]]);
+      var isEmpty = !v || (typeof v === 'string' && !v.trim());
 
-      if (typeof v === 'string') {
-        if (v.trim() !== '') {
-          return true;
-        }
-      } else if (v !== null && typeof v !== 'undefined') {
-        return true;
+      if (isEmpty) {
+        return false;
       }
     }
 
-    return false;
+    return true;
   });
 };
 
@@ -2558,7 +2555,9 @@ DynamicList.prototype.searchData = function(options) {
 
       if (dateFieldColumn) {
         searchedData = NativeUtils.filter(searchedData, function(entry) {
-          return _this.Utils.Date.moment(NativeUtils.get(entry, ['data', dateFieldColumn])).isValid();
+          var dateVal = NativeUtils.get(entry, ['data', dateFieldColumn]);
+
+          return dateVal && _this.Utils.Date.moment(dateVal).isValid();
         });
       }
 
