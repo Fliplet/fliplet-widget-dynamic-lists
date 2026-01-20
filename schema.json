@@ -1,0 +1,1625 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "List from data source component",
+  "description": "This is the schema for the list from data source component. This schema is used to create the list component from data source and to render the list component in the frontend.",
+  "type": "object",
+  "properties": {
+    "sortEnabled": {
+      "title": "Indicates whether sorting is enabled for the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "sortFields": {
+      "title": "Defines the fields used for sorting the list.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [""]
+    },
+    "sortOptions": {
+      "title": "Sorting option for LFD",
+      "description": "This defines an array of sorting configurations for each field in a data source.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "column": {
+            "title": "The column name on which sorting will happen. It specifies the specific column to sort by.",
+            "type": "string",
+            "default": "none"
+          },
+          "columns": {
+            "title": "A list of all the columns available in the data source. Each column is represented as a string item in the array.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "orderBy": {
+            "title": "It specifies whether the records should be sorted in ascending, descending, or no particular order.",
+            "type": "string",
+            "enum": ["none", "ascending", "descending"],
+            "default": "ascending"
+          },
+          "sortBy": {
+            "title": " It specifies the method of sorting, such as alphabetical, numerical, date, or time-based sorting.",
+            "type": "string",
+            "enum": ["none", "alphabetical", "numerical", "date", "time"],
+            "default": "alphabetical"
+          },
+          "title": {
+            "title": "The title of the sorting configuration. It provides an optional title for the sorting option.",
+            "type": "string"
+          },
+          "fromLoading": {
+            "title": "Indicates whether the sorting configuration is set from the loading of the data.",
+            "type": "boolean",
+            "default": true
+          },
+          "columnLabel": {
+            "title": "The label for the column field in the sorting configuration.",
+            "type": "string",
+            "default": "(Field)"
+          },
+          "sortByLabel": {
+            "title": "The label for the sortBy field in the sorting configuration.",
+            "type": "string",
+            "default": "(Sort)"
+          },
+          "orderByLabel": {
+            "title": "The label for the orderBy field in the sorting configuration.",
+            "type": "string",
+            "default": "(Order)"
+          }
+        },
+        "required": [
+          "column",
+          "columns",
+          "orderBy",
+          "sortBy",
+          "title",
+          "columnLabel",
+          "sortByLabel",
+          "orderByLabel"
+        ]
+      },
+      "default": []
+    },
+    "filtersEnabled": {
+      "title": "Represents whether filters are enabled for the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "filtersInOverlay": {
+      "type": "boolean",
+      "default": false,
+      "title": "Indicates whether the filters are displayed in an overlay in the list component."
+    },
+    "filterFields": {
+      "title": "Defines the fields used for filtering the list.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [""]
+    },
+    "filterOptions": {
+      "title": "Filter option for LFD",
+      "description": "This defines an array of filter configurations for each field in a data source.",
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "column": {
+              "title": "The column name on which filtering will happen.",
+              "type": "string",
+              "default": "none"
+            },
+            "columns": {
+              "title": "A list of all the columns available in the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "logic": {
+              "title": "It indicates the logic or operation to be performed for the filter.",
+              "type": "string",
+              "enum": [
+                "empty",
+                "notempty",
+                "==",
+                "!=",
+                "oneof",
+                "contains",
+                "notcontain",
+                "regex",
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between",
+                "dateis",
+                "datebefore",
+                "dateafter",
+                "datebetween"
+              ]
+            },
+            "value": {
+              "title": "It represents the value to compare or match against in the filtering process.",
+              "type": "string"
+            },
+            "valueField": {
+              "title": "It specifies the field or source from which the value should be retrieved.",
+              "type": "string"
+            },
+            "valueType": {
+              "title": "It indicates the type of the value.",
+              "type": "string",
+              "enum": ["user-profile-data", "link-query-parameter", "app-storage-data"]
+            },
+            "dateValue": {
+              "title": "It represents a predefined date value or expression.",
+              "type": "string",
+              "enum": [
+                "today",
+                "now",
+                "nowaddminutes",
+                "nowaddhours",
+                "todayadddays",
+                "todayaddmonths",
+                "todayaddyears",
+                "nowsubtractminutes",
+                "nowsubtracthours",
+                "todayminusdays",
+                "todayminusmonths",
+                "todayminusyears"
+              ]
+            },
+            "offsetValue": {
+              "title": "It specifies the offset value to adjust the filtering operation.",
+              "type": "string"
+            },
+            "useDeviceTimezone": {
+              "title": "It indicates whether to use the device's timezone in the filtering process.",
+              "type": "boolean",
+              "default": false
+            },
+            "columnLabel": {
+              "title": "It provides a label or name for the column associated with the filter option.",
+              "type": "string"
+            },
+            "fieldValue": {
+              "title": "It represents the value of the field associated with the filter option.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "column",
+            "logic",
+            "value",
+            "valueField",
+            "valueType",
+            "useDeviceTimezone",
+            "columns",
+            "columnLabel",
+            "fieldValue",
+            "offsetValue"
+          ]
+        }
+      ],
+      "default": []
+    },
+    "detail-fields-ignore": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "An array of detail fields to be ignored in the list component."
+    },
+    "detail-fields": {
+      "title": "This field defines an array of detail fields configurations.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "title": "It specifies the type of column or field associated with the detail field configuration.",
+            "type": "string"
+          },
+          "column": {
+            "title": "It specifies the column or field associated with the detail field configuration.",
+            "type": "string"
+          },
+          "helper": {
+            "title": "A helper text or description for the detail field configuration.",
+            "type": "string"
+          },
+          "location": {
+            "title": "The location or placement of the detail field configuration.",
+            "type": "string"
+          },
+          "paranoid": {
+            "title": "  Indicates whether the detail field configuration is paranoid.",
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "detailViewAutoUpdate": {
+      "title": "Indicates whether the detail view should automatically update in the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "detailViewOptions": {
+      "title": "Detail view option for LFD.",
+      "description": "This defines an array of detail view configurations.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "title": "This field represents the date associated with the detail view option.",
+            "type": "string"
+          },
+          "from": {
+            "title": "This field represents the source from which the detail view option is retrieved.",
+            "type": "string"
+          },
+          "type": {
+            "title": "This field specifies the type of column or field associated with the detail view option.",
+            "type": "string",
+            "enum": ["text", "html", "url", "tel", "mail", "number", "date", "image", "file"]
+          },
+          "column": {
+            "title": "This field specifies the column associated with the detail view option.",
+            "type": "string"
+          },
+          "helper": {
+            "title": " This field provides a helper text for the detail view option.",
+            "type": "string"
+          },
+          "columns": {
+            "title": "A list of all the columns available in the data source.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "editable": {
+            "title": "This field indicates whether the detail view option is editable or not.",
+            "type": "boolean",
+            "default": true
+          },
+          "location": {
+            "title": "This field represents the location of the detail view option.",
+            "type": "string"
+          },
+          "fieldLabel": {
+            "title": "This field specifies the label for the field associated with the detail view option.",
+            "type": "string",
+            "enum": ["column-name", "custom-label", "no-label"],
+            "default": "column-name"
+          },
+          "customField": {
+            "title": "This field represents a custom field associated with the detail view option.",
+            "type": "string"
+          },
+          "imageField": {
+            "title": "This field specifies the image field associated with the detail view option.",
+            "type": "string",
+            "enum": ["url", "all-folders"]
+          },
+          "customFieldLabel": {
+            "title": "this field represents the label for the custom field associated with the detail view option.",
+            "type": "string"
+          },
+          "customFieldEnabled": {
+            "title": "This field indicates whether the custom field is enabled or not.",
+            "type": "boolean"
+          },
+          "fieldLabelDisabled": {
+            "title": "This field indicates whether the field label is disabled or not.",
+            "type": "boolean"
+          },
+          "customFieldLabelEnabled": {
+            "title": "This field indicates whether the custom field label is enabled or not.",
+            "type": "boolean"
+          },
+          "folder": {
+            "title": "this field represents a folder associated with the detail view option.",
+            "type": "object",
+            "properties": {
+              "selectedFiles": {
+                "title": "This field represents the selected files within the folder.",
+                "type": "object"
+              },
+              "selectFiles": {
+                "title": "This field represents an array of files to be selected within the folder.",
+                "type": "array",
+                "items": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "metadata": {
+                        "title": "This field represents the metadata associated with the file.",
+                        "type": "object"
+                      },
+                      "id": {
+                        "title": "This field represents the ID of the file.",
+                        "type": "number"
+                      },
+                      "name": {
+                        "title": "This field represents the name of the file.",
+                        "type": "string"
+                      },
+                      "appId": {
+                        "title": "This field represents the ID of the app associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "ceatedAt": {
+                        "title": "This field represents the date and time when the file was created.",
+                        "type": ["string", "null"]
+                      },
+                      "updatedAt": {
+                        "title": "This field represents the date and time when the file was last updated.",
+                        "type": ["string", "null"]
+                      },
+                      "deletedAt": {
+                        "title": "This field represents the date and time when the file was deleted.",
+                        "type": ["string", "null"]
+                      },
+                      "masterMediaFolderId": {
+                        "title": "This field represents the ID of the master media folder associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "parentId": {
+                        "title": "This field represents the ID of the parent folder associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "organizationId": {
+                        "title": "This field represents the ID of the organization associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "selected": {
+                        "title": "This field indicates whether the file is selected or not.",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "metadata",
+                      "id",
+                      "name",
+                      "appId",
+                      "updatedAt",
+                      "createdAt",
+                      "deletedAt",
+                      "masterMediaFolderId",
+                      "parentId",
+                      "organizationId",
+                      "selected"
+                    ]
+                  }
+                ]
+              },
+              "selectMultiple": {
+                "title": "This field indicates whether multiple files can be selected within the folder.",
+                "type": "boolean",
+                "default": false
+              },
+              "type": {
+                "title": "This field represents the type of the folder.",
+                "type": "string"
+              },
+              "provId": {
+                "title": "This field represents the provider ID associated with the folder.",
+                "type": ["number", "string"]
+              }
+            },
+            "required": ["selectedFiles", "selectFiles", "selectMultiple", "type", "provId"]
+          }
+        },
+        "required": ["date", "from", "type", "columns"]
+      },
+      "default": []
+    },
+    "social": {
+      "title": "The \"social\" field represents the social features associated with LFD.",
+      "type": "object",
+      "properties": {
+        "likes": {
+          "title": "This field indicates whether the option has a like feature.",
+          "type": "boolean",
+          "default": false
+        },
+        "bookmark": {
+          "title": "This field indicates whether the option has a bookmark feature.",
+          "type": "boolean",
+          "default": false
+        },
+        "comments": {
+          "title": "This field indicates whether the option has a comments feature.",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["likes", "bookmark", "comments"]
+    },
+    "advancedSettings": {
+      "title": "The \"advancedSettings\" field represents additional advanced settings associated with LFD.",
+      "type": "object",
+      "properties": {
+        "htmlEnabled": {
+          "title": "This field indicates whether custom HTML is enabled for the option.",
+          "type": "boolean",
+          "default": false
+        },
+        "cssEnabled": {
+          "title": "This field indicates whether custom CSS is enabled for the option.",
+          "type": "boolean",
+          "default": false
+        },
+        "jsEnabled": {
+          "title": "This field indicates whether custom JavaScript is enabled for the option.",
+          "type": "boolean",
+          "default": false
+        },
+        "jsCode": {
+          "title": "This field represents custom JavaScript code associated with the option.",
+          "type": "string"
+        },
+        "cssCode": {
+          "title": "This field represents custom CSS code associated with the option.",
+          "type": "string"
+        },
+        "baseHTML": {
+          "title": "This field represents the base HTML template associated with the option.",
+          "type": "string"
+        },
+        "loopHTML": {
+          "title": "This field represents the HTML template for a loop associated with the option.",
+          "type": "string"
+        },
+        "detailHTML": {
+          "title": " This field represents the HTML template for the detailed HTML associated with the option.",
+          "type": "string"
+        },
+        "filterHTML": {
+          "title": "This field represents the HTML template for filtering associated with the option.",
+          "type": "string"
+        }
+      },
+      "required": ["htmlEnabled", "cssEnabled", "jsEnabled"]
+    },
+    "uuid": {
+      "title": "Represents the universally unique identifier (UUID) associated with the list from data source component.",
+      "type": "string"
+    },
+    "layout": {
+      "title": "Specifies the layout style of the list component.",
+      "type": "string",
+      "enum": ["small-card", "news-feed", "agenda", "small-h-card", "simple-list"],
+      "default": "small-card"
+    },
+    "addEntry": {
+      "title": "Indicates whether the ability to add new entries is enabled.",
+      "type": "boolean",
+      "default": false
+    },
+    "addEntryLinkAction": {
+      "title": "Defines the add entry link action for the list component.",
+      "type": "object",
+      "properties": {
+        "options": {
+          "title": "Options for the add entry link action in the list component.",
+          "type": "object",
+          "properties": {
+            "hideAction": {
+              "title": "Indicates whether the add entry action should be hidden in the list component.",
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": ["hideAction"]
+        },
+        "action": {
+          "title": "Specifies the action type for the add entry link action in the list component.",
+          "type": "string",
+          "default": "screen"
+        },
+        "page": {
+          "title": "Specifies the page for the add entry link action in the list component.",
+          "type": "string",
+          "default": "none"
+        },
+        "transition": {
+          "title": "Specifies the transition effect for the add entry link action in the list component.",
+          "type": "string",
+          "enum": [
+            "none",
+            "fade",
+            "slide.left",
+            "slide.right",
+            "slide.up",
+            "slide.down",
+            "flip.left",
+            "flip.right",
+            "flip.up",
+            "flip.down",
+            "curl.up",
+            "curl.down"
+          ]
+        }
+      },
+      "required": ["options", "action", "page", "transition"]
+    },
+    "editEntry": {
+      "title": "Indicates whether the ability to edit existing entries is enabled.",
+      "type": "boolean",
+      "default": false
+    },
+    "editEntryLinkAction": {
+      "title": "Defines the add entry link action for the list component.",
+      "type": "object",
+      "properties": {
+        "options": {
+          "title": "Options for the add entry link action in the list component.",
+          "type": "object",
+          "properties": {
+            "hideAction": {
+              "title": "Indicates whether the add entry action should be hidden in the list component.",
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": ["hideAction"]
+        },
+        "action": {
+          "title": "Specifies the action type for the add entry link action in the list component.",
+          "type": "string",
+          "default": "screen"
+        },
+        "page": {
+          "title": "Specifies the page for the add entry link action in the list component.",
+          "type": "string",
+          "default": "none"
+        },
+        "query": {
+          "title": "Specifies the query for the edit entry link action in the list component.",
+          "type": "string",
+          "default": "none"
+        },
+        "transition": {
+          "title": "Specifies the transition effect for the add entry link action in the list component.",
+          "type": "string",
+          "enum": [
+            "none",
+            "fade",
+            "slide.left",
+            "slide.right",
+            "slide.up",
+            "slide.down",
+            "flip.left",
+            "flip.right",
+            "flip.up",
+            "flip.down",
+            "curl.up",
+            "curl.down"
+          ]
+        }
+      },
+      "required": ["options", "action", "page", "transition"]
+    },
+    "deleteEntry": {
+      "title": "Indicates whether the ability to delete entries is enabled.",
+      "type": "boolean",
+      "default": false
+    },
+    "pollColumn": {
+      "title": "Specifies the column associated with polling functionality.",
+      "type": "string",
+      "default": "none"
+    },
+    "pollEnabled": {
+      "title": "Indicates whether polling is enabled for the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "surveyColumn": {
+      "title": "Specifies the column associated with survey functionality.",
+      "type": "string",
+      "default": "none"
+    },
+    "surveyEnabled": {
+      "title": "Indicates whether survey functionality is enabled for the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "questionsColumn": {
+      "type": "string",
+      "default": "none",
+      "title": "Specifies the column for questions in the list component."
+    },
+    "questionsEnabled": {
+      "type": "boolean",
+      "title": "Specifies whether questions are enabled in the list component."
+    },
+    "defaultData": {
+      "title": "Indicates whether the list should display default data.",
+      "type": "boolean",
+      "default": false
+    },
+    "defaultColumns": {
+      "title": "Defines the default columns to be displayed in the list component.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "defaultEntries": {
+      "title": "Represents an array of default entries for the list component.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Represents an ID associated with the entry.",
+            "type": "number"
+          },
+          "data": {
+            "title": "Represents the data associated with the entry.",
+            "type": "object"
+          }
+        },
+        "required": ["id", "data"]
+      }
+    },
+    "limitEntries": {
+      "title": "A numeric value or string that specifies the maximum number of entries to display in the list.",
+      "type": ["number", "string"],
+      "default": ""
+    },
+    "enabledLimitEntries": {
+      "title": "Indicates whether the limit entries feature is enabled for the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "searchEnabled": {
+      "title": "Indicates whether search functionality is enabled for the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "searchFields": {
+      "title": "Defines the fields used for searching the list.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [""]
+    },
+    "addPermissions": {
+      "title": "Defines the permissions required to add items to the list component.",
+      "type": "string",
+      "enum": ["everyone", "admins"],
+      "default": "everyone"
+    },
+    "editPermissions": {
+      "type": "string",
+      "enum": ["everyone", "user", "admins", "users-admins"],
+      "default": "everyone",
+      "title": "Specifies the edit permissions for the list component."
+    },
+    "deletePermissions": {
+      "type": "string",
+      "enum": ["everyone", "user", "admins", "users-admins"],
+      "default": "everyone",
+      "title": "Specifies the delete permissions for the list component."
+    },
+    "style-specific": {
+      "title": "An array of strings that represent different styles that can be applied to the list component.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "list-filter",
+          "list-search",
+          "list-likes",
+          "list-bookmark",
+          "list-comments",
+          "list-sort",
+          "list-agenda-options"
+        ]
+      }
+    },
+    "summary-fields-enabled": {
+      "title": "Represents whether summary fields are enabled for the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "showSummaryFieldsInDetailView": {
+      "title": "Represents whether summary fields are shown in the detail view of the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "summary-fields": {
+      "title": "This is an array of objects representing the fields to be displayed in the list.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "title": "Indicates the source of the field.",
+            "type": "string"
+          },
+          "type": {
+            "title": "Indicates the type of the field.",
+            "type": "string"
+          },
+          "column": {
+            "title": " Indicates the name of the column in the data source that contains the value to be displayed for this field.",
+            "type": "string"
+          },
+          "columns": {
+            "title": "Indicates an array of the names of the columns in the data source that contain the values to be displayed for this field.",
+            "type": "array",
+            "items": [
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "options": {
+            "title": "Indicates an array of objects representing the options for a dropdown field.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "title": "Indicates the value of field.",
+                  "type": "string"
+                },
+                "label": {
+                  "title": "Indicates the label of field.",
+                  "type": "string"
+                }
+              },
+              "required": ["value", "label"]
+            }
+          },
+          "location": {
+            "title": "Indicates the location of the field in the list.",
+            "type": "string"
+          },
+          "customField": {
+            "title": "Indicates the name of a custom field to be displayed.",
+            "type": "string"
+          },
+          "interfaceName": {
+            "title": "Indicates the name of an interface.",
+            "type": "string"
+          },
+          "customFieldEnabled": {
+            "title": "Indicates whether the custom field is enabled.",
+            "type": "boolean"
+          },
+          "folder": {
+            "title": "this field represents a folder associated with the summary fields",
+            "type": "object",
+            "properties": {
+              "selectedFiles": {
+                "title": "This field represents the selected files within the folder.",
+                "type": "object"
+              },
+              "selectFiles": {
+                "title": "This field represents an array of files to be selected within the folder.",
+                "type": "array",
+                "items": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "metadata": {
+                        "title": "This field represents the metadata associated with the file.",
+                        "type": "object"
+                      },
+                      "id": {
+                        "title": "This field represents the ID of the file.",
+                        "type": "number"
+                      },
+                      "name": {
+                        "title": "This field represents the name of the file.",
+                        "type": "string"
+                      },
+                      "appId": {
+                        "title": "This field represents the ID of the app associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "ceatedAt": {
+                        "title": "This field represents the date and time when the file was created.",
+                        "type": ["string", "null"]
+                      },
+                      "updatedAt": {
+                        "title": "This field represents the date and time when the file was last updated.",
+                        "type": ["string", "null"]
+                      },
+                      "deletedAt": {
+                        "title": "This field represents the date and time when the file was deleted.",
+                        "type": ["string", "null"]
+                      },
+                      "masterMediaFolderId": {
+                        "title": "This field represents the ID of the master media folder associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "parentId": {
+                        "title": "This field represents the ID of the parent folder associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "organizationId": {
+                        "title": "This field represents the ID of the organization associated with the file.",
+                        "type": ["number", "null"]
+                      },
+                      "selected": {
+                        "title": "This field indicates whether the file is selected or not.",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "metadata",
+                      "id",
+                      "name",
+                      "appId",
+                      "updatedAt",
+                      "createdAt",
+                      "deletedAt",
+                      "masterMediaFolderId",
+                      "parentId",
+                      "organizationId",
+                      "selected"
+                    ]
+                  }
+                ]
+              },
+              "selectMultiple": {
+                "title": "This field indicates whether multiple files can be selected within the folder.",
+                "type": "boolean",
+                "default": false
+              },
+              "type": {
+                "title": "This field represents the type of the folder.",
+                "type": "string"
+              },
+              "provId": {
+                "title": "This field represents the provider ID associated with the folder.",
+                "type": ["number", "string"]
+              }
+            },
+            "required": ["selectedFiles", "selectFiles", "selectMultiple", "type", "provId"]
+          },
+          "imageField": {
+            "title": "Indicates the field to be used as the image for the list item.",
+            "type": "string",
+            "enum": ["url", "all-folders"]
+          }
+        },
+        "required": ["from", "type", "options", "location", "interfaceName", "customFieldEnabled"]
+      }
+    },
+    "summaryLinkAction": {
+      "title": "Defines the summary link action for the list component.",
+      "type": "object",
+      "properties": {
+        "column": {
+          "title": "Specifies the column for the summary link action in the list component.",
+          "type": ["string", "null"]
+        },
+        "type": {
+          "title": "Specifies the type of the summary link action in the list component. Can be one of 'file', 'url', or 'screen'.",
+          "type": "string",
+          "enum": ["file", "url", "screen"]
+        }
+      }
+    },
+    "summaryLinkOption": {
+      "title": "Specifies the summary link option for the list component.",
+      "type": "string",
+      "enum": ["show", "link"],
+      "default": "show"
+    },
+    "userNameFields": {
+      "title": "An array of user name fields to be displayed in the list component.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "userAdminColumn": {
+      "title": "Specifies the column for user admin in the list component.",
+      "type": "string",
+      "default": "none"
+    },
+    "userEmailColumn": {
+      "title": "Specifies the column for user email in the list component.",
+      "type": "string",
+      "default": "none"
+    },
+    "userPhotoColumn": {
+      "title": "Specifies the column for user photo in the list component.",
+      "type": "string",
+      "default": "none"
+    },
+    "userListEmailColumn": {
+      "title": "Specifies the email column for the user list in the list component.",
+      "type": "string",
+      "default": "none"
+    },
+    "dataSourceColumns": {
+      "title": "An array of data source columns to be displayed in the list component.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dataSourceViews": {
+      "title": "Specifies the data source views for the list component.",
+      "type": "array",
+      "items": {
+        "title": "Defines a data source view for the list component.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Specifies the ID of a data source view.",
+            "type": "number"
+          },
+          "view": {
+            "title": "Specifies the view of a data source.",
+            "type": "string"
+          },
+          "bundle": {
+            "title": "Indicates whether the data source view is bundled in the list component.",
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": ["id", "view", "bundle"]
+      }
+    },
+    "userFolderOption": {
+      "title": "Specifies the user folder option in the list component. Can be one of 'url' or 'all-folders'.",
+      "type": "string",
+      "enum": ["url", "all-folders"],
+      "default": "url"
+    },
+    "agendaButtonsEnabled": {
+      "title": "Indicates whether the agenda buttons are enabled in the list component.",
+      "type": "boolean",
+      "default": false
+    },
+    "dataSourceId": {
+      "title": "Specifies the ID of the data source for the list component.",
+      "type": ["number", "null"]
+    },
+    "userDataSourceId": {
+      "title": "Specifies the ID of the user data source for the list component.",
+      "type": ["number", "null"]
+    },
+    "bookmarkDataSourceId": {
+      "title": "Specifies the ID of the bookmark data source for the list component.",
+      "type": ["number", "null"]
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "layout": {
+          "const": "small-card"
+        }
+      },
+      "then": {
+        "properties": {
+          "filtersEnabled": {
+            "const": true
+          },
+          "filterFields": {
+            "const": ["Location", "Sectors", "Expertise"]
+          },
+          "filtersInOverlay": {
+            "const": false
+          },
+          "searchEnabled": {
+            "const": true
+          },
+          "searchFields": {
+            "const": ["First Name", "Last Name", "Title"]
+          },
+          "sortOptions": {
+            "const": [
+              {
+                "column": "First Name",
+                "columns": [
+                  "First Name",
+                  "Last Name",
+                  "Title",
+                  "Location",
+                  "Image",
+                  "Email",
+                  "Telephone",
+                  "Linkedin",
+                  "Bio",
+                  "Sectors",
+                  "Expertise"
+                ],
+                "id": "ajdmjZrT",
+                "orderBy": "ascending",
+                "sortBy": "alphabetical",
+                "title": "First Name - Alphabetical - Ascending"
+              }
+            ]
+          },
+          "style-specific": {
+            "const": ["list-filter", "list-search", "list-bookmark", "list-sort"]
+          },
+          "summary-fields": {
+            "const": [
+              {
+                "id": "ajdmjRrT",
+                "interfaceName": "Primary text 1",
+                "location": "First Name",
+                "type": "text",
+                "column": "First Name",
+                "editable": true
+              },
+              {
+                "id": "aJdnjRrT",
+                "interfaceName": "Primary text 2",
+                "location": "Last Name",
+                "type": "text",
+                "column": "Last Name",
+                "editable": true
+              },
+              {
+                "id": "ajdmJrlT",
+                "interfaceName": "Secondary text",
+                "location": "Title",
+                "type": "text",
+                "column": "Title",
+                "editable": true
+              },
+              {
+                "id": "qWerTymn",
+                "interfaceName": "Tertiary text",
+                "location": "Location",
+                "type": "text",
+                "column": "Location",
+                "editable": true
+              },
+              {
+                "id": "gHlmJrlT",
+                "interfaceName": "Image",
+                "location": "Image",
+                "type": "image",
+                "column": "Image"
+              }
+            ]
+          },
+          "detail-fields": {
+            "const": [
+              {
+                "id": "nMytReWq",
+                "location": "Email",
+                "type": "mail",
+                "column": "Email",
+                "paranoid": true,
+                "helper": "Email icon"
+              },
+              {
+                "id": "tYrEqwMn",
+                "location": "Telephone",
+                "type": "tel",
+                "column": "Telephone",
+                "paranoid": true,
+                "helper": "Phone icon"
+              },
+              {
+                "id": "XLbdTD45",
+                "location": "Linkedin",
+                "type": "url",
+                "column": "Linkedin",
+                "paranoid": true,
+                "helper": "LinkedIn icon"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "layout": {
+          "const": "news-feed"
+        }
+      },
+      "then": {
+        "properties": {
+          "filtersEnabled": {
+            "const": true
+          },
+          "filterFields": {
+            "const": ["Categories"]
+          },
+          "filtersInOverlay": {
+            "const": false
+          },
+          "searchEnabled": {
+            "const": true
+          },
+          "searchFields": {
+            "const": ["Title", "Categories", "Content"]
+          },
+          "sortOptions": {
+            "const": [
+              {
+                "column": "Date",
+                "columns": ["Title", "Date", "Categories", "Image", "Content"],
+                "id": "ajdmjZrT",
+                "orderBy": "descending",
+                "sortBy": "date",
+                "title": "Date - Date - Descending"
+              }
+            ]
+          },
+          "social": {
+            "const": {
+              "likes": true,
+              "bookmark": true,
+              "comments": false
+            }
+          },
+          "style-specific": {
+            "const": [
+              "list-filter",
+              "list-search",
+              "list-likes",
+              "list-bookmark",
+              "list-comments",
+              "list-sort"
+            ]
+          },
+          "summary-fields": {
+            "const": [
+              {
+                "id": "ajdmjRrT",
+                "interfaceName": "Primary text",
+                "location": "Title",
+                "type": "text",
+                "column": "Title",
+                "editable": true
+              },
+              {
+                "id": "aJdnjRrT",
+                "interfaceName": "Secondary text",
+                "location": "Content",
+                "type": "html",
+                "column": "Content",
+                "editable": true
+              },
+              {
+                "id": "gHlJkerT",
+                "interfaceName": "Tertiary text 1",
+                "location": "Date",
+                "type": "date",
+                "column": "Date",
+                "editable": true
+              },
+              {
+                "id": "ajdmJrlT",
+                "interfaceName": "Tertiary text 2",
+                "location": "Categories",
+                "type": "text",
+                "column": "Categories",
+                "editable": true
+              },
+              {
+                "id": "gHlmJrlT",
+                "interfaceName": "Image",
+                "location": "Image",
+                "type": "image",
+                "column": "Image"
+              }
+            ]
+          },
+          "detail-fields-disabled": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "layout": {
+          "const": "agenda"
+        }
+      },
+      "then": {
+        "properties": {
+          "filtersEnabled": {
+            "const": false
+          },
+          "filterFields": {
+            "const": []
+          },
+          "filtersInOverlay": {
+            "const": false
+          },
+          "searchEnabled": {
+            "const": false
+          },
+          "searchFields": {
+            "const": []
+          },
+          "sortOptions": {
+            "const": [
+              {
+                "column": "Full Date",
+                "columns": ["Title", "Full Date", "Start Time", "End Time", "Location", "Content"],
+                "id": "ajdmjZrT",
+                "orderBy": "ascending",
+                "sortBy": "date",
+                "title": "Full Date - Date - Ascending"
+              },
+              {
+                "column": "Start Time",
+                "columns": ["Title", "Full Date", "Start Time", "End Time", "Location", "Content"],
+                "id": "bjzxjKrP",
+                "orderBy": "ascending",
+                "sortBy": "time",
+                "title": "Start Time - Date - Ascending"
+              }
+            ]
+          },
+          "social": {
+            "const": {
+              "bookmark": true
+            }
+          },
+          "style-specific": {
+            "const": ["list-filter", "list-search", "list-bookmark", "list-agenda-options"]
+          },
+          "summary-fields": {
+            "const": [
+              {
+                "id": "ajdmjRrT",
+                "interfaceName": "Session starting time",
+                "location": "Start Time",
+                "type": "time",
+                "column": "Start Time"
+              },
+              {
+                "id": "aJdnjRrT",
+                "interfaceName": "Session ending time",
+                "location": "End Time",
+                "type": "time",
+                "column": "End Time"
+              },
+              {
+                "id": "ajdmJrlT",
+                "interfaceName": "Primary text",
+                "location": "Title",
+                "type": "text",
+                "column": "Title",
+                "editable": true
+              },
+              {
+                "id": "gHlmJrlT",
+                "interfaceName": "Secondary text",
+                "location": "Location",
+                "type": "text",
+                "column": "Location",
+                "editable": true
+              }
+            ]
+          },
+          "detail-fields": {
+            "const": [
+              {
+                "id": "KjDmjrFT",
+                "location": "Full Date",
+                "type": "date",
+                "column": "Full Date",
+                "paranoid": true,
+                "helper": "Full Date"
+              },
+              {
+                "id": "KjDtRjrT",
+                "location": "Content",
+                "type": "html",
+                "column": "Content"
+              }
+            ]
+          },
+          "detail-fields-ignore": {
+            "const": ["Poll", "Survey", "Questions"]
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "layout": {
+          "const": "small-h-card"
+        }
+      },
+      "then": {
+        "properties": {
+          "filtersEnabled": {
+            "const": false
+          },
+          "filterFields": {
+            "const": []
+          },
+          "filtersInOverlay": {
+            "const": false
+          },
+          "searchEnabled": {
+            "const": false
+          },
+          "searchFields": {
+            "const": []
+          },
+          "sortOptions": {
+            "const": [
+              {
+                "column": "First Name",
+                "columns": [
+                  "First Name",
+                  "Last Name",
+                  "Title",
+                  "Location",
+                  "Image",
+                  "Email",
+                  "Telephone",
+                  "Linkedin",
+                  "Bio",
+                  "Sectors",
+                  "Expertise"
+                ],
+                "id": "ajdmjZrT",
+                "orderBy": "ascending",
+                "sortBy": "alphabetical",
+                "title": "First Name - Alphabetical - Ascending"
+              }
+            ]
+          },
+          "style-specific": {
+            "const": []
+          },
+          "summary-fields": {
+            "const": [
+              {
+                "id": "ajdmjRrT",
+                "interfaceName": "Primary text 1",
+                "location": "First Name",
+                "type": "text",
+                "column": "First Name",
+                "editable": true
+              },
+              {
+                "id": "aJdnjRrT",
+                "interfaceName": "Primary text 2",
+                "location": "Last Name",
+                "type": "text",
+                "column": "Last Name",
+                "editable": true
+              },
+              {
+                "id": "ajdmJrlT",
+                "interfaceName": "Secondary text",
+                "location": "Title",
+                "type": "text",
+                "column": "Title",
+                "editable": true
+              },
+              {
+                "id": "qWerTymn",
+                "interfaceName": "Tertiary text",
+                "location": "Location",
+                "type": "text",
+                "column": "Location",
+                "editable": true
+              },
+              {
+                "id": "gHlmJrlT",
+                "interfaceName": "Image",
+                "location": "Image",
+                "type": "image",
+                "column": "Image"
+              }
+            ]
+          },
+          "detail-fields": {
+            "const": [
+              {
+                "id": "nMytReWq",
+                "location": "Email",
+                "type": "mail",
+                "column": "Email",
+                "paranoid": true,
+                "helper": "Email icon"
+              },
+              {
+                "id": "tYrEqwMn",
+                "location": "Telephone",
+                "type": "tel",
+                "column": "Telephone",
+                "paranoid": true,
+                "helper": "Phone icon"
+              },
+              {
+                "id": "XLbdTD45",
+                "location": "Linkedin",
+                "type": "url",
+                "column": "Linkedin",
+                "paranoid": true,
+                "helper": "LinkedIn icon"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "layout": {
+          "const": "simple-list"
+        }
+      },
+      "then": {
+        "properties": {
+          "filtersEnabled": {
+            "const": true
+          },
+          "filterFields": {
+            "const": ["Category"]
+          },
+          "filtersInOverlay": {
+            "const": false
+          },
+          "searchEnabled": {
+            "const": true
+          },
+          "searchFields": {
+            "const": ["Title", "Category"]
+          },
+          "social": {
+            "const": {
+              "likes": true,
+              "bookmark": true,
+              "comments": false
+            }
+          },
+          "style-specific": {
+            "const": [
+              "list-filter",
+              "list-search",
+              "list-likes",
+              "list-bookmark",
+              "list-comments",
+              "list-sort"
+            ]
+          },
+          "summary-fields-enabled": {
+            "const": true
+          },
+          "summary-fields": {
+            "const": [
+              {
+                "id": "gHlmJrlT",
+                "interfaceName": "Image",
+                "location": "Image",
+                "type": "image",
+                "column": "Image"
+              },
+              {
+                "id": "ajdmjRrT",
+                "interfaceName": "Primary text",
+                "location": "Title",
+                "type": "text",
+                "column": "Title",
+                "editable": true
+              },
+              {
+                "id": "aJdnjRrT",
+                "interfaceName": "Secondary text",
+                "location": "Description",
+                "type": "text",
+                "column": "Description",
+                "editable": true
+              },
+              {
+                "id": "ajdmJrlT",
+                "interfaceName": "Tertiary text",
+                "location": "Category",
+                "type": "text",
+                "column": "Category",
+                "editable": true
+              }
+            ]
+          },
+          "showSummaryFieldsInDetailView": {
+            "const": true
+          },
+          "detail-fields": {
+            "const": [
+              {
+                "id": "wWkqeYGN",
+                "location": "Image",
+                "type": "image",
+                "column": "Image"
+              },
+              {
+                "id": "RGosNfos",
+                "location": "Description",
+                "type": "html",
+                "column": "Description"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "required": [
+    "sortOptions",
+    "filterOptions",
+    "detailViewOptions",
+    "social",
+    "advancedSettings",
+    "layout",
+    "filtersEnabled",
+    "filterFields",
+    "filtersInOverlay",
+    "defaultEntries",
+    "defaultColumns",
+    "searchEnabled",
+    "searchFields",
+    "style-specific",
+    "summary-fields",
+    "detail-fields",
+    "dataSourceColumns",
+    "defaultData",
+    "summaryLinkOption",
+    "summaryLinkAction",
+    "detailViewAutoUpdate",
+    "sortEnabled",
+    "sortFields",
+    "enabledLimitEntries",
+    "limitEntries",
+    "pollEnabled",
+    "surveyEnabled",
+    "questionsEnabled",
+    "pollColumn",
+    "surveyColumn",
+    "questionsColumn",
+    "agendaButtonsEnabled",
+    "userNameFields",
+    "userEmailColumn",
+    "userPhotoColumn",
+    "userFolderOption",
+    "userAdminColumn",
+    "userListEmailColumn",
+    "addEntry",
+    "editEntry",
+    "deleteEntry",
+    "addPermissions",
+    "editPermissions",
+    "deletePermissions",
+    "addEntryLinkAction",
+    "editEntryLinkAction"
+  ]
+}
