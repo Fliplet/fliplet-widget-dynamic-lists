@@ -111,7 +111,7 @@
         \{{/if}}
 
         <div class="news-feed-detail-value">
-          <a href="\{{{auth content}}}" target="_blank">\{{ T "widgets.list.dynamic.detail.linkText"
+          <a href="\{{{auth (ensureProtocol content)}}}" target="_blank">\{{ T "widgets.list.dynamic.detail.linkText"
             }}</a>
         </div>
         \{{/if}}
