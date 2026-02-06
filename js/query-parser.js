@@ -123,7 +123,7 @@ Fliplet.Registry.set('dynamicListQueryParser', function() {
 
   const hasFilterQueryValue = !NativeUtils.isUndefined(NativeUtils.get(this.pvFilterQuery, 'value'));
 
-  this.queryFilter = this.data.filtersEnabled && hasFilterQueryValue;
+  this.queryFilter = hasFilterQueryValue;
 
   if (this.queryFilter) {
     // check if a comma separated list of columns/values were passed as column/value
