@@ -192,18 +192,21 @@ function initFilePickerProvider(field) {
     Fliplet.Widget.toggleCancelButton(true);
     Fliplet.Widget.toggleSaveButton(true);
 
+    const widgetSummaryFields = widgetData['summary-fields'] || [];
+    const widgetDetailViewOptions = widgetData.detailViewOptions || [];
+
     field.folder.selectFiles = data.data.length ? data.data : [];
 
     if (field.from === 'summary') {
-      widgetData['summary-fields'].forEach(function(item, index) {
+      widgetSummaryFields.forEach(function(item, index) {
         if (item.id === field.id) {
-          widgetData['summary-fields'][index].folder = field.folder;
+          widgetSummaryFields[index].folder = field.folder;
         }
       });
     } else if (field.from === 'details') {
-      widgetData.detailViewOptions.forEach(function(item, index) {
+      widgetDetailViewOptions.forEach(function(item, index) {
         if (item.id === field.id) {
-          widgetData.detailViewOptions[index].folder = field.folder;
+          widgetDetailViewOptions[index].folder = field.folder;
         }
       });
     }
@@ -307,8 +310,9 @@ function attachObservers() {
       initUserFilePickerProvider(userFolder);
     })
     .on('click', '[data-file-picker-summary]', function() {
+      const widgetSummaryFields = widgetData['summary-fields'] || [];
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = widgetData['summary-fields'].find(function(item) { return item.id === fieldId; });
+      var field = widgetSummaryFields.find(function(item) { return item.id === fieldId; });
 
       highlightError(selectedFieldId, true);
 
@@ -326,7 +330,8 @@ function attachObservers() {
     })
     .on('click', '[data-file-picker-details]', function() {
       var fieldId = $(this).parents('.picker-provider-button').data('field-id');
-      var field = widgetData.detailViewOptions.find(function(item) { return item.id === fieldId; });
+      const widgetDetailViewOptions = widgetData.detailViewOptions || [];
+      var field = widgetDetailViewOptions.find(function(item) { return item.id === fieldId; });
 
       highlightError(selectedFieldId, true);
 
@@ -790,7 +795,7 @@ function attachObservers() {
       return selectedFieldId.length === 0;
     }
 
-    var totalArray = [].concat(widgetData.detailViewOptions, widgetData['summary-fields']);
+    var totalArray = [].concat(widgetData.detailViewOptions || [], widgetData['summary-fields'] || []);
     var errorInputIds = selectedFieldId.filter(function(id) {
       return !totalArray.some(function(item) {
         return item.id === id && item.folder;

@@ -139,7 +139,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               name: file.name,
               size: file.metadata.size,
               uploaded: file.createdAt,
-              url: file.url
+              url: Fliplet.Media.authenticate(file.url)
             };
           }).sort(sortFilesByName);
 
@@ -218,9 +218,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     var isString = typeof content === 'string';
 
     if (isString) {
-      imagesArray = getImagesUrlsByRegex(content);
+      imagesArray = getImagesUrlsByRegex(content) || [];
     } else {
-      imagesArray = content;
+      imagesArray = content || [];
     }
 
     imageContent = imagesArray
@@ -238,9 +238,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       }
     };
 
-    imagesData.images = imagesArray.map(function(imgUrl) {
+    imagesData.images = Array.isArray(imagesArray) ? imagesArray.map(function(imgUrl) {
       return { url: imgUrl };
-    });
+    }) : [];
 
     return {
       imageContent: imageContent,
@@ -2886,10 +2886,10 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
           }
 
           if (isSortAsc) {
-            return aValue - bValue;
+            return parseFloat(aValue) - parseFloat(bValue);
           }
 
-          return bValue - aValue;
+          return parseFloat(bValue) - parseFloat(aValue);
         case 'time':
           if (!aValue) {
             return isSortAsc ? 1 : -1;
@@ -3097,7 +3097,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
               break;
             case 'numerical':
               record.data[sortField] = record.data[sortField].match(/[0-9]/)
-                ? parseInt(record.data[sortField], 10)
+                ? parseFloat(record.data[sortField])
                 : record.data[sortField];
               break;
             case 'date':
@@ -3116,7 +3116,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
 
       var sortColumns = sortFields.map(function(field) {
-        return 'data[modified_' + field.column + ']';
+        return ['data', 'modified_' + field.column];
       });
 
       var sortOrders = config.sortOptions.map(function(option) {
@@ -3538,7 +3538,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
 
     if (options.summaryLinkAction.type === 'file') {
-      Fliplet.Navigate.file(value);
+      Fliplet.Navigate.file(Fliplet.Media.authenticate(value));
     } else if (options.summaryLinkAction.type === 'url') {
       Fliplet.Navigate.url(value);
     } else {
