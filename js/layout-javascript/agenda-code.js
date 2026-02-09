@@ -1148,6 +1148,10 @@ DynamicList.prototype.removeListItemHTML = function(options) {
   this.$container.find('.agenda-list-item[data-entry-id="' + id + '"]').remove();
 };
 
+/**
+ * Attaches a scroll event listener to the agenda list to adjust the date selector's appearance.
+ * @returns {void}
+ */
 DynamicList.prototype.scrollEvent = function() {
   var _this = this;
   var lastScrollTop = 0;
@@ -1294,6 +1298,10 @@ DynamicList.prototype.initialize = function() {
     });
 };
 
+/**
+ * Checks if a specific entry should be opened based on query parameters.
+ * @returns {Promise} A promise that resolves when the entry is opened or if no entry is specified.
+ */
 DynamicList.prototype.checkIsToOpen = function() {
   // List of entries saved in: _this.modifiedListItems
   var _this = this;
@@ -1329,8 +1337,17 @@ DynamicList.prototype.checkIsToOpen = function() {
   });
 };
 
+/**
+ * Parses query variables from the URL.
+ * @returns {Boolean} Returns true if any query parameters were parsed and processed,
+ * false if no relevant query parameters were found or if in interact mode
+ */
 DynamicList.prototype.parseQueryVars = Fliplet.Registry.get('dynamicListQueryParser');
 
+/**
+ * Parses query variables from page view storage.
+ * @returns {Promise} A promise that resolves when the query variables are parsed.
+ */
 DynamicList.prototype.parsePVQueryVars = function() {
   var _this = this;
   var pvValue;
@@ -1368,6 +1385,10 @@ DynamicList.prototype.parsePVQueryVars = function() {
     });
 };
 
+/**
+ * Parses search queries from page view storage and initiates a search.
+ * @returns {Promise} A promise that resolves when the search is complete.
+ */
 DynamicList.prototype.parseSearchQueries = function() {
   var _this = this;
 
@@ -1397,6 +1418,10 @@ DynamicList.prototype.parseSearchQueries = function() {
   });
 };
 
+/**
+ * Parses filter queries from page view storage and applies them.
+ * @returns {void}
+ */
 DynamicList.prototype.parseFilterQueries = function() {
   if (!this.queryFilter) {
     return;
@@ -1407,6 +1432,10 @@ DynamicList.prototype.parseFilterQueries = function() {
   });
 };
 
+/**
+ * Renders the base HTML structure for the agenda layout.
+ * @returns {void}
+ */
 DynamicList.prototype.renderBaseHTML = function() {
   // Function that renders the List container
   var _this = this;
@@ -1429,6 +1458,12 @@ DynamicList.prototype.renderBaseHTML = function() {
   _this.bindTouchEvents();
 };
 
+/**
+ * Groups agenda data by date.
+ * @param {Array<object>} loopData - The data to group.
+ * @param {string} dateField - The name of the date field to group by.
+ * @returns {Array<Array<object>>} The data grouped by date.
+ */
 DynamicList.prototype.groupLoopDataByDate = function(loopData, dateField) {
   var _this = this;
   // Filter out entries with invalid or missing dates to avoid misalignment
@@ -1546,6 +1581,10 @@ DynamicList.prototype.addSummaryData = function(records) {
   return loopData;
 };
 
+/**
+ * Empties the agenda list or search results.
+ * @returns {void}
+ */
 DynamicList.prototype.emptyLoop = function() {
   if (this.isInLoopView()) {
     $('#agenda-cards-wrapper-' + this.data.id + ' .agenda-list-holder').empty();
@@ -1554,6 +1593,10 @@ DynamicList.prototype.emptyLoop = function() {
   }
 };
 
+/**
+ * Renders the HTML for the agenda list or search results.
+ * @returns {Promise<Array<object>>} A promise that resolves with the rendered data.
+ */
 DynamicList.prototype.renderLoopHTML = function() {
   // Function that renders the List template
   var _this = this;
@@ -1619,6 +1662,12 @@ DynamicList.prototype.renderLoopHTML = function() {
   });
 };
 
+/**
+ * Renders the HTML for the date selector.
+ * @param {Array<object>} records - The data records.
+ * @param {number} [index] - The index of the date to select.
+ * @returns {void}
+ */
 DynamicList.prototype.renderDatesHTML = function(records, index) {
   if (!records || !records.length) {
     return;
@@ -1722,12 +1771,22 @@ DynamicList.prototype.renderDatesHTML = function(records, index) {
   }
 };
 
+/**
+ * Checks if the current user has permission to add a new entry.
+ * @param {object} data - The component's data object.
+ * @returns {object} The updated data object with the `showAddEntry` property.
+ */
 DynamicList.prototype.getAddPermission = function(data) {
   data.showAddEntry = this.Utils.User.canAddRecord(this.data, this.myUserData);
 
   return data;
 };
 
+/**
+ * Checks edit and delete permissions for each entry.
+ * @param {Array<object>} entries - The data entries.
+ * @returns {Array<object>} The updated entries with `editEntry` and `deleteEntry` properties.
+ */
 DynamicList.prototype.getPermissions = function(entries) {
   var _this = this;
 
@@ -1740,6 +1799,11 @@ DynamicList.prototype.getPermissions = function(entries) {
   return entries;
 };
 
+/**
+ * Renders the filters for the agenda.
+ * @param {Array<object>} records - The data records.
+ * @returns {Promise} A promise that resolves when the filters are rendered.
+ */
 DynamicList.prototype.addFilters = function(records) {
   // Function that renders the filters
   var _this = this;
@@ -1838,6 +1902,11 @@ DynamicList.prototype.filterRecordsWithValidDateTime = function(records) {
   });
 };
 
+/**
+ * Calculates and sets the height of the filters container.
+ * @param {boolean} hideFilters - `true` to hide the filters, `false` to show them.
+ * @returns {void}
+ */
 DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
   var _this = this;
   var totalHeight = hideFilters
@@ -1849,6 +1918,11 @@ DynamicList.prototype.calculateFiltersHeight = function(hideFilters) {
   });
 };
 
+/**
+ * Calculates and sets the height of the search container.
+ * @param {boolean} clearSearch - `true` to clear the search and hide the container, `false` to show it.
+ * @returns {Promise} A promise that resolves when the animation is complete.
+ */
 DynamicList.prototype.calculateSearchHeight = function(clearSearch) {
   var _this = this;
   var totalHeight = clearSearch
@@ -1862,6 +1936,10 @@ DynamicList.prototype.calculateSearchHeight = function(clearSearch) {
   });
 };
 
+/**
+ * Fetches all bookmarks for the current user.
+ * @returns {Promise} A promise that resolves when the bookmarks are fetched.
+ */
 DynamicList.prototype.getAllBookmarks = function() {
   var _this = this;
 
@@ -2663,6 +2741,10 @@ DynamicList.prototype.searchData = function(options) {
   });
 };
 
+/**
+ * Binds touch events for horizontal panning on the agenda cards wrapper.
+ * @returns {void}
+ */
 DynamicList.prototype.bindTouchEvents = function() {
   var _this = this;
   var handle = document.getElementById('agenda-cards-wrapper-' + _this.data.id);
@@ -2700,10 +2782,20 @@ DynamicList.prototype.bindTouchEvents = function() {
   });
 };
 
+/**
+ * Checks if the panning gesture is predominantly horizontal.
+ * @param {object} e - The Hammer.js event object.
+ * @returns {boolean} `true` if the panning is horizontal, `false` otherwise.
+ */
 DynamicList.prototype.isPanningHorizontal = function(e) {
   return Math.abs(e.deltaX) > Math.abs(e.deltaY);
 };
 
+/**
+ * Gets the index of a date in the agenda.
+ * @param {string|Date} date - The date to find the index of.
+ * @returns {number} The index of the date.
+ */
 DynamicList.prototype.getDateIndex = function(date) {
   var d = this.Utils.Date.moment(date);
 
@@ -2725,6 +2817,10 @@ DynamicList.prototype.getDateIndex = function(date) {
   return 0;
 };
 
+/**
+ * Navigates the agenda to the current date.
+ * @returns {void}
+ */
 DynamicList.prototype.goToToday = function() {
   var dateIndex = parseInt(Fliplet.Navigate.query.dateIndex, 10);
 
@@ -2737,6 +2833,11 @@ DynamicList.prototype.goToToday = function() {
   this.goToDate(moment().format('YYYY-MM-DD'), false);
 };
 
+/**
+ * Navigates the agenda to a specific date.
+ * @param {string|Date} date - The date to navigate to.
+ * @returns {void}
+ */
 DynamicList.prototype.goToDate = function(date) {
   if (!date) {
     return;
@@ -2751,6 +2852,11 @@ DynamicList.prototype.goToDate = function(date) {
   this.sliderGoTo(this.getDateIndex(d));
 };
 
+/**
+ * Navigates the slider to a specific slide number.
+ * @param {number} number - The slide number to navigate to.
+ * @returns {void}
+ */
 DynamicList.prototype.sliderGoTo = function(number) {
   if (!this.isInLoopView()) {
     console.info('Date selector is not currently in use');
@@ -2780,6 +2886,11 @@ DynamicList.prototype.sliderGoTo = function(number) {
   }
 };
 
+/**
+ * Adds detail view data to an entry.
+ * @param {object} entry - The entry to add detail view data to.
+ * @returns {object} The entry with detail view data.
+ */
 DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
