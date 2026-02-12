@@ -3054,7 +3054,7 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
       });
 
       var sortColumns = sortFields.map(function(field) {
-        return 'data[modified_' + field.column + ']';
+        return ['data', 'modified_' + field.column];
       });
 
       var sortOrders = config.sortOptions.map(function(option) {
