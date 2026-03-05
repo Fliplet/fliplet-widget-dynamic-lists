@@ -97,7 +97,7 @@
       \{{/if}}
 
       <div class="agenda-item-detail-body-text">
-        <a href="\{{{auth content}}}" target="_blank">\{{ T "widgets.list.dynamic.detail.linkText"}}</a>
+        <a href="\{{{auth (ensureProtocol content)}}}" target="_blank">\{{ T "widgets.list.dynamic.detail.linkText"}}</a>
       </div>
       \{{/if}}
       \{{/ifCond}}
@@ -166,7 +166,7 @@
             \{{#if this.size}}<span class="file-info-size">&ndash;
               \{{humanFileSize this.size}}</span>\{{/if}}
           </div>
-          <input type="hidden" value="\{{this.url}}" />
+          <input type="hidden" value="\{{auth this.url}}" />
           <div class="file-icon">
             <i class="fa fa-angle-right"></i>
           </div>
