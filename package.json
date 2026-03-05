@@ -4,7 +4,8 @@
   "description": "Fliplet component that generates lists based on dynamic data from a Fliplet data source",
   "main": "index.js",
   "scripts": {
-    "eslint:github-action": "eslint ."
+    "eslint:github-action": "eslint .",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
-    "eslint-config-fliplet": "^1.0.8"
+    "eslint-config-fliplet": "^1.0.8",
+    "jest": "^30.2.0"
   }
 }

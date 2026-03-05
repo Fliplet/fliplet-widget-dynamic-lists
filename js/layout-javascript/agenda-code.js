@@ -1069,7 +1069,7 @@ DynamicList.prototype.attachObservers = function() {
     .on('click', '.file-item', function(event) {
       var url = $(event.currentTarget).find('input[type=hidden]').val();
 
-      Fliplet.Navigate.file(url);
+      Fliplet.Navigate.file(Fliplet.Media.authenticate(url));
     })
     .on('click keydown', '.agenda-detail-overlay .bookmark-wrapper, .search-results-wrapper .bookmark-wrapper', function(event) {
       if (!_this.Utils.accessibilityHelpers.isExecute(event)) {
