@@ -3214,15 +3214,26 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     }
   }
 
+  var NEGATIVE_ADMIN_VALUES = ['no', 'n', 'false', '0', 'none', 'null', 'undefined', 'off', 'disabled'];
+
+  function isNegativeAdminValue(value) {
+    return typeof value === 'string'
+      && NEGATIVE_ADMIN_VALUES.indexOf(value.trim().toLowerCase()) > -1;
+  }
+
   function userIsAdmin(config, userData) {
     var adminValue = NativeUtils.get(userData, config.userAdminColumn);
 
     // No valid comparison value is given
     if (NativeUtils.isNil(config.userAdminValue) || config.userAdminValue === '') {
-      // User is admin if adminValue is truthy or has at least one truthy value in an array
-      return Array.isArray(adminValue)
-        ? !!adminValue.find(function(v) { return v; })
-        : !!adminValue;
+      // User is admin if adminValue is truthy and not a known negative string
+      if (Array.isArray(adminValue)) {
+        return !!adminValue.find(function(v) {
+          return v && !isNegativeAdminValue(v);
+        });
+      }
+
+      return !!adminValue && !isNegativeAdminValue(adminValue);
     }
 
     // User is admin if adminValue matches comparison value
