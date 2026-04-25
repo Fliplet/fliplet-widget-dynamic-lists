@@ -2313,7 +2313,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           likedWrapper: '<div class="simple-list-bookmark-wrapper btn-bookmarked focus-outline" tabindex="0"></div>',
           addType: 'html',
           getAllCounts: false,
-          liked: record.bookmarked
+          liked: record.bookmarked,
+          offline: true
         });
 
         record.bookmarkButton = btn;
