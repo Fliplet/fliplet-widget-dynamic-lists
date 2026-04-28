@@ -2318,7 +2318,8 @@ DynamicList.prototype.setupBookmarkButton = function(options) {
           addType: 'prepend',
           getAllCounts: false,
           liked: record.bookmarked,
-          silent: record.bookmarkButton
+          silent: record.bookmarkButton,
+          offline: true
         });
 
         if (record.bookmarkButton) {
