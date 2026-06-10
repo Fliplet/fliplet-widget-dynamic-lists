@@ -1190,9 +1190,9 @@ var DynamicLists = (function() {
             // detailViewKnownColumns is the snapshot of data source columns as of the
             // last save. Columns the user intentionally removed are still in this
             // snapshot, so they are treated as "known" and never re-added. Existing
-            // configs have no snapshot yet — seed it from the current columns so
-            // previously-deleted fields are not re-added on this load.
-            var knownColumns = _this.config.detailViewKnownColumns || dataSourceColumns;
+            // configs (or an empty/failed snapshot) fall back to the current columns
+            // so previously-deleted fields are not re-added on this load.
+            var knownColumns = NativeUtils.coalesceArray(_this.config.detailViewKnownColumns, dataSourceColumns);
 
             dataSourceColumns.forEach(function(column) {
               if (knownColumns.indexOf(column) !== -1) {

@@ -2278,10 +2278,9 @@ DynamicList.prototype.addDetailViewData = function(entry, files) {
 
   if (_this.data.detailViewAutoUpdate) {
     var savedColumns = NativeUtils.map(dynamicData, 'column');
-    var knownColumns = _this.data.detailViewKnownColumns || _this.dataSourceColumns;
-    // PS-1879: exclude columns the user intentionally removed. Genuinely-new columns
-    // are absent from BOTH the saved options and the known-columns snapshot. Existing
-    // configs have no snapshot — seed it from current columns so nothing is re-added.
+    // PS-1879: only surface columns genuinely new to the data source; columns the user
+    // removed stay in the known-columns snapshot and are excluded. See interface.js.
+    var knownColumns = NativeUtils.coalesceArray(_this.data.detailViewKnownColumns, _this.dataSourceColumns);
     var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns, knownColumns);
 
     NativeUtils.forEach(extraColumns, function(column) {
