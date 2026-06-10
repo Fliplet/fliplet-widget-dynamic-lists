@@ -1186,7 +1186,19 @@ var DynamicLists = (function() {
           }
 
           if (_this.config.detailViewAutoUpdate) {
+            // PS-1879: only auto-add columns that are genuinely NEW to this widget.
+            // detailViewKnownColumns is the snapshot of data source columns as of the
+            // last save. Columns the user intentionally removed are still in this
+            // snapshot, so they are treated as "known" and never re-added. Existing
+            // configs have no snapshot yet — seed it from the current columns so
+            // previously-deleted fields are not re-added on this load.
+            var knownColumns = _this.config.detailViewKnownColumns || dataSourceColumns;
+
             dataSourceColumns.forEach(function(column) {
+              if (knownColumns.indexOf(column) !== -1) {
+                return;
+              }
+
               var foundColumn = _this.config.detailViewOptions.find(function(item) {
                 return column === item.column;
               });
@@ -3016,6 +3028,10 @@ var DynamicLists = (function() {
       _this.saveDetailedViewOptions();
 
       data.detailViewAutoUpdate = $('input#enable-auto-update').is(':checked');
+
+      // PS-1879: snapshot the current data source columns so future "new field"
+      // detection can tell genuinely-new columns from intentionally-removed ones.
+      data.detailViewKnownColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns || [];
 
       // Get search and filter
       data.searchEnabled = $('#enable-search').is(':checked');
