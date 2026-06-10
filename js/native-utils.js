@@ -1323,5 +1323,21 @@ window.NativeUtils = {
       return -1;
     }
     return array.indexOf(value, fromIndex);
+  },
+
+  /**
+   * Return the value if it is a non-empty array, otherwise the fallback.
+   * Guards against the "empty array is truthy" footgun where `value || fallback`
+   * keeps an empty `[]` instead of using the fallback.
+   * @param {*} value - The candidate array
+   * @param {*} fallback - Returned when value is not a non-empty array
+   * @returns {*} value when it is a non-empty array, otherwise fallback
+   * @example
+   * NativeUtils.coalesceArray(['a'], ['x']); // ['a']
+   * NativeUtils.coalesceArray([], ['x']);    // ['x']
+   * NativeUtils.coalesceArray(undefined, ['x']); // ['x']
+   */
+  coalesceArray: function(value, fallback) {
+    return (Array.isArray(value) && value.length) ? value : fallback;
   }
 };
