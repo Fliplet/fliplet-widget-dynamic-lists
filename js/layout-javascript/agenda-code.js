@@ -2985,7 +2985,10 @@ DynamicList.prototype.addDetailViewData = function(entry) {
 
   if (_this.data.detailViewAutoUpdate) {
     var savedColumns = dynamicData.map(function(item) { return item.column; });
-    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns);
+    // PS-1879: only surface columns genuinely new to the data source; columns the user
+    // removed stay in the known-columns snapshot and are excluded. See interface.js.
+    var knownColumns = NativeUtils.coalesceArray(_this.data.detailViewKnownColumns, _this.dataSourceColumns);
+    var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns, knownColumns);
 
     NativeUtils.forEach(extraColumns, function(column) {
       var newColumnData = {
