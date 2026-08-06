@@ -30,6 +30,10 @@ var MIN_YEARS_AHEAD = 20;
 // compare against stored record dates, which can be older than the app itself.
 var MAX_HISTORY_START_YEAR = 2016;
 
+// Upstream moment-timezone 0.6.3 advertises 597 names. A custom build must not quietly
+// ship fewer: dropping aliases means those zones fall back to browser-local time.
+var MIN_ZONE_NAMES = 590;
+
 var moment = require('moment');
 
 global.moment = moment;
@@ -70,6 +74,55 @@ describe('DEV-1686 — bundled moment-timezone data', function() {
     var firstYear = new Date(zone.untils[0]).getUTCFullYear();
 
     expect(firstYear).toBeLessThanOrEqual(MAX_HISTORY_START_YEAR);
+  });
+
+  describe('zone coverage', function() {
+    // Regression guard for the defect caught in review on PR #795.
+    //
+    // filterLinkPack() carries upstream's links through verbatim and then appends links it
+    // derives for zones that became duplicates after year-filtering, without reconciling the
+    // two. That leaves chains ("A|B" plus "B|C"), and getZone resolves only ONE level of
+    // indirection, so every chained name resolves to null. 139 zones vanished silently.
+    //
+    // NOTE: asserting that names() contains no unresolvable entries does NOT catch this.
+    // names() itself filters to `zones[i] || zones[links[i]]` — one level — so broken zones
+    // are omitted from the list rather than appearing in it and failing. The count floor and
+    // the explicit alias assertions below are what actually catch it.
+    it('advertises at least ' + MIN_ZONE_NAMES + ' zone names', function() {
+      expect(moment.tz.names().length).toBeGreaterThanOrEqual(MIN_ZONE_NAMES);
+    });
+
+    it('resolves every name it advertises', function() {
+      var unresolved = moment.tz.names().filter(function(name) {
+        return !moment.tz.zone(name);
+      });
+
+      expect(unresolved).toEqual([]);
+    });
+
+    it('resolves link zones, not just base zones', function() {
+      // Each of these is an alias that sat behind a broken link chain.
+      var aliases = [
+        'America/Toronto', 'Europe/Amsterdam', 'Asia/Taipei', 'America/Winnipeg',
+        'Europe/Warsaw', 'America/Regina', 'Europe/Zurich', 'Europe/Rome',
+        'Europe/Stockholm', 'Europe/Copenhagen', 'Asia/Riyadh', 'Canada/Eastern',
+        'US/Eastern', 'GMT', 'Etc/GMT', 'Jamaica'
+      ];
+      var missing = aliases.filter(function(name) {
+        return !moment.tz.zone(name);
+      });
+
+      expect(missing).toEqual([]);
+    });
+
+    it('converts correctly through an alias', function() {
+      expect(moment('2029-06-12T14:00:00Z').tz('America/Toronto').format('HH:mm Z'))
+        .toBe('10:00 -04:00');
+      expect(moment('2029-06-12T14:00:00Z').tz('Europe/Amsterdam').format('HH:mm Z'))
+        .toBe('16:00 +02:00');
+      expect(moment('2029-06-12T14:00:00Z').tz('Asia/Taipei').format('HH:mm Z'))
+        .toBe('22:00 +08:00');
+    });
   });
 
   describe('DST conversions are correct across the span', function() {
