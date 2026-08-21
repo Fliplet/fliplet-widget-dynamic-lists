@@ -80,7 +80,7 @@
       "vendor/autosize.js",
       "vendor/unorm.js",
       "vendor/ellipsed.js",
-      "vendor/moment-timezone-with-data-10-year-range.min.js",
+      "vendor/moment-timezone-with-data.min.js",
       "js/default-configs/layouts-config.js",
       "js/build-lists.js",
       "js/build.js",
