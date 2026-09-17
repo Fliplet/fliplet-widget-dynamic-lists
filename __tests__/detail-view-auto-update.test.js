@@ -53,8 +53,11 @@ describe('PS-1879 — NativeUtils.coalesceArray (empty-snapshot guard)', functio
 describe('PS-1879 — column resolution end to end', function() {
   // The deleted column ("phone") still exists in the data source but was removed
   // from the detail view. It must NOT be re-added on any subsequent load/render.
+  // Mirrors the real gate added in interface.js / the 5 runtime layouts: the
+  // known-columns exclusion only applies once savedColumns is non-empty (see the
+  // 'detail-fields-disabled layout' describe block below for why).
   function newColumnsToAdd(snapshot, dsColumns, savedColumns) {
-    var knownColumns = NativeUtils.coalesceArray(snapshot, dsColumns);
+    var knownColumns = savedColumns.length ? NativeUtils.coalesceArray(snapshot, dsColumns) : [];
 
     return NativeUtils.difference(dsColumns, savedColumns, knownColumns);
   }
@@ -81,5 +84,45 @@ describe('PS-1879 — column resolution end to end', function() {
     var savedColumns = ['name', 'email'];
 
     expect(newColumnsToAdd(snapshot, dsColumns, savedColumns)).toEqual(['phone']);
+  });
+});
+
+describe('PS-1879 follow-up — detail-fields-disabled layout (e.g. news-feed) must still populate', function() {
+  // news-feed has 'detail-fields-disabled': true in layouts-config.js, so the
+  // fromStart seed (which populates detailViewOptions for every other layout) never
+  // runs for it. The auto-update merge is its ONLY way to ever get fields into
+  // detailViewOptions. Before this follow-up, a save with an empty detailViewOptions
+  // still wrote a full detailViewKnownColumns snapshot, and on the next load every
+  // DS column was already "known" -- so nothing was ever added, permanently.
+  // ("Detail view fields are not pre-filled in settings, however fields are
+  // available in the Preview mode in detail view" -- Yuliia Solodka, 2026-06-11.)
+  function newColumnsToAdd(snapshot, dsColumns, savedColumns) {
+    var knownColumns = savedColumns.length ? NativeUtils.coalesceArray(snapshot, dsColumns) : [];
+
+    return NativeUtils.difference(dsColumns, savedColumns, knownColumns);
+  }
+
+  it('populates every column on the very first save, even though the snapshot already equals the DS columns', function() {
+    var dsColumns = ['Title', 'Date', 'Categories', 'Image', 'Content'];
+    var snapshot = dsColumns.slice(); // written unconditionally by the save handler, even with 0 saved fields
+    var savedColumns = []; // detailViewOptions has never been populated
+
+    expect(newColumnsToAdd(snapshot, dsColumns, savedColumns).sort()).toEqual(dsColumns.slice().sort());
+  });
+
+  it('still respects a real deletion once the layout has been populated at least once', function() {
+    var dsColumns = ['Title', 'Date', 'Categories', 'Image', 'Content'];
+    var snapshot = dsColumns.slice();
+    var savedColumns = ['Title', 'Date', 'Content']; // user deleted Categories and Image
+
+    expect(newColumnsToAdd(snapshot, dsColumns, savedColumns)).toEqual([]);
+  });
+
+  it('still adds a genuinely new column once the layout has been populated at least once', function() {
+    var snapshot = ['Title', 'Date', 'Content'];
+    var dsColumns = ['Title', 'Date', 'Content', 'Author']; // Author added to the DS afterwards
+    var savedColumns = ['Title', 'Date', 'Content'];
+
+    expect(newColumnsToAdd(snapshot, dsColumns, savedColumns)).toEqual(['Author']);
   });
 });
