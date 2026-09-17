@@ -1203,7 +1203,19 @@ var DynamicLists = (function() {
             // snapshot, so they are treated as "known" and never re-added. Existing
             // configs (or an empty/failed snapshot) fall back to the current columns
             // so previously-deleted fields are not re-added on this load.
-            var knownColumns = NativeUtils.coalesceArray(_this.config.detailViewKnownColumns, dataSourceColumns);
+            //
+            // PS-1879 follow-up: that fallback only makes sense once detailViewOptions
+            // has been populated at least once. For a layout with 'detail-fields-disabled'
+            // (currently only news-feed), the fromStart seed above never runs, so this
+            // auto-update merge is the ONLY way fields are ever added. If detailViewOptions
+            // is still empty, there is nothing to have been "intentionally deleted" yet, so
+            // skip the known-columns exclusion entirely and add every column -- otherwise a
+            // save with an empty detailViewOptions permanently snapshots every DS column as
+            // "known" and the field list can never populate ("not pre-filled in settings,
+            // however fields are available in the Preview mode" -- Yuliia Solodka, 2026-06-11).
+            var knownColumns = _this.config.detailViewOptions.length
+              ? NativeUtils.coalesceArray(_this.config.detailViewKnownColumns, dataSourceColumns)
+              : [];
 
             dataSourceColumns.forEach(function(column) {
               if (knownColumns.indexOf(column) !== -1) {

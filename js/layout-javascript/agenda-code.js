@@ -2987,7 +2987,12 @@ DynamicList.prototype.addDetailViewData = function(entry) {
     var savedColumns = dynamicData.map(function(item) { return item.column; });
     // PS-1879: only surface columns genuinely new to the data source; columns the user
     // removed stay in the known-columns snapshot and are excluded. See interface.js.
-    var knownColumns = NativeUtils.coalesceArray(_this.data.detailViewKnownColumns, _this.dataSourceColumns);
+    // PS-1879 follow-up: for a layout with no other way to seed detailViewOptions
+    // (detail-fields-disabled, e.g. news-feed), skip the exclusion while it is still
+    // empty -- otherwise it can never populate once a snapshot exists. See interface.js.
+    var knownColumns = _this.data.detailViewOptions.length
+      ? NativeUtils.coalesceArray(_this.data.detailViewKnownColumns, _this.dataSourceColumns)
+      : [];
     var extraColumns = NativeUtils.difference(_this.dataSourceColumns, savedColumns, knownColumns);
 
     NativeUtils.forEach(extraColumns, function(column) {
