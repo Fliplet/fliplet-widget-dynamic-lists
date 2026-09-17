@@ -1126,6 +1126,17 @@ var DynamicLists = (function() {
 
           dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
 
+          // PS-1879 follow-up: default/template detail fields (e.g. 'Email', 'Telephone'
+          // for card layouts) are hardcoded to match the widget's own demo dataset. When a
+          // custom data source without those exact columns is connected, blindly seeding or
+          // restoring them produced a detail-view row with no matching dropdown option
+          // ("pre-filled with issues" — Yuliia Solodka, 2026-06-11). Only consider a default
+          // field when its column genuinely exists in the connected data source; this also
+          // fixes the "restore lost locked fields" block below, which reads this same list.
+          defaultDetailFields = defaultDetailFields.filter(function(field) {
+            return (dataSourceColumns || []).indexOf(field.column) !== -1;
+          });
+
           // Sets up the data view settings
           if (typeof _this.config['summary-fields'] === 'undefined') {
             _this.config['summary-fields'] = defaultSettings[listLayout]['summary-fields'];
