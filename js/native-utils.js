@@ -1339,5 +1339,102 @@ window.NativeUtils = {
    */
   coalesceArray: function(value, fallback) {
     return (Array.isArray(value) && value.length) ? value : fallback;
+  },
+
+  /**
+   * Normalize a layout's default detail fields against the connected data source columns.
+   *
+   * A locked default (`paranoid: true`) is a template slot, not a plain field: `location`
+   * names a fixed position in the layout's detail template (e.g. the Email/Telephone/
+   * Linkedin action buttons on the card layouts) and `column` is whichever data source
+   * column the user maps into it. Those slots are kept whatever the data source looks
+   * like, because "Add field" only creates rows without a `location`, so a dropped slot
+   * cannot be recreated from the interface. When the hardcoded column is not in the data
+   * source the column is reset to 'none' ("-- Select a data field") so the stored config
+   * says what the interface shows: updateDetailsRowContainer() runs validateColumn() over
+   * every row and coerces an unknown column to 'none' on render anyway.
+   *
+   * A non-locked default owns no slot, so when its column is missing it is just an empty
+   * row the user has to delete by hand. Those are dropped.
+   *
+   * Non-array columns (undefined, null, or an empty array from a data source with no
+   * entries) are treated as "no columns known", which keeps every locked slot unmapped
+   * rather than discarding it.
+   *
+   * Returns new objects. The inputs are shared with window.flListLayoutConfig and must
+   * never be mutated.
+   *
+   * @param {Array} defaultDetailFields - The layout's 'detail-fields' defaults
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @returns {Array} A new array of new field objects, safe to seed or restore from
+   * @example
+   * // data source has none of the hardcoded columns
+   * NativeUtils.normalizeDefaultDetailFields(
+   *   [{ location: 'Email', column: 'Email', paranoid: true }, { location: 'Bio', column: 'Bio' }],
+   *   ['Name', 'Work Email']
+   * ); // [{ location: 'Email', column: 'none', paranoid: true }]
+   */
+  normalizeDefaultDetailFields: function(defaultDetailFields, dataSourceColumns) {
+    const fields = Array.isArray(defaultDetailFields) ? defaultDetailFields : [];
+    const columns = Array.isArray(dataSourceColumns) ? dataSourceColumns : [];
+
+    return fields.reduce(function(result, field) {
+      if (columns.indexOf(field.column) !== -1) {
+        result.push(Object.assign({}, field));
+      } else if (field.paranoid) {
+        result.push(Object.assign({}, field, { column: 'none' }));
+      }
+
+      return result;
+    }, []);
+  },
+
+  /**
+   * Resolve which data source columns the detail view has already offered the user.
+   *
+   * "I want the detail view to auto update when new fields are added" only adds columns
+   * that are absent from this list, so this is what decides whether a column counts as
+   * new (add it) or as one the user has already seen and possibly removed (leave it out).
+   *
+   * detailViewKnownColumns is the snapshot written on each save. When it is missing or
+   * empty it cannot be trusted, so the current data source columns are used instead --
+   * that fallback is what stops an existing app, or a save that happened before the
+   * columns had loaded, from re-adding fields the user deleted.
+   *
+   * The fallback is wrong in one case: a detail view that has never been populated. The
+   * 'news-feed' layout is marked 'detail-fields-disabled', so the first-load seed in
+   * interface.js never runs for it and this merge is the only thing that can ever add a
+   * field. Falling back to the current columns there marks every column as already
+   * offered, and the field list can never populate, while news-feed's built-in detail
+   * template keeps rendering in Preview. detailViewSeeded records that the list held at
+   * least one field when it was last saved, which is what separates "never populated"
+   * from "the user deleted every field"; only the latter keeps the fallback.
+   *
+   * @param {Object} settings - Widget config (interface) or runtime data, read for
+   *   detailViewOptions, detailViewKnownColumns and detailViewSeeded
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @returns {Array} The columns to treat as already offered; always an array
+   * @example
+   * // never populated: nothing has been offered yet, so every column is new
+   * NativeUtils.knownDetailViewColumns(
+   *   { detailViewOptions: [], detailViewKnownColumns: ['a', 'b'] }, ['a', 'b']
+   * ); // []
+   * @example
+   * // populated once, then emptied by the user: the snapshot still applies
+   * NativeUtils.knownDetailViewColumns(
+   *   { detailViewOptions: [], detailViewKnownColumns: ['a', 'b'], detailViewSeeded: true },
+   *   ['a', 'b']
+   * ); // ['a', 'b']
+   */
+  knownDetailViewColumns: function(settings, dataSourceColumns) {
+    const config = settings || {};
+    const options = Array.isArray(config.detailViewOptions) ? config.detailViewOptions : [];
+    const columns = Array.isArray(dataSourceColumns) ? dataSourceColumns : [];
+
+    if (!options.length && !config.detailViewSeeded) {
+      return [];
+    }
+
+    return this.coalesceArray(config.detailViewKnownColumns, columns);
   }
 };

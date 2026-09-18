@@ -1126,16 +1126,10 @@ var DynamicLists = (function() {
 
           dataSourceColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns;
 
-          // PS-1879 follow-up: default/template detail fields (e.g. 'Email', 'Telephone'
-          // for card layouts) are hardcoded to match the widget's own demo dataset. When a
-          // custom data source without those exact columns is connected, blindly seeding or
-          // restoring them produced a detail-view row with no matching dropdown option
-          // ("pre-filled with issues" — Yuliia Solodka, 2026-06-11). Only consider a default
-          // field when its column genuinely exists in the connected data source; this also
-          // fixes the "restore lost locked fields" block below, which reads this same list.
-          defaultDetailFields = defaultDetailFields.filter(function(field) {
-            return (dataSourceColumns || []).indexOf(field.column) !== -1;
-          });
+          // PS-1879: the layout defaults hardcode the columns of the widget's own demo
+          // dataset, so on any other data source they added rows for columns that do not
+          // exist. Feeds both the seeding block and the restore block below.
+          defaultDetailFields = NativeUtils.normalizeDefaultDetailFields(defaultDetailFields, dataSourceColumns);
 
           // Sets up the data view settings
           if (typeof _this.config['summary-fields'] === 'undefined') {
@@ -1180,9 +1174,13 @@ var DynamicLists = (function() {
                 helper: field.helper
               };
 
-              var foundMatch = _this.config.detailViewOptions.find(function(detailField) {
-                return detailField.column === item.column;
-              });
+              // 'none' is a placeholder, not a column: matching on it would collapse every
+              // unmapped slot onto one row, so an unmapped slot always gets its own row.
+              var foundMatch = item.column === 'none'
+                ? undefined
+                : _this.config.detailViewOptions.find(function(detailField) {
+                  return detailField.column === item.column;
+                });
 
               if (foundMatch) {
                 foundMatch.fieldLabel = 'no-label';
@@ -1198,12 +1196,8 @@ var DynamicLists = (function() {
 
           if (_this.config.detailViewAutoUpdate) {
             // PS-1879: only auto-add columns that are genuinely NEW to this widget.
-            // detailViewKnownColumns is the snapshot of data source columns as of the
-            // last save. Columns the user intentionally removed are still in this
-            // snapshot, so they are treated as "known" and never re-added. Existing
-            // configs (or an empty/failed snapshot) fall back to the current columns
-            // so previously-deleted fields are not re-added on this load.
-            var knownColumns = NativeUtils.coalesceArray(_this.config.detailViewKnownColumns, dataSourceColumns);
+            // See NativeUtils.knownDetailViewColumns for the rules.
+            var knownColumns = NativeUtils.knownDetailViewColumns(_this.config, dataSourceColumns);
 
             dataSourceColumns.forEach(function(column) {
               if (knownColumns.indexOf(column) !== -1) {
@@ -3043,6 +3037,11 @@ var DynamicLists = (function() {
       // PS-1879: snapshot the current data source columns so future "new field"
       // detection can tell genuinely-new columns from intentionally-removed ones.
       data.detailViewKnownColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns || [];
+
+      // PS-1879: record that the field list has held at least one field, so a save made
+      // while it was still empty cannot mark every column as already known. Sticky: once
+      // populated, emptying the list is a deliberate choice to be respected.
+      data.detailViewSeeded = !!_this.config.detailViewSeeded || _this.config.detailViewOptions.length > 0;
 
       // Get search and filter
       data.searchEnabled = $('#enable-search').is(':checked');
