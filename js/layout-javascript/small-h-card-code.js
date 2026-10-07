@@ -794,6 +794,8 @@ DynamicList.prototype.getPermissions = function(entries) {
 DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
+  entry.originalData = entry.originalData || {};
+
   if (NativeUtils.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 

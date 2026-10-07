@@ -2895,6 +2895,8 @@ DynamicList.prototype.sliderGoTo = function(number) {
 DynamicList.prototype.addDetailViewData = function(entry) {
   var _this = this;
 
+  entry.originalData = entry.originalData || {};
+
   if (Array.isArray(entry.entryDetails) && entry.entryDetails.length) {
     _this.Utils.Record.assignImageContent(_this, entry);
 
