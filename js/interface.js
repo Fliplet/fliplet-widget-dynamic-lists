@@ -12,7 +12,6 @@ var DynamicLists = (function() {
   var dataSourceColumns;
   var userDataSourceColumns;
   var resetToDefaults = false;
-  var fromStart;
   var accessRules = [
     {
       allow: 'all',
@@ -130,8 +129,15 @@ var DynamicLists = (function() {
           _this.config.dataSourceId = dataSource.id;
 
           if (dataSource.columns) {
+            var previousColumns = dataSourceColumns;
+
             dataSourceColumns = dataSource.columns;
             _this.updateSummaryRowContainer();
+
+            // PS-1879: detail fields still as seeded (e.g. from the layout's demo data) are
+            // rebuilt for the new columns instead of turning into blank rows
+            NativeUtils.rebuildSeededDetailViewOptions(_this.config, defaultSettings[listLayout], previousColumns, dataSourceColumns);
+
             _this.updateDetailsRowContainer();
             _this.renderSortColumns();
             _this.renderFilterColumns();
@@ -1128,7 +1134,7 @@ var DynamicLists = (function() {
 
           // PS-1879: the layout defaults hardcode the columns of the widget's own demo
           // dataset, so on any other data source they added rows for columns that do not
-          // exist. Feeds both the seeding block and the restore block below.
+          // exist. Feeds the restore block below (the seed normalizes its own copy).
           defaultDetailFields = NativeUtils.normalizeDefaultDetailFields(defaultDetailFields, dataSourceColumns);
 
           // Sets up the data view settings
@@ -1145,106 +1151,9 @@ var DynamicLists = (function() {
 
           _this.updateSummaryRowContainer();
 
-          if (!_this.config.detailViewOptions.length && !defaultSettings[listLayout]['detail-fields-disabled']) {
-            fromStart = true;
-            dataSourceColumns.forEach(function(column, index) {
-              var item = {
-                id: index + 1,
-                columns: dataSourceColumns,
-                column: column,
-                type: 'text',
-                fieldLabel: 'column-name',
-                editable: true
-              };
-
-              _this.config.detailViewOptions.push(item);
-            });
-          }
-
-          if (fromStart && defaultDetailFields.length) {
-            defaultDetailFields.forEach(function(field) {
-              var item = {
-                id: field.id,
-                columns: dataSourceColumns,
-                column: field.column,
-                type: field.type,
-                fieldLabel: 'column-name',
-                location: field.location,
-                editable: !field.paranoid,
-                helper: field.helper
-              };
-
-              // 'none' is a placeholder, not a column: matching on it would collapse every
-              // unmapped slot onto one row, so an unmapped slot always gets its own row.
-              var foundMatch = item.column === 'none'
-                ? undefined
-                : _this.config.detailViewOptions.find(function(detailField) {
-                  return detailField.column === item.column;
-                });
-
-              if (foundMatch) {
-                foundMatch.fieldLabel = 'no-label';
-                foundMatch.location = item.location;
-                foundMatch.editable = item.editable;
-                foundMatch.type = item.type;
-                foundMatch.helper = item.helper;
-              } else {
-                _this.config.detailViewOptions.push(item);
-              }
-            });
-          }
-
-          if (_this.config.detailViewAutoUpdate) {
-            // PS-1879: only auto-add columns that are genuinely NEW to this widget.
-            // See NativeUtils.knownDetailViewColumns for the rules.
-            var knownColumns = NativeUtils.knownDetailViewColumns(_this.config, dataSourceColumns);
-
-            dataSourceColumns.forEach(function(column) {
-              if (knownColumns.indexOf(column) !== -1) {
-                return;
-              }
-
-              var foundColumn = _this.config.detailViewOptions.find(function(item) {
-                return column === item.column;
-              });
-
-              if (foundColumn) {
-                return;
-              }
-
-              var item = {
-                id: _this.config.detailViewOptions.length + 1,
-                columns: dataSourceColumns,
-                column: column,
-                type: 'text',
-                fieldLabel: 'column-name',
-                editable: true
-              };
-
-              _this.config.detailViewOptions.push(item);
-            });
-          }
-
-          // Remove fields from detail view that are to be ignored - Only on first load
-          if (fromStart && defaultSettings[listLayout]['detail-fields-ignore']) {
-            NativeUtils.remove(_this.config.detailViewOptions, function(field) {
-              return defaultSettings[listLayout]['detail-fields-ignore'].indexOf(field.column) >= 0;
-            });
-          }
-
-          if (fromStart && !defaultSettings[listLayout]['showSummaryFieldsInDetailView']) {
-            // Duplicates are removed from detail view because all summary view fields
-            // are rendered at the top of the detail view by default - Only on first load
-            _this.config['summary-fields'].forEach(function(field) {
-              if (!field.column || field.column === 'none' || field.column === 'custom') {
-                return;
-              }
-
-              NativeUtils.remove(_this.config.detailViewOptions, function(option) {
-                return !option.paranoid && field.column === option.column;
-              });
-            });
-          }
+          // First load seeds the detail fields (one per column plus the layout defaults);
+          // later loads add the auto-update's new columns. See NativeUtils.
+          NativeUtils.prepareDetailViewOptions(_this.config, defaultSettings[listLayout], dataSourceColumns);
 
           // TRY TO RESTORE LOST LOCKED FIELDS
           var foundLockedFields = [];
@@ -3034,14 +2943,9 @@ var DynamicLists = (function() {
 
       data.detailViewAutoUpdate = $('input#enable-auto-update').is(':checked');
 
-      // PS-1879: snapshot the current data source columns so future "new field"
-      // detection can tell genuinely-new columns from intentionally-removed ones.
-      data.detailViewKnownColumns = dataSourceColumns || _this.config.dataSourceColumns || _this.config.defaultColumns || [];
-
-      // PS-1879: record that the field list has held at least one field, so a save made
-      // while it was still empty cannot mark every column as already known. Sticky: once
-      // populated, emptying the list is a deliberate choice to be respected.
-      data.detailViewSeeded = !!_this.config.detailViewSeeded || _this.config.detailViewOptions.length > 0;
+      // PS-1879: snapshot the columns and the "has been filled" marker that the
+      // auto-update reads. See NativeUtils.detailViewSaveState.
+      Object.assign(data, NativeUtils.detailViewSaveState(_this.config, dataSourceColumns));
 
       // Get search and filter
       data.searchEnabled = $('#enable-search').is(':checked');

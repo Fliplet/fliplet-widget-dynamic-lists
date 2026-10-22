@@ -1436,5 +1436,304 @@ window.NativeUtils = {
     }
 
     return this.coalesceArray(config.detailViewKnownColumns, columns);
+  },
+
+  /**
+   * Resolve the data source columns "auto update when new fields are added" should add
+   * to the detail view: those neither already saved nor already offered (see
+   * knownDetailViewColumns). Shared by the settings interface and every runtime layout,
+   * which each pass the saved columns they read.
+   *
+   * @param {Object} settings - Widget config (interface) or runtime data
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @param {Array} savedColumns - Columns of the saved detail view options
+   * @returns {Array} The columns to add, in data source order; always an array
+   * @example
+   * NativeUtils.newDetailViewColumns(
+   *   { detailViewOptions: [{ column: 'a' }], detailViewKnownColumns: ['a', 'b'] }, ['a', 'b', 'c'], ['a']
+   * ); // ['c']
+   */
+  newDetailViewColumns: function(settings, dataSourceColumns, savedColumns) {
+    const columns = Array.isArray(dataSourceColumns) ? dataSourceColumns : [];
+    const saved = Array.isArray(savedColumns) ? savedColumns : [];
+
+    return this.difference(columns, saved, this.knownDetailViewColumns(settings, columns));
+  },
+
+  /**
+   * The id to give a detail field added to an existing list.
+   *
+   * The settings rows are looked up by id (`#detail_select_field_<id>`), so a new field
+   * must never reuse one. `detailViewOptions.length + 1` did as soon as a field had been
+   * deleted: the new column took over the row that already had that id and was saved
+   * in its place. Only numeric ids count; "Add field" and the layout defaults use random
+   * strings, which a number can never equal.
+   *
+   * @param {Array} options - The current detail view options
+   * @returns {number} One more than the highest numeric id, or 1 when there is none
+   * @example
+   * NativeUtils.nextDetailViewOptionId([{ id: 1 }, { id: 2 }, { id: 4 }]); // 5
+   * NativeUtils.nextDetailViewOptionId([{ id: 'nMytReWq' }, { id: 3 }]); // 4
+   */
+  nextDetailViewOptionId: function(options) {
+    const list = Array.isArray(options) ? options : [];
+
+    return list.reduce(function(max, option) {
+      const id = option ? parseInt(option.id, 10) : NaN;
+
+      return String(id) === String(option && option.id) && id > max ? id : max;
+    }, 0) + 1;
+  },
+
+  /**
+   * Append the auto-update's new columns (newDetailViewColumns) to the detail view
+   * options of the settings interface, each with an id no other field holds.
+   *
+   * @param {Object} config - Widget config, read for detailViewOptions and the snapshot
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @returns {Array} A new options array: the existing options, then one per new column
+   */
+  appendNewDetailViewColumns: function(config, dataSourceColumns) {
+    const options = Array.isArray(config && config.detailViewOptions) ? config.detailViewOptions.slice() : [];
+    const columns = Array.isArray(dataSourceColumns) ? dataSourceColumns : [];
+    const savedColumns = options.map(function(option) { return option.column; });
+
+    this.newDetailViewColumns(config, columns, savedColumns).forEach(function(column) {
+      options.push({
+        id: this.nextDetailViewOptionId(options),
+        columns: columns,
+        column: column,
+        type: 'text',
+        fieldLabel: 'column-name',
+        editable: true
+      });
+    }, this);
+
+    return options;
+  },
+
+  /**
+   * Build the detail view options a list starts with on a data source: one plain field
+   * per column, the layout's default fields matched onto them (see
+   * normalizeDefaultDetailFields), then the layout's ignored columns removed and, unless
+   * the layout shows the summary fields in the detail view, the columns the summary
+   * fields already show. Used when a list has no detail fields yet, and again when its
+   * data source changes before the user has edited them (rebuildSeededDetailViewOptions).
+   *
+   * @param {Object} layoutSettings - The layout's entry in window.flListLayoutConfig
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @param {Array} summaryFields - The list's summary fields
+   * @returns {Array} New option objects; empty for a 'detail-fields-disabled' layout
+   */
+  seedDetailViewOptions: function(layoutSettings, dataSourceColumns, summaryFields) {
+    const settings = layoutSettings || {};
+    const columns = Array.isArray(dataSourceColumns) ? dataSourceColumns : [];
+    const ignored = settings['detail-fields-ignore'] || [];
+
+    if (settings['detail-fields-disabled']) {
+      return [];
+    }
+
+    let options = columns.map(function(column, index) {
+      return {
+        id: index + 1,
+        columns: columns,
+        column: column,
+        type: 'text',
+        fieldLabel: 'column-name',
+        editable: true
+      };
+    });
+
+    this.normalizeDefaultDetailFields(settings['detail-fields'], columns).forEach(function(field) {
+      const item = {
+        id: field.id,
+        columns: columns,
+        column: field.column,
+        type: field.type,
+        fieldLabel: 'column-name',
+        location: field.location,
+        editable: !field.paranoid,
+        helper: field.helper
+      };
+
+      // 'none' is a placeholder, not a column: matching on it would collapse every
+      // unmapped slot onto one row, so an unmapped slot always gets its own row.
+      const foundMatch = item.column === 'none'
+        ? undefined
+        : options.find(function(option) {
+          return option.column === item.column;
+        });
+
+      if (foundMatch) {
+        foundMatch.fieldLabel = 'no-label';
+        foundMatch.location = item.location;
+        foundMatch.editable = item.editable;
+        foundMatch.type = item.type;
+        foundMatch.helper = item.helper;
+      } else {
+        options.push(item);
+      }
+    });
+
+    options = options.filter(function(option) {
+      return ignored.indexOf(option.column) === -1;
+    });
+
+    if (!settings.showSummaryFieldsInDetailView) {
+      // The summary fields are rendered at the top of the detail view already. Locked
+      // slots stay: their template spot (e.g. the Email button) has no other source.
+      const summaryColumns = (Array.isArray(summaryFields) ? summaryFields : []).map(function(field) {
+        return field && field.column;
+      }).filter(function(column) {
+        return column && column !== 'none' && column !== 'custom';
+      });
+
+      options = options.filter(function(option) {
+        return !option.editable || summaryColumns.indexOf(option.column) === -1;
+      });
+    }
+
+    return options;
+  },
+
+  /**
+   * A short fingerprint of the detail view options: per field its id, column, slot,
+   * type, label setting, custom field/label, image source and folder, in order. Taken
+   * when the options are seeded (detailViewSeedSignature), so a later match proves the
+   * user has not changed them since. Keys the save adds without user input are
+   * normalised to their defaults, so a save on its own does not change it.
+   *
+   * @param {Array} options - Detail view options
+   * @returns {string} The field count and a hash of the fields
+   */
+  detailViewSignature: function(options) {
+    const list = Array.isArray(options) ? options : [];
+    const text = JSON.stringify(list.map(function(option) {
+      const type = option.type || 'text';
+
+      return [
+        option.id,
+        option.column,
+        option.location || null,
+        type,
+        option.fieldLabel || 'column-name',
+        !!option.editable,
+        option.customField || '',
+        option.customFieldLabel || '',
+        type === 'image' ? option.imageField || 'url' : null,
+        !!option.folder
+      ];
+    }));
+    let hash = 5381;
+
+    for (let i = 0; i < text.length; i++) {
+      hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
+    }
+
+    return list.length + ':' + (hash >>> 0).toString(36);
+  },
+
+  /**
+   * Seed the detail view options (seedDetailViewOptions) into the config and record
+   * their fingerprint, so a data source change can tell they are still untouched.
+   *
+   * @param {Object} config - Widget config, read for 'summary-fields' and updated in place
+   * @param {Object} layoutSettings - The layout's entry in window.flListLayoutConfig
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @returns {Object} The same config
+   */
+  applyDetailViewSeed: function(config, layoutSettings, dataSourceColumns) {
+    config.detailViewOptions = this.seedDetailViewOptions(layoutSettings, dataSourceColumns, config['summary-fields']);
+    config.detailViewSeedSignature = this.detailViewSignature(config.detailViewOptions);
+
+    return config;
+  },
+
+  /**
+   * The detail view options when the settings interface loads: seeded when the list has
+   * none (except on a 'detail-fields-disabled' layout), otherwise topped up with the
+   * auto-update's new columns when that is on. A fresh seed already holds every column,
+   * so the auto-update has nothing to add to it.
+   *
+   * @param {Object} config - Widget config, updated in place
+   * @param {Object} layoutSettings - The layout's entry in window.flListLayoutConfig
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @returns {Object} The same config
+   */
+  prepareDetailViewOptions: function(config, layoutSettings, dataSourceColumns) {
+    const settings = layoutSettings || {};
+    const options = Array.isArray(config.detailViewOptions) ? config.detailViewOptions : [];
+
+    if (!options.length && !settings['detail-fields-disabled']) {
+      return this.applyDetailViewSeed(config, settings, dataSourceColumns);
+    }
+
+    if (config.detailViewAutoUpdate) {
+      // PS-1879: only columns genuinely NEW to this widget, each with an unused id
+      config.detailViewOptions = this.appendNewDetailViewColumns(config, dataSourceColumns);
+    }
+
+    return config;
+  },
+
+  /**
+   * Rebuild the detail view options for a newly selected data source when they are
+   * still exactly as seeded.
+   *
+   * Picking a layout seeds the detail fields from the layout's demo columns. Choosing
+   * another data source afterwards only re-validated those rows, so every demo column
+   * the new data source lacks became a blank "-- Select a data field" row. When the
+   * options still match the fingerprint taken at seeding (detailViewSeedSignature), the
+   * user has not edited them, and they are seeded again for the new columns, as if the
+   * list had been opened with that data source. Any edit (a deleted, added, reordered
+   * or re-typed field, a label, a custom value or a folder) keeps the user's options.
+   * Call it after the summary fields have been re-validated against the new columns.
+   *
+   * @param {Object} config - Widget config, updated in place when rebuilt
+   * @param {Object} layoutSettings - The layout's entry in window.flListLayoutConfig
+   * @param {Array} previousColumns - Columns before the change
+   * @param {Array} nextColumns - Columns of the newly selected data source
+   * @returns {boolean} True when the options were rebuilt
+   */
+  rebuildSeededDetailViewOptions: function(config, layoutSettings, previousColumns, nextColumns) {
+    if (!config || !config.detailViewSeedSignature || !Array.isArray(previousColumns) || !previousColumns.length || !Array.isArray(nextColumns)) {
+      return false;
+    }
+
+    const sameColumns = previousColumns.length === nextColumns.length && previousColumns.every(function(column) {
+      return nextColumns.indexOf(column) !== -1;
+    });
+
+    if (sameColumns || this.detailViewSignature(config.detailViewOptions) !== config.detailViewSeedSignature) {
+      return false;
+    }
+
+    this.applyDetailViewSeed(config, layoutSettings, nextColumns);
+
+    return true;
+  },
+
+  /**
+   * The PS-1879 keys written on every save of the settings interface.
+   *
+   * detailViewKnownColumns snapshots the current data source columns, so later "new
+   * field" detection can tell a genuinely new column from one the user removed.
+   * detailViewSeeded records that the field list has held at least one field, so a save
+   * made while it was still empty cannot mark every column as already known. It is
+   * sticky: once populated, emptying the list is a deliberate choice to be respected.
+   *
+   * @param {Object} config - Widget config, read for the column fallbacks and the options
+   * @param {Array} dataSourceColumns - Columns of the connected data source
+   * @returns {Object} { detailViewKnownColumns, detailViewSeeded }
+   */
+  detailViewSaveState: function(config, dataSourceColumns) {
+    const settings = config || {};
+    const options = Array.isArray(settings.detailViewOptions) ? settings.detailViewOptions : [];
+
+    return {
+      detailViewKnownColumns: dataSourceColumns || settings.dataSourceColumns || settings.defaultColumns || [],
+      detailViewSeeded: !!settings.detailViewSeeded || options.length > 0
+    };
   }
 };

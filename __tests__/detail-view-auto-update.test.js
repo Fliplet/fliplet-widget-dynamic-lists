@@ -14,9 +14,11 @@
  * could never populate, while news-feed's built-in detail template kept rendering in
  * Preview.
  *
- * These tests drive the shipped helpers (NativeUtils.knownDetailViewColumns, .difference,
- * .coalesceArray) through each scenario, and assert at source level that all six read
- * sites and the save handler actually use them.
+ * These tests call the shipped helpers in js/native-utils.js directly: the settings
+ * interface's merge (NativeUtils.appendNewDetailViewColumns), the runtime layouts' merge
+ * (NativeUtils.newDetailViewColumns) and the keys written on save
+ * (NativeUtils.detailViewSaveState). js/interface.js and the five layouts are thin calls
+ * into them, which the last block checks at source level.
  */
 
 /* eslint-env jest */
@@ -25,6 +27,7 @@ var fs = require('fs');
 var path = require('path');
 
 var ROOT = path.join(__dirname, '..');
+var INTERFACE_PATH = path.join(ROOT, 'js', 'interface.js');
 var LAYOUT_FILES = ['agenda', 'news-feed', 'simple-list', 'small-card', 'small-h-card']
   .map(function(layout) { return path.join(ROOT, 'js', 'layout-javascript', layout + '-code.js'); });
 
@@ -35,56 +38,38 @@ require(path.join(ROOT, 'js', 'native-utils.js'));
 var NativeUtils = global.window.NativeUtils;
 
 /**
- * Mirrors the merge in js/interface.js: walk the data source columns and add the ones
- * that are neither already known nor already saved. Returns the resulting column list.
+ * Reopen the settings interface: runs the real merge and returns the column names of
+ * the resulting detail view options.
  * @param {Object} config - Widget config (detailViewOptions/KnownColumns/Seeded)
  * @param {Array} dataSourceColumns - Columns of the connected data source
  * @returns {Array} detailViewOptions column names after the merge
  */
 function mergeInInterface(config, dataSourceColumns) {
-  var options = config.detailViewOptions.slice();
-  var knownColumns = NativeUtils.knownDetailViewColumns(config, dataSourceColumns);
-
-  dataSourceColumns.forEach(function(column) {
-    if (knownColumns.indexOf(column) !== -1) {
-      return;
-    }
-
-    if (options.find(function(item) { return column === item.column; })) {
-      return;
-    }
-
-    options.push({ column: column });
-  });
-
-  return options.map(function(item) { return item.column; });
+  return NativeUtils.appendNewDetailViewColumns(config, dataSourceColumns)
+    .map(function(item) { return item.column; });
 }
 
 /**
- * Mirrors the merge in each js/layout-javascript/*-code.js: the extra columns appended
- * to the rendered detail view on top of the saved options.
+ * Render a detail view at runtime: the extra columns the real helper appends on top of
+ * the saved options.
  * @param {Object} data - Runtime data (detailViewOptions/KnownColumns/Seeded)
  * @param {Array} dataSourceColumns - Columns of the connected data source
  * @returns {Array} The extra column names rendered in the detail view
  */
 function mergeAtRuntime(data, dataSourceColumns) {
   var savedColumns = data.detailViewOptions.map(function(option) { return option.column; });
-  var knownColumns = NativeUtils.knownDetailViewColumns(data, dataSourceColumns);
 
-  return NativeUtils.difference(dataSourceColumns, savedColumns, knownColumns);
+  return NativeUtils.newDetailViewColumns(data, dataSourceColumns, savedColumns);
 }
 
 /**
- * Mirrors what js/interface.js writes on Save & Close for the two PS-1879 keys.
+ * Save & Close: applies the real save-state helper, as the save handler does.
  * @param {Object} config - Widget config, mutated in place as the save handler does
  * @param {Array} dataSourceColumns - Columns of the connected data source
  * @returns {Object} The same config object
  */
 function save(config, dataSourceColumns) {
-  config.detailViewKnownColumns = dataSourceColumns;
-  config.detailViewSeeded = !!config.detailViewSeeded || config.detailViewOptions.length > 0;
-
-  return config;
+  return Object.assign(config, NativeUtils.detailViewSaveState(config, dataSourceColumns));
 }
 
 function columnsAsOptions(columns) {
@@ -170,11 +155,13 @@ describe('PS-1879 — a genuinely new data source column still appears', functio
   });
 
   it('adds nothing when the checkbox is off (the merge never runs)', function() {
-    // interface.js and every layout guard the merge with detailViewAutoUpdate, so an
-    // off checkbox cannot add a column regardless of what the snapshot says.
-    var source = fs.readFileSync(path.join(ROOT, 'js', 'interface.js'), 'utf8');
+    // The settings load and every layout guard the merge with detailViewAutoUpdate, so
+    // an off checkbox cannot add a column regardless of what the snapshot says.
+    var config = { detailViewOptions: columnsAsOptions(['Title']), detailViewAutoUpdate: false };
 
-    expect(source).toContain('if (_this.config.detailViewAutoUpdate) {');
+    NativeUtils.prepareDetailViewOptions(config, {}, ['Title', 'Venue']);
+
+    expect(config.detailViewOptions.map(function(item) { return item.column; })).toEqual(['Title']);
 
     LAYOUT_FILES.forEach(function(file) {
       expect(fs.readFileSync(file, 'utf8')).toContain('if (_this.data.detailViewAutoUpdate) {');
@@ -315,28 +302,29 @@ describe('PS-1879 — the primitives the helper is built on', function() {
 });
 
 describe('PS-1879 — every read site and the save handler use the shipped helper', function() {
-  it('resolves known columns through the helper in the settings overlay', function() {
-    var source = fs.readFileSync(path.join(ROOT, 'js', 'interface.js'), 'utf8');
+  it('merges new columns through the helper in the settings overlay', function() {
+    var source = fs.readFileSync(INTERFACE_PATH, 'utf8');
 
-    expect(source).toContain('NativeUtils.knownDetailViewColumns(_this.config, dataSourceColumns)');
-    // The superseded direct fallback must not come back at a read site.
+    // prepareDetailViewOptions runs appendNewDetailViewColumns when the box is ticked.
+    expect(source).toContain('NativeUtils.prepareDetailViewOptions(_this.config, defaultSettings[listLayout], dataSourceColumns);');
+    // The superseded inline merge and its colliding id must not come back.
+    expect(source).not.toContain('detailViewOptions.length + 1');
     expect(source).not.toContain('coalesceArray(_this.config.detailViewKnownColumns');
   });
 
-  it('resolves known columns through the helper in all five runtime layouts', function() {
+  it('resolves new columns through the helper in all five runtime layouts', function() {
     LAYOUT_FILES.forEach(function(file) {
       var source = fs.readFileSync(file, 'utf8');
 
-      expect(source).toContain('NativeUtils.knownDetailViewColumns(_this.data, _this.dataSourceColumns)');
+      expect(source).toContain('NativeUtils.newDetailViewColumns(_this.data, _this.dataSourceColumns, savedColumns)');
       expect(source).not.toContain('coalesceArray(_this.data.detailViewKnownColumns');
     });
   });
 
   it('writes both the snapshot and the seeded marker on save', function() {
-    var source = fs.readFileSync(path.join(ROOT, 'js', 'interface.js'), 'utf8');
+    var source = fs.readFileSync(INTERFACE_PATH, 'utf8');
 
-    expect(source).toContain('data.detailViewKnownColumns = ');
-    expect(source).toContain('data.detailViewSeeded = !!_this.config.detailViewSeeded || _this.config.detailViewOptions.length > 0;');
+    expect(source).toContain('Object.assign(data, NativeUtils.detailViewSaveState(_this.config, dataSourceColumns));');
   });
 
   it('keeps the marker sticky once the list has been populated', function() {
@@ -347,5 +335,12 @@ describe('PS-1879 — every read site and the save handler use the shipped helpe
     config.detailViewOptions = [];
 
     expect(save(config, DS_COLUMNS).detailViewSeeded).toBe(true);
+  });
+
+  it('snapshots the fallback columns when the data source columns have not loaded', function() {
+    expect(NativeUtils.detailViewSaveState({ detailViewOptions: [], defaultColumns: ['a'] }, undefined))
+      .toEqual({ detailViewKnownColumns: ['a'], detailViewSeeded: false });
+    expect(NativeUtils.detailViewSaveState({}, undefined))
+      .toEqual({ detailViewKnownColumns: [], detailViewSeeded: false });
   });
 });
