@@ -3125,7 +3125,7 @@ var DynamicLists = (function() {
           type: 'likes',
           organizationId: organizationId,
           accessRules: [
-            { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
+            { type: ['select', 'insert', 'delete'], allow: 'all' }
           ]
         }).then(function(dataSource) {
           _this.config.likesDataSourceId = dataSource.id;
@@ -3164,7 +3164,7 @@ var DynamicLists = (function() {
             ]
           },
           accessRules: [
-            { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
+            { type: ['select', 'insert', 'delete'], allow: 'all' }
           ]
         }).then(function(dataSource) {
           _this.config.bookmarkDataSourceId = dataSource.id;
