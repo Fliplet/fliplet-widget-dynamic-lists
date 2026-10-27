@@ -3043,22 +3043,8 @@ DynamicList.prototype.showComments = function(id, commentId) {
     var entryComments = NativeUtils.get(entry, 'comments');
 
     // Display comments
-    entryComments.forEach(function(entry, index) {
-      // Convert data/time
-      var newDate = new Date(entry.createdAt);
-      var timeInMilliseconds = newDate.getTime();
-      var author = _this.getCommentAuthor(entry);
-
-      entryComments[index].timeInMilliseconds = timeInMilliseconds;
-      entryComments[index].literalDate = TD(entry.createdAt, { format: 'lll' });
-      entryComments[index].userName = author.userName;
-      entryComments[index].photo = author.photo;
-      entryComments[index].text = entry.data.settings.text || '';
-
-      // Check if comment is from current user
-      if (_this.isOwnComment(entry)) {
-        entryComments[index].currentUser = true;
-      }
+    entryComments.forEach(function(comment) {
+      _this.addCommentViewData(comment);
     });
     entryComments = NativeUtils.orderBy(entryComments, ['timeInMilliseconds'], ['asc']);
 
@@ -3347,6 +3333,28 @@ DynamicList.prototype.pickCommentUserColumns = function(userData) {
   return NativeUtils.pickBy(userData, function(value, key) {
     return userColumns.indexOf(key) > -1;
   });
+};
+
+/**
+ * PS-2312: adds the fields the comment template shows: date, author, text
+ * and currentUser for the current user's comments.
+ * @param {object} comment - The comment entry, changed in place.
+ * @returns {object} the comment
+ */
+DynamicList.prototype.addCommentViewData = function(comment) {
+  var author = this.getCommentAuthor(comment);
+
+  comment.timeInMilliseconds = new Date(comment.createdAt).getTime();
+  comment.literalDate = TD(comment.createdAt, { format: 'lll' });
+  comment.userName = author.userName;
+  comment.photo = author.photo;
+  comment.text = comment.data.settings.text || '';
+
+  if (this.isOwnComment(comment)) {
+    comment.currentUser = true;
+  }
+
+  return comment;
 };
 
 /**

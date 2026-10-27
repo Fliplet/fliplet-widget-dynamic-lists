@@ -73,7 +73,7 @@ describe('PS-2312 comments data source creation', function() {
       } } } }
     });
 
-    vm.runInContext('var DynamicList = function() {};\n' + ['pickCommentUserColumns', 'getCommentAuthor', 'isOwnComment', 'replaceComment'].map(function(name) {
+    vm.runInContext('var DynamicList = function() {};\n' + ['pickCommentUserColumns', 'addCommentViewData', 'getCommentAuthor', 'isOwnComment', 'replaceComment'].map(function(name) {
       return fn(code, name);
     }).join('\n'), ctx);
 
@@ -181,12 +181,54 @@ describe('PS-2312 comments data source creation', function() {
         expect(plain(list({}).getCommentAuthor({ data: { settings: { fromName: 'Bob B' } } }))).toEqual({ userName: 'Bob B', photo: '' });
         expect(plain(list({}).getCommentAuthor({ data: { settings: {} } }))).toEqual({ userName: '', photo: '' });
       });
+    });
 
-      it('showComments uses it and the own-comment check', function() {
-        var showComments = fn(code, 'showComments');
+    describe('addCommentViewData (showComments)', function() {
+      it('showComments uses it for every comment', function() {
+        expect(fn(code, 'showComments')).toContain('_this.addCommentViewData(comment);');
+      });
 
-        expect(showComments).toContain('var author = _this.getCommentAuthor(entry);');
-        expect(showComments).toContain('_this.isOwnComment(entry)');
+      it('sets the author name, photo, text and date', function() {
+        var comment = { createdAt: '2026-01-01T00:00:00Z', data: { settings: { fromName: 'x', text: 'hi', user: { 'First Name': 'Ann', 'Last Name': 'A', Photo: 'a.png' } } } };
+        var result = list({ Email: 'bob@x.com' }).addCommentViewData(comment);
+
+        expect(result).toBe(comment);
+        expect(comment.userName).toBe('Ann A');
+        expect(comment.photo).toBe('a.png');
+        expect(comment.text).toBe('hi');
+        expect(comment.literalDate).toBe('date');
+        expect(comment.timeInMilliseconds).toBe(Date.parse('2026-01-01T00:00:00Z'));
+        expect(comment.currentUser).toBeUndefined();
+      });
+
+      it('falls back to fromName and does not throw without settings.user', function() {
+        var comment = { createdAt: '2026-01-01', data: { settings: { fromName: 'Bob B', text: 'hi' } } };
+
+        list({ Email: 'ann@x.com' }).addCommentViewData(comment);
+
+        expect(comment.userName).toBe('Bob B');
+        expect(comment.photo).toBe('');
+        expect(comment.currentUser).toBeUndefined();
+      });
+
+      it('shows a redacted comment by its name columns', function() {
+        var comment = JSON.parse(JSON.stringify(redacted));
+
+        list({ Email: 'ann@x.com' }).addCommentViewData(comment);
+
+        expect(comment.userName).toBe('Bob');
+        expect(comment.photo).toBe('b.png');
+        expect(comment.currentUser).toBeUndefined();
+      });
+
+      it('marks the current user\'s comment', function() {
+        var comment = { createdAt: '2026-01-01', data: { user: { email: 'ann@x.com' }, settings: { text: '', user: { 'First Name': 'Ann' } } } };
+
+        list({ Email: 'ann@x.com' }).addCommentViewData(comment);
+
+        expect(comment.currentUser).toBe(true);
+        expect(comment.userName).toBe('Ann');
+        expect(comment.text).toBe('');
       });
     });
 
@@ -219,7 +261,7 @@ describe('PS-2312 comments data source creation', function() {
 
 describe('PS-2312 comments settings on the comments data source', function() {
   var code = read('interface-lists.js');
-  var source = code.slice(code.indexOf('function saveCommentsConfig()'), code.indexOf('/**\n * Saves the widget data'));
+  var source = code.slice(code.indexOf('function saveCommentsConfig('), code.indexOf('/**\n * Saves the widget data'));
   var config = { userDataSourceId: 12, emailColumn: 'Email', nameColumns: ['First Name', 'Last Name'], photoColumn: 'Photo' };
   var getById;
   var update;
@@ -236,7 +278,7 @@ describe('PS-2312 comments settings on the comments data source', function() {
     }, overrides);
   }
 
-  function saveCommentsConfig(data) {
+  function saveCommentsConfig(data, previous) {
     var ctx = context({
       widgetData: data || widgetData(),
       Promise: Promise,
@@ -249,7 +291,7 @@ describe('PS-2312 comments settings on the comments data source', function() {
 
     vm.runInContext(source, ctx);
 
-    return ctx.saveCommentsConfig();
+    return ctx.saveCommentsConfig(previous);
   }
 
   function stored(definition) {
@@ -275,7 +317,9 @@ describe('PS-2312 comments settings on the comments data source', function() {
   });
 
   it('save waits for it before reloading', function() {
-    expect(code).toContain('Promise.all([Fliplet.Widget.save(widgetData), saveCommentsConfig()]).then(function() {');
+    expect(code).toContain('var savedCommentColumns = getCommentColumns(widgetData);');
+    expect(code).toContain('var commentsSaved = saveCommentsConfig(savedCommentColumns);\n\n  savedCommentColumns = getCommentColumns(widgetData);');
+    expect(code).toContain('Promise.all([Fliplet.Widget.save(widgetData), commentsSaved]).then(function() {');
   });
 
 
@@ -341,6 +385,42 @@ describe('PS-2312 comments settings on the comments data source', function() {
       });
     });
 
+    describe('columns this list saved before', function() {
+      var previous = { nameColumns: ['First Name', 'Last Name'], photoColumn: 'Photo' };
+
+      it('removes a name column the list no longer uses', function() {
+        stored({ comments: config });
+
+        return saveCommentsConfig(widgetData({ userNameFields: ['First Name'] }), previous).then(function() {
+          expect(updatedDefinition().comments).toEqual(Object.assign({}, config, { nameColumns: ['First Name'] }));
+        });
+      });
+
+      it('clears the photo column when the list sets it to none', function() {
+        stored({ comments: config });
+
+        return saveCommentsConfig(widgetData({ userPhotoColumn: 'none' }), previous).then(function() {
+          expect(updatedDefinition().comments).toEqual(Object.assign({}, config, { photoColumn: '' }));
+        });
+      });
+
+      it('keeps the columns other lists saved', function() {
+        stored({ comments: { userDataSourceId: 12, emailColumn: 'Email', nameColumns: ['First Name', 'Last Name', 'Nickname'], photoColumn: 'Avatar' } });
+
+        return saveCommentsConfig(widgetData({ userNameFields: ['First Name'], userPhotoColumn: 'none' }), previous).then(function() {
+          expect(updatedDefinition().comments).toEqual({ userDataSourceId: 12, emailColumn: 'Email', nameColumns: ['First Name', 'Nickname'], photoColumn: 'Avatar' });
+        });
+      });
+
+      it('does not update when the list did not change', function() {
+        stored({ comments: config });
+
+        return saveCommentsConfig(widgetData(), previous).then(function() {
+          expect(update).not.toHaveBeenCalled();
+        });
+      });
+    });
+
     it('keeps at most 20 name columns', function() {
       var many = [];
 
@@ -362,7 +442,7 @@ describe('PS-2312 comments settings on the comments data source', function() {
   it('replaces the config of a different users data source', function() {
     stored({ comments: { userDataSourceId: 99, emailColumn: 'Mail', nameColumns: ['Nickname'], photoColumn: 'Avatar' } });
 
-    return saveCommentsConfig(widgetData({ userPhotoColumn: 'none' })).then(function() {
+    return saveCommentsConfig(widgetData({ userPhotoColumn: 'none' }), { nameColumns: [], photoColumn: 'Avatar' }).then(function() {
       expect(updatedDefinition().comments).toEqual({ userDataSourceId: 12, emailColumn: 'Email', nameColumns: ['First Name', 'Last Name'], photoColumn: '' });
     });
   });
