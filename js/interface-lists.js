@@ -834,6 +834,7 @@ function attachObservers() {
 /**
  * PS-2312: stores the comment user columns on the comments data source
  * (definition.comments), so the API knows which columns other users may see.
+ * Same users data source as stored: name columns are merged, like migration 235.
  * Errors are logged only, and it gives up waiting after 5 seconds.
  * @returns {Promise} resolves when done; never rejects
  */
@@ -858,14 +859,24 @@ function saveCommentsConfig() {
     return Fliplet.DataSources.getById(dataSourceId, { cache: false });
   }).then(function(dataSource) {
     var definition = (dataSource && dataSource.definition) || {};
+    var stored = definition.comments;
+    var merged = comments;
 
-    if (NativeUtils.isEqual(definition.comments, comments)) {
+    // Other lists can share this comments data source: keep their name and photo columns
+    if (stored && Number(stored.userDataSourceId) === userDataSourceId) {
+      merged = Object.assign({}, comments, {
+        nameColumns: NativeUtils.union(comments.nameColumns, stored.nameColumns || []).slice(0, 20),
+        photoColumn: comments.photoColumn || stored.photoColumn || ''
+      });
+    }
+
+    if (NativeUtils.isEqual(stored, merged)) {
       return;
     }
 
     // The API replaces the whole definition, so keep the existing keys
     return Fliplet.DataSources.update(dataSourceId, {
-      definition: Object.assign({}, definition, { comments: comments })
+      definition: Object.assign({}, definition, { comments: merged })
     });
   }).catch(function(error) {
     console.warn('Could not save the comments settings on the comments data source', error);

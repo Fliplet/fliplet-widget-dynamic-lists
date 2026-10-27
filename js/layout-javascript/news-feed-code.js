@@ -3130,14 +3130,12 @@ DynamicList.prototype.showComments = function(id, commentId) {
       // Convert data/time
       var newDate = new Date(entry.createdAt);
       var timeInMilliseconds = newDate.getTime();
-      var userName = NativeUtils.compact(_this.data.userNameFields.map(function(name) {
-        return NativeUtils.get(entry, 'data.settings.user.' + name);
-      })).join(' ').trim();
+      var author = _this.getCommentAuthor(entry);
 
       entryComments[index].timeInMilliseconds = timeInMilliseconds;
       entryComments[index].literalDate = TD(entry.createdAt, { format: 'lll' });
-      entryComments[index].userName = userName;
-      entryComments[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
+      entryComments[index].userName = author.userName;
+      entryComments[index].photo = author.photo;
       entryComments[index].text = entry.data.settings.text || '';
 
       // Check if comment is from current user
@@ -3292,15 +3290,9 @@ DynamicList.prototype.sendComment = function(id, value) {
         : _this.myUserData[name];
     })).join(' ').trim();
 
-    // PS-2312: store only the name, photo and email columns, not the whole profile
-    var userColumns = NativeUtils.filter((_this.data.userNameFields || []).concat(_this.data.userPhotoColumn, _this.data.userEmailColumn), function(column) {
-      return column && column !== 'none';
-    });
     var comment = {
       fromName: userName,
-      user: NativeUtils.pickBy(_this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData, function(value, key) {
-        return userColumns.indexOf(key) > -1;
-      })
+      user: _this.pickCommentUserColumns(_this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData)
     };
 
     Object.assign(comment, { contentDataSourceEntryId: id });
@@ -3424,31 +3416,68 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 };
 
 /**
- * PS-2312: checks if a comment was written by the current user. Uses the
- * server-set data.user.email, else settings.user[email column] (older rows).
+ * PS-2312: only the name, photo and email columns of a user profile, as
+ * stored on a comment's settings.user (not the whole profile).
+ * @param {object} userData - The user profile.
+ * @returns {object} the picked columns
+ */
+DynamicList.prototype.pickCommentUserColumns = function(userData) {
+  var userColumns = NativeUtils.filter((this.data.userNameFields || []).concat(this.data.userPhotoColumn, this.data.userEmailColumn), function(column) {
+    return column && column !== 'none';
+  });
+
+  return NativeUtils.pickBy(userData, function(value, key) {
+    return userColumns.indexOf(key) > -1;
+  });
+};
+
+/**
+ * PS-2312: the author name and photo shown on a comment. Falls back to
+ * settings.fromName when the name columns are empty.
+ * @param {object} commentEntry - The comment entry.
+ * @returns {object} { userName, photo }
+ */
+DynamicList.prototype.getCommentAuthor = function(commentEntry) {
+  var commentUser = NativeUtils.get(commentEntry, 'data.settings.user') || {};
+  var userName = NativeUtils.compact(NativeUtils.map(this.data.userNameFields, function(name) {
+    return commentUser[name];
+  })).join(' ').trim();
+
+  return {
+    userName: userName || NativeUtils.get(commentEntry, 'data.settings.fromName') || '',
+    photo: commentUser[this.data.userPhotoColumn] || ''
+  };
+};
+
+/**
+ * PS-2312: checks if a comment was written by the current user, by the
+ * server-set data.user.email or settings.user[email column] (older rows).
  * Other users' comments don't carry an email, so they never match.
  * @param {object} commentEntry - The comment entry.
  * @returns {boolean} true if the comment is the current user's
  */
 DynamicList.prototype.isOwnComment = function(commentEntry) {
   var myUserData = this.myUserData || {};
-  var myEmail = String(myUserData[this.data.userEmailColumn] || myUserData['email'] || myUserData['Email'] || '');
   var commentUser = NativeUtils.get(commentEntry, 'data.settings.user') || {};
-  var commentEmail = String(NativeUtils.get(commentEntry, 'data.user.email') || commentUser[this.data.userEmailColumn] || '');
 
-  if (!myEmail || !commentEmail) {
-    return false;
+  function toKey(email) {
+    email = String(email || '').trim().toLowerCase();
+
+    if (email && myUserData.isSaml2) {
+      // SAML2 emails can differ after the domain, so compare up to the domain's first dot
+      var parts = email.match(/[^\@]+[^\.]+/);
+
+      return parts ? parts[0] : '';
+    }
+
+    return email;
   }
 
-  if (myUserData.isSaml2) {
-    // SAML2 emails can differ after the domain, so compare up to the domain's first dot
-    var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
-    var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
+  var myKey = toKey(myUserData[this.data.userEmailColumn] || myUserData['email'] || myUserData['Email']);
 
-    return !!(myEmailParts && commentEmailParts) && myEmailParts[0].toLowerCase() === commentEmailParts[0].toLowerCase();
-  }
-
-  return myEmail.toLowerCase() === commentEmail.toLowerCase();
+  return !!myKey && [NativeUtils.get(commentEntry, 'data.user.email'), commentUser[this.data.userEmailColumn]].some(function(email) {
+    return toKey(email) === myKey;
+  });
 };
 
 /**
@@ -3460,9 +3489,7 @@ DynamicList.prototype.isOwnComment = function(commentEntry) {
  */
 DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var _this = this;
-  var userName = NativeUtils.compact(_this.data.userNameFields.map(function(name) {
-    return NativeUtils.get(commentData, 'data.settings.user.' + name);
-  })).join(' ').trim();
+  var author = _this.getCommentAuthor(commentData);
 
   if (!commentData.literalDate) {
     commentData.literalDate = TD(commentData.createdAt, { format: 'lll' });
@@ -3471,8 +3498,8 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
   var commentInfo = {
     id: commentData.id,
     literalDate: commentData.literalDate,
-    userName: userName,
-    photo: commentData.data.settings.user[_this.data.userPhotoColumn] || '',
+    userName: author.userName,
+    photo: author.photo,
     text: commentData.data.settings.text
   };
 
