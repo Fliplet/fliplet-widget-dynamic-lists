@@ -832,6 +832,51 @@ function attachObservers() {
 }
 
 /**
+ * PS-2312: stores the comment user columns on the comments data source
+ * (definition.comments), so the API knows which columns other users may see.
+ * Errors are logged only, and it gives up waiting after 5 seconds.
+ * @returns {Promise} resolves when done; never rejects
+ */
+function saveCommentsConfig() {
+  var dataSourceId = widgetData.commentsDataSourceId;
+  var userDataSourceId = Number(widgetData.userDataSourceId);
+
+  if (!widgetData.social || !widgetData.social.comments || !dataSourceId || !(userDataSourceId > 0)) {
+    return Promise.resolve();
+  }
+
+  var comments = {
+    userDataSourceId: userDataSourceId,
+    emailColumn: widgetData.userEmailColumn || '',
+    nameColumns: (widgetData.userNameFields || []).filter(function(column) {
+      return column && column !== 'none';
+    }),
+    photoColumn: widgetData.userPhotoColumn && widgetData.userPhotoColumn !== 'none' ? widgetData.userPhotoColumn : ''
+  };
+
+  var update = Promise.resolve().then(function() {
+    return Fliplet.DataSources.getById(dataSourceId, { cache: false });
+  }).then(function(dataSource) {
+    var definition = (dataSource && dataSource.definition) || {};
+
+    if (NativeUtils.isEqual(definition.comments, comments)) {
+      return;
+    }
+
+    // The API replaces the whole definition, so keep the existing keys
+    return Fliplet.DataSources.update(dataSourceId, {
+      definition: Object.assign({}, definition, { comments: comments })
+    });
+  }).catch(function(error) {
+    console.warn('Could not save the comments settings on the comments data source', error);
+  });
+
+  return Promise.race([update, new Promise(function(resolve) {
+    setTimeout(resolve, 5000);
+  })]);
+}
+
+/**
  * Saves the widget data and handles completion notification
  * @description Saves the current widget configuration including link actions,
  * and optionally notifies completion or reloads the widget instance
@@ -842,7 +887,7 @@ function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
 
-  Fliplet.Widget.save(widgetData).then(function() {
+  Promise.all([Fliplet.Widget.save(widgetData), saveCommentsConfig()]).then(function() {
     if (notifyComplete) {
       Fliplet.Widget.complete();
       window.location.reload();

@@ -3057,29 +3057,8 @@ DynamicList.prototype.showComments = function(id, commentId) {
       entryComments[index].photo = entry.data.settings.user[_this.data.userPhotoColumn] || '';
       entryComments[index].text = entry.data.settings.text || '';
 
-      var myEmail = '';
-
-      if (!NativeUtils.isEmpty(_this.myUserData)) {
-        myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'] || _this.myUserData['Email'];
-      }
-
-      var dataSourceEmail = '';
-
-      if (entry.data.settings.user && entry.data.settings.user[_this.data.userEmailColumn]) {
-        dataSourceEmail = entry.data.settings.user[_this.data.userEmailColumn];
-      }
-
       // Check if comment is from current user
-      if (_this.myUserData.isSaml2) {
-        var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
-        var toComparePart = myEmailParts && myEmailParts.length ? myEmailParts[0] : '';
-        var dataSourceEmailParts = dataSourceEmail.match(/[^\@]+[^\.]+/);
-        var toComparePart2 = dataSourceEmailParts && dataSourceEmailParts.length ? dataSourceEmailParts[0] : '';
-
-        if (toComparePart.toLowerCase() === toComparePart2.toLowerCase()) {
-          entryComments[index].currentUser = true;
-        }
-      } else if (dataSourceEmail === myEmail) {
+      if (_this.isOwnComment(entry)) {
         entryComments[index].currentUser = true;
       }
     });
@@ -3230,9 +3209,15 @@ DynamicList.prototype.sendComment = function(id, value) {
         : _this.myUserData[name];
     })).join(' ').trim();
 
+    // PS-2312: store only the name, photo and email columns, not the whole profile
+    var userColumns = NativeUtils.filter((_this.data.userNameFields || []).concat(_this.data.userPhotoColumn, _this.data.userEmailColumn), function(column) {
+      return column && column !== 'none';
+    });
     var comment = {
       fromName: userName,
-      user: _this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData
+      user: NativeUtils.pickBy(_this.myUserData.isSaml2 ? userFromDataSource.data : _this.myUserData, function(value, key) {
+        return userColumns.indexOf(key) > -1;
+      })
     };
 
     NativeUtils.assignIn(comment, { contentDataSourceEntryId: id });
@@ -3357,6 +3342,34 @@ DynamicList.prototype.appendTempComment = function(id, value, guid, userFromData
 };
 
 /**
+ * PS-2312: checks if a comment was written by the current user. Uses the
+ * server-set data.user.email, else settings.user[email column] (older rows).
+ * Other users' comments don't carry an email, so they never match.
+ * @param {object} commentEntry - The comment entry.
+ * @returns {boolean} true if the comment is the current user's
+ */
+DynamicList.prototype.isOwnComment = function(commentEntry) {
+  var myUserData = this.myUserData || {};
+  var myEmail = String(myUserData[this.data.userEmailColumn] || myUserData['email'] || myUserData['Email'] || '');
+  var commentUser = NativeUtils.get(commentEntry, 'data.settings.user') || {};
+  var commentEmail = String(NativeUtils.get(commentEntry, 'data.user.email') || commentUser[this.data.userEmailColumn] || '');
+
+  if (!myEmail || !commentEmail) {
+    return false;
+  }
+
+  if (myUserData.isSaml2) {
+    // SAML2 emails can differ after the domain, so compare up to the domain's first dot
+    var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
+    var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
+
+    return !!(myEmailParts && commentEmailParts) && myEmailParts[0].toLowerCase() === commentEmailParts[0].toLowerCase();
+  }
+
+  return myEmail.toLowerCase() === commentEmail.toLowerCase();
+};
+
+/**
  * Replaces a temporary comment with the final comment.
  * @param {string} guid - The GUID of the temporary comment.
  * @param {object} commentData - The data of the final comment.
@@ -3373,13 +3386,6 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
     commentData.literalDate = TD(commentData.createdAt, { format: 'lll' });
   }
 
-  var myEmail = _this.myUserData[_this.data.userEmailColumn] || _this.myUserData['email'];
-  var commentEmail = '';
-
-  if (commentData.data.settings.user[_this.data.userEmailColumn]) {
-    commentEmail = commentData.data.settings.user[_this.data.userEmailColumn];
-  }
-
   var commentInfo = {
     id: commentData.id,
     literalDate: commentData.literalDate,
@@ -3394,16 +3400,7 @@ DynamicList.prototype.replaceComment = function(guid, commentData, context) {
 
   if (context === 'final') {
     // Check if comment is from current user
-    if (_this.myUserData.isSaml2) {
-      var myEmailParts = myEmail.match(/[^\@]+[^\.]+/);
-      var toComparePart = myEmailParts[0];
-      var commentEmailParts = commentEmail.match(/[^\@]+[^\.]+/);
-      var toComparePart2 = commentEmailParts[0];
-
-      if (toComparePart.toLowerCase() === toComparePart2.toLowerCase()) {
-        commentInfo.currentUser = true;
-      }
-    } else if (commentEmail === myEmail) {
+    if (_this.isOwnComment(commentData)) {
       commentInfo.currentUser = true;
     }
 
