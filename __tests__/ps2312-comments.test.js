@@ -181,6 +181,26 @@ describe('PS-2312 comments data source creation', function() {
         expect(plain(list({}).getCommentAuthor({ data: { settings: { fromName: 'Bob B' } } }))).toEqual({ userName: 'Bob B', photo: '' });
         expect(plain(list({}).getCommentAuthor({ data: { settings: {} } }))).toEqual({ userName: '', photo: '' });
       });
+
+      // The API strips tokens from the stored photo; the templates' {{auth photo}} adds the reader's own
+      it('passes the stored photo through for the template to authenticate once', function() {
+        var url = 'https://api.fliplet.com/v1/media/files/123/contents/a.png';
+
+        expect(list({}).getCommentAuthor({ data: { settings: { user: { Photo: url } } } }).photo).toBe(url);
+      });
+    });
+
+    describe('comment templates', function() {
+      var layout = file.replace('-code.js', '');
+
+      ['comment', 'single-comment', 'temp-comment'].forEach(function(name) {
+        it(name + ' renders the author photo through the auth helper', function() {
+          var template = fs.readFileSync(path.join(__dirname, '..', 'templates', 'build', layout + '-' + name + '.build.hbs'), 'utf8');
+
+          expect(template).toContain('url(\'\\{{auth photo}}\')');
+          expect(template.match(/photo/g)).toHaveLength(1);
+        });
+      });
     });
 
     describe('addCommentViewData (showComments)', function() {
