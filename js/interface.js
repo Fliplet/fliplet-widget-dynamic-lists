@@ -135,8 +135,9 @@ var DynamicLists = (function() {
             _this.updateSummaryRowContainer();
 
             // PS-1879: detail fields still as seeded (e.g. from the layout's demo data) are
-            // rebuilt for the new columns instead of turning into blank rows
-            NativeUtils.rebuildSeededDetailViewOptions(_this.config, defaultSettings[listLayout], previousColumns, dataSourceColumns);
+            // rebuilt for the new columns instead of turning into blank rows; otherwise the
+            // auto-update adds the new columns now, before the save marks them as known
+            NativeUtils.changeDetailViewDataSource(_this.config, defaultSettings[listLayout], previousColumns, dataSourceColumns, $('input#enable-auto-update').is(':checked'));
 
             _this.updateDetailsRowContainer();
             _this.renderSortColumns();

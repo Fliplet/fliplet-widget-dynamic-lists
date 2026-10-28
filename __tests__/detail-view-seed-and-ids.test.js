@@ -16,9 +16,14 @@
  * Directory Email button opened `mailto:<new value>`). NativeUtils.nextDetailViewOptionId
  * now picks one more than the highest numeric id.
  *
+ * Review of PR #805 (Arpan Jokhakar, 2026-10-28): a data source change on an edited list
+ * added none of the new columns, and the save then marked them as known, so they never
+ * appeared. NativeUtils.changeDetailViewDataSource now runs the auto-update merge before
+ * that save. And a list the user had emptied was seeded again on reopen.
+ *
  * Everything below calls the shipped helpers in js/native-utils.js against the real
  * layout defaults: the load (prepareDetailViewOptions) and the data source change
- * (rebuildSeededDetailViewOptions) that js/interface.js calls, which the last block
+ * (changeDetailViewDataSource) that js/interface.js calls, which the last block
  * checks. Only the interface's DOM round trip is reproduced here (validatedSummary,
  * asSaved).
  */
@@ -127,17 +132,58 @@ function pickLayout(layout) {
 
 /**
  * The dataSourceSelect handler in js/interface.js: re-validate the summary fields
- * (updateSummaryRowContainer), then the real rebuild helper.
+ * (updateSummaryRowContainer), then the real data source change helper.
  * @param {Object} config - Widget config, mutated as the handler does
  * @param {string} layout - Layout key
  * @param {Array} previousColumns - Columns before the change
  * @param {Array} nextColumns - Columns of the chosen data source
- * @returns {boolean} Whether the detail fields were rebuilt
+ * @param {boolean} [autoUpdate] - Whether the auto-update checkbox is ticked
+ * @returns {boolean} Whether the detail fields were rebuilt or gained a column
  */
-function chooseDataSource(config, layout, previousColumns, nextColumns) {
+function chooseDataSource(config, layout, previousColumns, nextColumns, autoUpdate) {
   config['summary-fields'] = validatedSummary(config['summary-fields'], nextColumns);
 
-  return NativeUtils.rebuildSeededDetailViewOptions(config, LAYOUTS[layout], previousColumns, nextColumns);
+  return NativeUtils.changeDetailViewDataSource(config, LAYOUTS[layout], previousColumns, nextColumns, autoUpdate);
+}
+
+/**
+ * Save & Close, as saveLists() writes it: the rows read back, the data source columns,
+ * then the PS-1879 keys.
+ * @param {Object} config - Widget config, mutated in place
+ * @param {Array} columns - Columns of the connected data source
+ * @returns {Object} The same config
+ */
+function saveSettings(config, columns) {
+  config.detailViewOptions = asSaved(config.detailViewOptions);
+  config.dataSourceColumns = columns;
+
+  return Object.assign(config, NativeUtils.detailViewSaveState(config, columns));
+}
+
+/**
+ * Reopen the settings interface on the real load helper.
+ * @param {Object} config - Widget config, mutated in place
+ * @param {string} layout - Layout key
+ * @param {Array} columns - Columns of the connected data source
+ * @returns {Array} The detail field columns after the load
+ */
+function reopen(config, layout, columns) {
+  NativeUtils.prepareDetailViewOptions(config, LAYOUTS[layout], columns);
+
+  return columnsOf(config.detailViewOptions);
+}
+
+/**
+ * The detail view columns a runtime layout renders: the saved fields, then the
+ * auto-update's extra columns.
+ * @param {Object} data - Saved widget data
+ * @param {Array} columns - Columns of the connected data source
+ * @returns {Array} Column names
+ */
+function renderedAtRuntime(data, columns) {
+  var saved = columnsOf(data.detailViewOptions);
+
+  return saved.concat(data.detailViewAutoUpdate ? NativeUtils.newDetailViewColumns(data, columns, saved) : []);
 }
 
 function blankPlainRows(options, columns) {
@@ -488,10 +534,10 @@ describe('PS-1879 review — NativeUtils.prepareDetailViewOptions on load', func
 
   it('does not let the auto-update re-add ignored columns to a fresh seed', function() {
     // agenda ignores Poll/Survey/Questions; the seed already holds every other column.
+    // A list saved with no fields before detailViewSeeded existed is seeded on load.
     var config = {
       'summary-fields': clone(LAYOUTS.agenda['summary-fields']),
       detailViewOptions: [],
-      detailViewSeeded: true,
       detailViewKnownColumns: DEMO_COLUMNS.agenda.filter(function(column) { return column !== 'Poll'; }),
       detailViewAutoUpdate: true
     };
@@ -524,6 +570,147 @@ describe('PS-1879 review — NativeUtils.prepareDetailViewOptions on load', func
   });
 });
 
+describe('PS-1879 review of #805 — a data source change with the auto-update on', function() {
+  var layout = 'small-card';
+  var VENUE_COLUMNS = CUSTOM_COLUMNS.concat('Venue');
+
+  // A Directory list on QA's data source, edited since (About deleted), auto-update on.
+  function configuredList() {
+    var config = pickLayout(layout);
+
+    chooseDataSource(config, layout, DEMO_COLUMNS[layout], CUSTOM_COLUMNS);
+    config.detailViewAutoUpdate = true;
+    saveSettings(config, CUSTOM_COLUMNS);
+    config.detailViewOptions = config.detailViewOptions.filter(function(option) { return option.column !== 'About'; });
+    saveSettings(config, CUSTOM_COLUMNS);
+
+    return config;
+  }
+
+  function without(config, column) {
+    config.detailViewOptions = config.detailViewOptions.filter(function(option) { return option.column !== column; });
+  }
+
+  it('adds the column new with the chosen data source, in settings and at runtime (Arpan\'s repro)', function() {
+    var config = configuredList();
+
+    expect(chooseDataSource(config, layout, CUSTOM_COLUMNS, VENUE_COLUMNS, true)).toBe(true);
+    expect(columnsOf(config.detailViewOptions)).toContain('Venue');
+
+    saveSettings(config, VENUE_COLUMNS);
+
+    expect(reopen(config, layout, VENUE_COLUMNS)).toContain('Venue');
+    expect(renderedAtRuntime(config, VENUE_COLUMNS)).toContain('Venue');
+    expect(renderedAtRuntime(config, VENUE_COLUMNS)).not.toContain('About');
+  });
+
+  it('does the same for a list saved before this release (no fingerprint, no snapshot)', function() {
+    var config = configuredList();
+
+    delete config.detailViewSeedSignature;
+    delete config.detailViewKnownColumns;
+    delete config.detailViewSeeded;
+
+    chooseDataSource(config, layout, CUSTOM_COLUMNS, VENUE_COLUMNS, true);
+    saveSettings(config, VENUE_COLUMNS);
+
+    expect(reopen(config, layout, VENUE_COLUMNS)).toContain('Venue');
+    expect(columnsOf(config.detailViewOptions)).not.toContain('About');
+  });
+
+  it('adds nothing when the auto-update is off', function() {
+    var config = configuredList();
+    var before = clone(config.detailViewOptions);
+
+    expect(chooseDataSource(config, layout, CUSTOM_COLUMNS, VENUE_COLUMNS, false)).toBe(false);
+    expect(config.detailViewOptions).toEqual(before);
+  });
+
+  it('leaves the column out once the user deletes it after the change', function() {
+    var config = configuredList();
+
+    chooseDataSource(config, layout, CUSTOM_COLUMNS, VENUE_COLUMNS, true);
+    without(config, 'Venue');
+    saveSettings(config, VENUE_COLUMNS);
+
+    expect(reopen(config, layout, VENUE_COLUMNS)).not.toContain('Venue');
+    expect(renderedAtRuntime(config, VENUE_COLUMNS)).not.toContain('Venue');
+  });
+
+  it('counts the previous data source\'s columns as offered on a second change in one session', function() {
+    var config = configuredList();
+
+    chooseDataSource(config, layout, CUSTOM_COLUMNS, VENUE_COLUMNS, true);
+    without(config, 'Venue');
+    chooseDataSource(config, layout, VENUE_COLUMNS, VENUE_COLUMNS.concat('Hall'), true);
+
+    expect(columnsOf(config.detailViewOptions)).toContain('Hall');
+    expect(columnsOf(config.detailViewOptions)).not.toContain('Venue');
+    expect(columnsOf(config.detailViewOptions)).not.toContain('About');
+  });
+
+  it('gives the added columns ids no other field holds', function() {
+    var config = configuredList();
+
+    chooseDataSource(config, layout, CUSTOM_COLUMNS, VENUE_COLUMNS.concat('Hall'), true);
+
+    var ids = idsOf(config.detailViewOptions);
+
+    expect(ids.filter(function(id, index) { return ids.indexOf(id) === index; })).toEqual(ids);
+  });
+
+  it('still rebuilds untouched seeded fields instead of adding to them', function() {
+    var config = pickLayout(layout);
+
+    expect(chooseDataSource(config, layout, DEMO_COLUMNS[layout], CUSTOM_COLUMNS, true)).toBe(true);
+    expect(blankPlainRows(config.detailViewOptions, CUSTOM_COLUMNS)).toEqual([]);
+  });
+
+  it('gives news-feed every column while its list has never held a field', function() {
+    var config = { 'summary-fields': clone(LAYOUTS['news-feed']['summary-fields']), detailViewOptions: [] };
+
+    expect(chooseDataSource(config, 'news-feed', DEMO_COLUMNS['news-feed'], CUSTOM_COLUMNS, true)).toBe(true);
+    expect(columnsOf(config.detailViewOptions)).toEqual(CUSTOM_COLUMNS);
+  });
+});
+
+describe('PS-1879 review of #805 — a list the user emptied is not filled again on reopen', function() {
+  // Arpan Jokhakar: populate and save a simple list, delete every detail field, save and
+  // reopen. prepareDetailViewOptions seeded it again because the list was empty.
+  function emptied(autoUpdate) {
+    var config = pickLayout('simple-list');
+
+    chooseDataSource(config, 'simple-list', DEMO_COLUMNS['simple-list'], CUSTOM_COLUMNS);
+    config.detailViewAutoUpdate = autoUpdate;
+    saveSettings(config, CUSTOM_COLUMNS);
+    config.detailViewOptions = [];
+    saveSettings(config, CUSTOM_COLUMNS);
+
+    return config;
+  }
+
+  it('keeps a simple list empty after save and reopen', function() {
+    var config = emptied(false);
+
+    expect(config.detailViewSeeded).toBe(true);
+    expect(reopen(config, 'simple-list', CUSTOM_COLUMNS)).toEqual([]);
+    expect(renderedAtRuntime(config, CUSTOM_COLUMNS)).toEqual([]);
+  });
+
+  it('keeps it empty with the auto-update on, until a column is added', function() {
+    var config = emptied(true);
+
+    expect(reopen(config, 'simple-list', CUSTOM_COLUMNS)).toEqual([]);
+    expect(reopen(config, 'simple-list', CUSTOM_COLUMNS.concat('Venue'))).toEqual(['Venue']);
+  });
+
+  it('still seeds a list that has never held a field', function() {
+    var config = { 'summary-fields': clone(LAYOUTS['simple-list']['summary-fields']), detailViewOptions: [] };
+
+    expect(reopen(config, 'simple-list', CUSTOM_COLUMNS).length).toBeGreaterThan(0);
+  });
+});
+
 describe('PS-1879 review — js/interface.js calls the helpers', function() {
   var source = fs.readFileSync(INTERFACE_PATH, 'utf8');
 
@@ -532,7 +719,7 @@ describe('PS-1879 review — js/interface.js calls the helpers', function() {
     var previous = handler.indexOf('var previousColumns = dataSourceColumns;');
     var assign = handler.indexOf('dataSourceColumns = dataSource.columns;');
     var summary = handler.indexOf('_this.updateSummaryRowContainer();');
-    var rebuild = handler.indexOf('NativeUtils.rebuildSeededDetailViewOptions(_this.config, defaultSettings[listLayout], previousColumns, dataSourceColumns);');
+    var rebuild = handler.indexOf("NativeUtils.changeDetailViewDataSource(_this.config, defaultSettings[listLayout], previousColumns, dataSourceColumns, $('input#enable-auto-update').is(':checked'));");
     var render = handler.indexOf('_this.updateDetailsRowContainer();');
 
     expect(previous).toBeGreaterThan(-1);

@@ -1396,10 +1396,13 @@ window.NativeUtils = {
    * that are absent from this list, so this is what decides whether a column counts as
    * new (add it) or as one the user has already seen and possibly removed (leave it out).
    *
-   * detailViewKnownColumns is the snapshot written on each save. When it is missing or
-   * empty it cannot be trusted, so the current data source columns are used instead --
-   * that fallback is what stops an existing app, or a save that happened before the
-   * columns had loaded, from re-adding fields the user deleted.
+   * detailViewKnownColumns is the snapshot written on each save. When it is missing (a
+   * list last saved before the snapshot existed) or empty (a save that happened before
+   * the columns had loaded) it cannot be trusted, so dataSourceColumns is used instead:
+   * every save has always written the columns it saw there, so it still tells a column
+   * added since then from one the user removed. Only when that is missing too are the
+   * current data source columns used, which treats every column as already offered --
+   * that last fallback is what stops such a list from re-adding fields the user deleted.
    *
    * The fallback is wrong in one case: a detail view that has never been populated. The
    * 'news-feed' layout is marked 'detail-fields-disabled', so the first-load seed in
@@ -1411,7 +1414,7 @@ window.NativeUtils = {
    * from "the user deleted every field"; only the latter keeps the fallback.
    *
    * @param {Object} settings - Widget config (interface) or runtime data, read for
-   *   detailViewOptions, detailViewKnownColumns and detailViewSeeded
+   *   detailViewOptions, detailViewKnownColumns, dataSourceColumns and detailViewSeeded
    * @param {Array} dataSourceColumns - Columns of the connected data source
    * @returns {Array} The columns to treat as already offered; always an array
    * @example
@@ -1425,6 +1428,11 @@ window.NativeUtils = {
    *   { detailViewOptions: [], detailViewKnownColumns: ['a', 'b'], detailViewSeeded: true },
    *   ['a', 'b']
    * ); // ['a', 'b']
+   * @example
+   * // saved before the snapshot existed: the columns that save saw, so 'c' is new
+   * NativeUtils.knownDetailViewColumns(
+   *   { detailViewOptions: [{ column: 'b' }], dataSourceColumns: ['a', 'b'] }, ['a', 'b', 'c']
+   * ); // ['a', 'b']
    */
   knownDetailViewColumns: function(settings, dataSourceColumns) {
     const config = settings || {};
@@ -1435,7 +1443,7 @@ window.NativeUtils = {
       return [];
     }
 
-    return this.coalesceArray(config.detailViewKnownColumns, columns);
+    return this.coalesceArray(config.detailViewKnownColumns, this.coalesceArray(config.dataSourceColumns, columns));
   },
 
   /**
@@ -1652,9 +1660,10 @@ window.NativeUtils = {
 
   /**
    * The detail view options when the settings interface loads: seeded when the list has
-   * none (except on a 'detail-fields-disabled' layout), otherwise topped up with the
-   * auto-update's new columns when that is on. A fresh seed already holds every column,
-   * so the auto-update has nothing to add to it.
+   * never held a field (except on a 'detail-fields-disabled' layout), otherwise topped up
+   * with the auto-update's new columns when that is on. A list the user emptied
+   * (detailViewSeeded) is not seeded again. A fresh seed already holds every column, so
+   * the auto-update has nothing to add to it.
    *
    * @param {Object} config - Widget config, updated in place
    * @param {Object} layoutSettings - The layout's entry in window.flListLayoutConfig
@@ -1665,7 +1674,7 @@ window.NativeUtils = {
     const settings = layoutSettings || {};
     const options = Array.isArray(config.detailViewOptions) ? config.detailViewOptions : [];
 
-    if (!options.length && !settings['detail-fields-disabled']) {
+    if (!options.length && !config.detailViewSeeded && !settings['detail-fields-disabled']) {
       return this.applyDetailViewSeed(config, settings, dataSourceColumns);
     }
 
@@ -1712,6 +1721,41 @@ window.NativeUtils = {
     this.applyDetailViewSeed(config, layoutSettings, nextColumns);
 
     return true;
+  },
+
+  /**
+   * The detail view options when another data source is selected: rebuilt when still as
+   * seeded (rebuildSeededDetailViewOptions), otherwise topped up with the columns new
+   * with this data source when the auto-update is on.
+   *
+   * The save that follows snapshots the new data source's columns into
+   * detailViewKnownColumns, so a column not added before then would count as already
+   * offered and never appear. The merge therefore runs here, as if the list had been
+   * saved just before the change: every column of the previous data source counts as
+   * offered, and a list that has never held a field still gets every column.
+   *
+   * @param {Object} config - Widget config, updated in place
+   * @param {Object} layoutSettings - The layout's entry in window.flListLayoutConfig
+   * @param {Array} previousColumns - Columns before the change
+   * @param {Array} nextColumns - Columns of the newly selected data source
+   * @param {boolean} autoUpdate - Whether "auto update when new fields are added" is ticked
+   * @returns {boolean} True when the options were rebuilt or gained a column
+   */
+  changeDetailViewDataSource: function(config, layoutSettings, previousColumns, nextColumns, autoUpdate) {
+    if (this.rebuildSeededDetailViewOptions(config, layoutSettings, previousColumns, nextColumns)) {
+      return true;
+    }
+
+    if (!config || !autoUpdate || !Array.isArray(previousColumns) || !previousColumns.length) {
+      return false;
+    }
+
+    const count = Array.isArray(config.detailViewOptions) ? config.detailViewOptions.length : 0;
+    const savedBeforeChange = Object.assign({}, config, this.detailViewSaveState(config, previousColumns));
+
+    config.detailViewOptions = this.appendNewDetailViewColumns(savedBeforeChange, nextColumns);
+
+    return config.detailViewOptions.length > count;
   },
 
   /**

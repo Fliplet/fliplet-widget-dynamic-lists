@@ -14,6 +14,10 @@
  * could never populate, while news-feed's built-in detail template kept rendering in
  * Preview.
  *
+ * Review of PR #805 (Arpan Jokhakar, 2026-10-28): a list saved before this release has
+ * no snapshot, and falling back to the current columns hid every column added since.
+ * dataSourceColumns, written by every save, is now the fallback baseline.
+ *
  * These tests call the shipped helpers in js/native-utils.js directly: the settings
  * interface's merge (NativeUtils.appendNewDetailViewColumns), the runtime layouts' merge
  * (NativeUtils.newDetailViewColumns) and the keys written on save
@@ -63,12 +67,15 @@ function mergeAtRuntime(data, dataSourceColumns) {
 }
 
 /**
- * Save & Close: applies the real save-state helper, as the save handler does.
+ * Save & Close: writes dataSourceColumns and applies the real save-state helper, as the
+ * save handler does.
  * @param {Object} config - Widget config, mutated in place as the save handler does
  * @param {Array} dataSourceColumns - Columns of the connected data source
  * @returns {Object} The same config object
  */
 function save(config, dataSourceColumns) {
+  config.dataSourceColumns = dataSourceColumns;
+
   return Object.assign(config, NativeUtils.detailViewSaveState(config, dataSourceColumns));
 }
 
@@ -169,6 +176,44 @@ describe('PS-1879 — a genuinely new data source column still appears', functio
   });
 });
 
+describe('PS-1879 review of #805 — a list saved before this release still gains new columns', function() {
+  // Arpan Jokhakar's repro on the simple-list runtime: the list was saved before
+  // detailViewKnownColumns existed, with Title removed from the detail view. Every save
+  // has always written dataSourceColumns, which stands in for the missing snapshot.
+  var withNewColumn = ['Title', 'Description', 'Venue'];
+
+  function legacy() {
+    return {
+      dataSourceColumns: ['Title', 'Description'],
+      detailViewOptions: columnsAsOptions(['Description']),
+      detailViewAutoUpdate: true
+    };
+  }
+
+  it('renders a column added since that save at runtime, but not the removed Title', function() {
+    expect(mergeAtRuntime(legacy(), withNewColumn)).toEqual(['Venue']);
+  });
+
+  it('adds the same column in the settings interface', function() {
+    expect(mergeInInterface(legacy(), withNewColumn)).toEqual(['Description', 'Venue']);
+  });
+
+  it('keeps the column once saved, and respects deleting it afterwards', function() {
+    var config = legacy();
+
+    config.detailViewOptions = NativeUtils.appendNewDetailViewColumns(config, withNewColumn);
+    save(config, withNewColumn);
+
+    expect(mergeInInterface(config, withNewColumn)).toEqual(['Description', 'Venue']);
+
+    config.detailViewOptions = columnsAsOptions(['Description']); // user deletes Venue
+    save(config, withNewColumn);
+
+    expect(mergeInInterface(config, withNewColumn)).toEqual(['Description']);
+    expect(mergeAtRuntime(config, withNewColumn)).toEqual([]);
+  });
+});
+
 describe('PS-1879 QA follow-up — a never-populated field list must still populate', function() {
   // Yuliia Solodka, 2026-06-11. news-feed is the only 'detail-fields-disabled' layout,
   // so interface.js's first-load seed never runs for it.
@@ -263,7 +308,19 @@ describe('PS-1879 — NativeUtils.knownDetailViewColumns', function() {
     )).toEqual(['a', 'b']);
   });
 
-  it('falls back to the current columns when the snapshot is missing or empty', function() {
+  it('falls back to the columns the last save saw when the snapshot is missing or empty', function() {
+    expect(NativeUtils.knownDetailViewColumns(
+      { detailViewOptions: [{ column: 'a' }], dataSourceColumns: ['a', 'b'] }, ['a', 'b', 'c']
+    )).toEqual(['a', 'b']);
+    expect(NativeUtils.knownDetailViewColumns(
+      { detailViewOptions: [{ column: 'a' }], detailViewKnownColumns: [], dataSourceColumns: ['a'] }, ['a', 'b']
+    )).toEqual(['a']);
+    expect(NativeUtils.knownDetailViewColumns(
+      { detailViewOptions: [{ column: 'a' }], detailViewKnownColumns: ['a', 'b'], dataSourceColumns: ['a'] }, ['a', 'b', 'c']
+    )).toEqual(['a', 'b']);
+  });
+
+  it('falls back to the current columns when no columns were saved either', function() {
     expect(NativeUtils.knownDetailViewColumns({ detailViewOptions: [{ column: 'a' }] }, ['a', 'b'])).toEqual(['a', 'b']);
     expect(NativeUtils.knownDetailViewColumns(
       { detailViewOptions: [{ column: 'a' }], detailViewKnownColumns: [] }, ['a', 'b']
