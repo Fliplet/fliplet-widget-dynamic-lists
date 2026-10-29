@@ -3191,7 +3191,8 @@ var DynamicLists = (function() {
           type: 'comments',
           organizationId: organizationId,
           accessRules: [
-            { type: ['select', 'insert', 'update', 'delete'], allow: 'all' }
+            // PS-2312: comments need a login
+            { type: ['select', 'insert', 'update', 'delete'], allow: 'loggedIn' }
           ]
         }).then(function(dataSource) {
           _this.config.commentsDataSourceId = dataSource.id;
