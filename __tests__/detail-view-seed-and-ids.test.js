@@ -21,6 +21,11 @@
  * appeared. NativeUtils.changeDetailViewDataSource now runs the auto-update merge before
  * that save. And a list the user had emptied was seeded again on reopen.
  *
+ * Re-review (2026-10-29): fields the load or a data source change put in, then all
+ * deleted before the next save, came back (NativeUtils.markDetailViewPopulated now
+ * records them at once), and a Directory saved against an empty data source never
+ * gained its first columns.
+ *
  * Everything below calls the shipped helpers in js/native-utils.js against the real
  * layout defaults: the load (prepareDetailViewOptions) and the data source change
  * (changeDetailViewDataSource) that js/interface.js calls, which the last block
@@ -708,6 +713,62 @@ describe('PS-1879 review of #805 — a list the user emptied is not filled again
     var config = { 'summary-fields': clone(LAYOUTS['simple-list']['summary-fields']), detailViewOptions: [] };
 
     expect(reopen(config, 'simple-list', CUSTOM_COLUMNS).length).toBeGreaterThan(0);
+  });
+});
+
+describe('PS-1879 re-review of #805 — fields deleted before their first save stay deleted', function() {
+  function newsFeedList() {
+    return { 'summary-fields': clone(LAYOUTS['news-feed']['summary-fields']), detailViewOptions: [], detailViewAutoUpdate: true };
+  }
+
+  it('news-feed: first filled on reopen, emptied, saved and reopened (Arpan\'s repro)', function() {
+    var config = saveSettings(newsFeedList(), CUSTOM_COLUMNS);
+
+    expect(reopen(config, 'news-feed', CUSTOM_COLUMNS)).toEqual(CUSTOM_COLUMNS);
+
+    config.detailViewOptions = [];
+    saveSettings(config, CUSTOM_COLUMNS);
+
+    expect(reopen(config, 'news-feed', CUSTOM_COLUMNS)).toEqual([]);
+    expect(renderedAtRuntime(config, CUSTOM_COLUMNS)).toEqual([]);
+  });
+
+  it('news-feed: first filled by a data source change, emptied, saved and reopened', function() {
+    var config = newsFeedList();
+
+    chooseDataSource(config, 'news-feed', DEMO_COLUMNS['news-feed'], CUSTOM_COLUMNS, true);
+    config.detailViewOptions = [];
+    saveSettings(config, CUSTOM_COLUMNS);
+
+    expect(reopen(config, 'news-feed', CUSTOM_COLUMNS)).toEqual([]);
+    expect(renderedAtRuntime(config, CUSTOM_COLUMNS)).toEqual([]);
+  });
+
+  it('a seeded layout: first seeded on reopen, emptied, saved and reopened', function() {
+    var config = { 'summary-fields': clone(LAYOUTS['simple-list']['summary-fields']), detailViewOptions: [] };
+
+    expect(reopen(config, 'simple-list', CUSTOM_COLUMNS).length).toBeGreaterThan(0);
+
+    config.detailViewOptions = [];
+    saveSettings(config, CUSTOM_COLUMNS);
+
+    expect(reopen(config, 'simple-list', CUSTOM_COLUMNS)).toEqual([]);
+  });
+});
+
+describe('PS-1879 re-review of #805 — Directory saved against an empty data source', function() {
+  it('adds the data source\'s first columns in settings and at runtime (Arpan\'s repro)', function() {
+    var config = { 'summary-fields': clone(LAYOUTS['small-card']['summary-fields']), detailViewOptions: [], detailViewAutoUpdate: true };
+
+    expect(reopen(config, 'small-card', [])).toEqual(['none', 'none', 'none']);
+
+    saveSettings(config, []);
+
+    var saved = clone(config);
+    var mapped = function(column) { return column !== 'none'; };
+
+    expect(reopen(config, 'small-card', CUSTOM_COLUMNS).filter(mapped)).toEqual(CUSTOM_COLUMNS);
+    expect(renderedAtRuntime(saved, CUSTOM_COLUMNS).filter(mapped)).toEqual(CUSTOM_COLUMNS);
   });
 });
 

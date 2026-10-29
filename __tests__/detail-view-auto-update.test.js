@@ -18,6 +18,11 @@
  * no snapshot, and falling back to the current columns hid every column added since.
  * dataSourceColumns, written by every save, is now the fallback baseline.
  *
+ * Re-review (2026-10-29): an empty dataSourceColumns is a data source with no columns
+ * yet, not an unloaded one, so its first columns are new. And detailViewSeeded is set as
+ * soon as the settings interface holds fields, so deleting them all before the next
+ * save is kept.
+ *
  * These tests call the shipped helpers in js/native-utils.js directly: the settings
  * interface's merge (NativeUtils.appendNewDetailViewColumns), the runtime layouts' merge
  * (NativeUtils.newDetailViewColumns) and the keys written on save
@@ -214,6 +219,70 @@ describe('PS-1879 review of #805 — a list saved before this release still gain
   });
 });
 
+describe('PS-1879 re-review of #805 — fields put in on load count as populated', function() {
+  function columnsOf(options) {
+    return options.map(function(option) { return option.column; });
+  }
+
+  it('keeps an older list emptied before its first save on this release empty', function() {
+    // Saved with fields before detailViewSeeded existed; every field deleted before the
+    // next save. Without the marker the list read as never populated and was seeded again.
+    var config = { dataSourceColumns: DS_COLUMNS, detailViewOptions: columnsAsOptions(DS_COLUMNS) };
+
+    NativeUtils.prepareDetailViewOptions(config, {}, DS_COLUMNS);
+    config.detailViewOptions = [];
+    save(config, DS_COLUMNS);
+    NativeUtils.prepareDetailViewOptions(config, {}, DS_COLUMNS);
+
+    expect(config.detailViewOptions).toEqual([]);
+  });
+
+  it('does not count a load that put in no field', function() {
+    var newsFeed = { 'detail-fields-disabled': true };
+    var config = save({ detailViewOptions: [], detailViewAutoUpdate: true }, []);
+
+    NativeUtils.prepareDetailViewOptions(config, newsFeed, []);
+
+    expect(config.detailViewSeeded).toBe(false);
+    expect(columnsOf(NativeUtils.prepareDetailViewOptions(config, newsFeed, DS_COLUMNS).detailViewOptions)).toEqual(DS_COLUMNS);
+  });
+});
+
+describe('PS-1879 re-review of #805 — a list saved on a data source with no columns gains its first ones', function() {
+  // Arpan Jokhakar: a list saved against an empty data source is populated (its locked
+  // slots stay unmapped) while both saved column lists are empty, which read as "saved
+  // before the columns loaded" and hid every column the data source gained.
+  var slots = columnsAsOptions(['none', 'none', 'none']);
+
+  it('adds them in settings and at runtime', function() {
+    var config = save({ detailViewOptions: slots.slice(), detailViewAutoUpdate: true }, []);
+
+    expect(config.detailViewKnownColumns).toEqual([]);
+    expect(config.detailViewSeeded).toBe(true);
+    expect(mergeInInterface(config, DS_COLUMNS)).toEqual(['none', 'none', 'none'].concat(DS_COLUMNS));
+    expect(mergeAtRuntime(config, DS_COLUMNS)).toEqual(DS_COLUMNS);
+  });
+
+  it('adds them for a list saved that way before this release', function() {
+    var config = { dataSourceColumns: [], detailViewOptions: slots.slice(), detailViewAutoUpdate: true };
+
+    expect(mergeAtRuntime(config, DS_COLUMNS)).toEqual(DS_COLUMNS);
+  });
+
+  it('still reads an empty snapshot from a save before the columns loaded as unknown', function() {
+    // saveLists() copies the unloaded columns, so that save writes no dataSourceColumns.
+    var config = save({
+      detailViewOptions: columnsAsOptions(['Title']),
+      detailViewSeeded: true,
+      detailViewAutoUpdate: true
+    }, undefined);
+
+    expect(config.detailViewKnownColumns).toEqual([]);
+    expect(mergeInInterface(config, DS_COLUMNS)).toEqual(['Title']);
+    expect(mergeAtRuntime(config, DS_COLUMNS)).toEqual([]);
+  });
+});
+
 describe('PS-1879 QA follow-up — a never-populated field list must still populate', function() {
   // Yuliia Solodka, 2026-06-11. news-feed is the only 'detail-fields-disabled' layout,
   // so interface.js's first-load seed never runs for it.
@@ -318,6 +387,14 @@ describe('PS-1879 — NativeUtils.knownDetailViewColumns', function() {
     expect(NativeUtils.knownDetailViewColumns(
       { detailViewOptions: [{ column: 'a' }], detailViewKnownColumns: ['a', 'b'], dataSourceColumns: ['a'] }, ['a', 'b', 'c']
     )).toEqual(['a', 'b']);
+  });
+
+  it('keeps an empty dataSourceColumns: the data source had no columns at that save', function() {
+    expect(NativeUtils.knownDetailViewColumns(
+      { detailViewOptions: [{ column: 'none' }], detailViewKnownColumns: [], dataSourceColumns: [] }, ['a']
+    )).toEqual([]);
+    expect(NativeUtils.knownDetailViewColumns({ detailViewOptions: [{ column: 'none' }], dataSourceColumns: [] }, ['a']))
+      .toEqual([]);
   });
 
   it('falls back to the current columns when no columns were saved either', function() {

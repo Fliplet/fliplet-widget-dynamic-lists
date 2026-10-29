@@ -1397,21 +1397,24 @@ window.NativeUtils = {
    * new (add it) or as one the user has already seen and possibly removed (leave it out).
    *
    * detailViewKnownColumns is the snapshot written on each save. When it is missing (a
-   * list last saved before the snapshot existed) or empty (a save that happened before
-   * the columns had loaded) it cannot be trusted, so dataSourceColumns is used instead:
-   * every save has always written the columns it saw there, so it still tells a column
-   * added since then from one the user removed. Only when that is missing too are the
-   * current data source columns used, which treats every column as already offered --
-   * that last fallback is what stops such a list from re-adding fields the user deleted.
+   * list last saved before the snapshot existed) or empty, dataSourceColumns is used
+   * instead: every save has always written the columns it saw there, so it still tells
+   * a column added since then from one the user removed. An empty dataSourceColumns is
+   * kept: the data source had no columns at that save, so every column it has gained
+   * since is new. A save that happened before the columns had loaded writes no
+   * dataSourceColumns, and only then are the current data source columns used, which
+   * treats every column as already offered -- that last fallback is what stops such a
+   * list from re-adding fields the user deleted.
    *
    * The fallback is wrong in one case: a detail view that has never been populated. The
    * 'news-feed' layout is marked 'detail-fields-disabled', so the first-load seed in
    * interface.js never runs for it and this merge is the only thing that can ever add a
    * field. Falling back to the current columns there marks every column as already
    * offered, and the field list can never populate, while news-feed's built-in detail
-   * template keeps rendering in Preview. detailViewSeeded records that the list held at
-   * least one field when it was last saved, which is what separates "never populated"
-   * from "the user deleted every field"; only the latter keeps the fallback.
+   * template keeps rendering in Preview. detailViewSeeded records that the list has held
+   * at least one field, set as soon as fields are put in (prepareDetailViewOptions,
+   * changeDetailViewDataSource) and kept by every save, which is what separates "never
+   * populated" from "the user deleted every field"; only the latter keeps the fallback.
    *
    * @param {Object} settings - Widget config (interface) or runtime data, read for
    *   detailViewOptions, detailViewKnownColumns, dataSourceColumns and detailViewSeeded
@@ -1433,6 +1436,11 @@ window.NativeUtils = {
    * NativeUtils.knownDetailViewColumns(
    *   { detailViewOptions: [{ column: 'b' }], dataSourceColumns: ['a', 'b'] }, ['a', 'b', 'c']
    * ); // ['a', 'b']
+   * @example
+   * // saved against a data source with no columns yet: every column is new
+   * NativeUtils.knownDetailViewColumns(
+   *   { detailViewOptions: [{ column: 'none' }], detailViewKnownColumns: [], dataSourceColumns: [] }, ['a']
+   * ); // []
    */
   knownDetailViewColumns: function(settings, dataSourceColumns) {
     const config = settings || {};
@@ -1443,7 +1451,7 @@ window.NativeUtils = {
       return [];
     }
 
-    return this.coalesceArray(config.detailViewKnownColumns, this.coalesceArray(config.dataSourceColumns, columns));
+    return this.coalesceArray(config.detailViewKnownColumns, Array.isArray(config.dataSourceColumns) ? config.dataSourceColumns : columns);
   },
 
   /**
@@ -1663,7 +1671,8 @@ window.NativeUtils = {
    * never held a field (except on a 'detail-fields-disabled' layout), otherwise topped up
    * with the auto-update's new columns when that is on. A list the user emptied
    * (detailViewSeeded) is not seeded again. A fresh seed already holds every column, so
-   * the auto-update has nothing to add to it.
+   * the auto-update has nothing to add to it. A list holding fields afterwards is marked
+   * as populated (markDetailViewPopulated).
    *
    * @param {Object} config - Widget config, updated in place
    * @param {Object} layoutSettings - The layout's entry in window.flListLayoutConfig
@@ -1675,12 +1684,29 @@ window.NativeUtils = {
     const options = Array.isArray(config.detailViewOptions) ? config.detailViewOptions : [];
 
     if (!options.length && !config.detailViewSeeded && !settings['detail-fields-disabled']) {
-      return this.applyDetailViewSeed(config, settings, dataSourceColumns);
-    }
-
-    if (config.detailViewAutoUpdate) {
+      this.applyDetailViewSeed(config, settings, dataSourceColumns);
+    } else if (config.detailViewAutoUpdate) {
       // PS-1879: only columns genuinely NEW to this widget, each with an unused id
       config.detailViewOptions = this.appendNewDetailViewColumns(config, dataSourceColumns);
+    }
+
+    return this.markDetailViewPopulated(config);
+  },
+
+  /**
+   * Set detailViewSeeded once the detail view options hold a field.
+   *
+   * The save only sets it when the list still holds a field at that point, so fields
+   * put in by the seed or the auto-update and then all deleted before the next save
+   * looked like a list that was never populated, and came back on reopen. Recording it
+   * as soon as the settings interface has fields keeps that deletion.
+   *
+   * @param {Object} config - Widget config, updated in place
+   * @returns {Object} The same config
+   */
+  markDetailViewPopulated: function(config) {
+    if (Array.isArray(config.detailViewOptions) && config.detailViewOptions.length) {
+      config.detailViewSeeded = true;
     }
 
     return config;
@@ -1743,6 +1769,8 @@ window.NativeUtils = {
    */
   changeDetailViewDataSource: function(config, layoutSettings, previousColumns, nextColumns, autoUpdate) {
     if (this.rebuildSeededDetailViewOptions(config, layoutSettings, previousColumns, nextColumns)) {
+      this.markDetailViewPopulated(config);
+
       return true;
     }
 
@@ -1754,6 +1782,7 @@ window.NativeUtils = {
     const savedBeforeChange = Object.assign({}, config, this.detailViewSaveState(config, previousColumns));
 
     config.detailViewOptions = this.appendNewDetailViewColumns(savedBeforeChange, nextColumns);
+    this.markDetailViewPopulated(config);
 
     return config.detailViewOptions.length > count;
   },
