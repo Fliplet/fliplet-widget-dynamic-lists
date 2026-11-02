@@ -1,5 +1,7 @@
 var widgetId = Fliplet.Widget.getDefaultId();
 var widgetData = Fliplet.Widget.getData(widgetId) || {};
+// PS-2312: this list's comments columns as last saved, see saveCommentsConfig()
+var savedCommentColumns = getCommentColumns(widgetData);
 var page = Fliplet.Widget.getPage();
 var dynamicLists;
 var dataSourceProvider;
@@ -832,6 +834,85 @@ function attachObservers() {
 }
 
 /**
+ * PS-2312: stores the comment user columns on the comments data source
+ * (definition.comments), so the API knows which columns other users may see.
+ * Same users data source as stored: name columns are merged, like migration 235,
+ * minus the columns this list had saved before and no longer uses.
+ * Errors are logged only, and it gives up waiting after 5 seconds.
+ * @param {object} [previous] - this list's columns as last saved, from getCommentColumns()
+ * @returns {Promise} resolves when done; never rejects
+ */
+function saveCommentsConfig(previous) {
+  var dataSourceId = widgetData.commentsDataSourceId;
+  var userDataSourceId = Number(widgetData.userDataSourceId);
+
+  if (!widgetData.social || !widgetData.social.comments || !dataSourceId || !(userDataSourceId > 0)) {
+    return Promise.resolve();
+  }
+
+  var columns = getCommentColumns(widgetData);
+  var comments = {
+    userDataSourceId: userDataSourceId,
+    emailColumn: widgetData.userEmailColumn || '',
+    nameColumns: columns.nameColumns,
+    photoColumn: columns.photoColumn
+  };
+
+  previous = previous || { nameColumns: [], photoColumn: '' };
+
+  var update = Promise.resolve().then(function() {
+    return Fliplet.DataSources.getById(dataSourceId, { cache: false });
+  }).then(function(dataSource) {
+    var definition = (dataSource && dataSource.definition) || {};
+    var stored = definition.comments;
+    var merged = comments;
+
+    // Other lists can share this comments data source: keep their name and photo columns,
+    // drop the ones only this list had saved
+    if (stored && Number(stored.userDataSourceId) === userDataSourceId) {
+      var otherNameColumns = (stored.nameColumns || []).filter(function(column) {
+        return previous.nameColumns.indexOf(column) === -1;
+      });
+      var otherPhotoColumn = stored.photoColumn !== previous.photoColumn ? stored.photoColumn : '';
+
+      merged = Object.assign({}, comments, {
+        nameColumns: NativeUtils.union(comments.nameColumns, otherNameColumns).slice(0, 20),
+        photoColumn: comments.photoColumn || otherPhotoColumn || ''
+      });
+    }
+
+    if (NativeUtils.isEqual(stored, merged)) {
+      return;
+    }
+
+    // The API replaces the whole definition, so keep the existing keys
+    return Fliplet.DataSources.update(dataSourceId, {
+      definition: Object.assign({}, definition, { comments: merged })
+    });
+  }).catch(function(error) {
+    console.warn('Could not save the comments settings on the comments data source', error);
+  });
+
+  return Promise.race([update, new Promise(function(resolve) {
+    setTimeout(resolve, 5000);
+  })]);
+}
+
+/**
+ * PS-2312: the comments name and photo columns set on a list's widget data
+ * @param {object} data - widget data
+ * @returns {object} { nameColumns, photoColumn }
+ */
+function getCommentColumns(data) {
+  return {
+    nameColumns: (data.userNameFields || []).filter(function(column) {
+      return column && column !== 'none';
+    }),
+    photoColumn: data.userPhotoColumn && data.userPhotoColumn !== 'none' ? data.userPhotoColumn : ''
+  };
+}
+
+/**
  * Saves the widget data and handles completion notification
  * @description Saves the current widget configuration including link actions,
  * and optionally notifies completion or reloads the widget instance
@@ -842,7 +923,11 @@ function save(notifyComplete) {
   widgetData.addEntryLinkAction = addEntryLinkAction;
   widgetData.editEntryLinkAction = editEntryLinkAction;
 
-  Fliplet.Widget.save(widgetData).then(function() {
+  var commentsSaved = saveCommentsConfig(savedCommentColumns);
+
+  savedCommentColumns = getCommentColumns(widgetData);
+
+  Promise.all([Fliplet.Widget.save(widgetData), commentsSaved]).then(function() {
     if (notifyComplete) {
       Fliplet.Widget.complete();
       window.location.reload();
