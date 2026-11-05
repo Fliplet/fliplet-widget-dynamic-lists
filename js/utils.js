@@ -1068,6 +1068,43 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
+   * Gets the storage key used to cache the bookmarks of the current user.
+   * The key includes the user so one user's cached bookmarks are never read for another user.
+   * @param {number} dataSourceId - The bookmarks data source ID.
+   * @returns {Promise<string>} A promise that resolves with the cache key. It never rejects.
+   */
+  function getBookmarksCacheKey(dataSourceId) {
+    var prefix = 'bookmarks-' + dataSourceId + '-';
+
+    return new Promise(function(resolve) {
+      if (!Fliplet.Profile || typeof Fliplet.Profile.uuid !== 'function') {
+        resolve();
+
+        return;
+      }
+
+      resolve(Fliplet.Profile.uuid());
+    }).then(function(user) {
+      var email = NativeUtils.get(user, 'email');
+      var uuid = NativeUtils.get(user, 'uuid');
+
+      if (typeof email === 'string' && email) {
+        return email.toLowerCase();
+      }
+
+      if (uuid) {
+        return String(uuid);
+      }
+
+      return 'guest';
+    }).catch(function() {
+      return 'guest';
+    }).then(function(identity) {
+      return prefix + identity;
+    });
+  }
+
+  /**
    * Determines the reasons why pre-filters are applied client-side instead of using a data source query.
    * @param {object} options - The options for getting query all reasons.
    * @param {object} options.config - The configuration object for the instance.
@@ -3637,7 +3674,8 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
-      fetchAndCache: fetchAndCache
+      fetchAndCache: fetchAndCache,
+      getBookmarksCacheKey: getBookmarksCacheKey
     },
     Navigate: {
       openLinkAction: openLinkAction
