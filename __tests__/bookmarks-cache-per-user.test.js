@@ -1,11 +1,12 @@
 /* eslint-env jest */
 
 /**
- * DEV-2625: the bookmarks cache in App.Storage is per user.
+ * The bookmarks cache in App.Storage is keyed on the cached session user.
  *
  * Before the fix every user on the device shared the key 'bookmarks-<dsId>', so after
  * a sign-in that replaced the user, a slow bookmarks request let the previous user's
- * cached bookmarks show for the new user.
+ * cached bookmarks show for the new user. Keying on Fliplet.Profile.uuid still missed
+ * a session switch that left the profile on the previous email.
  *
  * utils.js and each layout's getAllBookmarks are loaded from the widget source into a
  * vm context with NativeUtils and a stubbed Fliplet, and called.
@@ -57,9 +58,23 @@ function createStorage(initial) {
   };
 }
 
+function dataSourceSession(email, extras) {
+  extras = extras || {};
+
+  return {
+    client: { uuid: extras.uuid || 'device-1' },
+    entries: {
+      dataSource: {
+        id: extras.entryId || 11,
+        data: extras.data || { Email: email }
+      }
+    }
+  };
+}
+
 /**
  * Creates a vm context with NativeUtils, a stubbed Fliplet and the real utils.js loaded.
- * @param {object} options - profile (value or function for Fliplet.Profile.uuid), storage, serverData, delay
+ * @param {object} options - session (value or function for getCachedSession), storage, serverData, delay
  * @returns {object} The vm context, with Utils set to the registered dynamicListUtils
  */
 function context(options) {
@@ -78,11 +93,25 @@ function context(options) {
     });
   } };
 
-  if (typeof options.profile === 'function') {
-    profile.uuid = options.profile;
-  } else if (options.profile !== undefined) {
+  if (options.profileEmail) {
+    profile.get = function(key) {
+      return Promise.resolve(key === 'email' ? options.profileEmail : undefined);
+    };
+
     profile.uuid = function() {
-      return Promise.resolve(options.profile);
+      return Promise.resolve({ email: options.profileEmail, uuid: 'device-1' });
+    };
+  }
+
+  var user = {};
+
+  if (options.session === undefined) {
+    user.getCachedSession = undefined;
+  } else if (typeof options.session === 'function') {
+    user.getCachedSession = options.session;
+  } else {
+    user.getCachedSession = function() {
+      return Promise.resolve(options.session);
     };
   }
 
@@ -101,6 +130,7 @@ function context(options) {
         }
       },
       Profile: profile,
+      User: user,
       App: {
         Storage: options.storage || createStorage()
       }
@@ -115,34 +145,46 @@ function context(options) {
   return ctx;
 }
 
-describe('DEV-2625 getBookmarksCacheKey', function() {
-  function key(profile) {
-    var ctx = context({ profile: profile });
+describe('getBookmarksCacheKey', function() {
+  function key(session) {
+    var ctx = context({ session: session });
 
     expect(typeof ctx.Utils.Query.getBookmarksCacheKey).toBe('function');
 
     return ctx.Utils.Query.getBookmarksCacheKey(DS_ID);
   }
 
-  it('uses the lower-cased email of a signed-in user', function() {
-    return key({ email: 'Alice@Example.COM', uuid: 'device-1' }).then(function(value) {
+  it('uses the lower-cased Email of the cached session data source entry', function() {
+    return key(dataSourceSession('Alice@Example.COM')).then(function(value) {
       expect(value).toBe('bookmarks-1074-alice@example.com');
     });
   });
 
-  it('uses the uuid of a guest', function() {
-    return key({ uuid: 'guest-uuid-1' }).then(function(value) {
+  it('uses data.email when Email is not set', function() {
+    return key(dataSourceSession(null, { data: { email: 'b@example.com' } })).then(function(value) {
+      expect(value).toBe('bookmarks-1074-b@example.com');
+    });
+  });
+
+  it('uses the data source entry id when the row has no email', function() {
+    return key(dataSourceSession(null, { entryId: 99, data: { Name: 'SSO' } })).then(function(value) {
+      expect(value).toBe('bookmarks-1074-99');
+    });
+  });
+
+  it('uses the session client uuid of a guest', function() {
+    return key({ client: { uuid: 'guest-uuid-1' } }).then(function(value) {
       expect(value).toBe('bookmarks-1074-guest-uuid-1');
     });
   });
 
-  it('uses "guest" when there is no email or uuid', function() {
+  it('uses "guest" when there is no session identity', function() {
     return key({}).then(function(value) {
       expect(value).toBe('bookmarks-1074-guest');
     });
   });
 
-  it('uses "guest" when Fliplet.Profile.uuid rejects', function() {
+  it('uses "guest" when Fliplet.User.getCachedSession rejects', function() {
     return key(function() {
       return Promise.reject(new Error('no session'));
     }).then(function(value) {
@@ -150,7 +192,7 @@ describe('DEV-2625 getBookmarksCacheKey', function() {
     });
   });
 
-  it('uses "guest" when Fliplet.Profile.uuid throws', function() {
+  it('uses "guest" when Fliplet.User.getCachedSession throws', function() {
     return key(function() {
       throw new Error('boom');
     }).then(function(value) {
@@ -158,7 +200,7 @@ describe('DEV-2625 getBookmarksCacheKey', function() {
     });
   });
 
-  it('uses "guest" when Fliplet.Profile.uuid is missing', function() {
+  it('uses "guest" when Fliplet.User.getCachedSession is missing', function() {
     return key(undefined).then(function(value) {
       expect(value).toBe('bookmarks-1074-guest');
     });
@@ -166,19 +208,39 @@ describe('DEV-2625 getBookmarksCacheKey', function() {
 
   it('gives different users different keys and ignores email case', function() {
     return Promise.all([
-      key({ email: 'a@example.com' }),
-      key({ email: 'b@example.com' }),
-      key({ email: 'A@Example.com' })
+      key(dataSourceSession('a@example.com')),
+      key(dataSourceSession('b@example.com')),
+      key(dataSourceSession('A@Example.com'))
     ]).then(function(values) {
       expect(values[0]).not.toBe(values[1]);
       expect(values[2]).toBe(values[0]);
     });
   });
+
+  it('follows the session data source entry, not a stale profile email', function() {
+    var ctx = context({
+      session: dataSourceSession('b@example.com'),
+      profileEmail: 'a@example.com'
+    });
+
+    return ctx.Utils.Query.getBookmarksCacheKey(DS_ID).then(function(value) {
+      expect(value).toBe('bookmarks-1074-b@example.com');
+    });
+  });
+
+  it('uses the SAML2 email when there is no data source entry', function() {
+    return key({
+      client: { uuid: 'device-1' },
+      entries: { saml2: { user: { email: 'saml@example.com' } } }
+    }).then(function(value) {
+      expect(value).toBe('bookmarks-1074-saml@example.com');
+    });
+  });
 });
 
-describe('DEV-2625 fetchAndCache with per-user keys', function() {
+describe('fetchAndCache with per-user keys', function() {
   it('does not return user A\'s cached bookmarks to user B on a slow request', function() {
-    var ctx = context({ profile: { email: 'b@example.com' } });
+    var ctx = context({ session: dataSourceSession('b@example.com') });
     var storage = ctx.Fliplet.App.Storage;
     var Query = ctx.Utils.Query;
 
@@ -201,18 +263,21 @@ describe('DEV-2625 fetchAndCache with per-user keys', function() {
   });
 });
 
-describe('DEV-2625 layouts build the bookmarks cache key per user', function() {
+describe('layouts build the bookmarks cache key per session user', function() {
   LAYOUTS.forEach(function(layout) {
     var code = getAllBookmarksSource(read('layout-javascript/' + layout + '-code.js'));
 
     it(layout + ' does not pass the shared key to fetchAndCache', function() {
       expect(code).not.toMatch(/key:\s*'bookmarks-'\s*\+\s*_this\.data\.bookmarkDataSourceId/);
-      expect(code).toContain('_this.Utils.Query.getBookmarksCacheKey(_this.data.bookmarkDataSourceId)');
+      expect(code).toContain('_this.Utils.Query.getBookmarksCache(_this.data.bookmarkDataSourceId)');
+      expect(code).not.toContain('getBookmarksCacheKey');
+      expect(code).not.toMatch(/DEV-\d+/);
     });
 
     function load(options) {
       var ctx = context({
-        profile: { email: 'b@example.com' },
+        session: dataSourceSession('b@example.com'),
+        profileEmail: options.profileEmail,
         storage: options.storage,
         serverData: options.serverData,
         delay: options.delay
@@ -238,7 +303,6 @@ describe('DEV-2625 layouts build the bookmarks cache key per user', function() {
     it(layout + ' shows user B the server bookmarks, not user A\'s cached ones, on a slow request', function() {
       var storage = createStorage();
 
-      // A's bookmarks, cached by old code (shared key) and by new code (A's key)
       storage.store[SHARED_KEY] = [bookmark(1)];
       storage.store['bookmarks-1074-a@example.com'] = [bookmark(1)];
 
@@ -248,6 +312,23 @@ describe('DEV-2625 layouts build the bookmarks cache key per user', function() {
         expect(storage.store[SHARED_KEY]).toBeUndefined();
         expect(storage.store['bookmarks-1074-b@example.com']).toBeDefined();
         expect(storage.store['bookmarks-1074-a@example.com']).toBeDefined();
+      });
+    });
+
+    it(layout + ' does not show user A\'s cache when the session is B and the profile is still A', function() {
+      var storage = createStorage();
+
+      storage.store['bookmarks-1074-a@example.com'] = [bookmark(1)];
+
+      return load({
+        storage: storage,
+        serverData: [bookmark(2)],
+        delay: 600,
+        profileEmail: 'a@example.com'
+      }).then(function(result) {
+        expect(result.instance.listItems[0].bookmarked).toBe(false);
+        expect(result.instance.listItems[1].bookmarked).toBe(true);
+        expect(storage.store['bookmarks-1074-b@example.com']).toBeDefined();
       });
     });
 

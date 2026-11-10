@@ -2094,23 +2094,9 @@ DynamicList.prototype.getAllBookmarks = function() {
     return Promise.resolve();
   }
 
-  var sharedCacheKey = 'bookmarks-' + _this.data.bookmarkDataSourceId;
-
-  // DEV-2625: drop the old cache entry that was shared by all users on the device
-  var removeSharedCache = Promise.resolve().then(function() {
-    return Fliplet.App.Storage.get(sharedCacheKey);
-  }).then(function(sharedCache) {
-    if (sharedCache) {
-      return Fliplet.App.Storage.remove(sharedCacheKey);
-    }
-  }).catch(function() {});
-
-  return Promise.all([
-    _this.Utils.Query.getBookmarksCacheKey(_this.data.bookmarkDataSourceId),
-    removeSharedCache
-  ]).then(function(values) {
+  return _this.Utils.Query.getBookmarksCache(_this.data.bookmarkDataSourceId).then(function(key) {
     return _this.Utils.Query.fetchAndCache({
-      key: values[0],
+      key: key,
       waitFor: 400,
       request: Fliplet.Profile.Content({
         dataSourceId: _this.data.bookmarkDataSourceId,
