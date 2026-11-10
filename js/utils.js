@@ -1068,6 +1068,101 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
   }
 
   /**
+   * Identity for the bookmarks cache key, taken from the cached session.
+   * Profile email is not used: a session switch can leave the profile on the previous user.
+   * @param {object} session - The cached session from Fliplet.User.getCachedSession.
+   * @returns {string} Email, data-source entry id, session client uuid, or "guest".
+   */
+  function getBookmarksCacheIdentity(session) {
+    var data = NativeUtils.get(session, 'entries.dataSource.data') || {};
+    var email = data.email || data.Email;
+    var entryId = NativeUtils.get(session, 'entries.dataSource.id');
+    var samlEmail = NativeUtils.get(session, 'entries.saml2.user.email');
+    var flipletEmail = NativeUtils.get(session, 'entries.flipletLogin.data.email')
+      || NativeUtils.get(session, 'entries.flipletLogin.data.Email');
+    var uuid = NativeUtils.get(session, 'client.uuid');
+
+    if (typeof email === 'string' && email) {
+      return email.toLowerCase();
+    }
+
+    if (entryId) {
+      return String(entryId);
+    }
+
+    if (typeof samlEmail === 'string' && samlEmail) {
+      return samlEmail.toLowerCase();
+    }
+
+    if (typeof flipletEmail === 'string' && flipletEmail) {
+      return flipletEmail.toLowerCase();
+    }
+
+    if (uuid) {
+      return String(uuid);
+    }
+
+    return 'guest';
+  }
+
+  /**
+   * Gets the storage key used to cache the bookmarks of the current session user.
+   * @param {number} dataSourceId - The bookmarks data source ID.
+   * @returns {Promise<string>} A promise that resolves with the cache key. It never rejects.
+   */
+  function getBookmarksCacheKey(dataSourceId) {
+    var prefix = 'bookmarks-' + dataSourceId + '-';
+
+    return new Promise(function(resolve) {
+      if (!Fliplet.User || typeof Fliplet.User.getCachedSession !== 'function') {
+        resolve();
+
+        return;
+      }
+
+      resolve(Fliplet.User.getCachedSession());
+    }).then(function(session) {
+      return getBookmarksCacheIdentity(session);
+    }).catch(function() {
+      return 'guest';
+    }).then(function(identity) {
+      return prefix + identity;
+    });
+  }
+
+  /**
+   * Removes the old bookmarks cache entry that was shared by every user on the device.
+   * Reads first so App.Storage is rewritten only when the old key is still present.
+   * @param {number} dataSourceId - The bookmarks data source ID.
+   * @returns {Promise} A promise that never rejects.
+   */
+  function removeSharedBookmarksCache(dataSourceId) {
+    var sharedCacheKey = 'bookmarks-' + dataSourceId;
+
+    return Promise.resolve().then(function() {
+      return Fliplet.App.Storage.get(sharedCacheKey);
+    }).then(function(sharedCache) {
+      if (sharedCache) {
+        return Fliplet.App.Storage.remove(sharedCacheKey);
+      }
+    }).catch(function() {});
+  }
+
+  /**
+   * Resolves the per-user bookmarks cache key and drops the old shared key if present.
+   * @param {number} dataSourceId - The bookmarks data source ID.
+   * @returns {Promise<string>} A promise that resolves with the cache key. It never rejects.
+   */
+  function getBookmarksCache(dataSourceId) {
+    return Promise.all([
+      getBookmarksCacheKey(dataSourceId),
+      removeSharedBookmarksCache(dataSourceId)
+    ]).then(function(values) {
+      return values[0];
+    });
+  }
+
+  /**
    * Determines the reasons why pre-filters are applied client-side instead of using a data source query.
    * @param {object} options - The options for getting query all reasons.
    * @param {object} options.config - The configuration object for the instance.
@@ -3637,7 +3732,9 @@ Fliplet.Registry.set('dynamicListUtils', (function() {
     },
     Query: {
       getFilterSelectors: getFilterQuerySelectors,
-      fetchAndCache: fetchAndCache
+      fetchAndCache: fetchAndCache,
+      getBookmarksCacheKey: getBookmarksCacheKey,
+      getBookmarksCache: getBookmarksCache
     },
     Navigate: {
       openLinkAction: openLinkAction
