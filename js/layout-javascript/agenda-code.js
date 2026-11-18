@@ -1259,7 +1259,7 @@ DynamicList.prototype.initialize = function() {
       });
     })
     .then(function(records) {
-      // Filter out entries missing the configured date or all configured time fields
+      // Filter out entries missing the configured date or a required time
       records = _this.filterRecordsWithValidDateTime(records);
 
       _this.listItems = _this.getPermissions(records);
@@ -1848,12 +1848,15 @@ DynamicList.prototype.addFilters = function(records) {
 };
 
 /**
- * Filters out records that do not have a valid date or that lack all configured time fields.
+ * Filters out records that do not have a valid date or that lack a required time.
  * - Date column is derived from the detail view option whose location equals this.dateFieldLocation.
- * - Time columns are taken from summary fields with type 'time'.
+ * - Required times are summary fields with type 'time' mapped to a data column or to a non-blank custom template.
+ *   Fields set to None or left unselected are not required.
+ * - A custom template is rendered against the record data and must not be blank.
+ *   If it fails to compile or render, the record is kept.
  *
  * @param {Array<Object>} records - Array of raw data source records to filter
- * @returns {Array<Object>} Filtered records containing a valid date and at least one time (if time columns are configured)
+ * @returns {Array<Object>} Filtered records containing a valid date and a value for every required time
  */
 DynamicList.prototype.filterRecordsWithValidDateTime = function(records) {
   var _this = this;
@@ -1868,12 +1871,49 @@ DynamicList.prototype.filterRecordsWithValidDateTime = function(records) {
     return records;
   }
 
-  // Collect configured time columns from summary fields
-  var timeColumns = NativeUtils.compact(((_this.data['summary-fields'] || []).filter(function(field) {
-    return field.type === 'time';
-  }) || []).map(function(field) {
-    return field.column;
-  }));
+  // Build a check for each required time field from the summary fields
+  var timeChecks = [];
+
+  (_this.data['summary-fields'] || []).forEach(function(field) {
+    if (field.type !== 'time' || !field.column || field.column === 'none' || field.column === 'empty') {
+      return;
+    }
+
+    if (field.column !== 'custom') {
+      timeChecks.push(function(record) {
+        var v = NativeUtils.get(record, ['data', field.column]);
+        var isEmpty = !v || (typeof v === 'string' && !v.trim());
+
+        return !isEmpty;
+      });
+
+      return;
+    }
+
+    if (typeof field.customField !== 'string' || !field.customField.trim()) {
+      return;
+    }
+
+    var template;
+
+    try {
+      template = Handlebars.compile(field.customField);
+    } catch (error) {
+      return;
+    }
+
+    timeChecks.push(function(record) {
+      var rendered;
+
+      try {
+        rendered = template(record.data);
+      } catch (error) {
+        return true;
+      }
+
+      return !!rendered && !!String(rendered).trim();
+    });
+  });
 
   return records.filter(function(record) {
     var dateValue = NativeUtils.get(record, ['data', dateFieldColumn]);
@@ -1883,22 +1923,10 @@ DynamicList.prototype.filterRecordsWithValidDateTime = function(records) {
       return false;
     }
 
-    // If no time columns are configured, only the date requirement applies
-    if (!timeColumns.length) {
-      return true;
-    }
-
-    // Hide the record if any configured time column is empty
-    for (var i = 0; i < timeColumns.length; i++) {
-      var v = NativeUtils.get(record, ['data', timeColumns[i]]);
-      var isEmpty = !v || (typeof v === 'string' && !v.trim());
-
-      if (isEmpty) {
-        return false;
-      }
-    }
-
-    return true;
+    // Hide the record if any required time is empty
+    return timeChecks.every(function(hasTime) {
+      return hasTime(record);
+    });
   });
 };
 
