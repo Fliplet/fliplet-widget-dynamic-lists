@@ -31,19 +31,22 @@ function fn(code, name) {
 
 var compileCalls = [];
 
-// Renders {{[Column]}} from the record data. {{#broken}} throws when rendered,
-// {{#unclosed}} throws when compiled.
+// Like Handlebars 4.7.9, compile() is lazy for strings: parse errors and missing
+// helpers throw every time the template is rendered. Renders {{[Column]}}.
 var Handlebars = {
   compile: function(src) {
     compileCalls.push(src);
 
-    if (src.indexOf('{{#unclosed}}') > -1) {
-      throw new Error('Parse error');
-    }
-
     return function(data) {
-      if (src.indexOf('{{#broken}}') > -1) {
-        throw new Error('Missing helper: "broken"');
+      var block = src.match(/\{\{#(\w+)/);
+      var helper = src.match(/\{\{(\w+) [^}]*\}\}/);
+
+      if (block && src.indexOf('{{/' + block[1] + '}}') === -1) {
+        throw new Error('Parse error on line 1');
+      }
+
+      if (helper) {
+        throw new Error('Missing helper: "' + helper[1] + '"');
       }
 
       return src.replace(/\{\{\[([^\]]+)\]\}\}/g, function(match, column) {
@@ -123,51 +126,85 @@ describe('PS-2438 agenda filterRecordsWithValidDateTime', function() {
     expect(keptIds([START, field(END, { column: 'none' }), TITLE])).toEqual([1, 2, 6]);
   });
 
-  it('3. End Time with no column requires only the date and start time', function() {
+  it('4. regression guard (passes on the old filter too): End Time with no column requires only the date and start time', function() {
     expect(keptIds([START, field(END, { column: undefined }), TITLE])).toEqual([1, 2, 6]);
     expect(keptIds([START, field(END, { column: '' }), TITLE])).toEqual([1, 2, 6]);
   });
 
-  it('4. Start and End Time None apply only the date rule', function() {
+  it('5. Start and End Time None apply only the date rule', function() {
     expect(keptIds([field(START, { column: 'empty' }), field(END, { column: 'empty' }), TITLE])).toEqual([1, 2, 3, 6, 7]);
   });
 
-  it('5. End Time Custom hides sessions where the template renders blank', function() {
+  it('6. End Time Custom hides sessions where the template renders blank', function() {
     expect(keptIds([START, custom(END, '{{[End Time]}}'), TITLE])).toEqual([1]);
     expect(keptIds([field(START, { column: 'empty' }), custom(END, '{{[End Time]}}'), TITLE])).toEqual([1, 3]);
   });
 
-  it('6. End Time Custom with literal text keeps sessions', function() {
+  it('7. End Time Custom with literal text keeps sessions', function() {
     expect(keptIds([START, custom(END, 'TBC'), TITLE])).toEqual([1, 2, 6]);
   });
 
-  it('7. End Time Custom with a blank template is ignored', function() {
+  it('8. End Time Custom with a blank template is ignored', function() {
     expect(keptIds([START, custom(END, ''), TITLE])).toEqual([1, 2, 6]);
     expect(keptIds([START, custom(END, '  \n '), TITLE])).toEqual([1, 2, 6]);
     expect(keptIds([START, custom(END, undefined), TITLE])).toEqual([1, 2, 6]);
     expect(compileCalls).toEqual([]);
   });
 
-  it('8. End Time Custom that fails to render or compile keeps sessions', function() {
+  it('9. End Time Custom that throws when rendered keeps sessions', function() {
     var result;
 
+    // Parse error
     expect(function() {
-      result = keptIds([START, custom(END, '{{#broken}}x{{/broken}}'), TITLE]);
+      result = keptIds([START, custom(END, '{{#if [End Time]}}oops'), TITLE]);
     }).not.toThrow();
     expect(result).toEqual([1, 2, 6]);
 
+    // Missing helper
     expect(function() {
-      result = keptIds([START, custom(END, '{{#unclosed}}'), TITLE]);
+      result = keptIds([START, custom(END, '{{broken [End Time]}}'), TITLE]);
     }).not.toThrow();
     expect(result).toEqual([1, 2, 6]);
   });
 
-  it('9. compiles each Custom template once per call', function() {
+  it('10. defensive: keeps sessions if Handlebars.compile itself throws', function() {
+    var compile = Handlebars.compile;
+    var result;
+
+    Handlebars.compile = function() {
+      throw new Error('You must pass a string or Handlebars AST to Handlebars.compile');
+    };
+
+    try {
+      expect(function() {
+        result = keptIds([START, custom(END, '{{[End Time]}}'), TITLE]);
+      }).not.toThrow();
+    } finally {
+      Handlebars.compile = compile;
+    }
+
+    expect(result).toEqual([1, 2, 6]);
+  });
+
+  it('11. compiles each Custom template once per call', function() {
     expect(keptIds([custom(START, '{{[Start Time]}}'), custom(END, '{{[End Time]}}'), TITLE])).toEqual([1]);
     expect(compileCalls).toEqual(['{{[Start Time]}}', '{{[End Time]}}']);
   });
 
-  it('10. returns the input unchanged when no date column is configured', function() {
+  it('12. only time fields are required, not blank text or Custom text fields', function() {
+    var subtitle = { location: 'Secondary text', type: 'text', column: 'Subtitle' };
+    var notes = custom({ location: 'Tertiary text', type: 'text' }, '{{[Notes]}}');
+    var input = [
+      record(11, { 'Full Date': '2026-03-10', 'Start Time': '09:00', 'End Time': '10:00', Subtitle: 'Room A', Notes: 'Bring a laptop' }),
+      record(12, { 'Full Date': '2026-03-10', 'Start Time': '09:00', 'End Time': '10:00', Title: '', Subtitle: '', Notes: ' ' }),
+      record(13, { 'Full Date': '2026-03-10', 'Start Time': '09:00', 'End Time': '10:00' })
+    ];
+
+    expect(keptIds([START, END, TITLE, subtitle, notes], input)).toEqual([11, 12, 13]);
+    expect(compileCalls).toEqual([]);
+  });
+
+  it('13. returns the input unchanged when no date column is configured', function() {
     var instance = list([START, END, TITLE], [{ location: 'Title', column: 'Title' }]);
 
     expect(instance.filterRecordsWithValidDateTime(records)).toBe(records);
